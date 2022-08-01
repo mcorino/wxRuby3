@@ -272,7 +272,15 @@ module WXRuby3
     end
 
     def gen_functions(fout, spec)
-      # TODO
+      fout << spec.def_items.collect do |item|
+        if Extractor::FunctionDef === item && !item.ignored
+          active_overloads = item.overloads.select { |ovl| !ovl.ignored }
+          [
+            "\n#{item.type} #{item.name}#{item.args_string};"
+          ].concat active_overloads.collect { |ovl| "\n#{ovl.type} #{ovl.name}#{ovl.args_string};" }
+        end
+      end.flatten.join
+      fout.puts ''
     end
 
   end # class Generator
