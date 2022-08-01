@@ -1,0 +1,5 @@
+git submodule update --init
+mkdir wxbuild
+mkdir install
+cd wxbuild
+../configure --prefix=`pwd`/../install --with-gtk --enable-cxx11 --enable-stl --disable-tests --without-subdirs --with-zlib --disable-shared
