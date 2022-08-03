@@ -77,16 +77,19 @@ module WXRuby3
         clshier = {}
         index = {}
         # collect
-        element.at_xpath('inheritancegraph').xpath('node'). each do |node|
-          node_id = node['id']
-          node_name = node.at_xpath('label').text
-          node_bases = node.xpath('childnode').inject({}) { |hash, cn|  hash[cn['refid']] = nil; hash }
-          index[node_id] = [node_name, node_bases]
-          clshier = node_bases if @name == node_name
-        end
-        # resolve
-        index.each_value do |(nm, nb)|
-          nb.replace(nb.inject({}) {|h,(bid,_)| h[index[bid].first] = index[bid].last; h })
+        graph = element.at_xpath('inheritancegraph')
+        if graph
+          graph.xpath('node'). each do |node|
+            node_id = node['id']
+            node_name = node.at_xpath('label').text
+            node_bases = node.xpath('childnode').inject({}) { |hash, cn|  hash[cn['refid']] = nil; hash }
+            index[node_id] = [node_name, node_bases]
+            clshier = node_bases if @name == node_name
+          end
+          # resolve
+          index.each_value do |(nm, nb)|
+            nb.replace(nb.inject({}) {|h,(bid,_)| h[index[bid].first] = index[bid].last; h })
+          end
         end
         clshier
       end

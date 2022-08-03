@@ -23,7 +23,8 @@ module WXRuby3
           'wxDC::StartPage',
           'wxDC::GetPartialTextExtents',
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
-          'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)'
+          'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)',
+          'wxDC::GetSize(wxCoord *,wxCoord *) const'
         ]
         spec.swig_include '../shared/points_list.i'
         spec.rename({

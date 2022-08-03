@@ -256,7 +256,9 @@ module WXRuby3
     end
 
     def run(spec)
-      defmod = setup(spec)
+      setup(spec)
+
+      defmod = process(spec)
 
       generator.run(Generator::Spec.new(spec, defmod))
     end
@@ -264,6 +266,10 @@ module WXRuby3
     protected
 
     def setup(spec)
+      # noop
+    end
+
+    def process(spec)
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, doc: '')
       # handle ignores

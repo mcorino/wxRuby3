@@ -163,7 +163,7 @@ module WXRuby3
 
           %include "../common.i"
 
-          %module(directors="1") <%= spec.module_name %>
+          %module(directors="1") #{spec.module_name}
         __HEREDOC
     end
 
