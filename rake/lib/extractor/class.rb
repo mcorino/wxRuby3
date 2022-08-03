@@ -59,6 +59,10 @@ module WXRuby3
                     :convert_to_rb_object, :convert_from_rb_object, :allow_none, :instance_code, :innerclasses,
                     :is_inner, :klass, :pre_method_code, :post_process_re_st
 
+      def is_template?
+        !template_params.empty?
+      end
+
       def rename_class(newName)
         @rb_name = newName
         items.each do |item|

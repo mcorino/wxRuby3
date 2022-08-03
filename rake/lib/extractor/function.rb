@@ -17,6 +17,7 @@ module WXRuby3
         super()
         @type = nil
         @definition = ''
+        @template_params = [] # function is a template
         @args_string = ''
         @rb_args_string = ''
         @is_overloaded = false
@@ -37,13 +38,27 @@ module WXRuby3
         extract(element) if element
       end
 
-      attr_accessor :type, :definition, :args_string, :rb_args_string, :is_overloaded, :overloads, :factory,
+      attr_accessor :type, :definition, :template_params, :args_string, :rb_args_string, :is_overloaded, :overloads, :factory,
                     :no_copy, :rb_int, :transfer, :transfer_back, :transfer_this, :cpp_code, :no_arg_parser, :pre_method_code
+
+      def is_template?
+        !template_params.empty?
+      end
 
       def extract(element)
         super
         @type = BaseDef.flatten_node(element.at_xpath('type'))
         @definition = element.at_xpath('definition').text
+        element.xpath('templateparamlist/param').each do |node|
+          if node.at_xpath('declname')
+            txt = node.at_xpath('declname').text
+          else
+            txt = node.at_xpath('type').text
+            txt.sub!('class ', '')
+            txt.sub!('typename ', '')
+          end
+          @template_params << txt
+        end
         @args_string = element.at_xpath('argsstring').text
         check_deprecated
         element.xpath('param').each do |node|

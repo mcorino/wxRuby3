@@ -173,7 +173,7 @@ module WXRuby3
 
     def gen_interface_classes(fout, spec)
       spec.def_items.each do |item|
-        if Extractor::ClassDef === item
+        if Extractor::ClassDef === item && !item.ignored && !item.is_template?
           unless spec.is_folded_base?(item.name)
             gen_interface_class(fout, spec, item)
           end
@@ -273,7 +273,7 @@ module WXRuby3
 
     def gen_functions(fout, spec)
       fout << spec.def_items.collect do |item|
-        if Extractor::FunctionDef === item && !item.ignored
+        if Extractor::FunctionDef === item && !item.ignored && !item.is_template?
           active_overloads = item.overloads.select { |ovl| !ovl.ignored }
           [
             "\n#{item.type} #{item.name}#{item.args_string};"
