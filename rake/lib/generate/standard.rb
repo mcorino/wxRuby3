@@ -7,7 +7,7 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
-require_relative './templates'
+require_relative './base'
 
 module WXRuby3
 

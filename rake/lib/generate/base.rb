@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------
-# @file    templates.rb
+# @file    base.rb
 # @author  Martin Corino
 #
 # @brief   wxRuby3 wxWidgets interface generation templates
