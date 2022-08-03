@@ -22,8 +22,8 @@ module WXRuby3
         spec.ignore [
           'wxDC::StartPage',
           'wxDC::GetPartialTextExtents',
-          'wxDC::DrawLines(const wxPointList* points,wxCoord xoffset = 0,wxCoord yoffset = 0)',
-          'wxDC::DrawPolygon(const wxPointList* points,wxCoord xoffset = 0,wxCoord yoffset = 0,wxPolygonFillMode fill_style = wxODDEVEN_RULE)'
+          'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
+          'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)'
         ]
         spec.swig_include '../shared/points_list.i'
         spec.rename({

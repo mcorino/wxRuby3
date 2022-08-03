@@ -134,8 +134,8 @@ module WXRuby3
       def find_overload(matchText, isConst = nil, printSig = false)
         # Search for an overloaded method that has matchText in its C++ argsString.
         all.each do |o|
-          puts("%s%s" % [o.name, o.args_string]) if printSig
-          if o.args_string.gsub(' ','').index(matchText.gsub(' ','')) && !o.ignored
+          puts(signature) if printSig
+          if o.signature.index(matchText) && !o.ignored
             unless isConst
               return o
             else
@@ -374,6 +374,13 @@ module WXRuby3
         #       leave that up to the tweaker code or the generators?
         self.ignore if @protection == 'protected'
       end
+
+      def signature
+        sig = super
+        sig << ' const' if is_const
+        sig
+      end
+
     end # class MethodDef
 
     # A parameter of a function or method.

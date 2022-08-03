@@ -280,15 +280,11 @@ module WXRuby3
         item = defmod.find_item(name)
         if item
           if args
-            if item.has_overloads
-              overload = item.find_overload(args, const)
+            overload = item.find_overload(args, const)
+            if overload
               overload.ignore if overload
             else
-              if item.args_string.gsub(' ','') == args.gsub(' ','') && item.is_const == const
-                item.ignore
-              else
-                raise "Cannot find '#{fullname}' for module '#{spec.module_name}'. Possible match is '#{item.name}#{item.args_string}'"
-              end
+              raise "Cannot find '#{fullname}' for module '#{spec.module_name}'. Possible match is '#{item.signature}'"
             end
           else
             item.ignore
