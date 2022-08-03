@@ -17,6 +17,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxDC', 'DC', %w{wxDC}, director: Director::DC),
     Director.Spec('Wx', 'wxWindowDC', 'WindowDC', %w{wxWindowDC}),
     Director.Spec('Wx', 'wxClientDC', 'ClientDC', %w{wxClientDC}),
+    Director.Spec('Wx', 'wxPaintDC', 'PaintDC', %w{wxPaintDC}),
     Director.Spec('Wx', 'wxWindow', 'Window', %w{wxWindow}, director: Director::Window),
     Director.Spec('Wx', 'wxNonOwnedWindow', 'NonOwnedWindow', %w{wxNonOwnedWindow}, director: Director::Window),
     Director.Spec('Wx', 'wxTopLevelWindow', 'TopLevelWindow', %w{wxTopLevelWindow}, director: Director::TopLevelWindow),

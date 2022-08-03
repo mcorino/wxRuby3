@@ -24,8 +24,10 @@ module WXRuby3
           'wxDC::GetPartialTextExtents',
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
           'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)',
-          'wxDC::GetSize(wxCoord *,wxCoord *) const'
+          'wxDC::GetSize(wxCoord *,wxCoord *) const',
+          'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const'
         ]
+        spec.no_proxy 'GetGraphicsContext'
         spec.swig_include '../shared/points_list.i'
         spec.rename({
           'GetDimensions' => 'wxDC::GetSize(wxCoord * width , wxCoord * height)',

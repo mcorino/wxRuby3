@@ -63,8 +63,8 @@ module WXRuby3
           spec.swig_import %w{
             include/wxDC.h
             include/wxWindowDC.h
-            include/wxPaintDC.h
             include/wxClientDC.h
+            include/wxPaintDC.h
           }
         end
         spec.add_extend_code 'wxWindow', <<~__HEREDOC

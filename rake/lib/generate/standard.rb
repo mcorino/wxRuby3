@@ -97,14 +97,6 @@ module WXRuby3
 
           <%= spec.wrapper_code %>
           <% end %>
-
-          <% spec.swig_imports.each do |inc| %>
-          %import "<%= inc %>"
-          <% end %>
-
-          <% spec.swig_includes.each do |inc| %>
-          %include "<%= inc %>"
-          <% end %>
             __HEREDOC
           ), method: '_gen_swig_wrapper_code(spec)' },
         { template: (<<~__HEREDOC
@@ -220,6 +212,20 @@ module WXRuby3
         end
       end
 
+      unless spec.swig_imports.empty?
+        fout.puts ''
+        spec.swig_imports.each do |inc|
+          fout .puts %Q{%import "#{inc}"}
+        end
+      end
+
+      unless spec.swig_includes.empty?
+        fout.puts ''
+        spec.swig_includes.each do |inc|
+          fout.puts %Q{%include "#{inc}"}
+        end
+      end
+
       fout << _gen_swig_interface_code(spec)
     end
 
@@ -262,7 +268,7 @@ module WXRuby3
          * Do not alter this file.
          */
                  
-        #ifdef __#{spec.module_name.upcase}_H_INCLUDED__
+        #ifndef __#{spec.module_name.upcase}_H_INCLUDED__
         #define __#{spec.module_name.upcase}_H_INCLUDED__
       HEREDOC
     end

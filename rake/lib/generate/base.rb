@@ -204,7 +204,11 @@ module WXRuby3
     def gen_interface_class(fout, spec, classdef)
       fout.puts ''
       basecls = spec.base_class(classdef)
-      fout.puts "class #{classdef.name}#{basecls ? ' : '+basecls : ''}"
+      if basecls
+        fout.puts "class #{basecls};"
+        fout.puts ''
+      end
+      fout.puts "class #{classdef.name}#{basecls ? ' : public '+basecls : ''}"
       fout.puts '{'
 
       abstract_class = spec.abstract(classdef)
