@@ -90,11 +90,11 @@ module WXRuby3
       def gc_type(classdef)
         unless @ifspec.gc_type
           if classdef
-            return :GC_MANAGE_AS_EVENT if classdef.is_derived_from?('wxEvent')
-            return :GC_MANAGE_AS_FRAME if classdef.is_derived_from?('wxFrame')
-            return :GC_MANAGE_AS_DIALOG if classdef.is_derived_from?('wxDialog')
-            return :GC_MANAGE_AS_WINDOW if classdef.is_derived_from?('wxWindow')
-            return :GC_MANAGE_AS_SIZER if classdef.is_derived_from?('wxSizer')
+            return :GC_MANAGE_AS_EVENT if classdef.is_derived_from?('wxEvent') || classdef.name == 'wxEvent'
+            return :GC_MANAGE_AS_FRAME if classdef.is_derived_from?('wxFrame') || classdef.name == 'wxFrame'
+            return :GC_MANAGE_AS_DIALOG if classdef.is_derived_from?('wxDialog') || classdef.name == 'wxDialog'
+            return :GC_MANAGE_AS_WINDOW if classdef.is_derived_from?('wxWindow') || classdef.name == 'wxWindow'
+            return :GC_MANAGE_AS_SIZER if classdef.is_derived_from?('wxSizer') || classdef.name == 'wxSizer'
             return :GC_MANAGE_AS_OBJECT if classdef.is_derived_from?('wxObject') || classdef.name == 'wxObject'
             return :GC_MANAGE_AS_TEMP
           end
