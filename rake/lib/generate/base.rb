@@ -163,7 +163,6 @@ module WXRuby3
       end
 
       def extend_code(cnm)
-        p @ifspec.extend_code
         (@ifspec.extend_code[cnm] || []).join("\n")
       end
 
