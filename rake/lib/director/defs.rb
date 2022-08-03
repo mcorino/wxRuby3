@@ -31,6 +31,7 @@ module WXRuby3
           wxINT64_MIN
           wxINT64_MAX
           wxUINT64_MAX
+          wxVaCopy
         }
         super
       end
