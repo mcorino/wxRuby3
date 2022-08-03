@@ -274,9 +274,9 @@ module WXRuby3
     def gen_interface_include_code(fout, spec)
       gen_interface_include_header(fout, spec)
 
-      gen_interface_classes(fout, spec)
-
       gen_typedefs(fout, spec)
+
+      gen_interface_classes(fout, spec)
 
       gen_variables(fout, spec)
 
