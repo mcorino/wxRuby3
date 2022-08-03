@@ -235,21 +235,15 @@ module WXRuby3
     end
 
     def gen_typedefs(fout, spec)
-      fout << spec.def_items.collect do |item|
-        if Extractor::TypedefDef === item && !item.ignored
-          "\n#{item.definition};"
-        end
-      end.join
-      fout.puts ''
+      typedefs = spec.def_items.select {|item| Extractor::TypedefDef === item && !item.ignored }
+      fout << typedefs.collect {|item| "\n#{item.definition};" }.join
+      fout.puts '' unless typedefs.empty?
     end
 
     def gen_variables(fout, spec)
-      fout << spec.def_items.collect do |item|
-        if Extractor::GlobalVarDef === item && !item.ignored
-          "\n%constant #{item.definition}#{" #{item.value}".rstrip};"
-        end
-      end.join
-      fout.puts ''
+      vars = spec.def_items.select {|item| Extractor::GlobalVarDef === item && !item.ignored }
+      fout << vars.collect {|item| "\n%constant #{item.definition}#{" #{item.value}".rstrip};" }.join
+      fout.puts '' unless vars.empty?
     end
 
     def gen_enums(fout, spec)
@@ -263,24 +257,22 @@ module WXRuby3
     end
 
     def gen_defines(fout, spec)
-      fout << spec.def_items.collect do |item|
-        if Extractor::DefineDef === item && !item.ignored && !item.is_macro? && item.value && !item.value.empty?
-          "\n#define #{item.name} #{item.value}"
-        end
-      end.join
-      fout.puts ''
+      defines = spec.def_items.select {|item|
+        Extractor::DefineDef === item && !item.ignored && !item.is_macro? && item.value && !item.value.empty?
+      }
+      fout << defines.collect {|item| "\n#define #{item.name} #{item.value}" }.join
+      fout.puts '' unless defines.empty?
     end
 
     def gen_functions(fout, spec)
-      fout << spec.def_items.collect do |item|
-        if Extractor::FunctionDef === item && !item.ignored && !item.is_template?
-          active_overloads = item.overloads.select { |ovl| !ovl.ignored }
-          [
-            "\n#{item.type} #{item.name}#{item.args_string};"
-          ].concat active_overloads.collect { |ovl| "\n#{ovl.type} #{ovl.name}#{ovl.args_string};" }
-        end
+      functions = spec.def_items.select {|item| Extractor::FunctionDef === item && !item.ignored && !item.is_template? }
+      fout << functions.collect do |item|
+        active_overloads = item.overloads.select { |ovl| !ovl.ignored }
+        [
+          "\n#{item.type} #{item.name}#{item.args_string};"
+        ].concat active_overloads.collect { |ovl| "\n#{ovl.type} #{ovl.name}#{ovl.args_string};" }
       end.flatten.join
-      fout.puts ''
+      fout.puts '' unless functions.empty?
     end
 
   end # class Generator
