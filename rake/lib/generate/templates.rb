@@ -9,6 +9,7 @@
 
 require 'erb'
 require 'pathname'
+require 'set'
 
 module WXRuby3
 
@@ -29,6 +30,10 @@ module WXRuby3
         "#{WXRuby3::Config.instance.interface_dir}/#{@ifspec.module_name}.h"
       end
 
+      def interface_include_file
+        "#{WXRuby3::Config.instance.interface_path}/#{@ifspec.module_name}.h"
+      end
+
       def module_name
         @ifspec.module_name
       end
@@ -39,7 +44,7 @@ module WXRuby3
         return nil if hierarchy.empty?
         basenm, bases = hierarchy.first
         return basenm unless foldedbases.include?(basenm)
-        get_base_class(bases, foldedbases, ignored_bases(basenm))
+        get_base_class(bases, folded_bases(basenm), ignored_bases(basenm))
       end
       private :get_base_class
 
@@ -47,6 +52,21 @@ module WXRuby3
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
         get_base_class(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
+      end
+
+      def get_base_list(hierarchy, foldedbases, ignoredbases, list = ::Set.new)
+        hierarchy = hierarchy.select { |basenm, _| !ignoredbases.include?(basenm) }
+        hierarchy.each do |basenm, bases|
+          list << basenm unless foldedbases.include?(basenm)
+          get_base_list(bases, folded_bases(basenm), ignored_bases(basenm), list)
+        end
+        list
+      end
+
+      def base_list(classdef_or_name)
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                          classdef_or_name : @defmod.find(classdef_or_name))
+        get_base_list(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name)).to_a
       end
 
       def is_folded_base?(cnm)
@@ -138,7 +158,7 @@ module WXRuby3
         if @ifspec.interface_code && !@ifspec.interface_code.empty?
           @ifspec.interface_code.join("\n")
         else
-          %Q{%include "#{Pathname(interface_include).relative_path_from(Pathname(WXRuby3::Config.instance.classes_path))}"\n}
+          %Q{%include "#{interface_include}"\n}
         end
       end
 

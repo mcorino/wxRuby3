@@ -199,20 +199,27 @@ module WXRuby3
 
     def gen_swig_extensions(fout, spec)
       spec.def_items.each do |item|
-        if Extractor::ClassDef === item
-          unless spec.is_folded_base?(item.name)
-            extension = spec.extend_code(item.name)
-            unless extension.empty?
-              fout.puts "\n%extend #{item.name} {"
-              fout.puts extension
-              fout.puts '};'
-            end
+        if Extractor::ClassDef === item && !item.ignored && !spec.is_folded_base?(item.name)
+          extension = spec.extend_code(item.name)
+          unless extension.empty?
+            fout.puts "\n%extend #{item.name} {"
+            fout.puts extension
+            fout.puts '};'
           end
         end
       end
     end
 
     def gen_swig_interface_code(fout, spec)
+      spec.def_items.each do |item|
+        if Extractor::ClassDef === item && !item.ignored && !spec.is_folded_base?(item.name)
+          fout.puts ''
+          spec.base_list(item).reverse.each do |base|
+            fout.puts %Q{%import "#{WXRuby3::Config.instance.interface_dir}/#{base}.h"}
+          end
+        end
+      end
+
       fout << _gen_swig_interface_code(spec)
     end
 
@@ -243,7 +250,7 @@ module WXRuby3
     end
 
     def gen_interface_include(spec)
-      File.open(spec.interface_include, File::CREAT|File::TRUNC|File::RDWR) do |fout|
+      File.open(spec.interface_include_file, File::CREAT|File::TRUNC|File::RDWR) do |fout|
         gen_interface_include_code(fout, spec)
       end
     end

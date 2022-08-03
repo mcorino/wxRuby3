@@ -61,13 +61,14 @@ module WXRuby3
             @src_path = File.join(Config.wxruby_root, @src_dir)
             @obj_dir = 'obj'
             @obj_path = File.join(Config.wxruby_root, @obj_dir)
-            FileUtils.mkdir_p(@obj_dir)
+            FileUtils.mkdir_p(@obj_path)
             @dest_dir = File.join(Config.wxruby_root, 'lib')
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
             FileUtils.mkdir_p(@classes_path)
-            @interface_dir = File.join(@classes_path, 'include')
-            FileUtils.mkdir_p(@interface_dir)
+            @interface_dir = 'include'
+            @interface_path = File.join(@classes_path, @interface_dir)
+            FileUtils.mkdir_p(@interface_path)
 
 
             @release_build = ENV['WXRUBY_RELEASE'] ? true : false
@@ -164,7 +165,8 @@ module WXRuby3
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
                       :cppflags, :ldflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_dir, :wx_version, :wx_cppflags, :wx_libs, :wx_setup_h
-          attr_reader :swig_dir, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path, :interface_dir
+          attr_reader :swig_dir, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path,
+                      :interface_dir, :interface_path
 
           def mswin?
             @platform == :mswin

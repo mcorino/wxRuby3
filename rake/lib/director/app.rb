@@ -78,10 +78,6 @@ module WXRuby3
           // be needed for final WxWidgets events.
           %markfunc wxRubyApp "wxRubyApp::mark_wxRubyApp";
           __HEREDOC
-        spec.swig_import %w{
-          include/wxObject.h
-          include/wxEvtHandler.h
-        }
         spec.add_header_code <<~__HEREDOC
           extern void GC_SetWindowDeleted(void*);
           extern "C" void Init_wxRubyStockObjects();

@@ -26,7 +26,6 @@ module WXRuby3
           'wxDC::DrawPolygon(const wxPointList* points,wxCoord xoffset = 0,wxCoord yoffset = 0,wxPolygonFillMode fill_style = wxODDEVEN_RULE)'
         ]
         spec.swig_include '../shared/points_list.i'
-        spec.swig_import 'include/wxObject.h'
         spec.rename({
           'GetDimensions' => 'wxDC::GetSize(wxCoord * width , wxCoord * height)',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *width , wxCoord *height) const',
