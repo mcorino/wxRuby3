@@ -214,16 +214,17 @@ module WXRuby3
 
       fout.puts 'public:'
 
-      gen_interface_class_members(fout, classdef.name, classdef, abstract_class)
+      overrides = ::Set.new
+      gen_interface_class_members(fout, classdef.name, classdef, overrides, abstract_class)
 
       spec.folded_bases(classdef.name).each do |basename|
-        gen_interface_class_members(fout, classdef.name, spec.def_item(basename))
+        gen_interface_class_members(fout, classdef.name, spec.def_item(basename), overrides)
       end
 
       fout.puts '};'
     end
 
-    def gen_interface_class_members(fout, class_name, classdef, abstract=false)
+    def gen_interface_class_members(fout, class_name, classdef, overrides, abstract=false)
       classdef.items.each do |member|
         case member
         when Extractor::MethodDef
@@ -237,21 +238,25 @@ module WXRuby3
           elsif member.is_dtor
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{class_name}#{member.args_string};" if member.name == "~#{class_name}"
           elsif member.protection == 'public' && !member.ignored
-            fout.puts "#ifdef __#{member.only_for.upcase}__" if member.only_for
-            fout.puts "  // from #{member.definition}"
-            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{member.type} #{member.name}#{member.args_string};"
-            fout.puts "#endif" if member.only_for
+            gen_interface_class_method(fout, member, overrides)
             member.overloads.each do |ovl|
               if ovl.protection == 'public' && !ovl.ignored
-                fout.puts "#ifdef __#{ovl.only_for.upcase}__" if ovl.only_for
-                fout.puts "  // from #{ovl.definition}"
-                fout.puts "  #{ovl.is_virtual ? 'virtual ' : ''}#{ovl.type} #{ovl.name}#{ovl.args_string};"
-                fout.puts "#endif" if ovl.only_for
+                gen_interface_class_method(fout, ovl, overrides)
               end
             end
           end
         end
       end
+    end
+
+    def gen_interface_class_method(fout, methoddef, overrides)
+        unless methoddef.is_pure_virtual || (methoddef.is_virtual && overrides.include?(methoddef.signature))
+          fout.puts "#ifdef __#{methoddef.only_for.upcase}__" if methoddef.only_for
+          fout.puts "  // from #{methoddef.definition}"
+          fout.puts "  #{methoddef.is_virtual ? 'virtual ' : ''}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
+          fout.puts "#endif" if methoddef.only_for
+          overrides << methoddef.signature if methoddef.is_override
+        end
     end
 
     def gen_typedefs(fout, spec)

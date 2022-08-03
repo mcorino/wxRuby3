@@ -70,6 +70,17 @@ module WXRuby3
         end
       end
 
+      def signature
+        sig = "#{@type} #{name}"
+        params = items.select {|i| ParamDef === i }
+        if params.empty?
+          sig << '()'
+        else
+          sig << '(' << params.collect {|p| p.type }.join(',') << ')'
+        end
+        sig
+      end
+
       # def releaseGIL(self, release=True):
       #     @pyReleaseGIL = release
       #
@@ -326,29 +337,32 @@ module WXRuby3
         @class_name = className
         @is_virtual = false
         @is_pure_virtual = false
+        @is_override = false
         @is_static = false
         @is_const = false
         @is_ctor = false
         @is_dtor = false
         @protection = 'public'
         @default_ctor = false # use this ctor as the default one
-        @no_derived_ctor = false # don't generate a ctor in the derived class for this ctor
-        @cpp_signature = nil
-        @virtual_catcher_code = nil
+        # @no_derived_ctor = false # don't generate a ctor in the derived class for this ctor
+        # @cpp_signature = nil
+        # @virtual_catcher_code = nil
         update_attributes(**kwargs)
         extract(element) if element
         # elif not hasattr(self, 'isCore'):
         #     @isCore = _globalIsCore
       end
 
-      attr_accessor :class_name, :is_virtual, :is_pure_virtual, :is_static, :is_const, :is_ctor, :is_dtor,
-                    :protection, :default_ctor, :no_derived_ctor, :cpp_signature, :virtual_catcher_code
+      attr_accessor :class_name, :is_virtual, :is_pure_virtual, :is_override, :is_static, :is_const, :is_ctor, :is_dtor,
+                    :protection, :default_ctor
+      #, :no_derived_ctor, :cpp_signature, :virtual_catcher_code
 
       def extract(element)
         super
         @is_static = element['static'] == 'yes'
         @is_virtual = %w[virtual pure-virtual].include?(element['virt'])
         @is_pure_virtual = (element['virt'] == 'pure-virtual')
+        @is_override = !!element.at_xpath('reimplements')
         @is_const = (element['const'] == 'yes')
         @is_ctor = (@name == @class_name)
         @is_dtor = (@name == "~#{@class_name}")
@@ -368,19 +382,21 @@ module WXRuby3
         super()
         @type = '' # data type
         @default = '' # default value
-        @out = false # is it an output arg?
-        @in_out = false # is it both input and output?
-        @rb_int = false # treat char types as integers
-        @array = false # the param is to be treated as an array
-        @array_size = false # the param is the size of the array
-        @transfer = false # transfer ownership of arg to C++?
-        @transfer_back = false # transfer ownership of arg from C++ to Python?
-        @transfer_this = false # ownership of 'this' pointer transferred to this arg
-        @keep_reference = false # an extra reference to the arg is held
-        @constrained = false # limit auto-conversion of similar types (like float -> int)
+        # @out = false # is it an output arg?
+        # @in_out = false # is it both input and output?
+        # @rb_int = false # treat char types as integers
+        # @array = false # the param is to be treated as an array
+        # @array_size = false # the param is the size of the array
+        # @transfer = false # transfer ownership of arg to C++?
+        # @transfer_back = false # transfer ownership of arg from C++ to Python?
+        # @transfer_this = false # ownership of 'this' pointer transferred to this arg
+        # @keep_reference = false # an extra reference to the arg is held
+        # @constrained = false # limit auto-conversion of similar types (like float -> int)
         update_attributes(**kwargs)
         extract(element) if element
       end
+
+      attr_accessor :type, :default
 
       def extract(element)
         begin
@@ -413,41 +429,41 @@ module WXRuby3
     #
     # NOTE: This one is not automatically extracted, but can be added to
     #       classes in the tweaker stage
-    class CppMethodDef < MethodDef
-      def initialize(type, name, argsString, body, doc=nil, isConst=false,
-                   cppSignature=nil, virtualCatcherCode=nil, **kwargs)
-          super()
-          @type = type
-          @name = name
-          @use_derived_name = true
-          @args_string = argsString
-          @body = body
-          @brief_doc = doc
-          @protection = 'public'
-          @klass = nil
-          @no_derived_ctor = false
-          @is_const = isConst
-          @is_pure_virtual = false
-          @cpp_signature = cppSignature
-          @virtual_catcher_code = virtualCatcherCode
-          # @isCore = _globalIsCore
-          @is_slot = false
-          update_attributes(**kwargs)
-      end
-
-      attr_accessor :use_derived_name, :body, :is_slot
-
-      # Create a new CppMethodDef that is essentially a copy of a MethodDef,
-      # so it can be used to write the code for a new wrapper function.
-      #
-      # TODO: It might be better to just refactor the code in the generator
-      # so it can be shared more easily instead of using a hack like this...
-      def self.FromMethod(method)
-        m = CppMethodDef.new('', '', '', '')
-        m.update_attributes(extra_attributes)
-        m
-      end
-    end # class CppMethodDef
+    # class CppMethodDef < MethodDef
+    #   def initialize(type, name, argsString, body, doc=nil, isConst=false,
+    #                cppSignature=nil, virtualCatcherCode=nil, **kwargs)
+    #       super()
+    #       @type = type
+    #       @name = name
+    #       @use_derived_name = true
+    #       @args_string = argsString
+    #       @body = body
+    #       @brief_doc = doc
+    #       @protection = 'public'
+    #       @klass = nil
+    #       @no_derived_ctor = false
+    #       @is_const = isConst
+    #       @is_pure_virtual = false
+    #       @cpp_signature = cppSignature
+    #       @virtual_catcher_code = virtualCatcherCode
+    #       # @isCore = _globalIsCore
+    #       @is_slot = false
+    #       update_attributes(**kwargs)
+    #   end
+    #
+    #   attr_accessor :use_derived_name, :body, :is_slot
+    #
+    #   # Create a new CppMethodDef that is essentially a copy of a MethodDef,
+    #   # so it can be used to write the code for a new wrapper function.
+    #   #
+    #   # TODO: It might be better to just refactor the code in the generator
+    #   # so it can be shared more easily instead of using a hack like this...
+    #   def self.FromMethod(method)
+    #     m = CppMethodDef.new('', '', '', '')
+    #     m.update_attributes(extra_attributes)
+    #     m
+    #   end
+    # end # class CppMethodDef
 
   end # module Extractor
 
