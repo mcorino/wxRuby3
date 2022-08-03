@@ -67,7 +67,8 @@ extern VALUE wxRuby_GetDefaultEventClass ();
 extern VALUE wxRuby_GetWindowClass();
 %}
 
-%include "typedefs.i"
+// %include "typedefs.i"
+%include "classes/common/typedefs.i"
 %include "typemap.i"
 %include "memory_management.i"
 
