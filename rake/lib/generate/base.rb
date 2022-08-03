@@ -95,7 +95,7 @@ module WXRuby3
             return :GC_MANAGE_AS_DIALOG if classdef.is_derived_from?('wxDialog')
             return :GC_MANAGE_AS_WINDOW if classdef.is_derived_from?('wxWindow')
             return :GC_MANAGE_AS_SIZER if classdef.is_derived_from?('wxSizer')
-            return :GC_MANAGE_AS_OBJECT if classdef.is_derived_from?('wxObject')
+            return :GC_MANAGE_AS_OBJECT if classdef.is_derived_from?('wxObject') || classdef.name == 'wxObject'
             return :GC_MANAGE_AS_TEMP
           end
         end
@@ -163,6 +163,7 @@ module WXRuby3
       end
 
       def extend_code(cnm)
+        p @ifspec.extend_code
         (@ifspec.extend_code[cnm] || []).join("\n")
       end
 
@@ -203,7 +204,8 @@ module WXRuby3
 
     def gen_interface_class(fout, spec, classdef)
       fout.puts ''
-      fout.puts "class #{classdef.name} : #{spec.base_class(classdef)}"
+      basecls = spec.base_class(classdef)
+      fout.puts "class #{classdef.name}#{basecls ? ' : '+basecls : ''}"
       fout.puts '{'
 
       abstract_class = spec.abstract(classdef)
@@ -228,16 +230,18 @@ module WXRuby3
       classdef.items.each do |member|
         case member
         when Extractor::MethodDef
-          if member.is_ctor && !abstract && member.protection == 'public' && member.name == class_name
-            fout.puts "  #{class_name}#{member.args_string};" if !member.ignored
-            member.overloads.each do |ovl|
-              if ovl.protection == 'public' && !ovl.ignored
-                fout.puts "  #{class_name}#{ovl.args_string};"
+          if member.is_ctor
+            if !abstract && member.protection == 'public' && member.name == class_name
+              fout.puts "  #{class_name}#{member.args_string};" if !member.ignored
+              member.overloads.each do |ovl|
+                if ovl.protection == 'public' && !ovl.ignored
+                  fout.puts "  #{class_name}#{ovl.args_string};"
+                end
               end
             end
           elsif member.is_dtor
-            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{class_name}#{member.args_string};" if member.name == "~#{class_name}"
-          elsif member.protection == 'public' && !member.ignored
+            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{class_name}#{member.args_string};" if member.name == "~#{class_name}"
+          elsif member.protection == 'public' && !member.is_operator && !member.ignored
             gen_interface_class_method(fout, member, overrides)
             member.overloads.each do |ovl|
               if ovl.protection == 'public' && !ovl.ignored

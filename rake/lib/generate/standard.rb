@@ -200,7 +200,6 @@ module WXRuby3
     def gen_swig_extensions(fout, spec)
       spec.def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored && !spec.is_folded_base?(item.name)
-          extension = spec.extend_code(item.name)
           unless extension.empty?
             fout.puts "\n%extend #{item.name} {"
             fout.puts extension

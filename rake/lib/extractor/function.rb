@@ -342,6 +342,7 @@ module WXRuby3
         @is_const = false
         @is_ctor = false
         @is_dtor = false
+        @is_operator = false
         @protection = 'public'
         @default_ctor = false # use this ctor as the default one
         # @no_derived_ctor = false # don't generate a ctor in the derived class for this ctor
@@ -354,7 +355,7 @@ module WXRuby3
       end
 
       attr_accessor :class_name, :is_virtual, :is_pure_virtual, :is_override, :is_static, :is_const, :is_ctor, :is_dtor,
-                    :protection, :default_ctor
+                    :is_operator, :protection, :default_ctor
       #, :no_derived_ctor, :cpp_signature, :virtual_catcher_code
 
       def extract(element)
@@ -366,6 +367,7 @@ module WXRuby3
         @is_const = (element['const'] == 'yes')
         @is_ctor = (@name == @class_name)
         @is_dtor = (@name == "~#{@class_name}")
+        @is_operator = (@name.index('operator ') == 0)
         @protection = element['prot']
         unless %w[public protected].include?(@protection)
           raise ExtractorError.new("Invalid protection [#{@protection}")

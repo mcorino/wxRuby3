@@ -32,7 +32,7 @@ module WXRuby3
           'GetTextSize' => 'wxDC::GetTextExtent(const wxString& string) const',
           'GetMultiLineTextSize' => 'wxDC::GetMultiLineTextExtent(const wxString& string) const'
         })
-        spec.add_extend_code 'wxDC' => <<~__HEREDOC
+        spec.add_extend_code 'wxDC', <<~__HEREDOC
           // Needs to return input parameter with list of lengths
           VALUE get_partial_text_extents(VALUE text) {
             wxString str = wxString(StringValuePtr(text), wxConvUTF8);
