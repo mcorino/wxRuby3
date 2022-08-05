@@ -11,6 +11,7 @@ module WXRuby3
 
   SPECIFICATIONS = [
     Director.Spec('Wx', 'wxDefs', 'Defs', ['defs.h'], director: Director::Defs),
+    Director.Spec('Wx', 'GDICommon', 'GDICommon', %w{wxPoint wxSize wxRect wxRealPoint wxColourDatabase}, director: Director::GDICommon),
     Director.Spec('Wx', 'wxObject', 'Object', %w{wxObject}, director: Director::Object),
     Director.Spec('Wx', 'wxEvtHandler', 'EvtHandler', %w{wxEvtHandler}, director: Director::EventHandler),
     Director.Spec('Wx', 'wxApp', 'App', %w{wxApp wxAppConsole}, director: Director::App),

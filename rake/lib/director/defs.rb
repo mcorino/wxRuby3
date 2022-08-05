@@ -13,10 +13,6 @@ module WXRuby3
 
     class Defs < Director
 
-      def initialize
-        super
-      end
-
       def setup(spec)
         spec.ignore %w{
           wxINT8_MIN
@@ -39,7 +35,7 @@ module WXRuby3
       def generator
         WXRuby3::DefsGenerator.new
       end
-    end # class Constants
+    end # class Defs
 
   end # class Director
 

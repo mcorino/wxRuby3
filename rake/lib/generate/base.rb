@@ -282,7 +282,7 @@ module WXRuby3
       fout << spec.def_items.inject('') do |code, item|
         if Extractor::EnumDef === item && !item.ignored
           code << "\n// from enum #{item.name || ''}\n"
-          item.items.each { |e| code << "%constant int #{e.name} = #{e.name};\n" }
+          item.items.each { |e| code << "%constant int #{e.name} = #{e.name};\n" unless e.ignored }
         end
         code
       end
@@ -297,12 +297,10 @@ module WXRuby3
     end
 
     def gen_functions(fout, spec)
-      functions = spec.def_items.select {|item| Extractor::FunctionDef === item && !item.ignored && !item.is_template? }
+      functions = spec.def_items.select {|item| Extractor::FunctionDef === item && !item.is_template? }
       fout << functions.collect do |item|
-        active_overloads = item.overloads.select { |ovl| !ovl.ignored }
-        [
-          "\n#{item.type} #{item.name}#{item.args_string};"
-        ].concat active_overloads.collect { |ovl| "\n#{ovl.type} #{ovl.name}#{ovl.args_string};" }
+        active_overloads = item.all.select { |ovl| !ovl.ignored }
+        active_overloads.collect { |ovl| "\n#{ovl.type} #{ovl.name}#{ovl.args_string};" }
       end.flatten.join
       fout.puts '' unless functions.empty?
     end
