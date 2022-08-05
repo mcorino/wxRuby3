@@ -24,10 +24,6 @@ module WXRuby3
 
         %module(directors="1") #{spec.module_name}
 
-        %{
-        //NO_CLASS - This tells fixmodule not to expect a class
-        %}
-
         // Version numbers from wx/version.h
         %constant const int wxWXWIDGETS_MAJOR_VERSION = wxMAJOR_VERSION;
         %constant const int wxWXWIDGETS_MINOR_VERSION = wxMINOR_VERSION;

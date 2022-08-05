@@ -18,10 +18,10 @@ def fixmodule(filename)
   broken = filename+".old"
   File.rename(filename, broken)
 
-  found_swig_class = false
+  # found_swig_class = false
   found_define_module = false
   found_init = false
-  found_define_class = false
+  # found_define_class = false
 
   core_name = File.basename(filename, ".cpp")
   puts "Class: #{core_name}"
@@ -151,12 +151,12 @@ DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
         line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
       end
 
-      # if this module doesn't have a class,
-      if(line.index('//NO_CLASS'))
-        # pretend we found one
-        found_swig_class = true
-        found_define_class = true
-      end
+      # # if this module doesn't have a class,
+      # if(line.index('//NO_CLASS'))
+      #   # pretend we found one
+      #   found_swig_class = true
+      #   found_define_class = true
+      # end
 
       # remove the UnknownExceptionHandler::handler method
       if(line.index('void UnknownExceptionHandler::handler()'))
