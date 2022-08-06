@@ -235,12 +235,12 @@ wxString wxFileSelector(const wxString& message,
 
 void wxAboutBox(const wxAboutDialogInfo& info);
 
-// Display information methods
-int wxDisplayDepth();
-wxSize wxGetDisplaySize();
-wxSize wxGetDisplaySizeMM();
-bool wxColourDisplay();
-wxRect wxGetClientDisplayRect();
+//// Display information methods
+//int wxDisplayDepth();
+//wxSize wxGetDisplaySize();
+//wxSize wxGetDisplaySizeMM();
+//bool wxColourDisplay();
+//wxRect wxGetClientDisplayRect();
 
 // Managing stock ids
 bool wxIsStockID(wxWindowID id);
