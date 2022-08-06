@@ -246,7 +246,7 @@ module WXRuby3
       end
 
       def ignore(val = true)
-        @ignored = val
+        @ignored = !!val
         self
       end
 

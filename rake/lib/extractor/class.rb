@@ -211,7 +211,7 @@ module WXRuby3
         end
 
         # make abstract unless the class has at least 1 public ctor
-        ctor = self.items.find {|m| ClassDef === m && m.is_ctor }
+        ctor = self.items.find {|m| MethodDef === m && m.is_ctor }
         unless ctor && (ctor.protection == 'public' || ctor.overloads.any? {|ovl| ovl.protection == 'public' })
           @abstract = true
         end

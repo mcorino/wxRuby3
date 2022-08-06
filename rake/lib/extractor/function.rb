@@ -190,7 +190,7 @@ module WXRuby3
         # In addition to ignoring this item, reorder any overloads to ensure
         # the primary overload is not ignored, if possible.
         super
-        if val and @overloads
+        if @ignored and @overloads
           reorder_overloads
         end
         self
@@ -358,6 +358,9 @@ module WXRuby3
                     :is_operator, :protection, :default_ctor
       #, :no_derived_ctor, :cpp_signature, :virtual_catcher_code
 
+      VALID_UNARY_OPERATORS = %w{! ~ + -}
+      VALID_BINARY_OPERATORS =%w{[] + - * / % << >> & | ^ <= < > >= == !=}
+
       def extract(element)
         super
         @is_static = element['static'] == 'yes'
@@ -367,7 +370,15 @@ module WXRuby3
         @is_const = (element['const'] == 'yes')
         @is_ctor = (@name == @class_name)
         @is_dtor = (@name == "~#{@class_name}")
-        @is_operator = (@name.index('operator ') == 0)
+        if (@is_operator = (@name.index('operator') == 0))
+          if items.empty?           # no params : unary?
+            self.ignore unless VALID_UNARY_OPERATORS.include?(@name.sub('operator', '').strip)
+          elsif items.size == 1     # 1 param : binary?
+            self.ignore unless VALID_BINARY_OPERATORS.include?(@name.sub('operator', '').strip)
+          else  # must be operator function outside class
+            self.ignore
+          end
+        end
         @protection = element['prot']
         unless %w[public protected].include?(@protection)
           raise ExtractorError.new("Invalid protection [#{@protection}")

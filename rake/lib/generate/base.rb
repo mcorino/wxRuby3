@@ -81,7 +81,7 @@ module WXRuby3
         (@ifspec.ignored_bases[cnm] || []) + Director::Spec::IGNORED_BASES
       end
 
-      def abstract(classdef_or_name)
+      def is_abstract?(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
         @ifspec.abstract || class_def.abstract
@@ -211,7 +211,7 @@ module WXRuby3
       fout.puts "class #{classdef.name}#{basecls ? ' : public '+basecls : ''}"
       fout.puts '{'
 
-      abstract_class = spec.abstract(classdef)
+      abstract_class = spec.is_abstract?(classdef)
       if abstract_class
         fout.puts 'private:'
         fout.puts "  #{classdef.name}();"
@@ -244,13 +244,18 @@ module WXRuby3
             end
           elsif member.is_dtor
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{class_name}#{member.args_string};" if member.name == "~#{class_name}"
-          elsif member.protection == 'public' && !member.is_operator && !member.ignored
+          elsif member.protection == 'public' && !member.ignored
             gen_interface_class_method(fout, member, overrides)
             member.overloads.each do |ovl|
               if ovl.protection == 'public' && !ovl.ignored
                 gen_interface_class_method(fout, ovl, overrides)
               end
             end
+          end
+        when Extractor::MemberVarDef
+          if member.protection == 'public' && !member.ignored
+            fout.puts "  // from #{member.definition}"
+            fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
           end
         end
       end
@@ -260,7 +265,7 @@ module WXRuby3
         unless methoddef.is_pure_virtual || (methoddef.is_virtual && overrides.include?(methoddef.signature))
           fout.puts "#ifdef __#{methoddef.only_for.upcase}__" if methoddef.only_for
           fout.puts "  // from #{methoddef.definition}"
-          fout.puts "  #{methoddef.is_virtual ? 'virtual ' : ''}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
+          fout.puts "  #{methoddef.is_static ? 'static ' : ''}#{methoddef.is_virtual ? 'virtual ' : ''}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
           fout.puts "#endif" if methoddef.only_for
           overrides << methoddef.signature if methoddef.is_override
         end
