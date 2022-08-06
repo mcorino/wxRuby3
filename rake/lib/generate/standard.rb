@@ -36,7 +36,7 @@ module WXRuby3
           <% end %>
           <% unless spec.includes.empty? %>
  
-          %header {
+          %header %{
           <% spec.includes.each do |inc| %>
           #include <<%= inc %>>
           <% end %>
@@ -82,7 +82,7 @@ module WXRuby3
           <% end %>
           <% if spec.header_code && !spec.header_code.empty? %>
 
-          %header {
+          %header %{
           <%= spec.header_code %>
           %}
           <% end %>

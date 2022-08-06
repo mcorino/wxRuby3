@@ -30,17 +30,19 @@ module WXRuby3
           wxAppConsole::RethrowStoredException
           wxAppConsole::OnEventLoopEnter
           wxAppConsole::OnEventLoopExit
-          wxAppConsole.OnCmdLineError
-          wxAppConsole.OnCmdLineHelp
-          wxAppConsole.OnCmdLineParsed
-          wxAppConsole.OnInitCmdLine
-          wxAppConsole.MainLoop
-          wxAppConsole.GetMainLoop
-          wxAppConsole.HandleEvent
-          wxAppConsole.ScheduleForDestruction
-          wxAppConsole.IsScheduledForDestruction
-          wxAppConsole.SetInstance
-          wxAppConsole.GetInstance
+          wxAppConsole::OnCmdLineError
+          wxAppConsole::OnCmdLineHelp
+          wxAppConsole::OnCmdLineParsed
+          wxAppConsole::OnInitCmdLine
+          wxAppConsole::MainLoop
+          wxAppConsole::GetMainLoop
+          wxAppConsole::HandleEvent
+          wxAppConsole::ScheduleForDestruction
+          wxAppConsole::IsScheduledForDestruction
+          wxAppConsole::SetInstance
+          wxAppConsole::GetInstance
+          wxAppConsole::argc
+          wxAppConsole::argv
           wxDECLARE_APP
           wxIMPLEMENT_APP
           wxIMPLEMENT_APP_CONSOLE
@@ -55,16 +57,19 @@ module WXRuby3
           wxWakeUpIdle
           wxYield
           wxSafeYield
-          wxEntry
-          wxEntry
           wxExit
         }
+        spec.ignore [
+          'wxEntry(int &,wxChar **)',
+          'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
+        ]
         spec.no_proxy %w{
-          GetTopWindow
-          GetMainTopWindow
+          wxApp::GetDisplayMode
+          wxApp::GetTopWindow
         }
         spec.include %w{
           wx/init.h
+          wx/display.h
         }
         spec.gc_never
         spec.add_swig_runtime_code <<~__HEREDOC
