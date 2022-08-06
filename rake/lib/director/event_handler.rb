@@ -18,10 +18,10 @@ module WXRuby3
       end
 
       def setup(spec)
-        spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect]
+        spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect wxEVT_HOTKEY]
         spec.add_runtime_code <<~__HEREDOC
-          extern swig_class SwigClassWxEvtHandler;
-          
+          static swig_class wxRuby_GetSwigClassWxEvtHandler();
+
           // Internally, all event handlers are anonymous ruby Proc objects,
           // created by EvtHandler#connect. These need to be preserved from Ruby's
           // GC until the EvtHandler object itself is destroyed. So we keep a hash
@@ -110,7 +110,7 @@ module WXRuby3
             event_type = wxEVT_NULL;
           else if ( TYPE(evtSpecifier) == T_SYMBOL ) // Symbol handler method
             {
-            VALUE rb_evt_type = rb_funcall(SwigClassWxEvtHandler.klass, 
+            VALUE rb_evt_type = rb_funcall(wxRuby_GetSwigClassWxEvtHandler().klass, 
                              rb_intern("event_type_for_name"),
                              1, evtSpecifier);
             if ( rb_evt_type != Qnil )
@@ -133,6 +133,11 @@ module WXRuby3
             return Qfalse;
           }
           __HEREDOC
+        spec.add_wrapper_code <<~__HEREDOC
+          static swig_class wxRuby_GetSwigClassWxEvtHandler() {
+            return SwigClassWxEvtHandler;
+          }
+        __HEREDOC
         super
       end
     end # class Object

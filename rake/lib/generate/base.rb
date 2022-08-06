@@ -244,10 +244,10 @@ module WXRuby3
             end
           elsif member.is_dtor
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{class_name}#{member.args_string};" if member.name == "~#{class_name}"
-          elsif member.protection == 'public' && !member.ignored
+          elsif member.protection == 'public' && !member.ignored && !member.is_template?
             gen_interface_class_method(fout, member, overrides)
             member.overloads.each do |ovl|
-              if ovl.protection == 'public' && !ovl.ignored
+              if ovl.protection == 'public' && !ovl.ignored && !member.is_template?
                 gen_interface_class_method(fout, ovl, overrides)
               end
             end
