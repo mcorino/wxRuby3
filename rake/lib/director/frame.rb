@@ -23,6 +23,17 @@ module WXRuby3
         super
         # only for wxFrame class itself
         if spec.module_name == 'wxFrame'
+          spec.no_proxy [
+            'wxFrame::CreateStatusBar',
+            'wxFrame::CreateToolBar',
+            'wxFrame::GetMenuBar',
+            'wxFrame::GetStatusBar',
+            'wxFrame::GetToolBar',
+          ]
+          spec.ignore [
+            'wxFrame::OnCreateStatusBar',
+            'wxFrame::OnCreateToolBar'
+          ]
           spec.add_swig_begin_code <<~__HEREDOC
             %apply SWIGTYPE *DISOWN { wxMenuBar * }
             

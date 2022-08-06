@@ -20,6 +20,7 @@ module WXRuby3
       def setup(spec)
         spec.abstract(true)
         spec.ignore %w[wxObject::Ref wxObject::UnRef wxObject::GetRefData wxObject::IsKindOf wxObject::GetClassInfo]
+        spec.no_proxy 'wxObject'
         spec.add_extend_code 'wxObject', <<~__HEREDOC
           // Returns the string name of the C++ wx class which this object is wrapping.
           // The doubled wx name is to fool renamer.rb, which strips the wx prefix.

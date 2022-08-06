@@ -22,7 +22,11 @@ module WXRuby3
         spec.add_swig_begin_code <<~__HEREDOC
           SWIG_WXTOPLEVELWINDOW_NO_USELESS_VIRTUALS(wxFrame);
         __HEREDOC
-        spec.no_proxy('IsFullScreen')
+        spec.no_proxy %w{
+          wxTopLevelWindow::IsFullScreen
+          wxWindow::GetDropTarget
+          wxWindow::GetValidator
+        }
         super
       end
     end # class Frame

@@ -57,7 +57,8 @@ module WXRuby3
             "wxWindow::GetSize(int *,int *) const",
             "wxWindow::GetPosition(int *,int *) const",
             "wxWindow::GetScreenPosition(int *,int *) const",
-            "wxWindow::FindWindow"
+            "wxWindow::FindWindow",
+            'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)'
           ]
           spec.rename('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{
@@ -67,6 +68,10 @@ module WXRuby3
             include/wxPaintDC.h
           }
         end
+        spec.no_proxy [
+          'wxWindow::GetDropTarget',
+          'wxWindow::GetValidator'
+        ]
         spec.add_extend_code 'wxWindow', <<~__HEREDOC
           // passes a DC for drawing on Window into a passed ruby block, and
           // ensure that the DC is correctly deleted when drawing is

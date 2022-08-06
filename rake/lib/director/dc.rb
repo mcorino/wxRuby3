@@ -27,7 +27,7 @@ module WXRuby3
           'wxDC::GetSize(wxCoord *,wxCoord *) const',
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const'
         ]
-        spec.no_proxy 'GetGraphicsContext'
+        spec.no_proxy 'wxDC'
         spec.swig_include '../shared/points_list.i'
         spec.rename({
           'GetDimensions' => 'wxDC::GetSize(wxCoord * width , wxCoord * height)',
