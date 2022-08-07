@@ -75,7 +75,8 @@
 // These macros are defined in common.i
 %typemap(out) wxString "$result = WXSTR_TO_RSTR($1);"
 %typemap(out) wxString& "$result = WXSTR_PTR_TO_RSTR($1);"
-%apply wxString& { wxString* }
+%typemap(out) wxString* "$result = WXSTR_PTR_TO_RSTR($1);"
+//%apply wxString& { wxString* }
 %typemap(varout) wxString "$result = WXSTR_TO_RSTR($1);"
 
 
