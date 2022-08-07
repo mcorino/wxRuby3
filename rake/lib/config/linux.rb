@@ -22,7 +22,7 @@ module WXRuby3
       def init_platform
         init_unix_platform
 
-        @extra_cppflags = '-Wno-unused-function '
+        @extra_cppflags = '-Wno-unused-function -Wno-conversion-null'
 
         # create a .so binary
         @extra_ldflags = '-shared'
