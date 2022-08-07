@@ -18,6 +18,8 @@
 
 // Some common functions
 %{
+extern VALUE wxRuby_GetEventTypeClassMap();
+
 // Mapping of known wxRuby classes to SWIG type information
 WX_DECLARE_HASH_MAP(VALUE,
 					swig_type_info*,
@@ -140,7 +142,6 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   // Get the mapping of event types to classes
   if ( ! Evt_Type_Map )
     {
-      VALUE map_name = rb_str_new2("EVENT_TYPE_CLASS_MAP");
       Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
     }
 

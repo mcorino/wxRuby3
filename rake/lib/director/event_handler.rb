@@ -21,6 +21,7 @@ module WXRuby3
         spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect wxEVT_HOTKEY]
         spec.add_runtime_code <<~__HEREDOC
           static swig_class wxRuby_GetSwigClassWxEvtHandler();
+          VALUE wxRuby_GetEventTypeClassMap();
 
           // Internally, all event handlers are anonymous ruby Proc objects,
           // created by EvtHandler#connect. These need to be preserved from Ruby's
@@ -136,6 +137,11 @@ module WXRuby3
         spec.add_wrapper_code <<~__HEREDOC
           static swig_class wxRuby_GetSwigClassWxEvtHandler() {
             return SwigClassWxEvtHandler;
+          }     
+
+          VALUE wxRuby_GetEventTypeClassMap() {
+            VALUE map_name = rb_str_new2("EVENT_TYPE_CLASS_MAP");
+            return rb_const_get(wxRuby_GetSwigClassWxEvtHandler().klass, rb_to_id(map_name)); 
           }
         __HEREDOC
         super
