@@ -27,6 +27,18 @@ module WXRuby3
           wxWindow::GetDropTarget
           wxWindow::GetValidator
         }
+        if spec.module_name == 'wxTopLevelWindow'
+          spec.ignore %w{
+            wxTopLevelWindow::SaveGeometry
+            wxTopLevelWindow::RestoreToGeometry
+          }
+          spec.set_only_for 'wxuniversal', %w{
+            wxTopLevelWindow::IsUsingNativeDecorations
+            wxTopLevelWindow::UseNativeDecorations
+            wxTopLevelWindow::UseNativeDecorationsByDefault
+          }
+          spec.set_only_for 'wxmsw', 'wxTopLevelWindow::MSWGetSystemMenu'
+        end
         super
       end
     end # class Frame

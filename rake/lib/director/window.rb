@@ -58,7 +58,12 @@ module WXRuby3
             "wxWindow::GetPosition(int *,int *) const",
             "wxWindow::GetScreenPosition(int *,int *) const",
             "wxWindow::FindWindow",
-            'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)'
+            'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)',
+            # depends on wxUSE_ACCESSIBILITY
+            'wxWindow::SetAccessible',
+            # depends on wxUSE_HOTKEY
+            'wxWindow::RegisterHotKey',
+            'wxWindow::UnregisterHotKey',
           ]
           spec.rename('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{
