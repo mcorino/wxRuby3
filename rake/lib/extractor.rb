@@ -11,6 +11,7 @@ require 'nokogiri'
 require 'set'
 
 require_relative './config'
+require_relative './util/string'
 
 module WXRuby3
 
@@ -20,23 +21,14 @@ module WXRuby3
 
     class << self
 
+      include Util::StringUtil
+
       class DoxyXMLError < Exception; end
 
       private
 
-      def underscore!(s)
-        s.gsub!(/([A-Z])/, '_\1')
-        # s.gsub!(/([A-Z\d]+)([A-Z])/, '\1_\2')
-        # p s
-        # s.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-        # p s
-        # s.tr!('-', '_')
-        s.downcase!
-        s
-      end
-
       def class_to_doxy_name(name, attempts, base='class')
-        filename = base + underscore!(name.dup)
+        filename = base + simple_underscore!(name.dup)
         filename = File.join(xml_dir, filename + '.xml')
         attempts << filename
         filename
@@ -157,7 +149,6 @@ module WXRuby3
 
       def initialize(element = nil)
         @name = '' # name of the item
-        @rb_name = '' # rename to this name
         @ignored = false # skip this item
         @docs_ignored = false # skip this item when generating docs
         @brief_doc = '' # either a string or a single para Element
@@ -173,7 +164,7 @@ module WXRuby3
         extract(element) if element
       end
 
-      attr_accessor :name, :rb_name, :ignored, :docs_ignored, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
+      attr_accessor :name, :ignored, :docs_ignored, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
 
       def extra_attributes
         @extra_attributes ||= {}
@@ -257,7 +248,7 @@ module WXRuby3
         sep = name.index('::') ? '::' : '.'
         head, tail = name.split(sep, 2)
         _find_items.each do |item|
-          if item.name == head || item.rb_name == head # TODO: exclude ignored items?
+          if item.name == head # TODO: exclude ignored items?
             unless tail
               return item
             else

@@ -10,14 +10,29 @@
 require 'ostruct'
 require 'set'
 
-require_relative './extractor'
 require_relative './config'
+require_relative './extractor'
+require_relative './swig_runner'
 
 module WXRuby3
 
   class Director
 
-    class Spec < OpenStruct
+    class Spec
+
+      class << self
+        private
+
+        # { <module> => { <class> => <baseclass>, ...}, ... }
+        def module_registry
+          @module_registry ||= {}
+        end
+
+        # { <class> => <module>, ...}
+        def class_index
+          @class_index ||= {}
+        end
+      end
 
       IGNORED_BASES = ['wxTrackable']
 
@@ -50,7 +65,7 @@ module WXRuby3
         @swig_interface_code = []
         @interface_code = []
         @extend_code = {}
-        super()
+        @post_processors = [:rename, :fixmodule, :fixplatform]
         yield(self) if block_given?
       end
 
@@ -58,7 +73,8 @@ module WXRuby3
                   :ignores, :no_proxies, :only_for, :includes, :swig_imports, :swig_includes, :renames,
                   :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
                   :swig_header_code, :header_code, :wrapper_code, :extend_code,
-                  :swig_init_code, :init_code, :swig_interface_code, :interface_code
+                  :swig_init_code, :init_code, :swig_interface_code, :interface_code,
+                  :post_processors
 
       def interface_file
         File.join(WXRuby3::Config.instance.classes_path, @name + '.i')
@@ -243,9 +259,9 @@ module WXRuby3
       private
 
       def process_interface_specs(specs)
-        specs.each do |spec|
-          (spec.director || Director).new.run(spec)
-        end
+        directors = specs.collect {|spec| (spec.director || Director).new(spec) }
+        directors.each {|dir| dir.extract_interface }
+        directors.each {|dir| dir.generate_code }
       end
 
     end
@@ -254,21 +270,31 @@ module WXRuby3
       process_interface_specs(WXRuby3::SPECIFICATIONS)
     end
 
-    def run(spec)
-      setup(spec)
+    def initialize(spec)
+      @spec = spec
+    end
 
-      defmod = process(spec)
+    attr_reader :spec, :defmod
 
-      generator.run(Generator::Spec.new(spec, defmod))
+    def extract_interface
+      setup
+
+      defmod = process
+
+      generate(defmod)
+    end
+
+    def generate_code
+      SwigRunner.process(@spec)
     end
 
     protected
 
-    def setup(spec)
+    def setup
       # noop
     end
 
-    def process(spec)
+    def process
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, doc: '')
       # handle ignores
@@ -329,6 +355,11 @@ module WXRuby3
       end
 
       defmod
+    end
+
+    def generate(defmod)
+      # generate SWIG specifications
+      generator.run(Generator::Spec.new(spec, defmod))
     end
 
     def generator

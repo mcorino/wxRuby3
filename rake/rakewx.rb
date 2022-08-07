@@ -138,7 +138,7 @@ all_build_classes.each do | cls |
                                     *SWIG_DEPENDS[swig_file] ] do | t |
     force_mkdir($config.src_path)
     do_swig(swig_file, t.name)
-    post_process(t.name, 'renamer', 'fixplatform', 'fixmodule')
+    # post_process(t.name, 'renamer', 'fixplatform', 'fixmodule')
   end
 end
 

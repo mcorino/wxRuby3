@@ -13,11 +13,7 @@ module WXRuby3
 
     class EventHandler < Director
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect wxEVT_HOTKEY]
         spec.add_runtime_code <<~__HEREDOC
           static swig_class wxRuby_GetSwigClassWxEvtHandler();

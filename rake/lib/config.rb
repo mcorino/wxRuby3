@@ -59,6 +59,7 @@ module WXRuby3
             @swig_path = File.join(Config.wxruby_root, 'swig')
             @src_dir = 'src'
             @src_path = File.join(Config.wxruby_root, @src_dir)
+            FileUtils.mkdir_p(@src_path)
             @obj_dir = 'obj'
             @obj_path = File.join(Config.wxruby_root, @obj_dir)
             FileUtils.mkdir_p(@obj_path)
@@ -66,6 +67,7 @@ module WXRuby3
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
             FileUtils.mkdir_p(@classes_path)
+            FileUtils.mkdir_p(File.join(@classes_path, 'common'))
             @interface_dir = 'include'
             @interface_path = File.join(@classes_path, @interface_dir)
             FileUtils.mkdir_p(@interface_path)

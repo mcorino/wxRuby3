@@ -13,11 +13,7 @@ module WXRuby3
 
     class TopLevelWindow < Director
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         # for all wxTopLevelWindow (derived) classes
         spec.add_swig_begin_code <<~__HEREDOC
           SWIG_WXTOPLEVELWINDOW_NO_USELESS_VIRTUALS(wxFrame);

@@ -15,11 +15,7 @@ module WXRuby3
 
     class Frame < TopLevelWindow
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         super
         # only for wxFrame class itself
         if spec.module_name == 'wxFrame'

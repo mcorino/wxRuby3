@@ -13,11 +13,7 @@ module WXRuby3
 
     class Object < Director
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         spec.abstract(true)
         spec.ignore %w[wxObject::Ref wxObject::UnRef wxObject::GetRefData wxObject::IsKindOf wxObject::GetClassInfo]
         spec.no_proxy 'wxObject'

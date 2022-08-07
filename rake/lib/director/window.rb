@@ -13,11 +13,7 @@ module WXRuby3
 
     class Window < Director
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         # for all wxWindow derived classes (not wxFrame and descendants)
         spec.add_swig_begin_code <<~__HEREDOC
           SWIG_WXWINDOW_NO_USELESS_VIRTUALS(wxWindow);

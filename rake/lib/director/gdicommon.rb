@@ -13,7 +13,7 @@ module WXRuby3
 
     class GDICommon < Director
 
-      def setup(spec)
+      def setup
         spec.ignore %w{
           wxTheColourDatabase
         }
@@ -118,7 +118,7 @@ module WXRuby3
         super
       end
 
-      def process(spec)
+      def process
         defmod = super
         e = defmod.find('wxBitmapType')
         e.items.each do |item|

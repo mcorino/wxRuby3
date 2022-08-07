@@ -13,11 +13,7 @@ module WXRuby3
 
     class App < Director
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         spec.fold_bases('wxApp' => 'wxAppConsole')
         spec.ignore_bases('wxAppConsole' => 'wxEventFilter')
         spec.ignore %w{

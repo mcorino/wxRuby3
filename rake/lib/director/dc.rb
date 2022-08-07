@@ -13,11 +13,7 @@ module WXRuby3
 
     class DC < Director
 
-      def initialize
-        super
-      end
-
-      def setup(spec)
+      def setup
         #spec.gc_as_object
         spec.ignore [
           'wxDC::StartPage',

@@ -13,7 +13,7 @@ module WXRuby3
 
     class Defs < Director
 
-      def setup(spec)
+      def setup
         spec.ignore %w{
           wxINT8_MIN
           wxINT8_MAX
