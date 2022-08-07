@@ -15,10 +15,6 @@ module WXRuby3
 
       def setup(spec)
         spec.ignore %w{
-          wxStockCursor.wxCURSOR_BASED_ARROW_DOWN
-          wxStockCursor.wxCURSOR_BASED_ARROW_UP
-          wxStockCursor.wxCURSOR_CROSS_REVERSE
-          wxStockCursor.wxCURSOR_DOUBLE_ARROW
           wxTheColourDatabase
         }
         spec.ignore [
@@ -30,6 +26,14 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &) const',
           'wxRect::Union(const wxRect &) const'
         ]
+        spec.set_only_for 'wxgtk', 'wxStockCursor.wxCURSOR_DEFAULT'
+        spec.set_only_for 'x', %w{
+          wxStockCursor.wxCURSOR_CROSS_REVERSE
+          wxStockCursor.wxCURSOR_DOUBLE_ARROW
+          wxStockCursor.wxCURSOR_BASED_ARROW_UP
+          wxStockCursor.wxCURSOR_BASED_ARROW_DOWN
+        }
+        spec.set_only_for 'wxmac', 'wxStockCursor.wxCURSOR_COPY_ARROW'
         spec.add_extend_code 'wxPoint', <<~__HEREDOC
           wxPoint add(const wxSize &sz) {
             return *$self + sz;
@@ -43,10 +47,10 @@ module WXRuby3
           wxPoint sub(const wxPoint &pt) {
             return *$self - pt;
           }
-          wxSize div(int factor) {
+          wxPoint div(int factor) {
             return *$self / factor;
           }
-          wxSize mul(int factor) {
+          wxPoint mul(int factor) {
             return *$self * factor;
           }
           bool eql(const wxPoint &pt) {
@@ -66,10 +70,10 @@ module WXRuby3
           wxRealPoint sub(const wxRealPoint &pt) {
             return *$self - pt;
           }
-          wxSize div(int factor) {
+          wxRealPoint div(int factor) {
             return *$self / factor;
           }
-          wxSize mul(int factor) {
+          wxRealPoint mul(int factor) {
             return *$self * factor;
           }
           bool eql(const wxRealPoint &pt) {

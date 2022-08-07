@@ -287,7 +287,13 @@ module WXRuby3
       fout << spec.def_items.inject('') do |code, item|
         if Extractor::EnumDef === item && !item.ignored
           code << "\n// from enum #{item.name || ''}\n"
-          item.items.each { |e| code << "%constant int #{e.name} = #{e.name};\n" unless e.ignored }
+          item.items.each do |e|
+            unless e.ignored
+              code << "#ifdef __#{e.only_for.upcase}__\n" if e.only_for
+              code << "%constant int #{e.name} = #{e.name};\n"
+              code << "#endif\n" if e.only_for
+            end
+          end
         end
         code
       end

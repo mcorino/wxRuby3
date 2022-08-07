@@ -33,6 +33,7 @@ module WXRuby3
         @gc_type = nil
         @ignores = Set.new
         @no_proxies = Set.new
+        @only_for = {}
         @includes = Set.new
         @swig_imports = Set.new
         @swig_includes = Set.new
@@ -43,7 +44,6 @@ module WXRuby3
         @runtime_code = []
         @swig_header_code = []
         @header_code = []
-        @swig_wrapper_code = []
         @wrapper_code = []
         @swig_init_code = []
         @init_code = []
@@ -54,10 +54,10 @@ module WXRuby3
         yield(self) if block_given?
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases, :gc_type, :ignores, :no_proxies,
-                  :includes, :swig_imports, :swig_includes, :renames,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases, :gc_type,
+                  :ignores, :no_proxies, :only_for, :includes, :swig_imports, :swig_includes, :renames,
                   :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
-                  :swig_header_code, :header_code, :swig_wrapper_code, :wrapper_code, :extend_code,
+                  :swig_header_code, :header_code, :wrapper_code, :extend_code,
                   :swig_init_code, :init_code, :swig_interface_code, :interface_code
 
       def interface_file
@@ -149,6 +149,10 @@ module WXRuby3
         self
       end
 
+      def set_only_for(id, *names)
+        (@only_for[id.to_s] ||= ::Set.new).merge(names.flatten)
+      end
+
       def include(*paths)
         @includes.merge(paths.flatten)
         self
@@ -196,11 +200,6 @@ module WXRuby3
 
       def add_header_code(*code)
         @header_code.concat code.flatten
-        self
-      end
-
-      def add_swig_wrapper_code(*code)
-        @swig_wrapper_code.concat code.flatten
         self
       end
 
@@ -297,6 +296,35 @@ module WXRuby3
           end
         else
           raise "Cannot find '#{fullname}' for module '#{spec.module_name}'"
+        end
+      end
+      # handle only_for settings
+      spec.only_for.each_pair do |platform_id, names|
+        names.each do |fullname|
+          name = fullname
+          args = nil
+          const = false
+          if (ix = name.index('('))   # full signature supplied?
+            args = name.slice(ix, name.size)
+            name = name.slice(0, ix)
+            const = !!args.index(/\)\s+const/)
+            args.sub(/\)\s+const/, ')') if const
+          end
+          item = defmod.find_item(name)
+          if item
+            if args
+              overload = item.find_overload(args, const)
+              if overload
+                overload.only_for = platform_id if overload
+              else
+                raise "Cannot find '#{fullname}' for module '#{spec.module_name}'. Possible match is '#{item.signature}'"
+              end
+            else
+              item.only_for = platform_id
+            end
+          else
+            raise "Cannot find '#{fullname}' for module '#{spec.module_name}'"
+          end
         end
       end
 

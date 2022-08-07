@@ -34,6 +34,7 @@ module WXRuby3
             'wxFrame::OnCreateStatusBar',
             'wxFrame::OnCreateToolBar'
           ]
+          spec.set_only_for('wxmsw', 'wxFrame::MSWGetTaskBarButton')
           spec.add_swig_begin_code <<~__HEREDOC
             %apply SWIGTYPE *DISOWN { wxMenuBar * }
             

@@ -89,13 +89,11 @@ module WXRuby3
             __HEREDOC
           ), method: '_gen_swig_header_code(spec)' },
         { template: (<<~__HEREDOC
-          <% if spec.swig_wrapper_code && !spec.swig_wrapper_code.empty? %>
-
-          <%= spec.swig_wrapper_code %>
-          <% end %>
           <% if spec.wrapper_code && !spec.wrapper_code.empty? %>
-
+                     
+          %wrapper %{
           <%= spec.wrapper_code %>
+          %}
           <% end %>
             __HEREDOC
           ), method: '_gen_swig_wrapper_code(spec)' },
@@ -246,13 +244,13 @@ module WXRuby3
 
       gen_swig_header_code(fout, spec)
 
-      gen_swig_wrapper_code(fout, spec)
-
       gen_swig_init_code(fout, spec)
 
       gen_swig_extensions(fout, spec)
 
       gen_swig_interface_code(fout, spec)
+
+      gen_swig_wrapper_code(fout, spec)
     end
 
     def gen_interface_include(spec)
