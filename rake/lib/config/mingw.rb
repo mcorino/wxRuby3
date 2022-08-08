@@ -37,22 +37,22 @@ module WXRuby3
           setup_dir = "msw-unicode-release-static-#{@wx_version}"
         end
         # Some secondary directories in the wxWidgets layout
-        @wx_incdir      = File.join("#@wx_dir", "include")
+        @wx_incdir      = File.join("#@wx_path", "include")
 
         # Test for Windows-style builds (configured and built in root directory
         # of unpacked wxWidgets distribution) ...
-        if File.exists?(File.join(@wx_dir,'lib','wx','include',
+        if File.exists?(File.join(@wx_path,'lib','wx','include',
                                    setup_dir, 'wx','setup.h'))
-          @wx_libdir      = File.join(@wx_dir, "lib")
-          @wx_setupincdir = File.join(@wx_dir, "lib", "wx", "include", setup_dir)
+          @wx_libdir      = File.join(@wx_path, "lib")
+          @wx_setupincdir = File.join(@wx_path, "lib", "wx", "include", setup_dir)
         # ... or Linux-style builds in a build subdirectory
-        elsif File.exists?(File.join(@wx_dir,'build','lib','wx','include',
+        elsif File.exists?(File.join(@wx_path,'build','lib','wx','include',
                                       setup_dir, 'wx','setup.h'))
-          @wx_libdir      = File.join(@wx_dir,"build","lib")
-          @wx_setupincdir = File.join(@wx_dir,"build","lib","wx","include", setup_dir)
+          @wx_libdir      = File.join(@wx_path,"build","lib")
+          @wx_setupincdir = File.join(@wx_path,"build","lib","wx","include", setup_dir)
         else
           raise RuntimeError,
-                "Couldn't find compiled wxWidgets library in #{@wx_dir}"
+                "Couldn't find compiled wxWidgets library in #{@wx_path}"
         end
 
         # Define the location of setup.h that we'll be using
@@ -95,8 +95,8 @@ module WXRuby3
         if File.exists?(scintilla_lib)
           windows_libs << scintilla_lib
         else
-          WxRubyFeatureInfo.exclude_class('StyledTextCtrl')
-          WxRubyFeatureInfo.exclude_class('StyledTextEvent')
+          WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
+          WxRubyFeatureInfo.exclude_module('StyledTextEvent')
         end
 
         # Test for presence of OpenGL library; link it in if present, skip that
@@ -107,14 +107,14 @@ module WXRuby3
           windows_libs << gl_lib
           @windows_sys_libs << 'opengl32'
         else
-          WxRubyFeatureInfo.exclude_class('GLCanvas')
-          WxRubyFeatureInfo.exclude_class('GLContext')
+          WxRubyFeatureInfo.exclude_module('GLCanvas')
+          WxRubyFeatureInfo.exclude_module('GLContext')
         end
 
         # If either of the above classes are in use, we need to add the contrib
         # include directory so the compiler can find the relevant headers
         if File.exists?(scintilla_lib) or File.exists?(gl_lib)
-          wx_contrib_inc_dir = File.join(@wx_dir, 'contrib', 'include')
+          wx_contrib_inc_dir = File.join(@wx_path, 'contrib', 'include')
           @wx_cppflags += " -I#{wx_contrib_inc_dir}"
         end
 

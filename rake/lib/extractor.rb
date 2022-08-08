@@ -111,11 +111,7 @@ module WXRuby3
       end
 
       def xml_dir
-        @xml_dir ||= ''
-      end
-
-      def xml_dir=(path)
-        @xml_dir = path
+        Config.instance.wx_xml_path
       end
 
       def verbose

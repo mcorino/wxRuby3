@@ -51,9 +51,9 @@ module WXRuby3
         @postfix = @unicode_postfix + @debug_postfix
 
         # Some secondary directories in the wxWidgets layout
-        @wx_incdir      = File.join("#{@wx_dir}", "include")
-        @wx_libdir      = File.join("#{@wx_dir}", "lib", "vc_lib")
-        @wx_setupincdir = File.join("#{@wx_dir}", "lib", "vc_lib", "msw#{@postfix}")
+        @wx_incdir      = File.join("#{@wx_path}", "include")
+        @wx_libdir      = File.join("#{@wx_path}", "lib", "vc_lib")
+        @wx_setupincdir = File.join("#{@wx_path}", "lib", "vc_lib", "msw#{@postfix}")
 
         @wx_setup_h  = File.join(@wx_setupincdir, 'wx', 'setup.h')
 
@@ -87,8 +87,8 @@ module WXRuby3
         if File.exists?(scintilla_lib)
           windows_libs << scintilla_lib
         else
-          WxRubyFeatureInfo.exclude_class('StyledTextCtrl')
-          WxRubyFeatureInfo.exclude_class('StyledTextEvent')
+          WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
+          WxRubyFeatureInfo.exclude_module('StyledTextEvent')
         end
 
         # Test for presence of OpenGL library; link it in if
@@ -97,8 +97,8 @@ module WXRuby3
         if File.exists?(gl_lib)
           windows_libs << gl_lib
         else
-          WxRubyFeatureInfo.exclude_class('GLCanvas')
-          WxRubyFeatureInfo.exclude_class('GLContext')
+          WxRubyFeatureInfo.exclude_module('GLCanvas')
+          WxRubyFeatureInfo.exclude_module('GLContext')
         end
 
         # Glue them all together into an argument passed to the linker

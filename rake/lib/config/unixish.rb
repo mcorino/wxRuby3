@@ -52,15 +52,17 @@ module WXRuby3
           end
         end
 
-        return cfg.strip + " "
+        return cfg.strip
       end
 
       def init_unix_platform
         # Allow specification of custom wxWidgets build (mostly useful for
         # static wxRuby3 builds)
-        @wx_dir = ENV['WXWIN']
+        @wx_path = ENV['WXWIN'] || ''
 
-        @wx_config = (@wx_dir && !@wx_dir.empty?) ? File.join(@wx_dir, 'bin', 'wx-config') : 'wx-config'
+        @wx_xml_path = ENV['WXXML'] || ''
+
+        @wx_config = @wx_path.empty? ? 'wx-config' : File.join(@wx_path, 'bin', 'wx-config')
 
         # First, if either debug/release or static/dynamic has been left
         # unspecified, find out what default build is available, and set that.
@@ -114,16 +116,16 @@ module WXRuby3
           if macosx?
             stc_lib = @wx_libs[/\S+wx_mac\S+_stc\S+/]
             if stc_lib.nil? or ( stc_lib !~ /^-l/ and not File.exists?(stc_lib) )
-              WxRubyFeatureInfo.exclude_class('StyledTextCtrl')
-              WxRubyFeatureInfo.exclude_class('StyledTextEvent')
+              WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
+              WxRubyFeatureInfo.exclude_module('StyledTextEvent')
             else
               libs_str << ',stc'
             end
           else
             stc_lib = @wx_libs[/\S+wx_gtk\S+_stc\S+/]
             if stc_lib.nil?
-              WxRubyFeatureInfo.exclude_class('StyledTextCtrl')
-              WxRubyFeatureInfo.exclude_class('StyledTextEvent')
+              WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
+              WxRubyFeatureInfo.exclude_module('StyledTextEvent')
             else
               libs_str << ',stc'
             end
@@ -131,8 +133,8 @@ module WXRuby3
         else
           stc_lib = @wx_libs[/\S+libwx\S+_stc\S+/]
           if stc_lib.nil? or not File.exists?(stc_lib)
-            WxRubyFeatureInfo.exclude_class('StyledTextCtrl')
-            WxRubyFeatureInfo.exclude_class('StyledTextEvent')
+            WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
+            WxRubyFeatureInfo.exclude_module('StyledTextEvent')
           else
             libs_str << ',stc'
           end
@@ -144,14 +146,14 @@ module WXRuby3
           if macosx?
             gl_lib = @wx_libs[/\S+wx_mac\S+_gl\S+/]
             if gl_lib.nil? or ( gl_lib !~ /^-l/ and not File.exists?(gl_lib) )
-              WxRubyFeatureInfo.exclude_class('GLCanvas')
+              WxRubyFeatureInfo.exclude_module('GLCanvas')
             else
               libs_str << ',gl'
             end
           else
             gl_lib = @wx_libs[/\S+wx_gtk\S+_gl\S+/]
             if gl_lib.nil?
-              WxRubyFeatureInfo.exclude_class('GLCanvas')
+              WxRubyFeatureInfo.exclude_module('GLCanvas')
             else
               libs_str << ',gl'
             end
@@ -159,7 +161,7 @@ module WXRuby3
         else
           gl_lib = @wx_libs[/\S+libwx\S+_gl\S+/]
           if gl_lib.nil? or not File.exists?(gl_lib)
-            WxRubyFeatureInfo.exclude_class('GLCanvas')
+            WxRubyFeatureInfo.exclude_module('GLCanvas')
           else
             libs_str << ',gl'
           end

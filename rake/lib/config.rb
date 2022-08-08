@@ -31,6 +31,8 @@ module WXRuby3
         klass = Class.new do
           include Config
 
+          include FileUtils
+
           def initialize
             @ruby_exe = RbConfig::CONFIG["ruby_install_name"]
 
@@ -67,10 +69,15 @@ module WXRuby3
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
             FileUtils.mkdir_p(@classes_path)
-            FileUtils.mkdir_p(File.join(@classes_path, 'common'))
+            @common_dir = 'common'
+            @common_path = File.join(@classes_path, @common_dir)
+            FileUtils.mkdir_p(@common_path)
             @interface_dir = 'include'
             @interface_path = File.join(@classes_path, @interface_dir)
             FileUtils.mkdir_p(@interface_path)
+            @ext_dir = 'ext'
+            @ext_path = File.join(Config.wxruby_root, @ext_dir)
+            FileUtils.mkdir_p(@ext_path)
 
 
             @release_build = ENV['WXRUBY_RELEASE'] ? true : false
@@ -112,11 +119,15 @@ module WXRuby3
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.
             if ENV['WXRUBY_EXCLUDED']
-              ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| WxRubyFeatureInfo.exclude_class(classname) }
+              ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| WxRubyFeatureInfo.exclude_module(classname) }
             end
 
             # platform specific initialization
             init_platform
+
+            if @wx_xml_path.empty?
+              @wx_xml_path = File.join(@ext_path, 'wxWidgets', 'docs', 'doxygen', 'out', 'xml')
+            end
 
             # FOURTH: summarise the main options chosen back for the user
             if @dynamic_build and @static_build
@@ -166,9 +177,9 @@ module WXRuby3
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
                       :cppflags, :ldflags, :libs, :cpp, :ld, :verbose_flag
-          attr_reader :wx_dir, :wx_version, :wx_cppflags, :wx_libs, :wx_setup_h
-          attr_reader :swig_dir, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path,
-                      :interface_dir, :interface_path
+          attr_reader :wx_path, :wx_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
+          attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path,
+                      :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path
 
           def mswin?
             @platform == :mswin
@@ -198,8 +209,53 @@ module WXRuby3
             @platform == :linux
           end
 
+          def windows?
+            mswin? || mingw? || cygwin?
+          end
+
           def feature_info
             WxRubyFeatureInfo
+          end
+
+          def has_wxwidgets_xml?
+            File.directory?(@wx_xml_path)
+          end
+
+          def check_git
+            if `which git 2>/dev/null`.chomp.empty?
+              STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
+              exit(1)
+            end
+          end
+          private :check_git
+
+          def check_doxygen
+            if `which doxygen 2>/dev/null`.chomp.empty?
+              STDERR.puts 'ERROR: Need Doxygen installed to run wxRuby3 bootstrap!'
+              exit(1)
+            end
+          end
+          private :check_doxygen
+
+          def do_bootstrap
+            check_doxygen
+            # do we have a local wxWidgets tree already?
+            unless File.directory?(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen'))
+              check_git
+              # clone wxWidgets GIT repository under ext_path
+              Dir.chdir(ext_path) do
+                sh "git clone https://github.com/wxWidgets/wxWidgets.git"
+                Dir.chdir('wxWidgets') do
+                  # checkout the version we are building against
+                  sh "git checkout v#{wx_version}"
+                end
+              end
+            end
+            # generate the doxygen XML output
+            regen_cmd = windows? ? 'regen.bat' : './regen.sh'
+            Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
+              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
+            end
           end
         end
         klass.new
@@ -217,8 +273,8 @@ module WXRuby3
     module WxRubyFeatureInfo
 
       class << self
-        def explicit_excluded_classes
-          @explicit_excluded_classes ||= []
+        def explicit_excluded_modules
+          @explicit_excluded_modules ||= []
         end
 
         # Testing the relevant wxWidgets setup.h file to see what
@@ -237,45 +293,45 @@ module WXRuby3
           @features
         end
 
-        def excluded_class?(wxwidgets_setup_h, class_name)
-          excluded_classes(wxwidgets_setup_h).include?(class_name)
+        def excluded_class?(wxwidgets_setup_h, module_name)
+          excluded_modules(wxwidgets_setup_h).include?(module_name)
         end
 
-        def excluded_classes(wxwidgets_setup_h)
-          unless @excluded_classes
-            @excluded_classes = _calculate_excluded_classes(wxwidgets_setup_h)
+        def excluded_modules(wxwidgets_setup_h)
+          unless @excluded_modules
+            @excluded_modules = _calculate_excluded_modules(wxwidgets_setup_h)
           end
 
-          @excluded_classes
+          @excluded_modules
         end
 
-        def exclude_class(class_name)
-          explicit_excluded_classes << class_name
-          @excluded_classes = nil
+        def exclude_module(module_name)
+          explicit_excluded_modules << module_name
+          @excluded_modules = nil
         end
 
         private
 
-        def _calculate_excluded_classes(wxwidgets_setup_h)
-          excluded_classes = []
+        def _calculate_excluded_modules(wxwidgets_setup_h)
+          excluded_modules = []
 
           # MediaCtrl is not always included or easily built, esp on Linux
           unless features(wxwidgets_setup_h)['wxUSE_MEDIACTRL']
-            excluded_classes += %w|MediaCtrl MediaEvent|
+            excluded_modules += %w|MediaCtrl MediaEvent|
           end
 
           # GraphicsContext is not enabled by default on some platforms
           unless features(wxwidgets_setup_h)['wxUSE_GRAPHICS_CONTEXT']
-            excluded_classes += %w|GCDC GraphicsBrush GraphicsContext GraphicsFont
+            excluded_modules += %w|GCDC GraphicsBrush GraphicsContext GraphicsFont
                                 GraphicsMatrix GraphicsObject GraphicsPath GraphicsPen|
           end
 
-          if not excluded_classes.empty?
+          if not excluded_modules.empty?
             puts "The following wxWidgets features are not available and will be skipped:"
-            puts "  " + excluded_classes.sort.join("\n  ")
+            puts "  " + excluded_modules.sort.join("\n  ")
           end
 
-          excluded_classes + explicit_excluded_classes
+          excluded_modules + explicit_excluded_modules
         end
 
         def _retrieve_features(wxwidgets_setup_h)

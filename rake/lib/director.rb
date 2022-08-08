@@ -36,7 +36,7 @@ module WXRuby3
 
       IGNORED_BASES = ['wxTrackable']
 
-      def initialize(pkg, modname, name, items, director:  nil, &block)
+      def initialize(pkg, modname, name, items, director:  nil, processors: nil, &block)
         @package = pkg
         @module_name = modname
         @name = name
@@ -65,7 +65,7 @@ module WXRuby3
         @swig_interface_code = []
         @interface_code = []
         @extend_code = {}
-        @post_processors = [:rename, :fixmodule, :fixplatform]
+        @post_processors = processors || [:rename, :fixmodule, :fixplatform]
         yield(self) if block_given?
       end
 
@@ -75,9 +75,10 @@ module WXRuby3
                   :swig_header_code, :header_code, :wrapper_code, :extend_code,
                   :swig_init_code, :init_code, :swig_interface_code, :interface_code,
                   :post_processors
+      attr_writer :interface_file
 
       def interface_file
-        File.join(WXRuby3::Config.instance.classes_path, @name + '.i')
+        @interface_file || File.join(WXRuby3::Config.instance.classes_path, @name + '.i')
       end
 
       def fold_bases(*specs)
@@ -252,22 +253,42 @@ module WXRuby3
     end
 
     class << self
-      def Spec(pkg, modname, name, items, director:  nil, &block)
-        WXRuby3::Director::Spec.new(pkg, modname, name, items, director: director, &block)
+      def Spec(pkg, modname, name, items, director:  nil, processors: nil, &block)
+        WXRuby3::Director::Spec.new(pkg, modname, name, items, director: director, processors: processors, &block)
       end
 
       private
 
-      def process_interface_specs(specs)
-        directors = specs.collect {|spec| (spec.director || Director).new(spec) }
-        directors.each {|dir| dir.extract_interface }
-        directors.each {|dir| dir.generate_code }
+      def directors
+        @directors ||= WXRuby3::SPECIFICATIONS.collect {|spec| (spec.director || Director).new(spec) }
+      end
+
+      def director_index
+        @spec_index ||= directors.inject({}) {|hash, dir| hash[dir.spec.name] = dir; hash }
       end
 
     end
 
-    def self.run
-      process_interface_specs(WXRuby3::SPECIFICATIONS)
+    def self.extract
+      directors.each {|dir| dir.extract_interface }
+    end
+
+    def self.generate_code(mod, *processors)
+      modnm = mod.end_with?('.i') ? File.basename(mod, '.i') : mod
+      if director_index.has_key?(modnm)
+        director_index[modnm].generate_code
+      elsif mod.end_with?('.i')
+        modnm = File.basename(mod, '.i')
+        dir = Director.new(Spec('Wx', modnm, modnm, [], processors: (processors.empty? ? nil : processors)))
+        dir.spec.interface_file = File.expand_path(mod, Config.wxruby_root)
+        dir.generate_code
+      else
+        raise "Unknown module #{mod}"
+      end
+    end
+
+    def self.all_modules
+      WXRuby3::SPECIFICATIONS.collect {|spec| spec.name }
     end
 
     def initialize(spec)
@@ -315,13 +336,13 @@ module WXRuby3
             if overload
               overload.ignore if overload
             else
-              raise "Cannot find '#{fullname}' for module '#{spec.module_name}'. Possible match is '#{item.signature}'"
+              STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore. Possible match is '#{item.signature}'."
             end
           else
             item.ignore
           end
         else
-          raise "Cannot find '#{fullname}' for module '#{spec.module_name}'"
+          STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore."
         end
       end
       # handle only_for settings

@@ -21,11 +21,13 @@ module WXRuby3
         # Because on Windows wx-config is not available, the path to the
         # compiled wxWidgets library has to be specified using an environment
         # variable
-        @wx_dir = ENV['WXWIN']
-        if not @wx_dir or @wx_dir.empty?
+        @wx_path = ENV['WXWIN']
+        if not @wx_path or @wx_path.empty?
           raise "Location of wxWidgets library must be specified " +
                 "with WXWIN environment variable"
         end
+
+        @wx_xml_path = ENV['WXXML'] || ''
 
 
         # wxRuby must be linked against these system libraries; these are turned

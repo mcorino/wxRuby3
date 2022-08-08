@@ -57,7 +57,7 @@ module WXRuby3
 
       def run_swig(source)
         check_swig unless swig_state
-        target = File.join(config.src_path, File.basename(source, '.i')+'.cpp')
+        target = File.join(config.src_path, File.basename(source, '.i') + '.cpp')
         sh "#{SWIG_CMD} #{config.wx_cppflags} -Iswig/custom " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
@@ -66,7 +66,7 @@ module WXRuby3
       end
 
       def run_post_processors(target, *processors)
-        processors.each {|pp| Processor.__send__(pp, target)}
+        processors.each { |pp| Processor.__send__(pp, target) }
       end
 
     end
@@ -84,33 +84,33 @@ module WXRuby3
 
       def self.rename(target)
         puts "Processor.rename: #{target}"
-        org_target = target+".old"
+        org_target = target + ".old"
         FileUtils.mv(target, org_target)
-        File.open(target, "w") do | out |
-            File.foreach(org_target) do | line |
-              case line
-              when /(rb_define_method|rb_intern|rb_define_module_function).*("[_a-zA-Z0-9]*")/
-                name = $2
-                unless name == '"THE_APP"'
-                  line[name] = '"%s"' % rb_method_name(name[1..-2])
-                end
-              when /rb_define_class_under.*("[_a-zA-Z0-9]*")/
-                name = $1
-                line[name] = '"%s"' % rb_class_name(name[1..-2])
-              when /rb_define_const.*("[_a-zA-Z0-9]*")/
-                name = $1
-                line[name] = '"%s"' % rb_constant_name(name[1..-2])
-              when /rb_define_singleton_method.*("[_a-zA-Z0-9]*")/
-                name = $1
-                no_wx_name = name[1..-2].sub(/\Awx_?/i,'')
-                if no_wx_name == no_wx_name.upcase
-                  line[name] = '"%s"' % rb_constant_name(name[1..-2])
-                else
-                  line[name] = '"%s"' % rb_method_name(name[1..-2])
-                end
+        File.open(target, "w") do |out|
+          File.foreach(org_target) do |line|
+            case line
+            when /(rb_define_method|rb_intern|rb_define_module_function).*("[_a-zA-Z0-9]*")/
+              name = $2
+              unless name == '"THE_APP"'
+                line[name] = '"%s"' % rb_method_name(name[1..-2])
               end
-              out.puts(line)
+            when /rb_define_class_under.*("[_a-zA-Z0-9]*")/
+              name = $1
+              line[name] = '"%s"' % rb_class_name(name[1..-2])
+            when /rb_define_const.*("[_a-zA-Z0-9]*")/
+              name = $1
+              line[name] = '"%s"' % rb_constant_name(name[1..-2])
+            when /rb_define_singleton_method.*("[_a-zA-Z0-9]*")/
+              name = $1
+              no_wx_name = name[1..-2].sub(/\Awx_?/i, '')
+              if no_wx_name == no_wx_name.upcase
+                line[name] = '"%s"' % rb_constant_name(name[1..-2])
+              else
+                line[name] = '"%s"' % rb_method_name(name[1..-2])
+              end
             end
+            out.puts(line)
+          end
         end
         FileUtils.rm(org_target)
       end
@@ -119,7 +119,7 @@ module WXRuby3
 
       def self.fixmodule(target)
         puts "Processor.fixmodule: #{target}"
-        org_target = target+".old"
+        org_target = target + ".old"
         FileUtils.mv(target, org_target)
 
         core_name = File.basename(target, ".cpp")
@@ -129,8 +129,8 @@ module WXRuby3
         skip_entire_method = false
         brace_level = 0
 
-        File.open(target, "w") do | out |
-          File.foreach(org_target) do | line |
+        File.open(target, "w") do |out|
+          File.foreach(org_target) do |line|
 
             # TODO : can we improve this?
             # Fix for Event.i - because it is implemented with a custom Ruby
@@ -160,14 +160,14 @@ module WXRuby3
                 treectrl_h_file = filename.sub(/cpp$/, "h")
                 contents = File.read(treectrl_h_file)
                 contents.sub!(/\};/, <<~__HEREDOC
-                private:
-                DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
-                };
+                  private:
+                  DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
+                  };
                 __HEREDOC
                 )
                 contents.sub!(/public:/, "public:\nSwigDirector_wxTreeCtrl() {};")
 
-                File.open(treectrl_h_file, 'w') { | f | f.write(contents) }
+                File.open(treectrl_h_file, 'w') { |f| f.write(contents) }
               end
             end # end horrible TreeCtrl fixes
 
@@ -178,9 +178,8 @@ module WXRuby3
               line += "  SWIG_RubyUnlinkObjects(this);\n  SWIG_RubyRemoveTracking(this);\n"
             end
 
-
             # comment out swig_up because it is defined global in every module
-            if(line.index("bool Swig::Director::swig_up"))
+            if (line.index("bool Swig::Director::swig_up"))
               line = "//" + line
             end
 
@@ -188,7 +187,7 @@ module WXRuby3
               line = ""
             end
             # Patch submitted for SWIG 1.3.30
-            if(line.index("if (strcmp(type->name, type_name) == 0) {"))
+            if (line.index("if (strcmp(type->name, type_name) == 0) {"))
               line = "		if ( value != Qnil && rb_obj_is_kind_of(obj, sklass->klass) ) {"
             end
             #TODO 1.3.30
@@ -203,7 +202,7 @@ module WXRuby3
 
             # at the top of our Init_ function, make sure we only initialize
             # ourselves once
-            if(line.index("Init_#{wx_name}("))
+            if (line.index("Init_#{wx_name}("))
               line += "static bool initialized;\n"
               line += "if(initialized) return;\n"
               line += "initialized = true;\n"
@@ -219,26 +218,25 @@ module WXRuby3
             end
 
             # remove the UnknownExceptionHandler::handler method
-            if(line.index('void UnknownExceptionHandler::handler()'))
+            if (line.index('void UnknownExceptionHandler::handler()'))
               skip_entire_method = true
             end
 
-
-            if(skip_entire_method)
+            if (skip_entire_method)
               line = "//#{line}"
-              if(line.index('{'))
+              if (line.index('{'))
                 brace_level += 1
               end
-              if(line.index('}'))
+              if (line.index('}'))
                 brace_level -= 1
               end
-              if(brace_level == 0)
+              if (brace_level == 0)
                 skip_entire_method = false
               end
             end
 
-            if(skip_until_blank_line)
-              if(line.strip.size == 0)
+            if (skip_until_blank_line)
+              if (line.strip.size == 0)
                 skip_until_blank_line = false
               else
                 line = '// ' + line
@@ -253,18 +251,18 @@ module WXRuby3
 
       def self.fixplatform(target)
         puts "Processor.fixplatform: #{target}"
-        org_target = target+".old"
+        org_target = target + ".old"
         FileUtils.mv(target, org_target)
-        this_module = File.basename(target,".cpp")
-        File.open(target, "w") do | out |
+        this_module = File.basename(target, ".cpp")
+        File.open(target, "w") do |out|
           if RUBY_PLATFORM =~ /mswin/
             out.puts("#pragma warning(disable:4786)")
           end
           add_footer = false
 
-          File.foreach(org_target) do | line |
+          File.foreach(org_target) do |line|
             if (line.index("//@@"))
-              line.gsub!(/\/\/@@/,"#")
+              line.gsub!(/\/\/@@/, "#")
               add_footer = true
             end
 
@@ -284,6 +282,32 @@ module WXRuby3
           end
         end
         FileUtils.rm(org_target)
+      end
+
+      def self.fixmainmodule(target)
+        puts "Processor.fixmainmodule: #{target}"
+        org_target = target + ".old"
+        FileUtils.mv(target, org_target)
+        this_module = 'unknown'
+        File.open(target, "w") do |out|
+          found_main_module = false
+          File.foreach(org_target) do |line|
+            if (line.index("static VALUE #{MAIN_MODULE};"))
+              line = "VALUE #{MAIN_MODULE};"
+              found_main_module = true
+            end
+
+            if (line.index("char* type_name = RSTRING(value)->ptr;"))
+              line = "        const char* type_name = (value == Qnil) ? \"\" : RSTRING(value)->ptr;\n";
+            end
+
+            out.puts(line)
+          end
+          if(!found_main_module)
+            puts("didn't find main module")
+            exit(1)
+          end
+        end
       end
 
     end # module Processor
