@@ -4,4 +4,6 @@
 obj
 src
 bak
+ext
+swig/classes
 *.old
