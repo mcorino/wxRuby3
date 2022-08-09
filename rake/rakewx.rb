@@ -11,7 +11,16 @@ task :extract do
 end
 
 # directory task to trigger SWIG interface extraction
-directory $config.classes_path => [:extract]
+directory $config.classes_path do
+  Rake::Task[:extract].invoke
+end
+
+# file tasks for each generated SWIG module file
+WXRuby3::Director.all_modules.each do |mod|
+  file File.join($config.classes_path, mod+'.i') => $config.classes_path do
+    Rake::Task[:extract].invoke
+  end
+end
 
 # dependency table
 $swig_depends = Hash.new { | h, k | h[k] = [] }

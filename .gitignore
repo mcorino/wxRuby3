@@ -6,4 +6,5 @@ src
 bak
 ext
 swig/classes
+swig/inc
 *.old

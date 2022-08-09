@@ -75,6 +75,9 @@ module WXRuby3
             @interface_dir = 'include'
             @interface_path = File.join(@classes_path, @interface_dir)
             FileUtils.mkdir_p(@interface_path)
+            @inc_dir = 'inc'
+            @inc_path = File.join(@swig_path, @inc_dir)
+            FileUtils.mkdir_p(@inc_path)
             @ext_dir = 'ext'
             @ext_path = File.join(Config.wxruby_root, @ext_dir)
             FileUtils.mkdir_p(@ext_path)
@@ -179,7 +182,7 @@ module WXRuby3
                       :cppflags, :ldflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path,
-                      :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path
+                      :common_dir, :common_path, :interface_dir, :interface_path, :inc_dir, :inc_path, :ext_dir, :ext_path
 
           def mswin?
             @platform == :mswin

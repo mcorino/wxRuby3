@@ -21,8 +21,6 @@ module WXRuby3
     class Spec
 
       class << self
-        private
-
         # { <module> => { <class> => <baseclass>, ...}, ... }
         def module_registry
           @module_registry ||= {}
@@ -267,10 +265,72 @@ module WXRuby3
         @spec_index ||= directors.inject({}) {|hash, dir| hash[dir.spec.name] = dir; hash }
       end
 
+      def generate_modules_initializer
+        init_inc = File.join(Config.instance.inc_path, 'all_modules_init.inc')
+        File.open(init_inc, File::CREAT|File::TRUNC|File::RDWR) do |finc|
+          finc.puts
+          finc.puts 'extern "C" void InitializeOtherModules()'
+          finc.puts '{'
+
+          # first initialize all modules without classes
+          Spec.module_registry.each_pair do |mod, modreg|
+            if modreg.empty?
+              init = "Init_#{mod}()"
+              finc.puts "  extern void #{init};"
+              finc.puts "  #{init};"
+            end
+          end
+
+          # next initialize all modules with empty class dependencies
+          Spec.module_registry.each_pair do |mod, modreg|
+            if !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
+              init = "Init_#{mod}()"
+              finc.puts "  extern void #{init};"
+              finc.puts "  #{init};"
+            end
+          end
+
+          # lastly initialize all modules with class dependencies ordered according to dependency
+          # collect all modules with actual dependencies
+          dep_mods = Spec.module_registry.select do |_mod, modreg|
+            !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
+          end
+          # now sort these according to dependencies
+          dep_mods.sort do |mreg1, mreg2|
+            m1 = mreg1.first
+            m2 = mreg2.first
+            order = 0
+            mreg2.last.each_pair do |cls, base|
+              if Spec.class_index[base] == m1
+                order = -1
+                break
+              end
+            end
+            if order == 0
+              mreg1.last.each_pair do |cls, base|
+                if Spec.class_index[base] == m2
+                  order = 1
+                  break
+                end
+              end
+            end
+            order
+          end
+          dep_mods.each do |modreg|
+            init = "Init_#{modreg.first}()"
+            finc.puts "  extern void #{init};"
+            finc.puts "  #{init};"
+          end
+
+          finc.puts '}'
+        end
+      end
+
     end
 
     def self.extract
       directors.each {|dir| dir.extract_interface }
+      generate_modules_initializer
     end
 
     def self.generate_code(mod, *processors)
@@ -302,7 +362,11 @@ module WXRuby3
 
       defmod = process
 
-      generate(defmod)
+      genspec = Generator::Spec.new(spec, defmod)
+
+      register(genspec)
+
+      generate(genspec)
     end
 
     def generate_code
@@ -378,9 +442,21 @@ module WXRuby3
       defmod
     end
 
-    def generate(defmod)
+    def register(genspec)
+      mreg = {}
+      genspec.def_items.each do |item|
+        if Extractor::ClassDef === item && !item.ignored
+          mreg[item.name] = genspec.base_class(item)
+          Spec.class_index[item.name] = genspec.module_name
+        end
+        Spec.module_registry[genspec.module_name] = mreg
+      end
+    end
+    private :register
+
+    def generate(genspec)
       # generate SWIG specifications
-      generator.run(Generator::Spec.new(spec, defmod))
+      generator.run(genspec)
     end
 
     def generator
