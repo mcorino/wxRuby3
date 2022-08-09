@@ -13,66 +13,41 @@ end
 # directory task to trigger SWIG interface extraction
 directory $config.classes_path => [:extract]
 
-# Skim all the SWIG sources to detect import/include dependencies that
-# should force recompiles
+# dependency table
 $swig_depends = Hash.new { | h, k | h[k] = [] }
-$swig_includes = nil
+# dependency file
+$depends_file = File.join($config.classes_path, '.depends')
 
-def swig_depends
-  if $swig_depends.empty?
-    here = Pathname(WXRuby3::Config.wxruby_root)
+# file task to generate dependencies file
+file $depends_file => $config.classes_path do
+  # Skim all the SWIG sources to detect import/include dependencies that
+  # should force recompiles
+  here = Pathname(WXRuby3::Config.wxruby_root)
+  # One include file is a SWIG core file (typemaps.i), not a wxRuby file;
+  # avoid an error with the rake package (source tar.gz) file
+  swigs_typemap_file = File.expand_path('typemaps.i', 'swig')
+  File.open($depends_file, File::CREAT|File::TRUNC|File::RDWR) do |f|
     Dir.glob('swig/**/*.i') do | i |
+      deps = []
+      is_typemap = (i == 'typemap.i')
       File.read(i).scan(/^%(?:import|include) ["'](.*?)["']\s*$/) do | dep |
         dep_file = File.expand_path( dep[0], File.dirname(i) )
-        $swig_depends[i] << Pathname(dep_file).relative_path_from(here).to_s
+        unless is_typemap && dep_file == swigs_typemap_file
+          deps << Pathname(dep_file).relative_path_from(here).to_s
+        end
       end
-    end
-
-    # One include file is a SWIG core file (typemaps.i), not a wxRuby file;
-    # avoid an error with the rake package (source tar.gz) file
-    swigs_typemap_file = File.expand_path('typemaps.i', 'swig')
-    $swig_depends['swig/typemap.i'].delete(swigs_typemap_file)
-  end
-  $swig_depends
-end
-
-def swig_includes
-  unless $swig_includes
-    Dir.chdir(WXRuby3::Config.wxruby_root) do
-      $swig_includes = (INCLUDE_MODULES.collect do |glob|
-        Dir.glob(File.join($config.swig_dir, glob))
-      end).flatten
+      f.puts "$swig_depends['#{i}'] = ['#{deps.join("','")}']" unless deps.empty?
     end
   end
-  $swig_includes
+  # Create recursive dependencies
+  $swig_depends.keys.grep(/swig\/\w+\.i$/).each do | dep |
+    unless INCLUDE_MODULES.include?(dep)
+      file dep => [ *($swig_depends[dep] - INCLUDE_MODULES) ]
+    end
+  end
 end
 
-# $have_good_swig = false
-# # Test (once) whether there is a correct version of SWIG available,
-# # either on the path or in the environment variable SWIG_CMD
-# def check_swig
-#   begin
-#     version = `#{SWIG_CMD} -version`[/\d+\.\d+\.\d+/]
-#   rescue
-#     raise "Could not run SWIG (#{SWIG_CMD})"
-#   end
-#
-#   # Very old versions put --version on STDERR, not STDOUT
-#   unless version
-#     raise "Could not get version info from SWIG; " +
-#           "is a very old version installed?.\n"
-#   end
-#
-#   if version < SWIG_MINIMUM_VERSION
-#     raise "SWIG version #{version} is installed, " +
-#           "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
-# #  elsif version > SWIG_MAXIMUM_VERSION
-# #    raise "SWIG version #{version} is installed, " +
-# #          "maximum version permitted is #{SWIG_MAXIMUM_VERSION}"
-#   end
-#
-#   $have_good_swig = true
-# end
+import $depends_file
 
 # The plain names of all normal Wx classes to be built
 def all_build_modules
@@ -101,24 +76,6 @@ def all_swig_files
     [ 'swig/wx.i' ]
 end
 
-# Helper: run swig on +source+ (.i file) to generate +target+ (.cpp
-# file)
-def do_swig(source, target)
-  check_swig if not $have_good_swig
-  sh "#{SWIG_CMD} #{$config.wx_cppflags} -Iswig/custom " +
-       #"-w401 -w801 -w515 -c++ -ruby " +
-    "-w801 -c++ -ruby " +
-    "-o #{target} #{source}"
-end
-
-# Helper: run ruby scripts over SWIG-generated .cpp file +file+, to
-# provide various SWIG fixes and workarounds
-def post_process(file, *processors)
-  processors.each do | p |
-    sh "#{$config.ruby_exe} swig/#{p}.rb #{file}"
-  end
-end
-
 # Target to run the linker to create a final .so/.dll wxruby3 library
 file TARGET_LIB => all_obj_files do | t |
   objs = $config.extra_objs + " " + all_obj_files.join(' ')
@@ -126,11 +83,8 @@ file TARGET_LIB => all_obj_files do | t |
 end
 
 # The main source module - which needs to initialize all the other modules
-file 'src/wx.cpp' => all_swig_files + swig_depends['swig/wx.i'] do | t |
+file 'src/wx.cpp' => all_swig_files + $swig_depends['swig/wx.i'] do | t |
   WXRuby3::Director.generate_code('swig/wx.i', :rename, :fixmainmodule)
-  # do_swig("swig/wx.i", "src/wx.cpp")
-  # post_process(t.name, 'renamer', 'fixmainmodule')
-  # RubyStockObjects are loaded later, after App has been started
   need_init = all_build_modules + HELPER_MODULES - ['RubyStockObjects']
   File.open(t.name, "a") do | out |
     out.puts
@@ -151,10 +105,7 @@ end
 HELPER_MODULES.each do | helper |
   swig_file = "#{$config.swig_dir}/#{helper}.i"
   file "#{$config.src_dir}/#{helper}.cpp" => [ swig_file,
-                                              *(swig_depends[swig_file] - swig_includes) ] do | t |
-    # force_mkdir($config.src_path)
-    # do_swig(swig_file, t.name)
-    # post_process(t.name, 'renamer', 'fixmodule')
+                                              *($swig_depends[swig_file] - INCLUDE_MODULES) ] do | t |
     WXRuby3::Director.generate_code(swig_file, :rename, :fixmodule)
   end
 end
@@ -163,11 +114,8 @@ end
 all_build_modules.each do | cls |
   swig_file = "#{$config.classes_path}/#{cls}.i"
   file "#{$config.src_dir}/#{cls}.cpp" => [ $config.classes_path, swig_file,
-                                            *(swig_depends[swig_file] - swig_includes) ] do | t |
-    # force_mkdir($config.src_path)
-    # do_swig(swig_file, t.name)
-    # post_process(t.name, 'renamer', 'fixplatform', 'fixmodule')
-    WXRuby3::Director.generate_code(swig_file)
+                                            *($swig_depends[swig_file] - INCLUDE_MODULES) ] do | t |
+    WXRuby3::Director.generate_code(swig_file) # default post processors
   end
 end
 
@@ -180,13 +128,6 @@ rule ".#{$config.obj_ext}" => cpp_src do | t |
   # force_mkdir($config.obj_path)
   sh "#{$config.cpp} -c #{$config.verbose_flag} #{$config.cppflags} " +
      "#{$config.cpp_out_flag}#{t.name} #{t.source}"
-end
-
-# Recursive dependencies
-swig_depends.keys.grep(/swig\/\w+\.i$/).each do | dep |
-  unless swig_includes.include?(dep)
-    file dep => [ *(swig_depends[dep] - swig_includes) ]
-  end
 end
 
 if $config.has_wxwidgets_xml?
