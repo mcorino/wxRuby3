@@ -301,61 +301,68 @@ module WXRuby3
 
       def generate_modules_initializer
         init_inc = File.join(Config.instance.inc_path, 'all_modules_init.inc')
-        File.open(init_inc, File::CREAT|File::TRUNC|File::RDWR) do |finc|
-          finc.puts
-          finc.puts 'static void InitializeOtherModules()'
-          finc.puts '{'
+        # collect code
+        decls = []
+        init_fn = []
+        # first initialize all modules without classes
+        Spec.module_registry.each_pair do |mod, modreg|
+          if modreg.empty?
+            init = "Init_#{mod}()"
+            decls << "extern \"C\" void #{init};"
+            init_fn << "  #{init};"
+          end
+        end
 
-          # first initialize all modules without classes
-          Spec.module_registry.each_pair do |mod, modreg|
-            if modreg.empty?
-              init = "Init_#{mod}()"
-              finc.puts "  extern void #{init};"
-              finc.puts "  #{init};"
+        # next initialize all modules with empty class dependencies
+        Spec.module_registry.each_pair do |mod, modreg|
+          if !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
+            init = "Init_#{mod}()"
+            decls << "extern \"C\" void #{init};"
+            init_fn << "  #{init};"
+          end
+        end
+
+        # lastly initialize all modules with class dependencies ordered according to dependency
+        # collect all modules with actual dependencies
+        dep_mods = Spec.module_registry.select do |_mod, modreg|
+          !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
+        end
+        # now sort these according to dependencies
+        dep_mods.sort do |mreg1, mreg2|
+          m1 = mreg1.first
+          m2 = mreg2.first
+          order = 0
+          mreg2.last.each_pair do |cls, base|
+            if Spec.class_index[base] == m1
+              order = -1
+              break
             end
           end
-
-          # next initialize all modules with empty class dependencies
-          Spec.module_registry.each_pair do |mod, modreg|
-            if !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
-              init = "Init_#{mod}()"
-              finc.puts "  extern void #{init};"
-              finc.puts "  #{init};"
-            end
-          end
-
-          # lastly initialize all modules with class dependencies ordered according to dependency
-          # collect all modules with actual dependencies
-          dep_mods = Spec.module_registry.select do |_mod, modreg|
-            !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
-          end
-          # now sort these according to dependencies
-          dep_mods.sort do |mreg1, mreg2|
-            m1 = mreg1.first
-            m2 = mreg2.first
-            order = 0
-            mreg2.last.each_pair do |cls, base|
-              if Spec.class_index[base] == m1
-                order = -1
+          if order == 0
+            mreg1.last.each_pair do |cls, base|
+              if Spec.class_index[base] == m2
+                order = 1
                 break
               end
             end
-            if order == 0
-              mreg1.last.each_pair do |cls, base|
-                if Spec.class_index[base] == m2
-                  order = 1
-                  break
-                end
-              end
-            end
-            order
           end
-          dep_mods.each do |modreg|
-            init = "Init_#{modreg.first}()"
-            finc.puts "  extern void #{init};"
-            finc.puts "  #{init};"
-          end
+          order
+        end
+        dep_mods.each do |modreg|
+          init = "Init_#{modreg.first}()"
+          decls << "extern \"C\" void #{init};"
+          init_fn << "  #{init};"
+        end
 
+        File.open(init_inc, File::CREAT|File::TRUNC|File::RDWR) do |finc|
+
+          finc.puts
+          finc.puts decls.join("\n")
+
+          finc.puts
+          finc.puts 'static void InitializeOtherModules()'
+          finc.puts '{'
+          finc.puts init_fn.join("\n")
           finc.puts '}'
         end
       end
