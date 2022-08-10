@@ -269,7 +269,7 @@ module WXRuby3
         init_inc = File.join(Config.instance.inc_path, 'all_modules_init.inc')
         File.open(init_inc, File::CREAT|File::TRUNC|File::RDWR) do |finc|
           finc.puts
-          finc.puts 'extern "C" void InitializeOtherModules()'
+          finc.puts 'static void InitializeOtherModules()'
           finc.puts '{'
 
           # first initialize all modules without classes

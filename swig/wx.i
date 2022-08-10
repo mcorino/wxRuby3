@@ -181,13 +181,15 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   return rb_event;
 }
 
+// forward declaration (generated in swig/inc/all_modules_init.inc and appended to wx.cpp)
+static void InitializeOtherModules();
+
 %}
 
 %include "mark_free_impl.i"
 
 %init %{
     // Load all the other known wxRuby modules; the function is built by rake
-    extern void InitializeOtherModules();
     InitializeOtherModules();
 
     // Set up all image formats

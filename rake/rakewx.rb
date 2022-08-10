@@ -94,18 +94,9 @@ end
 # The main source module - which needs to initialize all the other modules
 file 'src/wx.cpp' => all_swig_files + $swig_depends['swig/wx.i'] do | t |
   WXRuby3::Director.generate_code('swig/wx.i', :rename, :fixmainmodule)
-  need_init = all_build_modules + HELPER_MODULES - ['RubyStockObjects']
+  init_inc = File.join($config.inc_path, 'all_modules_init.inc')
   File.open(t.name, "a") do | out |
-    out.puts
-    out.puts 'extern "C" void InitializeOtherModules()'
-    out.puts '{'
-    # Set up an initializer for all the other compiled classes
-    need_init.each do | c |
-      init = "Init_wx#{c}()"
-      out.puts "    extern void #{init};"
-      out.puts "    #{init};"
-    end
-    out.puts '}'
+    out << File.read(init_inc)
   end
 end
 

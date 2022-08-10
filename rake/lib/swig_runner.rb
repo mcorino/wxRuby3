@@ -308,6 +308,7 @@ module WXRuby3
             exit(1)
           end
         end
+        FileUtils.rm(org_target)
       end
 
     end # module Processor
