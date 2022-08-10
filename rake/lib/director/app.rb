@@ -61,8 +61,8 @@ module WXRuby3
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
         ]
         spec.no_proxy %w{
-          wxApp::GetDisplayMode
-          wxApp::GetTopWindow
+          wxRubyApp::GetDisplayMode
+          wxRubyApp::GetTopWindow
         }
         spec.include %w{
           wx/init.h

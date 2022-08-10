@@ -205,7 +205,9 @@ module WXRuby3
         if Extractor::ClassDef === item && !item.ignored && !spec.is_folded_base?(item.name)
           fout.puts ''
           spec.base_list(item).reverse.each do |base|
-            fout.puts %Q{%import "#{WXRuby3::Config.instance.interface_dir}/#{base}.h"}
+            unless spec.def_item(base)
+              fout.puts %Q{%import "#{WXRuby3::Config.instance.interface_dir}/#{base}.h"}
+            end
           end
         end
       end
@@ -278,17 +280,17 @@ module WXRuby3
     def gen_interface_include_code(fout, spec)
       gen_interface_include_header(fout, spec)
 
-      gen_typedefs(fout, spec)
+      gen_typedefs(fout, spec) unless spec.no_gen?(:typedefs)
 
-      gen_interface_classes(fout, spec)
+      gen_interface_classes(fout, spec) unless spec.no_gen?(:classes)
 
-      gen_variables(fout, spec)
+      gen_variables(fout, spec) unless spec.no_gen?(:variables)
 
-      gen_enums(fout, spec)
+      gen_enums(fout, spec) unless spec.no_gen?(:enums)
 
-      gen_defines(fout, spec)
+      gen_defines(fout, spec) unless spec.no_gen?(:defines)
 
-      gen_functions(fout, spec)
+      gen_functions(fout, spec) unless spec.no_gen?(:functions)
 
       gen_interface_include_footer(fout, spec)
     end

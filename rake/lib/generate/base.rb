@@ -44,13 +44,13 @@ module WXRuby3
         @ifspec.class_name(class_def.name)
       end
 
-      def get_base_class(hierarchy, foldedbases, ignoredbases)
+      def get_base_class(cls, hierarchy, foldedbases, ignoredbases)
         hierarchy = hierarchy.select { |basenm, _| !ignoredbases.include?(basenm) }
-        raise "Cannot determin base class from multiple inheritance hierarchy : #{hierarchy}" if hierarchy.size>1
+        raise "Cannot determin base class for #{cls} from multiple inheritance hierarchy : #{hierarchy}" if hierarchy.size>1
         return nil if hierarchy.empty?
         basenm, bases = hierarchy.first
         return basenm unless foldedbases.include?(basenm)
-        get_base_class(bases, folded_bases(basenm), ignored_bases(basenm))
+        get_base_class(basenm, bases, folded_bases(basenm), ignored_bases(basenm))
       end
       private :get_base_class
 
@@ -58,7 +58,7 @@ module WXRuby3
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
         @ifspec.base_override(class_def.name) ||
-              get_base_class(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
+              get_base_class(class_def.name, class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
       end
 
       def get_base_list(hierarchy, foldedbases, ignoredbases, list = ::Set.new)
@@ -95,7 +95,7 @@ module WXRuby3
       def is_abstract?(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
-        @ifspec.abstract || class_def.abstract
+        @ifspec.abstract?(class_def.name) || class_def.abstract
       end
 
       def gc_type(classdef)
@@ -194,7 +194,11 @@ module WXRuby3
       end
 
       def def_item(name)
-        @defmod.find(name)
+        @defmod.find_item(name)
+      end
+
+      def no_gen?(section)
+        @ifspec.nogen_sections.include?(section)
       end
 
     end
@@ -225,7 +229,7 @@ module WXRuby3
       abstract_class = spec.is_abstract?(classdef)
       if abstract_class
         fout.puts 'private:'
-        fout.puts "  #{classdef.name}();"
+        fout.puts "  #{spec.class_name(classdef)}();"
       end
 
       fout.puts 'public:'
@@ -267,6 +271,13 @@ module WXRuby3
                 gen_interface_class_method(fout, ovl, overrides)
               end
             end
+          end
+        when Extractor::EnumDef
+          if member.protection == 'public' && !member.ignored
+            fout.puts "  // from #{classdef.name}::#{member.name}"
+            fout.puts "  enum #{member.name} {"
+            fout.puts member.items.collect { |e| "    #{e.name}" }.join(",\n")
+            fout.puts "  };"
           end
         when Extractor::MemberVarDef
           if member.protection == 'public' && !member.ignored

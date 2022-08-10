@@ -139,7 +139,8 @@ module WXRuby3
             VALUE map_name = rb_str_new2("EVENT_TYPE_CLASS_MAP");
             return rb_const_get(wxRuby_GetSwigClassWxEvtHandler().klass, rb_to_id(map_name)); 
           }
-        __HEREDOC
+          __HEREDOC
+        spec.do_not_generate :typedefs, :variables, :enums, :defines, :functions
         super
       end
     end # class Object

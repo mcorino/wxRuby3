@@ -14,7 +14,7 @@ module WXRuby3
     class Object < Director
 
       def setup
-        spec.abstract(true)
+        spec.make_abstract('wxObject')
         spec.ignore %w[wxObject::Ref wxObject::UnRef wxObject::GetRefData wxObject::IsKindOf wxObject::GetClassInfo]
         spec.no_proxy 'wxObject'
         spec.add_extend_code 'wxObject', <<~__HEREDOC

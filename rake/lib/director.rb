@@ -43,7 +43,7 @@ module WXRuby3
         @class_members = {}
         @folded_bases = {}
         @ignored_bases = {}
-        @abstract = false
+        @abstracts = ::Set.new
         @items = items
         @director = director
         @gc_type = nil
@@ -66,6 +66,7 @@ module WXRuby3
         @swig_interface_code = []
         @interface_code = []
         @extend_code = {}
+        @nogen_sections = ::Set.new
         @post_processors = processors || [:rename, :fixmodule, :fixplatform]
         yield(self) if block_given?
       end
@@ -75,7 +76,7 @@ module WXRuby3
                   :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
                   :swig_header_code, :header_code, :wrapper_code, :extend_code,
                   :swig_init_code, :init_code, :swig_interface_code, :interface_code,
-                  :post_processors
+                  :nogen_sections, :post_processors
       attr_writer :interface_file
 
       def interface_file
@@ -84,6 +85,7 @@ module WXRuby3
 
       def rename_class(from, to)
         @class_renames[from] = to
+        self
       end
 
       def class_name(name)
@@ -92,14 +94,16 @@ module WXRuby3
 
       def override_base(cls, base)
         @base_overrides[cls] = base
+        self
       end
 
       def base_override(cls)
         @base_overrides[cls]
       end
 
-      def extend_class(cls, declaration)
-        (@class_members[cls] ||= ::Set.new) << declaration
+      def extend_class(cls, *declarations)
+        (@class_members[cls] ||= ::Set.new).merge declarations.flatten
+        self
       end
 
       def member_extensions(cls)
@@ -172,13 +176,12 @@ module WXRuby3
         self
       end
 
-      def abstract(v=nil)
-        unless v.nil?
-          @abstract = !!v
-          self
-        else
-          @abstract
-        end
+      def make_abstract(cls)
+        @abstracts << cls
+      end
+
+      def abstract?(cls)
+        @abstracts.include?(cls)
       end
 
       def ignore(*names)
@@ -273,6 +276,10 @@ module WXRuby3
       def add_extend_code(classname, *code)
         (@extend_code[classname] ||= []).concat code.flatten
         self
+      end
+
+      def do_not_generate(*sections)
+        @nogen_sections.merge sections.flatten
       end
 
     end

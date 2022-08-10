@@ -12,9 +12,18 @@ module WXRuby3
   SPECIFICATIONS = [
     Director.Spec('Wx', 'defs', 'Defs', ['defs.h'], director: Director::Defs),
     Director.Spec('Wx', 'wxGDICommon', 'GDICommon', %w{wxPoint wxSize wxRect wxRealPoint wxColourDatabase}, director: Director::GDICommon),
-    Director.Spec('Wx', 'wxColour', 'Colour', %w{wxColour}).ignore(%w{wxColour::GetPixel wxTransparentColour}),
+    Director.Spec('Wx', 'wxColour', 'Colour', %w{wxColour}).ignore(%w{wxColour::GetPixel wxTransparentColour wxColour::operator!=}),
     Director.Spec('Wx', 'wxObject', 'Object', %w{wxObject}, director: Director::Object),
-    Director.Spec('Wx', 'wxEvent', 'Event', %w{wxEvent}, director: Director::Event),
+    Director.Spec('Wx', 'wxEvent', 'Event', %w{
+      wxEvent wxCommandEvent wxIdleEvent wxNotifyEvent wxScrollEvent wxScrollWinEvent wxMouseEvent
+      wxSetCursorEvent wxGestureEvent wxPanGestureEvent wxZoomGestureEvent wxRotateGestureEvent
+      wxTwoFingerTapEvent wxLongPressEvent wxPressAndTapEvent wxKeyEvent
+      wxSizeEvent wxMoveEvent wxPaintEvent wxEraseEvent wxFocusEvent wxActivateEvent
+      wxInitDialogEvent wxMenuEvent wxCloseEvent wxShowEvent wxIconizeEvent wxMaximizeEvent
+      wxFullScreenEvent wxJoystickEvent wxDropFilesEvent wxUpdateUIEvent wxSysColourChangedEvent
+      wxMouseCaptureChangedEvent wxMouseCaptureLostEvent wxDisplayChangedEvent wxDPIChangedEvent
+      wxPaletteChangedEvent wxQueryNewPaletteEvent wxNavigationKeyEvent wxWindowCreateEvent
+      wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent}, director: Director::Event),
     Director.Spec('Wx', 'wxEvtHandler', 'EvtHandler', %w{wxEvtHandler}, director: Director::EventHandler),
     Director.Spec('Wx', 'wxApp', 'App', %w{wxApp wxAppConsole}, director: Director::App),
     Director.Spec('Wx', 'wxDC', 'DC', %w{wxDC}, director: Director::DC),
