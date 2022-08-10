@@ -38,6 +38,12 @@ module WXRuby3
         @ifspec.module_name
       end
 
+      def class_name(classdef_or_name)
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                          classdef_or_name : @defmod.find(classdef_or_name))
+        @ifspec.class_name(class_def.name)
+      end
+
       def get_base_class(hierarchy, foldedbases, ignoredbases)
         hierarchy = hierarchy.select { |basenm, _| !ignoredbases.include?(basenm) }
         raise "Cannot determin base class from multiple inheritance hierarchy : #{hierarchy}" if hierarchy.size>1
@@ -51,7 +57,8 @@ module WXRuby3
       def base_class(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
-        get_base_class(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
+        @ifspec.base_override(class_def.name) ||
+              get_base_class(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
       end
 
       def get_base_list(hierarchy, foldedbases, ignoredbases, list = ::Set.new)
@@ -79,6 +86,10 @@ module WXRuby3
 
       def ignored_bases(cnm)
         (@ifspec.ignored_bases[cnm] || []) + Director::Spec::IGNORED_BASES
+      end
+
+      def member_extensions(cnm)
+        @ifspec.member_extensions(cnm)
       end
 
       def is_abstract?(classdef_or_name)
@@ -208,7 +219,7 @@ module WXRuby3
         fout.puts "class #{basecls};"
         fout.puts ''
       end
-      fout.puts "class #{classdef.name}#{basecls ? ' : public '+basecls : ''}"
+      fout.puts "class #{spec.class_name(classdef)}#{basecls ? ' : public '+basecls : ''}"
       fout.puts '{'
 
       abstract_class = spec.is_abstract?(classdef)
@@ -220,30 +231,35 @@ module WXRuby3
       fout.puts 'public:'
 
       overrides = ::Set.new
-      gen_interface_class_members(fout, classdef.name, classdef, overrides, abstract_class)
+      gen_interface_class_members(fout, spec, classdef.name, classdef, overrides, abstract_class)
 
       spec.folded_bases(classdef.name).each do |basename|
-        gen_interface_class_members(fout, classdef.name, spec.def_item(basename), overrides)
+        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), overrides)
+      end
+
+      spec.member_extensions(classdef.name).each do |extdecl|
+        fout.puts '  // custom wxRuby3 extension'
+        fout.puts "  #{extdecl};"
       end
 
       fout.puts '};'
     end
 
-    def gen_interface_class_members(fout, class_name, classdef, overrides, abstract=false)
+    def gen_interface_class_members(fout, spec, class_name, classdef, overrides, abstract=false)
       classdef.items.each do |member|
         case member
         when Extractor::MethodDef
           if member.is_ctor
             if !abstract && member.protection == 'public' && member.name == class_name
-              fout.puts "  #{class_name}#{member.args_string};" if !member.ignored
+              fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored
               member.overloads.each do |ovl|
                 if ovl.protection == 'public' && !ovl.ignored
-                  fout.puts "  #{class_name}#{ovl.args_string};"
+                  fout.puts "  #{spec.class_name(classdef)}#{ovl.args_string};"
                 end
               end
             end
           elsif member.is_dtor
-            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{class_name}#{member.args_string};" if member.name == "~#{class_name}"
+            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{spec.class_name(classdef)}#{member.args_string};" if member.name == "~#{class_name}"
           elsif member.protection == 'public' && !member.ignored && !member.is_template?
             gen_interface_class_method(fout, member, overrides)
             member.overloads.each do |ovl|
@@ -263,7 +279,13 @@ module WXRuby3
 
     def gen_interface_class_method(fout, methoddef, overrides)
         unless methoddef.is_pure_virtual || (methoddef.is_virtual && overrides.include?(methoddef.signature))
-          fout.puts "#ifdef __#{methoddef.only_for.upcase}__" if methoddef.only_for
+          if methoddef.only_for
+            if ::Symbol === methoddef.only_for
+              fout.puts "#ifdef __#{methoddef.only_for.to_s.upcase}__"
+            else
+              fout.puts "#ifdef #{methoddef.only_for}"
+            end
+          end
           fout.puts "  // from #{methoddef.definition}"
           fout.puts "  #{methoddef.is_static ? 'static ' : ''}#{methoddef.is_virtual ? 'virtual ' : ''}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
           fout.puts "#endif" if methoddef.only_for
@@ -273,13 +295,33 @@ module WXRuby3
 
     def gen_typedefs(fout, spec)
       typedefs = spec.def_items.select {|item| Extractor::TypedefDef === item && !item.ignored }
-      fout << typedefs.collect {|item| "\n#{item.definition};" }.join
+      typedefs.each do |item|
+        if item.only_for
+          if ::Symbol === item.only_for
+            fout << "\n#ifdef __#{item.only_for.to_s.upcase}__"
+          else
+            fout << "\n#ifdef #{item.only_for}"
+          end
+        end
+        fout << "\n#{item.definition};"
+        fout << "\n#endif" if item.only_for
+      end
       fout.puts '' unless typedefs.empty?
     end
 
     def gen_variables(fout, spec)
       vars = spec.def_items.select {|item| Extractor::GlobalVarDef === item && !item.ignored }
-      fout << vars.collect {|item| "\n%constant #{item.definition}#{" #{item.value}".rstrip};" }.join
+      vars.each do |item|
+        if item.only_for
+          if ::Symbol === item.only_for
+            fout << "\n#ifdef __#{item.only_for.to_s.upcase}__"
+          else
+            fout << "\n#ifdef #{item.only_for}"
+          end
+        end
+        fout << "\n%constant #{item.definition}#{" #{item.value}".rstrip};"
+        fout << "\n#endif" if item.only_for
+      end
       fout.puts '' unless vars.empty?
     end
 
@@ -289,7 +331,13 @@ module WXRuby3
           code << "\n// from enum #{item.name || ''}\n"
           item.items.each do |e|
             unless e.ignored
-              code << "#ifdef __#{e.only_for.upcase}__\n" if e.only_for
+              if e.only_for
+                if ::Symbol === e.only_for
+                  code << "#ifdef __#{e.only_for.to_s.upcase}__\n"
+                else
+                  code << "#ifdef #{e.only_for}\n"
+                end
+              end
               code << "%constant int #{e.name} = #{e.name};\n"
               code << "#endif\n" if e.only_for
             end
@@ -303,16 +351,36 @@ module WXRuby3
       defines = spec.def_items.select {|item|
         Extractor::DefineDef === item && !item.ignored && !item.is_macro? && item.value && !item.value.empty?
       }
-      fout << defines.collect {|item| "\n#define #{item.name} #{item.value}" }.join
+      defines.each do |item|
+        if item.only_for
+          if ::Symbol === item.only_for
+            fout << "\n#ifdef __#{item.only_for.to_s.upcase}__"
+          else
+            fout << "\n#ifdef #{item.only_for}"
+          end
+        end
+        fout << "\n#define #{item.name} #{item.value}"
+        fout << "\n#endif" if item.only_for
+      end
       fout.puts '' unless defines.empty?
     end
 
     def gen_functions(fout, spec)
       functions = spec.def_items.select {|item| Extractor::FunctionDef === item && !item.is_template? }
-      fout << functions.collect do |item|
+      functions.each do |item|
         active_overloads = item.all.select { |ovl| !ovl.ignored }
-        active_overloads.collect { |ovl| "\n#{ovl.type} #{ovl.name}#{ovl.args_string};" }
-      end.flatten.join
+        active_overloads.each do |ovl|
+          if ovl.only_for
+            if ::Symbol === ovl.only_for
+              fout << "\n#ifdef __#{ovl.only_for.to_s.upcase}__"
+            else
+              fout << "\n#ifdef #{ovl.only_for}"
+            end
+          end
+          fout << "\n#{ovl.type} #{ovl.name}#{ovl.args_string};"
+          fout << "\n#endif" if ovl.only_for
+        end
+      end
       fout.puts '' unless functions.empty?
     end
 

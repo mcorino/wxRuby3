@@ -55,6 +55,7 @@ module WXRuby3
           wxSafeYield
           wxExit
         }
+        spec.extend_class('wxApp', 'int main_loop ()')
         spec.ignore [
           'wxEntry(int &,wxChar **)',
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
@@ -68,6 +69,8 @@ module WXRuby3
           wx/display.h
         }
         spec.gc_never
+        spec.rename_class('wxApp', 'wxRubyApp')
+        # spec.override_base('wxApp', 'wxApp')
         spec.add_swig_runtime_code <<~__HEREDOC
           // The App class in wxRuby is actually a custom-written subclass, but it
           // is presented to the user as Wx::App
@@ -245,7 +248,7 @@ module WXRuby3
               }
           
               // actually implemented in ruby in classes/app.rb
-            virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *cond, const wxChar *msg)
+            virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
             {
               printf("ASSERT fired\\n");
             }

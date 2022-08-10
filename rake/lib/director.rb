@@ -38,6 +38,9 @@ module WXRuby3
         @package = pkg
         @module_name = modname
         @name = name
+        @class_renames = {}
+        @base_overrides = {}
+        @class_members = {}
         @folded_bases = {}
         @ignored_bases = {}
         @abstract = false
@@ -77,6 +80,30 @@ module WXRuby3
 
       def interface_file
         @interface_file || File.join(WXRuby3::Config.instance.classes_path, @name + '.i')
+      end
+
+      def rename_class(from, to)
+        @class_renames[from] = to
+      end
+
+      def class_name(name)
+        @class_renames[name] || name
+      end
+
+      def override_base(cls, base)
+        @base_overrides[cls] = base
+      end
+
+      def base_override(cls)
+        @base_overrides[cls]
+      end
+
+      def extend_class(cls, declaration)
+        (@class_members[cls] ||= ::Set.new) << declaration
+      end
+
+      def member_extensions(cls)
+        @class_members[cls] || []
       end
 
       def fold_bases(*specs)

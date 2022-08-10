@@ -28,12 +28,12 @@ module WXRuby3
             wxTopLevelWindow::SaveGeometry
             wxTopLevelWindow::RestoreToGeometry
           }
-          spec.set_only_for 'wxuniversal', %w{
+          spec.set_only_for :wxuniversal, %w{
             wxTopLevelWindow::IsUsingNativeDecorations
             wxTopLevelWindow::UseNativeDecorations
             wxTopLevelWindow::UseNativeDecorationsByDefault
           }
-          spec.set_only_for 'wxmsw', 'wxTopLevelWindow::MSWGetSystemMenu'
+          spec.set_only_for :wxmsw, 'wxTopLevelWindow::MSWGetSystemMenu'
         end
         super
       end

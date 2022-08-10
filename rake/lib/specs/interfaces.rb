@@ -14,6 +14,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxGDICommon', 'GDICommon', %w{wxPoint wxSize wxRect wxRealPoint wxColourDatabase}, director: Director::GDICommon),
     Director.Spec('Wx', 'wxColour', 'Colour', %w{wxColour}).ignore(%w{wxColour::GetPixel wxTransparentColour}),
     Director.Spec('Wx', 'wxObject', 'Object', %w{wxObject}, director: Director::Object),
+    Director.Spec('Wx', 'wxEvent', 'Event', %w{wxEvent}, director: Director::Event),
     Director.Spec('Wx', 'wxEvtHandler', 'EvtHandler', %w{wxEvtHandler}, director: Director::EventHandler),
     Director.Spec('Wx', 'wxApp', 'App', %w{wxApp wxAppConsole}, director: Director::App),
     Director.Spec('Wx', 'wxDC', 'DC', %w{wxDC}, director: Director::DC),
