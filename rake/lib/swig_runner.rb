@@ -198,6 +198,9 @@ module WXRuby3
             if line['rb_define_module("Wx']
               line = "  mWx#{core_name} = #{MAIN_MODULE}; // fixmodule.rb"
               found_define_module = true
+            elsif line['rb_define_module("Defs']
+              line = "  m#{core_name} = #{MAIN_MODULE}; // fixmodule.rb"
+              found_define_module = true
             end
 
             # at the top of our Init_ function, make sure we only initialize
