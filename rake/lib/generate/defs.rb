@@ -58,7 +58,17 @@ module WXRuby3
       __HEREDOC
     end
 
-    def gen_swig_interface_code(fout, spec)
+    # def gen_swig_interface_code(fout, spec)
+    #   gen_enums(fout, spec)
+    #
+    #   gen_defines(fout, spec)
+    #
+    #   gen_variables(fout, spec)
+    #
+    #   gen_functions(fout, spec)
+    # end
+
+    def gen_interface_include_code(fout, spec)
       gen_enums(fout, spec)
 
       gen_defines(fout, spec)
@@ -66,10 +76,6 @@ module WXRuby3
       gen_variables(fout, spec)
 
       gen_functions(fout, spec)
-    end
-
-    def gen_interface_include(spec)
-      # noop
     end
 
     def run(spec)

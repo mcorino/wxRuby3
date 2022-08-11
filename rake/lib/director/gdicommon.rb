@@ -118,7 +118,7 @@ module WXRuby3
             }
           __HEREDOC
         end
-
+          spec.swig_import 'include/defs.h'
         super
       end
 

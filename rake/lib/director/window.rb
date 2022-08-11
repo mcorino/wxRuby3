@@ -68,6 +68,11 @@ module WXRuby3
             include/wxClientDC.h
             include/wxPaintDC.h
           }
+          spec.add_wrapper_code <<~__HEREDOC
+            extern VALUE wxRuby_GetWindowClass() {
+              return SwigClassWxWindow.klass;
+            }
+            __HEREDOC
         end
         spec.no_proxy [
           'wxWindow::GetDropTarget',
