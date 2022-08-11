@@ -305,8 +305,8 @@ module WXRuby3
         decls = []
         init_fn = []
 
-        # first initialize all helper modules
-        Config.instance.helper_modules.each do |mod|
+        # first initialize helper modules
+        Config.instance.helper_inits.each do |mod|
           init = "Init_wx#{mod}()"
           decls << "extern \"C\" void #{init};"
           init_fn << "  #{init};"

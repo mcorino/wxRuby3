@@ -29,7 +29,10 @@
 // Different string conversions for ruby 2.5+
 
 #define WXSTR_TO_RSTR(wx_str) rb_utf8_str_new_cstr((const char *)wx_str.utf8_str())
-#define WXSTR_PTR_TO_RSTR(wx_str) rb_utf8_str_new_cstr((const char *)wx_str->utf8_str())
+#define WXSTR_PTR_TO_RSTR(wx_str) (wx_str ? rb_utf8_str_new_cstr((const char *)wx_str->utf8_str()) : Qnil)
+
+#define RSTR_TO_WXSTR(rstr) (rstr == Qnil ? wxString() : wxString(StringValuePtr(rstr), wxConvUTF8))
+#define RSTR_TO_WXSTR_PTR(rstr) (rstr == Qnil ? 0 : new wxString(StringValuePtr(rstr), wxConvUTF8))
 
 // problematic Wx definition of _ macro conflicts with SWIG
 #define WXINTL_NO_GETTEXT_MACRO 1
@@ -66,6 +69,8 @@ extern VALUE wxRuby_GetDefaultEventClass ();
 
 extern VALUE wxRuby_GetWindowClass();
 %}
+
+typedef int wxWindowID;
 
 // %include "typedefs.i"
 %include "classes/common/typedefs.i"

@@ -93,6 +93,8 @@ module WXRuby3
                               else
                                 %w|RubyConstants RubyStockObjects Functions|
                               end
+            # helper to initialize on startup (stock objects can only be initialized after App creation)
+            @helper_inits = @helper_modules - %w|RubyStockObjects|
 
             # included swig specfiles not needing standalone processing
             @include_modules =
@@ -193,7 +195,7 @@ module WXRuby3
             @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].join(' ')
           end
 
-          attr_reader :ruby_exe, :extmk, :helper_modules, :include_modules
+          attr_reader :ruby_exe, :extmk, :helper_modules, :helper_inits, :include_modules
           attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,

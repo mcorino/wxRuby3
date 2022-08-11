@@ -133,6 +133,13 @@ module WXRuby3
           };
           __HEREDOC
         spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
+        if spec.module_name == 'wxEvent'
+          spec.add_wrapper_code <<~__HEREDOC
+            extern VALUE wxRuby_GetDefaultEventClass () {
+              return SwigClassWxEvent.klass;
+            }
+            __HEREDOC
+        end
         super
       end
 

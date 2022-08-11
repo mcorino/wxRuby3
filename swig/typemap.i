@@ -50,10 +50,10 @@
 }
 
 // (ruby) String <-> wxString
-%typemap(in) wxString& "$1 = new wxString(StringValuePtr($input), wxConvUTF8);"
-%typemap(in) wxString* "$1 = new wxString(StringValuePtr($input), wxConvUTF8);"
+%typemap(in) wxString& "$1 = RSTR_TO_WXSTR_PTR($input);"
+%typemap(in) wxString* "$1 = RSTR_TO_WXSTR_PTR($input);"
 
-%typemap(directorout) wxString, wxString& "$result = wxString(StringValuePtr($input), wxConvUTF8);";
+%typemap(directorout) wxString, wxString& "$result = RSTR_TO_WXSTR($input);"
 
 // Only free the wxString argument if it has been assigned as a heap
 // variable by the typemap - SWIG assigns the default as stack varialbes
@@ -94,12 +94,12 @@
 
 ##############################################################
 %typemap(in) const wxChar const * (wxString temp) {
-  temp = wxString(StringValuePtr($input), wxConvUTF8);
+  temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
 	$1 = const_cast<wxChar*> (static_cast<wxChar const *> (temp.c_str()));
 }
 
 %typemap(in) wxChar const * (wxString temp) {
-  temp = wxString(StringValuePtr($input), wxConvUTF8);
+  temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
 	$1 = const_cast<wxChar*> (static_cast<wxChar const *> (temp.c_str()));
 }
 
