@@ -73,7 +73,7 @@ module WXRuby3
             @common_path = File.join(Config.wxruby_root, @common_dir)
             FileUtils.mkdir_p(@common_path)
             @interface_dir = File.join(@classes_dir, 'include')
-            @interface_path = File.join(@classes_path, @interface_dir)
+            @interface_path = File.join(Config.wxruby_root, @interface_dir)
             FileUtils.mkdir_p(@interface_path)
             @inc_dir = File.join(@swig_dir, 'inc')
             @inc_path = File.join(Config.wxruby_root, @inc_dir)
