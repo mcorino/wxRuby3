@@ -369,8 +369,8 @@ module WXRuby3
 
     end
 
-    def self.extract
-      directors.each {|dir| dir.extract_interface }
+    def self.extract(*mods)
+      directors.each {|dir| dir.extract_interface(mods.empty? || mods.include?(dir.spec.name)) }
       generate_modules_initializer
     end
 
@@ -394,20 +394,23 @@ module WXRuby3
 
     def initialize(spec)
       @spec = spec
+      @defmod = nil
     end
 
     attr_reader :spec, :defmod
 
-    def extract_interface
+    def extract_interface(genint = true)
       setup
 
-      defmod = process
+      unless @defmod
+        @defmod = process
 
-      genspec = Generator::Spec.new(spec, defmod)
+        genspec = Generator::Spec.new(spec, defmod)
 
-      register(genspec)
+        register(genspec)
+      end
 
-      generate(genspec)
+      generate(genspec) if genint
     end
 
     def generate_code

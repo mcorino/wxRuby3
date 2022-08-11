@@ -27,7 +27,7 @@ module WXRuby3
       end
 
       def interface_include
-        "#{WXRuby3::Config.instance.interface_dir}/#{@ifspec.module_name}.h"
+        "#{File.basename(WXRuby3::Config.instance.interface_dir)}/#{@ifspec.module_name}.h"
       end
 
       def interface_include_file

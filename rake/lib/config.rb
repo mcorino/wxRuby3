@@ -69,14 +69,14 @@ module WXRuby3
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
             FileUtils.mkdir_p(@classes_path)
-            @common_dir = 'common'
-            @common_path = File.join(@classes_path, @common_dir)
+            @common_dir = File.join(@classes_dir, 'common')
+            @common_path = File.join(Config.wxruby_root, @common_dir)
             FileUtils.mkdir_p(@common_path)
-            @interface_dir = 'include'
+            @interface_dir = File.join(@classes_dir, 'include')
             @interface_path = File.join(@classes_path, @interface_dir)
             FileUtils.mkdir_p(@interface_path)
-            @inc_dir = 'inc'
-            @inc_path = File.join(@swig_path, @inc_dir)
+            @inc_dir = File.join(@swig_dir, 'inc')
+            @inc_path = File.join(Config.wxruby_root, @inc_dir)
             FileUtils.mkdir_p(@inc_path)
             @ext_dir = 'ext'
             @ext_path = File.join(Config.wxruby_root, @ext_dir)
