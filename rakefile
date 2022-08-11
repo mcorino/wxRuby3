@@ -43,17 +43,6 @@ require './rake/rakeconfigure'
 
 # THE MAIN ENTRY POINT MODULE
 MAIN_MODULE = 'wx'
-# Extra swig helper files to be built
-HELPER_MODULES =  if $config.macosx?
-                    %w|RubyConstants RubyStockObjects Functions Mac|
-                  else
-                    %w|RubyConstants RubyStockObjects Functions|
-                  end
-# included swig specfiles not needing standalone processing
-INCLUDE_MODULES =
-  %w|common.i typedefs.i typemap.i mark_free_impl.i memory_management.i shared/*.i|.collect do |glob|
-        Dir.glob(File.join($config.swig_dir, glob))
-  end.flatten
 
 # Pure-ruby lib files
 ALL_RUBY_LIB_FILES = FileList[ 'lib/**/*.rb' ]

@@ -29,13 +29,15 @@ module WXRuby3
         @innerclasses = []
         @is_inner = false # Is this a nested class?
         @klass = nil # if so, then this is the outer class
+        @event = false # if so, is wxEvent derived class
+        @event_types = []
 
         update_attributes(**kwargs)
         extract(element) if element
       end
 
       attr_accessor :kind, :protection, :template_params, :bases, :sub_classes, :hierarchy, :includes,
-                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass
+                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_types
 
       def is_template?
         !template_params.empty?
@@ -106,6 +108,30 @@ module WXRuby3
             txt.sub!('typename ', '')
           end
           @template_params << txt
+        end
+
+        if is_derived_from?('wxEvent')
+          @event = true
+          if detailed_doc.text.index('Event macros:')
+            detailed_doc.xpath('.//listitem').each do |li|
+              if li.text =~ /(EVT_\w+)\((.*)\)/
+                evt_handler = $1
+                args = $2.split(',').collect {|a| a.strip }
+                # skip event macros with event type argument
+                unless args.any? { |a| a == 'event' }
+                  # determine evt_type handled
+                  evt_type = if li.text =~ /Process\s+a\s+wx(\w+)\s+/
+                               $1
+                             else
+                               evt_handler
+                             end
+                  # record event handler (macro) name, event type handled and the number of event id arguments
+                  evt_arity = args.inject(0) {|c, a| c += 1 if a.start_with?('id'); c }
+                  @event_types << [evt_handler, evt_type, evt_arity]
+                end
+              end
+            end
+          end
         end
 
         element.xpath('innerclass').each do |node|

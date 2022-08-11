@@ -81,6 +81,24 @@ module WXRuby3
             @ext_dir = 'ext'
             @ext_path = File.join(Config.wxruby_root, @ext_dir)
             FileUtils.mkdir_p(@ext_path)
+            @rb_lib_dir = 'lib'
+            @rb_lib_path = File.join(Config.wxruby_root, @rb_lib_dir)
+            @rb_events_dir = File.join(@rb_lib_dir, 'wx', 'classes', 'events')
+            @rb_events_path = File.join(Config.wxruby_root, @rb_events_dir)
+            FileUtils.mkdir_p(@rb_events_path)
+
+            # Extra swig helper files to be built
+            @helper_modules = if macosx?
+                                %w|RubyConstants RubyStockObjects Functions Mac|
+                              else
+                                %w|RubyConstants RubyStockObjects Functions|
+                              end
+
+            # included swig specfiles not needing standalone processing
+            @include_modules =
+              %w|common.i typedefs.i typemap.i mark_free_impl.i memory_management.i shared/*.i|.collect do |glob|
+                    Dir.glob(File.join(swig_dir, glob))
+              end.flatten
 
 
             @release_build = ENV['WXRUBY_RELEASE'] ? true : false
@@ -175,7 +193,7 @@ module WXRuby3
             @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].join(' ')
           end
 
-          attr_reader :ruby_exe, :extmk
+          attr_reader :ruby_exe, :extmk, :helper_modules, :include_modules
           attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
@@ -183,6 +201,7 @@ module WXRuby3
           attr_reader :wx_path, :wx_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path, :inc_dir, :inc_path, :ext_dir, :ext_path
+          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path
 
           def mswin?
             @platform == :mswin

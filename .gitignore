@@ -7,4 +7,5 @@ bak
 ext
 swig/classes
 swig/inc
+lib/wx/classes/events
 *.old

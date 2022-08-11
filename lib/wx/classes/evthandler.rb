@@ -160,6 +160,7 @@ class Wx::EvtHandler
   # that are mapped to class Wx::Event are TODO as they are not
   # currently wrapped by the correct class.
 
+=begin
   # All StyledTextCtrl (Scintilla) events with prefix EVT_STC are dealt
   # with in the separate styledtextctrl.rb file.
   #
@@ -1005,7 +1006,7 @@ class Wx::EvtHandler
   # 2) EvtHandler instance methods like evt_xxx to conveniently set
   #    up event handlers
   EVENT_DEFINITIONS.each { | ev_type | register_event_type(ev_type) }
-
+=end
 
   # convenience evt_handler to listen to all mouse events
   def evt_mouse_events(&block)
@@ -1036,3 +1037,9 @@ class Wx::EvtHandler
     evt_scrollwin_thumbrelease(&block)
   end
 end
+
+# Definitions for all event types that are part by core wxRuby. Events
+# that are mapped to class Wx::Event are TODO as they are not
+# currently wrapped by the correct class.
+
+require_relative './events/evt_list'

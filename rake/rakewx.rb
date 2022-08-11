@@ -12,7 +12,7 @@ end
 
 # The plain module names of every SWIG module (in an .i file) to be built
 def all_build
-  all_build_modules + HELPER_MODULES + [MAIN_MODULE]
+  all_build_modules + $config.helper_modules + [MAIN_MODULE]
 end
 
 # Every compiled object file to be linked into the final library
@@ -28,7 +28,7 @@ end
 # Every swig class that must be processed
 def all_swig_files
   all_build_modules.map { | f | "#{$config.classes_dir}/#{f}.i" } +
-    HELPER_MODULES.map { | f | "#{$config.swig_dir}/#{f}.i" } +
+    $config.helper_modules.map { | f | "#{$config.swig_dir}/#{f}.i" } +
     [ 'swig/wx.i' ]
 end
 
@@ -74,8 +74,8 @@ if $config.has_wxwidgets_xml?
     end
     # Create recursive dependencies
     $swig_depends.keys.grep(/swig\/\w+\.i$/).each do | dep |
-      unless INCLUDE_MODULES.include?(dep)
-        file dep => [ *($swig_depends[dep] - INCLUDE_MODULES) ]
+      unless $config.include_modules.include?(dep)
+        file dep => [ *($swig_depends[dep] - $config.include_modules) ]
       end
     end
   end
@@ -99,10 +99,10 @@ if $config.has_wxwidgets_xml?
 
   # Generate cpp source from helper SWIG files - RubyConstants, Functions,
   # RubyStockObjects etc
-  HELPER_MODULES.each do | helper |
+  $config.helper_modules.each do | helper |
     swig_file = "#{$config.swig_dir}/#{helper}.i"
     file "#{$config.src_dir}/#{helper}.cpp" => [ swig_file,
-                                                *($swig_depends[swig_file] - INCLUDE_MODULES) ] do | _ |
+                                                *($swig_depends[swig_file] - $config.include_modules) ] do | _ |
       WXRuby3::Director.generate_code(swig_file, :rename, :fixmodule)
     end
   end
@@ -110,7 +110,7 @@ if $config.has_wxwidgets_xml?
   # Generate a C++ source file from a SWIG .i source file for a core class
   all_build_modules.each do | cls |
     swig_file = "#{$config.classes_path}/#{cls}.i"
-    file "#{$config.src_dir}/#{cls}.cpp" => [ swig_file, *($swig_depends[swig_file] - INCLUDE_MODULES) ] do | _ |
+    file "#{$config.src_dir}/#{cls}.cpp" => [ swig_file, *($swig_depends[swig_file] - $config.include_modules) ] do | _ |
       WXRuby3::Director.generate_code(swig_file) # default post processors
     end
   end
