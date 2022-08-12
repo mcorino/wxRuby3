@@ -14,7 +14,7 @@ module WXRuby3
     class EventHandler < Director
 
       def setup
-        spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect wxEVT_HOTKEY]
+        spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect wxEvtHandler::QueueEvent wxEVT_HOTKEY]
         spec.add_runtime_code <<~__HEREDOC
           static swig_class wxRuby_GetSwigClassWxEvtHandler();
           VALUE wxRuby_GetEventTypeClassMap();

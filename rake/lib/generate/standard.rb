@@ -161,7 +161,7 @@ module WXRuby3
       spec.def_items.each do |item|
         if Extractor::ClassDef === item
           unless spec.is_folded_base?(item.name)
-            fout.puts "#{spec.gc_type(item)}(#{item.name});"
+            fout.puts "#{spec.gc_type(item)}(#{spec.class_name(item)});"
           end
         end
       end

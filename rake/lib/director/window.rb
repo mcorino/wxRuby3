@@ -60,6 +60,7 @@ module WXRuby3
             # depends on wxUSE_HOTKEY
             'wxWindow::RegisterHotKey',
             'wxWindow::UnregisterHotKey',
+            'wxWindow::SendIdleEvents'
           ]
           spec.rename('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{

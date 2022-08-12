@@ -51,6 +51,10 @@ PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
 void wxRuby_AddTracking(void* ptr, VALUE object) {
+#ifdef __WXDEBUG__
+  wxObject* obj = static_cast<wxObject*> (ptr);
+  std::wcout << "> wxRuby_AddTracking(" << ptr << ":{" << obj->GetClassInfo()->GetClassName() << "})" << std::endl;
+#endif
   Global_Ptr_Map[ptr] = object;
 }
 
@@ -64,6 +68,9 @@ VALUE wxRuby_FindTracking(void* ptr) {
 
 // Remove the tracking for ptr
 void wxRuby_RemoveTracking(void* ptr) {
+#ifdef __WXDEBUG__
+  std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
+#endif
   Global_Ptr_Map.erase(ptr);
 }
 

@@ -12,7 +12,9 @@ module WXRuby3
   SPECIFICATIONS = [
     Director.Spec('Wx', 'defs', 'Defs', ['defs.h'], director: Director::Defs),
     Director.Spec('Wx', 'wxGDICommon', 'GDICommon', %w{wxPoint wxSize wxRect wxRealPoint wxColourDatabase}, director: Director::GDICommon),
-    Director.Spec('Wx', 'wxColour', 'Colour', %w{wxColour}).ignore(%w{wxColour::GetPixel wxTransparentColour wxColour::operator!=}),
+    Director.Spec('Wx', 'wxColour', 'Colour', %w{wxColour}).ignore(%w{
+      wxColour::GetPixel wxTransparentColour wxColour::operator!=
+      wxBLACK wxBLUE wxCYAN wxGREEN wxYELLOW wxLIGHT_GREY wxRED wxWHITE}),
     Director.Spec('Wx', 'wxObject', 'Object', %w{wxObject}, director: Director::Object),
     Director.Spec('Wx', 'wxEvent', 'Event', %w{
       wxEvent wxCommandEvent wxIdleEvent wxNotifyEvent wxScrollEvent wxScrollWinEvent wxMouseEvent
