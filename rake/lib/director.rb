@@ -178,6 +178,7 @@ module WXRuby3
 
       def make_abstract(cls)
         @abstracts << cls
+        self
       end
 
       def abstract?(cls)
