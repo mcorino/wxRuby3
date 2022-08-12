@@ -63,6 +63,8 @@ module WXRuby3
         spec.no_proxy %w{
           wxRubyApp::GetDisplayMode
           wxRubyApp::GetTopWindow
+          wxRubyApp::OnInit
+          wxRubyApp::OnExit
         }
         spec.include %w{
           wx/init.h
@@ -96,7 +98,7 @@ module WXRuby3
             virtual ~wxRubyApp()
             {
           #ifdef __WXDEBUG__
-            printf("~wxRubyApp\\n");
+            std::wcout << "~wxRubyApp" << std::endl;
           #endif
               }
           
@@ -135,7 +137,7 @@ module WXRuby3
             {
           
           #ifdef __WXDEBUG__
-            printf("=== Starting App GC mark phase\\n");
+            std::wcout << "=== Starting App GC mark phase" << std::endl;
           #endif
           
             // If the App has ended, the ruby object will have been unlinked from
@@ -145,7 +147,7 @@ module WXRuby3
               if ( rb_gv_get("__wx_app_ended__" ) == Qtrue )
                 {
           #ifdef __WXDEBUG__
-            printf("=== App has ended, skipping mark phase\\n");
+            std::wcout << "=== App has ended, skipping mark phase" << std::endl;
           #endif
                   return;
                 }
@@ -159,7 +161,7 @@ module WXRuby3
               wxRuby_IterateTracking(&wxRubyApp::markIterate);
           
           #ifdef __WXDEBUG__
-            printf("=== App GC mark phase completed\\n");
+            std::wcout << "=== App GC mark phase completed" << std::endl;
           #endif
           
             }
@@ -175,7 +177,7 @@ module WXRuby3
                     wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
           
           #ifdef __WXDEBUG__
-                  printf("Calling wxEntry, this=%p\\n", this);
+                  std::wcout << "Calling wxEntry, this=" << this << std::endl;
           #endif
           
           #ifdef __WXMSW__
@@ -189,11 +191,11 @@ module WXRuby3
           #endif
           
           #ifdef __WXDEBUG__
-                  printf("returned from wxEntry...\\n");
+                  std::wcout << "returned from wxEntry..." << std::endl;
           #endif
                   rb_gc_start();
           #ifdef __WXDEBUG__
-                  printf("survived gc\\n");
+                  std::wcout << "survived gc" << std::endl;
           #endif
                   return 0;
               }
@@ -204,6 +206,9 @@ module WXRuby3
               // be initialized any earlier than this without crashing
               bool OnInit()
               {
+          #ifdef __WXDEBUG__
+                  std::wcout << "OnInit..." << std::endl;
+          #endif
                 // Signal that we're started
                 rb_gv_set("__wx_app_ended__", Qfalse);
                 // Set up the GDI objects
@@ -230,7 +235,7 @@ module WXRuby3
               virtual int OnExit()
               {
           #ifdef __WXDEBUG__
-                  printf("OnExit...\\n");
+                  std::wcout << "OnExit..." << std::endl;
           #endif
                   // Note in a global variable that the App has ended, so that we
                   // can skip any GC marking later
@@ -250,7 +255,7 @@ module WXRuby3
               // actually implemented in ruby in classes/app.rb
             virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
             {
-              printf("ASSERT fired\\n");
+              std::wcout << "ASSERT fired" << std::endl;
             }
           
           };
