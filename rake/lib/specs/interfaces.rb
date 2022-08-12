@@ -36,6 +36,8 @@ module WXRuby3
     Director.Spec('Wx', 'wxNonOwnedWindow', 'NonOwnedWindow', %w{wxNonOwnedWindow}, director: Director::Window).no_proxy('wxNonOwnedWindow'),
     Director.Spec('Wx', 'wxTopLevelWindow', 'TopLevelWindow', %w{wxTopLevelWindow}, director: Director::TopLevelWindow),
     Director.Spec('Wx', 'wxFrame', 'Frame', %w{wxFrame}, director: Director::Frame),
+    Director.Spec('Wx', 'wxGDIObject', 'GDIObject', %w{wxGDIObject}).make_abstract('wxGDIObject').no_proxy('wxGDIObject'),
+    Director.Spec('Wx', 'wxBitmap', 'Bitmap', %w{wxBitmap}, director: Director::Bitmap),
   ]
 
 end # module WXRuby3
