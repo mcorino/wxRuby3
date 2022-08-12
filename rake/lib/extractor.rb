@@ -206,7 +206,7 @@ module WXRuby3
       def check_deprecated
         # Don't iterate all items, just the para items found in detailedDoc,
         # so that classes with a deprecated method don't likewise become deprecated.
-        @detailed_doc.each do |para|
+        @detailed_doc.xpath('para').each do |para|
           para.elements.each do |item|
             itemid = item['id']
             if itemid and itemid.start_with?('deprecated')
