@@ -6,5 +6,6 @@ require './lib/wx'
 # show it.
 Wx::App.run do
   frame = Wx::Frame.new(nil, :title => "Minimal wxRuby App")
+  frame.background_colour = Wx::RED
   frame.show
 end
