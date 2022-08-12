@@ -255,32 +255,32 @@ module WXRuby3
         when Extractor::MethodDef
           if member.is_ctor
             if !abstract && member.protection == 'public' && member.name == class_name
-              fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored
+              fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored && !member.deprecated
               member.overloads.each do |ovl|
-                if ovl.protection == 'public' && !ovl.ignored
+                if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated
                   fout.puts "  #{spec.class_name(classdef)}#{ovl.args_string};"
                 end
               end
             end
           elsif member.is_dtor
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{spec.class_name(classdef)}#{member.args_string};" if member.name == "~#{class_name}"
-          elsif member.protection == 'public' && !member.ignored && !member.is_template?
+          elsif member.protection == 'public' && !member.ignored && !member.deprecated && !member.is_template?
             gen_interface_class_method(fout, member, overrides)
             member.overloads.each do |ovl|
-              if ovl.protection == 'public' && !ovl.ignored && !member.is_template?
+              if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated && !member.is_template?
                 gen_interface_class_method(fout, ovl, overrides)
               end
             end
           end
         when Extractor::EnumDef
-          if member.protection == 'public' && !member.ignored
+          if member.protection == 'public' && !member.ignored && !member.deprecated
             fout.puts "  // from #{classdef.name}::#{member.name}"
             fout.puts "  enum #{member.name} {"
             fout.puts member.items.collect { |e| "    #{e.name}" }.join(",\n")
             fout.puts "  };"
           end
         when Extractor::MemberVarDef
-          if member.protection == 'public' && !member.ignored
+          if member.protection == 'public' && !member.ignored && !member.deprecated
             fout.puts "  // from #{member.definition}"
             fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
           end
