@@ -496,7 +496,12 @@ module WXRuby3
               STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore. Possible match is '#{item.signature}'."
             end
           else
-            item.ignore
+            if item.is_a?(Extractor::FunctionDef)
+              item.ignore
+              item.overloads {|ovl| ovl.ignore }
+            else
+              item.ignore
+            end
           end
         else
           STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore."
