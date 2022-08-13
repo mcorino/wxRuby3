@@ -211,7 +211,7 @@ module WXRuby3
             itemid = item['id']
             if itemid and itemid.start_with?('deprecated')
               @deprecated = true
-              break
+              return
             end
           end
         end

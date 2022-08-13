@@ -38,6 +38,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxFrame', 'Frame', %w{wxFrame}, director: Director::Frame),
     Director.Spec('Wx', 'wxGDIObject', 'GDIObject', %w{wxGDIObject}).make_abstract('wxGDIObject').no_proxy('wxGDIObject'),
     Director.Spec('Wx', 'wxBitmap', 'Bitmap', %w{wxBitmap}, director: Director::Bitmap),
+    Director.Spec('Wx', 'wxIcon', 'Icon', %w{wxIcon}).ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)'),
   ]
 
 end # module WXRuby3

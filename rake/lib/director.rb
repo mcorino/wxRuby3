@@ -488,11 +488,11 @@ module WXRuby3
         item = defmod.find_item(name)
         if item
           if args
-            overload = item.find_overload(args, const)
-            if overload
+            if item.is_a?(Extractor::FunctionDef) && (overload = item.find_overload(args, const))
               overload.ignore if overload
             else
-              STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore. Possible match is '#{item.signature}'."
+              STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore. "+
+                          "Possible match is '#{item.is_a?(Extractor::FunctionDef) ? item.signature : item.name}'."
             end
           else
             if item.is_a?(Extractor::FunctionDef)
