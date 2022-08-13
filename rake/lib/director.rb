@@ -446,11 +446,11 @@ module WXRuby3
     end
 
     def extract_interface(genint = true)
-      setup
-
       if @defmod
         genspec = Generator::Spec.new(spec, defmod)
       else
+        setup
+
         @defmod = process
 
         genspec = Generator::Spec.new(spec, defmod)
