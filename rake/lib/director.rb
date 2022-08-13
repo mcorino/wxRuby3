@@ -62,7 +62,6 @@ module WXRuby3
         @swig_header_code = []
         @header_code = []
         @wrapper_code = []
-        @swig_init_code = []
         @init_code = []
         @swig_interface_code = []
         @interface_code = []
@@ -76,7 +75,7 @@ module WXRuby3
                   :ignores, :no_proxies, :disowns, :only_for, :includes, :swig_imports, :swig_includes, :renames,
                   :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
                   :swig_header_code, :header_code, :wrapper_code, :extend_code,
-                  :swig_init_code, :init_code, :swig_interface_code, :interface_code,
+                  :init_code, :swig_interface_code, :interface_code,
                   :nogen_sections, :post_processors
       attr_writer :interface_file
 
@@ -256,11 +255,6 @@ module WXRuby3
 
       def add_wrapper_code(*code)
         @wrapper_code.concat code.flatten
-        self
-      end
-
-      def add_swig_init_code(*code)
-        @swig_init_code.concat code.flatten
         self
       end
 
@@ -538,6 +532,40 @@ module WXRuby3
             end
           else
             raise "Cannot find '#{fullname}' for module '#{spec.module_name}'"
+          end
+        end
+      end
+      # create deprecated function proxies unless deprecates suppressed
+      unless Config.instance.no_deprecate
+        defmod.items.select {|i| !i.ignored }.each do |item|
+          case item
+          when Extractor::ClassDef
+            clsnm = spec.class_name(item.name)
+            item.items.each do |member|
+              if Extractor::MethodDef === member
+                member.all.each do |ovl|
+                  if !ovl.ignored && ovl.deprecated
+                    is_void = (ovl.type && !ovl.type=='void')
+                    spec.add_extend_code clsnm, <<~__HEREDOC
+                      #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{ovl.name}#{ovl.args_string} {
+                        std::wcerr << "DEPRECATION WARNING: #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{clsnm}::#{ovl.name}#{ovl.args_string}" << std::endl;
+                        #{is_void ? '' : 'return '}$self->#{ovl.name}(#{ovl.parameters.collect {|p| p.name}.join(',')});
+                      }
+                      __HEREDOC
+                  end
+                end
+              end
+            end
+          when Extractor::FunctionDef
+            if item.deprecated
+              is_void = (item.type && !item.type=='void')
+              spec.add_swig_interface_code <<~__HEREDOC
+                #{item.type} #{item.name}#{item.args_string} {
+                  std::wcerr << "DEPRECATION WARNING: #{item.type} #{item.name}#{item.args_string}" << std::endl;
+                  #{is_void ? '' : 'return '}#{item.name}(#{item.parameters.collect {|p| p.name}.join(',')});
+                }
+                __HEREDOC
+            end
           end
         end
       end

@@ -104,10 +104,6 @@ module WXRuby3
             __HEREDOC
           ), method: '_gen_swig_wrapper_code(spec)' },
         { template: (<<~__HEREDOC
-          <% if spec.swig_init_code && !spec.swig_init_code.empty? %>
-
-          <%= spec.swig_init_code %>
-          <% end %>
           <% if spec.init_code && !spec.init_code.empty? %>
 
           %init %{

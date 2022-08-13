@@ -70,13 +70,16 @@ module WXRuby3
         end
       end
 
+      def parameters
+        items.select {|i| ParamDef === i }
+      end
+
       def signature
         sig = "#{@type} #{name}"
-        params = items.select {|i| ParamDef === i }
-        if params.empty?
+        if parameters.empty?
           sig << '()'
         else
-          sig << '(' << params.collect {|p| p.type }.join(',') << ')'
+          sig << '(' << parameters.collect {|p| p.type }.join(',') << ')'
         end
         sig
       end

@@ -149,16 +149,8 @@ module WXRuby3
         @ifspec.header_code.join("\n")
       end
 
-      def swig_wrapper_code
-        @ifspec.swig_wrapper_code.join("\n")
-      end
-
       def wrapper_code
         @ifspec.wrapper_code.join("\n")
-      end
-
-      def swig_init_code
-        @ifspec.swig_init_code.join("\n")
       end
 
       def init_code
@@ -383,7 +375,7 @@ module WXRuby3
     def gen_functions(fout, spec)
       functions = spec.def_items.select {|item| Extractor::FunctionDef === item && !item.is_template? }
       functions.each do |item|
-        active_overloads = item.all.select { |ovl| !ovl.ignored }
+        active_overloads = item.all.select { |ovl| !ovl.ignored && !ovl.deprecated }
         active_overloads.each do |ovl|
           if ovl.only_for
             if ::Symbol === ovl.only_for

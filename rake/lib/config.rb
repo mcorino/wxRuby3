@@ -103,12 +103,14 @@ module WXRuby3
               end.flatten
 
 
-            @release_build = ENV['WXRUBY_RELEASE'] ? true : false
+            @release_build = !!ENV['WXRUBY_RELEASE']
             @debug_build   = ENV['WXRUBY_DEBUG'] ? true : !@release_build
-            @verbose_debug = ENV['WXRUBY_VERBOSE'] ? true : false
+            @verbose_debug = !!ENV['WXRUBY_VERBOSE']
 
-            @dynamic_build = ENV['WXRUBY_DYNAMIC'] ? true : false
-            @static_build  = ENV['WXRUBY_STATIC'] ? true : false
+            @dynamic_build = !!ENV['WXRUBY_DYNAMIC']
+            @static_build  = !!ENV['WXRUBY_STATIC']
+
+            @no_deprecate = !!ENV['WXNO_DEPRECATE']
 
             # Non-unicode (ANSI) build is not tested or supported, but retained in
             # case anyone is using it
@@ -196,7 +198,7 @@ module WXRuby3
           end
 
           attr_reader :ruby_exe, :extmk, :helper_modules, :helper_inits, :include_modules
-          attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build
+          attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
                       :cppflags, :ldflags, :libs, :cpp, :ld, :verbose_flag
