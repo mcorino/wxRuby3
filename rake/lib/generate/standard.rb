@@ -30,6 +30,12 @@ module WXRuby3
 
       LIST = [
         { template: (<<~__HEREDOC
+          <% unless spec.disowns.empty? %>
+
+          <% spec.disowns.each do |dis| %>
+          %apply SWIGTYPE *DISOWN { <%= dis %> };
+          <% end %>
+          <% end %>
           <% if spec.swig_begin_code && !spec.swig_begin_code.empty? %> 
 
           <%= spec.swig_begin_code %>

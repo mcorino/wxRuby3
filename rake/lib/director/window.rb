@@ -20,16 +20,11 @@ module WXRuby3
         __HEREDOC
         # only for actual wxWindow class
         if spec.module_name == 'wxWindow'
+          # // Any of these following kind of objects become owned by the window
+          # // when passed into Wx, and so will be deleted automatically; using
+          # // DISOWN resets their %freefunc to avoid deleting the object twice
+          spec.disown 'wxCaret* caret', 'wxSizer* sizer', 'wxToolTip* tip', 'wxDropTarget* target'
           spec.add_swig_begin_code <<~__HEREDOC
-          
-            // Any of these following kind of objects become owned by the window
-            // when passed into Wx, and so will be deleted automatically; using
-            // DISOWN resets their %freefunc to avoid deleting the object twice
-            %apply SWIGTYPE *DISOWN {wxCaret* caret};
-            %apply SWIGTYPE *DISOWN {wxSizer* sizer};
-            %apply SWIGTYPE *DISOWN {wxToolTip* tip};
-            %apply SWIGTYPE *DISOWN {wxDropTarget* target};
-            
             %apply int * INOUT { int * x_INOUT, int * y_INOUT }
             
             // Typemap for GetChildren - casts wxObjects to correct ruby wrappers

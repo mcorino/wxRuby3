@@ -19,21 +19,13 @@ module WXRuby3
         super
         # only for wxFrame class itself
         if spec.module_name == 'wxFrame'
-          spec.no_proxy [
-            'wxFrame::CreateStatusBar',
-            'wxFrame::CreateToolBar',
-            'wxFrame::GetMenuBar',
-            'wxFrame::GetStatusBar',
-            'wxFrame::GetToolBar',
-          ]
-          spec.ignore [
-            'wxFrame::OnCreateStatusBar',
-            'wxFrame::OnCreateToolBar'
-          ]
+          spec.no_proxy %w[
+            wxFrame::CreateStatusBar wxFrame::CreateToolBar wxFrame::GetMenuBar wxFrame::GetStatusBar wxFrame::GetToolBar]
+          spec.ignore %w[
+            wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
           spec.set_only_for(:wxmsw, 'wxFrame::MSWGetTaskBarButton')
+          spec.disown 'wxMenuBar *'
           spec.add_swig_begin_code <<~__HEREDOC
-            %apply SWIGTYPE *DISOWN { wxMenuBar * }
-            
             %typemap(in,numinputs=1) (int n, int * widths) (int size, int i, int *arr){
             
               size = RARRAY_LEN($input);

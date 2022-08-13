@@ -31,9 +31,7 @@ module WXRuby3
           ]
         # // wxPalette not supported in wxRuby
         spec.ignore 'wxBitmap::SetPalette'
-        spec.add_swig_begin_code <<~__HEREDOC
-          %apply SWIGTYPE *DISOWN { wxMask* mask };
-          __HEREDOC
+        spec.disown 'wxMask* mask'
         super
       end
     end # class Bitmap
