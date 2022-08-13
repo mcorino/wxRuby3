@@ -14,7 +14,6 @@ module WXRuby3
     class DC < Director
 
       def setup
-        #spec.gc_as_object
         spec.ignore [
           'wxDC::StartPage',
           'wxDC::GetPartialTextExtents',
