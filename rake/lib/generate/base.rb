@@ -121,6 +121,10 @@ module WXRuby3
         @ifspec.no_proxies
       end
 
+      def disowns
+        @ifspec.disowns
+      end
+
       def swig_begin_code
         @ifspec.swig_begin_code.join("\n")
       end
