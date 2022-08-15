@@ -233,7 +233,7 @@ wxString wxFileSelector(const wxString& message,
 						int x = -1,
 						int y = -1);
 
-void wxAboutBox(const wxAboutDialogInfo& info);
+// void wxAboutBox(const wxAboutDialogInfo& info);
 
 //// Display information methods
 //int wxDisplayDepth();

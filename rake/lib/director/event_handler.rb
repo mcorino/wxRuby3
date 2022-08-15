@@ -140,6 +140,10 @@ module WXRuby3
             return rb_const_get(wxRuby_GetSwigClassWxEvtHandler().klass, rb_to_id(map_name)); 
           }
           __HEREDOC
+        spec.add_swig_interface_code <<~__HEREDOC
+          // make sure wxEventType is known as 'int'
+          typedef int wxEventType;
+          __HEREDOC
         spec.do_not_generate :typedefs, :variables, :enums, :defines, :functions
         super
       end

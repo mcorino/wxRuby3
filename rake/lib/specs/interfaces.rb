@@ -39,6 +39,18 @@ module WXRuby3
     Director.Spec('Wx', 'wxGDIObject', 'GDIObject', %w{wxGDIObject}).make_abstract('wxGDIObject').no_proxy('wxGDIObject'),
     Director.Spec('Wx', 'wxBitmap', 'Bitmap', %w{wxBitmap}, director: Director::Bitmap),
     Director.Spec('Wx', 'wxIcon', 'Icon', %w{wxIcon}).ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)'),
+    Director.Spec('Wx', 'wxMenuBar', 'MenuBar', %w{wxMenuBar}, director: Director::Window)
+      .no_proxy('wxMenuBar::Refresh',
+                'wxMenuBar::FindItem',
+                'wxMenuBar::Remove',
+                'wxMenuBar::Replace')
+      .ignore('wxMenuBar::wxMenuBar(size_t,wxMenu *[],const wxString[],long)',
+              'wxMenuBar::GetLabelTop',
+              'wxMenuBar::SetLabelTop'),
+    Director.Spec('Wx', 'wxMenu', 'Menu', %w{wxMenu}, director: Director::Menu),
+    Director.Spec('Wx', 'wxAboutDialogInfo', 'AboutDialogInfo', %w{wxAboutDialogInfo})
+      .include('wx/aboutdlg.h', 'wx/generic/aboutdlgg.h')
+      .add_swig_interface_code('%typemap(check) wxWindow* parent "";'), # overrule common typemap to allow default NULL
   ]
 
 end # module WXRuby3
