@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         if spec.module_name == 'wxEvent'
+          spec.fold_bases('wxMouseEvent' => 'wxMouseState', 'wxKeyEvent' => 'wxKeyboardState')
           spec.ignore_bases('wxMouseEvent' => 'wxMouseState', 'wxKeyEvent' => 'wxKeyboardState')
           spec.make_abstract('wxPaintEvent')
           spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
@@ -133,6 +134,7 @@ module WXRuby3
             };
             __HEREDOC
           spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
+          spec.ignore 'wxMouseState::GetPosition(int *,int *)'
           spec.ignore 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
           spec.ignore 'wxQueueEvent'
           spec.add_wrapper_code <<~__HEREDOC
