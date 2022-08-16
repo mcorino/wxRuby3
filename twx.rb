@@ -21,5 +21,6 @@ $:.insert(0, File.join(File.dirname(__FILE__), 'lib'))
 #   end
 # end
 
-require_relative './samples/minimal/nothing'
-require_relative './samples/minimal/minimal'
+#require_relative './samples/minimal/nothing'
+#require_relative './samples/minimal/minimal'
+require_relative './samples/event/event'

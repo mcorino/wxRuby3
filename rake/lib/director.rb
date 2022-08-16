@@ -546,12 +546,20 @@ module WXRuby3
                 member.all.each do |ovl|
                   if !ovl.ignored && ovl.deprecated
                     is_void = (ovl.type && !ovl.type=='void')
+                    if ovl.only_for
+                      spec.add_extend_code clsnm, if ::Symbol === ovl.only_for
+                                                    "#ifdef __#{ovl.only_for.to_s.upcase}__"
+                                                  else
+                                                    "#ifdef #{ovl.only_for}"
+                                                  end
+                    end
                     spec.add_extend_code clsnm, <<~__HEREDOC
                       #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{ovl.name}#{ovl.args_string} {
                         std::wcerr << "DEPRECATION WARNING: #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{clsnm}::#{ovl.name}#{ovl.args_string}" << std::endl;
                         #{is_void ? '' : 'return '}$self->#{ovl.name}(#{ovl.parameters.collect {|p| p.name}.join(',')});
                       }
                       __HEREDOC
+                    spec.add_extend_code(clsnm, '#endif') if ovl.only_for
                   end
                 end
               end

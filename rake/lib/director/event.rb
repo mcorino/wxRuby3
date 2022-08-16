@@ -83,7 +83,6 @@ module WXRuby3
           spec.add_swig_runtime_code <<~__HEREDOC
             %rename(wxCommandEvent) wxRubyCommandEvent;
             __HEREDOC
-          spec.include 'wx/event.h'
           spec.ignore %w{
             wxCommandEvent::Checked
             wxCommandEvent::GetClientObject
