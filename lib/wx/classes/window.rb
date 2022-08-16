@@ -4,6 +4,12 @@
 # The base class for all things displayed on screen
 class Wx::Window
 
+  # Add the deprecated/removed GetSize method
+  def get_size
+    rect.size
+  end
+  alias :size :get_size
+
   # Ruby's Object#id is deprecated and will be removed in 1.9; therefore
   # for classes inheriting from Wx::Window, the id method returns the
   # wxRuby Window id

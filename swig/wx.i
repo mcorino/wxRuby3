@@ -185,6 +185,9 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   // without mark or free functions as Wx will deals with deletion
   rb_event = Data_Wrap_Struct(rb_event_class, 0, 0, 0);
   DATA_PTR(rb_event) = wx_event;
+  // do not forget to mark the instance with the mangled swig type name
+  swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
+  rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
   return rb_event;
 }
 

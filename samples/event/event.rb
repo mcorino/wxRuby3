@@ -116,7 +116,6 @@ class TargetFrame < Wx::Frame
 
   # Keep the target centred and square
   def on_size(evt)
-    p evt.size
     smaller = [ evt.size.width, evt.size.height ].min
     @tgt.centre
     @tgt.size = Wx::Size.new(smaller, smaller)
