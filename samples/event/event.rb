@@ -2,7 +2,7 @@
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
 # Freely reusable code: see SAMPLES-LICENSE.TXT for details
 begin
-  require 'rubygems' 
+  require 'rubygems'
 rescue LoadError
 end
 require 'wx'
@@ -18,8 +18,8 @@ class TargetHitEvent < Wx::CommandEvent
   # Create a new unique constant identifier, associate this class
   # with events of that identifier, and create a shortcut 'evt_target'
   # method for setting up this handler.
-  EVT_HIT_TARGET = Wx::EvtHandler.register_class(self, nil, 'evt_target', 1) 
-  
+  EVT_HIT_TARGET = Wx::EvtHandler.register_class(self, nil, 'evt_target', 1)
+
   def initialize(target, score, distance)
     # The constant id is the arg to super
     super(EVT_HIT_TARGET)
@@ -41,7 +41,7 @@ class TargetHitEvent < Wx::CommandEvent
 end
 
 # An example of a simple user-written control, which displays a
-# "bulls-eye" like target, and sends events with a score and distance 
+# "bulls-eye" like target, and sends events with a score and distance
 class TargetControl < Wx::Window
   TargetCircle = Struct.new(:radius, :score, :brush)
 
@@ -69,7 +69,7 @@ class TargetControl < Wx::Window
       dc.clear
       @radii.reverse_each do | circ |
         dc.brush = circ.brush
-        dc.draw_circle(centre_point, centre_point, 
+        dc.draw_circle(centre_point, centre_point,
                        ( size.width * circ.radius).to_i )
       end
     end
@@ -78,10 +78,10 @@ class TargetControl < Wx::Window
   # Test if the target was hit, and generate a TargetHitEvent if so
   def on_left_down(evt)
     # quick bit of pythagoras...
-    distance = Math.sqrt( ( evt.x - centre_point ) ** 2  + 
+    distance = Math.sqrt( ( evt.x - centre_point ) ** 2  +
                           ( evt.y - centre_point ) ** 2 )
     # See which target ring, if any, was hit by the event
-    @radii.each do | circ | 
+    @radii.each do | circ |
       if distance < ( size.width * circ.radius)
         # Create an instance of the event
         evt = TargetHitEvent.new(self, circ.score, distance)
@@ -109,7 +109,7 @@ class TargetFrame < Wx::Frame
 
   # What's done when the target is hit
   def on_target(evt)
-    msg = "Target hit for score %i, %.2f pixels from centre" % 
+    msg = "Target hit for score %i, %.2f pixels from centre" %
           [ evt.score, evt.distance ]
     self.status_text = msg
   end
@@ -121,7 +121,7 @@ class TargetFrame < Wx::Frame
     @tgt.size = Wx::Size.new(smaller, smaller)
     @tgt.refresh
   end
-  
+
   # Toggle whether or not we are listening for events from the bulls-eye
   # target
   def on_toggle_connect
@@ -146,6 +146,7 @@ class TargetFrame < Wx::Frame
 
     about_dlg = Wx::MessageDialog.new( self, msg, 'About Event Handling',
                                        Wx::OK|Wx::ICON_INFORMATION )
+    about_dlg.ok_label = Wx::ButtonLabel.new('Close')
     about_dlg.show_modal
 
   end
@@ -158,7 +159,7 @@ class TargetFrame < Wx::Frame
     evt_menu(Wx::ID_ABOUT) { on_about }
     menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
     evt_menu(Wx::ID_EXIT) { self.close }
-    menu_file.append_check_item(TOGGLE_LISTEN, "L&isten for events", 
+    menu_file.append_check_item(TOGGLE_LISTEN, "L&isten for events",
                                  "Toggle listening for target events")
     evt_menu(TOGGLE_LISTEN) { on_toggle_connect }
 

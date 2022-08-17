@@ -6,6 +6,7 @@
 
 %feature("director");
 %feature("compactdefaultargs");
+%feature("flatnested");
 
 %runtime %{
 // # SWIG 1.3.29 added this new feature which we can't use (yet)

@@ -246,6 +246,14 @@ module WXRuby3
     end
 
     def gen_interface_class_members(fout, spec, class_name, classdef, overrides, abstract=false)
+      # generate any inner classes
+      classdef.innerclasses.each do |inner|
+        p inner.name
+        if inner.protection == 'public' && !inner.ignored && !inner.deprecated
+          gen_interface_class(fout, spec, inner)
+        end
+      end
+      # generate other members
       classdef.items.each do |member|
         case member
         when Extractor::MethodDef

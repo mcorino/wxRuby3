@@ -165,6 +165,9 @@ module WXRuby3
           unless spec.is_folded_base?(item.name)
             fout.puts "#{spec.gc_type(item)}(#{spec.class_name(item)});"
           end
+          item.innerclasses.each do |inner|
+            fout.puts "#{spec.gc_type(inner)}(#{spec.class_name(inner)});"
+          end
         end
       end
     end

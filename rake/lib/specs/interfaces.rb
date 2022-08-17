@@ -51,6 +51,10 @@ module WXRuby3
     Director.Spec('Wx', 'wxAboutDialogInfo', 'AboutDialogInfo', %w{wxAboutDialogInfo})
       .include('wx/aboutdlg.h', 'wx/generic/aboutdlgg.h')
       .add_swig_interface_code('%typemap(check) wxWindow* parent "";'), # overrule common typemap to allow default NULL
+    Director.Spec('Wx', 'wxDialog', 'Dialog', %w{wxDialog}, director: Director::TopLevelWindow)
+      .ignore('wxDialog::GetContentWindow')
+      .swig_import('include/defs.h'),
+    Director.Spec('Wx', 'wxMessageDialog', 'MessageDialog', %w{wxMessageDialog}, director: Director::TopLevelWindow),
   ]
 
 end # module WXRuby3

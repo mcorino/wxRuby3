@@ -15,7 +15,7 @@ module WXRuby3
   module SwigRunner
 
     SWIG_CMD = ENV['SWIG_CMD'] || "swig"
-    SWIG_MINIMUM_VERSION = '3.0.0'
+    SWIG_MINIMUM_VERSION = '3.0.12'
 
     class << self
 
