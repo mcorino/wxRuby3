@@ -45,12 +45,12 @@ class Wx::Window
     Wx::Window.find_window_by_label(a_label, self)
   end
 
-  alias :__old_evt_paint :on_evt_paint
+  alias :__old_evt_paint :evt_paint
   # This modified version of evt_paint sets a variable indicating that a
   # paint event is being handled just before running the event
   # handler. This ensures that any call to Window#paint within the
   # handler will supply a Wx::PaintDC (see swig/Window.i).
-  def on_evt_paint(meth = nil, &block)
+  def evt_paint(meth = nil, &block)
     paint_proc = acquire_handler(meth, block)
     wrapped_block = proc do | event |
       instance_variable_set("@__painting__", true)

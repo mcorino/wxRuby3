@@ -393,7 +393,7 @@ module WXRuby3
                 item.event_types.each do |evt_hnd, evt_type, evt_arity|
                   fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
                       self.register_event_type EventType[
-                          'on_#{evt_hnd.downcase}', #{evt_arity},
+                          '#{evt_hnd.downcase}', #{evt_arity},
                           Wx::#{evt_type},
                           Wx::#{item.name.sub(/\Awx/i, '')}
                         ] if Wx.const_defined?(:#{evt_type})

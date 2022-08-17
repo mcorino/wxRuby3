@@ -45,8 +45,8 @@ class MinimalFrame < Wx::Frame
     self.status_text = "Welcome to wxRuby!"
 
     # Set it up to handle menu events using the relevant methods.
-    on_evt_menu Wx::ID_EXIT, :on_quit
-    on_evt_menu Wx::ID_ABOUT, :on_about
+    evt_menu Wx::ID_EXIT, :on_quit
+    evt_menu Wx::ID_ABOUT, :on_about
   end
 
   # End the application; it should finish automatically when the last

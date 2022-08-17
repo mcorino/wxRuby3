@@ -53,8 +53,8 @@ class TargetControl < Wx::Window
       TargetCircle[ 0.1, 20, Wx::RED_BRUSH ],
       TargetCircle[ 0.25, 10, Wx::BLUE_BRUSH ],
       TargetCircle[ 0.4, 5, Wx::GREEN_BRUSH ] ]
-    on_evt_paint { | e | on_paint(e) }
-    on_evt_left_down { | e | on_left_down(e) }
+    evt_paint { | e | on_paint(e) }
+    evt_left_down { | e | on_left_down(e) }
   end
 
   # What point is at the centre (assuming this control is always square)
@@ -102,7 +102,7 @@ class TargetFrame < Wx::Frame
     # EvtHandler.register_class, above
     evt_target(@tgt.get_id) { | e | on_target(e) }
     @listening = true
-    on_evt_size { | e | on_size(e) }
+    evt_size { | e | on_size(e) }
     setup_menus
     create_status_bar
   end
@@ -155,12 +155,12 @@ class TargetFrame < Wx::Frame
     menu_file = Wx::Menu.new
     menu_help = Wx::Menu.new
     menu_help.append(Wx::ID_ABOUT, "&About...\tF1", "Show about dialog")
-    on_evt_menu(Wx::ID_ABOUT) { on_about }
+    evt_menu(Wx::ID_ABOUT) { on_about }
     menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
-    on_evt_menu(Wx::ID_EXIT) { self.close }
+    evt_menu(Wx::ID_EXIT) { self.close }
     menu_file.append_check_item(TOGGLE_LISTEN, "L&isten for events", 
                                  "Toggle listening for target events")
-    on_evt_menu(TOGGLE_LISTEN) { on_toggle_connect }
+    evt_menu(TOGGLE_LISTEN) { on_toggle_connect }
 
     menu_bar = Wx::MenuBar.new
     menu_bar.append(menu_file, "&File")
