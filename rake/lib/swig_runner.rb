@@ -171,12 +171,13 @@ module WXRuby3
               end
             end # end horrible TreeCtrl fixes
 
-            # TODO : still needed?
-            # Ugly: special fixes for Menu - can be deleted by wxWidgets from
-            # the C++ side, so we need to unhook the ruby object in the dtor
-            if core_name == 'Menu' and line['~SwigDirector_wxMenu()']
-              line += "  SWIG_RubyUnlinkObjects(this);\n  SWIG_RubyRemoveTracking(this);\n"
-            end
+            # wxMenu has been marked 'nodirector' in it's entirety
+            # # TODO : still needed?
+            # # Ugly: special fixes for Menu - can be deleted by wxWidgets from
+            # # the C++ side, so we need to unhook the ruby object in the dtor
+            # if core_name == 'Menu' and line['~SwigDirector_wxMenu()']
+            #   line += "  SWIG_RubyUnlinkObjects(this);\n  SWIG_RubyRemoveTracking(this);\n"
+            # end
 
             # comment out swig_up because it is defined global in every module
             if (line.index("bool Swig::Director::swig_up"))

@@ -16,7 +16,7 @@ module WXRuby3
       def setup
         spec.gc_never
         spec.ignore 'wxMenu::wxMenu(long)'
-        # spec.no_proxy 'wxObject'
+        spec.no_proxy 'wxMenu'  # do not support derived wxMenu classes
         spec.rename(
           'AppendItem' =>
             'wxMenu::Append(wxMenuItem *item)')
