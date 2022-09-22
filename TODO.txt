@@ -2,5 +2,3 @@
 - stock objects initialization problematic with multiple Apps run after each other
 
 - cleanup, minimize director/generators
-
--
