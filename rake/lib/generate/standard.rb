@@ -155,7 +155,7 @@ module WXRuby3
 
           %include "../common.i"
 
-          %module(directors="1") #{spec.module_name}
+          %module#{spec.disabled_proxies ? '' : '(directors="1")'} #{spec.module_name}
         __HEREDOC
     end
 

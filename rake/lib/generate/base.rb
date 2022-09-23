@@ -117,6 +117,10 @@ module WXRuby3
         @ifspec.includes
       end
 
+      def disabled_proxies
+        @ifspec.disabled_proxies
+      end
+
       def no_proxies
         @ifspec.no_proxies
       end

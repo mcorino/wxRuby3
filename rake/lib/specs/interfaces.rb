@@ -55,6 +55,9 @@ module WXRuby3
       .ignore('wxDialog::GetContentWindow')
       .swig_import('include/defs.h'),
     Director.Spec('Wx', 'wxMessageDialog', 'MessageDialog', %w{wxMessageDialog}, director: Director::TopLevelWindow),
+    Director.Spec('Wx', 'wxSizerItem', 'SizerItem', %w{wxSizerItem}).disable_proxies,
+    Director.Spec('Wx', 'wxSizer', 'Sizer', %w{wxSizer}, director: Director::Sizer),
+    Director.Spec('Wx', 'wxBoxSizer', 'BoxSizer', %w{wxBoxSizer}, director: Director::Sizer),
   ]
 
 end # module WXRuby3

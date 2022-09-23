@@ -48,6 +48,7 @@ module WXRuby3
         @director = director
         @gc_type = nil
         @ignores = ::Set.new
+        @disabled_proxies = false
         @no_proxies = ::Set.new
         @disowns = ::Set.new
         @only_for = {}
@@ -72,7 +73,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases, :gc_type,
-                  :ignores, :no_proxies, :disowns, :only_for, :includes, :swig_imports, :swig_includes, :renames,
+                  :ignores, :disabled_proxies, :no_proxies, :disowns, :only_for, :includes, :swig_imports, :swig_includes, :renames,
                   :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
                   :swig_header_code, :header_code, :wrapper_code, :extend_code,
                   :init_code, :swig_interface_code, :interface_code,
@@ -192,6 +193,11 @@ module WXRuby3
 
       def no_proxy(*names)
         @no_proxies.merge(names.flatten)
+        self
+      end
+
+      def disable_proxies
+        @disabled_proxies = true
         self
       end
 
