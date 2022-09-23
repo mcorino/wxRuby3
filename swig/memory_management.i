@@ -111,7 +111,7 @@ GC_NEVER(kls);
 // required to prevent a memory leak.
 %define GC_MANAGE_AS_SIZER(kls)
 %trackobjects;
-%feature("freefunc") kls "GcSizerFreeFunc";
+%feature("freefunc") kls "GcNullFreeFunc";
 %enddef
 
 // All other classes - mainly helper classes (eg Sizer, GridCellxxx) and

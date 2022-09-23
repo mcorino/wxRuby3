@@ -93,8 +93,8 @@ if $config.has_wxwidgets_xml?
   desc "Delete compiled libraries and object files"
   task :clean do
     force_delete(TARGET_LIB)
-    force_delete(VERSION_FILE)
-    delete_files_in(OBJ_DIR)
+    #force_delete(VERSION_FILE)
+    delete_files_in($config.obj_dir)
     #force_rmdir($obj_dir)
   end
 

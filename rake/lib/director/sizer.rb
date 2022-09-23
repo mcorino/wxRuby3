@@ -17,7 +17,7 @@ module WXRuby3
         # Any nested sizers passed to Add() in are owned by C++, not GC'd by Ruby
         spec.disown 'wxSizer* sizer'
         if spec.module_name == 'wxSizer'
-          spec.ignore %w[wxSizer::IsShown]
+          spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
           spec.no_proxy 'wxSizer'
           spec.add_swig_runtime_code <<~__HEREDOC
             // Typemap for GetChildren - convert to array of Sizer items
