@@ -58,6 +58,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxSizerItem', 'SizerItem', %w{wxSizerItem}).disable_proxies.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow]),
     Director.Spec('Wx', 'wxSizer', 'Sizer', %w{wxSizer}, director: Director::Sizer),
     Director.Spec('Wx', 'wxBoxSizer', 'BoxSizer', %w{wxBoxSizer}, director: Director::Sizer),
+    Director.Spec('Wx', 'wxControl', 'Control', %w{wxControl}, director: Director::Window),
   ]
 
 end # module WXRuby3
