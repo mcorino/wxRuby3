@@ -63,6 +63,9 @@ module WXRuby3
     Director.Spec('Wx', 'wxControl', 'Control', director: Director::Window),
     Director.Spec('Wx', 'wxTextCtrl', 'TextCtrl', %w{wxTextCtrl wxTextEntry wxTextAttr}, director: Director::TextCtrl),
     Director.Spec('Wx', 'wxCheckBox', 'CheckBox', director: Director::Window),
+    Director.Spec('Wx', 'wxAnyButton', 'AnyButton', director: Director::Window),
+    Director.Spec('Wx', 'wxButton', 'Button', director: Director::Window),
+    Director.Spec('Wx', 'wxToggleButton', 'ToggleButton', director: Director::Window).include('wx/tglbtn.h'),
   ]
 
 end # module WXRuby3
