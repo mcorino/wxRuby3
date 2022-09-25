@@ -107,7 +107,7 @@ class Wx::EvtHandler
           handler  = acquire_handler(meth, block)
           first_id = acquire_id(first_id)
           last_id  = acquire_id(last_id)
-          connect( first_id, last_id, #{ev_type.const}, &handler)
+          connect(first_id, last_id, #{ev_type.const}, &handler)
         end |
     end
   end

@@ -53,7 +53,7 @@ module WXRuby3
       unless spec.includes.empty?
         fout.puts "%header %{"
         spec.includes.each do |inc|
-          fout.puts "#include #{inc}"
+          fout.puts "#include \"#{inc}\""
         end
         fout.puts "%}"
       end

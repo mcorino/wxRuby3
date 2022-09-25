@@ -73,6 +73,9 @@ extern VALUE wxRuby_GetWindowClass();
 
 typedef int wxWindowID;
 
+// make sure wxEventType is known as 'int'
+typedef int wxEventType;
+
 // %include "typedefs.i"
 %include "classes/common/typedefs.i"
 %include "typemap.i"

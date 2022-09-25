@@ -39,6 +39,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxGDIObject', 'GDIObject', %w{wxGDIObject}).make_abstract('wxGDIObject').no_proxy('wxGDIObject'),
     Director.Spec('Wx', 'wxBitmap', 'Bitmap', %w{wxBitmap}, director: Director::Bitmap),
     Director.Spec('Wx', 'wxIcon', 'Icon', %w{wxIcon}).ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)'),
+    Director.Spec('Wx', 'wxMenuItem', 'MenuItem', %w{wxMenuItem}).ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText]),
     Director.Spec('Wx', 'wxMenuBar', 'MenuBar', %w{wxMenuBar}, director: Director::Window)
       .no_proxy('wxMenuBar::Refresh',
                 'wxMenuBar::FindItem',
@@ -59,6 +60,8 @@ module WXRuby3
     Director.Spec('Wx', 'wxSizer', 'Sizer', %w{wxSizer}, director: Director::Sizer),
     Director.Spec('Wx', 'wxBoxSizer', 'BoxSizer', %w{wxBoxSizer}, director: Director::Sizer),
     Director.Spec('Wx', 'wxControl', 'Control', %w{wxControl}, director: Director::Window),
+    Director.Spec('Wx', 'wxTextCtrl', 'TextCtrl', %w{wxTextCtrl wxTextEntry}, director: Director::TextCtrl),
+    Director.Spec('Wx', 'wxCheckBox', 'CheckBox', %w{wxCheckBox}, director: Director::Window),
   ]
 
 end # module WXRuby3

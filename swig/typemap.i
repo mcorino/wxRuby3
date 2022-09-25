@@ -398,11 +398,17 @@
   RDATA($result)->dfree = SWIG_RubyRemoveTracking;
 }
 
-// For ProcessEvent and AddPendingEvent
+// For ProcessEvent and AddPendingEvent and wxApp::FilterEvent
 %typemap("directorin") wxEvent &event "$input = wxRuby_WrapWxEventInRuby(const_cast<wxEvent*> (&$1));"
+
 // Thin and trusting wrapping to bypass SWIG's normal mechanisms; we
 // don't want SWIG changing ownership or typechecking these.
 %typemap("in") wxEvent &event "$1 = (wxEvent*)DATA_PTR($input);"
 
+// For wxWindow::DoUpdateUIEvent
+%typemap("directorin") wxUpdateUIEvent & "$input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));"
+
+// For wxControl::Command
+%typemap("directorin") wxCommandEvent & "$input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));"
 
 %apply int *OUTPUT { int * x , int * y , int * w, int * h };

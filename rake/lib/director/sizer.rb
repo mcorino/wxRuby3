@@ -18,7 +18,7 @@ module WXRuby3
         spec.disown 'wxSizer* sizer'
         if spec.module_name == 'wxSizer'
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
-          spec.no_proxy 'wxSizer'
+          #spec.no_proxy 'wxSizer'
           spec.add_swig_runtime_code <<~__HEREDOC
             // Typemap for GetChildren - convert to array of Sizer items
             %typemap(out) wxSizerItemList& {

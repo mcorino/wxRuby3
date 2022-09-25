@@ -18,8 +18,8 @@
 %feature("nodirector") kls::ClearBackground;
 %feature("nodirector") kls::DoSetSizeHints;
 %ignore kls::DoSetSizeHints;
-%feature("nodirector") kls::DoUpdateWindowUI;
-%ignore kls::DoUpdateWindowUI;
+//%feature("nodirector") kls::DoUpdateWindowUI;
+//%ignore kls::DoUpdateWindowUI;
 %feature("nodirector") kls::Enable;
 %feature("nodirector") kls::EnableCloseButton;
 %feature("nodirector") kls::EndModal;

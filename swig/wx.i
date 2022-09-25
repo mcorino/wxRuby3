@@ -51,8 +51,13 @@ PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
 void wxRuby_AddTracking(void* ptr, VALUE object) {
+#ifdef __WXDEBUG__
   VALUE clsname = rb_mod_name(CLASS_OF(object));
-  std::wcout << "> wxRuby_AddTracking(" << ptr << ":{" << StringValueCStr(clsname) << "})" << std::endl;
+  std::wcout << "> wxRuby_AddTracking("
+             << ptr << ":{"
+             << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
+             << "})" << std::endl;
+#endif
   Global_Ptr_Map[ptr] = object;
 }
 
@@ -150,6 +155,10 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
       Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
     }
 
+#ifdef __WXDEBUG__
+  std::wcout << "* wxRuby_WrapWxEventInRuby(" << wx_event << ":{" << wx_event->GetEventType() << "})" << std::endl;
+#endif
+
   // Then, look up the event type in this hash (MUCH faster than calling
   // EvtHandler.evt_class_for_type method)
   VALUE rb_event_type_id =  INT2NUM( wx_event->GetEventType() );
@@ -186,6 +195,11 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   // do not forget to mark the instance with the mangled swig type name
   swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
   rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
+
+#ifdef __WXDEBUG__
+  std::wcout << "* wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}" << std::endl;
+#endif
+
   return rb_event;
 }
 

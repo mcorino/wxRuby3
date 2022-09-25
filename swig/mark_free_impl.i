@@ -191,7 +191,7 @@ void GC_mark_wxEvent(void *ptr)
   if ( ! ptr ) return;
   wxEvent* wx_event = (wxEvent*)ptr;
 #ifdef __WXDEBUG__
-  std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetClassInfo()->GetClassName() << "})" << std::endl;
+  std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
 #endif
   if ( wx_event->GetEventType() > wxEVT_USER_FIRST &&
        wx_event->IsCommandEvent() )

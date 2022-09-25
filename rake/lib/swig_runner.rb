@@ -115,7 +115,7 @@ module WXRuby3
         FileUtils.rm(org_target)
       end
 
-      MAIN_MODULE = 'mWxruby3'
+      MAIN_MODULE = 'Wxruby3'
 
       def self.fixmodule(target)
         puts "Processor.fixmodule: #{target}"
@@ -194,13 +194,19 @@ module WXRuby3
             #TODO 1.3.30
             #			end
 
+            # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
+            # wrappers
+            if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx#{core_name}";/
+              line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{MAIN_MODULE}::#{core_name}")
+            end
+
             # Instead of defining a new module, set the container module equal
             # to the real main Wx:: module.
             if line['rb_define_module("Wx']
-              line = "  mWx#{core_name} = #{MAIN_MODULE}; // fixmodule.rb"
+              line = "  mWx#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
               found_define_module = true
             elsif line['rb_define_module("Defs']
-              line = "  m#{core_name} = #{MAIN_MODULE}; // fixmodule.rb"
+              line = "  m#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
               found_define_module = true
             end
 
@@ -296,8 +302,8 @@ module WXRuby3
         File.open(target, "w") do |out|
           found_main_module = false
           File.foreach(org_target) do |line|
-            if (line.index("static VALUE #{MAIN_MODULE};"))
-              line = "VALUE #{MAIN_MODULE};"
+            if (line.index("static VALUE m#{MAIN_MODULE};"))
+              line = "VALUE m#{MAIN_MODULE};"
               found_main_module = true
             end
 
