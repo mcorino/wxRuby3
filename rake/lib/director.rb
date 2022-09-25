@@ -34,7 +34,7 @@ module WXRuby3
 
       IGNORED_BASES = ['wxTrackable']
 
-      def initialize(pkg, modname, name, items, director:  nil, processors: nil, &block)
+      def initialize(pkg, modname, name, items = nil, director:  nil, processors: nil, &block)
         @package = pkg
         @module_name = modname
         @name = name
@@ -43,8 +43,8 @@ module WXRuby3
         @class_members = {}
         @folded_bases = {}
         @ignored_bases = {}
-        @abstracts = ::Set.new
-        @items = items
+        @abstracts = ::Hash.new
+        @items = items ? items : [modname]
         @director = director
         @gc_type = nil
         @ignores = ::Set.new
@@ -72,7 +72,7 @@ module WXRuby3
         yield(self) if block_given?
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases, :gc_type,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
                   :ignores, :disabled_proxies, :no_proxies, :disowns, :only_for, :includes, :swig_imports, :swig_includes, :renames,
                   :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
                   :swig_header_code, :header_code, :wrapper_code, :extend_code,
@@ -137,53 +137,106 @@ module WXRuby3
         self
       end
 
-      def gc_never
-        @gc_type = :GC_NEVER
+      def gc_never(*names)
+        if names.empty?
+          @gc_type = :GC_NEVER
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_NEVER }
+        end
         self
       end
 
-      def gc_as_object
-        @gc_type = :GC_MANAGE_AS_OBJECT
+      def gc_as_object(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_OBJECT
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_OBJECT }
+        end
         self
       end
 
-      def gc_as_window
-        @gc_type = :GC_MANAGE_AS_WINDOW
+      def gc_as_window(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_WINDOW
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_WINDOW }
+        end
         self
       end
 
-      def gc_as_frame
-        @gc_type = :GC_MANAGE_AS_FRAME
+      def gc_as_frame(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_FRAME
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_FRAME }
+        end
         self
       end
 
-      def gc_as_dialog
-        @gc_type = :GC_MANAGE_AS_DIALOG
+      def gc_as_dialog(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_DIALOG
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_DIALOG }
+        end
         self
       end
 
-      def gc_as_event
-        @gc_type = :GC_MANAGE_AS_EVENT
+      def gc_as_event(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_EVENT
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_EVENT }
+        end
         self
       end
 
-      def gc_as_sizer
-        @gc_type = :GC_MANAGE_AS_SIZER
+      def gc_as_sizer(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_SIZER
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_SIZER }
+        end
         self
       end
 
-      def gc_as_temporary
-        @gc_type = :GC_MANAGE_AS_TEMP
+      def gc_as_temporary(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_TEMP
+        else
+          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_TEMP }
+        end
         self
+      end
+
+      def gc_type(name)
+        @gc_type.is_a?(::Hash) ? @gc_type[name] : @gc_type
       end
 
       def make_abstract(cls)
-        @abstracts << cls
+        @abstracts[cls] = true
+        self
+      end
+
+      def make_concrete(cls)
+        @abstracts[cls] = false
         self
       end
 
       def abstract?(cls)
-        @abstracts.include?(cls)
+        @abstracts.has_key?(cls) && @abstracts[cls]
+      end
+
+      def concrete?(cls)
+        @abstracts.has_key?(cls) && !@abstracts[cls]
       end
 
       def ignore(*names)
@@ -291,7 +344,7 @@ module WXRuby3
     end
 
     class << self
-      def Spec(pkg, modname, name, items, director:  nil, processors: nil, &block)
+      def Spec(pkg, modname, name, items = nil, director:  nil, processors: nil, &block)
         WXRuby3::Director::Spec.new(pkg, modname, name, items, director: director, processors: processors, &block)
       end
 
@@ -509,7 +562,7 @@ module WXRuby3
             end
           end
         else
-          STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore."
+          STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}', item '#{item}') to ignore."
         end
       end
       # handle only_for settings

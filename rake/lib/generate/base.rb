@@ -95,11 +95,11 @@ module WXRuby3
       def is_abstract?(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
-        @ifspec.abstract?(class_def.name) || class_def.abstract
+        @ifspec.abstract?(class_def.name) || (class_def.abstract && !@ifspec.concrete?(class_def.name))
       end
 
       def gc_type(classdef)
-        unless @ifspec.gc_type
+        unless @ifspec.gc_type(classdef.name)
           if classdef
             return :GC_MANAGE_AS_EVENT if classdef.is_derived_from?('wxEvent') || classdef.name == 'wxEvent'
             return :GC_MANAGE_AS_FRAME if classdef.is_derived_from?('wxFrame') || classdef.name == 'wxFrame'
@@ -110,7 +110,7 @@ module WXRuby3
             return :GC_MANAGE_AS_TEMP
           end
         end
-        @ifspec.gc_type || :GC_NEVER
+        @ifspec.gc_type(classdef.name) || :GC_NEVER
       end
 
       def includes
@@ -252,7 +252,6 @@ module WXRuby3
     def gen_interface_class_members(fout, spec, class_name, classdef, overrides, abstract=false)
       # generate any inner classes
       classdef.innerclasses.each do |inner|
-        p inner.name
         if inner.protection == 'public' && !inner.ignored && !inner.deprecated
           gen_interface_class(fout, spec, inner)
         end

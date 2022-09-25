@@ -89,7 +89,7 @@ module WXRuby3
       def find_overload(matchText, isConst = nil, printSig = false)
         # Search for an overloaded method that has matchText in its C++ argsString.
         all.each do |o|
-          puts(signature) if printSig
+          puts(o.signature) if printSig
           if o.signature.index(matchText) && !o.ignored
             unless isConst
               return o

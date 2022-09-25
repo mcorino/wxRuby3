@@ -17,9 +17,10 @@ module WXRuby3
 
       def setup
         super
+        spec.gc_as_object('wxTextAttr')
         spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')
-        spec.ignore %w[wxTextCtrl::HitTest(const wxPoint &,long *)]
+        spec.ignore ['wxTextCtrl::HitTest(const wxPoint &,long *)', 'wxTextAttr::Merge(const wxTextAttr &,const wxTextAttr &)']
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress]
         spec.add_swig_begin_code <<~__HEREDOC
           %apply long * OUTPUT { long * }
