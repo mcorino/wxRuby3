@@ -66,6 +66,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxAnyButton', 'AnyButton', director: Director::Window),
     Director.Spec('Wx', 'wxButton', 'Button', director: Director::Window),
     Director.Spec('Wx', 'wxToggleButton', 'ToggleButton', director: Director::Window).include('wx/tglbtn.h'),
+    Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry wxItemContainer}, director: Director::ComboBox),
   ]
 
 end # module WXRuby3
