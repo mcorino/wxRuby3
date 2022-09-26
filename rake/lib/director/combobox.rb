@@ -18,16 +18,13 @@ module WXRuby3
       def setup
         super
         setup_ctrl_with_items('wxComboBox')
-        spec.fold_bases('wxComboBox' => %w[wxTextEntry wxItemContainer])
+        spec.fold_bases('wxComboBox' => %w[wxTextEntry])
         spec.ignore_bases('wxComboBox' => %w[wxTextEntry wxItemContainer])
+        spec.override_base('wxComboBox', 'wxControlWithItems')
         spec.ignore(%w[
           wxTextEntry::Clear
-          wxItemContainer::Clear
           wxTextEntry::IsEmpty
-          wxItemContainer::IsEmpty
-          wxComboBox::IsEmpty
-          wxItemContainer::Insert(const std::vector< wxString > &)
-          wxItemContainer::Insert(const std::vector< wxString > &)])
+          wxComboBox::IsEmpty])
         spec.rename(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long from, long to)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *from, long *to) const')
@@ -43,6 +40,7 @@ module WXRuby3
             long style = 0,
             const wxValidator& validator = wxDefaultValidator,
             const wxString& name = wxComboBoxNameStr)}
+        spec.swig_import 'swig/classes/include/wxControlWithItems.h'
       end
 
     end # class ComboBox

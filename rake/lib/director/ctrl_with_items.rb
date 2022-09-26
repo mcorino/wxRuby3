@@ -15,6 +15,29 @@ module WXRuby3
 
     class CtrlWithItems < Window
 
+      def setup
+        super
+        if spec.module_name == 'wxControlWithItems'
+          spec.fold_bases('wxControlWithItems' => %w[wxItemContainer])
+          spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
+          #spec.ignore %w[wxControlWithItems::SetSelection wxControlWithItems::SetStringSelection]
+          spec.ignore(%w[
+            wxItemContainer::Insert(const std::vector< wxString > &)
+            wxItemContainer::Insert(const std::vector< wxString > &)])
+          spec.add_swig_begin_code <<~__HEREDOC
+            // Typemap for GetStrings - which returns an object not a reference,
+            // unlike all other ArrayString-returning methods
+            %typemap(out) wxArrayString {
+              $result = rb_ary_new();
+              for (size_t i = 0; i < $1.GetCount(); i++)
+              {
+                rb_ary_push($result, WXSTR_TO_RSTR($1.Item(i)));
+              }
+            }
+            __HEREDOC
+        end
+      end
+
       def setup_ctrl_with_items(clsnm)
         spec.add_swig_begin_code <<~__HEREDOC
           // adjust GC marker
