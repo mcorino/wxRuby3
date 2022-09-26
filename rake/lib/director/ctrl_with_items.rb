@@ -20,7 +20,6 @@ module WXRuby3
         if spec.module_name == 'wxControlWithItems'
           spec.fold_bases('wxControlWithItems' => %w[wxItemContainer])
           spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
-          #spec.ignore %w[wxControlWithItems::SetSelection wxControlWithItems::SetStringSelection]
           spec.ignore(%w[
             wxItemContainer::Insert(const std::vector< wxString > &)
             wxItemContainer::Insert(const std::vector< wxString > &)])
