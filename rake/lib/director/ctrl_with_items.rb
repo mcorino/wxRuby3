@@ -20,9 +20,9 @@ module WXRuby3
         if spec.module_name == 'wxControlWithItems'
           spec.fold_bases('wxControlWithItems' => %w[wxItemContainer])
           spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
-          spec.ignore(%w[
-            wxItemContainer::Insert(const std::vector< wxString > &)
-            wxItemContainer::Insert(const std::vector< wxString > &)])
+          spec.ignore([
+            'wxItemContainer::Insert(const std::vector< wxString > &)',
+            'wxItemContainer::Insert(const std::vector< wxString > &)'])
           spec.add_swig_begin_code <<~__HEREDOC
             // Typemap for GetStrings - which returns an object not a reference,
             // unlike all other ArrayString-returning methods

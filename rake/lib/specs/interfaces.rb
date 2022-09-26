@@ -69,6 +69,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxControlWithItems', 'ControlWithItems', %w[wxControlWithItems wxItemContainer], director: Director::CtrlWithItems),
     Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry}, director: Director::ComboBox),
     Director.Spec('Wx', 'wxRadioBox', 'RadioBox', director: Director::Window).ignore_bases('wxRadioBox' => 'wxItemContainerImmutable'),
+    Director.Spec('Wx', 'wxPanel', 'Panel', director: Director::Window),
   ]
 
 end # module WXRuby3

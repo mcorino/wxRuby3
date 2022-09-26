@@ -381,7 +381,13 @@ module WXRuby3
             fout << "\n#ifdef #{item.only_for}"
           end
         end
-        fout << "\n#define #{item.name} #{item.value}"
+        if item.value =~ /\A\d/
+          fout << "\n#define #{item.name} #{item.value}"
+        elsif item.value.start_with?('"')
+          fout << "\n%constant char*  #{item.name} = #{item.value};"
+        else
+          fout << "\n%constant int  #{item.name} = #{item.value};"
+        end
         fout << "\n#endif" if item.only_for
       end
       fout.puts '' unless defines.empty?
