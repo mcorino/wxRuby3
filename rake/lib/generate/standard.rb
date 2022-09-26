@@ -67,11 +67,17 @@ module WXRuby3
 
     def gen_swig_runtime_code(fout, spec)
       if spec.disabled_proxies
-        spec.def_items.each do |item|
-          if Extractor::ClassDef === item && !item.ignored && !item.is_template?
-            unless spec.is_folded_base?(item.name)
-              fout.puts "%feature(\"nodirector\") #{spec.class_name(item)};"
+        spec.def_classes.each do |cls|
+          if !cls.ignored && !cls.is_template?
+            unless spec.is_folded_base?(cls.name)
+              fout.puts "%feature(\"nodirector\") #{spec.class_name(cls)};"
             end
+          end
+        end
+      else
+        spec.def_classes.each do |cls|
+          unless cls.ignored && cls.is_template? || cls.all_methods.any? { |m| m.is_virtual }
+            fout.puts "%feature(\"nodirector\") #{spec.class_name(cls)};"
           end
         end
       end

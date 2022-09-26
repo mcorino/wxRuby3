@@ -376,3 +376,7 @@ module WXRuby3
   end
 
 end
+
+Dir.glob(File.join(File.dirname(__FILE__), 'ext', '*.rb')).each do |fn|
+  require fn
+end

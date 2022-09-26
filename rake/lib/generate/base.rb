@@ -197,6 +197,10 @@ module WXRuby3
         @defmod.find_item(name)
       end
 
+      def def_classes
+        @defmod.classes
+      end
+
       def no_gen?(section)
         @ifspec.nogen_sections.include?(section)
       end

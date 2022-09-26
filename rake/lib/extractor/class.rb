@@ -191,6 +191,14 @@ module WXRuby3
         end
       end
 
+      def methods
+        ::Enumerator.new { |y| items.each {|i|  y << i if MethodDef === i }}
+      end
+
+      def all_methods
+        ::Enumerator::Chain.new(*methods.collect {|m| m.all })
+      end
+
       def _find_items
         self.items + self.innerclasses
       end

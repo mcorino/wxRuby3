@@ -25,13 +25,11 @@ module WXRuby3
         @initializer_code = []
         @pre_initializer_code = []
         @post_initializer_code = []
-        @includes = []
-        @imports = []
         @is_a_real_module = (module_name == name)
       end
 
       attr_accessor :package, :module_name, :docstring, :check4unittest, :header_code, :cpp_code, :initializer_code,
-                    :pre_initializer_code, :post_initializer_code, :includes, :imports, :is_a_real_module
+                    :pre_initializer_code, :post_initializer_code, :is_a_real_module
 
       # Called after the loading of items from the XML has completed, just
       # before the tweaking stage is done.
@@ -74,48 +72,6 @@ module WXRuby3
         # _globalIsCore = self.module == '_core'
         # for item in self.allItems():
         #     item.isCore = _globalIsCore
-      end
-
-      # def addHeaderCode(self, code):
-      #     if isinstance(code, list):
-      #         self.headerCode.extend(code)
-      #     else:
-      #         self.headerCode.append(code)
-      #
-      # def addCppCode(self, code):
-      #     if isinstance(code, list):
-      #         self.cppCode.extend(code)
-      #     else:
-      #         self.cppCode.append(code)
-      #
-      # def includeCppCode(self, filename):
-      #     with textfile_open(filename) as fid:
-      #         self.addCppCode(fid.read())
-      #
-      # def addInitializerCode(self, code):
-      #     if isinstance(code, list):
-      #         self.initializerCode.extend(code)
-      #     else:
-      #         self.initializerCode.append(code)
-      #
-      # def addPreInitializerCode(self, code):
-      #     if isinstance(code, list):
-      #         self.preInitializerCode.extend(code)
-      #     else:
-      #         self.preInitializerCode.append(code)
-      #
-      # def addPostInitializerCode(self, code):
-      #     if isinstance(code, list):
-      #         self.postInitializerCode.extend(code)
-      #     else:
-      #         self.postInitializerCode.append(code)
-
-      def add_include(*names)
-        self.includes.concat(names)
-      end
-
-      def add_import(*names)
-        self.imports.concat(names)
       end
 
       def add_element(element)
@@ -186,72 +142,9 @@ module WXRuby3
         md
       end
 
-      # def addCppFunction_sip(self, type, name, argsString, body, doc=None, **kw):
-      #     """
-      #     Add a new C++ function into the module that is written by hand, not
-      #     wrapped.
-      #     """
-      #     md = CppMethodDef_sip(type, name, argsString, body, doc, **kw)
-      #     self.items.append(md)
-      #     return md
-      #
-      #
-      # def addPyCode(self, code, order=None, **kw):
-      #     """
-      #     Add a snippet of Python code to the wrapper module.
-      #     """
-      #     pc = PyCodeDef(code, order, **kw)
-      #     self.items.append(pc)
-      #     return pc
-
-
-      # def addGlobalStr(self, name, before=None, wide=False):
-      #     if self.findItem(name):
-      #         self.findItem(name).ignore()
-      #     if wide:
-      #         gv = GlobalVarDef(type='const wchar_t*', name=name)
-      #     else:
-      #         gv = GlobalVarDef(type='const char*', name=name)
-      #     if before is None:
-      #         self.addItem(gv)
-      #     elif isinstance(before, int):
-      #         self.insertItem(before, gv)
-      #     else:
-      #         self.insertItemBefore(before, gv)
-      #     return gv
-      #
-      #
-      # def includePyCode(self, filename, order=None):
-      #     """
-      #     Add a snippet of Python code from a file to the wrapper module.
-      #     """
-      #     with textfile_open(filename) as fid:
-      #         text = fid.read()
-      #     return self.addPyCode(
-      #         "#" + '-=' * 38 + '\n' +
-      #         ("# This code block was included from %s\n%s\n" % (filename, text)) +
-      #         "# End of included code block\n"
-      #         "#" + '-=' * 38 + '\n'            ,
-      #         order
-      #         )
-
-
-      # def addPyFunction(self, name, argsString, body, doc=None, order=None, **kw):
-      #     """
-      #     Add a Python function to this module.
-      #     """
-      #     pf = PyFunctionDef(name, argsString, body, doc, order, **kw)
-      #     self.items.append(pf)
-      #     return pf
-      #
-      #
-      # def addPyClass(self, name, bases=[], doc=None, items=[], order=None, **kw):
-      #     """
-      #     Add a pure Python class to this module.
-      #     """
-      #     pc = PyClassDef(name, bases, doc, items, order, **kw)
-      #     self.items.append(pc)
-      #     return pc
+      def classes
+        ::Enumerator.new { |y| items.each {|i| y << i if ClassDef === i}}
+      end
 
     end # class ModuleDef
 
