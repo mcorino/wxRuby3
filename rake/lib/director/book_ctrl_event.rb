@@ -22,7 +22,6 @@ module WXRuby3
         case spec.module_name
         when 'wxBookCtrlEvent'
           spec.override_base('wxBookCtrlEvent', 'wxNotifyEvent') # re-establish correct base
-          spec.include('wx/bookctrl.h')
         end
       end
     end # class Object

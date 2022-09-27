@@ -594,6 +594,12 @@ module WXRuby3
           end
         end
       end
+      # handle class specified includes
+      defmod.classes.each do |cls|
+        unless cls.ignored
+          spec.includes.merge(cls.includes) unless cls.includes.empty?
+        end
+      end
       # create deprecated function proxies unless deprecates suppressed
       unless Config.instance.no_deprecate
         defmod.items.select {|i| !i.ignored }.each do |item|

@@ -32,10 +32,8 @@ module WXRuby3
           spec.ignore('wxWithImages::@57', 'wxWithImages::SetImageList')
           spec.rename('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
-          spec.include('wx/bookctrl.h')
         when 'wxNotebook'
           setup_book_ctrl_class(spec.module_name)
-          spec.include('wx/notebook.h')
         end
       end
       

@@ -51,7 +51,7 @@ module WXRuby3
               'wxMenuBar::SetLabelTop'),
     Director.Spec('Wx', 'wxMenu', 'Menu', director: Director::Menu),
     Director.Spec('Wx', 'wxAboutDialogInfo', 'AboutDialogInfo')
-      .include('wx/aboutdlg.h', 'wx/generic/aboutdlgg.h')
+      .include('wx/generic/aboutdlgg.h')
       .add_swig_interface_code('%typemap(check) wxWindow* parent "";'), # overrule common typemap to allow default NULL
     Director.Spec('Wx', 'wxDialog', 'Dialog', director: Director::TopLevelWindow)
       .ignore('wxDialog::GetContentWindow')
@@ -73,6 +73,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxBookCtrlEvent', 'BookCtrlEvent', director: Director::BookCtrlEvent),
     Director.Spec('Wx', 'wxBookCtrlBase', 'BookCtrlBase', %w[wxBookCtrlBase wxWithImages], director: Director::BookCtrls),
     Director.Spec('Wx', 'wxNotebook', 'Notebook', director: Director::BookCtrls),
+    Director.Spec('Wx', 'wxImageList', 'ImageList').rename('AddIcon' => 'wxImageList::Add(const wxIcon& icon)'),
   ]
 
 end # module WXRuby3

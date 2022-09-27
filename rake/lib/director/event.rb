@@ -31,7 +31,6 @@ module WXRuby3
             // their use in Ruby - see wxRuby_WrapWxEventInRuby in swig/wx.i.
             %rename(wxEvent) wxRubyEvent;
             __HEREDOC
-          spec.include 'wx/event.h'
           spec.rename_class('wxEvent', 'wxRubyEvent')
           spec.extend_class('wxEvent', 'wxRubyEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
           spec.extend_class('wxEvent', 'virtual wxEvent* Clone() const')
