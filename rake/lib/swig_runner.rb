@@ -97,7 +97,7 @@ module WXRuby3
             when /rb_define_class_under.*("[_a-zA-Z0-9]*")/
               name = $1
               line[name] = '"%s"' % rb_class_name(name[1..-2])
-            when /rb_define_const.*("[_a-zA-Z0-9]*")/
+            when /rb_define_const\s*\([^,]+,\s*("[_a-zA-Z0-9]*")/
               name = $1
               line[name] = '"%s"' % rb_constant_name(name[1..-2])
             when /rb_define_singleton_method.*("[_a-zA-Z0-9]*")/
