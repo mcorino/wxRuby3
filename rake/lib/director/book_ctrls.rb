@@ -40,7 +40,7 @@ module WXRuby3
       def setup_book_ctrl_class(clsnm)
         spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
         # This version in Wx doesn't automatically delete
-        spec.ignore "#{clsnm}::SetImageList"
+        # spec.ignore "#{clsnm}::SetImageList"
         # Use the version that deletes the ImageList when the Toolbook is destroyed
         spec.rename('SetImageList' => "#{clsnm}::AssignImageList")
         # Users should handle page changes with events, not virtual methods

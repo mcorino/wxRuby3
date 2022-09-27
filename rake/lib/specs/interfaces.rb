@@ -74,6 +74,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxBookCtrlBase', 'BookCtrlBase', %w[wxBookCtrlBase wxWithImages], director: Director::BookCtrls),
     Director.Spec('Wx', 'wxNotebook', 'Notebook', director: Director::BookCtrls),
     Director.Spec('Wx', 'wxImageList', 'ImageList').rename('AddIcon' => 'wxImageList::Add(const wxIcon& icon)'),
+    Director.Spec('Wx', 'wxListBox', 'ListBox', director: Director::ListBox),
   ]
 
 end # module WXRuby3

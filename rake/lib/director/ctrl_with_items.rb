@@ -73,8 +73,9 @@ module WXRuby3
           }
           __HEREDOC
           )
+        spec.swig_import 'swig/classes/include/wxControlWithItems.h'
       end
-    end # class TextCtrl
+    end # class CtrlWithItems
 
   end # class Director
 

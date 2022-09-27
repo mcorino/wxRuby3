@@ -40,7 +40,6 @@ module WXRuby3
             long style = 0,
             const wxValidator& validator = wxDefaultValidator,
             const wxString& name = wxComboBoxNameStr)}
-        spec.swig_import 'swig/classes/include/wxControlWithItems.h'
       end
 
     end # class ComboBox
