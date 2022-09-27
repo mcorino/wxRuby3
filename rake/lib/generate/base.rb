@@ -286,7 +286,7 @@ module WXRuby3
         when Extractor::EnumDef
           if member.protection == 'public' && !member.ignored && !member.deprecated
             fout.puts "  // from #{classdef.name}::#{member.name}"
-            fout.puts "  enum #{member.name} {"
+            fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
             fout.puts member.items.collect { |e| "    #{e.name}" }.join(",\n")
             fout.puts "  };"
           end
