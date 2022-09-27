@@ -70,12 +70,9 @@ module WXRuby3
     Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry}, director: Director::ComboBox),
     Director.Spec('Wx', 'wxRadioBox', 'RadioBox', director: Director::Window).ignore_bases('wxRadioBox' => 'wxItemContainerImmutable'),
     Director.Spec('Wx', 'wxPanel', 'Panel', director: Director::Window),
-    Director.Spec('Wx', 'wxBookCtrlEvent', 'BookCtrlEvent', director: Director::Event)
-            .ignore_bases('wxBookCtrlEvent' => %w[wxNotifyEvent wxCommandEvent]) # needed to suppress imports
-            .override_base('wxBookCtrlEvent', 'wxNotifyEvent') # re-establish correct base
-            .swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h') # provide base definitions
-            .include('wx/bookctrl.h'),
+    Director.Spec('Wx', 'wxBookCtrlEvent', 'BookCtrlEvent', director: Director::BookCtrlEvent),
     Director.Spec('Wx', 'wxBookCtrlBase', 'BookCtrlBase', %w[wxBookCtrlBase wxWithImages], director: Director::BookCtrls),
+    Director.Spec('Wx', 'wxNotebook', 'Notebook', director: Director::BookCtrls),
   ]
 
 end # module WXRuby3

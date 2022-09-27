@@ -14,6 +14,7 @@ module WXRuby3
     class BookCtrls < Director
 
       def setup
+        super
         spec.add_swig_begin_code <<~__HEREDOC
           // Protect panels etc added as Toolbook pages from being GC'd by Ruby;
           // avoids double-free segfaults on exit on GTK
@@ -24,43 +25,46 @@ module WXRuby3
           // wxWidgets will delete the ImageList with the Toolbook.
           %apply SWIGTYPE *DISOWN { wxImageList* };
           __HEREDOC
-        if spec.module_name == 'wxBookCtrlBase'
+        case spec.module_name
+        when 'wxBookCtrlBase'
           spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore('wxWithImages::@57', 'wxWithImages::SetImageList')
           spec.rename('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
           spec.include('wx/bookctrl.h')
+        when 'wxNotebook'
+          setup_book_ctrl_class(spec.module_name)
+          spec.include('wx/notebook.h')
         end
-        super
       end
       
       def setup_book_ctrl_class(clsnm)
+        spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
         # This version in Wx doesn't automatically delete
         spec.ignore "#{clsnm}::SetImageList"
         # Use the version that deletes the ImageList when the Toolbook is destroyed
-        spec.rename('SetImageList', "#{clsnm}::AssignImageList")
+        spec.rename('SetImageList' => "#{clsnm}::AssignImageList")
         # Users should handle page changes with events, not virtual methods
         spec.ignore("#{clsnm}::OnSelChange")
         # These are virtual in C++ but don't need directors as fully
         # implemented in the individual child classes
         spec.no_proxy(%W[
-          #{clsnm}::AddPage;
-          #{clsnm}::AssignImageList;
-          #{clsnm}::AdvanceSelection;
-          #{clsnm}::ChangeSelection;
-          #{clsnm}::DeleteAllPages;
-          #{clsnm}::GetPageCount;
-          #{clsnm}::GetPageImage;
-          #{clsnm}::GetPageText;
-          #{clsnm}::GetSelection;
-          #{clsnm}::GetSelection;
-          #{clsnm}::HitTest;
-          #{clsnm}::InsertPage;
-          #{clsnm}::SetImageList;
-          #{clsnm}::SetPageImage;
-          #{clsnm}::SetPageText;
-          #{clsnm}::SetSelection;
+          #{clsnm}::AddPage
+          #{clsnm}::AssignImageList
+          #{clsnm}::AdvanceSelection
+          #{clsnm}::ChangeSelection
+          #{clsnm}::DeleteAllPages
+          #{clsnm}::GetPageCount
+          #{clsnm}::GetPageImage
+          #{clsnm}::GetPageText
+          #{clsnm}::GetSelection
+          #{clsnm}::GetSelection
+          #{clsnm}::HitTest
+          #{clsnm}::InsertPage
+          #{clsnm}::SetPageImage
+          #{clsnm}::SetPageText
+          #{clsnm}::SetSelection
           ])
       end
     end # class Object
