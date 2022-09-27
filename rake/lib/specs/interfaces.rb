@@ -76,6 +76,13 @@ module WXRuby3
     Director.Spec('Wx', 'wxImageList', 'ImageList').rename('AddIcon' => 'wxImageList::Add(const wxIcon& icon)'),
     Director.Spec('Wx', 'wxListBox', 'ListBox', director: Director::ListBox),
     Director.Spec('Wx', 'wxChoice', 'Choice', director: Director::Choice),
+    Director.Spec('Wx', 'wxStaticBox', 'StaticBox', director: Director::Window),
+    Director.Spec('Wx', 'wxGauge', 'Gauge', director: Director::Window),
+    Director.Spec('Wx', 'wxSlider', 'Slider', director: Director::Window),
+    Director.Spec('Wx', 'wxStaticText', 'StaticText', director: Director::Window),
+    Director.Spec('Wx', 'wxSpinButton', 'SpinButton', director: Director::Window),
+    Director.Spec('Wx', 'wxSpinEvent', 'SpinEvent', director: Director::SpinEvent),
+    Director.Spec('Wx', 'wxSpinCtrl', 'SpinCtrl', director: Director::Window),
   ]
 
 end # module WXRuby3
