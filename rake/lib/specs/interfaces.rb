@@ -83,6 +83,8 @@ module WXRuby3
     Director.Spec('Wx', 'wxSpinButton', 'SpinButton', director: Director::Window),
     Director.Spec('Wx', 'wxSpinEvent', 'SpinEvent', director: Director::SpinEvent),
     Director.Spec('Wx', 'wxSpinCtrl', 'SpinCtrl', director: Director::Window),
+    Director.Spec('Wx', 'wxStaticBitmap', 'StaticBitmap', director: Director::Window),
+    Director.Spec('Wx', 'wxBitmapButton', 'BitmapButton', director: Director::Window),
   ]
 
 end # module WXRuby3
