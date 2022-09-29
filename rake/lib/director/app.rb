@@ -97,7 +97,7 @@ module WXRuby3
           
             virtual ~wxRubyApp()
             {
-          #ifdef __WXDEBUG__
+          #ifdef __WXTRACE__
             std::wcout << "~wxRubyApp" << std::endl;
           #endif
               }
@@ -168,8 +168,8 @@ module WXRuby3
           
             // This is the method run when main_loop is called in Ruby
             // wxEntry calls the C++ App::OnInit method
-              int main_loop()
-              {
+            int main_loop()
+            {
               rb_define_const(mWxruby3, "THE_APP", SWIG_RubyInstanceFor(this));
               static int argc = 1;
               static wxChar *argv[] = {const_cast<wxChar*> (wxT("wxruby")), NULL};
@@ -191,73 +191,71 @@ module WXRuby3
           #endif
           
           #ifdef __WXDEBUG__
-                  std::wcout << "returned from wxEntry..." << std::endl;
+              std::wcout << "returned from wxEntry..." << std::endl;
           #endif
-                  rb_gc_start();
+              rb_gc_start();
           #ifdef __WXDEBUG__
-                  std::wcout << "survived gc" << std::endl;
+              std::wcout << "survived gc" << std::endl;
           #endif
-                  return 0;
-              }
+              return 0;
+            }
           
-              // This method initializes the stock objects (Pens, Brushes, Fonts)
-              // before yielding to ruby by calling the App's on_init method.
-              // Note that as of wxWidget 2.8, the stock fonts in particular cannot
-              // be initialized any earlier than this without crashing
-              bool OnInit()
-              {
+            // This method initializes the stock objects (Pens, Brushes, Fonts)
+            // before yielding to ruby by calling the App's on_init method.
+            // Note that as of wxWidget 2.8, the stock fonts in particular cannot
+            // be initialized any earlier than this without crashing
+            bool OnInit()
+            {
           #ifdef __WXDEBUG__
-                  std::wcout << "OnInit..." << std::endl;
+              std::wcout << "OnInit..." << std::endl;
           #endif
-                // Signal that we're started
-                rb_gv_set("__wx_app_ended__", Qfalse);
-                // Set up the GDI objects
-                Init_wxRubyStockObjects();
-                // Get the ruby representation of the App object, and call the
-                // ruby on_init method to set up the initial window state
+              // Signal that we're started
+              rb_gv_set("__wx_app_ended__", Qfalse);
+              // Set up the GDI objects
+              Init_wxRubyStockObjects();
+              // Get the ruby representation of the App object, and call the
+              // ruby on_init method to set up the initial window state
               VALUE the_app = rb_const_get(mWxruby3, rb_intern("THE_APP"));
               VALUE result  = rb_funcall(the_app, rb_intern("on_init"), 0, 0);
-          
-                // If on_init return any (ruby) true value, signal to wxWidgets to
-                // enter the main event loop by returning true, else return false
-                // which will make wxWidgets exit.
+        
+              // If on_init return any (ruby) true value, signal to wxWidgets to
+              // enter the main event loop by returning true, else return false
+              // which will make wxWidgets exit.
               if ( result == Qfalse || result == Qnil )
-                  {
+              {
                 rb_gv_set("__wx_app_ended__", Qtrue); // Don't do any more GC
                 return false;
               }
-                else
+              else
               {
                 return true;
               }
-              }
+            }
           
-              virtual int OnExit()
-              {
+            virtual int OnExit()
+            {
           #ifdef __WXDEBUG__
-                  std::wcout << "OnExit..." << std::endl;
+              std::wcout << "OnExit..." << std::endl;
           #endif
-                  // Note in a global variable that the App has ended, so that we
-                  // can skip any GC marking later
-                  rb_gv_set("__wx_app_ended__", Qtrue);
-          
-                  wxLog *oldlog = wxLog::SetActiveTarget(new wxLogStderr);
-                  SetTopWindow(0);
-                  if ( oldlog )
-                {
+              // Note in a global variable that the App has ended, so that we
+              // can skip any GC marking later
+              rb_gv_set("__wx_app_ended__", Qtrue);
+      
+              wxLog *oldlog = wxLog::SetActiveTarget(new wxLogStderr);
+              SetTopWindow(0);
+              if ( oldlog )
+              {
                 delete oldlog;
-          
-                }
-          
-                  return 0;
               }
+      
+              return 0;
+            }
           
-              // actually implemented in ruby in classes/app.rb
+            // actually implemented in ruby in classes/app.rb
             virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
             {
               std::wcout << "ASSERT fired" << std::endl;
             }
-          
           };
           __HEREDOC
         super

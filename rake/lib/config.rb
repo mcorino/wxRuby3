@@ -179,7 +179,7 @@ module WXRuby3
 
             if @verbose_debug
               puts "Enabling VERBOSE debugging output"
-              @verbose_flag = ' -DwxDEBUG=1 '
+              @verbose_flag = ' -D__WXRB_TRACE__=1 '
             else
               @verbose_flag = ''
             end

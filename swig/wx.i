@@ -51,9 +51,10 @@ PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
 void wxRuby_AddTracking(void* ptr, VALUE object) {
-#ifdef __WXDEBUG__
+#ifdef __WXRB_TRACE__
+  std::wcout << "> wxRuby_AddTracking" << std::flush;
   VALUE clsname = rb_mod_name(CLASS_OF(object));
-  std::wcout << "> wxRuby_AddTracking("
+  std::wcout << "("
              << ptr << ":{"
              << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
              << "})" << std::endl;
@@ -71,7 +72,7 @@ VALUE wxRuby_FindTracking(void* ptr) {
 
 // Remove the tracking for ptr
 void wxRuby_RemoveTracking(void* ptr) {
-#ifdef __WXDEBUG__
+#ifdef __WXRB_TRACE__
   std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
 #endif
   Global_Ptr_Map.erase(ptr);
@@ -155,7 +156,7 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
       Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
     }
 
-#ifdef __WXDEBUG__
+#ifdef __WXRB_TRACE__
   std::wcout << "* wxRuby_WrapWxEventInRuby(" << wx_event << ":{" << wx_event->GetEventType() << "})" << std::endl;
 #endif
 
@@ -196,7 +197,7 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
   rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
-#ifdef __WXDEBUG__
+#ifdef __WXRB_TRACE__
   std::wcout << "* wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}" << std::endl;
 #endif
 

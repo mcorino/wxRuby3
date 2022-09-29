@@ -11,7 +11,7 @@ module WXRuby3
 
   class Director
 
-    class BookCtrls < Director
+    class BookCtrls < Window
 
       def setup
         super

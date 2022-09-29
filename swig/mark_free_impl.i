@@ -85,6 +85,10 @@ void GC_SetWindowDeleted(void *ptr)
 // directors, they must be preserved from GC.
 void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 {
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GC_mark_SizerBelongingToWindow" << std::endl;
+#endif
+
   // First, mark this sizer
   rb_gc_mark( rb_sizer );
 
@@ -115,6 +119,10 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 // containing Frame.
 void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 {
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GC_mark_MenuBarBelongingToFrame" << std::endl;
+#endif
+
   rb_gc_mark( SWIG_RubyInstanceFor(menu_bar) );
   // Mark each menu in the menubar in turn
   for ( size_t i = 0; i < menu_bar->GetMenuCount(); i++ )
@@ -129,42 +137,78 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 // belong to this window
 void GC_mark_wxWindow(void *ptr)
 {
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GC_mark_wxWindow" << std::endl;
+#endif
+
   if ( GC_IsWindowDeleted(ptr) ) return;
 
   wxWindow* wx_win = (wxWindow*)ptr;
+#ifdef __WXRB_TRACE__
+  std::wcout << "* GC_mark_wxWindow - getting sizer" << std::endl;
+#endif
   wxSizer* wx_sizer = wx_win->GetSizer();
   if ( wx_sizer )
-	{
-	  VALUE rb_sizer = SWIG_RubyInstanceFor(wx_sizer);
-	  if ( rb_sizer != Qnil )
-		GC_mark_SizerBelongingToWindow(wx_sizer, rb_sizer);
-	}
+  {
+#ifdef __WXRB_TRACE__
+    std::wcout << "* GC_mark_wxWindow - found sizer" << std::endl;
+#endif
+    VALUE rb_sizer = SWIG_RubyInstanceFor(wx_sizer);
+	if ( rb_sizer != Qnil )
+      GC_mark_SizerBelongingToWindow(wx_sizer, rb_sizer);
+  }
 
+#ifdef __WXRB_TRACE__
+  std::wcout << "* GC_mark_wxWindow - getting caret" << std::endl;
+#endif
   wxCaret* wx_caret = wx_win->GetCaret();
   if ( wx_caret )
-	{
-	  VALUE rb_caret = SWIG_RubyInstanceFor(wx_caret);
-	  rb_gc_mark(rb_caret);
-	}
+  {
+#ifdef __WXRB_TRACE__
+    std::wcout << "* GC_mark_wxWindow - found caret" << std::endl;
+#endif
+    VALUE rb_caret = SWIG_RubyInstanceFor(wx_caret);
+	rb_gc_mark(rb_caret);
+  }
 
+#ifdef __WXRB_TRACE__
+  std::wcout << "* GC_mark_wxWindow - getting droptarget" << std::endl;
+#endif
   wxDropTarget* wx_droptarget = wx_win->GetDropTarget();
   if ( wx_droptarget )
-	{
-	  VALUE rb_droptarget = SWIG_RubyInstanceFor(wx_droptarget);
-	  rb_gc_mark(rb_droptarget);
-	}
+  {
+#ifdef __WXRB_TRACE__
+    std::wcout << "* GC_mark_wxWindow - found droptarget" << std::endl;
+#endif
+    VALUE rb_droptarget = SWIG_RubyInstanceFor(wx_droptarget);
+	rb_gc_mark(rb_droptarget);
+  }
 
+#ifdef __WXRB_TRACE__
+  std::wcout << "* GC_mark_wxWindow - getting validator" << std::endl;
+#endif
   wxValidator* wx_validator = wx_win->GetValidator();
   if ( wx_validator )
-	{
+  {
+#ifdef __WXRB_TRACE__
+    std::wcout << "* GC_mark_wxWindow - found validator" << std::endl;
+#endif
 	  VALUE rb_validator = SWIG_RubyInstanceFor(wx_validator);
 	  rb_gc_mark(rb_validator);
-	}
+  }
+
+#ifdef __WXRB_TRACE__
+  std::wcout << "< GC_mark_wxWindow" << std::endl;
+#endif
 }
 
 
 void GC_mark_wxFrame(void *ptr)
 {
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GC_mark_wxFrame" << std::endl;
+#endif
+
   if ( ! ptr ) return;
   if ( GC_IsWindowDeleted(ptr) ) return;
 
@@ -188,9 +232,13 @@ void GC_mark_wxFrame(void *ptr)
 // not a ruby object, and will thus crash.
 void GC_mark_wxEvent(void *ptr)
 {
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GC_mark_wxFrame" << std::endl;
+#endif
+
   if ( ! ptr ) return;
   wxEvent* wx_event = (wxEvent*)ptr;
-#ifdef __WXDEBUG__
+#ifdef __WXRB_TRACE__
   std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
 #endif
   if ( wx_event->GetEventType() > wxEVT_USER_FIRST &&
@@ -204,7 +252,12 @@ void GC_mark_wxEvent(void *ptr)
 
 // Prevents Ruby's GC sweeping up items that are stored as client data
 // Checks whether the C++ object is still around first...
-void mark_wxControlWithItems(void* ptr) {
+void mark_wxControlWithItems(void* ptr)
+{
+#ifdef __WXRB_TRACE__
+  std::wcout << "> mark_wxControlWithItems" << std::endl;
+#endif
+
   if ( GC_IsWindowDeleted(ptr) )
 	return;
 

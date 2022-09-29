@@ -11,7 +11,7 @@ module WXRuby3
 
   class Director
 
-    class Button < Director
+    class Button < Window
 
       def setup
         spec.no_proxy %w[wxButton::SetDefault]
