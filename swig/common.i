@@ -71,15 +71,7 @@ extern VALUE wxRuby_GetDefaultEventClass ();
 extern VALUE wxRuby_GetWindowClass();
 %}
 
-typedef int wxWindowID;
-
-enum wxBitmapType;
-
-// make sure wxEventType is known as 'int'
-typedef int wxEventType;
-
-// %include "typedefs.i"
-%include "classes/common/typedefs.i"
+%include "typedefs.i"
 %include "typemap.i"
 %include "memory_management.i"
 

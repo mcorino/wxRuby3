@@ -30,6 +30,7 @@ module WXRuby3
         @is_inner = false # Is this a nested class?
         @klass = nil # if so, then this is the outer class
         @event = false # if so, is wxEvent derived class
+        @event_emitter = false # if so, class has emitted events specified
         @event_types = []
 
         update_attributes(**kwargs)
@@ -37,7 +38,7 @@ module WXRuby3
       end
 
       attr_accessor :kind, :protection, :template_params, :bases, :sub_classes, :hierarchy, :includes,
-                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_types
+                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_emitter, :event_types
 
       def is_template?
         !template_params.empty?
@@ -128,6 +129,37 @@ module WXRuby3
                   # record event handler (macro) name, event type handled and the number of event id arguments
                   evt_arity = args.inject(0) {|c, a| c += 1 if a.start_with?('id'); c }
                   @event_types << [evt_handler, evt_type, evt_arity]
+                end
+              end
+            end
+          end
+        else
+          evt_heading = detailed_doc.xpath('.//heading').find {|h| h.text == 'Events emitted by this class'}
+          if evt_heading
+            @event_emitter = true
+            evt_paras = evt_heading.xpath('parent::para').first.xpath('following-sibling::para')
+            if evt_paras.size>1 &&
+                evt_paras.first.text.start_with?('The following event handler macros redirect') &&
+                (evt_ref = evt_paras.first.at('./ref'))
+              evt_klass = evt_ref.text
+              if evt_paras[1].text.index('Event macros for events emitted by this class:')
+                evt_paras[1].xpath('.//listitem').each do |li|
+                  if li.text =~ /(EVT_\w+)\((.*)\)/
+                    evt_handler = $1
+                    args = $2.split(',').collect {|a| a.strip }
+                    # skip event macros with event type argument
+                    unless args.any? { |a| a == 'event' }
+                      # determine evt_type handled
+                      evt_type = if li.text =~ /Process\s+a\s+wx(\w+)\s+/
+                                   $1
+                                 else
+                                   evt_handler
+                                 end
+                      # record event handler (macro) name, event type handled and the number of event id arguments
+                      evt_arity = args.inject(0) {|c, a| c += 1 if a.start_with?('id'); c }
+                      @event_types << [evt_handler, evt_type, evt_arity, evt_klass]
+                    end
+                  end
                 end
               end
             end

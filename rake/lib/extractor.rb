@@ -198,7 +198,7 @@ module WXRuby3
           @brief_doc = bd.first # Should be just one <para> element
           @detailed_doc = element.xpath('detaileddescription')
           if (el = @detailed_doc.at_xpath('para/onlyfor'))
-            @only_for = el.text.strip.to_sym
+            @only_for = el.text.strip.split(',')
           end
         end
       end

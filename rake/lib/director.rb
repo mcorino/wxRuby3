@@ -447,14 +447,15 @@ module WXRuby3
             __HEREDOC
           directors.each do |dir|
             dir.defmod.items.each do |item|
-              if Extractor::ClassDef === item && item.event
+              if Extractor::ClassDef === item && (item.event || item.event_emitter)
                 fout.puts "  # from #{item.name}"
-                item.event_types.each do |evt_hnd, evt_type, evt_arity|
+                item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
+                  evt_klass ||= item.name
                   fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
                       self.register_event_type EventType[
                           '#{evt_hnd.downcase}', #{evt_arity},
                           Wx::#{evt_type},
-                          Wx::#{item.name.sub(/\Awx/i, '')}
+                          Wx::#{evt_klass.sub(/\Awx/i, '')}
                         ] if Wx.const_defined?(:#{evt_type})
                     __HEREDOC
                 end
@@ -556,7 +557,7 @@ module WXRuby3
           else
             if item.is_a?(Extractor::FunctionDef)
               item.ignore
-              item.overloads {|ovl| ovl.ignore }
+              item.overloads.each {|ovl| ovl.ignore }
             else
               item.ignore
             end
@@ -612,8 +613,8 @@ module WXRuby3
                   if !ovl.ignored && ovl.deprecated
                     is_void = (ovl.type && !ovl.type=='void')
                     if ovl.only_for
-                      spec.add_extend_code clsnm, if ::Symbol === ovl.only_for
-                                                    "#ifdef __#{ovl.only_for.to_s.upcase}__"
+                      spec.add_extend_code clsnm, if ::Array === ovl.only_for
+                                                    "#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
                                                   else
                                                     "#ifdef #{ovl.only_for}"
                                                   end

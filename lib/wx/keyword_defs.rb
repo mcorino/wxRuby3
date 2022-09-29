@@ -453,7 +453,7 @@ end
 
 # wxStaticBitmap 	A control to display a bitmap
 Wx::define_keyword_ctors('StaticBitmap') do
-  wx_ctor_params :id, :label, :pos, :size, :style
+  wx_ctor_params :id, :label, :pos, :size, :style, :name => Wx::StaticBitmapNameStr
 end
 
 

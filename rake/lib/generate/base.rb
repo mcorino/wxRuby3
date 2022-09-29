@@ -275,8 +275,8 @@ module WXRuby3
             end
           elsif member.is_dtor
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{spec.class_name(classdef)}#{member.args_string};" if member.name == "~#{class_name}"
-          elsif member.protection == 'public' && !member.ignored && !member.deprecated && !member.is_template?
-            gen_interface_class_method(fout, member, overrides)
+          elsif member.protection == 'public'
+            gen_interface_class_method(fout, member, overrides) if !member.ignored && !member.deprecated && !member.is_template?
             member.overloads.each do |ovl|
               if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated && !member.is_template?
                 gen_interface_class_method(fout, ovl, overrides)
@@ -302,8 +302,8 @@ module WXRuby3
     def gen_interface_class_method(fout, methoddef, overrides)
         unless methoddef.is_pure_virtual || (methoddef.is_virtual && overrides.include?(methoddef.signature))
           if methoddef.only_for
-            if ::Symbol === methoddef.only_for
-              fout.puts "#ifdef __#{methoddef.only_for.to_s.upcase}__"
+            if ::Array === methoddef.only_for
+              fout.puts "#if #{methoddef.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
             else
               fout.puts "#ifdef #{methoddef.only_for}"
             end
@@ -319,8 +319,8 @@ module WXRuby3
       typedefs = spec.def_items.select {|item| Extractor::TypedefDef === item && !item.ignored }
       typedefs.each do |item|
         if item.only_for
-          if ::Symbol === item.only_for
-            fout << "\n#ifdef __#{item.only_for.to_s.upcase}__"
+          if ::Array === item.only_for
+            fout << "\n#if #{item.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
           else
             fout << "\n#ifdef #{item.only_for}"
           end
@@ -335,8 +335,8 @@ module WXRuby3
       vars = spec.def_items.select {|item| Extractor::GlobalVarDef === item && !item.ignored }
       vars.each do |item|
         if item.only_for
-          if ::Symbol === item.only_for
-            fout << "\n#ifdef __#{item.only_for.to_s.upcase}__"
+          if ::Array === item.only_for
+            fout << "\n#if #{item.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
           else
             fout << "\n#ifdef #{item.only_for}"
           end
@@ -354,8 +354,8 @@ module WXRuby3
           item.items.each do |e|
             unless e.ignored
               if e.only_for
-                if ::Symbol === e.only_for
-                  code << "#ifdef __#{e.only_for.to_s.upcase}__\n"
+                if ::Array === e.only_for
+                  code << "#if #{e.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}\n"
                 else
                   code << "#ifdef #{e.only_for}\n"
                 end
@@ -375,8 +375,8 @@ module WXRuby3
       }
       defines.each do |item|
         if item.only_for
-          if ::Symbol === item.only_for
-            fout << "\n#ifdef __#{item.only_for.to_s.upcase}__"
+          if ::Array === item.only_for
+            fout << "\n#if #{item.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
           else
             fout << "\n#ifdef #{item.only_for}"
           end
@@ -399,8 +399,8 @@ module WXRuby3
         active_overloads = item.all.select { |ovl| !ovl.ignored && !ovl.deprecated }
         active_overloads.each do |ovl|
           if ovl.only_for
-            if ::Symbol === ovl.only_for
-              fout << "\n#ifdef __#{ovl.only_for.to_s.upcase}__"
+            if ::Array === ovl.only_for
+              fout << "\n#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
             else
               fout << "\n#ifdef #{ovl.only_for}"
             end

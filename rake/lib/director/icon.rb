@@ -18,6 +18,8 @@ module WXRuby3
         # disable as there is no way to distinguish char*/[] from wxString in Ruby
         # and anyway there is no real benefit compared to loading XPM by filename
         spec.ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)')
+        spec.override_base('wxIcon', 'wxBitmap')
+        spec.swig_import('swig/classes/include/wxBitmap.h')
         super
       end
     end # class Icon
