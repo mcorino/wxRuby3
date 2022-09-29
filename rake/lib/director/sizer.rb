@@ -16,7 +16,8 @@ module WXRuby3
       def setup
         # Any nested sizers passed to Add() in are owned by C++, not GC'd by Ruby
         spec.disown 'wxSizer* sizer'
-        if spec.module_name == 'wxSizer'
+        case spec.module_name
+        when 'wxSizer'
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
           #spec.no_proxy 'wxSizer'
           spec.add_swig_runtime_code <<~__HEREDOC
@@ -34,6 +35,13 @@ module WXRuby3
               }
             }
             __HEREDOC
+        when 'wxStaticBoxSizer'
+          # Must ensure that the C++ detach method is called, else the associated
+          # StaticBox will be double-freed
+          spec.no_proxy(%w[
+            wxStaticBoxSizer::Detach
+            wxStaticBoxSizer::Remove
+            wxStaticBoxSizer::Clear])
         end
         super
       end

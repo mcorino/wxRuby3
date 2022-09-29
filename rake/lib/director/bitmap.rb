@@ -29,6 +29,9 @@ module WXRuby3
           wxBitmap::InsertHandler
           wxBitmap::RemoveHandler
           ]
+        # problematic and not really useful in Ruby
+        spec.ignore('wxBitmap::wxBitmap(const char[],int,int,int)',
+                    'wxBitmap::wxBitmap(const char *const *)')
         # // wxPalette not supported in wxRuby
         spec.ignore 'wxBitmap::SetPalette'
         spec.disown 'wxMask* mask'

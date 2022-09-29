@@ -73,6 +73,8 @@ extern VALUE wxRuby_GetWindowClass();
 
 typedef int wxWindowID;
 
+enum wxBitmapType;
+
 // make sure wxEventType is known as 'int'
 typedef int wxEventType;
 

@@ -24,4 +24,5 @@ $:.insert(0, File.join(File.dirname(__FILE__), 'lib'))
 #require_relative './samples/minimal/nothing'
 #require_relative './samples/minimal/minimal'
 #require_relative './samples/event/event'
-require_relative './samples/event/update_ui_event'
+#require_relative './samples/event/update_ui_event'
+require_relative './samples/controls/controls'

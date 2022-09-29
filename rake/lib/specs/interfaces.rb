@@ -37,8 +37,9 @@ module WXRuby3
     Director.Spec('Wx', 'wxTopLevelWindow', 'TopLevelWindow', director: Director::TopLevelWindow),
     Director.Spec('Wx', 'wxFrame', 'Frame', director: Director::Frame),
     Director.Spec('Wx', 'wxGDIObject', 'GDIObject').make_abstract('wxGDIObject').no_proxy('wxGDIObject'),
+    Director.Spec('Wx', 'wxIconLocation', 'IconLocation'),
     Director.Spec('Wx', 'wxBitmap', 'Bitmap', director: Director::Bitmap),
-    Director.Spec('Wx', 'wxIcon', 'Icon').ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)'),
+    Director.Spec('Wx', 'wxIcon', 'Icon', director: Director::Icon),
     Director.Spec('Wx', 'wxAcceleratorEntry', 'AcceleratorEntry', director: Director::AcceleratorEntry),
     Director.Spec('Wx', 'wxMenuItem', 'MenuItem').ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText]),
     Director.Spec('Wx', 'wxMenuBar', 'MenuBar', director: Director::Window)
@@ -64,7 +65,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxTextCtrl', 'TextCtrl', %w{wxTextCtrl wxTextEntry wxTextAttr}, director: Director::TextCtrl),
     Director.Spec('Wx', 'wxCheckBox', 'CheckBox', director: Director::Window),
     Director.Spec('Wx', 'wxAnyButton', 'AnyButton', director: Director::Window),
-    Director.Spec('Wx', 'wxButton', 'Button', director: Director::Window),
+    Director.Spec('Wx', 'wxButton', 'Button', director: Director::Button),
     Director.Spec('Wx', 'wxToggleButton', 'ToggleButton', director: Director::Window).include('wx/tglbtn.h'),
     Director.Spec('Wx', 'wxControlWithItems', 'ControlWithItems', %w[wxControlWithItems wxItemContainer], director: Director::CtrlWithItems),
     Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry}, director: Director::ComboBox),
@@ -84,8 +85,9 @@ module WXRuby3
     Director.Spec('Wx', 'wxSpinEvent', 'SpinEvent', director: Director::SpinEvent),
     Director.Spec('Wx', 'wxSpinCtrl', 'SpinCtrl', director: Director::Window),
     Director.Spec('Wx', 'wxStaticBitmap', 'StaticBitmap', director: Director::Window),
-    Director.Spec('Wx', 'wxBitmapButton', 'BitmapButton', director: Director::Window),
+    Director.Spec('Wx', 'wxBitmapButton', 'BitmapButton', director: Director::Button),
     Director.Spec('Wx', 'wxArtProvider', 'ArtProvider', director: Director::ArtProvider),
+    Director.Spec('Wx', 'wxStaticBoxSizer', 'StaticBoxSizer', director: Director::Sizer),
   ]
 
 end # module WXRuby3
