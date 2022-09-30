@@ -18,7 +18,7 @@ module WXRuby3
       def setup
         super
         if spec.module_name == 'wxControlWithItems'
-          spec.fold_bases('wxControlWithItems' => %w[wxItemContainer])
+          spec.fold_bases('wxControlWithItems' => %w[wxItemContainer wxItemContainerImmutable])
           spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
           spec.ignore([
             'wxItemContainer::Insert(const std::vector< wxString > &)',

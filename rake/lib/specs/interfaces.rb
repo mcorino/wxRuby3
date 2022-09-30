@@ -47,7 +47,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxAnyButton', 'AnyButton', director: Director::Window),
     Director.Spec('Wx', 'wxButton', 'Button', director: Director::Button),
     Director.Spec('Wx', 'wxToggleButton', 'ToggleButton', director: Director::Window).include('wx/tglbtn.h'),
-    Director.Spec('Wx', 'wxControlWithItems', 'ControlWithItems', %w[wxControlWithItems wxItemContainer], director: Director::CtrlWithItems),
+    Director.Spec('Wx', 'wxControlWithItems', 'ControlWithItems', %w[wxControlWithItems wxItemContainer wxItemContainerImmutable], director: Director::CtrlWithItems),
     Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry}, director: Director::ComboBox),
     Director.Spec('Wx', 'wxRadioBox', 'RadioBox', director: Director::Window).ignore_bases('wxRadioBox' => 'wxItemContainerImmutable'),
     Director.Spec('Wx', 'wxPanel', 'Panel', director: Director::Window),
@@ -70,6 +70,8 @@ module WXRuby3
     Director.Spec('Wx', 'wxStaticBoxSizer', 'StaticBoxSizer', director: Director::Sizer),
     Director.Spec('Wx', 'wxCursor', 'Cursor', director: Director::Cursor),
     Director.Spec('Wx', 'wxRadioButton', 'RadioButton', director: Director::Window),
+    Director.Spec('Wx', 'wxToolTip', 'ToolTip', director: Director::TooTip),
+    Director.Spec('Wx', 'wxLog', 'Log', director: Director::Log),
   ]
 
 end # module WXRuby3

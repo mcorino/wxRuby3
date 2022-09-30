@@ -89,9 +89,10 @@ if $config.has_wxwidgets_xml?
   end
 
   # The main source module - which needs to initialize all the other modules
-  file 'src/wx.cpp' => all_swig_files + $swig_depends['swig/wx.i'] do | t |
+  init_inc = File.join($config.inc_path, 'all_modules_init.inc')
+  file init_inc => :extract
+  file 'src/wx.cpp' => all_swig_files + $swig_depends['swig/wx.i'] + [init_inc] do | t |
     WXRuby3::Director.generate_code('swig/wx.i', :rename, :fixmainmodule)
-    init_inc = File.join($config.inc_path, 'all_modules_init.inc')
     File.open(t.name, "a") do | out |
       out << File.read(init_inc)
     end

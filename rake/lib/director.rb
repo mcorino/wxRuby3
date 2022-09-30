@@ -364,13 +364,6 @@ module WXRuby3
         decls = []
         init_fn = []
 
-        # first initialize helper modules
-        Config.instance.helper_inits.each do |mod|
-          init = "Init_wx#{mod}()"
-          decls << "extern \"C\" void #{init};"
-          init_fn << "  #{init};"
-        end
-
         # next initialize all modules without classes
         Spec.module_registry.each_pair do |mod, modreg|
           if modreg.empty?
@@ -389,7 +382,7 @@ module WXRuby3
           end
         end
 
-        # lastly initialize all modules with class dependencies ordered according to dependency
+        # next initialize all modules with class dependencies ordered according to dependency
         # collect all modules with actual dependencies
         dep_mods = Spec.module_registry.select do |_mod, modreg|
           !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
@@ -417,6 +410,13 @@ module WXRuby3
         end
         dep_mods.each do |modreg|
           init = "Init_#{modreg.first}()"
+          decls << "extern \"C\" void #{init};"
+          init_fn << "  #{init};"
+        end
+
+        # finally initialize helper modules
+        Config.instance.helper_inits.each do |mod|
+          init = "Init_wx#{mod}()"
           decls << "extern \"C\" void #{init};"
           init_fn << "  #{init};"
         end
