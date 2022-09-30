@@ -19,7 +19,9 @@ module WXRuby3
         spec.no_proxy 'wxObject'
         spec.add_extend_code 'wxObject', <<~__HEREDOC
           // Returns the string name of the C++ wx class which this object is wrapping.
-          VALUE wx_class() {
+          // The doubled wx_ name is to fool renamer.rb, which strips the wx_ prefix.
+          // The actual final method is called wx_class
+          VALUE wx_wx_class() {
           wxString class_name( self->GetClassInfo()->GetClassName() );
           VALUE rb_class_name = WXSTR_TO_RSTR(class_name);
           return rb_class_name;

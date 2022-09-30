@@ -43,6 +43,7 @@
 %constant wxBrush* const   wxCYAN_BRUSH;
 %constant wxBrush* const   wxRED_BRUSH;
 
+%constant wxCursor wxNullCursor;
 %constant wxCursor const* wxSTANDARD_CURSOR;
 %constant wxCursor const* wxHOURGLASS_CURSOR;
 %constant wxCursor const* wxCROSS_CURSOR;

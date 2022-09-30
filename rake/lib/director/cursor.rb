@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[])'
+        spec.do_not_generate(%i[variables enums defines])
         super
       end
     end # class Cursor
