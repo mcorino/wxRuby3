@@ -27,8 +27,8 @@ end
 
 # Every swig class that must be processed
 def all_swig_files
-  all_build_modules.map { | f | "#{$config.classes_dir}/#{f}.i" } +
-    $config.helper_modules.map { | f | "#{$config.swig_dir}/#{f}.i" } +
+  all_build_modules.map { | mod | File.join($config.classes_dir, mod+'.i') } +
+    $config.helper_modules.map { | mod | File.join($config.swig_dir, mod+'.i') } +
     [ 'swig/wx.i' ]
 end
 
@@ -90,7 +90,9 @@ if $config.has_wxwidgets_xml?
 
   # The main source module - which needs to initialize all the other modules
   init_inc = File.join($config.inc_path, 'all_modules_init.inc')
-  file init_inc => :extract
+  file init_inc => all_swig_files + $swig_depends['swig/wx.i'] do |t|
+    WXRuby3::Director.extract(genint: false)
+  end
   file 'src/wx.cpp' => all_swig_files + $swig_depends['swig/wx.i'] + [init_inc] do | t |
     WXRuby3::Director.generate_code('swig/wx.i', :rename, :fixmainmodule)
     File.open(t.name, "a") do | out |
@@ -109,9 +111,9 @@ if $config.has_wxwidgets_xml?
   end
 
   # Generate a C++ source file from a SWIG .i source file for a core class
-  all_build_modules.each do | cls |
-    swig_file = "#{$config.classes_path}/#{cls}.i"
-    file "#{$config.src_dir}/#{cls}.cpp" => [ swig_file, *($swig_depends[swig_file] - $config.include_modules) ] do | _ |
+  all_build_modules.each do | mod |
+    swig_file = "#{$config.classes_path}/#{mod}.i"
+    file "#{$config.src_dir}/#{mod}.cpp" => [ swig_file, *($swig_depends[swig_file] - $config.include_modules) ] do | _ |
       WXRuby3::Director.generate_code(swig_file) # default post processors
     end
   end

@@ -468,10 +468,10 @@ module WXRuby3
 
     end
 
-    def self.extract(*mods)
-      directors.each {|dir| dir.extract_interface(mods.empty? || mods.include?(dir.spec.name)) }
+    def self.extract(*mods, genint: true)
+      directors.each {|dir| dir.extract_interface(genint && (mods.empty? || mods.include?(dir.spec.name))) }
 
-      generate_modules_initializer
+      generate_modules_initializer if mods.empty?
 
       generate_event_list if directors.any? {|dir| (mods.empty? || mods.include?(dir.spec.name)) && dir.has_events? }
     end
