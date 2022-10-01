@@ -14,6 +14,11 @@ module WXRuby3
     class Log < Director
 
       def setup
+        spec.gc_as_object
+        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow])
+        spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogWindow])
+        spec.ignore 'wxLog::SetThreadActiveTarget'
+        spec.disown 'wxLog *logtarget'
         spec.do_not_generate(:functions)
         spec.make_concrete('wxLog')
         spec.extend_class('wxLog', '  virtual ~wxLog ();')
