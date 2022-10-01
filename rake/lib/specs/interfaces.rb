@@ -31,7 +31,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxMask', 'Mask'),
     Director.Spec('Wx', 'wxBitmap', 'Bitmap', director: Director::Bitmap),
     Director.Spec('Wx', 'wxIcon', 'Icon', director: Director::Icon),
-    Director.Spec('Wx', 'wxAcceleratorEntry', 'AcceleratorEntry', director: Director::AcceleratorEntry),
+    Director.Spec('Wx', 'wxAccelerator', 'Accelerator', director: Director::Accelerator),
     Director.Spec('Wx', 'wxMenuItem', 'MenuItem', director: Director::MenuItem),
     Director.Spec('Wx', 'wxMenuBar', 'MenuBar', director: Director::MenuBar),
     Director.Spec('Wx', 'wxMenu', 'Menu', director: Director::Menu),
