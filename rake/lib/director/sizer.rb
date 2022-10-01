@@ -19,7 +19,7 @@ module WXRuby3
         case spec.module_name
         when 'wxSizer'
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
-          #spec.no_proxy 'wxSizer'
+          spec.no_proxy 'wxSizer'
           spec.add_swig_runtime_code <<~__HEREDOC
             // Typemap for GetChildren - convert to array of Sizer items
             %typemap(out) wxSizerItemList& {
@@ -35,6 +35,8 @@ module WXRuby3
               }
             }
             __HEREDOC
+        when 'wxBoxSizer'
+          spec.no_proxy 'wxBoxSizer::AddSpacer'
         when 'wxStaticBoxSizer'
           # Must ensure that the C++ detach method is called, else the associated
           # StaticBox will be double-freed
@@ -42,6 +44,7 @@ module WXRuby3
             wxStaticBoxSizer::Detach
             wxStaticBoxSizer::Remove
             wxStaticBoxSizer::Clear])
+          spec.no_proxy 'wxStaticBoxSizer::AddSpacer'
         end
         super
       end
