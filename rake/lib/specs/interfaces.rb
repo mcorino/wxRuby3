@@ -72,6 +72,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxRadioButton', 'RadioButton', director: Director::Window),
     Director.Spec('Wx', 'wxToolTip', 'ToolTip', director: Director::TooTip),
     Director.Spec('Wx', 'wxLog', 'Log', director: Director::Log),
+    Director.Spec('Wx', 'wxRichTextEvent', 'RichTextEvent', director: Director::RichTextEvent),
   ]
 
 end # module WXRuby3
