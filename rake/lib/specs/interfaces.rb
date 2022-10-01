@@ -49,7 +49,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxToggleButton', 'ToggleButton', director: Director::Window).include('wx/tglbtn.h'),
     Director.Spec('Wx', 'wxControlWithItems', 'ControlWithItems', %w[wxControlWithItems wxItemContainer wxItemContainerImmutable], director: Director::CtrlWithItems),
     Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry}, director: Director::ComboBox),
-    Director.Spec('Wx', 'wxRadioBox', 'RadioBox', director: Director::Window).ignore_bases('wxRadioBox' => 'wxItemContainerImmutable'),
+    Director.Spec('Wx', 'wxRadioBox', 'RadioBox', director: Director::RadioBox),
     Director.Spec('Wx', 'wxPanel', 'Panel', director: Director::Window),
     Director.Spec('Wx', 'wxBookCtrlEvent', 'BookCtrlEvent', director: Director::BookCtrlEvent),
     Director.Spec('Wx', 'wxBookCtrlBase', 'BookCtrlBase', %w[wxBookCtrlBase wxWithImages], director: Director::BookCtrls),
