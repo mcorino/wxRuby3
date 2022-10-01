@@ -266,10 +266,28 @@ module WXRuby3
         when Extractor::MethodDef
           if member.is_ctor
             if !abstract && member.protection == 'public' && member.name == class_name
-              fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored && !member.deprecated
+              if !member.ignored && !member.deprecated
+                if member.only_for
+                  if ::Array === member.only_for
+                    fout.puts "#if #{member.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
+                  else
+                    fout.puts "#ifdef #{member.only_for}"
+                  end
+                end
+                fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored && !member.deprecated
+                fout.puts "#endif" if member.only_for
+              end
               member.overloads.each do |ovl|
                 if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated
+                  if ovl.only_for
+                    if ::Array === ovl.only_for
+                      fout.puts "#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
+                    else
+                      fout.puts "#ifdef #{ovl.only_for}"
+                    end
+                  end
                   fout.puts "  #{spec.class_name(classdef)}#{ovl.args_string};"
+                  fout.puts "#endif" if ovl.only_for
                 end
               end
             end
