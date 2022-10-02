@@ -85,6 +85,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxFontData', 'FontData'),
     Director.Spec('Wx', 'wxFontDialog', 'FontDialog', director: Director::Dialog),
     Director.Spec('Wx', 'wxFileDialog', 'FileDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxLocale', 'Locale', director: Director::Locale),
   ]
 
 end # module WXRuby3

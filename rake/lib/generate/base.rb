@@ -227,16 +227,19 @@ module WXRuby3
         fout.puts "class #{basecls};"
         fout.puts ''
       end
-      fout.puts "class #{spec.class_name(classdef)}#{basecls ? ' : public '+basecls : ''}"
+      is_struct = classdef.kind == 'struct'
+      fout.puts "#{classdef.kind} #{spec.class_name(classdef)}#{basecls ? ' : public '+basecls : ''}"
       fout.puts '{'
 
-      abstract_class = spec.is_abstract?(classdef)
-      if abstract_class
-        fout.puts 'private:'
-        fout.puts "  #{spec.class_name(classdef)}();"
-      end
+      unless is_struct
+        abstract_class = spec.is_abstract?(classdef)
+        if abstract_class
+          fout.puts 'private:'
+          fout.puts "  #{spec.class_name(classdef)}();"
+        end
 
-      fout.puts 'public:'
+        fout.puts 'public:'
+      end
 
       overrides = ::Set.new
       gen_interface_class_members(fout, spec, classdef.name, classdef, overrides, abstract_class)
@@ -303,15 +306,31 @@ module WXRuby3
           end
         when Extractor::EnumDef
           if member.protection == 'public' && !member.ignored && !member.deprecated
+            if member.only_for
+              if ::Array === member.only_for
+                fout.puts "#if #{member.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
+              else
+                fout.puts "#ifdef #{member.only_for}"
+              end
+            end
             fout.puts "  // from #{classdef.name}::#{member.name}"
             fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
             fout.puts member.items.collect { |e| "    #{e.name}" }.join(",\n")
             fout.puts "  };"
+            fout.puts "#endif" if member.only_for
           end
         when Extractor::MemberVarDef
           if member.protection == 'public' && !member.ignored && !member.deprecated
+            if member.only_for
+              if ::Array === member.only_for
+                fout.puts "#if #{member.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
+              else
+                fout.puts "#ifdef #{member.only_for}"
+              end
+            end
             fout.puts "  // from #{member.definition}"
             fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
+            fout.puts "#endif" if member.only_for
           end
         end
       end
