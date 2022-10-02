@@ -93,7 +93,7 @@ module WXRuby3
         @wx_cppflags = wx_config("--cppflags")
         @cpp         = wx_config("--cxx")
         @ld          = wx_config("--ld")
-        @wx_libs     = wx_config("--libs std,stc,gl,media")
+        @wx_libs     = wx_config("--libs all")
 
         # maintain minimum compatibility with ABI 3.0.0
         version = [ @wx_version, "3.0.0" ].min
@@ -110,6 +110,38 @@ module WXRuby3
 
         # Hold the actual --lib argument to be used for the final flags
         libs_str = "--libs std"
+
+        # Test for RichTextCtrl
+        if @dynamic_build
+          if macosx?
+            richtext_lib = @wx_libs[/\S+wx_mac\S+_richtext\S+/]
+            if richtext_lib.nil? or ( richtext_lib !~ /^-l/ and not File.exists?(richtext_lib) )
+              WxRubyFeatureInfo.exclude_module('RichTextCtrl')
+              WxRubyFeatureInfo.exclude_module('RichTextEvent')
+              WxRubyFeatureInfo.exclude_module('RichTextBuffer')
+            else
+              libs_str << ',richtext'
+            end
+          else
+            richtext_lib = @wx_libs[/\S+wx_gtk\S+_richtext\S+/]
+            if richtext_lib.nil?
+              WxRubyFeatureInfo.exclude_module('RichTextCtrl')
+              WxRubyFeatureInfo.exclude_module('RichTextEvent')
+              WxRubyFeatureInfo.exclude_module('RichTextBuffer')
+            else
+              libs_str << ',richtext'
+            end
+          end
+        else
+          richtext_lib = @wx_libs[/\S+libwx\S+_richtext\S+/]
+          if richtext_lib.nil? or not File.exists?(richtext_lib)
+            WxRubyFeatureInfo.exclude_module('RichTextCtrl')
+            WxRubyFeatureInfo.exclude_module('RichTextEvent')
+            WxRubyFeatureInfo.exclude_module('RichTextBuffer')
+          else
+            libs_str << ',richtext'
+          end
+        end
 
         # Test for StyledTextCtrl (Scintilla)
         if @dynamic_build
