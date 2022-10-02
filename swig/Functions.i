@@ -223,15 +223,15 @@ wxString wxGetPasswordFromUser(const wxString& message,
 							   const wxString& caption = wxT("Input text"),
 							   const wxString& default_value = wxT(""),
 							   wxWindow *parent = NULL);
-wxString wxFileSelector(const wxString& message,
-						const wxString& default_path = wxT(""),
-						const wxString& default_filename = wxT(""),
-						const wxString& default_extension = wxT(""),
-						const wxString& wildcard = wxT("*.*"),
-						int flags = 0,
-						wxWindow *parent = 0,
-						int x = -1,
-						int y = -1);
+// wxString wxFileSelector(const wxString& message,
+// 						const wxString& default_path = wxT(""),
+// 						const wxString& default_filename = wxT(""),
+// 						const wxString& default_extension = wxT(""),
+// 						const wxString& wildcard = wxT("*.*"),
+// 						int flags = 0,
+// 						wxWindow *parent = 0,
+// 						int x = -1,
+// 						int y = -1);
 
 // void wxAboutBox(const wxAboutDialogInfo& info);
 

@@ -17,6 +17,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items.concat(%w[wxTextEntry wxTextAttr])
         spec.gc_as_object('wxTextAttr')
         spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')

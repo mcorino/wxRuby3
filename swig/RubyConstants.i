@@ -2141,21 +2141,21 @@
 %constant wxFont const      NULL_FONT = wxNullFont;
 %constant wxColour const    NULL_COLOUR = wxNullColour;
 
-    // Text font families
-%constant int FONTFAMILY_DEFAULT =    wxDEFAULT;
-%constant int FONTFAMILY_DECORATIVE =     wxDECORATIVE;
-%constant int FONTFAMILY_ROMAN =     wxROMAN;
-%constant int FONTFAMILY_SCRIPT =     wxSCRIPT;
-%constant int FONTFAMILY_SWISS =    wxSWISS;
-%constant int FONTFAMILY_MODERN =     wxMODERN;
-%constant int FONTFAMILY_TELETYPE =    wxTELETYPE;  /* @@@@ */
-
-%constant int FONTWEIGHT_NORMAL =     wxNORMAL;
-%constant int FONTWEIGHT_LIGHT =     wxLIGHT;
-%constant int FONTWEIGHT_BOLD =     wxBOLD;
-%constant int FONTSTYLE_NORMAL =     wxNORMAL;
-%constant int FONTSTYLE_ITALIC =   wxITALIC;
-%constant int FONTSTYLE_SLANT =     wxSLANT;
+//     // Text font families
+// %constant int FONTFAMILY_DEFAULT =    wxDEFAULT;
+// %constant int FONTFAMILY_DECORATIVE =     wxDECORATIVE;
+// %constant int FONTFAMILY_ROMAN =     wxROMAN;
+// %constant int FONTFAMILY_SCRIPT =     wxSCRIPT;
+// %constant int FONTFAMILY_SWISS =    wxSWISS;
+// %constant int FONTFAMILY_MODERN =     wxMODERN;
+// %constant int FONTFAMILY_TELETYPE =    wxTELETYPE;  /* @@@@ */
+//
+// %constant int FONTWEIGHT_NORMAL =     wxNORMAL;
+// %constant int FONTWEIGHT_LIGHT =     wxLIGHT;
+// %constant int FONTWEIGHT_BOLD =     wxBOLD;
+// %constant int FONTSTYLE_NORMAL =     wxNORMAL;
+// %constant int FONTSTYLE_ITALIC =   wxITALIC;
+// %constant int FONTSTYLE_SLANT =     wxSLANT;
 //    // Pen styles
 ///*
 //%constant int SOLID       =    wxSOLID;

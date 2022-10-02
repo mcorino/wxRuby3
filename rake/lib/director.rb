@@ -278,7 +278,9 @@ module WXRuby3
       end
 
       def rename(table)
-        @renames.merge!(table)
+        table.each_pair do |to,from|
+          (@renames[to] ||= []).concat [from].flatten
+        end
         self
       end
 

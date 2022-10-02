@@ -90,7 +90,7 @@ module WXRuby3
       unless spec.renames.empty?
         fout.puts
         spec.renames.each_pair do |to, from|
-          fout.puts "%rename(#{to}) #{from};"
+          from.each { |org| fout.puts "%rename(#{to}) #{org};" }
         end
       end
       if spec.swig_runtime_code && !spec.swig_runtime_code.empty?

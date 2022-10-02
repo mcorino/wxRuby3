@@ -403,6 +403,8 @@ module WXRuby3
           fout << "\n#define #{item.name} #{item.value}"
         elsif item.value.start_with?('"')
           fout << "\n%constant char*  #{item.name} = #{item.value};"
+        elsif item.value =~ /wxString\((".*")\)/
+          fout << "\n%constant char*  #{item.name} = #{$1};"
         else
           fout << "\n%constant int  #{item.name} = #{item.value};"
         end

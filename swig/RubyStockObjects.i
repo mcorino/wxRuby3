@@ -16,6 +16,7 @@
 
 %}
 
+%constant wxFont            wxNullFont;
 %constant wxFont* const     wxNORMAL_FONT;
 %constant wxFont* const     wxSMALL_FONT;
 %constant wxFont* const     wxITALIC_FONT;

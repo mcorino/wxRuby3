@@ -188,30 +188,30 @@ module WXRuby3
         element.xpath('sectiondef/memberdef').each do |node|
           # skip any private items
           unless node['prot'] == 'private'
-            _kind = node['kind']
-            if _kind == 'function'
+            case _kind = node['kind']
+            when 'function'
               Extractor.extracting_msg(_kind, node)
               m = MethodDef.new(node, self.name, klass: self)
               @abstract = true if m.is_pure_virtual
               unless m.check_for_overload(self.items)
                 self.items << m
               end
-            elsif _kind == 'variable'
+            when 'variable'
               Extractor.extracting_msg(_kind, node)
               v = MemberVarDef.new(node)
               self.items << v
-            elsif _kind == 'enum'
+            when 'enum'
               Extractor.extracting_msg(_kind, node)
               e = EnumDef.new(node, [self])
               self.items << e
-            elsif _kind == 'typedef'
+            when 'typedef'
               Extractor.extracting_msg(_kind, node)
               t = TypedefDef.new(node)
               self.items << t
-            elsif kind == 'friend'
+            when 'friend'
               # noop
             else
-              raise ExtractorError.new('Unknown memberdef kind: %s' % kind)
+              raise ExtractorError.new('Unknown memberdef kind: %s' % _kind)
             end
           end
         end

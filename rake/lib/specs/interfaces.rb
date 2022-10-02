@@ -42,7 +42,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxSizer', 'Sizer', director: Director::Sizer),
     Director.Spec('Wx', 'wxBoxSizer', 'BoxSizer', director: Director::Sizer),
     Director.Spec('Wx', 'wxControl', 'Control', director: Director::Window),
-    Director.Spec('Wx', 'wxTextCtrl', 'TextCtrl', %w{wxTextCtrl wxTextEntry wxTextAttr}, director: Director::TextCtrl),
+    Director.Spec('Wx', 'wxTextCtrl', 'TextCtrl', director: Director::TextCtrl),
     Director.Spec('Wx', 'wxCheckBox', 'CheckBox', director: Director::Window),
     Director.Spec('Wx', 'wxAnyButton', 'AnyButton', director: Director::Window),
     Director.Spec('Wx', 'wxButton', 'Button', director: Director::Button),
@@ -73,6 +73,18 @@ module WXRuby3
     Director.Spec('Wx', 'wxToolTip', 'ToolTip', director: Director::TooTip),
     Director.Spec('Wx', 'wxLog', 'Log', director: Director::Log),
     Director.Spec('Wx', 'wxRichTextEvent', 'RichTextEvent', director: Director::RichTextEvent),
+    Director.Spec('Wx', 'wxRichTextBuffer', 'RichTextBuffer', director: Director::RichTextBuffer),
+    Director.Spec('Wx', 'wxRichTextCtrl', 'RichTextCtrl', director: Director::RichTextCtrl),
+    Director.Spec('Wx', 'wxToolBar', 'ToolBar', director: Director::ToolBar),
+    Director.Spec('Wx', 'wxImage', 'Image', director: Director::Image),
+    Director.Spec('Wx', 'wxDragImage', 'DragImage'),
+    Director.Spec('Wx', 'wxRichTextFileHandler', 'RichTextFileHandler', director: Director::RichTextFileHandler),
+    Director.Spec('Wx', 'wxRichTextXMLHandler', 'RichTextXMLHandler', director: Director::RichTextFileHandler),
+    Director.Spec('Wx', 'wxRichTextHTMLHandler', 'RichTextHTMLHandler', director: Director::RichTextFileHandler),
+    Director.Spec('Wx', 'wxFont', 'Font', director: Director::Font),
+    Director.Spec('Wx', 'wxFontData', 'FontData'),
+    Director.Spec('Wx', 'wxFontDialog', 'FontDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxFileDialog', 'FileDialog', director: Director::Dialog),
   ]
 
 end # module WXRuby3
