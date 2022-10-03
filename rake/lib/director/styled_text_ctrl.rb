@@ -17,10 +17,7 @@ module WXRuby3
 
       def setup
         super
-        #spec.items.concat(%w[wxTextEntry ])
-        #spec.fold_bases('wxStyledTextCtrl' => 'wxTextEntry')
         spec.ignore_bases('wxStyledTextCtrl' => 'wxTextEntry')
-        #spec.ignore 'wxTextEntry::GetLastPosition'
         spec.add_swig_runtime_code <<~__HEREDOC
           %typemap(in,numinputs=0) (int *OUTPUT) (int a)
           {
