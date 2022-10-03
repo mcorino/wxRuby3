@@ -11,9 +11,13 @@ require 'erb'
 require 'pathname'
 require 'set'
 
+require_relative '../util/string'
+
 module WXRuby3
 
   class Generator
+
+    include Util::StringUtil
 
     class Spec
 
@@ -349,7 +353,11 @@ module WXRuby3
       vars.each do |item|
         fout.puts
         gen_only_for(fout, item) do
-          fout.puts "%constant #{item.definition}#{" #{item.value}".rstrip};"
+          wx_pfx = item.name.start_with?('wx') ? 'wx' : ''
+          const_name = underscore!(rb_constant_name(item.name))
+          const_type = item.type
+          const_type << '*' if const_type.index('char') && item.args_string == '[]'
+          fout.puts "%constant #{const_type} #{wx_pfx}#{const_name.upcase} = #{item.name.rstrip};"
         end
       end
       fout.puts '' unless vars.empty?

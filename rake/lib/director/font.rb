@@ -21,7 +21,6 @@ module WXRuby3
         spec.ignore 'wxFont::wxFont(const wxNativeFontInfo &)'
         # ignore stock objects here; need special init in app mainloop
         spec.ignore %w[
-          wxNullFont
           wxNORMAL_FONT
           wxSMALL_FONT
           wxITALIC_FONT

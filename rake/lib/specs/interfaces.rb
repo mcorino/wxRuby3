@@ -88,6 +88,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxLocale', 'Locale', director: Director::Locale),
     Director.Spec('Wx', 'wxStyledTextEvent', 'StyledTextEvent', director: Director::StyledTextEvent),
     Director.Spec('Wx', 'wxStyledTextCtrl', 'StyledTextCtrl', director: Director::StyledTextCtrl),
+    Director.Spec('Wx', 'wxSystemSettings', 'SystemSettings', director: Director::SystemSettings),
   ]
 
 end # module WXRuby3
