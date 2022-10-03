@@ -198,7 +198,7 @@ module WXRuby3
           @brief_doc = bd.first # Should be just one <para> element
           @detailed_doc = element.xpath('detaileddescription')
           if (el = @detailed_doc.at_xpath('para/onlyfor'))
-            @only_for = el.text.strip.split(',')
+            @only_for = el.text.strip.split(',').collect { |s| "__#{s.upcase}__"}
           end
         end
       end

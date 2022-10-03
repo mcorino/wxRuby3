@@ -358,7 +358,7 @@ class MyPanel < Panel
     @m_spinctrl.set_range(10,30)
     @m_spinctrl.set_value(15)
 
-    @m_notebook.add_page(panel, "Gauge", FALSE, Image_Gauge)
+    @m_notebook.add_page(panel, "Gauge", false, Image_Gauge)
 
     panel = Panel.new(@m_notebook)
 
@@ -405,7 +405,7 @@ class MyPanel < Panel
     # sizer
 
     panel = Panel.new(@m_notebook)
-    panel.set_auto_layout( TRUE )
+    panel.set_auto_layout( true )
 
     sizer = BoxSizer.new( VERTICAL )
 
@@ -414,22 +414,22 @@ class MyPanel < Panel
                           HORIZONTAL )
 
     check1 = CheckBox.new(panel, ID_SIZER_CHECK1, "1")
-    check1.set_value(TRUE)
+    check1.set_value(true)
     csizer.add(check1)
     check2 = CheckBox.new(panel, ID_SIZER_CHECK2, "2")
-    check2.set_value(TRUE)
+    check2.set_value(true)
     csizer.add(check2)
     check3 = CheckBox.new(panel, ID_SIZER_CHECK3, "3")
-    check3.set_value(TRUE)
+    check3.set_value(true)
     csizer.add(check3)
     check4 = CheckBox.new(panel, ID_SIZER_CHECK4, "4")
-    check4.set_value(TRUE)
+    check4.set_value(true)
     csizer.add(check4)
     check14 = CheckBox.new(panel, ID_SIZER_CHECK14, "1-4")
-    check14.set_value(TRUE)
+    check14.set_value(true)
     csizer.add(check14)
     checkBig = CheckBox.new(panel, ID_SIZER_CHECKBIG, "Big")
-    checkBig.set_value(TRUE)
+    checkBig.set_value(true)
     csizer.add(checkBig)
 
     sizer.add(csizer)
@@ -922,7 +922,7 @@ class MyPanel < Panel
                                  PD_ESTIMATED_TIME |
                                  PD_REMAINING_TIME)
 
-    cont = TRUE
+    cont = true
     0.upto(max) {|i|
       break if !cont
       sleep(1)
@@ -1129,7 +1129,7 @@ class MyApp < App
     y = 50
     # Create the main frame window
     frame = MyFrame.new("Controls Windows App", x, y)
-    frame.show(TRUE)
+    frame.show(true)
   end
 end
 

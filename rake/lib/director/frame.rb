@@ -23,7 +23,7 @@ module WXRuby3
             wxFrame::CreateStatusBar wxFrame::CreateToolBar wxFrame::GetMenuBar wxFrame::GetStatusBar wxFrame::GetToolBar]
           spec.ignore %w[
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
-          spec.set_only_for(:wxmsw, 'wxFrame::MSWGetTaskBarButton')
+          spec.set_only_for('__WXMSW__', 'wxFrame::MSWGetTaskBarButton')
           spec.disown 'wxMenuBar *'
           spec.add_swig_begin_code <<~__HEREDOC
             %typemap(in,numinputs=1) (int n, int * widths) (int size, int i, int *arr){

@@ -136,7 +136,7 @@ module WXRuby3
             static void mark_wxRubyApp(void *ptr)
             {
           
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
             std::wcout << "=== Starting App GC mark phase" << std::endl;
           #endif
           
@@ -146,7 +146,7 @@ module WXRuby3
             // errors.
               if ( rb_gv_get("__wx_app_ended__" ) == Qtrue )
                 {
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
             std::wcout << "=== App has ended, skipping mark phase" << std::endl;
           #endif
                   return;
@@ -160,7 +160,7 @@ module WXRuby3
             // list of tracked objects
               wxRuby_IterateTracking(&wxRubyApp::markIterate);
           
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
             std::wcout << "=== App GC mark phase completed" << std::endl;
           #endif
           
@@ -176,7 +176,7 @@ module WXRuby3
               this->Connect(wxEVT_DESTROY,
                     wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
           
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
                   std::wcout << "Calling wxEntry, this=" << this << std::endl;
           #endif
           
@@ -190,11 +190,11 @@ module WXRuby3
               wxEntry(argc, argv);
           #endif
           
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
               std::wcout << "returned from wxEntry..." << std::endl;
           #endif
               rb_gc_start();
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
               std::wcout << "survived gc" << std::endl;
           #endif
               return 0;
@@ -206,7 +206,7 @@ module WXRuby3
             // be initialized any earlier than this without crashing
             bool OnInit()
             {
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
               std::wcout << "OnInit..." << std::endl;
           #endif
               // Signal that we're started
@@ -234,7 +234,7 @@ module WXRuby3
           
             virtual int OnExit()
             {
-          #ifdef __WXDEBUG__
+          #ifdef __WXRB_DEBUG__
               std::wcout << "OnExit..." << std::endl;
           #endif
               // Note in a global variable that the App has ended, so that we

@@ -270,27 +270,15 @@ module WXRuby3
           if member.is_ctor
             if !abstract && member.protection == 'public' && member.name == class_name
               if !member.ignored && !member.deprecated
-                if member.only_for
-                  if ::Array === member.only_for
-                    fout.puts "#if #{member.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-                  else
-                    fout.puts "#ifdef #{member.only_for}"
-                  end
+                gen_only_for(fout, member) do
+                  fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored && !member.deprecated
                 end
-                fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored && !member.deprecated
-                fout.puts "#endif" if member.only_for
               end
               member.overloads.each do |ovl|
                 if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated
-                  if ovl.only_for
-                    if ::Array === ovl.only_for
-                      fout.puts "#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-                    else
-                      fout.puts "#ifdef #{ovl.only_for}"
-                    end
+                  gen_only_for(fout, ovl) do
+                    fout.puts "  #{spec.class_name(classdef)}#{ovl.args_string};"
                   end
-                  fout.puts "  #{spec.class_name(classdef)}#{ovl.args_string};"
-                  fout.puts "#endif" if ovl.only_for
                 end
               end
             end
@@ -306,31 +294,24 @@ module WXRuby3
           end
         when Extractor::EnumDef
           if member.protection == 'public' && !member.ignored && !member.deprecated
-            if member.only_for
-              if ::Array === member.only_for
-                fout.puts "#if #{member.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-              else
-                fout.puts "#ifdef #{member.only_for}"
+            gen_only_for(fout, member) do
+              fout.puts "  // from #{classdef.name}::#{member.name}"
+              fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
+              enum_size = member.items.size
+              member.items.each_with_index do |e, i|
+                gen_only_for(fout, e) do
+                  fout.puts "    #{e.name}#{(i+1)<enum_size ? ',' : ''}"
+                end
               end
+              fout.puts "  };"
             end
-            fout.puts "  // from #{classdef.name}::#{member.name}"
-            fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
-            fout.puts member.items.collect { |e| "    #{e.name}" }.join(",\n")
-            fout.puts "  };"
-            fout.puts "#endif" if member.only_for
           end
         when Extractor::MemberVarDef
           if member.protection == 'public' && !member.ignored && !member.deprecated
-            if member.only_for
-              if ::Array === member.only_for
-                fout.puts "#if #{member.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-              else
-                fout.puts "#ifdef #{member.only_for}"
-              end
+            gen_only_for(fout, member) do
+              fout.puts "  // from #{member.definition}"
+              fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
             end
-            fout.puts "  // from #{member.definition}"
-            fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
-            fout.puts "#endif" if member.only_for
           end
         end
       end
@@ -342,18 +323,12 @@ module WXRuby3
                 (methoddef.is_virtual && methods.any? { |m| m.signature == methoddef.signature }) ||
                 # non-virtual shadowed overloads
                 (!methoddef.is_virtual && methods.any? { |m| m.name == methoddef.name && m.class_name != methoddef.class_name })
-          if methoddef.only_for
-            if ::Array === methoddef.only_for
-              fout.puts "#if #{methoddef.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-            else
-              fout.puts "#ifdef #{methoddef.only_for}"
-            end
+          gen_only_for(fout, methoddef) do
+            fout.puts "  // from #{methoddef.definition}"
+            mdecl = methoddef.is_static ? 'static ' : ''
+            mdecl << 'virtual ' if methoddef.is_virtual
+            fout.puts "  #{mdecl}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
           end
-          fout.puts "  // from #{methoddef.definition}"
-          mdecl = methoddef.is_static ? 'static ' : ''
-          mdecl << 'virtual ' if methoddef.is_virtual
-          fout.puts "  #{mdecl}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
-          fout.puts "#endif" if methoddef.only_for
           methods << methoddef
         end
     end
@@ -361,15 +336,10 @@ module WXRuby3
     def gen_typedefs(fout, spec)
       typedefs = spec.def_items.select {|item| Extractor::TypedefDef === item && !item.ignored }
       typedefs.each do |item|
-        if item.only_for
-          if ::Array === item.only_for
-            fout << "\n#if #{item.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-          else
-            fout << "\n#ifdef #{item.only_for}"
-          end
+        fout.puts
+        gen_only_for(fout, item) do
+          fout.puts "#{item.definition};"
         end
-        fout << "\n#{item.definition};"
-        fout << "\n#endif" if item.only_for
       end
       fout.puts '' unless typedefs.empty?
     end
@@ -377,15 +347,10 @@ module WXRuby3
     def gen_variables(fout, spec)
       vars = spec.def_items.select {|item| Extractor::GlobalVarDef === item && !item.ignored }
       vars.each do |item|
-        if item.only_for
-          if ::Array === item.only_for
-            fout << "\n#if #{item.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-          else
-            fout << "\n#ifdef #{item.only_for}"
-          end
+        fout.puts
+        gen_only_for(fout, item) do
+          fout.puts "%constant #{item.definition}#{" #{item.value}".rstrip};"
         end
-        fout << "\n%constant #{item.definition}#{" #{item.value}".rstrip};"
-        fout << "\n#endif" if item.only_for
       end
       fout.puts '' unless vars.empty?
     end
@@ -393,22 +358,16 @@ module WXRuby3
     def gen_enums(fout, spec)
       fout << spec.def_items.inject('') do |code, item|
         if Extractor::EnumDef === item && !item.ignored
-          code << "\n// from enum #{item.name || ''}\n"
+          fout.puts
+          fout.puts "// from enum #{item.name.start_with?('@') ? '' : item.name}"
           item.items.each do |e|
             unless e.ignored
-              if e.only_for
-                if ::Array === e.only_for
-                  code << "#if #{e.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}\n"
-                else
-                  code << "#ifdef #{e.only_for}\n"
-                end
+              gen_only_for(fout, e) do
+                fout.puts "%constant int #{e.name} = #{e.name};"
               end
-              code << "%constant int #{e.name} = #{e.name};\n"
-              code << "#endif\n" if e.only_for
             end
           end
         end
-        code
       end
     end
 
@@ -417,23 +376,18 @@ module WXRuby3
         Extractor::DefineDef === item && !item.ignored && !item.is_macro? && item.value && !item.value.empty?
       }
       defines.each do |item|
-        if item.only_for
-          if ::Array === item.only_for
-            fout << "\n#if #{item.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
+        fout.puts
+        gen_only_for(fout, item) do
+          if item.value =~ /\A\d/
+            fout.puts "#define #{item.name} #{item.value}"
+          elsif item.value.start_with?('"')
+            fout.puts "%constant char*  #{item.name} = #{item.value};"
+          elsif item.value =~ /wxString\((".*")\)/
+            fout.puts "%constant char*  #{item.name} = #{$1};"
           else
-            fout << "\n#ifdef #{item.only_for}"
+            fout.puts "%constant int  #{item.name} = #{item.value};"
           end
         end
-        if item.value =~ /\A\d/
-          fout << "\n#define #{item.name} #{item.value}"
-        elsif item.value.start_with?('"')
-          fout << "\n%constant char*  #{item.name} = #{item.value};"
-        elsif item.value =~ /wxString\((".*")\)/
-          fout << "\n%constant char*  #{item.name} = #{$1};"
-        else
-          fout << "\n%constant int  #{item.name} = #{item.value};"
-        end
-        fout << "\n#endif" if item.only_for
       end
       fout.puts '' unless defines.empty?
     end
@@ -443,18 +397,25 @@ module WXRuby3
       functions.each do |item|
         active_overloads = item.all.select { |ovl| !ovl.ignored && !ovl.deprecated }
         active_overloads.each do |ovl|
-          if ovl.only_for
-            if ::Array === ovl.only_for
-              fout << "\n#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-            else
-              fout << "\n#ifdef #{ovl.only_for}"
-            end
+          fout.puts
+          gen_only_for(fout, ovl) do
+            fout.puts "#{ovl.type} #{ovl.name}#{ovl.args_string};"
           end
-          fout << "\n#{ovl.type} #{ovl.name}#{ovl.args_string};"
-          fout << "\n#endif" if ovl.only_for
         end
       end
       fout.puts '' unless functions.empty?
+    end
+
+    def gen_only_for(fout, item, &block)
+      if item.only_for
+        if ::Array === item.only_for
+          fout.puts "#if #{item.only_for.collect { |s| "defined(#{s})" }.join(' || ')}"
+        else
+          fout.puts "#ifdef #{item.only_for}"
+        end
+      end
+      block.call
+      fout.puts "#endif" if item.only_for
     end
 
   end # class Generator

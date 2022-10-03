@@ -21,35 +21,21 @@
 #include <wx/prntbase.h>
 #include <wx/listbase.h>
 #include <wx/animate.h>
-//
-//// All of these exist on only one platform, so in those
-//// cases I'm defining them so the compiler doesn't freak out
-////
-//#ifndef __WXMAC__
-//#define    wxCURSOR_COPY_ARROW wxCURSOR_ARROW
-//#endif
-//#ifndef __X__
-//    // Not yet implemented for Windows
-//#define    wxCURSOR_CROSS_REVERSE wxCURSOR_ARROW
-//#define    wxCURSOR_DOUBLE_ARROW wxCURSOR_ARROW
-//#define    wxCURSOR_BASED_ARROW_UP wxCURSOR_ARROW
-//#define    wxCURSOR_BASED_ARROW_DOWN wxCURSOR_ARROW
-//#endif // X11
 
 %}
 
-//// Version numbers from wx/version.h
-//%constant const int wxWXWIDGETS_MAJOR_VERSION = wxMAJOR_VERSION;
-//%constant const int wxWXWIDGETS_MINOR_VERSION = wxMINOR_VERSION;
-//%constant const int wxWXWIDGETS_RELEASE_NUMBER = wxRELEASE_NUMBER;
-//%constant const int wxWXWIDGETS_SUBRELEASE_NUMBER = wxSUBRELEASE_NUMBER;
-//// WXWIDGETS_VERSION is defined in lib/wx/version.rb
-//
-//#ifdef __WXDEBUG__
-//%constant const bool wxDEBUG = true;
-//#else
-//%constant const bool wxDEBUG = false;
-//#endif
+#ifdef __WXRB_DEBUG__
+%constant const bool wxRB_DEBUG = true;
+#else
+%constant const bool wxRB_DEBUG = false;
+#endif
+
+#ifdef __WXRB_TRACE__
+%constant const bool wxRB_TRACE = true;
+#else
+%constant const bool wxRB_TRACE = false;
+#endif
+
 //
 ////** ---------------------------------------------------------------------------- **
 ////   Start constants from wx/defs.h
