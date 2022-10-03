@@ -195,7 +195,7 @@ class MyPanel < Panel
 
 	  @m_logTargetOld = Log::set_active_target(LogTextCtrl.new(@m_text))
 
-    @m_notebook = Wx::Notebook.new(self, ID_NOTEBOOK)
+    @m_notebook = Wx::Notebook.new(self, ID_NOTEBOOK, Point.new(0,0), Size.new(100,50))
 
     choices = [
       "This",
