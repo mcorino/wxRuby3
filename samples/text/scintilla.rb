@@ -105,7 +105,7 @@ class MyFrame < Frame
   end
 
   def onQuit
-    close(TRUE)
+    close(true)
   end
 
   def onAbout
@@ -157,7 +157,7 @@ class RbApp < App
   def on_init
     frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
 
-    frame.show(TRUE)
+    frame.show(true)
 
   end
 end

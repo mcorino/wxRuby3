@@ -43,6 +43,7 @@ module WXRuby3
             rb_ary_push($result, INT2NUM(*$2));
           }
           __HEREDOC
+        spec.do_not_generate(:variables, :enums, :defines, :functions)
       end
     end # class StyledTextCtrl
 

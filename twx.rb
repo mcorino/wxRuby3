@@ -1,32 +1,17 @@
 
-$:.insert(0, File.join(File.dirname(__FILE__), 'lib'))
+$ruby_cmd = `which ruby`.chomp
+$ruby_cmd << " -I#{File.join(File.dirname(__FILE__), 'lib')} "
 
-# require './lib/wx'
-#
-# # This is the minimum code to start a WxRuby app - create a Frame, and
-# # show it.
-# Wx::App.run do
-#   frame = Wx::Frame.new(nil, :title => "Minimal wxRuby App")
-#   frame.background_colour = Wx::BLUE
-#   icon_file = File.join( File.dirname(__FILE__)+"/../wxruby/art", "wxruby.png")
-#   frame.icon = Wx::Icon.new(icon_file)
-#   frame.create_status_bar(2)
-#   frame.show
-#   frame.on_evt_close do
-#     Wx::about_box(:name => frame.title,
-#                   :version     => Wx::WXRUBY_VERSION,
-#                   :description => "This is the minimal sample",
-#                   :developers  => ['The wxRuby Development Team'] )
-#     frame.close()
-#   end
-# end
+def run_test(test)
+  system "#{$ruby_cmd} #{test}.rb"
+end
 
-#require_relative './samples/minimal/nothing'
-#require_relative './samples/minimal/minimal'
-#require_relative './samples/event/event'
-#require_relative './samples/event/update_ui_event'
-#require_relative './samples/controls/controls'
-#require_relative './samples/text/textctrl'
-#require_relative './samples/text/rich_textctrl'
-#require_relative './samples/text/unicode'
-require_relative './samples/text/scintilla'
+run_test './samples/minimal/nothing'
+run_test './samples/minimal/minimal'
+run_test './samples/event/event'
+run_test './samples/event/update_ui_event'
+run_test './samples/controls/controls'
+run_test './samples/text/textctrl'
+run_test './samples/text/rich_textctrl'
+run_test './samples/text/unicode'
+run_test './samples/text/scintilla'

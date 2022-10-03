@@ -241,11 +241,11 @@ module WXRuby3
         fout.puts 'public:'
       end
 
-      overrides = ::Set.new
-      gen_interface_class_members(fout, spec, classdef.name, classdef, overrides, abstract_class)
+      methods = []
+      gen_interface_class_members(fout, spec, classdef.name, classdef, methods, abstract_class)
 
       spec.folded_bases(classdef.name).each do |basename|
-        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), overrides)
+        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), methods)
       end
 
       spec.member_extensions(classdef.name).each do |extdecl|
@@ -256,7 +256,7 @@ module WXRuby3
       fout.puts '};'
     end
 
-    def gen_interface_class_members(fout, spec, class_name, classdef, overrides, abstract=false)
+    def gen_interface_class_members(fout, spec, class_name, classdef, methods, abstract=false)
       # generate any inner classes
       classdef.innerclasses.each do |inner|
         if inner.protection == 'public' && !inner.ignored && !inner.deprecated
@@ -297,10 +297,10 @@ module WXRuby3
           elsif member.is_dtor
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}~#{spec.class_name(classdef)}#{member.args_string};" if member.name == "~#{class_name}"
           elsif member.protection == 'public'
-            gen_interface_class_method(fout, member, overrides) if !member.ignored && !member.deprecated && !member.is_template?
+            gen_interface_class_method(fout, member, methods) if !member.ignored && !member.deprecated && !member.is_template?
             member.overloads.each do |ovl|
               if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated && !member.is_template?
-                gen_interface_class_method(fout, ovl, overrides)
+                gen_interface_class_method(fout, ovl, methods)
               end
             end
           end
@@ -336,8 +336,12 @@ module WXRuby3
       end
     end
 
-    def gen_interface_class_method(fout, methoddef, overrides)
-        unless methoddef.is_pure_virtual || (methoddef.is_virtual && overrides.include?(methoddef.signature))
+    def gen_interface_class_method(fout, methoddef, methods)
+        unless methoddef.is_pure_virtual ||
+                # virtual overrides
+                (methoddef.is_virtual && methods.any? { |m| m.signature == methoddef.signature }) ||
+                # non-virtual shadowed overloads
+                (!methoddef.is_virtual && methods.any? { |m| m.name == methoddef.name && m.class_name != methoddef.class_name })
           if methoddef.only_for
             if ::Array === methoddef.only_for
               fout.puts "#if #{methoddef.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
@@ -346,9 +350,11 @@ module WXRuby3
             end
           end
           fout.puts "  // from #{methoddef.definition}"
-          fout.puts "  #{methoddef.is_static ? 'static ' : ''}#{methoddef.is_virtual ? 'virtual ' : ''}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
+          mdecl = methoddef.is_static ? 'static ' : ''
+          mdecl << 'virtual ' if methoddef.is_virtual
+          fout.puts "  #{mdecl}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
           fout.puts "#endif" if methoddef.only_for
-          overrides << methoddef.signature if methoddef.is_override
+          methods << methoddef
         end
     end
 
