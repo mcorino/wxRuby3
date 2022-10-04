@@ -20,9 +20,9 @@ module WXRuby3
           spec.ignore('wxDialog::GetContentWindow')
           spec.swig_import('include/defs.h')
         when 'wxFontDialog'
-          spec.add_swig_runtime_code '%apply SWIGTYPE *DISOWN { wxFontData* data };'
+          spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFontData* data };'
         when 'wxFileDialog'
-          spec.add_swig_runtime_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             %typemap(in,numinputs=0) wxArrayString &(wxArrayString sel)
             {
               $1 = &sel;
@@ -37,7 +37,7 @@ module WXRuby3
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
         when 'wxPropertySheetDialog'
           spec.ignore 'wxPropertySheetDialog::GetContentWindow'
-          spec.add_swig_runtime_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             // Needs special handling to ensure the return value is cast to the
             // correct book class, not the generic abstract parent class
             // wxBookCtrlBase

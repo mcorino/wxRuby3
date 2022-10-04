@@ -15,7 +15,7 @@ module WXRuby3
 
       def setup
         # for all wxTopLevelWindow (derived) classes
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           SWIG_WXTOPLEVELWINDOW_NO_USELESS_VIRTUALS(#{spec.module_name});
         __HEREDOC
         spec.no_proxy %w{

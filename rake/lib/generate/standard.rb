@@ -46,14 +46,14 @@ module WXRuby3
           fout.puts "%apply SWIGTYPE *DISOWN { #{dis} };"
         end
       end
-      if spec.swig_begin_code && !spec.swig_begin_code.empty?
-        fout.puts
-        fout << spec.swig_begin_code
-      end
-      unless spec.includes.empty?
+      unless spec.includes.empty? && spec.header_code.empty?
         fout.puts "%header %{"
         spec.includes.each do |inc|
           fout.puts "#include \"#{inc}\"" unless inc.index('wx.h')
+        end
+        unless spec.header_code.empty?
+          fout.puts
+          fout.puts spec.header_code
         end
         fout.puts "%}"
       end
@@ -93,10 +93,6 @@ module WXRuby3
           from.each { |org| fout.puts "%rename(#{to}) #{org};" }
         end
       end
-      if spec.swig_runtime_code && !spec.swig_runtime_code.empty?
-        fout.puts
-        fout.puts spec.swig_runtime_code
-      end
       if spec.runtime_code && !spec.runtime_code.empty?
         fout.puts
         fout.puts "%runtime %{"
@@ -105,16 +101,10 @@ module WXRuby3
       end
     end
 
-    def gen_swig_header_code(fout, spec)
-      if spec.swig_header_code && !spec.swig_header_code.empty?
+    def gen_swig_code(fout, spec)
+      if spec.swig_code && !spec.swig_code.empty?
         fout.puts
-        fout.puts spec.swig_header_code
-      end
-      if spec.header_code && !spec.header_code.empty?
-        fout.puts
-        fout.puts "%header %{"
-        fout.puts spec.header_code
-        fout.puts "%}"
+        fout.puts spec.swig_code
       end
     end
 
@@ -175,10 +165,6 @@ module WXRuby3
         end
       end
 
-      if spec.swig_interface_code && !spec.swig_interface_code.empty?
-        fout.puts
-        fout.puts spec.swig_interface_code
-      end
       if spec.interface_code && !spec.interface_code.empty?
         fout.puts
         fout.puts spec.interface_code
@@ -200,7 +186,7 @@ module WXRuby3
 
       gen_swig_runtime_code(fout, spec)
 
-      gen_swig_header_code(fout, spec)
+      gen_swig_code(fout, spec)
 
       gen_swig_init_code(fout, spec)
 

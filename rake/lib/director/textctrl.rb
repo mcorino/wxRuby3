@@ -23,7 +23,7 @@ module WXRuby3
         spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore ['wxTextCtrl::HitTest(const wxPoint &,long *)', 'wxTextAttr::Merge(const wxTextAttr &,const wxTextAttr &)']
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %apply long * OUTPUT { long * }
           %apply long * OUTPUT { wxTextCoord *col, wxTextCoord *row }
           __HEREDOC

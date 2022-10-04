@@ -28,7 +28,7 @@ module WXRuby3
           wxTheFontList
           ]
         spec.do_not_generate :functions
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           enum wxFontFamily;
           enum wxFontWeight;
           enum wxFontStyle;

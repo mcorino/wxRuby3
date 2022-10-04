@@ -16,7 +16,7 @@ module WXRuby3
       def setup
         spec.gc_as_object
         spec.ignore 'wxSystemSettings::GetAppearance'
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %typemap(in) wxSystemColour "$1 = (wxSystemColour)NUM2INT($input);"
           %typemap(out) wxSystemColour " $result = INT2NUM((int)$1);"
           %typemap(in) wxSystemFont "$1 = (wxSystemFont)NUM2INT($input);"

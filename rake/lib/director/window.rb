@@ -15,7 +15,7 @@ module WXRuby3
 
       def setup
         # for all wxWindow derived classes (not wxFrame and descendants)
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           SWIG_WXWINDOW_NO_USELESS_VIRTUALS(wxWindow);
         __HEREDOC
         # only for actual wxWindow class
@@ -24,7 +24,7 @@ module WXRuby3
           # // when passed into Wx, and so will be deleted automatically; using
           # // DISOWN resets their %freefunc to avoid deleting the object twice
           spec.disown 'wxCaret* caret', 'wxSizer* sizer', 'wxToolTip* tip', 'wxDropTarget* target'
-          spec.add_swig_begin_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             %apply int * INOUT { int * x_INOUT, int * y_INOUT }
             
             // Typemap for GetChildren - casts wxObjects to correct ruby wrappers

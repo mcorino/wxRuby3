@@ -18,7 +18,7 @@ module WXRuby3
       def setup
         super
         spec.ignore_bases('wxStyledTextCtrl' => 'wxTextEntry')
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %typemap(in,numinputs=0) (int *OUTPUT) (int a)
           {
             $1 = &a;

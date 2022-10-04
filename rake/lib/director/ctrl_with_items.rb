@@ -23,7 +23,7 @@ module WXRuby3
           spec.ignore([
             'wxItemContainer::Insert(const std::vector< wxString > &)',
             'wxItemContainer::Insert(const std::vector< wxString > &)'])
-          spec.add_swig_begin_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             // Typemap for GetStrings - which returns an object not a reference,
             // unlike all other ArrayString-returning methods
             %typemap(out) wxArrayString {
@@ -38,7 +38,7 @@ module WXRuby3
       end
 
       def setup_ctrl_with_items(clsnm)
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // adjust GC marker
           %markfunc #{clsnm} "mark_wxControlWithItems";
           // First hide the old Wx definitions of these methods - which segfault

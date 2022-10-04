@@ -15,7 +15,7 @@ module WXRuby3
 
       def setup
         super
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // Protect panels etc added as Toolbook pages from being GC'd by Ruby;
           // avoids double-free segfaults on exit on GTK
           %apply SWIGTYPE *DISOWN { wxWindow* page };

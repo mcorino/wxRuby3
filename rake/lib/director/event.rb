@@ -31,7 +31,7 @@ module WXRuby3
           spec.make_abstract('wxPaintEvent')
           spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
           spec.set_only_for 'WXWIN_COMPATIBILITY_2_8', 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
-          spec.add_swig_runtime_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             // To allow instance variables to be attached to custom subclasses of
             // Wx::Event written in Ruby in a GC-safe, thread-safe way, wrap a
             // custom C++ subclass of wxEvent as Ruby's Wx::Event.
@@ -91,7 +91,7 @@ module WXRuby3
             return INT2NUM(event_type_id );
             }
             __HEREDOC
-          spec.add_swig_runtime_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             %rename(wxCommandEvent) wxRubyCommandEvent;
             __HEREDOC
           spec.ignore %w{

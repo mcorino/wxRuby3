@@ -25,7 +25,7 @@ module WXRuby3
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
           spec.set_only_for('__WXMSW__', 'wxFrame::MSWGetTaskBarButton')
           spec.disown 'wxMenuBar *'
-          spec.add_swig_begin_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             %typemap(in,numinputs=1) (int n, int * widths) (int size, int i, int *arr){
             
               size = RARRAY_LEN($input);

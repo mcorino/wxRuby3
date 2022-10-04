@@ -44,7 +44,7 @@ module WXRuby3
           spec.do_not_generate(:typedefs, :functions, :enums) # enums are generated with wxScrolledWindow
         end
         spec.ignore 'wxScrolled::GetViewStart(int *,int *)'
-        spec.add_swig_runtime_code '%apply int * OUTPUT { int * };'
+        spec.add_swig_code '%apply int * OUTPUT { int * };'
       end
     end # class ScrolledT
 

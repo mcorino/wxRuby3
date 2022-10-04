@@ -19,7 +19,7 @@ module WXRuby3
         spec.items << 'wxLanguageInfo' << 'language.h'
         spec.gc_as_object('wxLocale')
         spec.set_only_for('__WIN32__', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
-        spec.add_swig_runtime_code 'enum wxFontEncoding;'
+        spec.add_swig_code 'enum wxFontEncoding;'
       end
     end # class Locale
 

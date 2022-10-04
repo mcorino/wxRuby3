@@ -137,24 +137,16 @@ module WXRuby3
         @ifspec.disowns
       end
 
-      def swig_begin_code
-        @ifspec.swig_begin_code.join("\n")
+      def swig_code
+        @ifspec.swig_code.join("\n")
       end
 
       def begin_code
         @ifspec.begin_code.join("\n")
       end
 
-      def swig_runtime_code
-        @ifspec.swig_runtime_code.join("\n")
-      end
-
       def runtime_code
         @ifspec.runtime_code.join("\n")
-      end
-
-      def swig_header_code
-        @ifspec.swig_header_code.join("\n")
       end
 
       def header_code
@@ -167,10 +159,6 @@ module WXRuby3
 
       def init_code
         @ifspec.init_code.join("\n")
-      end
-
-      def swig_interface_code
-        @ifspec.swig_interface_code.join("\n")
       end
 
       def interface_code

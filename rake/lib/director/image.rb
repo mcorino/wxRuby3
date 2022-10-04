@@ -48,7 +48,7 @@ module WXRuby3
         # The GetRgbData and GetAlphaData methods require special handling using %extend;
         spec.ignore %w[wxImage::GetData wxImage::GetAlpha]
         # The SetRgbData and SetAlphaData are dealt with by typemaps (see below).
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // For Image#set_rgb_data, Image#set_alpha_data and Image.new with raw data arg:
           // copy raw string data from a Ruby string to a memory block that will be
           // managed by wxWidgets (see static_data typemap below)

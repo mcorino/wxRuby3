@@ -57,15 +57,12 @@ module WXRuby3
         @swig_imports = Set.new
         @swig_includes = Set.new
         @renames = Hash.new
-        @swig_begin_code = []
+        @swig_code = []
         @begin_code = []
-        @swig_runtime_code = []
         @runtime_code = []
-        @swig_header_code = []
         @header_code = []
         @wrapper_code = []
         @init_code = []
-        @swig_interface_code = []
         @interface_code = []
         @extend_code = {}
         @nogen_sections = ::Set.new
@@ -75,9 +72,7 @@ module WXRuby3
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
                   :ignores, :disabled_proxies, :no_proxies, :disowns, :only_for, :includes, :swig_imports, :swig_includes, :renames,
-                  :swig_begin_code, :begin_code, :swig_runtime_code, :runtime_code,
-                  :swig_header_code, :header_code, :wrapper_code, :extend_code,
-                  :init_code, :swig_interface_code, :interface_code,
+                  :swig_code, :begin_code, :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors
       attr_writer :interface_file
 
@@ -290,6 +285,11 @@ module WXRuby3
         table.each_pair do |to,from|
           (@renames[to] ||= []).concat [from].flatten
         end
+        self
+      end
+
+      def add_swig_code(*code)
+        @swig_code.concat code.flatten
         self
       end
 

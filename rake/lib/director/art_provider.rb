@@ -20,7 +20,7 @@ module WXRuby3
         spec.ignore('wxArtProvider::Insert') # deprecated and problematic
         spec.no_proxy('wxRubyArtProvider')
         spec.include('wx/artprov.h')
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // ArtId and ArtClient are basically just strings ...
           typedef wxString wxArtID;
           typedef wxString wxArtClient;

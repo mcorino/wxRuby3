@@ -28,7 +28,7 @@ module WXRuby3
         spec.rename(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long from, long to)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *from, long *to) const')
-        spec.add_swig_begin_code '%apply long * OUTPUT { long *from, long *to }'
+        spec.add_swig_code '%apply long * OUTPUT { long *from, long *to }'
         # // redundant with good typemaps
         spec.no_proxy %Q{Create(wxWindow *parent,
             wxWindowID id,

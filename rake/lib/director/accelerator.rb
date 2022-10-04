@@ -41,7 +41,7 @@ module WXRuby3
               
           }
         __HEREDOC
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %typemap("in") int keyCode "$1 = wxRuby_RubyStringOrIntToKeyCode($input);"
           
           %typemap("typecheck") int keyCode {
@@ -51,10 +51,10 @@ module WXRuby3
         __HEREDOC
 
         spec.set_only_for('__WXMSW__', 'wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
-        spec.add_swig_begin_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %warnfilter(509) wxAcceleratorTable::wxAcceleratorTable;
           __HEREDOC
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // For constructor, accepts an array of Wx::AcceleratorEntry objects
           %typemap(in,numinputs=1) (int n, wxAcceleratorEntry entries[]) (wxAcceleratorEntry *arr)
           {

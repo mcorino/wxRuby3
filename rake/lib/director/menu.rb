@@ -20,7 +20,7 @@ module WXRuby3
         spec.rename(
           'AppendItem' =>
             'wxMenu::Append(wxMenuItem *item)')
-        spec.add_swig_header_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // Fix for GetMenuItems - converts list of MenuItems to Array
           %typemap(out) wxMenuItemList& {
             $result = rb_ary_new();
@@ -57,7 +57,7 @@ module WXRuby3
             return;
           }
         __HEREDOC
-        spec.add_swig_interface_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %markfunc wxMenu "mark_wxMenu";
           __HEREDOC
         # fix SWIG's problems with const& return value

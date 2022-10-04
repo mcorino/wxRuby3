@@ -41,7 +41,7 @@ module WXRuby3
           ]
         spec.swig_include 'swig/shared/richtext.i'
         spec.swig_import 'swig/classes/include/wxRichTextBuffer.h'
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %warnfilter(402) wxRichTextAttr;
 
           // Deal with some output values from TextCtrl methods - PositionToXY

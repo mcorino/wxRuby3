@@ -73,7 +73,7 @@ module WXRuby3
         spec.gc_never
         spec.rename_class('wxApp', 'wxRubyApp')
         # spec.override_base('wxApp', 'wxApp')
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           // The App class in wxRuby is actually a custom-written subclass, but it
           // is presented to the user as Wx::App
           %rename(App) wxRubyApp;

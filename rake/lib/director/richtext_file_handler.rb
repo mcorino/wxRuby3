@@ -28,7 +28,7 @@ module WXRuby3
             wxRichTextXMLHandler::ImportXML
             wxRichTextXMLHandler::ExportXML
             ]
-          spec.add_swig_runtime_code <<~__HEREDOC
+          spec.add_swig_code <<~__HEREDOC
             // Avoid crashes with the string constructor params
             %typemap(freearg) wxString & "if ( argc > $argnum - 1 ) delete $1;"
             %typemap(freearg) wxString* "if ( argc > $argnum - 1 ) delete $1;"

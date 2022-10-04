@@ -14,7 +14,7 @@ module WXRuby3
     class StaticBitmap < Window
 
       def setup
-        spec.add_swig_runtime_code <<~__HEREDOC
+        spec.add_swig_code <<~__HEREDOC
           %constant char * wxStaticBitmapNameStr = wxStaticBitmapNameStr;
           __HEREDOC
         super

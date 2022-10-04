@@ -34,7 +34,7 @@ module WXRuby3
         spec.disown 'wxRichTextFileHandler* handler'
         spec.ignore(%w[wxRICHTEXT_ALL wxRICHTEXT_NONE wxRICHTEXT_NO_SELECTION])
         spec.do_not_generate(:functions)
-        spec.add_swig_runtime_code '%warnfilter(402) wxRichTextAttr;'
+        spec.add_swig_code '%warnfilter(402) wxRichTextAttr;'
         super
       end
     end # class RichTextBuffer
