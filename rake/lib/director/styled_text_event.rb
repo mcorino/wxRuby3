@@ -19,7 +19,7 @@ module WXRuby3
         super
         spec.ignore_bases('wxStyledTextEvent' => %w[wxCommandEvent]) # needed to suppress imports
         spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h') # provide base definitions
-        spec.override_base('wxRichTextEvent', 'wxCommandEvent') # re-establish correct base
+        spec.override_base('wxStyledTextEvent', 'wxCommandEvent') # re-establish correct base
       end
     end # class StyledTextEvent
 
