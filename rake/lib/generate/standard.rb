@@ -76,7 +76,7 @@ module WXRuby3
         end
       else
         spec.def_classes.each do |cls|
-          unless cls.ignored && cls.is_template? || cls.all_methods.any? { |m| m.is_virtual }
+          unless cls.ignored && cls.is_template? || (spec.has_virtuals?(cls) || spec.forced_proxy?(cls.name))
             fout.puts "%feature(\"nodirector\") #{spec.class_name(cls)};"
           end
         end

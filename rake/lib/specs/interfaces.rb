@@ -50,7 +50,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxControlWithItems', 'ControlWithItems', %w[wxControlWithItems wxItemContainer wxItemContainerImmutable], director: Director::CtrlWithItems),
     Director.Spec('Wx', 'wxComboBox', 'ComboBox', %w{wxComboBox wxTextEntry}, director: Director::ComboBox),
     Director.Spec('Wx', 'wxRadioBox', 'RadioBox', director: Director::RadioBox),
-    Director.Spec('Wx', 'wxPanel', 'Panel', director: Director::Window),
+    Director.Spec('Wx', 'wxPanel', 'Panel', director: Director::Panel),
     Director.Spec('Wx', 'wxBookCtrlEvent', 'BookCtrlEvent', director: Director::BookCtrlEvent),
     Director.Spec('Wx', 'wxBookCtrlBase', 'BookCtrlBase', %w[wxBookCtrlBase wxWithImages], director: Director::BookCtrls),
     Director.Spec('Wx', 'wxNotebook', 'Notebook', director: Director::BookCtrls),
@@ -95,6 +95,7 @@ module WXRuby3
     Director.Spec('Wx', 'wxFindReplaceData', 'FindReplaceData', director: Director::FindReplaceData),
     Director.Spec('Wx', 'wxFindReplaceDialog', 'FindReplaceDialog', director: Director::Dialog),
     Director.Spec('Wx', 'wxFindDialogEvent', 'FindDialogEvent', director: Director::FindDialogEvent),
+    Director.Spec('Wx', 'wxToolbook', 'Toolbook', director: Director::BookCtrls),
   ]
 
 end # module WXRuby3

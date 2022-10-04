@@ -72,5 +72,6 @@
 %feature("nodirector") kls::SetWindowStyleFlag;
 %feature("nodirector") kls::ShouldInheritColour;
 %feature("nodirector") kls::Thaw;
+%feature("nodirector") kls::Layout;
 
 %enddef

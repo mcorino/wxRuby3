@@ -34,6 +34,9 @@ module WXRuby3
           spec.no_proxy('wxBookCtrlBase')
         when 'wxNotebook'
           setup_book_ctrl_class(spec.module_name)
+        when 'wxToolbook'
+          setup_book_ctrl_class(spec.module_name)
+          spec.force_proxy(spec.module_name)
         end
       end
       
@@ -44,7 +47,7 @@ module WXRuby3
         # Use the version that deletes the ImageList when the Toolbook is destroyed
         spec.rename('SetImageList' => "#{clsnm}::AssignImageList")
         # Users should handle page changes with events, not virtual methods
-        spec.ignore("#{clsnm}::OnSelChange")
+        spec.ignore("#{clsnm}::OnSelChange") unless clsnm == 'wxToolbook'
         # These are virtual in C++ but don't need directors as fully
         # implemented in the individual child classes
         spec.no_proxy(%W[

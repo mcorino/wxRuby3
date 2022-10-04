@@ -18,6 +18,7 @@ module WXRuby3
       def setup
         super
         spec.items.replace %w[wxScrolled]
+        spec.gc_as_window
         case spec.module_name
         when 'wxScrolledWindow'
           spec.use_template_as_class('wxScrolled', 'wxScrolledWindow')
@@ -30,6 +31,10 @@ module WXRuby3
             swig/classes/include/wxWindow.h
             swig/classes/include/wxPanel.h
             ]
+          spec.no_proxy %w[
+            wxScrolledWindow::OnDraw
+            wxScrolledWindow::SendAutoScrollEvents
+            ]
           spec.do_not_generate(:typedefs, :functions)
         when 'wxScrolledCanvas'
           spec.use_template_as_class('wxScrolled', 'wxScrolledCanvas')
@@ -40,6 +45,10 @@ module WXRuby3
             swig/classes/include/wxObject.h
             swig/classes/include/wxEvtHandler.h
             swig/classes/include/wxWindow.h
+            ]
+          spec.no_proxy %w[
+            wxScrolledCanvas::OnDraw
+            wxScrolledCanvas::SendAutoScrollEvents
             ]
           spec.do_not_generate(:typedefs, :functions, :enums) # enums are generated with wxScrolledWindow
         end

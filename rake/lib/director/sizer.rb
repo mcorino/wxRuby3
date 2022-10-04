@@ -19,8 +19,11 @@ module WXRuby3
         case spec.module_name
         when 'wxSizer'
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
-          spec.no_proxy 'wxSizer'
+          spec.no_proxy 'wxSizer::AddSpacer'
+          #spec.no_proxy 'wxSizer'
           spec.add_swig_code <<~__HEREDOC
+            // get rid of unwanted SWIG warning
+            %warnfilter(517) wxSizer;
             // Typemap for GetChildren - convert to array of Sizer items
             %typemap(out) wxSizerItemList& {
               $result = rb_ary_new();

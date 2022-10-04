@@ -106,6 +106,12 @@ module WXRuby3
         @ifspec.abstract?(class_def.name) || (class_def.abstract && !@ifspec.concrete?(class_def.name))
       end
 
+      def has_virtuals?(classdef_or_name)
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                       classdef_or_name : @defmod.find(classdef_or_name))
+        return class_def.all_methods.any? { |m| m.is_virtual }
+      end
+
       def gc_type(classdef)
         unless @ifspec.gc_type(classdef.name)
           if classdef
@@ -131,6 +137,10 @@ module WXRuby3
 
       def no_proxies
         @ifspec.no_proxies
+      end
+
+      def forced_proxy?(cls)
+        @ifspec.forced_proxy?(cls)
       end
 
       def disowns

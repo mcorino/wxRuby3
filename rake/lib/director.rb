@@ -50,6 +50,7 @@ module WXRuby3
         @gc_type = nil
         @ignores = ::Set.new
         @disabled_proxies = false
+        @force_proxies = ::Set.new
         @no_proxies = ::Set.new
         @disowns = ::Set.new
         @only_for = {}
@@ -256,6 +257,15 @@ module WXRuby3
       def disable_proxies
         @disabled_proxies = true
         self
+      end
+
+      def force_proxy(*clsnames)
+        @force_proxies.merge(clsnames.flatten)
+        self
+      end
+
+      def forced_proxy?(cls)
+        @force_proxies.include?(cls)
       end
 
       def disown(*decls)
