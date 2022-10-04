@@ -35,6 +35,20 @@ module WXRuby3
             }
             __HEREDOC
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
+        when 'wxPropertySheetDialog'
+          spec.ignore 'wxPropertySheetDialog::GetContentWindow'
+          spec.add_swig_runtime_code <<~__HEREDOC
+            // Needs special handling to ensure the return value is cast to the
+            // correct book class, not the generic abstract parent class
+            // wxBookCtrlBase
+            %ignore wxPropertySheetDialog::GetBookCtrl;
+            __HEREDOC
+          spec.add_extend_code 'wxPropertySheetDialog', <<~__HEREDOC
+            VALUE get_book_ctrl() {
+              wxBookCtrlBase* book = $self->GetBookCtrl();
+              return wxRuby_WrapWxObjectInRuby( (wxObject*)book) ;
+            }
+            __HEREDOC
         end
       end
     end # class Dialog
