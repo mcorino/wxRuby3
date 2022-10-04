@@ -42,6 +42,10 @@ module WXRuby3
         @ifspec.module_name
       end
 
+      def template_as_class?(tpl)
+        @ifspec.template_as_class?(tpl)
+      end
+
       def class_name(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
                           classdef_or_name : @defmod.find(classdef_or_name))
@@ -216,7 +220,7 @@ module WXRuby3
 
     def gen_interface_classes(fout, spec)
       spec.def_items.each do |item|
-        if Extractor::ClassDef === item && !item.ignored && !item.is_template?
+        if Extractor::ClassDef === item && !item.ignored && (!item.is_template? || spec.template_as_class?(item.name))
           unless spec.is_folded_base?(item.name)
             gen_interface_class(fout, spec, item)
           end

@@ -40,6 +40,7 @@ module WXRuby3
         @name = name
         @class_renames = {}
         @base_overrides = {}
+        @templates_as_class = {}
         @class_members = {}
         @folded_bases = {}
         @ignored_bases = {}
@@ -84,13 +85,21 @@ module WXRuby3
         @interface_file || File.join(WXRuby3::Config.instance.classes_path, @name + '.i')
       end
 
+      def use_template_as_class(tpl, cls)
+        @templates_as_class[tpl] = cls
+      end
+
+      def template_as_class?(tpl)
+        @templates_as_class.has_key?(tpl)
+      end
+
       def rename_class(from, to)
         @class_renames[from] = to
         self
       end
 
       def class_name(name)
-        @class_renames[name] || name
+        @class_renames[name] || @templates_as_class[name] || name
       end
 
       def override_base(cls, base)

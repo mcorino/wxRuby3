@@ -90,6 +90,8 @@ module WXRuby3
     Director.Spec('Wx', 'wxStyledTextCtrl', 'StyledTextCtrl', director: Director::StyledTextCtrl),
     Director.Spec('Wx', 'wxSystemSettings', 'SystemSettings', director: Director::SystemSettings),
     Director.Spec('Wx', 'wxPropertySheetDialog', 'PropertySheetDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxScrolledWindow', 'ScrolledWindow', director: Director::ScrolledT),
+    Director.Spec('Wx', 'wxScrolledCanvas', 'ScrolledCanvas', director: Director::ScrolledT),
   ]
 
 end # module WXRuby3
