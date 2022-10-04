@@ -92,6 +92,9 @@ module WXRuby3
     Director.Spec('Wx', 'wxPropertySheetDialog', 'PropertySheetDialog', director: Director::Dialog),
     Director.Spec('Wx', 'wxScrolledWindow', 'ScrolledWindow', director: Director::ScrolledT),
     Director.Spec('Wx', 'wxScrolledCanvas', 'ScrolledCanvas', director: Director::ScrolledT),
+    Director.Spec('Wx', 'wxFindReplaceData', 'FindReplaceData', director: Director::FindReplaceData),
+    Director.Spec('Wx', 'wxFindReplaceDialog', 'FindReplaceDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxFindDialogEvent', 'FindDialogEvent', director: Director::FindDialogEvent),
   ]
 
 end # module WXRuby3

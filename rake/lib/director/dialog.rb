@@ -49,6 +49,10 @@ module WXRuby3
               return wxRuby_WrapWxObjectInRuby( (wxObject*)book) ;
             }
             __HEREDOC
+        when 'wxFindReplaceDialog'
+          spec.ignore 'wxFindReplaceDialog::wxFindReplaceDialog()'
+          spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFindReplaceData* data };'
+          spec.do_not_generate(:variables, :enums)
         end
       end
     end # class Dialog
