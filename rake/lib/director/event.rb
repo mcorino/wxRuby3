@@ -45,6 +45,8 @@ module WXRuby3
           spec.rename_class('wxEvent', 'wxRubyEvent')
           spec.extend_class('wxEvent', 'wxRubyEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
           spec.extend_class('wxEvent', 'virtual wxEvent* Clone() const')
+          spec.ignore 'wxEvent::Clone'
+          spec.ignore 'wxEvent::wxEvent(int,wxEventType)'
           spec.no_proxy 'wxRubyEvent::Clone'
           spec.add_header_code <<~__HEREDOC
             // Custom subclass implementation. Provide a constructor, destructor and

@@ -27,8 +27,8 @@ class Wx::App
   # WxRuby. Such messages usually indicate that the API is being used
   # incorrectly; the file/line reference points to the place in the
   # WxWidgets source code where the assertion was made.
-  define_method(:on_assert_failure) do | file, line, condition, message |
-    warn "Wx WARNING: #{message} (#{file}:#{line})"
+  define_method(:on_assert_failure) do | file, line, func, condition, message |
+    warn "Wx WARNING: #{message} (#{func}@#{file}:#{line})"
   end
 
   # For use in development only, of no practical use in production code.

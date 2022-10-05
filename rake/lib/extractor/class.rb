@@ -192,7 +192,7 @@ module WXRuby3
             when 'function'
               Extractor.extracting_msg(_kind, node)
               m = MethodDef.new(node, self.name, klass: self)
-              @abstract = true if m.is_pure_virtual
+              #@abstract = true if m.is_pure_virtual
               unless m.check_for_overload(self.items)
                 self.items << m
               end

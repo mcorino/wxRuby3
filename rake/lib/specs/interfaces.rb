@@ -96,6 +96,16 @@ module WXRuby3
     Director.Spec('Wx', 'wxFindReplaceDialog', 'FindReplaceDialog', director: Director::Dialog),
     Director.Spec('Wx', 'wxFindDialogEvent', 'FindDialogEvent', director: Director::FindDialogEvent),
     Director.Spec('Wx', 'wxToolbook', 'Toolbook', director: Director::BookCtrls),
+    Director.Spec('Wx', 'wxColourData', 'ColourData'),
+    Director.Spec('Wx', 'wxColourDialog', 'ColourDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxTextEntryDialog', 'TextEntryDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxSingleChoiceDialog', 'SingleChoiceDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxMultiChoiceDialog', 'MultiChoiceDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxTipProvider', 'TipProvider', director: Director::TipProvider),
+    Director.Spec('Wx', 'wxDirDialog', 'DirDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxProgressDialog', 'ProgressDialog', director: Director::Dialog),
+    Director.Spec('Wx', 'wxWindowDisabler', 'WindowDisabler', director: Director::WindowDisabler),
+    Director.Spec('Wx', 'wxBusyInfo', 'BusyInfo', director: Director::BusyInfo),
   ]
 
 end # module WXRuby3

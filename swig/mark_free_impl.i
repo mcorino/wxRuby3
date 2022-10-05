@@ -22,19 +22,20 @@ void GcNullFreeFunc(void *ptr)
   SWIG_RubyRemoveTracking(ptr);
 }
 
-// Code to be run when the ruby object is swept by GC - this checks
-// for orphaned sizers and deletes those, only unlinking others
-// as these will be managed by WxWidgets.
-void GcSizerFreeFunc(void *ptr)
-{
-  wxSizer* arg1 = (wxSizer*)ptr;
-  // unlink in all cases
-  SWIG_RubyRemoveTracking(ptr);
-  if (!arg1->GetContainingWindow ())
-  {
-    delete arg1; // delete orphaned sizers
-  }
-}
+// This does not work
+// // Code to be run when the ruby object is swept by GC - this checks
+// // for orphaned sizers and deletes those, only unlinking others
+// // as these will be managed by WxWidgets.
+// void GcSizerFreeFunc(void *ptr)
+// {
+//   wxSizer* arg1 = (wxSizer*)ptr;
+//   // unlink in all cases
+//   SWIG_RubyRemoveTracking(ptr);
+//   if (!arg1->GetContainingWindow ())
+//   {
+//     delete arg1; // delete orphaned sizers
+//   }
+// }
 
 // Tests if the window has been signalled as destroyed by a
 // WindowDestroyEvent handled by wxRubyApp
@@ -101,14 +102,17 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 	  wxSizerItem* item = node->GetData();
 	  wxSizer* child_sizer  = item->GetSizer();
 	  if ( child_sizer )
+	  {
+	    VALUE rb_child_sizer = SWIG_RubyInstanceFor(child_sizer);
+		if ( rb_child_sizer != Qnil )
 		{
-		  VALUE rb_child_sizer = SWIG_RubyInstanceFor(child_sizer);
-		  if ( rb_child_sizer != Qnil )
-			{  GC_mark_SizerBelongingToWindow(child_sizer, rb_child_sizer); }
-		}
+		  GC_mark_SizerBelongingToWindow(child_sizer, rb_child_sizer);
+        }
+	  }
 	}
 
 }
+
 // Similar to Sizers, MenuBar requires a special mark routine. This is
 // because Wx::Menu is not a subclass of Window so isn't automatically
 // protected in the mark phase by Wx::App. However, the ruby object
@@ -221,7 +225,9 @@ void GC_mark_wxFrame(void *ptr)
 
   wxMenuBar* menu_bar = wx_frame->GetMenuBar();
   if ( menu_bar )
-	{ GC_mark_MenuBarBelongingToFrame(menu_bar); }
+  {
+    GC_mark_MenuBarBelongingToFrame(menu_bar);
+  }
 }
 
 // wxRuby must preserve ruby objects attached as the ClientData of

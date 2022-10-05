@@ -240,7 +240,7 @@ module WXRuby3
       unless is_struct
         abstract_class = spec.is_abstract?(classdef)
         if abstract_class
-          fout.puts 'private:'
+          fout.puts 'protected:'
           fout.puts "  #{spec.class_name(classdef)}();"
         end
 
@@ -324,11 +324,10 @@ module WXRuby3
     end
 
     def gen_interface_class_method(fout, methoddef, methods)
-        unless methoddef.is_pure_virtual ||
-                # virtual overrides
-                (methoddef.is_virtual && methods.any? { |m| m.signature == methoddef.signature }) ||
-                # non-virtual shadowed overloads
-                (!methoddef.is_virtual && methods.any? { |m| m.name == methoddef.name && m.class_name != methoddef.class_name })
+               # skip virtuals that have been overridden
+        unless (methoddef.is_virtual && methods.any? { |m| m.signature == methoddef.signature }) ||
+               # skip virtual that have non-virtual shadowing overloads
+               (!methoddef.is_virtual && methods.any? { |m| m.name == methoddef.name && m.class_name != methoddef.class_name })
           gen_only_for(fout, methoddef) do
             fout.puts "  // from #{methoddef.definition}"
             mdecl = methoddef.is_static ? 'static ' : ''

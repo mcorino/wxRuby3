@@ -197,18 +197,6 @@ int wxGetSelectedChoices(wxArrayInt& selections,
               bool centre = true,
               int width = wxCHOICE_WIDTH,
               int height = wxCHOICE_HEIGHT);
-#if WXWIN_COMPATIBILITY_2_8
-size_t wxGetMultipleChoices(wxArrayInt& selections,
-							const wxString& message,
-							const wxString& caption,int n,
-							const wxString choices[],
-							wxWindow *parent = NULL,
-							int x = -1,
-							int y = -1,
-							bool centre = TRUE,
-							int width=150,
-							int height=200);
-#endif
 long wxGetNumberFromUser(const wxString& message,
 						 const wxString& prompt,
 						 const wxString& caption,

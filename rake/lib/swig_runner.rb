@@ -145,6 +145,22 @@ module WXRuby3
                            "SWIGTYPE_p_wx\\1Event")
               end
             end
+            # Fix for TipProvider - because it is implemented with a custom Ruby
+            # subclass, need to make this subclass SWIG info available under
+            # the normal name "SWIGTYPE_p_wxTipProvider" as it's referenced in
+            # other places.
+            if core_name == 'TipProvider'
+              if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyTipProvider/]
+                line = line +
+                  "  // Inserted by fixmodule.rb\n" +
+                  line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
+                           "SWIGTYPE_p_wxTipProvider")
+              elsif line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyTipProvider/]
+                line = "// Altered by fixmodule.rb\n" +
+                  line.sub(/"_p_wxRubyTipProvider"/,
+                           '"_p_wxTipProvider"')
+              end
+            end
 
             # TODO : is this still needed?
             # Ugly: special fixes for TreeCtrl - these macros and extra funcs

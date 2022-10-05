@@ -343,11 +343,6 @@ module WXRuby3
         self
       end
 
-      def add_swig_interface_code(*code)
-        @swig_interface_code.concat code.flatten
-        self
-      end
-
       def add_interface_code(*code)
         @interface_code.concat code.flatten
         self
@@ -654,7 +649,8 @@ module WXRuby3
           when Extractor::FunctionDef
             if item.deprecated
               is_void = (item.type && !item.type=='void')
-              spec.add_swig_interface_code <<~__HEREDOC
+              spec.add_swig_code <<~__HEREDOC
+                // auto-generated deprecation function wrapper
                 #{item.type} #{item.name}#{item.args_string} {
                   std::wcerr << "DEPRECATION WARNING: #{item.type} #{item.name}#{item.args_string}" << std::endl;
                   #{is_void ? '' : 'return '}#{item.name}(#{item.parameters.collect {|p| p.name}.join(',')});
