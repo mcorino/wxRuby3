@@ -14,6 +14,7 @@ module WXRuby3
     class GDICommon < Director
 
       def setup
+        spec.items.replace %w{wxPoint wxSize wxRect wxRealPoint wxColourDatabase}
         spec.ignore %w{
           wxTheColourDatabase
         }

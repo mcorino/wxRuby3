@@ -34,10 +34,16 @@ module WXRuby3
 
       IGNORED_BASES = ['wxTrackable']
 
-      def initialize(pkg, modname, name, items = nil, director:  nil, processors: nil, &block)
+      def initialize(pkg, modname, name: nil, director:  nil, processors: nil, &block)
         @package = pkg
         @module_name = modname
-        @name = name
+        @name = if name
+                  name
+                elsif modname =~ /\Awx(.*)/
+                  $1
+                else
+                  modname[0].upcase << modname[1,modname.size-1]
+                end
         @class_renames = {}
         @base_overrides = {}
         @templates_as_class = {}
@@ -45,8 +51,9 @@ module WXRuby3
         @folded_bases = {}
         @ignored_bases = {}
         @abstracts = ::Hash.new
-        @items = items ? items : [modname]
+        @items = [modname]
         @director = director
+        @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : nil) rescue nil
         @gc_type = nil
         @ignores = ::Set.new
         @disabled_proxies = false
@@ -291,7 +298,7 @@ module WXRuby3
         self
       end
 
-      def rename(table)
+      def rename_for_ruby(table)
         table.each_pair do |to,from|
           (@renames[to] ||= []).concat [from].flatten
         end
@@ -360,8 +367,8 @@ module WXRuby3
     end
 
     class << self
-      def Spec(pkg, modname, name, items = nil, director:  nil, processors: nil, &block)
-        WXRuby3::Director::Spec.new(pkg, modname, name, items, director: director, processors: processors, &block)
+      def Spec(pkg, modname, name: nil, director:  nil, processors: nil, &block)
+        WXRuby3::Director::Spec.new(pkg, modname, name: name, director: director, processors: processors, &block)
       end
 
       private
@@ -498,7 +505,7 @@ module WXRuby3
         director_index[modnm].generate_code
       elsif mod.end_with?('.i')
         modnm = File.basename(mod, '.i')
-        dir = Director.new(Spec('Wx', modnm, modnm, [], processors: (processors.empty? ? nil : processors)))
+        dir = Director.new(Spec('Wx', modnm, name: modnm, processors: (processors.empty? ? nil : processors)))
         dir.spec.interface_file = File.expand_path(mod, Config.wxruby_root)
         dir.generate_code
       else

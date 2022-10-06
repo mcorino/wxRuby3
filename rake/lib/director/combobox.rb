@@ -13,10 +13,11 @@ module WXRuby3
 
   class Director
 
-    class ComboBox < CtrlWithItems
+    class ComboBox < ControlWithItems
 
       def setup
         super
+        spec.items << 'wxTextEntry'
         setup_ctrl_with_items('wxComboBox')
         spec.fold_bases('wxComboBox' => %w[wxTextEntry])
         spec.ignore_bases('wxComboBox' => %w[wxTextEntry wxItemContainer])
@@ -25,7 +26,7 @@ module WXRuby3
           wxTextEntry::Clear
           wxTextEntry::IsEmpty
           wxComboBox::IsEmpty])
-        spec.rename(
+        spec.rename_for_ruby(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long from, long to)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *from, long *to) const')
         spec.add_swig_code '%apply long * OUTPUT { long *from, long *to }'

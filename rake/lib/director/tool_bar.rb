@@ -33,7 +33,7 @@ module WXRuby3
           ]
         spec.no_proxy 'wxToolBarToolBase'
         # more sensible name to use
-        spec.rename('ToolBarTool' => 'wxToolBarToolBase')
+        spec.rename_for_ruby('ToolBarTool' => 'wxToolBarToolBase')
         # Ensure that the C++ wxToolBar(Base) implementation of UpdateWindowUI
         # is called internally, so that UpdateUIEvents are also sent to each
         # button within the toolbar. This means update_window_ui can't be

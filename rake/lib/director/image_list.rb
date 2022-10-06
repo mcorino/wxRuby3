@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------
-# @file    tool_tip.rb
+# @file    image_list.rb
 # @author  Martin Corino
 #
 # @brief   wxRuby3 wxWidgets interface director
@@ -11,13 +11,13 @@ module WXRuby3
 
   class Director
 
-    class ToolTip < Director
+    class ImageList < Director
 
       def setup
-        spec.set_only_for('__WXMSW__', 'wxToolTip::SetMaxWidth')
+        spec.rename_for_ruby('AddIcon' => 'wxImageList::Add(const wxIcon& icon)')
         super
       end
-    end # class ToolTip
+    end # class ImageList
 
   end # class Director
 

@@ -27,10 +27,11 @@ module WXRuby3
           __HEREDOC
         case spec.module_name
         when 'wxBookCtrlBase'
+          spec.items.replace %w[wxBookCtrlBase wxWithImages]
           spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore('wxWithImages::@57', 'wxWithImages::SetImageList')
-          spec.rename('SetImageList' => 'wxBookCtrlBase::AssignImageList')
+          spec.rename_for_ruby('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
         when 'wxNotebook'
           setup_book_ctrl_class(spec.module_name)
@@ -45,7 +46,7 @@ module WXRuby3
         # This version in Wx doesn't automatically delete
         # spec.ignore "#{clsnm}::SetImageList"
         # Use the version that deletes the ImageList when the Toolbook is destroyed
-        spec.rename('SetImageList' => "#{clsnm}::AssignImageList")
+        spec.rename_for_ruby('SetImageList' => "#{clsnm}::AssignImageList")
         # Users should handle page changes with events, not virtual methods
         spec.ignore("#{clsnm}::OnSelChange") unless clsnm == 'wxToolbook'
         # These are virtual in C++ but don't need directors as fully

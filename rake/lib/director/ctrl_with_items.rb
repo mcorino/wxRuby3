@@ -13,11 +13,12 @@ module WXRuby3
 
   class Director
 
-    class CtrlWithItems < Window
+    class ControlWithItems < Window
 
       def setup
         super
         if spec.module_name == 'wxControlWithItems'
+          spec.items.replace %w[wxControlWithItems wxItemContainer wxItemContainerImmutable]
           spec.fold_bases('wxControlWithItems' => %w[wxItemContainer wxItemContainerImmutable])
           spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
           spec.ignore([
@@ -75,7 +76,7 @@ module WXRuby3
           )
         spec.swig_import 'swig/classes/include/wxControlWithItems.h'
       end
-    end # class CtrlWithItems
+    end # class ControlWithItems
 
   end # class Director
 

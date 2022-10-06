@@ -24,7 +24,7 @@ module WXRuby3
         ]
         spec.no_proxy 'wxDC'
         spec.swig_include '../shared/points_list.i'
-        spec.rename({
+        spec.rename_for_ruby({
           'GetDimensions' => 'wxDC::GetSize(wxCoord * width , wxCoord * height)',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *width , wxCoord *height) const',
           'GetTextSize' => 'wxDC::GetTextExtent(const wxString& string) const',

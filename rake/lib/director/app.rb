@@ -14,6 +14,7 @@ module WXRuby3
     class App < Director
 
       def setup
+        spec.items << 'wxAppConsole'
         spec.fold_bases('wxApp' => 'wxAppConsole')
         spec.ignore_bases('wxAppConsole' => 'wxEventFilter')
         spec.ignore %w{

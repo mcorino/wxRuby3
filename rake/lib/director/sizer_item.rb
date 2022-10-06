@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------
-# @file    tool_tip.rb
+# @file    sizer_item.rb
 # @author  Martin Corino
 #
 # @brief   wxRuby3 wxWidgets interface director
@@ -11,13 +11,14 @@ module WXRuby3
 
   class Director
 
-    class ToolTip < Director
+    class SizerItem < Director
 
       def setup
-        spec.set_only_for('__WXMSW__', 'wxToolTip::SetMaxWidth')
+        spec.disable_proxies
+        spec.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow])
         super
       end
-    end # class ToolTip
+    end # class SizerItem
 
   end # class Director
 

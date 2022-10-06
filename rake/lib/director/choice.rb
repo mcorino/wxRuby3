@@ -13,7 +13,7 @@ module WXRuby3
 
   class Director
 
-    class Choice < CtrlWithItems
+    class Choice < ControlWithItems
 
       def setup
         super

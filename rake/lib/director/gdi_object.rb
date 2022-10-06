@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------
-# @file    tool_tip.rb
+# @file    gdi_object.rb
 # @author  Martin Corino
 #
 # @brief   wxRuby3 wxWidgets interface director
@@ -11,13 +11,14 @@ module WXRuby3
 
   class Director
 
-    class ToolTip < Director
+    class GDIObject < Director
 
       def setup
-        spec.set_only_for('__WXMSW__', 'wxToolTip::SetMaxWidth')
+        spec.make_abstract('wxGDIObject')
+        spec.no_proxy('wxGDIObject')
         super
       end
-    end # class ToolTip
+    end # class GDIObject
 
   end # class Director
 

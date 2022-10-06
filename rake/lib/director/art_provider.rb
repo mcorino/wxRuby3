@@ -14,7 +14,7 @@ module WXRuby3
     class ArtProvider < Director
 
       def setup
-        spec.rename('wxArtProvider' => 'wxRubyArtProvider')
+        spec.rename_for_ruby('wxArtProvider' => 'wxRubyArtProvider')
         spec.rename_class('wxArtProvider', 'wxRubyArtProvider')
         spec.ignore('wxArtProvider::CreateBitmap') # must be supplied in ruby
         spec.ignore('wxArtProvider::Insert') # deprecated and problematic

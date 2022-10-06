@@ -1,5 +1,5 @@
 #--------------------------------------------------------------------
-# @file    tool_tip.rb
+# @file    toggle_button.rb
 # @author  Martin Corino
 #
 # @brief   wxRuby3 wxWidgets interface director
@@ -11,13 +11,13 @@ module WXRuby3
 
   class Director
 
-    class ToolTip < Director
+    class ToggleButton < Window
 
       def setup
-        spec.set_only_for('__WXMSW__', 'wxToolTip::SetMaxWidth')
+        spec.include('wx/tglbtn.h')
         super
       end
-    end # class ToolTip
+    end # class ToggleButton
 
   end # class Director
 

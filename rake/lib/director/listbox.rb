@@ -13,7 +13,7 @@ module WXRuby3
 
   class Director
 
-    class ListBox < CtrlWithItems
+    class ListBox < ControlWithItems
 
       def setup
         super

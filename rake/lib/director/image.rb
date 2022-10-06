@@ -22,7 +22,7 @@ module WXRuby3
           'wxImage::wxImage(wxInputStream &,const wxString &,int)',
           'wxImage::GetImageCount(wxInputStream &,wxBitmapType)'
           ]
-        spec.rename(
+        spec.rename_for_ruby(
           'LoadStream' => ['wxImage::LoadFile(wxInputStream &,long,int)', 'wxImage::LoadFile(wxInputStream &,const wxString &,int)'],
           'Write' => ['wxImage::SaveFile(wxOutputStream &,int) const', 'wxImage::SaveFile(wxOutputStream &,const wxString &) const'],
           # Renaming to avoid method overloading and thus conflicts at Ruby level

@@ -17,7 +17,7 @@ module WXRuby3
         spec.gc_never
         spec.ignore 'wxMenu::wxMenu(long)'
         spec.no_proxy 'wxMenu'  # do not support derived wxMenu classes
-        spec.rename(
+        spec.rename_for_ruby(
           'AppendItem' =>
             'wxMenu::Append(wxMenuItem *item)')
         spec.add_swig_code <<~__HEREDOC

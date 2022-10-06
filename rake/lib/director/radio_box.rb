@@ -31,7 +31,7 @@ module WXRuby3
         }
         __HEREDOC
         # rename common method
-        spec.rename('Enable' => 'wxRadioBox::EnableWindow')
+        spec.rename_for_ruby('Enable' => 'wxRadioBox::EnableWindow')
         super
       end
     end # class Window

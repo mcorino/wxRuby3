@@ -14,6 +14,7 @@ module WXRuby3
     class Defs < Director
 
       def setup
+        spec.items.replace ['defs.h']
         spec.ignore %w{
           wxINT8_MIN
           wxINT8_MAX

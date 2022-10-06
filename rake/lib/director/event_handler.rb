@@ -11,7 +11,7 @@ module WXRuby3
 
   class Director
 
-    class EventHandler < Director
+    class EvtHandler < Director
 
       def setup
         spec.ignore %w[wxEvtHandler::Connect wxEvtHandler::Disconnect wxEvtHandler::QueueEvent wxEVT_HOTKEY]
@@ -147,7 +147,7 @@ module WXRuby3
         spec.do_not_generate :typedefs, :variables, :enums, :defines, :functions
         super
       end
-    end # class Object
+    end # class EvtHandler
 
   end # class Director
 

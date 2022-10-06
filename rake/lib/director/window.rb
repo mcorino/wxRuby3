@@ -19,7 +19,8 @@ module WXRuby3
           SWIG_WXWINDOW_NO_USELESS_VIRTUALS(wxWindow);
         __HEREDOC
         # only for actual wxWindow class
-        if spec.module_name == 'wxWindow'
+        case spec.module_name
+        when 'wxWindow'
           # // Any of these following kind of objects become owned by the window
           # // when passed into Wx, and so will be deleted automatically; using
           # // DISOWN resets their %freefunc to avoid deleting the object twice
@@ -57,7 +58,7 @@ module WXRuby3
             'wxWindow::UnregisterHotKey',
             'wxWindow::SendIdleEvents'
           ]
-          spec.rename('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
+          spec.rename_for_ruby('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{
             include/wxDC.h
             include/wxWindowDC.h
@@ -124,6 +125,8 @@ module WXRuby3
               return Qnil;
             }
           __HEREDOC
+        when 'wxNonOwnedWindow'
+          spec.no_proxy('wxNonOwnedWindow')
         end
         spec.no_proxy %w[
           wxWindow::GetDropTarget
