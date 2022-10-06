@@ -9,6 +9,7 @@
 
 require 'ostruct'
 require 'set'
+require 'pathname'
 
 require_relative './config'
 require_relative './extractor'
@@ -134,6 +135,10 @@ module WXRuby3
           end
         end
         self
+      end
+
+      def is_folded_base?(cnm)
+        @folded_bases.values.any? { |nms| nms.include?(cnm) }
       end
 
       def ignore_bases(*specs)
@@ -489,6 +494,54 @@ module WXRuby3
         end
       end
 
+      def scan_for_includes(file)
+        incs = []
+        File.read(file).scan(/^%include\s+["'](.*?)["']\s*$/) do |inc|
+          # exclude generated typedefs include and SWIG standard typemaps include
+          incs << File.join(File.dirname(file), $1) unless $1 == 'classes/common/typedefs.i' || $1 == 'typemaps.i'
+        end
+        incs
+      end
+
+      def get_common_dependencies
+        common_deps = ['swig/wx.i', *WXRuby3::Config.instance.include_modules].inject({}) do |hash, incmod|
+          hash[incmod] = scan_for_includes(incmod); hash
+        end
+        common_deps.keys.each do |incmod|
+          common_deps[incmod].concat(common_deps[incmod].collect { |dep| common_deps[dep] || [] }.flatten)
+        end
+        common_deps
+      end
+
+    public
+
+      def common_dependencies
+        @common_deps ||= get_common_dependencies
+      end
+
+      def [](mod)
+        director_index[mod]
+      end
+    end
+
+    def self.get_swig_targets
+      mod_excludes = WXRuby3::Config.instance.feature_info.excluded_modules(WXRuby3::Config.instance.wx_setup_h)
+      wxruby_root = Pathname(WXRuby3::Config.wxruby_root)
+      # make sure all modules have been extracted from xml
+      directors.each {|dir| dir.extract_interface(false) }
+      # get dependencies for each module
+      deps = directors.select {|dir| !mod_excludes.include?(dir.spec.name) }.inject({}) do |hash, dir|
+        hash[Pathname(dir.spec.interface_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
+        hash
+      end
+      # add common wxRuby helper module (except swig/wx.i)
+      deps['swig/Functions.i'] =
+        %w[swig/common.i swig/shared/arrayint_selections.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
+      deps['swig/RubyStockObjects.i'] =
+        %w[swig/common.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
+      deps['swig/RubyConstants.i'] =
+        %w[swig/common.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
+      deps
     end
 
     def self.extract(*mods, genint: true)
@@ -542,6 +595,50 @@ module WXRuby3
       end
 
       generate(genspec) if genint
+    end
+
+    def get_dependencies
+      wxruby_root = Pathname(WXRuby3::Config.wxruby_root)
+      deps = [File.join(WXRuby3::Config.instance.swig_dir, 'common.i')]
+      deps.concat(Director.common_dependencies[deps.first])
+      genspec = Generator::Spec.new(spec, defmod)
+      defmod.items.each do |item|
+        if Extractor::ClassDef === item && !item.ignored && !genspec.is_folded_base?(item.name)
+          genspec.base_list(item).reverse.each do |base|
+            unless genspec.def_item(base)
+              mod = base.sub(/\Awx/, '')
+              mod_dir = Director[mod]
+              deps << Pathname(mod_dir.spec.interface_file).relative_path_from(wxruby_root).to_s if mod_dir
+            end
+          end
+        end
+      end
+
+      unless genspec.swig_imports.empty?
+        genspec.swig_imports.each do |inc|
+          # make sure all import dependencies are relative to wxruby root
+          if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
+            inc = File.join(WXRuby3::Config.instance.classes_path, inc)
+            deps << Pathname(inc).relative_path_from(WXRuby3::Config.wxruby_root).to_s
+          else
+            deps << inc
+          end
+        end
+      end
+
+      unless genspec.swig_includes.empty?
+        genspec.swig_includes.each do |inc|
+          # make sure all include dependencies are relative to wxruby root
+          if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
+            inc = File.join(WXRuby3::Config.instance.classes_path, inc)
+            deps << Pathname(inc).relative_path_from(WXRuby3::Config.wxruby_root).to_s
+          else
+            deps << inc
+          end
+          deps.concat(Director.common_dependencies[deps.last] || [])
+        end
+      end
+      deps
     end
 
     def generate_code

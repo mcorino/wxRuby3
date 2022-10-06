@@ -21,7 +21,7 @@ module WXRuby3
         spec.ignore_bases('wxListBox' => %w[wxItemContainer])
         spec.override_base('wxListBox', 'wxControlWithItems')
         spec.ignore('wxListBox::InsertItems(unsigned int,const wxString *,unsigned int)')
-        spec.swig_include('../shared/arrayint_selections.i')
+        spec.swig_include('swig/shared/arrayint_selections.i')
       end
 
     end # class ListBox

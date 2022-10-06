@@ -39,7 +39,7 @@ module WXRuby3
             wxTopLevelWindow::UseNativeDecorationsByDefault
           }
           spec.set_only_for '__WXMSW__', 'wxTopLevelWindow::MSWGetSystemMenu'
-          spec.swig_import 'include/defs.h'
+          spec.swig_import 'swig/classes/include/defs.h'
         end
         super
       end

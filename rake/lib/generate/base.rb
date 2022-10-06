@@ -85,7 +85,7 @@ module WXRuby3
       end
 
       def is_folded_base?(cnm)
-        @ifspec.folded_bases.values.any? { |nms| nms.include?(cnm) }
+        @ifspec.is_folded_base?(cnm)
       end
 
       def folded_bases(cnm)

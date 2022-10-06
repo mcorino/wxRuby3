@@ -5,33 +5,6 @@
 require_relative './lib/director'
 require 'pathname'
 
-# The plain names of all normal Wx classes to be built
-def all_build_modules
-  WXRuby3::Director.all_modules - $config.feature_info.excluded_modules($config.wx_setup_h)
-end
-
-# The plain module names of every SWIG module (in an .i file) to be built
-def all_build
-  all_build_modules + $config.helper_modules + [MAIN_MODULE]
-end
-
-# Every compiled object file to be linked into the final library
-def all_obj_files
-  all_build.map { | f | "#{$config.obj_dir}/#{f}.#{$config.obj_ext}" }
-end
-
-# Every cpp file to be compiled
-def all_cpp_files
-  all_build.map { | f | "#{$config.src_dir}/#{f}.cpp" }
-end
-
-# Every swig class that must be processed
-def all_swig_files
-  all_build_modules.map { | mod | File.join($config.classes_dir, mod+'.i') } +
-    $config.helper_modules.map { | mod | File.join($config.swig_dir, mod+'.i') } +
-    [ 'swig/wx.i' ]
-end
-
 if $config.has_wxwidgets_xml?
 
   desc "(Re-)Extract all SWIG interface files (*.i) from wxWidgets XML doc files"
@@ -39,48 +12,41 @@ if $config.has_wxwidgets_xml?
     WXRuby3::Director.extract
   end
 
+  $swig_targets = WXRuby3::Director.get_swig_targets
+
+  # The plain names of all normal Wx classes to be built
+  def all_build_modules
+    WXRuby3::Director.all_modules - $config.feature_info.excluded_modules($config.wx_setup_h)
+  end
+
+  # The plain module names of every SWIG module (in an .i file) to be built
+  def all_build
+    all_build_modules + $config.helper_modules + [MAIN_MODULE]
+  end
+
+  # Every compiled object file to be linked into the final library
+  def all_obj_files
+    all_build.map { | f | "#{$config.obj_dir}/#{f}.#{$config.obj_ext}" }
+  end
+
+  # Every cpp file to be compiled
+  def all_cpp_files
+    all_build.map { | f | "#{$config.src_dir}/#{f}.cpp" }
+  end
+
+  # Every swig class that must be processed
+  def all_swig_files
+    $swig_targets.keys +
+      $config.helper_modules.map { | mod | File.join($config.swig_dir, mod+'.i') } +
+      [ 'swig/wx.i' ]
+  end
+
   # file tasks for each generated SWIG module file
-  all_build_modules.each do |mod|
-    file File.join($config.classes_dir, mod+'.i') do |t|
+  $swig_targets.each_pair do |mod, deps|
+    file File.join(mod) => deps do |t|
       WXRuby3::Director.extract(File.basename(t.name, '.i'))
     end
   end
-
-  # dependency table
-  $swig_depends = Hash.new { | h, k | h[k] = [] }
-  # dependency file
-  $depends_file = File.join($config.classes_path, '.depends')
-
-  # file task to generate dependencies file
-  file $depends_file => all_swig_files do
-    # Skim all the SWIG sources to detect import/include dependencies that
-    # should force recompiles
-    here = Pathname(WXRuby3::Config.wxruby_root)
-    # One include file is a SWIG core file (typemaps.i), not a wxRuby file;
-    # avoid an error with the rake package (source tar.gz) file
-    swigs_typemap_file = File.expand_path('typemaps.i', 'swig')
-    File.open($depends_file, File::CREAT|File::TRUNC|File::RDWR) do |f|
-      Dir.glob('swig/**/*.i') do | i |
-        deps = []
-        is_typemap = (i == 'typemap.i')
-        File.read(i).scan(/^%(?:import|include) ["'](.*?)["']\s*$/) do | dep |
-          dep_file = File.expand_path( dep[0], File.dirname(i) )
-          unless is_typemap && dep_file == swigs_typemap_file
-            deps << Pathname(dep_file).relative_path_from(here).to_s
-          end
-        end
-        f.puts "$swig_depends['#{i}'] = ['#{deps.join("','")}']" unless deps.empty?
-      end
-    end
-    # Create recursive dependencies
-    $swig_depends.keys.grep(/swig\/\w+\.i$/).each do | dep |
-      unless $config.include_modules.include?(dep)
-        file dep => [ *($swig_depends[dep] - $config.include_modules) ]
-      end
-    end
-  end
-
-  import $depends_file
 
   # Target to run the linker to create a final .so/.dll wxruby3 library
   file TARGET_LIB => all_obj_files do | t |
@@ -90,10 +56,11 @@ if $config.has_wxwidgets_xml?
 
   # The main source module - which needs to initialize all the other modules
   init_inc = File.join($config.inc_path, 'all_modules_init.inc')
-  file init_inc => all_swig_files + $swig_depends['swig/wx.i'] do |t|
+  file init_inc => all_swig_files do |t|
     WXRuby3::Director.extract(genint: false)
   end
-  file 'src/wx.cpp' => all_swig_files + $swig_depends['swig/wx.i'] + [init_inc] do | t |
+  file 'src/wx.cpp' => all_swig_files + [*WXRuby3::Director.common_dependencies['swig/wx.i'],
+                                         *init_inc] do | t |
     WXRuby3::Director.generate_code('swig/wx.i', :rename, :fixmainmodule)
     File.open(t.name, "a") do | out |
       out << File.read(init_inc)
@@ -105,16 +72,15 @@ if $config.has_wxwidgets_xml?
   $config.helper_modules.each do | helper |
     swig_file = "#{$config.swig_dir}/#{helper}.i"
     file "#{$config.src_dir}/#{helper}.cpp" => [ swig_file,
-                                                *($swig_depends[swig_file] - $config.include_modules) ] do | _ |
+                                                *$swig_targets[swig_file] ] do | _ |
       WXRuby3::Director.generate_code(swig_file, :rename, :fixmodule)
     end
   end
 
   # Generate a C++ source file from a SWIG .i source file for a core class
-  all_build_modules.each do | mod |
-    swig_file = "#{$config.classes_path}/#{mod}.i"
-    file "#{$config.src_dir}/#{mod}.cpp" => [ swig_file, *($swig_depends[swig_file] - $config.include_modules) ] do | _ |
-      WXRuby3::Director.generate_code(swig_file) # default post processors
+  $swig_targets.each_pair do | mod, deps |
+    file "#{$config.src_dir}/#{File.basename(mod, '.i')}.cpp" =>  mod do | _ |
+      WXRuby3::Director.generate_code(mod) # default post processors
     end
   end
 

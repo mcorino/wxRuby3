@@ -18,7 +18,7 @@ module WXRuby3
         case spec.module_name
         when 'wxDialog'
           spec.ignore('wxDialog::GetContentWindow')
-          spec.swig_import('include/defs.h')
+          spec.swig_import('swig/classes/include/defs.h')
         when 'wxFontDialog'
           spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFontData* data };'
         when 'wxFileDialog'

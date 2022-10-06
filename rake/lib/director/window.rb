@@ -60,10 +60,10 @@ module WXRuby3
           ]
           spec.rename_for_ruby('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{
-            include/wxDC.h
-            include/wxWindowDC.h
-            include/wxClientDC.h
-            include/wxPaintDC.h
+            swig/classes/include/wxDC.h
+            swig/classes/include/wxWindowDC.h
+            swig/classes/include/wxClientDC.h
+            swig/classes/include/wxPaintDC.h
           }
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetWindowClass() {
