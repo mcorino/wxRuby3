@@ -205,8 +205,8 @@ module WXRuby3
       attr_accessor :class_name, :is_virtual, :is_pure_virtual, :is_override, :is_static, :is_const, :is_ctor, :is_dtor,
                     :is_operator, :protection
 
-      VALID_UNARY_OPERATORS = %w{! ~ + -}
-      VALID_BINARY_OPERATORS =%w{[] + - * / % << >> & | ^ <= < > >= == !=}
+      VALID_UNARY_OPERATORS = %w{~ + -}
+      VALID_BINARY_OPERATORS =%w{[] + - * / % << >> & | ^ <= < > >= ==}
 
       def extract(element)
         super
@@ -252,14 +252,6 @@ module WXRuby3
         @default = '' # default value
         # @out = false # is it an output arg?
         # @in_out = false # is it both input and output?
-        # @rb_int = false # treat char types as integers
-        # @array = false # the param is to be treated as an array
-        # @array_size = false # the param is the size of the array
-        # @transfer = false # transfer ownership of arg to C++?
-        # @transfer_back = false # transfer ownership of arg from C++ to Python?
-        # @transfer_this = false # ownership of 'this' pointer transferred to this arg
-        # @keep_reference = false # an extra reference to the arg is held
-        # @constrained = false # limit auto-conversion of similar types (like float -> int)
         update_attributes(**kwargs)
         extract(element) if element
       end
