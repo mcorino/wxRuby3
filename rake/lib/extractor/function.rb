@@ -114,6 +114,10 @@ module WXRuby3
         items.select {|i| ParamDef === i }
       end
 
+      def rb_decl_name
+        rb_method_name(name)
+      end
+
       def rb_doc(clsdef)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath("parameterlist[@kind='param']")
@@ -159,7 +163,7 @@ module WXRuby3
         end if params_doc
         # collect full function docs
         paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ')
-        rb_doc = ["@!method #{rb_method_name(name)}(#{paramlist})"]
+        rb_doc = ["@!method #{rb_decl_name}(#{paramlist})"]
         rb_doc.concat(doc.collect { |ln| '  '+ln })
         params.each do |p|
           rb_doc << ('  @param [' << p[:type] << '] ' << p[:name] << (p[:doc] ? ' '+p[:doc] : ''))
@@ -339,6 +343,10 @@ module WXRuby3
         # TODO: Should protected items be ignored by default or should we
         #       leave that up to the tweaker code or the generators?
         self.ignore if @protection == 'protected'
+      end
+
+      def rb_decl_name
+        "#{is_static ? 'self.' : ''}#{super}"
       end
 
       def signature
