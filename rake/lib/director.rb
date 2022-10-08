@@ -668,7 +668,7 @@ module WXRuby3
           # ----------------------------------------------------------------------------
         __HEREDOC
         fdoc.puts
-        fdoc.puts 'module Wx'
+        fdoc.puts "module #{spec.package.sub(/\A[a-z]/) {|s| s.upcase }}"
         fdoc.puts
         fdoc.indent do
           genspec.def_items.each do |item|
