@@ -50,6 +50,11 @@ module WXRuby3
         name.sub(/\Awx/i, '')
       end
 
+      def rb_constant_value(name)
+        val = rb_constant_name(name)
+        val == 'NULL' ? 'nil' : val
+      end
+
     end
 
   end

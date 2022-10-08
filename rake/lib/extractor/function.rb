@@ -64,6 +64,8 @@ module WXRuby3
         end
       end
 
+      include Util::StringUtil
+
       def initialize(element = nil, **kwargs)
         super()
         @type = nil
@@ -139,6 +141,9 @@ module WXRuby3
             rb_type = BaseDef.wx_type_to_rb(paramdef.type)
             rb_type = rb_type.join(',') if ::Array === rb_type
             params << {name: paramdef.name, type: rb_type}
+            if paramdef.default
+              params.last[:default] = rb_constant_value(paramdef.default)
+            end
           end
         end
         # find and add any parameter specific doc
@@ -153,7 +158,8 @@ module WXRuby3
           end
         end if params_doc
         # collect full function docs
-        rb_doc = ["@!method #{name}(#{params.collect {|p| p[:name]}.join(', ')})"]
+        paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ')
+        rb_doc = ["@!method #{rb_method_name(name)}(#{paramlist})"]
         rb_doc.concat(doc.collect { |ln| '  '+ln })
         params.each do |p|
           rb_doc << ('  @param [' << p[:type] << '] ' << p[:name] << (p[:doc] ? ' '+p[:doc] : ''))
@@ -391,7 +397,7 @@ module WXRuby3
         super()
         @type = '' # data type
         @array = nil
-        @default = '' # default value
+        @default = nil # default value
         # @out = false # is it an output arg?
         # @in_out = false # is it both input and output?
         update_attributes(**kwargs)
