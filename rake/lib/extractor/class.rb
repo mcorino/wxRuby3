@@ -233,7 +233,11 @@ module WXRuby3
       end
 
       def rb_doc(stream)
-        methods.select {|m| !m.is_dtor }.each {|mtd| stream.doc.puts(mtd.rb_doc(self)); stream.puts }
+        methods.select do |m|
+          !m.is_dtor && m.protection == 'public' && !m.ignored && !m.deprecated
+        end.each do |mtd|
+          stream.doc.puts(mtd.rb_doc(self)); stream.puts
+        end
       end
 
       def methods
