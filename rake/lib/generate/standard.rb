@@ -172,9 +172,7 @@ module WXRuby3
     end
 
     def gen_swig_interface_file(spec)
-      File.open(spec.interface_file, File::CREAT|File::TRUNC|File::RDWR) do |fout|
-        gen_swig_interface_specs(fout, spec)
-      end
+      gen_swig_interface_specs(CodeStream.new(spec.interface_file), spec)
     end
 
     def gen_swig_interface_specs(fout, spec)
@@ -198,9 +196,7 @@ module WXRuby3
     end
 
     def gen_interface_include(spec)
-      File.open(spec.interface_include_file, File::CREAT|File::TRUNC|File::RDWR) do |fout|
-        gen_interface_include_code(fout, spec)
-      end
+      gen_interface_include_code(CodeStream.new(spec.interface_include_file), spec)
     end
 
     def gen_interface_include_header(fout, spec)
@@ -238,9 +234,13 @@ module WXRuby3
     end
 
     def run(spec)
-      gen_swig_interface_file(spec)
+      Stream.transaction do
 
-      gen_interface_include(spec)
+        gen_swig_interface_file(spec)
+
+        gen_interface_include(spec)
+
+      end
     end
 
   end # class ClassGenerator
