@@ -13,6 +13,57 @@ module WXRuby3
 
     # Information about a standalone function.
     class FunctionDef < BaseDef # , FixWxPrefix):
+
+      class ParamMapping
+        class MapDef
+          def initialize(mdef)
+            if ::Array === mdef
+              @rbtype, @rbname = mdef
+            else
+              mdlist = mdef.split(' ')
+              @rbname = mdlist.pop
+              @rbtype = mdlist.join(' ')
+            end
+          end
+
+          def map
+            {name: @rbname, type: @rbtype}
+          end
+        end
+
+        def initialize(from, to)
+          @from = (::Array === from ? from : [from]).collect do |argmask|
+            if ParamDef::Mask === argmask
+              argmask
+            else
+              ParamDef::Mask.new(argmask)
+            end
+          end
+          @to = (::Array === to ? to : [to]).collect do |argdef|
+            if MapDef === argdef
+              argdef
+            else
+              MapDef.new(argdef)
+            end
+          end
+        end
+
+        def from_count
+          @from.size
+        end
+
+        def get_mapped
+          @to.collect { |e| e.map }
+        end
+
+        def matches?(paramdefs)
+          @from.each_with_index do |mask, ix|
+            return false if ix >= paramdefs.size || mask != paramdefs[ix]
+          end
+          true
+        end
+      end
+
       def initialize(element = nil, **kwargs)
         super()
         @type = nil
@@ -61,12 +112,61 @@ module WXRuby3
         items.select {|i| ParamDef === i }
       end
 
+      def rb_doc(clsdef)
+        # get parameterlist docs (if any)
+        params_doc = @detailed_doc.at_xpath("parameterlist[@kind='param']")
+        # get detailed doc text without params doc
+        doc = if params_doc
+                @detailed_doc.text.sub(params_doc.text, '').strip
+              else
+                @detailed_doc.text.strip
+              end.split("\n")
+        # get mapped ruby parameter list
+        param_defs = parameters
+        params = []
+        until param_defs.empty?
+          # check for param mapping at current pos in param list, either class defined
+          if (mapping = clsdef.find_param_mapping(param_defs) ||
+                BaseDef.find_param_mapping(param_defs)) # or globally
+            # remove mapped param definitions
+            param_defs.shift(mapping.from_count)
+            # store mapping
+            params.concat mapping.get_mapped
+          else
+            # get param def at current pos
+            paramdef = param_defs.shift
+            # store param name with rb type mapped from wx typedefs
+            rb_type = BaseDef.wx_type_to_rb(paramdef.type)
+            rb_type = rb_type.join(',') if ::Array === rb_type
+            params << {name: paramdef.name, type: rb_type}
+          end
+        end
+        # find and add any parameter specific doc
+        params_doc.xpath('parameteritem').each do |pi|
+          if (pinm = pi.at_xpath('parameternamelist'))
+            pinm = pinm.text
+            # look up matching mapped param entry
+            if (param = params.detect { |p| p.first == pinm })
+              # add doc
+              param[:doc] = pi.xpath('parameterdescription').text
+            end
+          end
+        end if params_doc
+        # collect full function docs
+        rb_doc = ["@!method #{name}(#{params.collect {|p| p[:name]}.join(', ')})"]
+        rb_doc.concat(doc.collect { |ln| '  '+ln })
+        params.each do |p|
+          rb_doc << ('  @param [' << p[:type] << '] ' << p[:name] << (p[:doc] ? ' '+p[:doc] : ''))
+        end
+        rb_doc
+      end
+
       def signature
         sig = "#{@type} #{name}"
         if parameters.empty?
           sig << '()'
         else
-          sig << '(' << parameters.collect {|p| "#{p.type}#{p.array}" }.join(',') << ')'
+          sig << '(' << parameters.collect {|p| "#{p.type}#{p.array ? '[]' : ''}" }.join(',') << ')'
         end
         sig
       end
@@ -245,6 +345,48 @@ module WXRuby3
 
     # A parameter of a function or method.
     class ParamDef < BaseDef
+
+      class Mask
+        RE = /\A(\*|&)([_a-zA-Z]\w*)\Z/
+        def initialize(maskdef)
+          @array = false
+          if ::Array === maskdef
+            @ctype, @name_mask, arr = maskdef
+            @array = (arr == '[]' || arr == true) if arr
+            if @name_mask.end_with?('[]')
+              @array = true
+              @name_mask = @name_mask[0..-3]
+            end
+          else
+            mdlist = maskdef.to_s.split(' ')
+            @name_mask = mdlist.pop
+            if @name_mask == '[]' || @name_mask.end_with?('[]')
+              @array = true
+              @name_mask = (@name_mask == '[]' ? mdlist.pop : @name_mask[0..-3])
+            end
+            @ctype = mdlist.join(' ')
+            RE.match(@name_mask) do |md|
+              @ctype << md[1]
+              @name_mask = md[2]
+            end
+            @ctype.tr!(' ','')
+          end
+        end
+
+        def ==(paramdef)
+          if paramdef.type.tr(' ','') == @ctype && paramdef.array == @array
+            if ::Regexp === @name_mask
+              return @name_mask =~ paramdef.name
+            elsif @name_mask.end_with?('*')
+              return paramdef.name.start_with?(@name_mask[0..-2])
+            else
+              return @name_mask.to_s == paramdef.name
+            end
+          end
+          false
+        end
+      end
+
       def initialize(element = nil, **kwargs)
         super()
         @type = '' # data type
@@ -271,7 +413,7 @@ module WXRuby3
               @name = element.at_xpath('defname').text
             end
             if element.at_xpath('array')
-              @array = element.at_xpath('array').text
+              @array = true
             end
             if element.at_xpath('defval')
               @default = BaseDef.flatten_node(element.at_xpath('defval'))

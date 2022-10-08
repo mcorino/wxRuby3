@@ -32,6 +32,7 @@ module WXRuby3
         @event = false # if so, is wxEvent derived class
         @event_emitter = false # if so, class has emitted events specified
         @event_types = []
+        @param_mappings = []
 
         update_attributes(**kwargs)
         extract(element) if element
@@ -221,6 +222,18 @@ module WXRuby3
         unless ctor && (ctor.protection == 'public' || ctor.overloads.any? {|ovl| ovl.protection == 'public' })
           @abstract = true
         end
+      end
+
+      def add_param_mapping(from, to)
+        @param_mappings << ParamMapping.new(from, to)
+      end
+
+      def find_param_mapping(paramdefs)
+        @param_mappings.detect { |pm| pm.matches?(paramdefs) }
+      end
+
+      def rb_doc(stream)
+        methods.select {|m| !m.is_dtor }.each {|mtd| stream.doc.puts(mtd.rb_doc(self)); stream.puts }
       end
 
       def methods

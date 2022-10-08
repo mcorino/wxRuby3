@@ -121,6 +121,11 @@ if $config.has_wxwidgets_xml?
   desc "Force generate C++ source and header files using SWIG"
   task :reswig => [ :clean_src, :swig ]
 
+  desc 'Generate documentation for wxRuby'
+  task :doc => all_swig_files do
+    WXRuby3::Director.generate_docs
+  end
+
   desc "Create a makefile"
   file "Makefile" => all_swig_files do
     object_rules = ""

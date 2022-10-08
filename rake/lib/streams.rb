@@ -74,6 +74,7 @@ module WXRuby3
       Stream.__send__(:_push, self)
       @indent = indent
       @indent_level = 0
+      @indent_next = true
     end
 
     attr_reader :path, :fullpath, :name, :ext
@@ -119,7 +120,7 @@ module WXRuby3
     end
 
     def <<(txt)
-      do_indent << txt;
+      do_indent << txt
       self
     end
 
@@ -129,14 +130,17 @@ module WXRuby3
       else
         do_indent.puts(txt)
       end
+      @indent_next = true
       self
     end
 
     def iputs(txt='', lvl_inc=1)
-      if ::Array === txt
-        txt.each { |ln| do_indent(lvl_inc).puts(ln) }
-      else
-        do_indent(lvl_inc).puts(txt)
+      indent(lvl_inc) do
+        if ::Array === txt
+            txt.each { |ln| puts(ln) }
+        else
+          puts(txt)
+        end
       end
       self
     end
@@ -153,8 +157,9 @@ module WXRuby3
 
     private
 
-    def do_indent(lvl_inc=0)
-      @fout << (' ' * ((@indent_level+lvl_inc) * @indent_level))
+    def do_indent
+      @fout << (' ' * ((@indent_level) * @indent_level)) if @indent_next
+      @indent_next = false
       @fout
     end
 
