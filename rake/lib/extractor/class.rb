@@ -234,9 +234,11 @@ module WXRuby3
 
       def rb_doc(stream)
         methods.select do |m|
-          !m.is_dtor && m.protection == 'public' && !m.docs_ignored && !m.deprecated
+          !m.is_dtor
         end.each do |mtd|
-          stream.doc.puts(mtd.rb_doc(self)); stream.puts
+          mtd_ovls = mtd.all.select {|m| m.protection == 'public' && !m.docs_ignored && !m.deprecated }
+          mtd_ovls.each_with_index { |mo,i| stream.doc.puts(mo.rb_doc(self, i, mtd_ovls.size)) }
+          stream.puts
         end
       end
 

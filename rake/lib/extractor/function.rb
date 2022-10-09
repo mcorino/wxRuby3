@@ -118,7 +118,7 @@ module WXRuby3
         rb_method_name(name)
       end
 
-      def rb_doc(clsdef)
+      def rb_doc(clsdef, fnix, fncount)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath("parameterlist[@kind='param']")
         # get detailed doc text without params doc
@@ -162,11 +162,17 @@ module WXRuby3
           end
         end if params_doc
         # collect full function docs
+        rb_doc = []
         paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ')
-        rb_doc = ["@!method #{rb_decl_name}(#{paramlist})"]
+        if fncount>1
+          rb_doc << "@!method #{rb_decl_name}(*args)" if fnix==0
+          rb_doc << "@overload #{rb_decl_name}(#{paramlist})"
+        else
+          rb_doc << "@!method #{rb_decl_name}(#{paramlist})"
+        end
         rb_doc.concat(doc.collect { |ln| '  '+ln })
         params.each do |p|
-          rb_doc << ('  @param [' << p[:type] << '] ' << p[:name] << (p[:doc] ? ' '+p[:doc] : ''))
+          rb_doc << ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+p[:doc] : ''))
         end
         rb_doc
       end
@@ -346,7 +352,11 @@ module WXRuby3
       end
 
       def rb_decl_name
-        "#{is_static ? 'self.' : ''}#{super}"
+        if is_ctor
+          'initialize'
+        else
+          "#{is_static ? 'self.' : ''}#{super}"
+        end
       end
 
       def signature
