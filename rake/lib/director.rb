@@ -680,7 +680,7 @@ module WXRuby3
                 fdoc.doc.puts(item.brief_doc.text)
                 fdoc.doc.puts
                 fdoc.doc.puts(item.detailed_doc.text)
-                fdoc.puts "class #{clsnm}#{basecls ? ' < '+basecls.sub(/\Awx/, '') : ''}"
+                fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
                 fdoc.puts
                 fdoc.indent do
                   item.rb_doc(fdoc)
