@@ -144,7 +144,7 @@ module WXRuby3
             # store param name with rb type mapped from wx typedefs
             rb_type = BaseDef.wx_type_to_rb(paramdef.type)
             rb_type = rb_type.join(',') if ::Array === rb_type
-            params << {name: paramdef.name, type: rb_type}
+            params << {name: rb_param_name(paramdef.name), type: rb_type}
             if paramdef.default
               params.last[:default] = rb_constant_value(paramdef.default)
             end

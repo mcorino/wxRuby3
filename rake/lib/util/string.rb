@@ -13,6 +13,12 @@ module WXRuby3
 
     module StringUtil
 
+      RBKW = %[
+          __FILE__ and def end in or self unless __LINE__ begin defined? ensure module redo
+          super until BEGIN break do false next rescue then when END case else for nil retry true while
+          alias class elsif if not return undef yield
+      ]
+
       def simple_underscore!(s)
         s.gsub!(/([A-Z])/, '_\1')
         s.downcase!
@@ -43,6 +49,14 @@ module WXRuby3
       def rb_method_name(name)
         rbnm = underscore(name)
         rbnm.sub!(/\Awx_/, '')
+        rbnm.sub!(/\Aoperator/, '')
+        rbnm << '_' if RBKW.include?(rbnm)
+        rbnm
+      end
+
+      def rb_param_name(name)
+        rbnm = name.dup
+        rbnm << '_' if RBKW.include?(name)
         rbnm
       end
 
