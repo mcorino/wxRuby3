@@ -18,16 +18,18 @@ module WXRuby3
         class MapDef
           def initialize(mdef)
             if ::Array === mdef
-              @rbtype, @rbname = mdef
+              @rbtype, @rbname, @rbdoc = mdef
             else
-              mdlist = mdef.split(' ')
+              mdef, @rbdoc = mdef.split('#')
+              @rbdoc.strip!
+              mdlist = mdef.strip.split(' ')
               @rbname = mdlist.pop
               @rbtype = mdlist.join(' ')
             end
           end
 
           def map
-            {name: @rbname, type: @rbtype}
+            {name: @rbname, type: @rbtype, doc: @rbdoc}
           end
         end
 
