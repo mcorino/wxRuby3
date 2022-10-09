@@ -685,7 +685,6 @@ module WXRuby3
                 fdoc.indent do
                   item.rb_doc(fdoc)
                 end
-                fdoc.puts
                 fdoc.puts "end # #{clsnm}"
                 fdoc.puts
               end

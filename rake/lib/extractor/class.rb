@@ -238,7 +238,7 @@ module WXRuby3
         end.each do |mtd|
           mtd_ovls = mtd.all.select {|m| m.protection == 'public' && !m.docs_ignored && !m.deprecated }
           mtd_ovls.each_with_index { |mo,i| stream.doc.puts(mo.rb_doc(self, i, mtd_ovls.size)) }
-          stream.puts
+          stream.puts unless mtd_ovls.empty?
         end
       end
 

@@ -120,7 +120,7 @@ module WXRuby3
 
       def rb_doc(clsdef, fnix, fncount)
         # get parameterlist docs (if any)
-        params_doc = @detailed_doc.at_xpath("parameterlist[@kind='param']")
+        params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # get detailed doc text without params doc
         doc = if params_doc
                 @detailed_doc.text.sub(params_doc.text, '').strip
@@ -152,12 +152,12 @@ module WXRuby3
         end
         # find and add any parameter specific doc
         params_doc.xpath('parameteritem').each do |pi|
-          if (pinm = pi.at_xpath('parameternamelist'))
+          if (pinm = pi.at_xpath('parameternamelist/parametername'))
             pinm = pinm.text
             # look up matching mapped param entry
             if (param = params.detect { |p| p[:name] == pinm })
               # add doc
-              param[:doc] = pi.xpath('parameterdescription').text
+              param[:doc] = pi.xpath('parameterdescription').text.strip
             end
           end
         end if params_doc
