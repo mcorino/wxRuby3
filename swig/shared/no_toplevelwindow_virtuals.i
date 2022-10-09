@@ -16,18 +16,12 @@
 %define SWIG_WXTOPLEVELWINDOW_NO_USELESS_VIRTUALS(kls)
 
 %feature("nodirector") kls::ClearBackground;
-%feature("nodirector") kls::DoSetSizeHints;
-%ignore kls::DoSetSizeHints;
-//%feature("nodirector") kls::DoUpdateWindowUI;
-//%ignore kls::DoUpdateWindowUI;
 %feature("nodirector") kls::Enable;
 %feature("nodirector") kls::EnableCloseButton;
 %feature("nodirector") kls::EndModal;
 %feature("nodirector") kls::GetHelpTextAtPoint;
 %feature("nodirector") kls::GetMaxSize;
 %feature("nodirector") kls::GetMinSize;
-%feature("nodirector") kls::GetRectForTopLevelChildren;
-%ignore kls::GetRectForTopLevelChildren;
 %feature("nodirector") kls::GetTitle;
 %feature("nodirector") kls::Iconize;
 %feature("nodirector") kls::IsActive;

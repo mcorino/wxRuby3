@@ -16,7 +16,7 @@ module WXRuby3
       def setup
         # for all wxWindow derived classes (not wxFrame and descendants)
         spec.add_swig_code <<~__HEREDOC
-          SWIG_WXWINDOW_NO_USELESS_VIRTUALS(wxWindow);
+          SWIG_WXWINDOW_NO_USELESS_VIRTUALS(#{spec.module_name});
         __HEREDOC
         # only for actual wxWindow class
         case spec.module_name
@@ -42,22 +42,21 @@ module WXRuby3
             }
           __HEREDOC
           spec.ignore [
-            "wxWindow::GetAccessible",
-            "wxWindow::PopEventHandler",
-            "wxWindow::SetConstraints",
-            "wxWindow::GetHandle",
-            "wxWindow::GetSize(int *,int *) const",
-            "wxWindow::GetPosition(int *,int *) const",
-            "wxWindow::GetScreenPosition(int *,int *) const",
-            "wxWindow::FindWindow",
+            'wxWindow::TransferDataFromWindow',
+            'wxWindow::TransferDataToWindow',
+            'wxWindow::GetAccessible',
+            'wxWindow::PopEventHandler',
+            'wxWindow::SetConstraints',
+            'wxWindow::GetHandle',
+            'wxWindow::GetSize(int *,int *) const',
+            'wxWindow::GetPosition(int *,int *) const',
+            'wxWindow::GetScreenPosition(int *,int *) const',
+            'wxWindow::FindWindow',
             'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)',
-            # depends on wxUSE_ACCESSIBILITY
-            'wxWindow::SetAccessible',
-            # depends on wxUSE_HOTKEY
-            'wxWindow::RegisterHotKey',
-            'wxWindow::UnregisterHotKey',
             'wxWindow::SendIdleEvents'
           ]
+          spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
+          spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.rename_for_ruby('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{
             swig/classes/include/wxDC.h

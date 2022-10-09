@@ -58,7 +58,7 @@ module WXRuby3
         @director = director
         @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : nil) rescue nil
         @gc_type = nil
-        @ignores = ::Set.new
+        @ignores = {}
         @disabled_proxies = false
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
@@ -258,8 +258,8 @@ module WXRuby3
         @abstracts.has_key?(cls) && !@abstracts[cls]
       end
 
-      def ignore(*names)
-        @ignores.merge(names.flatten)
+      def ignore(*names, ignore_doc: true)
+        names.flatten.each {|n| @ignores[n] = ignore_doc}
         self
       end
 
@@ -674,18 +674,20 @@ module WXRuby3
           genspec.def_items.each do |item|
             case item
             when Extractor::ClassDef
-              clsnm = genspec.class_name(item).sub(/\Awx/, '')
-              basecls = genspec.base_class(item)
-              fdoc.doc.puts(item.brief_doc.text)
-              fdoc.doc.puts
-              fdoc.doc.puts(item.detailed_doc.text)
-              fdoc.puts "class #{clsnm}#{basecls ? ' < '+basecls.sub(/\Awx/, '') : ''}"
-              fdoc.puts
-              fdoc.indent do
-                item.rb_doc(fdoc)
+              if !item.docs_ignored && (!item.is_template? || spec.template_as_class?(item.name))
+                clsnm = genspec.class_name(item).sub(/\Awx/, '')
+                basecls = genspec.base_class(item)
+                fdoc.doc.puts(item.brief_doc.text)
+                fdoc.doc.puts
+                fdoc.doc.puts(item.detailed_doc.text)
+                fdoc.puts "class #{clsnm}#{basecls ? ' < '+basecls.sub(/\Awx/, '') : ''}"
+                fdoc.puts
+                fdoc.indent do
+                  item.rb_doc(fdoc)
+                end
+                fdoc.puts
+                fdoc.puts "end # #{clsnm}"
               end
-              fdoc.puts
-              fdoc.puts "end # #{clsnm}"
             end
           end
         end
@@ -704,7 +706,7 @@ module WXRuby3
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, doc: '')
       # handle ignores
-      spec.ignores.each do |fullname|
+      spec.ignores.each_pair do |fullname, ignoredoc|
         name = fullname
         args = nil
         const = false
@@ -718,17 +720,17 @@ module WXRuby3
         if item
           if args
             if item.is_a?(Extractor::FunctionDef) && (overload = item.find_overload(args, const))
-              overload.ignore if overload
+              overload.ignore(ignore_doc: ignoredoc) if overload
             else
               STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore. "+
                           "Possible match is '#{item.is_a?(Extractor::FunctionDef) ? item.signature : item.name}'."
             end
           else
             if item.is_a?(Extractor::FunctionDef)
-              item.ignore
-              item.overloads.each {|ovl| ovl.ignore }
+              item.ignore(ignore_doc: ignoredoc)
+              item.overloads.each {|ovl| ovl.ignore(ignore_doc: ignoredoc) }
             else
-              item.ignore
+              item.ignore(ignore_doc: ignoredoc)
             end
           end
         else

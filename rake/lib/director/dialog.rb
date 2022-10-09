@@ -37,12 +37,10 @@ module WXRuby3
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
         when 'wxPropertySheetDialog'
           spec.ignore 'wxPropertySheetDialog::GetContentWindow'
-          spec.add_swig_code <<~__HEREDOC
-            // Needs special handling to ensure the return value is cast to the
-            // correct book class, not the generic abstract parent class
-            // wxBookCtrlBase
-            %ignore wxPropertySheetDialog::GetBookCtrl;
-            __HEREDOC
+          # Needs special handling to ensure the return value is cast to the
+          # correct book class, not the generic abstract parent class
+          # wxBookCtrlBase
+          spec.ignore('wxPropertySheetDialog::GetBookCtrl', ignore_doc: false) # keep doc
           spec.add_extend_code 'wxPropertySheetDialog', <<~__HEREDOC
             VALUE get_book_ctrl() {
               wxBookCtrlBase* book = $self->GetBookCtrl();
@@ -85,7 +83,8 @@ module WXRuby3
           spec.make_concrete 'wxProgressDialog'
           spec.items << 'wxGenericProgressDialog'
           spec.fold_bases('wxProgressDialog' => 'wxGenericProgressDialog')
-          spec.ignore %w[wxGenericProgressDialog::Pulse wxGenericProgressDialog::Update]
+          spec.ignore(%w[wxGenericProgressDialog::Pulse wxGenericProgressDialog::Update], ignore_doc: false) # keep docs
+          # TODO : add docs for Ruby specials
           spec.add_extend_code 'wxProgressDialog', <<~__HEREDOC
             // In wxRuby there are two versions of each of these methods, the
             // standard one which returns just true/false depending on whether it

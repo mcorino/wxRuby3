@@ -34,6 +34,7 @@ module WXRuby3
           spec.rename_for_ruby('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
         when 'wxNotebook'
+          spec.ignore("wxNotebook::OnSelChange")
           setup_book_ctrl_class(spec.module_name)
         when 'wxToolbook'
           setup_book_ctrl_class(spec.module_name)
@@ -47,8 +48,6 @@ module WXRuby3
         # spec.ignore "#{clsnm}::SetImageList"
         # Use the version that deletes the ImageList when the Toolbook is destroyed
         spec.rename_for_ruby('SetImageList' => "#{clsnm}::AssignImageList")
-        # Users should handle page changes with events, not virtual methods
-        spec.ignore("#{clsnm}::OnSelChange") unless clsnm == 'wxToolbook'
         # These are virtual in C++ but don't need directors as fully
         # implemented in the individual child classes
         spec.no_proxy(%W[

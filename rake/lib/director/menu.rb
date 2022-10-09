@@ -61,7 +61,7 @@ module WXRuby3
           %markfunc wxMenu "mark_wxMenu";
           __HEREDOC
         # fix SWIG's problems with const& return value
-        spec.ignore 'wxMenu::GetTitle'
+        spec.ignore('wxMenu::GetTitle', ignore_doc: false) # keep doc
         spec.add_extend_code 'wxMenu', <<~__HEREDOC
           wxString* GetTitle() const {
             wxString const& title = $self->GetTitle();

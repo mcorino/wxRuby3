@@ -234,7 +234,7 @@ module WXRuby3
 
       def rb_doc(stream)
         methods.select do |m|
-          !m.is_dtor && m.protection == 'public' && !m.ignored && !m.deprecated
+          !m.is_dtor && m.protection == 'public' && !m.docs_ignored && !m.deprecated
         end.each do |mtd|
           stream.doc.puts(mtd.rb_doc(self)); stream.puts
         end

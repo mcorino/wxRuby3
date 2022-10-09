@@ -319,8 +319,9 @@ module WXRuby3
         end
       end
 
-      def ignore(val = true)
+      def ignore(val = true, ignore_doc: nil)
         @ignored = !!val
+        @docs_ignored = ignore_doc.nil? ? @ignored : ignore_doc
         self
       end
 

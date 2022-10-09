@@ -18,12 +18,6 @@
 // Create a SWIG macro which will be called in all Window subclasses
 %define SWIG_WXWINDOW_NO_USELESS_VIRTUALS(kls)
 
-// Not supported
-%ignore kls::TransferDataFromWindow;
-%feature("nodirector") kls::TransferDataFromWindow;
-%ignore kls::TransferDataToWindow;
-%feature("nodirector") kls::TransferDataToWindow;
-
 // Avoid adding unneeded directors
 %feature("nodirector") kls::AddChild;
 %feature("nodirector") kls::Fit;
