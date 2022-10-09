@@ -675,7 +675,7 @@ module WXRuby3
             case item
             when Extractor::ClassDef
               if !item.docs_ignored && (!item.is_template? || spec.template_as_class?(item.name))
-                clsnm = genspec.class_name(item).sub(/\Awx/, '')
+                clsnm = rb_constant_name(item.name) #genspec.class_name(item).sub(/\Awx/, '')
                 basecls = genspec.base_class(item)
                 fdoc.doc.puts(item.brief_doc.text)
                 fdoc.doc.puts

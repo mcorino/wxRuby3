@@ -176,7 +176,11 @@ module WXRuby3
         params.each do |p|
           rb_doc << ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+p[:doc] : ''))
         end
-        rb_doc
+        rb_doc << "  @return [#{rb_return_type}]"
+      end
+
+      def rb_return_type
+        BaseDef.wx_type_to_rb(type)
       end
 
       def signature
@@ -351,6 +355,14 @@ module WXRuby3
         # TODO: Should protected items be ignored by default or should we
         #       leave that up to the tweaker code or the generators?
         self.ignore if @protection == 'protected'
+      end
+
+      def rb_return_type
+        if is_ctor
+          rb_constant_name(class_name)
+        else
+          super
+        end
       end
 
       def rb_decl_name
