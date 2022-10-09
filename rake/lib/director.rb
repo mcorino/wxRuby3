@@ -687,6 +687,7 @@ module WXRuby3
                 end
                 fdoc.puts
                 fdoc.puts "end # #{clsnm}"
+                fdoc.puts
               end
             end
           end

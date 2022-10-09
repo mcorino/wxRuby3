@@ -155,7 +155,7 @@ module WXRuby3
           if (pinm = pi.at_xpath('parameternamelist'))
             pinm = pinm.text
             # look up matching mapped param entry
-            if (param = params.detect { |p| p.first == pinm })
+            if (param = params.detect { |p| p[:name] == pinm })
               # add doc
               param[:doc] = pi.xpath('parameterdescription').text
             end
