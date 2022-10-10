@@ -7,6 +7,7 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
+require_relative './streams'
 require_relative './util/string'
 require 'fileutils'
 
@@ -93,10 +94,9 @@ module WXRuby3
 
       def self.rename(target, _)
         puts "Processor.rename: #{target}"
-        org_target = target + ".old"
-        FileUtils.mv(target, org_target)
-        File.open(target, "w") do |out|
-          File.foreach(org_target) do |line|
+        Stream.transaction do
+          out = CodeStream.new(target)
+          File.foreach(target) do |line|
             case line
             when /(rb_define_method|rb_intern|rb_define_module_function).*("[_a-zA-Z0-9]*")/
               name = $2
@@ -121,7 +121,6 @@ module WXRuby3
             out.puts(line)
           end
         end
-        FileUtils.rm(org_target)
       end
 
       MAIN_MODULE = 'Wxruby3'
@@ -131,11 +130,7 @@ module WXRuby3
 
         enum_table = collect_enumerators(spec)
 
-        org_target = target + ".old"
-        FileUtils.mv(target, org_target)
-
         core_name = File.basename(target, ".cpp")
-        wx_name = "wx" + core_name
 
         skip_entire_method = false
         brace_level = 0
@@ -145,8 +140,9 @@ module WXRuby3
 
         found_init = false
 
-        File.open(target, "w") do |out|
-          File.foreach(org_target) do |line|
+        Stream.transaction do
+          out = CodeStream.new(target)
+          File.foreach(target) do |line|
 
             if !found_init
 
@@ -328,34 +324,31 @@ module WXRuby3
             out.puts(line)
           end
         end
-        FileUtils.rm(org_target)
       end
 
       def self.fixmainmodule(target, _)
         puts "Processor.fixmainmodule: #{target}"
-        org_target = target + ".old"
-        FileUtils.mv(target, org_target)
         this_module = 'unknown'
-        File.open(target, "w") do |out|
+        Stream.transaction do
+          out = CodeStream.new(target)
           found_main_module = false
-          File.foreach(org_target) do |line|
-            if (line.index("static VALUE m#{MAIN_MODULE};"))
+          File.foreach(target) do |line|
+            if line.index("static VALUE m#{MAIN_MODULE};")
               line = "VALUE m#{MAIN_MODULE};"
               found_main_module = true
             end
 
-            if (line.index("char* type_name = RSTRING(value)->ptr;"))
+            if line.index("char* type_name = RSTRING(value)->ptr;")
               line = "        const char* type_name = (value == Qnil) ? \"\" : RSTRING(value)->ptr;\n";
             end
 
             out.puts(line)
           end
-          if(!found_main_module)
+          if !found_main_module
             puts("didn't find main module")
             exit(1)
           end
         end
-        FileUtils.rm(org_target)
       end
 
     end # module Processor
