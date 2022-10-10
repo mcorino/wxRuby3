@@ -10,7 +10,7 @@
 module WXRuby3
 
   SPECIFICATIONS = [
-    Director.Spec('Wx', 'defs'),
+    Director.Spec('Wx', 'wxDefs'),
     Director.Spec('Wx', 'wxGDICommon'),
     Director.Spec('Wx', 'wxColour'),
     Director.Spec('Wx', 'wxObject'),

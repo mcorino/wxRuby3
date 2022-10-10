@@ -25,6 +25,9 @@ Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
                                        Wx::WXWIDGETS_MINOR_VERSION,
                                        Wx::WXWIDGETS_RELEASE_NUMBER ]
 
+# for backward compatibility include all enum submodules in Wx
+Wx.constants.select {|c| Wx.const_get(c).class == ::Module }.each { |c| Wx.include Wx.const_get(c) }
+
 # Helper functions
 require 'wx/helpers'
 

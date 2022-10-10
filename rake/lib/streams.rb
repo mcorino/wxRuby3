@@ -158,7 +158,7 @@ module WXRuby3
     private
 
     def do_indent
-      @fout << (' ' * ((@indent_level) * @indent_level)) if @indent_next
+      @fout << (' ' * ((@indent_level) * @indent)) if @indent_next
       @indent_next = false
       @fout
     end

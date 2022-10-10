@@ -359,7 +359,7 @@ module WXRuby3
 
       def rb_return_type
         if is_ctor
-          rb_constant_name(class_name)
+          rb_wx_name(class_name)
         else
           super
         end

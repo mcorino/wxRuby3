@@ -26,6 +26,10 @@ module WXRuby3
         @defmod = defmod
       end
 
+      def post_processors
+        @ifspec.post_processors
+      end
+
       def interface_file
         @ifspec.interface_file
       end
@@ -196,7 +200,7 @@ module WXRuby3
       end
 
       def def_items
-        @defmod.items
+        @defmod ? @defmod.items : []
       end
 
       def def_item(name)
@@ -355,7 +359,7 @@ module WXRuby3
         fout.puts
         gen_only_for(fout, item) do
           wx_pfx = item.name.start_with?('wx') ? 'wx' : ''
-          const_name = underscore!(rb_constant_name(item.name))
+          const_name = underscore!(rb_wx_name(item.name))
           const_type = item.type
           const_type << '*' if const_type.index('char') && item.args_string == '[]'
           fout.puts "%constant #{const_type} #{wx_pfx}#{const_name.upcase} = #{item.name.rstrip};"

@@ -60,12 +60,16 @@ module WXRuby3
         rbnm
       end
 
-      def rb_constant_name(name)
+      def rb_wx_name(name)
         name.sub(/\Awx/i, '')
       end
 
+      def rb_module_name(name)
+        rb_wx_name(name).sub(/\A[a-z]/) { |s| s.upcase }
+      end
+
       def rb_constant_value(name)
-        val = rb_constant_name(name)
+        val = rb_wx_name(name)
         val == 'NULL' ? 'nil' : val
       end
 

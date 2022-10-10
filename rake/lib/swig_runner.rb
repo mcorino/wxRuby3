@@ -20,6 +20,7 @@ module WXRuby3
     class << self
 
       include FileUtils
+      include Util::StringUtil
 
       private
 
@@ -65,24 +66,32 @@ module WXRuby3
         target
       end
 
-      def run_post_processors(target, *processors)
-        processors.each { |pp| Processor.__send__(pp, target) }
+      def run_post_processors(target, spec, *processors)
+        processors.each { |pp| Processor.__send__(pp, target, spec) }
       end
 
     end
 
     def self.process(spec)
       target = run_swig(spec.interface_file)
-      run_post_processors(target, *spec.post_processors)
+      run_post_processors(target, spec, *spec.post_processors)
     end
 
     module Processor
 
       class << self
         include Util::StringUtil
+
+        def collect_enumerators(spec)
+          spec.def_items.select do |item|
+            Extractor::EnumDef === item && !(item.name.empty? || item.name.start_with?('@'))
+          end.inject({}) do |hash, enum|
+            enum.items.inject(hash) { |hsh, e| hsh[rb_wx_name(e.name)] = rb_wx_name(enum.name); hsh }
+          end
+        end
       end
 
-      def self.rename(target)
+      def self.rename(target, _)
         puts "Processor.rename: #{target}"
         org_target = target + ".old"
         FileUtils.mv(target, org_target)
@@ -99,12 +108,12 @@ module WXRuby3
               line[name] = '"%s"' % rb_class_name(name[1..-2])
             when /rb_define_const\s*\([^,]+,\s*("[_a-zA-Z0-9]*")/
               name = $1
-              line[name] = '"%s"' % rb_constant_name(name[1..-2])
+              line[name] = '"%s"' % rb_wx_name(name[1..-2])
             when /rb_define_singleton_method.*("[_a-zA-Z0-9]*")/
               name = $1
               no_wx_name = name[1..-2].sub(/\Awx_?/i, '')
               if no_wx_name == no_wx_name.upcase
-                line[name] = '"%s"' % rb_constant_name(name[1..-2])
+                line[name] = '"%s"' % rb_wx_name(name[1..-2])
               else
                 line[name] = '"%s"' % rb_method_name(name[1..-2])
               end
@@ -117,155 +126,202 @@ module WXRuby3
 
       MAIN_MODULE = 'Wxruby3'
 
-      def self.fixmodule(target)
+      def self.fixmodule(target, spec)
         puts "Processor.fixmodule: #{target}"
+
+        enum_table = collect_enumerators(spec)
+
         org_target = target + ".old"
         FileUtils.mv(target, org_target)
 
         core_name = File.basename(target, ".cpp")
         wx_name = "wx" + core_name
 
-        skip_until_blank_line = false
         skip_entire_method = false
         brace_level = 0
 
+        fix_enum = false
+        enum_name = nil
+
+        found_init = false
+
         File.open(target, "w") do |out|
           File.foreach(org_target) do |line|
 
-            # TODO : can we improve this?
-            # Fix for Event.i - because it is implemented with a custom Ruby
-            # subclass, need to make this subclass SWIG info available under
-            # the normal name "SWIGTYPE_p_wxEvent" as it's referenced by many
-            # other classes.
-            if core_name == 'Event' or core_name == 'CommandEvent'
-              if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRuby(Command)?Event/]
-                line = line +
-                  "  // Inserted by fixmodule.rb\n" +
-                  line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
-                           "SWIGTYPE_p_wx\\1Event")
+            if !found_init
+
+              # all following fixes are applicable only before we reached the
+              # Init_ function
+
+              # TODO : can we improve this?
+              # Fix for Event.i - because it is implemented with a custom Ruby
+              # subclass, need to make this subclass SWIG info available under
+              # the normal name "SWIGTYPE_p_wxEvent" as it's referenced by many
+              # other classes.
+              if core_name == 'Event' or core_name == 'CommandEvent'
+                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRuby(Command)?Event/]
+                  line = line +
+                    "  // Inserted by fixmodule.rb\n" +
+                    line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
+                             "SWIGTYPE_p_wx\\1Event")
+                end
               end
-            end
-            # Fix for TipProvider - because it is implemented with a custom Ruby
-            # subclass, need to make this subclass SWIG info available under
-            # the normal name "SWIGTYPE_p_wxTipProvider" as it's referenced in
-            # other places.
-            if core_name == 'TipProvider'
-              if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyTipProvider/]
-                line = line +
-                  "  // Inserted by fixmodule.rb\n" +
-                  line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
-                           "SWIGTYPE_p_wxTipProvider")
-              elsif line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyTipProvider/]
-                line = "// Altered by fixmodule.rb\n" +
-                  line.sub(/"_p_wxRubyTipProvider"/,
-                           '"_p_wxTipProvider"')
+              # Fix for TipProvider - because it is implemented with a custom Ruby
+              # subclass, need to make this subclass SWIG info available under
+              # the normal name "SWIGTYPE_p_wxTipProvider" as it's referenced in
+              # other places.
+              if core_name == 'TipProvider'
+                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyTipProvider/]
+                  line = line +
+                    "  // Inserted by fixmodule.rb\n" +
+                    line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
+                             "SWIGTYPE_p_wxTipProvider")
+                elsif line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyTipProvider/]
+                  line = "// Altered by fixmodule.rb\n" +
+                    line.sub(/"_p_wxRubyTipProvider"/,
+                             '"_p_wxTipProvider"')
+                end
               end
-            end
 
-            # TODO : is this still needed?
-            # Ugly: special fixes for TreeCtrl - these macros and extra funcs
-            # are needed to allow user-defined sorting to work
-            if core_name == "TreeCtrl"
-              # default ctor needed for Swig::Director
-              if line["Director(VALUE self) : swig_self(self), swig_disown_flag(false)"]
-                line = "    Director() { } // added by fixmodule.rb \n" + line
+              # TODO : is this still needed?
+              # Ugly: special fixes for TreeCtrl - these macros and extra funcs
+              # are needed to allow user-defined sorting to work
+              if core_name == "TreeCtrl"
+                # default ctor needed for Swig::Director
+                if line["Director(VALUE self) : swig_self(self), swig_disown_flag(false)"]
+                  line = "    Director() { } // added by fixmodule.rb \n" + line
+                end
+                if line["SwigDirector_wxTreeCtrl::SwigDirector_wxTreeCtrl(VALUE self)"]
+                  line = "IMPLEMENT_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl,  wxTreeCtrl);\n" + line
+                  # We also need to tweak the header file
+                  treectrl_h_file = filename.sub(/cpp$/, "h")
+                  contents = File.read(treectrl_h_file)
+                  contents.sub!(/\};/, <<~__HEREDOC
+                    private:
+                    DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
+                    };
+                  __HEREDOC
+                  )
+                  contents.sub!(/public:/, "public:\nSwigDirector_wxTreeCtrl() {};")
+
+                  File.open(treectrl_h_file, 'w') { |f| f.write(contents) }
+                end
+              end # end horrible TreeCtrl fixes
+
+              # wxMenu has been marked 'nodirector' in it's entirety
+              # # TODO : still needed?
+              # # Ugly: special fixes for Menu - can be deleted by wxWidgets from
+              # # the C++ side, so we need to unhook the ruby object in the dtor
+              # if core_name == 'Menu' and line['~SwigDirector_wxMenu()']
+              #   line += "  SWIG_RubyUnlinkObjects(this);\n  SWIG_RubyRemoveTracking(this);\n"
+              # end
+
+              # comment out swig_up because it is defined global in every module
+              if (line.index("bool Swig::Director::swig_up"))
+                line = "//" + line
               end
-              if line["SwigDirector_wxTreeCtrl::SwigDirector_wxTreeCtrl(VALUE self)"]
-                line = "IMPLEMENT_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl,  wxTreeCtrl);\n" + line
-                # We also need to tweak the header file
-                treectrl_h_file = filename.sub(/cpp$/, "h")
-                contents = File.read(treectrl_h_file)
-                contents.sub!(/\};/, <<~__HEREDOC
-                  private:
-                  DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
-                  };
-                __HEREDOC
-                )
-                contents.sub!(/public:/, "public:\nSwigDirector_wxTreeCtrl() {};")
 
-                File.open(treectrl_h_file, 'w') { |f| f.write(contents) }
+              if line =~ /char\* type_name = (RSTRING\(value\)->ptr|RSTRING_PTR\(value\));/
+                line = ""
               end
-            end # end horrible TreeCtrl fixes
+              # Patch submitted for SWIG 1.3.30
+              if (line.index("if (strcmp(type->name, type_name) == 0) {"))
+                line = "		if ( value != Qnil && rb_obj_is_kind_of(obj, sklass->klass) ) {"
+              end
+              #TODO 1.3.30
+              #			end
 
-            # wxMenu has been marked 'nodirector' in it's entirety
-            # # TODO : still needed?
-            # # Ugly: special fixes for Menu - can be deleted by wxWidgets from
-            # # the C++ side, so we need to unhook the ruby object in the dtor
-            # if core_name == 'Menu' and line['~SwigDirector_wxMenu()']
-            #   line += "  SWIG_RubyUnlinkObjects(this);\n  SWIG_RubyRemoveTracking(this);\n"
-            # end
+              # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
+              # wrappers
+              if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx#{core_name}";/
+                line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{MAIN_MODULE}::#{core_name}")
+              end
 
-            # comment out swig_up because it is defined global in every module
-            if (line.index("bool Swig::Director::swig_up"))
-              line = "//" + line
-            end
+              # remove the UnknownExceptionHandler::handler method
+              if line.index('void UnknownExceptionHandler::handler()')
+                skip_entire_method = true
+              end
 
-            if line =~ /char\* type_name = (RSTRING\(value\)->ptr|RSTRING_PTR\(value\));/
-              line = ""
-            end
-            # Patch submitted for SWIG 1.3.30
-            if (line.index("if (strcmp(type->name, type_name) == 0) {"))
-              line = "		if ( value != Qnil && rb_obj_is_kind_of(obj, sklass->klass) ) {"
-            end
-            #TODO 1.3.30
-            #			end
+              if (skip_entire_method)
+                line = "//#{line}"
+                if (line.index('{'))
+                  brace_level += 1
+                end
+                if (line.index('}'))
+                  brace_level -= 1
+                end
+                if (brace_level == 0)
+                  skip_entire_method = false
+                end
+              end
 
-            # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
-            # wrappers
-            if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx#{core_name}";/
-              line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{MAIN_MODULE}::#{core_name}")
-            end
+              # at the top of our Init_ function, make sure we only initialize
+              # ourselves once
+              if /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
+                line += "static bool initialized;\n"
+                line += "if(initialized) return;\n"
+                line += "initialized = true;\n"
+                found_init = true # switch to init fixes
+              end
 
-            # Instead of defining a new module, set the container module equal
-            # to the real main Wx:: module.
-            if line['rb_define_module("Wx']
-              line = "  mWx#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
-              found_define_module = true
-            elsif line['rb_define_module("Defs']
-              line = "  m#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
-              found_define_module = true
-            end
+            else
+              # all following fixes are part of the Init_ function and so
+              # only need to be checked after that function has been started
 
-            # at the top of our Init_ function, make sure we only initialize
-            # ourselves once
-            if (line.index("Init_#{wx_name}("))
-              line += "static bool initialized;\n"
-              line += "if(initialized) return;\n"
-              line += "initialized = true;\n"
-              found_init = true
-            end
+              # Instead of defining a new module, set the container module equal
+              # to the real main Wx:: module.
+              if line['rb_define_module("Wx']
+                line = "  mWx#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
+                found_define_module = true
+              # elsif line['rb_define_module("Defs']
+              #   line = "  m#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
+              #   found_define_module = true
+              end
 
-            # As a class is initialised, store a global mapping from it to the
-            # correct SWIGTYPE; see wx.i
-            if line =~ /SWIG_TypeClientData\((SWIGTYPE_p_\w+),\s+
+              # As a class is initialised, store a global mapping from it to the
+              # correct SWIGTYPE; see wx.i
+              if line =~ /SWIG_TypeClientData\((SWIGTYPE_p_\w+),\s+
                   \(void\s\*\)\s+&(\w+)\)/x
 
-              line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
-            end
-
-            # remove the UnknownExceptionHandler::handler method
-            if (line.index('void UnknownExceptionHandler::handler()'))
-              skip_entire_method = true
-            end
-
-            if (skip_entire_method)
-              line = "//#{line}"
-              if (line.index('{'))
-                brace_level += 1
+                line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
               end
-              if (line.index('}'))
-                brace_level -= 1
-              end
-              if (brace_level == 0)
-                skip_entire_method = false
-              end
-            end
 
-            if (skip_until_blank_line)
-              if (line.strip.size == 0)
-                skip_until_blank_line = false
-              else
-                line = '// ' + line
+              # check for known enumerator constants
+              if !fix_enum # not fixing one yet
+                # have we reached the first of a known enum
+                if (md = /rb_define_const\s*\(([^,]+),\s*"([_a-zA-Z0-9]*)"/.match(line))
+                  if enum_table.has_key?(md[2])
+                    fix_enum = true
+                    enum_name = enum_table[md[2]]
+                    line = [
+                      '',
+                      # create new enum submodule
+                      "  VALUE mWx#{enum_name} = rb_define_module_under(#{md[1]}, \"#{enum_name}\"); // Inserted by fixmodule.rb",
+                      # create enumerator const under new submodule
+                      line.sub(/rb_define_const\s*\([^,]+,/, "rb_define_const(mWx#{enum_name},")
+                    ].join("\n")
+                  end
+                end
+              elsif (md = /rb_define_const\s*\(([^,]+),\s*"([_a-zA-Z0-9]*)"/.match(line))
+                # still an enumerator?
+                if enum_table.has_key?(md[2])
+                  # of the same enum?
+                  if enum_table[md[2]] == enum_name
+                    # create enumerator const under new submodule
+                    line.sub!(/rb_define_const\s*\([^,]+,/, "rb_define_const(mWx#{enum_name},")
+                  else # we found the start of another enum
+                    enum_name = enum_table[md[2]]
+                    line = [
+                      '',
+                      # create new enum submodule
+                      "  VALUE mWx#{enum_name} = rb_define_module_under(#{md[1]}, \"#{enum_name}\"); // Inserted by fixmodule.rb",
+                      line.sub(/rb_define_const\s*\([^,]+,/, "rb_define_const(mWx#{enum_name},") # create enumerator const under new submodule
+                    ].join("\n")
+                  end
+                else
+                  enum_name = nil
+                  fix_enum = false
+                end
               end
             end
 
@@ -275,42 +331,7 @@ module WXRuby3
         FileUtils.rm(org_target)
       end
 
-      def self.fixplatform(target)
-        puts "Processor.fixplatform: #{target}"
-        org_target = target + ".old"
-        FileUtils.mv(target, org_target)
-        this_module = File.basename(target, ".cpp")
-        File.open(target, "w") do |out|
-          if RUBY_PLATFORM =~ /mswin/
-            out.puts("#pragma warning(disable:4786)")
-          end
-          add_footer = false
-
-          File.foreach(org_target) do |line|
-            if (line.index("//@@"))
-              line.gsub!(/\/\/@@/, "#")
-              add_footer = true
-            end
-
-            out.puts(line)
-          end
-
-          if (add_footer)
-            out.puts <<~__FOOTER
-              #else
-              #ifdef __cplusplus
-              extern "C"
-              #endif
-              SWIGEXPORT void Init_wx#{this_module}(void) {
-              }
-              #endif
-            __FOOTER
-          end
-        end
-        FileUtils.rm(org_target)
-      end
-
-      def self.fixmainmodule(target)
+      def self.fixmainmodule(target, _)
         puts "Processor.fixmainmodule: #{target}"
         org_target = target + ".old"
         FileUtils.mv(target, org_target)

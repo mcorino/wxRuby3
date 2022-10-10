@@ -79,7 +79,7 @@ module WXRuby3
         @interface_code = []
         @extend_code = {}
         @nogen_sections = ::Set.new
-        @post_processors = processors || [:rename, :fixmodule, :fixplatform]
+        @post_processors = processors || [:rename, :fixmodule]
         yield(self) if block_given?
       end
 
@@ -524,10 +524,20 @@ module WXRuby3
         script = <<~__SCRIPT
           require 'json'
           require 'wx'
-          table = {}
+          table = { 'Wx' => {}}
           Wx.constants.each do |c|
             the_const = Wx.const_get(c)
-            table[c.to_s] = { type: the_const.class.name.split('::').last, value: the_const } unless ::Module === the_const
+            if the_const.class == ::Module  # Enum submodule
+              modname = c.to_s
+              mod = Wx.const_get(c) 
+              table[modname] = {}
+              mod.constants.each do |ec|
+                e_const = mod.const_get(ec)
+                table[modname][ec.to_s] = { type: e_const.class.name.split('::').last, value: e_const }
+              end
+            else
+              table['Wx'][c.to_s] = { type: the_const.class.name.split('::').last, value: the_const } unless ::Class === the_const
+            end
           end
           STDOUT.puts JSON.dump(table)
         __SCRIPT
@@ -686,7 +696,7 @@ module WXRuby3
     end
 
     def generate_code
-      SwigRunner.process(@spec)
+      SwigRunner.process(Generator::Spec.new(spec, defmod))
     end
 
     def generate_doc
@@ -875,27 +885,43 @@ module WXRuby3
       fdoc.puts
     end
 
+    def gen_enum_doc(fdoc, enumname, enumdef, enum_table)
+      fdoc.doc.puts enumdef.brief_doc
+      fdoc.doc.puts enumdef.detailed_doc.text.strip if enumdef.detailed_doc
+      fdoc.puts "module #{enumname}"
+      fdoc.puts
+      fdoc.indent do
+        enumdef.items.each do |e|
+          const_name = rb_wx_name(e.name)
+          if enum_table.has_key?(const_name)
+            gen_constant_doc(fdoc, const_name, enum_table[const_name], e.brief_doc)
+          end
+        end
+      end
+      fdoc.puts "end # #{enumname}"
+      fdoc.puts
+    end
+
     def gen_constants_doc(fdoc, genspec)
       const_table = Director.constants_db
+      wx_consts = const_table['Wx'] || {}
       genspec.def_items.select {|itm| !itm.docs_ignored }.each do |item|
         case item
         when Extractor::GlobalVarDef
-          const_name = underscore!(rb_constant_name(item.name)).upcase
-          if const_table.has_key?(const_name)
-            gen_constant_doc(fdoc, const_name, const_table[const_name], item.brief_doc)
+          const_name = underscore!(rb_wx_name(item.name)).upcase
+          if wx_consts.has_key?(const_name)
+            gen_constant_doc(fdoc, const_name, wx_consts[const_name], item.brief_doc)
           end
         when Extractor::EnumDef
-          item.items.each do |e|
-            const_name = underscore!(rb_constant_name(e.name)).upcase
-            if const_table.has_key?(const_name)
-              gen_constant_doc(fdoc, const_name, const_table[const_name], e.brief_doc || item.brief_doc)
-            end
+          enum_name = rb_wx_name(item.name)
+          if const_table.has_key?(enum_name)
+            gen_enum_doc(fdoc, enum_name, item, const_table[enum_name])
           end
         when Extractor::DefineDef
           if !item.is_macro? && item.value && !item.value.empty?
-            const_name = underscore!(rb_constant_name(item.name)).upcase
-            if const_table.has_key?(const_name)
-              gen_constant_doc(fdoc, const_name, const_table[const_name], item.brief_doc)
+            const_name = underscore!(rb_wx_name(item.name)).upcase
+            if wx_consts.has_key?(const_name)
+              gen_constant_doc(fdoc, const_name, wx_consts[const_name], item.brief_doc)
             end
           end
         end
@@ -905,7 +931,7 @@ module WXRuby3
     def gen_class_doc(fdoc, genspec)
       genspec.def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm }.each do |item|
         if !item.is_template? || spec.template_as_class?(item.name)
-          clsnm = rb_constant_name(item.name)
+          clsnm = rb_wx_name(item.name)
           basecls = genspec.base_class(item)
           fdoc.doc.puts(item.brief_doc)
           fdoc.doc.puts

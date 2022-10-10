@@ -79,8 +79,10 @@ if $config.has_wxwidgets_xml?
 
   # Generate a C++ source file from a SWIG .i source file for a core class
   $swig_targets.each_pair do | mod, deps |
-    file "#{$config.src_dir}/#{File.basename(mod, '.i')}.cpp" =>  mod do | _ |
-      WXRuby3::Director.generate_code(mod) # default post processors
+    unless $config.helper_modules.include?(File.basename(mod, '.i'))
+      file "#{$config.src_dir}/#{File.basename(mod, '.i')}.cpp" =>  mod do | _ |
+        WXRuby3::Director.generate_code(mod) # default post processors
+      end
     end
   end
 
