@@ -123,12 +123,10 @@ module WXRuby3
       def rb_doc(clsdef, fnix, fncount)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
+        # unlink params_doc if any
+        params_doc.unlink if params_doc
         # get detailed doc text without params doc
-        doc = if params_doc
-                @detailed_doc.text.sub(params_doc.text, '').strip
-              else
-                @detailed_doc.text.strip
-              end.split("\n")
+        doc = DocGenerator::XMLTransform.to_doc(@detailed_doc)
         # get mapped ruby parameter list
         param_defs = parameters
         params = []
@@ -159,7 +157,7 @@ module WXRuby3
             # look up matching mapped param entry
             if (param = params.detect { |p| p[:name] == pinm })
               # add doc
-              param[:doc] = pi.xpath('parameterdescription').text.strip
+              param[:doc] = DocGenerator::XMLTransform.to_doc(pi.xpath('parameterdescription')).lstrip
             end
           end
         end if params_doc
@@ -172,9 +170,9 @@ module WXRuby3
         else
           rb_doc << "@!method #{rb_decl_name}(#{paramlist})"
         end
-        rb_doc.concat(doc.collect { |ln| '  '+ln })
+        rb_doc.concat(doc.split("\n").collect { |ln| '  '+ln })
         params.each do |p|
-          rb_doc << ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+p[:doc] : ''))
+          rb_doc << ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
         rb_doc << "  @return [#{rb_return_type}]"
       end

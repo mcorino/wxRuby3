@@ -157,7 +157,7 @@ module WXRuby3
 
       STANDARD_WX_TYPES = {
         'wxChar' => 'Integer',
-        ['wxChar*', 'wxString'] => 'String',
+        ['wxChar*', 'wxString', 'wxString*', 'wxString&'] => 'String',
         'wxSize' => ['wxSize', 'Array<Integer>'],
         'wxRect' => ['wxRect', 'Array<Integer>'],
       }
@@ -214,7 +214,7 @@ module WXRuby3
 
         def wx_type_to_rb(typestr)
           c_type = typestr.gsub(/const\s+/, '')
-          c_type.gsub!(/\s+(\*|&)/, '*')
+          c_type.gsub!(/\s+(\*|&)/, '\1')
           c_type.strip!
           type_mappings[c_type] || c_type.tr('*&', '').sub(/\Awx/, 'Wx::')
         end
@@ -235,7 +235,7 @@ module WXRuby3
         @name = '' # name of the item
         @ignored = false # skip this item
         @docs_ignored = false # skip this item when generating docs
-        @brief_doc = '' # either an empty string or text contents of a single para Element
+        @brief_doc = nil # either an empty string or text contents of a single para Element
         @detailed_doc = [] # collection of para Elements
         @deprecated = false # is this item deprecated
         @only_for = nil
@@ -283,7 +283,7 @@ module WXRuby3
         end
         bd = element.xpath('briefdescription')
         unless bd.empty?
-          @brief_doc = bd.first.text.strip # Should be just one <para> element
+          @brief_doc = bd # Should be just one <para> element
           @detailed_doc = element.xpath('detaileddescription')
           if (el = @detailed_doc.at_xpath('para/onlyfor'))
             @only_for = el.text.strip.split(',').collect { |s| "__#{s.upcase}__"}

@@ -256,24 +256,6 @@ module WXRuby3
 
     end # class ClassDef
 
-    # Use the C++ methods of a class to make a Ruby attribute.
-    #
-    # NOTE: This one is not automatically extracted, but can be added to
-    #       classes in the tweaker stage
-    class PropertyDef < BaseDef
-      def initialize(name, getter = nil, setter = nil, doc = nil, **kwargs)
-        super()
-        @name = name
-        @getter = getter
-        @setter = setter
-        @brief_doc = doc
-        @protection = 'public'
-        update_attributes(**kwargs)
-      end
-    end # class PropertyDef
-
-    class RbPropertyDef < PropertyDef; end
-
   end # module Extractor
 
 end # module WXRuby3

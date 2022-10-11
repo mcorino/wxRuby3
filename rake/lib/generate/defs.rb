@@ -7,11 +7,11 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
-require_relative './standard'
+require_relative './interface'
 
 module WXRuby3
 
-  class DefsGenerator < StandardGenerator
+  class DefsGenerator < InterfaceGenerator
 
     def gen_swig_header(fout, spec)
       fout << <<~__HEREDOC
