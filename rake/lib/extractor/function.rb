@@ -18,10 +18,12 @@ module WXRuby3
         class MapDef
           def initialize(mdef)
             if ::Array === mdef
-              @rbtype, @rbname, @rbdoc = mdef
+              @rbtype, @rbname, @rbdoc, @rbdefault = mdef
             else
               mdef, @rbdoc = mdef.split('#')
-              @rbdoc.strip!
+              @rbdoc.to_s.strip!
+              mdef, @rbdefault = mdef.split('=')
+              @rbdefault.to_s.strip!
               mdlist = mdef.strip.split(' ')
               @rbname = mdlist.pop
               @rbtype = mdlist.join(' ')
@@ -29,12 +31,12 @@ module WXRuby3
           end
 
           def map
-            {name: @rbname, type: @rbtype, doc: @rbdoc}
+            {name: @rbname, type: @rbtype, doc: @rbdoc, default: @rbdefault}
           end
         end
 
         def initialize(from, to)
-          @from = (::Array === from ? from : [from]).collect do |argmask|
+          @from = (::Array === from ? from : from.split(',')).collect do |argmask|
             if ParamDef::Mask === argmask
               argmask
             else
@@ -137,7 +139,7 @@ module WXRuby3
             # remove mapped param definitions
             param_defs.shift(mapping.from_count)
             # store mapping
-            params.concat mapping.get_mapped
+            params.concat(mapping.get_mapped)
           else
             # get param def at current pos
             paramdef = param_defs.shift

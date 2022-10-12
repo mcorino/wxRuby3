@@ -225,7 +225,7 @@ module WXRuby3
       end
 
       def add_param_mapping(from, to)
-        @param_mappings << ParamMapping.new(from, to)
+        @param_mappings << FunctionDef::ParamMapping.new(from, to)
       end
 
       def find_param_mapping(paramdefs)
