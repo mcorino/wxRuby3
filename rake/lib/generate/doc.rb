@@ -105,7 +105,9 @@ module WXRuby3
         end
 
         def para_to_doc(node)
-          node_to_doc(node)
+          para = node_to_doc(node)
+          # loose wxPerl notes
+          para.index('wxPerl Note:') ? '' : para
         end
 
         def _arglist_to_doc(args)
