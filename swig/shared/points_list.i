@@ -13,12 +13,24 @@
     wxPoint *wx_point;
     VALUE rb_item;
     for (int i = 0; i < RARRAY_LEN(rb_arr); i++)
-      {
+    {
         rb_item = rb_ary_entry(rb_arr, i);
-        SWIG_ConvertPtr(rb_item, (void **) &wx_point, 
-                        SWIGTYPE_p_wxPoint, 1);
-        if ( wx_point == NULL )
-            rb_raise(rb_eTypeError, "Failed to create point %i", i);
+        if ( TYPE(rb_item) == T_DATA )
+        {
+            SWIG_ConvertPtr(rb_item, (void **) &wx_point,
+                            SWIGTYPE_p_wxPoint, 1);
+        }
+        else if ( TYPE(rb_item) == T_ARRAY )
+        {
+          wx_point = new wxPoint( NUM2INT( rb_ary_entry(rb_item, 0) ),
+            NUM2INT( rb_ary_entry(rb_item, 1) ) );
+          // Create a ruby object so the C++ obj is freed when GC runs
+          SWIG_NewPointerObj(wx_point, SWIGTYPE_p_wxPoint, 1);
+        }
+        else
+        {
+          rb_raise(rb_eTypeError, "Wrong type for wxPoint parameter %i", i);
+        }
         wx_arr[i] = *wx_point;
     }
   }
@@ -101,4 +113,3 @@
 {
    $1 = (TYPE($input) == T_ARRAY);
 }
-
