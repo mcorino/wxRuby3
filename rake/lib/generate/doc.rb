@@ -191,7 +191,7 @@ module WXRuby3
         # reduce triple(or more) newlines to max 2
         doc.gsub!(/\n\n\n+/, "\n\n")
         # autocreate references for any ids explicitly declared such
-        doc.gsub!(/\s(wx\w+(::\w+)?(\(.*\))?):?\s/) do |s|
+        doc.gsub!(/\s(wx\w+(::\w+)?(\(.*\))?)[\.:]?\s/) do |s|
           if $1 == 'wxWidgets'
             s
           else
