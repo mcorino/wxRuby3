@@ -66,6 +66,7 @@ module WXRuby3
         @no_proxies = ::Set.new
         @disowns = ::Set.new
         @only_for = {}
+        @param_mappings = {}
         @includes = Set.new
         @swig_imports = Set.new
         @swig_includes = Set.new
@@ -84,8 +85,9 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :disabled_proxies, :no_proxies, :disowns, :only_for, :includes, :swig_imports, :swig_includes, :renames,
-                  :swig_code, :begin_code, :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
+                  :ignores, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
+                  :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
+                  :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors
       attr_writer :interface_file
 
@@ -286,10 +288,17 @@ module WXRuby3
 
       def disown(*decls)
         @disowns.merge(decls.flatten)
+        self
       end
 
       def set_only_for(id, *names)
         (@only_for[id.to_s] ||= ::Set.new).merge(names.flatten)
+        self
+      end
+
+      def map_parameters(clsnm, from, to)
+        (@param_mappings[clsnm] ||= []) << [from, to]
+        self
       end
 
       def include(*paths)
@@ -731,6 +740,15 @@ module WXRuby3
           else
             raise "Cannot find '#{fullname}' for module '#{spec.module_name}'"
           end
+        end
+      end
+      # handle class specific parameter mappings
+      spec.param_mappings.each_pair do |clsnm, maps|
+        item = defmod.find_item(clsnm)
+        if item && Extractor::ClassDef === item
+          maps.each { |map| item.add_param_mapping(*map) }
+        else
+          raise "Cannot find class '#{clsnm}' for parameter mapping #{map} in module '#{spec.module_name}'"
         end
       end
       # handle class specified includes

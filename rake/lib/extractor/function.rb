@@ -43,7 +43,7 @@ module WXRuby3
               ParamDef::Mask.new(argmask)
             end
           end
-          @to = (::Array === to ? to : [to]).collect do |argdef|
+          @to = (::Array === to && ::Array === to.first ? to : [to]).collect do |argdef|
             if MapDef === argdef
               argdef
             else
@@ -62,7 +62,9 @@ module WXRuby3
 
         def matches?(paramdefs)
           @from.each_with_index do |mask, ix|
-            return false if ix >= paramdefs.size || mask != paramdefs[ix]
+            if ix >= paramdefs.size || mask != paramdefs[ix]
+              return false
+            end
           end
           true
         end
@@ -407,12 +409,14 @@ module WXRuby3
               @ctype << md[1]
               @name_mask = md[2]
             end
-            @ctype.tr!(' ','')
           end
+          @ctype.sub!(/const\s*/,'')
+          @ctype.tr!(' ','')
         end
 
         def ==(paramdef)
-          if paramdef.type.tr(' ','') == @ctype && paramdef.array == @array
+          paramtype = paramdef.type.sub(/const\s*/, '').tr(' ', '')
+          if paramtype == @ctype && paramdef.array == @array
             if ::Regexp === @name_mask
               return @name_mask =~ paramdef.name
             elsif @name_mask.end_with?('*')
@@ -428,7 +432,7 @@ module WXRuby3
       def initialize(element = nil, **kwargs)
         super()
         @type = '' # data type
-        @array = nil
+        @array = false
         @default = nil # default value
         # @out = false # is it an output arg?
         # @in_out = false # is it both input and output?
