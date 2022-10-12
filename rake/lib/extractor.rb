@@ -158,8 +158,8 @@ module WXRuby3
       STANDARD_WX_TYPES = {
         'wxChar' => 'Integer',
         ['wxChar*', 'wxString', 'wxString*', 'wxString&'] => 'String',
-        'wxSize' => ['wxSize', 'Array<Integer>'],
-        'wxRect' => ['wxRect', 'Array<Integer>'],
+        ['wxSize', 'wxSize*', 'wxSize&'] => ['Wx::Size', 'Array<Integer>'],
+        ['wxPoint', 'wxPoint*', 'wxPoint&'] => ['Wx::Point', 'Array<Integer>'],
       }
 
       class << self
