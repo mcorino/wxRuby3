@@ -96,18 +96,69 @@ module WXRuby3
 
         private
 
+        def no_ref(&block)
+          @no_ref = true
+          begin
+            return block.call
+          ensure
+            @no_ref = false
+          end
+        end
+
+        def no_ref?
+          !!@no_ref
+        end
+
         def text_to_doc(node)
-          node.text
+          text = node.text
+          unless no_ref?
+            # autocreate references for any ids explicitly declared such
+            text.gsub!(/\s(wx\w+(::\w+)?(\(.*\))?)[\.:\s]/) do |s|
+              if $1 == 'wxWidgets'
+                s
+              else
+                "#{s[0]}#{_ident_str_to_doc($1)}#{s[-1]}"
+              end
+            end
+          end
+          text
         end
 
         def bold_to_doc(node)
-          "*#{node_to_doc(node)}*"
+          "<b>#{node_to_doc(node)}</b>"
+        end
+
+        def sp_to_doc(node)
+          " #{node_to_doc(node)}"
         end
 
         def para_to_doc(node)
           para = node_to_doc(node)
-          # loose wxPerl notes
-          para.index('wxPerl Note:') ? '' : para
+          # loose specific notes paragraphs
+          case para
+          when /\A\s*wxPerl Note:/,   # wxPerl note
+               /\A\s*Library:/        # Library note
+            ''
+          else
+            para
+          end
+        end
+
+        def programlisting_to_doc(node)
+          no_ref do
+            "\n\n  #{node_to_doc(node).split("\n").join("\n  ")}\n"
+          end
+        end
+
+        def simplesect_to_doc(node)
+          case node['kind']
+          when 'since' # get rid of 'Since' notes
+            ''
+          when 'see'
+            "<b>See also:</b>\n#{node_to_doc(node)}"
+          else
+            node_to_doc(node)
+          end
         end
 
         def _arglist_to_doc(args)
@@ -151,7 +202,7 @@ module WXRuby3
 
         # transform all cross references
         def ref_to_doc(node)
-          _ident_str_to_doc(node.text)
+          no_ref? ? node.text : _ident_str_to_doc(node.text)
         end
 
         # transform all titles
@@ -196,14 +247,14 @@ module WXRuby3
         doc.lstrip!
         # reduce triple(or more) newlines to max 2
         doc.gsub!(/\n\n\n+/, "\n\n")
-        # autocreate references for any ids explicitly declared such
-        doc.gsub!(/\s\*?(wx\w+(::\w+)?(\(.*\))?)\*?[\.:\s]/) do |s|
-          if $1 == 'wxWidgets'
-            s
-          else
-            "#{s[0]}#{_ident_str_to_doc($1)}#{s[-1]}"
-          end
-        end
+        # # autocreate references for any ids explicitly declared such
+        # doc.gsub!(/\s\*?(wx\w+(::\w+)?(\(.*\))?)\*?[\.:\s]/) do |s|
+        #   if $1 == 'wxWidgets'
+        #     s
+        #   else
+        #     "#{s[0]}#{_ident_str_to_doc($1)}#{s[-1]}"
+        #   end
+        # end
         doc
       end
 
