@@ -113,11 +113,15 @@ module WXRuby3
           text = node.text
           unless no_ref?
             # autocreate references for any ids explicitly declared such
-            text.gsub!(/\s?(wx\w+(::\w+)?(\(.*\))?)[\.:\s]/) do |s|
+            text.gsub!(/\W?(wx\w+(::\w+)?(\(.*\))?)/) do |s|
               if $1 == 'wxWidgets'
                 s
               else
-                "#{s[0]==' '?s[0]:''}#{_ident_str_to_doc($1)}#{s[-1]}"
+                if s==$1
+                  _ident_str_to_doc($1)
+                else
+                  "#{s[0]}#{_ident_str_to_doc($1)}"
+                end
               end
             end
           end
@@ -130,6 +134,14 @@ module WXRuby3
 
         def sp_to_doc(node)
           " #{node_to_doc(node)}"
+        end
+
+        def nonbreakablespace_to_doc(node)
+          sp_to_doc(node)
+        end
+
+        def linebreak_to_doc(node)
+          "#{node_to_doc(node)}\n"
         end
 
         def para_to_doc(node)
@@ -222,7 +234,10 @@ module WXRuby3
 
         # transform all listitem
         def listitem_to_doc(node)
-          "- #{node_to_doc(node)}"
+          itm_text = node_to_doc(node)
+          # fix possible unwanted leading resulting in verbatim blocks
+          itm_text = itm_text.split("\n").collect {|s|s.lstrip}.join("\n") if itm_text.index("\n")
+          "- #{itm_text}"
         end
 
         def node_to_doc(xmlnode)
