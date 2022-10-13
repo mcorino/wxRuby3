@@ -113,11 +113,11 @@ module WXRuby3
           text = node.text
           unless no_ref?
             # autocreate references for any ids explicitly declared such
-            text.gsub!(/\s(wx\w+(::\w+)?(\(.*\))?)[\.:\s]/) do |s|
+            text.gsub!(/\s?(wx\w+(::\w+)?(\(.*\))?)[\.:\s]/) do |s|
               if $1 == 'wxWidgets'
                 s
               else
-                "#{s[0]}#{_ident_str_to_doc($1)}#{s[-1]}"
+                "#{s[0]==' '?s[0]:''}#{_ident_str_to_doc($1)}#{s[-1]}"
               end
             end
           end
