@@ -210,6 +210,11 @@ module WXRuby3
           "== #{node.text}\n"
         end
 
+        def heading_to_doc(node)
+          lvl = 1+(node['level'] || '1').to_i
+          "#{'=' * lvl} #{node_to_doc(node)}"
+        end
+
         # transform all itemizedlist
         def itemizedlist_to_doc(node)
           node_to_doc(node)
