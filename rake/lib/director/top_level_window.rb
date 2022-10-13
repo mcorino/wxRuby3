@@ -32,6 +32,7 @@ module WXRuby3
           spec.ignore %w{
             wxTopLevelWindow::SaveGeometry
             wxTopLevelWindow::RestoreToGeometry
+            wxTopLevelWindow::GeometrySerializer
           }
           spec.set_only_for '__WXUNIVERSAL__', %w{
             wxTopLevelWindow::IsUsingNativeDecorations

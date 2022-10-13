@@ -37,6 +37,8 @@ module WXRuby3
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
         when 'wxPropertySheetDialog'
           spec.ignore 'wxPropertySheetDialog::GetContentWindow'
+          # In Ruby a derived class with customized '#initialize' is far easier
+          spec.ignore 'wxPropertySheetDialog::CreateBookCtrl'
           # Needs special handling to ensure the return value is cast to the
           # correct book class, not the generic abstract parent class
           # wxBookCtrlBase

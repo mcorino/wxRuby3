@@ -20,6 +20,8 @@ module WXRuby3
 
     class Spec
 
+      include Util::StringUtil
+
       def initialize(ifspec, defmod)
         @ifspec = ifspec
         @defmod = defmod
@@ -39,6 +41,10 @@ module WXRuby3
 
       def interface_include_file
         "#{WXRuby3::Config.instance.interface_path}/#{@ifspec.module_name}.h"
+      end
+
+      def interface_ext_file
+        "#{WXRuby3::Config.instance.rb_ext_path}/#{underscore(@ifspec.name)}.rb"
       end
 
       def module_name

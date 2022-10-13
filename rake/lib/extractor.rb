@@ -35,14 +35,25 @@ module WXRuby3
       end
 
       def include_to_doxy_name(name)
-        name = File.basename(name)
-        name.sub!('.h', '_8h')
+        name = name.sub('wx/', '')
+        subdir = name.index('/') ? File.dirname(name) : ''
+        name = File.basename(name).sub('.h', '_8h')
         pathname = File.join(xml_dir, name + '.xml')
         if File.exists?(pathname)
           [pathname, name + '.xml']
         else
-          name = 'interface_2wx_2' + name
-          [File.join(xml_dir, name + '.xml'), name + '.xml']
+          pathname = File.join(xml_dir, 'interface_2wx_2' + name + '.xml')
+          if File.exists?(pathname) || subdir.empty?
+            [pathname, 'interface_2wx_2' + name + '.xml']
+          else
+            pathname = File.join(xml_dir, subdir + '_2' + name + '.xml')
+            if File.exists?(pathname)
+              [pathname, subdir + '_2' + name + '.xml']
+            else
+              pathname = File.join(xml_dir, 'interface_2wx_2' + subdir + '_2' + name + '.xml')
+              [pathname, 'interface_2wx_2' + subdir + '_2' + name + '.xml']
+            end
+          end
         end
       end
 

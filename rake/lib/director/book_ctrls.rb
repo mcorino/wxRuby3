@@ -27,6 +27,7 @@ module WXRuby3
           __HEREDOC
         case spec.module_name
         when 'wxBookCtrlBase'
+          spec.make_abstract 'wxBookCtrlBase'
           spec.items.replace %w[wxBookCtrlBase wxWithImages]
           spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')

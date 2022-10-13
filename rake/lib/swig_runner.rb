@@ -149,30 +149,9 @@ module WXRuby3
               # all following fixes are applicable only before we reached the
               # Init_ function
 
-              # TODO : can we improve this?
-              # Fix for Event.i - because it is implemented with a custom Ruby
-              # subclass, need to make this subclass SWIG info available under
-              # the normal name "SWIGTYPE_p_wxEvent" as it's referenced by many
-              # other classes.
-              if core_name == 'Event' or core_name == 'CommandEvent'
-                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRuby(Command)?Event/]
-                  line = line +
-                    "  // Inserted by fixmodule.rb\n" +
-                    line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
-                             "SWIGTYPE_p_wx\\1Event")
-                end
-              end
-              # Fix for TipProvider - because it is implemented with a custom Ruby
-              # subclass, need to make this subclass SWIG info available under
-              # the normal name "SWIGTYPE_p_wxTipProvider" as it's referenced in
-              # other places.
+              # Fix for TipProvider
               if core_name == 'TipProvider'
-                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyTipProvider/]
-                  line = line +
-                    "  // Inserted by fixmodule.rb\n" +
-                    line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
-                             "SWIGTYPE_p_wxTipProvider")
-                elsif line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyTipProvider/]
+                if line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyTipProvider/]
                   line = "// Altered by fixmodule.rb\n" +
                     line.sub(/"_p_wxRubyTipProvider"/,
                              '"_p_wxTipProvider"')
@@ -280,6 +259,32 @@ module WXRuby3
                   \(void\s\*\)\s+&(\w+)\)/x
 
                 line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
+              end
+
+              # TODO : can we improve this?
+              # Fix for Event.i - because it is implemented with a custom Ruby
+              # subclass, need to make this subclass SWIG info available under
+              # the normal name "SWIGTYPE_p_wxEvent" as it's referenced by many
+              # other classes.
+              if core_name == 'Event' or core_name == 'CommandEvent'
+                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRuby(Command)?Event/]
+                  line = line +
+                    "  // Inserted by fixmodule.rb\n" +
+                    line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
+                             "SWIGTYPE_p_wx\\1Event")
+                end
+              end
+              # Fix for TipProvider - because it is implemented with a custom Ruby
+              # subclass, need to make this subclass SWIG info available under
+              # the normal name "SWIGTYPE_p_wxTipProvider" as it's referenced in
+              # other places.
+              if core_name == 'TipProvider'
+                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyTipProvider/]
+                  line = line +
+                    "  // Inserted by fixmodule.rb\n" +
+                    line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
+                             "SWIGTYPE_p_wxTipProvider")
+                end
               end
 
               # check for known enumerator constants

@@ -18,6 +18,7 @@ module WXRuby3
         spec.disown 'wxSizer* sizer'
         case spec.module_name
         when 'wxSizer'
+          spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
           spec.no_proxy 'wxSizer::AddSpacer'
           #spec.no_proxy 'wxSizer'

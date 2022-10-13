@@ -15,13 +15,14 @@ module WXRuby3
 
       def setup
         spec.gc_as_object
+        spec.make_abstract 'wxTipProvider'
         spec.add_header_code <<~__HEREDOC
           // Custom subclass implementation. 
           // Provides access to currentTip member.
           class wxRubyTipProvider : public wxTipProvider
           {
           public:
-            wxRubyTipProvider(size_t currentTip) : wxTipProvider(currentTip) {}
+            wxRubyTipProvider(size_t currentTip=0) : wxTipProvider(currentTip) {}
             void SetCurrentTip(size_t currentTip) { m_currentTip = currentTip; }
           };
           __HEREDOC
@@ -30,7 +31,7 @@ module WXRuby3
         # but generate from interface wxRubyTipProvider
         spec.rename_class('wxTipProvider', 'wxRubyTipProvider')
         # add setter to class def
-        spec.extend_class('wxTipProvider', 'void SetCurrentTip(size_t currentTip);')
+        spec.extend_class('wxTipProvider', 'void SetCurrentTip(size_t currentTip)')
         super
       end
     end # class TipProvider

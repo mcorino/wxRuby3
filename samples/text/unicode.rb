@@ -217,7 +217,7 @@ class IConvFrame < Wx::Frame
   end
 
   def on_quit()
-    close(TRUE)
+    close(true)
   end
 
   def on_about()

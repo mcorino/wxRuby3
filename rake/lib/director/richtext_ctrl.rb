@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         super
+        #spec.items << 'richtext/richtextctrl.h'
         spec.ignore_bases('wxRichTextCtrl' => %w[wxTextCtrlIface wxScrollHelper])
         spec.include 'wx/dc.h'
         spec.ignore [

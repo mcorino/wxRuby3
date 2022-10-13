@@ -3,9 +3,9 @@ $ruby_cmd = `which ruby`.chomp
 $ruby_cmd << " -I#{File.join(File.dirname(__FILE__), 'lib')} "
 
 def run_test(test)
-  $:.insert(0, File.join(File.dirname(__FILE__), 'lib'))
-  require_relative test
-  #system "#{$ruby_cmd} #{test}.rb"
+  # $:.insert(0, File.join(File.dirname(__FILE__), 'lib'))
+  # require_relative test
+  system "#{$ruby_cmd} #{test}.rb"
 end
 
 # run_test './samples/minimal/nothing'
@@ -17,4 +17,4 @@ run_test './samples/controls/controls'
 # run_test './samples/text/rich_textctrl'
 # run_test './samples/text/unicode'
 # run_test './samples/text/scintilla'
-# run_test './samples/dialogs/dialogs'
+run_test './samples/dialogs/dialogs'

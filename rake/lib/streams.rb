@@ -149,6 +149,7 @@ module WXRuby3
       prev_level = @indent_level
       begin
         @indent_level += lvl_inc
+        @indent_next = true
         block.call
       ensure
         @indent_level = prev_level
