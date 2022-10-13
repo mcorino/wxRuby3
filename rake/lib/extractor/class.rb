@@ -30,7 +30,7 @@ module WXRuby3
         @is_inner = false # Is this a nested class?
         @klass = nil # if so, then this is the outer class
         @event = false # if so, is wxEvent derived class
-        @event_emitter = false # if so, class has emitted events specified
+        @event_list = false # if so, class has emitted events specified
         @event_types = []
         @param_mappings = []
 
@@ -39,7 +39,7 @@ module WXRuby3
       end
 
       attr_accessor :kind, :protection, :template_params, :bases, :sub_classes, :hierarchy, :includes,
-                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_emitter, :event_types
+                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_list, :event_types
 
       def is_template?
         !template_params.empty?
@@ -137,7 +137,7 @@ module WXRuby3
         else
           evt_heading = detailed_doc.xpath('.//heading').find {|h| h.text == 'Events emitted by this class'}
           if evt_heading
-            @event_emitter = true
+            @event_list = true
             evt_paras = evt_heading.xpath('parent::para').first.xpath('following-sibling::para')
             if evt_paras.size>1 &&
                 evt_paras.first.text.start_with?('The following event handler macros redirect') &&

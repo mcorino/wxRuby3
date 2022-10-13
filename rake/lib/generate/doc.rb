@@ -96,6 +96,14 @@ module WXRuby3
 
         private
 
+        def event_list(f = true)
+          @event_list = !!f
+        end
+
+        def event_list?
+          !!@event_list
+        end
+
         def no_ref(&block)
           @no_ref = true
           begin
@@ -125,7 +133,18 @@ module WXRuby3
               end
             end
           end
-          text
+          if event_list?
+            case text
+            when /Event macros for events emitted by this class:/
+              'Event handler methods for events emitted by this class:'
+            when /(EVT_[_A-Z]+)\((.*,)\s+func\):(.*)/
+              "#{$1.downcase}(#{$2} meth = nil, &block):#{$3}"
+            else
+              text
+            end
+          else
+            text
+          end
         end
 
         def bold_to_doc(node)
@@ -142,18 +161,6 @@ module WXRuby3
 
         def linebreak_to_doc(node)
           "#{node_to_doc(node)}\n"
-        end
-
-        def para_to_doc(node)
-          para = node_to_doc(node)
-          # loose specific notes paragraphs
-          case para
-          when /\A\s*wxPerl Note:/,   # wxPerl note
-               /\A\s*Library:/        # Library note
-            ''
-          else
-            para
-          end
         end
 
         def programlisting_to_doc(node)
@@ -224,7 +231,9 @@ module WXRuby3
 
         def heading_to_doc(node)
           lvl = 1+(node['level'] || '1').to_i
-          "#{'=' * lvl} #{node_to_doc(node)}"
+          txt = node_to_doc(node)
+          event_list(/Events emitted by this class|Events using this class/i =~ txt)
+          "#{'=' * lvl} #{txt}"
         end
 
         # transform all itemizedlist
@@ -235,7 +244,7 @@ module WXRuby3
         # transform all listitem
         def listitem_to_doc(node)
           itm_text = node_to_doc(node)
-          # fix possible unwanted leading resulting in verbatim blocks
+          # fix possible unwanted leading spaces resulting in verbatim blocks
           itm_text = itm_text.split("\n").collect {|s|s.lstrip}.join("\n") if itm_text.index("\n")
           "- #{itm_text}"
         end
@@ -243,6 +252,31 @@ module WXRuby3
         def node_to_doc(xmlnode)
           xmlnode.children.inject('') do |docstr, node|
             docstr << self.__send__("#{node.name}_to_doc", node)
+          end
+        end
+
+        def para_to_doc(node)
+          para = node_to_doc(node)
+          # loose specific notes paragraphs
+          case para
+          when /\A\s*wxPerl Note:/,   # wxPerl note
+            /\A\s*Library:/        # Library note
+            ''
+          else
+            if event_list?
+              case para
+              when /The following event handler macros redirect.*(\{.*})/
+                event_ref = $1
+                "The following event-handler methods redirect the events to member method or handler blocks for #{event_ref} events."
+              when /Event handler methods for events emitted by this class:/
+                event_list(false) # event emitter block ended
+                para
+              else
+                para
+              end
+            else
+              para
+            end
           end
         end
 
@@ -264,6 +298,7 @@ module WXRuby3
               else
                 node_to_doc(xmlnode_or_set)
               end
+        event_list(false)
         doc.lstrip!
         # reduce triple(or more) newlines to max 2
         doc.gsub!(/\n\n\n+/, "\n\n")

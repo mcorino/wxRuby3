@@ -491,7 +491,7 @@ module WXRuby3
             __HEREDOC
           directors.each do |dir|
             dir.defmod.items.each do |item|
-              if Extractor::ClassDef === item && (item.event || item.event_emitter)
+              if Extractor::ClassDef === item && (item.event || item.event_list)
                 fout.puts "  # from #{item.name}"
                 item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
                   evt_klass ||= item.name
