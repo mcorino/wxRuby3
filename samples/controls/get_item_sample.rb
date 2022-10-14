@@ -66,7 +66,7 @@ class ListctrlFrame < Wx::Frame
   end
   
   def show_font(font)
-    if font.get_style == Wx::ITALIC
+    if font.get_style == Wx::FONTSTYLE_ITALIC
         return "Italic"
     end
     return "Normal"
@@ -84,4 +84,4 @@ class RbApp < Wx::App
 end
 
 a = RbApp.new
-a.run()
+a.run

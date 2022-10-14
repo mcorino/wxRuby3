@@ -106,6 +106,8 @@ module WXRuby3
     Director.Spec('Wx', 'wxProgressDialog', director: Director::Dialog),
     Director.Spec('Wx', 'wxWindowDisabler'),
     Director.Spec('Wx', 'wxBusyInfo'),
+    Director.Spec('Wx', 'wxListCtrl'),
+    Director.Spec('Wx', 'wxListEvent')
   ]
 
 end # module WXRuby3
