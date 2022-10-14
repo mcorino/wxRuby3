@@ -157,6 +157,14 @@ module WXRuby3
                              '"_p_wxTipProvider"')
                 end
               end
+              # Fix for Menu
+              if core_name == 'Menu'
+                if line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyMenu/]
+                  line = "// Altered by fixmodule.rb\n" +
+                    line.sub(/"_p_wxRubyMenu"/,
+                             '"_p_wxMenu"')
+                end
+              end
 
               # TODO : is this still needed?
               # Ugly: special fixes for TreeCtrl - these macros and extra funcs
@@ -182,14 +190,6 @@ module WXRuby3
                   File.open(treectrl_h_file, 'w') { |f| f.write(contents) }
                 end
               end # end horrible TreeCtrl fixes
-
-              # wxMenu has been marked 'nodirector' in it's entirety
-              # # TODO : still needed?
-              # # Ugly: special fixes for Menu - can be deleted by wxWidgets from
-              # # the C++ side, so we need to unhook the ruby object in the dtor
-              # if core_name == 'Menu' and line['~SwigDirector_wxMenu()']
-              #   line += "  SWIG_RubyUnlinkObjects(this);\n  SWIG_RubyRemoveTracking(this);\n"
-              # end
 
               # comment out swig_up because it is defined global in every module
               if (line.index("bool Swig::Director::swig_up"))
@@ -284,6 +284,18 @@ module WXRuby3
                     "  // Inserted by fixmodule.rb\n" +
                     line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
                              "SWIGTYPE_p_wxTipProvider")
+                end
+              end
+              # Fix for Menu - because it is implemented with a custom Ruby
+              # subclass, need to make this subclass SWIG info available under
+              # the normal name "SWIGTYPE_p_wxMenu" as it's referenced in
+              # other places.
+              if core_name == 'Menu'
+                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyMenu/]
+                  line = line +
+                    "  // Inserted by fixmodule.rb\n" +
+                    line.sub(/SWIGTYPE_p_wxRubyMenu/,
+                             "SWIGTYPE_p_wxMenu")
                 end
               end
 
