@@ -108,9 +108,9 @@ module WXRuby3
             // by WxWidgets.
             void OnWindowDestroy(wxWindowDestroyEvent &event)
             {
-            wxObject* wx_obj = event.GetEventObject();
-            GC_SetWindowDeleted((void *)wx_obj);
-            event.Skip();
+              wxObject* wx_obj = event.GetEventObject();
+              GC_SetWindowDeleted((void *)wx_obj);
+              event.Skip();
             }
           
             // When ruby's garbage collection runs, if the app is still active, it
@@ -120,15 +120,15 @@ module WXRuby3
             // only sort of events that will be in the tracking hash.
             static void markIterate(void* ptr, VALUE rb_obj)
             {
-            // Check if it's a valid object (sometimes SWIG doesn't return what we're
-            // expecting), a descendant of Wx::Window, and if it has not yet been
-            // deleted by WxWidgets; if so, mark it.
-            if ( TYPE(rb_obj) == T_DATA )
-                {
-                  if ( rb_obj_is_kind_of(rb_obj, wxRuby_GetWindowClass()) )
-                    rb_gc_mark(rb_obj);
-                  else if (rb_obj_is_kind_of(rb_obj, wxRuby_GetDefaultEventClass()) )
-                    rb_gc_mark(rb_obj);
+              // Check if it's a valid object (sometimes SWIG doesn't return what we're
+              // expecting), a descendant of Wx::Window, and if it has not yet been
+              // deleted by WxWidgets; if so, mark it.
+              if ( TYPE(rb_obj) == T_DATA )
+              {
+                if ( rb_obj_is_kind_of(rb_obj, wxRuby_GetWindowClass()) )
+                  rb_gc_mark(rb_obj);
+                else if (rb_obj_is_kind_of(rb_obj, wxRuby_GetDefaultEventClass()) )
+                  rb_gc_mark(rb_obj);
               }
             }
           
@@ -138,33 +138,32 @@ module WXRuby3
             {
           
           #ifdef __WXRB_DEBUG__
-            std::wcout << "=== Starting App GC mark phase" << std::endl;
+              std::wcout << "=== Starting App GC mark phase" << std::endl;
           #endif
           
-            // If the App has ended, the ruby object will have been unlinked from
-            // the C++ one; this implies that all Windows have already been destroyed
-            // so there is no point trying to mark them, and doing so may cause
-            // errors.
+              // If the App has ended, the ruby object will have been unlinked from
+              // the C++ one; this implies that all Windows have already been destroyed
+              // so there is no point trying to mark them, and doing so may cause
+              // errors.
               if ( rb_gv_get("__wx_app_ended__" ) == Qtrue )
-                {
+              {
           #ifdef __WXRB_DEBUG__
-            std::wcout << "=== App has ended, skipping mark phase" << std::endl;
+                std::wcout << "=== App has ended, skipping mark phase" << std::endl;
           #endif
-                  return;
-                }
+                return;
+              }
           
               // Mark evt handler procs associated with live windows - see
               // classes/EvtHandler.i
               wxRuby_MarkProtectedEvtHandlerProcs();
           
-            // To do the main marking, primarily of Windows, iterate over SWIG's
-            // list of tracked objects
+              // To do the main marking, primarily of Windows, iterate over SWIG's
+              // list of tracked objects
               wxRuby_IterateTracking(&wxRubyApp::markIterate);
           
           #ifdef __WXRB_DEBUG__
-            std::wcout << "=== App GC mark phase completed" << std::endl;
+              std::wcout << "=== App GC mark phase completed" << std::endl;
           #endif
-          
             }
           
             // This is the method run when main_loop is called in Ruby
@@ -178,7 +177,7 @@ module WXRuby3
                     wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
           
           #ifdef __WXRB_DEBUG__
-                  std::wcout << "Calling wxEntry, this=" << this << std::endl;
+              std::wcout << "Calling wxEntry, this=" << this << std::endl;
           #endif
           
           #ifdef __WXMSW__

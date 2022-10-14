@@ -58,7 +58,7 @@ extern void wxRuby_ReleaseEvtHandlerProcs(void *);
 void GC_SetWindowDeleted(void *ptr)
 {
   // All Windows are EvtHandlers, so prevent any pending events being
-  // sent after destruction (other ObjectPreviouslyDeleted errors result)
+  // sent after destruction (otherwise ObjectPreviouslyDeleted errors result)
   wxEvtHandler* evt_handler = (wxEvtHandler*)ptr;
   evt_handler->SetEvtHandlerEnabled(false);
 
@@ -87,7 +87,7 @@ void GC_SetWindowDeleted(void *ptr)
 void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_SizerBelongingToWindow" << std::endl;
+  std::wcout << "> GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
 #endif
 
   // First, mark this sizer
@@ -98,19 +98,22 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
   for ( wxSizerItemList::compatibility_iterator node = children.GetFirst();
 		node;
 		node = node->GetNext() )
-	{
-	  wxSizerItem* item = node->GetData();
-	  wxSizer* child_sizer  = item->GetSizer();
-	  if ( child_sizer )
-	  {
-	    VALUE rb_child_sizer = SWIG_RubyInstanceFor(child_sizer);
-		if ( rb_child_sizer != Qnil )
-		{
-		  GC_mark_SizerBelongingToWindow(child_sizer, rb_child_sizer);
-        }
-	  }
-	}
+  {
+    wxSizerItem* item = node->GetData();
+    wxSizer* child_sizer  = item->GetSizer();
+    if ( child_sizer )
+    {
+      VALUE rb_child_sizer = SWIG_RubyInstanceFor(child_sizer);
+      if ( rb_child_sizer != Qnil )
+      {
+        GC_mark_SizerBelongingToWindow(child_sizer, rb_child_sizer);
+      }
+    }
+  }
 
+#ifdef __WXRB_TRACE__
+  std::wcout << "< GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
+#endif
 }
 
 // Similar to Sizers, MenuBar requires a special mark routine. This is
@@ -124,7 +127,7 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_MenuBarBelongingToFrame" << std::endl;
+  std::wcout << "> GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
 #endif
 
   rb_gc_mark( SWIG_RubyInstanceFor(menu_bar) );
@@ -135,6 +138,9 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 	  rb_gc_mark( SWIG_RubyInstanceFor(menu) );
 	}
 
+#ifdef __WXRB_TRACE__
+  std::wcout << "< GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
+#endif
 }
 
 // Default mark routine for Windows - preserve the main sizer and caret
@@ -142,10 +148,16 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 void GC_mark_wxWindow(void *ptr)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxWindow" << std::endl;
+  std::wcout << "> GC_mark_wxWindow : " << ptr << std::endl;
 #endif
 
-  if ( GC_IsWindowDeleted(ptr) ) return;
+  if ( GC_IsWindowDeleted(ptr) )
+  {
+#ifdef __WXRB_TRACE__
+    std::wcout << "< GC_mark_wxWindow : deleted" << std::endl;
+#endif
+    return;
+  }
 
   wxWindow* wx_win = (wxWindow*)ptr;
 #ifdef __WXRB_TRACE__
@@ -202,7 +214,7 @@ void GC_mark_wxWindow(void *ptr)
   }
 
 #ifdef __WXRB_TRACE__
-  std::wcout << "< GC_mark_wxWindow" << std::endl;
+  std::wcout << "< GC_mark_wxWindow : " << ptr << std::endl;
 #endif
 }
 
@@ -210,11 +222,16 @@ void GC_mark_wxWindow(void *ptr)
 void GC_mark_wxFrame(void *ptr)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxFrame" << std::endl;
+  std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
 #endif
 
-  if ( ! ptr ) return;
-  if ( GC_IsWindowDeleted(ptr) ) return;
+  if ( GC_IsWindowDeleted(ptr) )
+  {
+#ifdef __WXRB_TRACE__
+    std::wcout << "> GC_mark_wxFrame : deleted" << std::endl;
+#endif
+    return;
+  }
 
   // Frames are also a subclass of wxWindow, so must do all the marking
   // of sizers and carets associated with that class
@@ -228,6 +245,10 @@ void GC_mark_wxFrame(void *ptr)
   {
     GC_mark_MenuBarBelongingToFrame(menu_bar);
   }
+
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
+#endif
 }
 
 // wxRuby must preserve ruby objects attached as the ClientData of
@@ -239,7 +260,7 @@ void GC_mark_wxFrame(void *ptr)
 void GC_mark_wxEvent(void *ptr)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxFrame" << std::endl;
+  std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
 #endif
 
   if ( ! ptr ) return;
@@ -254,6 +275,10 @@ void GC_mark_wxEvent(void *ptr)
 	  VALUE rb_client_data = (VALUE)wx_cm_event->GetClientData();
 	  rb_gc_mark(rb_client_data);
 	}
+
+#ifdef __WXRB_TRACE__
+  std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
+#endif
 }
 
 // Prevents Ruby's GC sweeping up items that are stored as client data
@@ -261,7 +286,7 @@ void GC_mark_wxEvent(void *ptr)
 void mark_wxControlWithItems(void* ptr)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> mark_wxControlWithItems" << std::endl;
+  std::wcout << "> mark_wxControlWithItems : " << ptr << std::endl;
 #endif
 
   if ( GC_IsWindowDeleted(ptr) )
@@ -282,5 +307,9 @@ void mark_wxControlWithItems(void* ptr)
 	  if ( object && object != Qnil )
 		rb_gc_mark(object);
 	}
+
+#ifdef __WXRB_TRACE__
+  std::wcout << "< mark_wxControlWithItems : " << ptr << std::endl;
+#endif
 }
 %}
