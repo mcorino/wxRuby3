@@ -66,10 +66,10 @@ class MinimalFrame < Wx::Frame
   end
 end
 
-# Wx::App is the container class for any wxruby app. To start an
-# application, either define a subclass of Wx::App, create an instance,
-# and call its main_loop method, OR, simply call the Wx::App.run class
-# method, as shown here.
+# Wx::App is the container class for any wxRuby3 app. To start an
+# application, either create an app instance (from Wx::App or a class
+# derived from Wx::App) and call its run method OR simply call the
+# Wx::App.run class method as shown here.
 Wx::App.run do
   self.app_name = 'Minimal'
   frame = MinimalFrame.new("Minimal wxRuby App")

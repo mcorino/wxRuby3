@@ -1134,4 +1134,4 @@ class MyApp < App
 end
 
 a = MyApp.new
-a.main_loop
+a.run

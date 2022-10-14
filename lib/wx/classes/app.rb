@@ -1,8 +1,39 @@
 # Copyright 2004-2006 by Kevin Smith
 # released under the MIT-style wxruby2 license
 
+require_relative './ext'
+
 # Controller class which creates and manages all windows.
 class Wx::App
+
+  # Ruby init callback.
+  # Initializes delayed load constants and than calls the user defined 'on_init'
+  def on_ruby_init
+    Wx.load_delayed_constants
+    self.respond_to?(:on_init) ? self.on_init : false
+  end
+  private :on_ruby_init
+
+  # Make C-ext main_loop method private
+  private :main_loop
+
+  # App instance run method.
+  # Accepts optional 'on_init' block.
+  # The block will be ignored when the (derived) App class
+  # already has an 'on_init' method defined.
+  def run(&block)
+    if block_given?
+      if self.respond_to?(:on_init)
+        Wx.log_warning("'on_init' block ignored as #{self.class.name} already has an #on_init method defined")
+      else
+        self.singleton_class.class_eval do
+          define_method(:on_init, &block)
+        end
+      end
+    end
+    main_loop # run the main loop (which triggers the call to on_init)
+  end
+
   # Convenience class method to create simple apps. Starts an
   # application main_loop, setting up initial windows etc as specified
   # in the passed block.
@@ -12,9 +43,9 @@ class Wx::App
     app_klass.class_eval do
       define_method(:on_init, &block)
     end
-    the_app = app_klass.new
-    the_app.main_loop
+    app_klass.new.run
   end
+
 
   # This is a class method in Wx, but permit it to be an instance method
   # in wxRuby

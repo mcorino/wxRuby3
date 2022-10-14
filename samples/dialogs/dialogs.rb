@@ -870,6 +870,6 @@ class MyApp < App
 end
 
 app = MyApp.new()
-app.main_loop()
+app.run()
 
 $my_canvas = nil

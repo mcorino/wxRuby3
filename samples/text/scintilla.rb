@@ -163,7 +163,7 @@ class RbApp < App
 end
 
 a = RbApp.new
-a.main_loop()
-puts("back from main_loop...") if Wx::RB_DEBUG
+a.run()
+puts("back from run...") if Wx::RB_DEBUG
 GC.start
 puts("survived gc") if Wx::RB_DEBUG

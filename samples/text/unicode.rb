@@ -237,4 +237,4 @@ class IConvApp < Wx::App
   end
 end
 
-IConvApp.new().main_loop()
+IConvApp.new().run()

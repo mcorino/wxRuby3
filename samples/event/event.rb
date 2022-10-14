@@ -180,4 +180,4 @@ class TargetApp < Wx::App
 end
 
 a = TargetApp.new
-a.main_loop()
+a.run

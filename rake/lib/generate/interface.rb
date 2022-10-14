@@ -369,14 +369,22 @@ module WXRuby3
           elsif item.value =~ /wxString\((".*")\)/
             fout.puts
             fout.puts "%constant char*  #{item.name} = #{$1};"
-          elsif item.value =~ /wx(Size|Colour|Point)(\(.*\))/
+          elsif item.value =~ /wx(Size|Point)(\(.*\))/
             frbext = init_rb_ext_file(spec) unless frbext
             frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = #{$1}.new#{$2}" }
+            frbext.puts
+          elsif item.value =~ /wx(Colour|Font)(\(.*\))/
+            frbext = init_rb_ext_file(spec) unless frbext
+            frbext.indent do
+              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { #{$1}.new#{$2} }"
+            end
             frbext.puts
           elsif item.value =~ /wxSystemSettings::(\w+)\((.*)\)/
             frbext = init_rb_ext_file(spec) unless frbext
             args = $2.split(',').collect {|a| rb_constant_value(a) }.join(', ')
-            frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = SystemSettings.#{rb_method_name($1)}(#{args})" }
+            frbext.indent do
+              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { SystemSettings.#{rb_method_name($1)}(#{args}) }"
+            end
             frbext.puts
           else
             fout.puts

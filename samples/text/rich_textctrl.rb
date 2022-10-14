@@ -35,6 +35,8 @@ class RichTextFrame < Wx::Frame
 
     @editor = Wx::RichTextCtrl.new(self, :style => Wx::WANTS_CHARS)
 
+    @editor.begin_text_colour(Wx::RICHTEXT_DEFAULT_FOCUS_RECT_COLOUR)
+
     # Add extra handlers (plain text is automatically added)
     # @editor.buffer.add_handler(Wx::RichTextXMLHandler.new)
     # @editor.buffer.add_handler(Wx::RichTextHTMLHandler.new)

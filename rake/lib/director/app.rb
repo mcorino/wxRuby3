@@ -73,7 +73,9 @@ module WXRuby3
         }
         spec.gc_never
         spec.rename_class('wxApp', 'wxRubyApp')
-        # spec.override_base('wxApp', 'wxApp')
+        spec.rename_for_ruby(
+          'OnCInit' =>
+            'wxRubyApp::OnInit()')
         spec.add_swig_code <<~__HEREDOC
           // The App class in wxRuby is actually a custom-written subclass, but it
           // is presented to the user as Wx::App
@@ -216,7 +218,7 @@ module WXRuby3
               // Get the ruby representation of the App object, and call the
               // ruby on_init method to set up the initial window state
               VALUE the_app = rb_const_get(mWxruby3, rb_intern("THE_APP"));
-              VALUE result  = rb_funcall(the_app, rb_intern("on_init"), 0, 0);
+              VALUE result  = rb_funcall(the_app, rb_intern("on_ruby_init"), 0, 0);
         
               // If on_init return any (ruby) true value, signal to wxWidgets to
               // enter the main event loop by returning true, else return false

@@ -84,4 +84,4 @@ class RbApp < Wx::App
 end
 
 a = RbApp.new
-a.main_loop()
+a.run()
