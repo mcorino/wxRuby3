@@ -61,6 +61,7 @@ module WXRuby3
         @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : nil) rescue nil
         @gc_type = nil
         @ignores = {}
+        @regards = {}
         @disabled_proxies = false
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
@@ -85,7 +86,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
+                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors
@@ -264,6 +265,11 @@ module WXRuby3
 
       def ignore(*names, ignore_doc: true)
         names.flatten.each {|n| @ignores[n] = ignore_doc}
+        self
+      end
+
+      def regard(*names, regard_doc: true)
+        names.flatten.each {|n| @regards[n] = regard_doc}
         self
       end
 
@@ -678,40 +684,49 @@ module WXRuby3
       # noop
     end
 
+    def handle_item_ignore(defmod, fullname, ignore, ignoredoc)
+      action = ignore ? 'ignore' : 'regard'
+      name = fullname
+      args = nil
+      const = false
+      if (ix = name.index('('))   # full signature supplied?
+        args = name.slice(ix, name.size)
+        name = name.slice(0, ix)
+        const = !!args.index(/\)\s+const/)
+        args.sub(/\)\s+const/, ')') if const
+      end
+      item = defmod.find_item(name)
+      if item
+        if args
+          if item.is_a?(Extractor::FunctionDef) && (overload = item.find_overload(args, const))
+            overload.ignore(ignore, ignore_doc: ignoredoc) if overload
+          else
+            STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to #{action}. "+
+                          "Possible match is '#{item.is_a?(Extractor::FunctionDef) ? item.signature : item.name}'."
+          end
+        else
+          if item.is_a?(Extractor::FunctionDef)
+            item.ignore(ignore, ignore_doc: ignoredoc)
+            item.overloads.each {|ovl| ovl.ignore(ignore, ignore_doc: ignoredoc) }
+          else
+            item.ignore(ignore, ignore_doc: ignoredoc)
+          end
+        end
+      else
+        STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}', item '#{item}') to #{action}."
+      end
+    end
+
     def process
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, doc: '')
       # handle ignores
       spec.ignores.each_pair do |fullname, ignoredoc|
-        name = fullname
-        args = nil
-        const = false
-        if (ix = name.index('('))   # full signature supplied?
-          args = name.slice(ix, name.size)
-          name = name.slice(0, ix)
-          const = !!args.index(/\)\s+const/)
-          args.sub(/\)\s+const/, ')') if const
-        end
-        item = defmod.find_item(name)
-        if item
-          if args
-            if item.is_a?(Extractor::FunctionDef) && (overload = item.find_overload(args, const))
-              overload.ignore(ignore_doc: ignoredoc) if overload
-            else
-              STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to ignore. "+
-                          "Possible match is '#{item.is_a?(Extractor::FunctionDef) ? item.signature : item.name}'."
-            end
-          else
-            if item.is_a?(Extractor::FunctionDef)
-              item.ignore(ignore_doc: ignoredoc)
-              item.overloads.each {|ovl| ovl.ignore(ignore_doc: ignoredoc) }
-            else
-              item.ignore(ignore_doc: ignoredoc)
-            end
-          end
-        else
-          STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}', item '#{item}') to ignore."
-        end
+        handle_item_ignore(defmod, fullname, true, ignoredoc)
+      end
+      # handle regards
+      spec.regards.each_pair do |fullname, regarddoc|
+        handle_item_ignore(defmod, fullname, false, !regarddoc)
       end
       # handle only_for settings
       spec.only_for.each_pair do |platform_id, names|

@@ -181,39 +181,43 @@ module WXRuby3
             item.protection = node['prot']
             item.is_inner = true
             item.klass = self # This makes a reference cycle but it's okay
+            item.ignore if item.protection == 'protected' # ignore by default
             @innerclasses << item
           end
         end
 
         # TODO: Is it possible for there to be memberdef's w/o a sectiondef?
+        member = nil
         element.xpath('sectiondef/memberdef').each do |node|
           # skip any private items
           unless node['prot'] == 'private'
             case _kind = node['kind']
             when 'function'
               Extractor.extracting_msg(_kind, node)
-              m = MethodDef.new(node, self.name, klass: self)
+              member = MethodDef.new(node, self.name, klass: self)
               #@abstract = true if m.is_pure_virtual
-              unless m.check_for_overload(self.items)
-                self.items << m
+              unless member.check_for_overload(self.items)
+                self.items << member
               end
             when 'variable'
               Extractor.extracting_msg(_kind, node)
-              v = MemberVarDef.new(node)
-              self.items << v
+              member = MemberVarDef.new(node)
+              self.items << member
             when 'enum'
               Extractor.extracting_msg(_kind, node)
-              e = EnumDef.new(node, [self])
-              self.items << e
+              member = EnumDef.new(node, [self])
+              self.items << member
             when 'typedef'
               Extractor.extracting_msg(_kind, node)
-              t = TypedefDef.new(node)
-              self.items << t
+              member = TypedefDef.new(node)
+              self.items << member
             when 'friend'
               # noop
             else
               raise ExtractorError.new('Unknown memberdef kind: %s' % _kind)
             end
+            # ignore protected members by default
+            member.ignore if member.protection == 'protected'
           end
         end
 
@@ -222,6 +226,10 @@ module WXRuby3
         unless ctor && (ctor.protection == 'public' || ctor.overloads.any? {|ovl| ovl.protection == 'public' })
           @abstract = true
         end
+      end
+
+      def regards_protected_members?
+        self.items.any? {|item| !item.ignored && item.protection == 'protected' }
       end
 
       def add_param_mapping(from, to)
@@ -236,7 +244,7 @@ module WXRuby3
         methods.select do |m|
           !m.is_dtor
         end.each do |mtd|
-          mtd_ovls = mtd.all.select {|m| m.protection == 'public' && !m.docs_ignored && !m.deprecated }
+          mtd_ovls = mtd.all.select {|m| !m.docs_ignored && !m.deprecated }
           mtd_ovls.each_with_index { |mo,i| stream.doc.puts(mo.rb_doc(self, i, mtd_ovls.size)) }
           stream.puts unless mtd_ovls.empty?
         end

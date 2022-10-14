@@ -98,7 +98,7 @@ module WXRuby3
           out = CodeStream.new(target)
           File.foreach(target) do |line|
             case line
-            when /(rb_define_method|rb_intern|rb_define_module_function).*("[_a-zA-Z0-9]*")/
+            when /(rb_define_method|rb_intern|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
               name = $2
               unless name == '"THE_APP"'
                 line[name] = '"%s"' % rb_method_name(name[1..-2])

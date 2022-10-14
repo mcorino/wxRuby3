@@ -204,10 +204,10 @@ module WXRuby3
       end
 
       methods = []
-      gen_interface_class_members(fout, spec, classdef.name, classdef, methods, abstract_class)
+      gen_interface_class_members(fout, spec, classdef.name, classdef, 'public', methods, abstract_class)
 
       spec.folded_bases(classdef.name).each do |basename|
-        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), methods)
+        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), 'public', methods)
       end
 
       spec.member_extensions(classdef.name).each do |extdecl|
@@ -215,13 +215,25 @@ module WXRuby3
         fout.puts "  #{extdecl};"
       end
 
+      need_protected = classdef.regards_protected_members? ||
+                          spec.folded_bases(classdef.name).any? { |base| spec.def_item(base).regards_protected_members? }
+      unless is_struct || !need_protected
+        fout.puts
+        fout.puts ' protected:'
+        gen_interface_class_members(fout, spec, classdef.name, classdef, 'protected', methods, abstract_class)
+
+        spec.folded_bases(classdef.name).each do |basename|
+          gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), 'protected', methods)
+        end
+      end
+
       fout.puts '};'
     end
 
-    def gen_interface_class_members(fout, spec, class_name, classdef, methods, abstract=false)
+    def gen_interface_class_members(fout, spec, class_name, classdef, visibility, methods, abstract=false)
       # generate any inner classes
       classdef.innerclasses.each do |inner|
-        if inner.protection == 'public' && !inner.ignored && !inner.deprecated
+        if inner.protection == visibility && !inner.ignored && !inner.deprecated
           gen_interface_class(fout, spec, inner)
         end
       end
@@ -230,35 +242,35 @@ module WXRuby3
         case member
         when Extractor::MethodDef
           if member.is_ctor
-            if member.protection == 'public' && member.name == class_name
+            if member.protection == visibility && member.name == class_name
               if !member.ignored && !member.deprecated
                 gen_only_for(fout, member) do
                   fout.puts "  #{spec.class_name(classdef)}#{member.args_string};" if !member.ignored && !member.deprecated
                 end
               end
               member.overloads.each do |ovl|
-                if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated
+                if ovl.protection == visibility && !ovl.ignored && !ovl.deprecated
                   gen_only_for(fout, ovl) do
                     fout.puts "  #{spec.class_name(classdef)}#{ovl.args_string};"
                   end
                 end
               end
             end
-          elsif member.is_dtor
+          elsif member.is_dtor && member.protection == visibility
             if member.name == "~#{class_name}" && !abstract
               ctor_sig = "~#{spec.class_name(classdef)}()"
               fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{ctor_sig};"
             end
-          elsif member.protection == 'public'
+          elsif member.protection == visibility
             gen_interface_class_method(fout, member, methods) if !member.ignored && !member.deprecated && !member.is_template?
             member.overloads.each do |ovl|
-              if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated && !member.is_template?
+              if ovl.protection == visibility && !ovl.ignored && !ovl.deprecated && !member.is_template?
                 gen_interface_class_method(fout, ovl, methods)
               end
             end
           end
         when Extractor::EnumDef
-          if member.protection == 'public' && !member.ignored && !member.deprecated
+          if member.protection == visibility && !member.ignored && !member.deprecated
             gen_only_for(fout, member) do
               fout.puts "  // from #{classdef.name}::#{member.name}"
               fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
@@ -272,7 +284,7 @@ module WXRuby3
             end
           end
         when Extractor::MemberVarDef
-          if member.protection == 'public' && !member.ignored && !member.deprecated
+          if member.protection == visibility && !member.ignored && !member.deprecated
             gen_only_for(fout, member) do
               fout.puts "  // from #{member.definition}"
               fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"

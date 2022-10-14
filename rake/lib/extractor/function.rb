@@ -265,7 +265,7 @@ module WXRuby3
         item
       end
 
-      def ignore(val = true)
+      def ignore(val = true, ignore_doc: nil)
         # In addition to ignoring this item, reorder any overloads to ensure
         # the primary overload is not ignored, if possible.
         super
@@ -355,9 +355,6 @@ module WXRuby3
         unless %w[public protected].include?(@protection)
           raise ExtractorError.new("Invalid protection [#{@protection}")
         end
-        # TODO: Should protected items be ignored by default or should we
-        #       leave that up to the tweaker code or the generators?
-        self.ignore if @protection == 'protected'
       end
 
       def rb_return_type

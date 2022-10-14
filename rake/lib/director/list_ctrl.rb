@@ -14,7 +14,8 @@ module WXRuby3
     class ListCtrl < Window
 
       def setup
-        spec.items << 'wxListItem'
+        spec.items << 'wxListItem' << 'wxItemAttr'
+        spec.gc_as_object('wxItemAttr')
         spec.include 'wx/imaglist.h'
 
         # for wxListItem
@@ -48,6 +49,15 @@ module WXRuby3
                              wxListCtrl::GetColumnOrder
                              wxListCtrl::GetColumnsOrder
                              wxListCtrl::SetColumnsOrder]
+        # these are protected so ignored by defaylt but we want them here
+        spec.regard %w[
+            wxListCtrl::OnGetItemAttr
+            wxListCtrl::OnGetItemColumnAttr
+            wxListCtrl::OnGetItemColumnImage
+            wxListCtrl::OnGetItemImage
+            wxListCtrl::OnGetItemText
+            wxListCtrl::OnGetItemIsChecked
+          ]
         # dealt with below
         spec.ignore 'wxListCtrl::GetItem(wxListItem &) const',
                     'wxListCtrl::GetItemData',
