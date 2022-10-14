@@ -21,22 +21,24 @@ module WXRuby3
         script = <<~__SCRIPT
           require 'json'
           require 'wx'
-          table = { 'Wx' => {}}
-          Wx.constants.each do |c|
-            the_const = Wx.const_get(c)
-            if the_const.class == ::Module  # Enum submodule
-              modname = c.to_s
-              mod = Wx.const_get(c) 
-              table[modname] = {}
-              mod.constants.each do |ec|
-                e_const = mod.const_get(ec)
-                table[modname][ec.to_s] = { type: e_const.class.name.split('::').last, value: e_const }
+          Wx::App.run do 
+            table = { 'Wx' => {}}
+            Wx.constants.each do |c|
+              the_const = Wx.const_get(c)
+              if the_const.class == ::Module  # Enum submodule
+                modname = c.to_s
+                mod = Wx.const_get(c) 
+                table[modname] = {}
+                mod.constants.each do |ec|
+                  e_const = mod.const_get(ec)
+                  table[modname][ec.to_s] = { type: e_const.class.name.split('::').last, value: e_const }
+                end
+              else
+                table['Wx'][c.to_s] = { type: the_const.class.name.split('::').last, value: the_const } unless ::Class === the_const || c == :THE_APP
               end
-            else
-              table['Wx'][c.to_s] = { type: the_const.class.name.split('::').last, value: the_const } unless ::Class === the_const
             end
+            STDOUT.puts JSON.dump(table)
           end
-          STDOUT.puts JSON.dump(table)
         __SCRIPT
         begin
           tmpfile = Tempfile.new('script')
@@ -302,14 +304,6 @@ module WXRuby3
         doc.lstrip!
         # reduce triple(or more) newlines to max 2
         doc.gsub!(/\n\n\n+/, "\n\n")
-        # # autocreate references for any ids explicitly declared such
-        # doc.gsub!(/\s\*?(wx\w+(::\w+)?(\(.*\))?)\*?[\.:\s]/) do |s|
-        #   if $1 == 'wxWidgets'
-        #     s
-        #   else
-        #     "#{s[0]}#{_ident_str_to_doc($1)}#{s[-1]}"
-        #   end
-        # end
         doc
       end
 
