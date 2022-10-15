@@ -47,8 +47,8 @@
 #include <wx/dcbuffer.h>
 
 
-#if ! wxCHECK_VERSION(3,0,0)
-#error "This version of wxRuby requires WxWidgets 3.0.0 or greater"
+#if ! wxCHECK_VERSION(3,1,5)
+#error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
 #endif
 
 extern VALUE mWxruby3; // The global Wxruby3 module
