@@ -79,9 +79,7 @@ module WXRuby3
         unless %w[public protected].include?(@protection)
           raise ExtractorError.new("Invalid protection [#{@protection}")
         end
-        # TODO: Should protected items be ignored by default or should we
-        #       leave that up to the tweaker code or the generators?
-        ignore if @protection == 'protected'
+        ignore # ignore all member variables by default (trust on availability of accessor methods)
       end
     end # class MemberVarDef
 

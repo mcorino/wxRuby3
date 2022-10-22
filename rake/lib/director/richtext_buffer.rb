@@ -16,6 +16,9 @@ module WXRuby3
       def setup
         spec.disable_proxies
         spec.items.replace %w[
+          wxTextAttrBorder
+          wxTextAttrBorders
+          wxTextBoxAttr
           wxRichTextAttr
           wxRichTextRange
           wxRichTextBuffer
