@@ -18,7 +18,11 @@
 
 // Some common functions
 %{
-extern VALUE wxRuby_GetEventTypeClassMap();
+extern VALUE mWxCore;
+WXRUBY_EXPORT VALUE wxRuby_Core()
+{
+  return mWxCore;
+}
 
 // Mapping of known wxRuby classes to SWIG type information
 WX_DECLARE_HASH_MAP(VALUE,
@@ -30,14 +34,14 @@ RbClassToSwigTypeHash Global_Type_Map;
 
 // Record swig_type_info for a wxRuby class; called in class
 // initialisation
-void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty) {
+WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty) {
   Global_Type_Map[cls] = ty;
 }
 
 // Retrieve swig_type_info for a ruby class - needed by functions which
 // wrap objects whose type is not known in advance - eg
 // Window#find_window_by_index (see Window.i)
-swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls) {
+WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls) {
   return Global_Type_Map[cls];
 }
 
@@ -50,7 +54,7 @@ WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
 PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
-void wxRuby_AddTracking(void* ptr, VALUE object) {
+WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object) {
 #ifdef __WXRB_TRACE__
   std::wcout << "> wxRuby_AddTracking" << std::flush;
   VALUE clsname = rb_mod_name(CLASS_OF(object));
@@ -63,7 +67,7 @@ void wxRuby_AddTracking(void* ptr, VALUE object) {
 }
 
 // Return the ruby object for ptr
-VALUE wxRuby_FindTracking(void* ptr) {
+WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr) {
   if ( Global_Ptr_Map.count(ptr) == 0 )
     return Qnil;
   else
@@ -71,7 +75,7 @@ VALUE wxRuby_FindTracking(void* ptr) {
 }
 
 // Remove the tracking for ptr
-void wxRuby_RemoveTracking(void* ptr) {
+WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr) {
 #ifdef __WXRB_TRACE__
   std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
 #endif
@@ -79,7 +83,7 @@ void wxRuby_RemoveTracking(void* ptr) {
 }
 
 // Iterate over all the trackings, calling the passed-in method on each
-void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) ) {
+WXRUBY_EXPORT void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) ) {
   PtrToRbObjHash::iterator it;
   for( it = Global_Ptr_Map.begin(); it != Global_Ptr_Map.end(); ++it )
     {
@@ -106,7 +110,7 @@ void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) ) {
 // example, Window::FindWindowById or the FindWindowByPoint global
 // function; and in circumstances, especially XRC-loading, where
 // complete Windows are created in C++ without ruby code.
-VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
+WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 {
   // If no object was passed to be wrapped; this could be a normal state
   // (eg if get_sizer was called on a Window with no sizer set), or
@@ -123,8 +127,8 @@ VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 
   // If the class is loadable from XML, but not yet supported in wxRuby,
   // raise an error because class-specific methods won't be accessible
-  if ( class_name.Len() > 2 && rb_const_defined(mWxruby3, r_class_name) )
-	r_class = rb_const_get(mWxruby3, r_class_name);
+  if ( class_name.Len() > 2 && rb_const_defined(mWxCore, r_class_name) )
+	r_class = rb_const_get(mWxCore, r_class_name);
   else
     rb_raise(rb_eNotImpError,
              "Error wrapping object; class `%s' is not supported in wxRuby",
@@ -148,7 +152,7 @@ VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 // Cached reference to EvtHandler evt_type_id -> ruby_event_class map
 static VALUE Evt_Type_Map = NULL;
 
-VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
+WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 {
   // Get the mapping of event types to classes
   if ( ! Evt_Type_Map )
@@ -203,18 +207,11 @@ VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 
   return rb_event;
 }
-
-// forward declaration (generated in swig/inc/all_modules_init.inc and appended to wx.cpp)
-static void InitializeOtherModules();
-
 %}
 
 %include "mark_free_impl.i"
 
 %init %{
-    // Load all the other known wxRuby modules; the function is built by rake
-    InitializeOtherModules();
-
     // Set up all image formats
     wxInitAllImageHandlers();
 

@@ -24,7 +24,8 @@ module Wx
   # If the named class exists in the available WxRuby, the block is run and 
   # the class may use keyword constructors. If the class is not available, the
   # block is ignored.
-  def self.define_keyword_ctors(klass_name, &block)
+  def self.define_keyword_ctors(klass, &block)
+    klass_name = ::String === klass ? klass : klass.name
     # check this class hasn't already been defined
     if @defined_kw_classes[klass_name]
       raise ArgumentError, "Keyword ctor for #{klass_name} already defined"
@@ -32,11 +33,12 @@ module Wx
       @defined_kw_classes[klass_name] = true
     end
 
-    begin     
+    begin
       klass =  Wx::const_get(klass_name)
     rescue NameError
+      STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx::RB_DEBUG
       return nil
-    end
+    end if ::String === klass
     klass.module_eval { include Wx::KeywordConstructor }
     klass.instance_eval(&block)
   end
@@ -47,7 +49,6 @@ Wx::define_keyword_ctors('Window') do
    wx_ctor_params :id, :pos, :size, :style
    wx_ctor_params :name => 'window'
 end
-
 
 ### FRAMES
 
@@ -82,7 +83,7 @@ end
 # wxSplashScreen 	Splash screen class
 # FIXME - this probably won't work at present because the 'parent' arg
 # comes in a funny place in this class's ctor
-# 
+#
 # Wx::define_keyword_ctors('SplashScreen') do
 #   wx_ctor_params :bitmap => Wx::NULL_BITMAP
 #   wx_ctor_params :splashstyle, :milliseconds, :id => 1
@@ -172,7 +173,7 @@ end
 
 # Notebook class
 Wx::define_keyword_ctors('Notebook') do
-  wx_ctor_params :id, :pos, :size, :style, :name => 'noteBook' 
+  wx_ctor_params :id, :pos, :size, :style, :name => 'noteBook'
 end
 
 # Similar to notebook but using list control
@@ -358,7 +359,7 @@ Wx::define_keyword_ctors('CheckBox') do
 end
 
 # A listbox with a checkbox to the left of each item
-Wx::define_keyword_ctors('CheckListBox') do 	
+Wx::define_keyword_ctors('CheckListBox') do
   wx_ctor_params :id, :pos, :size, :choices, :style
   wx_ctor_params :validator, :name => 'listBox'
 end
@@ -373,7 +374,7 @@ end
 Wx::define_keyword_ctors('ComboBox') do
   wx_ctor_params :id, :value => ''
   wx_ctor_params :pos, :size, :choices => []
-  wx_ctor_params :style 
+  wx_ctor_params :style
   wx_ctor_params :validator, :name => 'comboBox'
 end
 
@@ -381,7 +382,7 @@ end
 Wx::define_keyword_ctors('BitmapComboBox') do
   wx_ctor_params :id, :value => ''
   wx_ctor_params :pos, :size, :choices => []
-  wx_ctor_params :style 
+  wx_ctor_params :style
   wx_ctor_params :validator, :name => 'comboBox'
 end
 
@@ -397,8 +398,8 @@ end
 # wxGenericDirCtrl 	A control for displaying a directory tree
 Wx::define_keyword_ctors('GenericDirCtrl') do
   # TODO :dir => Wx::DIR_DIALOG_DEFAULT_FOLDER_STR
-  wx_ctor_params :id, :dir => '' 
-  wx_ctor_params :pos, :size, 
+  wx_ctor_params :id, :dir => ''
+  wx_ctor_params :pos, :size,
                  :style => Wx::DIRCTRL_3D_INTERNAL|Wx::SUNKEN_BORDER
   wx_ctor_params :filter => ''
   wx_ctor_params :default_filter => 0
@@ -488,8 +489,8 @@ Wx::define_keyword_ctors('SpinButton') do
    wx_ctor_params :name => 'spinButton'
 end
 
-# wxScrollBar - standalone scrollbar with arrows and thumb 
-Wx::define_keyword_ctors('ScrollBar') do 
+# wxScrollBar - standalone scrollbar with arrows and thumb
+Wx::define_keyword_ctors('ScrollBar') do
    wx_ctor_params :id, :pos, :size, :style => Wx::SB_HORIZONTAL
    wx_ctor_params :validator, :name => 'scrollBar'
 end
@@ -517,12 +518,6 @@ Wx::define_keyword_ctors('HyperlinkCtrl') do
   wx_ctor_params :pos, :size, :style => 0
   wx_ctor_params :name => 'hyperlink'
 end
-
-Wx::define_keyword_ctors('StyledTextCtrl') do
-  wx_ctor_params :id, :pos, :size, :style => 0
-  wx_ctor_params :name => 'styledTextCtrl'
-end
-
 
 Wx::define_keyword_ctors('CollapsiblePane') do
   wx_ctor_params :id, :label => ''
@@ -565,21 +560,6 @@ end
 Wx::define_keyword_ctors('DatePickerCtrl') do
   wx_ctor_params :id, :dt, :pos, :size, :style, :validator, :name => 'dateCtrl'
 end
-
-Wx::define_keyword_ctors('RichTextCtrl') do
-  wx_ctor_params :id, :value => ''
-  wx_ctor_params :pos, :size, :style => Wx::TE_MULTILINE
-  wx_ctor_params :validator, :name => 'textCtrl'
-end
-
-Wx::define_keyword_ctors('RichTextStyleListBox') do
-  wx_ctor_params :id, :pos, :size, :style
-end
-
-Wx::define_keyword_ctors('RichTextStyleListCtrl') do
-  wx_ctor_params :id, :pos, :size, :style
-end
-
 
 # FIXME - SymbolPickerDialog is hard to because the parent argument is
 # in a strange place.

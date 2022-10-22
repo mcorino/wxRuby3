@@ -63,11 +63,11 @@ module WXRuby3
       def setup_ctrl_with_items(clsnm)
         spec.add_swig_code <<~__HEREDOC
           // adjust GC marker
-          %markfunc #{clsnm} "mark_wxControlWithItems";
+          %markfunc #{clsnm} "GC_mark_wxControlWithItems";
           __HEREDOC
         spec.add_header_code <<~__HEREDOC
           extern swig_class cWxControlWithItems;
-          extern void mark_wxControlWithItems(void* ptr);
+          WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr);
           __HEREDOC
         spec.swig_import 'swig/classes/include/wxControlWithItems.h'
       end

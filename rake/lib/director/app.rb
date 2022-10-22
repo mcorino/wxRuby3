@@ -172,7 +172,7 @@ module WXRuby3
             // wxEntry calls the C++ App::OnInit method
             int main_loop()
             {
-              rb_define_const(mWxruby3, "THE_APP", SWIG_RubyInstanceFor(this));
+              rb_define_const(#{spec.package.module_variable}, "THE_APP", SWIG_RubyInstanceFor(this));
               static int argc = 1;
               static wxChar *argv[] = {const_cast<wxChar*> (wxT("wxruby")), NULL};
               this->Connect(wxEVT_DESTROY,
@@ -217,7 +217,7 @@ module WXRuby3
               Init_wxRubyStockObjects();
               // Get the ruby representation of the App object, and call the
               // ruby on_init method to set up the initial window state
-              VALUE the_app = rb_const_get(mWxruby3, rb_intern("THE_APP"));
+              VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
               VALUE result  = rb_funcall(the_app, rb_intern("on_ruby_init"), 0, 0);
         
               // If on_init return any (ruby) true value, signal to wxWidgets to

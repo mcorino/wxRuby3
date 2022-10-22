@@ -123,7 +123,7 @@ module WXRuby3
         end
       end
 
-      MAIN_MODULE = 'Wxruby3'
+      # MAIN_MODULE = 'Wxruby3'
 
       def self.fixmodule(target, spec)
         puts "Processor.fixmodule: #{target}"
@@ -131,6 +131,7 @@ module WXRuby3
         enum_table = collect_enumerators(spec)
 
         core_name = File.basename(target, ".cpp")
+        core_name = 'ruby3' if core_name == 'wx'
 
         skip_entire_method = false
         brace_level = 0
@@ -209,7 +210,7 @@ module WXRuby3
               # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
               # wrappers
               if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx#{core_name}";/
-                line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{MAIN_MODULE}::#{core_name}")
+                line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{spec.package.fullname}::#{core_name}")
               end
 
               # remove the UnknownExceptionHandler::handler method
@@ -244,9 +245,9 @@ module WXRuby3
               # only need to be checked after that function has been started
 
               # Instead of defining a new module, set the container module equal
-              # to the real main Wx:: module.
+              # to the package module.
               if line['rb_define_module("Wx']
-                line = "  mWx#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
+                line = "  mWx#{core_name} = #{spec.package.module_variable}; // fixmodule.rb"
                 found_define_module = true
               # elsif line['rb_define_module("Defs']
               #   line = "  m#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
@@ -343,30 +344,30 @@ module WXRuby3
         end
       end
 
-      def self.fixmainmodule(target, _)
-        puts "Processor.fixmainmodule: #{target}"
-        this_module = 'unknown'
-        Stream.transaction do
-          out = CodeStream.new(target)
-          found_main_module = false
-          File.foreach(target) do |line|
-            if line.index("static VALUE m#{MAIN_MODULE};")
-              line = "VALUE m#{MAIN_MODULE};"
-              found_main_module = true
-            end
-
-            if line.index("char* type_name = RSTRING(value)->ptr;")
-              line = "        const char* type_name = (value == Qnil) ? \"\" : RSTRING(value)->ptr;\n";
-            end
-
-            out.puts(line)
-          end
-          if !found_main_module
-            puts("didn't find main module")
-            exit(1)
-          end
-        end
-      end
+      # def self.fixmainmodule(target, _)
+      #   puts "Processor.fixmainmodule: #{target}"
+      #   this_module = 'unknown'
+      #   Stream.transaction do
+      #     out = CodeStream.new(target)
+      #     found_main_module = false
+      #     File.foreach(target) do |line|
+      #       if line.index("static VALUE m#{MAIN_MODULE};")
+      #         line = "VALUE m#{MAIN_MODULE};"
+      #         found_main_module = true
+      #       end
+      #
+      #       if line.index("char* type_name = RSTRING(value)->ptr;")
+      #         line = "        const char* type_name = (value == Qnil) ? \"\" : RSTRING(value)->ptr;\n";
+      #       end
+      #
+      #       out.puts(line)
+      #     end
+      #     if !found_main_module
+      #       puts("didn't find main module")
+      #       exit(1)
+      #     end
+      #   end
+      # end
 
     end # module Processor
 

@@ -16,7 +16,13 @@ module WXRuby3
     module Platform
 
       def self.included(base)
-        base.include Config::UnixLike
+        base.class_eval do
+          include Config::UnixLike
+          alias :base_ldflags :ldflags
+          def ldflags(target)
+            "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
+          end
+        end
       end
 
       def init_platform

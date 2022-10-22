@@ -5,7 +5,7 @@ obj
 src
 bak
 ext
-swig/classes
+swig/classes.PREV
 swig/inc
 lib/wx/classes/events
 *.old

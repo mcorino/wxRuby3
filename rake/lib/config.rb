@@ -75,20 +75,11 @@ module WXRuby3
             @interface_dir = File.join(@classes_dir, 'include')
             @interface_path = File.join(Config.wxruby_root, @interface_dir)
             FileUtils.mkdir_p(@interface_path)
-            @inc_dir = File.join(@swig_dir, 'inc')
-            @inc_path = File.join(Config.wxruby_root, @inc_dir)
-            FileUtils.mkdir_p(@inc_path)
             @ext_dir = 'ext'
             @ext_path = File.join(Config.wxruby_root, @ext_dir)
             FileUtils.mkdir_p(@ext_path)
             @rb_lib_dir = 'lib'
             @rb_lib_path = File.join(Config.wxruby_root, @rb_lib_dir)
-            @rb_events_dir = File.join(@rb_lib_dir, 'wx', 'classes', 'events')
-            @rb_events_path = File.join(Config.wxruby_root, @rb_events_dir)
-            FileUtils.mkdir_p(@rb_events_path)
-            @rb_ext_dir = File.join(@rb_lib_dir, 'wx', 'classes', 'ext')
-            @rb_ext_path = File.join(Config.wxruby_root, @rb_ext_dir)
-            FileUtils.mkdir_p(@rb_ext_path)
             @rb_doc_dir = File.join(@rb_lib_dir, 'wx', 'ext')
             @rb_doc_path = File.join(Config.wxruby_root, @rb_doc_dir)
             FileUtils.mkdir_p(@rb_doc_path)
@@ -136,14 +127,14 @@ module WXRuby3
               @ruby_includes = " -I. -I " + RbConfig::CONFIG["archdir"]
             end
 
-            @ruby_ldflags = RbConfig::CONFIG["LDFLAGS"]
-            @ruby_libs  = RbConfig::CONFIG["LIBS"]
-            @extra_cppflags = ""
-            @extra_ldflags = ""
-            @extra_objs = ""
-            @extra_libs = ""
-            @cpp_out_flag =  "-o "
-            @link_output_flag = "-o "
+            @ruby_ldflags = RbConfig::CONFIG['LDFLAGS']
+            @ruby_libs  = RbConfig::CONFIG['LIBS']
+            @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
+            @extra_ldflags = ''
+            @extra_objs = ''
+            @extra_libs = ''
+            @cpp_out_flag =  '-o '
+            @link_output_flag = '-o '
 
             @obj_ext = RbConfig::CONFIG["OBJEXT"]
 
@@ -167,6 +158,7 @@ module WXRuby3
               puts "Enabling DYNAMIC build"
             elsif @static_build
               puts "Enabling STATIC build"
+              @extra_cppflags << ' -DWXRUBY_STATIC_BUILD'
             end
 
             if @release_build and @debug_build
@@ -212,11 +204,11 @@ module WXRuby3
           attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
-                      :cppflags, :ldflags, :libs, :cpp, :ld, :verbose_flag
+                      :cppflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :obj_dir, :obj_path, :dest_dir, :classes_dir, :classes_path,
-                      :common_dir, :common_path, :interface_dir, :interface_path, :inc_dir, :inc_path, :ext_dir, :ext_path
-          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path, :rb_ext_dir, :rb_ext_path, :rb_doc_dir, :rb_doc_path
+                      :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path
+          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path, :rb_doc_dir, :rb_doc_path
 
           def mswin?
             @platform == :mswin
@@ -248,6 +240,10 @@ module WXRuby3
 
           def windows?
             mswin? || mingw? || cygwin?
+          end
+
+          def ldflags(_target)
+            @ldflags
           end
 
           def feature_info
@@ -310,9 +306,6 @@ module WXRuby3
     module WxRubyFeatureInfo
 
       class << self
-        def explicit_excluded_modules
-          @explicit_excluded_modules ||= []
-        end
 
         # Testing the relevant wxWidgets setup.h file to see what
         # features are supported. Note that the presence of OpenGL (for
@@ -322,54 +315,57 @@ module WXRuby3
         # The wxWidgets setup.h file contains a series of definitions like
         # #define wxUSE_FOO 1. The location of the file should be set
         # by the platform-specific rakefile. Parse it into a ruby hash:
-        def features(wxwidgets_setup_h)
-          unless @features
-            @features = _retrieve_features(wxwidgets_setup_h)
-          end
-
-          @features
+        def features
+          @features ||= _retrieve_features(Config.instance.wx_setup_h)
         end
 
-        def excluded_class?(wxwidgets_setup_h, module_name)
-          excluded_modules(wxwidgets_setup_h).include?(module_name)
+        def features_set?(*feature_ids)
+          feature_ids.all? {|fid| features[fid] }
         end
 
-        def excluded_modules(wxwidgets_setup_h)
-          unless @excluded_modules
-            @excluded_modules = _calculate_excluded_modules(wxwidgets_setup_h)
-          end
-
-          @excluded_modules
+        def excluded_module?(module_spec)
+          explicit_excluded_modules.include?(module_spec.module_name) || !features_set?(*module_spec.requirements)
         end
+
+        # def excluded_modules
+        #   unless @excluded_modules
+        #     @excluded_modules = _calculate_excluded_modules
+        #   end
+        #
+        #   @excluded_modules
+        # end
 
         def exclude_module(module_name)
           explicit_excluded_modules << module_name
-          @excluded_modules = nil
         end
 
         private
 
-        def _calculate_excluded_modules(wxwidgets_setup_h)
-          excluded_modules = []
-
-          # MediaCtrl is not always included or easily built, esp on Linux
-          unless features(wxwidgets_setup_h)['wxUSE_MEDIACTRL']
-            excluded_modules += %w|MediaCtrl MediaEvent|
-          end
-
-          # GraphicsContext is not enabled by default on some platforms
-          unless features(wxwidgets_setup_h)['wxUSE_GRAPHICS_CONTEXT']
-            excluded_modules += %w|GCDC GraphicsBrush GraphicsContext GraphicsFont
-                                GraphicsMatrix GraphicsObject GraphicsPath GraphicsPen|
-          end
-
-          if not excluded_modules.empty?
-            puts "The following wxWidgets features are not available and will be skipped:"
-            puts "  " + excluded_modules.sort.join("\n  ")
-          end
-
-          excluded_modules + explicit_excluded_modules
+        def explicit_excluded_modules
+          @explicit_excluded_modules ||= []
         end
+
+        # def _calculate_excluded_modules
+        #   excluded_modules = []
+        #
+        #   # MediaCtrl is not always included or easily built, esp on Linux
+        #   unless features['wxUSE_MEDIACTRL']
+        #     excluded_modules += %w|MediaCtrl MediaEvent|
+        #   end
+        #
+        #   # GraphicsContext is not enabled by default on some platforms
+        #   unless features['wxUSE_GRAPHICS_CONTEXT']
+        #     excluded_modules += %w|GCDC GraphicsBrush GraphicsContext GraphicsFont
+        #                         GraphicsMatrix GraphicsObject GraphicsPath GraphicsPen|
+        #   end
+        #
+        #   if not excluded_modules.empty?
+        #     puts "The following wxWidgets features are not available and will be skipped:"
+        #     puts "  " + excluded_modules.sort.join("\n  ")
+        #   end
+        #
+        #   excluded_modules + explicit_excluded_modules
+        # end
 
         def _retrieve_features(wxwidgets_setup_h)
           features = {}

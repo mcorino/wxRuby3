@@ -6,8 +6,6 @@
 %include "common.i"
 
 %{
-//NO_CLASS - This tells fixmodule not to expect a class
-
 #include <wx/gdicmn.h>
 #include <wx/fdrepdlg.h>
 #include <wx/artprov.h>
@@ -22,6 +20,7 @@
 #include <wx/listbase.h>
 #include <wx/animate.h>
 
+extern VALUE mWxCore;
 %}
 
 #ifdef __WXRB_DEBUG__

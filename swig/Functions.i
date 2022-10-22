@@ -14,9 +14,6 @@
 
 
 %{
-//NO_CLASS - This tells fixmodule not to expect a class
-
-
 #include <wx/image.h>
 #include <wx/app.h>
 #include <wx/choicdlg.h>
@@ -25,6 +22,9 @@
 #include <wx/utils.h>
 #include <wx/stockitem.h>
 #include <wx/aboutdlg.h>
+
+extern VALUE mWxCore;
+WXRUBY_EXPORT VALUE wxRuby_Core();
 
 class wxRubyApp
 {
@@ -37,7 +37,6 @@ public:
 // list of arguments, rather than a dynamic string. Instead we do the
 // sprintf in ruby, then pass the composed message directly to the
 // log. This also avoids format string attacks.
-
 
 // Log a Wx Message to the current Wx log output
 static VALUE log_message(int argc, VALUE *argv, VALUE self)
@@ -113,7 +112,7 @@ static VALUE log_status(int argc, VALUE *argv, VALUE self)
 // Returns the global app object
 static VALUE get_app(VALUE self)
 {
-  return rb_const_get(mWxruby3, rb_intern("THE_APP"));
+  return rb_const_get(wxRuby_Core(), rb_intern("THE_APP"));
 }
 
 // Converts a string XRC id into a Wx id
@@ -143,7 +142,7 @@ cpp_ptr_addr(VALUE self, VALUE obj)
 // the normal typemap defined in typemap.i). So override the standard
 // typemap and just check that the App has been started.
 %typemap(check) wxWindow* parent {
-  if ( ! rb_const_defined(mWxruby3, rb_intern("THE_APP") ) )
+  if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP") ) )
 	{ rb_raise(rb_eRuntimeError,
 			   "Cannot display dialog before App.main_loop has been called");}
 }
@@ -241,11 +240,11 @@ wxString wxGetStockHelpString(wxWindowID id,
 
 
 %init %{
-    rb_define_module_function(mWxruby3, "log_message", VALUEFUNC(log_message), -1);
-    rb_define_module_function(mWxruby3, "log_warning", VALUEFUNC(log_warning), -1);
-    rb_define_module_function(mWxruby3, "log_status", VALUEFUNC(log_status), -1);
-    rb_define_module_function(mWxruby3, "log_error", VALUEFUNC(log_error), -1);
-    rb_define_module_function(mWxruby3, "get_app", VALUEFUNC(get_app), 0);
-    rb_define_module_function(mWxruby3, "xrcid", VALUEFUNC(xrcid), 1);
-    rb_define_module_function(mWxruby3, "ptr_addr", VALUEFUNC(cpp_ptr_addr), 1);
+    rb_define_module_function(mWxCore, "log_message", VALUEFUNC(log_message), -1);
+    rb_define_module_function(mWxCore, "log_warning", VALUEFUNC(log_warning), -1);
+    rb_define_module_function(mWxCore, "log_status", VALUEFUNC(log_status), -1);
+    rb_define_module_function(mWxCore, "log_error", VALUEFUNC(log_error), -1);
+    rb_define_module_function(mWxCore, "get_app", VALUEFUNC(get_app), 0);
+    rb_define_module_function(mWxCore, "xrcid", VALUEFUNC(xrcid), 1);
+    rb_define_module_function(mWxCore, "ptr_addr", VALUEFUNC(cpp_ptr_addr), 1);
 %}

@@ -44,7 +44,7 @@ module WXRuby3
       end
 
       def interface_ext_file
-        "#{WXRuby3::Config.instance.rb_ext_path}/#{underscore(@ifspec.name)}.rb"
+        File.join(@ifspec.package.ruby_classes_path, 'ext', underscore(@ifspec.name)+'.rb')
       end
 
       def module_name

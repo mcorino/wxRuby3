@@ -46,29 +46,27 @@
 #include <wx/wx.h>
 #include <wx/dcbuffer.h>
 
-
 #if ! wxCHECK_VERSION(3,1,5)
 #error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
 #endif
 
-extern VALUE mWxruby3; // The global Wxruby3 module
-extern VALUE wxRuby_GetTopLevelWindowClass(); // used for wxWindow typemap in typemap.i
-extern bool GC_IsWindowDeleted(void *ptr);
+WXRUBY_EXPORT VALUE wxRuby_GetTopLevelWindowClass(); // used for wxWindow typemap in typemap.i
+WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr);
 
 // Defined in wx.i; getting, setting and using swig_type <-> ruby class
 // mappings
-extern swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls);
-extern void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty);
+WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls);
+WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty);
 
 // Common wrapping functions
-extern VALUE wxRuby_WrapWxObjectInRuby(wxObject* obj);
-extern VALUE wxRuby_WrapWxEventInRuby(wxEvent* event);
+WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject* obj);
+WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent* event);
 
 // event handling helpers
-extern VALUE wxRuby_GetEventTypeClassMap();
-extern VALUE wxRuby_GetDefaultEventClass ();
+WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
+WXRUBY_EXPORT VALUE wxRuby_GetDefaultEventClass ();
 
-extern VALUE wxRuby_GetWindowClass();
+WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
 %}
 
 %include "typedefs.i"

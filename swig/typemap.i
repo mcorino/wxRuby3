@@ -379,7 +379,7 @@
 // before App::main_loop is started, and, except for TopLevelWindows,
 // the parent argument must not be NULL.
 %typemap(check) wxWindow* parent {
-  if ( ! rb_const_defined(mWxruby3, rb_intern("THE_APP") ) )
+  if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP") ) )
 	{ rb_raise(rb_eRuntimeError,
 			   "Cannot create a Window before App.main_loop has been called");}
   if ( ! $1 && ! rb_obj_is_kind_of(self, wxRuby_GetTopLevelWindowClass()) )

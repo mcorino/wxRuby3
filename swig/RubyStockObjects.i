@@ -12,8 +12,7 @@
 %include "common.i"
 
 %{
-//NO_CLASS - This tells fixmodule not to expect a class
-
+extern VALUE mWxCore;
 %}
 
 %constant wxFont            wxNullFont;

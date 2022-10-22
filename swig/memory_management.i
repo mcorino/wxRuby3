@@ -24,10 +24,10 @@
 
 // These are implemented in swig/wx.i, so they are shared among all classes
 %{
-extern void GcNullFreeFunc(void *);
-extern void GC_mark_wxWindow(void *);
-extern void GC_mark_wxFrame(void *);
-extern void GC_mark_wxEvent(void *);
+WXRUBY_EXPORT void GcNullFreeFunc(void *);
+WXRUBY_EXPORT void GC_mark_wxWindow(void *);
+WXRUBY_EXPORT void GC_mark_wxFrame(void *);
+WXRUBY_EXPORT void GC_mark_wxEvent(void *);
 %}
 
 // Macro definitions.

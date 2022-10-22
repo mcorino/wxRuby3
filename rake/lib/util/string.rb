@@ -69,7 +69,7 @@ module WXRuby3
       end
 
       def rb_constant_value(name)
-        val = rb_wx_name(name)
+        val = name.sub(/\Awx/, 'Wx::')
         val == 'NULL' ? 'nil' : val
       end
 

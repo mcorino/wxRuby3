@@ -93,12 +93,14 @@ module WXRuby3
           from.each { |org| fout.puts "%rename(#{to}) #{org};" }
         end
       end
+      fout.puts
+      fout.puts "%runtime %{"
       if spec.runtime_code && !spec.runtime_code.empty?
-        fout.puts
-        fout.puts "%runtime %{"
         fout.puts spec.runtime_code
-        fout.puts "%}"
       end
+      fout.puts "extern VALUE #{spec.package.module_variable}; // The global package module"
+      fout.puts 'WXRUBY_EXPORT VALUE wxRuby_Core(); // returns the core package module'
+      fout.puts "%}"
     end
 
     def gen_swig_code(fout, spec)
@@ -359,9 +361,11 @@ module WXRuby3
         # generator. Do not alter this file.
         # ----------------------------------------------------------------------------
 
-        module Wx
-
         __HEREDOC
+      spec.package.all_modules.each do |mod|
+        frbext.puts "module #{mod}"
+      end
+      frbext.puts
       frbext
     end
 
@@ -383,19 +387,19 @@ module WXRuby3
             fout.puts "%constant char*  #{item.name} = #{$1};"
           elsif item.value =~ /wx(Size|Point)(\(.*\))/
             frbext = init_rb_ext_file(spec) unless frbext
-            frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = #{$1}.new#{$2}" }
+            frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = Wx::#{$1}.new#{$2}" }
             frbext.puts
           elsif item.value =~ /wx(Colour|Font)(\(.*\))/
             frbext = init_rb_ext_file(spec) unless frbext
             frbext.indent do
-              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { #{$1}.new#{$2} }"
+              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { Wx::#{$1}.new#{$2} }"
             end
             frbext.puts
           elsif item.value =~ /wxSystemSettings::(\w+)\((.*)\)/
             frbext = init_rb_ext_file(spec) unless frbext
             args = $2.split(',').collect {|a| rb_constant_value(a) }.join(', ')
             frbext.indent do
-              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { SystemSettings.#{rb_method_name($1)}(#{args}) }"
+              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { Wx::SystemSettings.#{rb_method_name($1)}(#{args}) }"
             end
             frbext.puts
           else
@@ -405,7 +409,7 @@ module WXRuby3
         end
       end
       if frbext
-        frbext.puts 'end'
+        spec.package.all_modules.each { |mod| frbext.puts 'end' }
       end
       fout.puts '' unless defines.empty?
     end

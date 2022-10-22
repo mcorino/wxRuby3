@@ -39,12 +39,12 @@ module WXRuby3
 
       IGNORED_BASES = ['wxTrackable']
 
-      def initialize(pkg, modname, name: nil, director:  nil, processors: nil, &block)
+      def initialize(pkg, modname, name: nil, director:  nil, processors: nil, requirements: [])
         @package = pkg
         @module_name = modname
         @name = if name
                   name
-                elsif modname =~ /\Awx(.*)/
+                elsif modname =~ /\Awx(.+)/
                   $1
                 else
                   modname[0].upcase << modname[1,modname.size-1]
@@ -58,7 +58,7 @@ module WXRuby3
         @abstracts = ::Hash.new
         @items = [modname]
         @director = director
-        @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : nil) rescue nil
+        @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : Director)
         @gc_type = nil
         @ignores = {}
         @regards = {}
@@ -82,18 +82,18 @@ module WXRuby3
         @extend_code = {}
         @nogen_sections = ::Set.new
         @post_processors = processors || [:rename, :fixmodule]
-        yield(self) if block_given?
+        @requirements = requirements
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
                   :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
-                  :nogen_sections, :post_processors
+                  :nogen_sections, :post_processors, :requirements
       attr_writer :interface_file
 
       def interface_file
-        @interface_file || File.join(WXRuby3::Config.instance.classes_path, @name + '.i')
+        @interface_file || File.join(Config.instance.classes_path, @name + '.i')
       end
 
       def use_template_as_class(tpl, cls)
@@ -390,42 +390,184 @@ module WXRuby3
 
     end
 
-    include Util::StringUtil
+    class Package
 
-    class << self
-      def Spec(pkg, modname, name: nil, director:  nil, processors: nil, &block)
-        WXRuby3::Director::Spec.new(pkg, modname, name: name, director: director, processors: processors, &block)
+      include Util::StringUtil
+
+      def initialize(name, parent=nil)
+        @name = name
+        @parent = parent
+        @required_features = ::Set.new
+        @directors = []
+        @director_index = {}
+        @subpackages = {}
       end
 
-      private
+      attr_reader :name, :parent, :required_features, :directors, :director_index, :subpackages
 
-      def directors
-        @directors ||= WXRuby3::SPECIFICATIONS.collect {|spec| (spec.director || Director).new(spec) }
+      def is_core?
+        name == 'Wx'
       end
 
-      def director_index
-        @spec_index ||= directors.inject({}) {|hash, dir| hash[dir.spec.name] = dir; hash }
+      def fullname
+        "#{parent ? parent.fullname+'::' : ''}#{name}"
       end
 
-      def generate_modules_initializer
-        init_inc = File.join(Config.instance.inc_path, 'all_modules_init.inc')
+      def all_modules
+        (parent ? parent.all_modules : []) << name
+      end
+
+      def libname
+        "wxruby_#{is_core? ? 'core' : name.downcase}"
+      end
+
+      def module_variable
+        is_core? ? 'mWxCore' : "mWx#{name}"
+      end
+
+      def ruby_classes_path
+        if is_core?
+          File.join(Config.instance.rb_lib_path, 'wx', 'core')
+        else
+          File.join(Config.instance.rb_lib_path, 'wx', underscore(name))
+        end
+      end
+
+      def ruby_doc_path
+        if is_core?
+          Config.instance.rb_doc_path
+        else
+          File.join(Config.instance.rb_doc_path, underscore(name))
+        end
+      end
+
+      def lib_target
+        File.join(Config.instance.dest_dir, libname+".#{RbConfig::CONFIG['DLEXT']}")
+      end
+
+      def package(pkgname)
+        subpackages[pkgname] ||= Package.new(pkgname, self)
+      end
+
+      def each_package(&block)
+        block.call(self)
+        subpackages.each_value do |pkg|
+          pkg.each_package(&block) if Config::WxRubyFeatureInfo.features_set?(*pkg.required_features)
+        end
+      end
+
+      def all_packages
+        if subpackages.empty?
+          ::Enumerator.new {|y| y << self }
+        else
+          ::Enumerator::Chain.new(::Enumerator.new {|y| y << self }, *subpackages.collect {|_,pkg| pkg.all_packages })
+        end
+      end
+
+      def require(*features)
+        required_features.merge(features.flatten)
+        self
+      end
+
+      def add_director(spec)
+        dir = spec.director.new(spec)
+        director_index[spec.name] = dir
+        directors << dir
+        dir
+      end
+
+      def included_directors
+        directors.select { |dir| !Config::WxRubyFeatureInfo.excluded_module?(dir.spec) }
+      end
+      private :included_directors
+
+      def get_swig_targets
+        wxruby_root = Pathname(Config.wxruby_root)
+        # make sure all modules have been extracted from xml
+        directors.each {|dir| dir.extract_interface(false) }
+        # get dependencies for each module
+        deps = included_directors.inject({}) do |hash, dir|
+                 hash[Pathname(dir.spec.interface_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
+                 hash
+               end
+        # in case this is the root (core) package add the common wxRuby helper modules
+        unless parent || !is_core?
+          Config.instance.helper_modules.each do |hm|
+            mod = "swig/#{hm}.i"
+            deps[mod] = Director.common_dependencies[mod]
+          end
+          deps['swig/wx.i'] = Director.common_dependencies['swig/wx.i']
+        end
+        deps
+      end
+
+      def all_build_modules
+        unless @all_build_modules
+          @all_build_modules = included_directors.collect {|dir| dir.spec.name }
+          @all_build_modules.concat(Config.instance.helper_modules) << 'wx' unless parent || !is_core?
+        end
+        @all_build_modules
+      end
+
+      def all_swig_files
+        unless @all_swig_files
+          @all_swig_files = included_directors.collect {|dir| File.join(Config.instance.classes_dir,"#{dir.spec.name}.i") }
+          unless parent || !is_core?
+            @all_swig_files.concat(Config.instance.helper_modules.collect { |m| File.join(Config.instance.swig_dir,"#{m}.i") })
+            @all_swig_files << File.join(Config.instance.swig_dir,"wx.i")
+          end
+        end
+        @all_swig_files
+      end
+
+      def all_cpp_files
+        unless @all_cpp_files
+          @all_cpp_files = all_build_modules.map { |mod| File.join(Config.instance.src_dir,"#{mod}.cpp") }
+          @all_cpp_files << initializer_src
+        end
+        @all_cpp_files
+      end
+
+      def all_obj_files
+        unless @all_obj_files
+          @all_obj_files = all_build_modules.map { |mod| File.join(Config.instance.obj_dir,"#{mod}.#{Config.instance.obj_ext}") }
+          @all_obj_files << File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
+        end
+        @all_obj_files
+      end
+
+      def dep_libs
+        parent ? parent.dep_libs + [File.join(Config.instance.dest_dir, parent.libname+".#{RbConfig::CONFIG['DLEXT']}")] : []
+      end
+
+      def cpp_flags
+        is_core? ? '-DBUILD_WXRUBY_CORE' : ''
+      end
+
+      def initializer_src
+        File.join(Config.instance.src_dir, "#{libname}_init.cpp")
+      end
+
+      def generate_initializer
         # collect code
         decls = []
         init_fn = []
 
         # next initialize all modules without classes
-        Spec.module_registry.each_pair do |mod, modreg|
+        included_directors.each do |dir|
+          modreg = Spec.module_registry[dir.spec.module_name]
           if modreg.empty?
-            init = "Init_#{mod}()"
+            init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
           end
         end
 
         # next initialize all modules with empty class dependencies
-        Spec.module_registry.each_pair do |mod, modreg|
+        included_directors.each do |dir|
+          modreg = Spec.module_registry[dir.spec.module_name]
           if !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
-            init = "Init_#{mod}()"
+            init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
           end
@@ -433,23 +575,24 @@ module WXRuby3
 
         # next initialize all modules with class dependencies ordered according to dependency
         # collect all modules with actual dependencies
-        dep_mods = Spec.module_registry.select do |_mod, modreg|
+        dep_mods = included_directors.select do |dir|
+          modreg = Spec.module_registry[dir.spec.module_name]
           !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
-        end
+        end.collect {|dir| [dir.spec.module_name, Spec.module_registry[dir.spec.module_name]] }
         # now sort these according to dependencies
         dep_mods.sort do |mreg1, mreg2|
           m1 = mreg1.first
           m2 = mreg2.first
           order = 0
           mreg2.last.each_pair do |cls, base|
-            if Spec.class_index[base] == m1
+            if Spec.class_index[base] && Spec.class_index[base].module_name == m1
               order = -1
               break
             end
           end
           if order == 0
             mreg1.last.each_pair do |cls, base|
-              if Spec.class_index[base] == m2
+              if Spec.class_index[base] && Spec.class_index[base].module_name == m2
                 order = 1
                 break
               end
@@ -463,29 +606,80 @@ module WXRuby3
           init_fn << "  #{init};"
         end
 
-        # finally initialize helper modules
-        Config.instance.helper_inits.each do |mod|
-          init = "Init_wx#{mod}()"
-          decls << "extern \"C\" void #{init};"
-          init_fn << "  #{init};"
+        if is_core?
+          # finally initialize helper modules
+          Config.instance.helper_inits.each do |mod|
+            init = "Init_wx#{mod}()"
+            decls << "extern \"C\" void #{init};"
+            init_fn << "  #{init};"
+          end
+          decls << 'extern "C" void Init_wxruby3();'
+          init_fn << '  Init_wxruby3();'
         end
 
         Stream.transaction do
-          finc = CodeStream.new(init_inc)
-          finc.puts
-          finc.puts decls.join("\n")
+          fsrc = CodeStream.new(initializer_src)
+          fsrc.puts '#include <ruby.h>'
+          fsrc.puts '#include <wx/dlimpexp.h>'
+          fsrc.puts
+          fsrc.puts "VALUE #{module_variable} = 0;"
+          fsrc.puts "WXIMPORT VALUE wxRuby_Core();" unless is_core?
+          fsrc.puts
+          fsrc.puts decls.join("\n")
+          fsrc.puts
+          fsrc.puts '#ifdef __cplusplus'
+          fsrc.puts 'extern "C"'
+          fsrc.puts '#endif'
+          fsrc.puts "WXEXPORT void Init_#{libname}()"
+          fsrc.puts '{'
+          fsrc.indent do
+            fsrc.puts 'static bool initialized;'
+            fsrc.puts 'if(initialized) return;'
+            fsrc.puts 'initialized = true;'
+            fsrc.puts
+            if is_core?
+              fsrc.puts %Q{#{module_variable} = rb_define_module("Wx");}
+            else
+              fsrc.puts %Q{#{module_variable} = rb_define_module_under(wxRuby_Core(), "#{name}");}
+            end
+            fsrc.puts
+          end
+          fsrc.puts init_fn.join("\n")
+          fsrc.puts '}'
+        end
+      end
+      private :generate_initializer
 
-          finc.puts
-          finc.puts 'static void InitializeOtherModules()'
-          finc.puts '{'
-          finc.puts init_fn.join("\n")
-          finc.puts '}'
+      def extract(*mods, genint: true)
+        included_directors.each do |dir|
+          dir.extract_interface(genint && (mods.empty? || mods.include?(dir.spec.name)))
+        end
+
+        generate_initializer if mods.empty?
+
+        generate_event_list if directors.any? {|dir| (mods.empty? || mods.include?(dir.spec.name)) && dir.has_events? }
+      end
+
+      def generate_code(mod)
+        modnm = mod.end_with?('.i') ? File.basename(mod, '.i') : mod
+        if director_index.has_key?(modnm)
+          director_index[modnm].generate_code
+        elsif mod.end_with?('.i')
+          modnm = File.basename(mod, '.i')
+          dir = Director.new(Director::Spec.new(self, modnm, processors: [:rename, :fixmodule]))
+          dir.spec.interface_file = File.expand_path(mod, Config.wxruby_root)
+          dir.generate_code
+        else
+          raise "Unknown module #{mod}"
         end
       end
 
       def generate_event_list
+        # determine Ruby library events root for package
+        rbevt_root = File.join(ruby_classes_path, 'events')
+        # create event list file
         Stream.transaction do
-          evt_list = File.join(Config.instance.rb_events_path, 'evt_list.rb')
+          evt_list = File.join(rbevt_root, 'evt_list.rb')
           fout = CodeStream.new(evt_list)
           fout << <<~__HEREDOC
             #-------------------------------------------------------------------------
@@ -494,8 +688,8 @@ module WXRuby3
             #-------------------------------------------------------------------------
   
             class Wx::EvtHandler
-            __HEREDOC
-          directors.each do |dir|
+          __HEREDOC
+          included_directors.each do |dir|
             dir.defmod.items.each do |item|
               if Extractor::ClassDef === item && (item.event || item.event_list)
                 fout.puts "  # from #{item.name}"
@@ -504,10 +698,10 @@ module WXRuby3
                   fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
                     self.register_event_type EventType[
                         '#{evt_hnd.downcase}', #{evt_arity},
-                        Wx::#{evt_type},
-                        Wx::#{evt_klass.sub(/\Awx/i, '')}
-                      ] if Wx.const_defined?(:#{evt_type})
-                    __HEREDOC
+                        #{fullname}::#{evt_type},
+                        #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
+                      ] if #{fullname}.const_defined?(:#{evt_type})
+                  __HEREDOC
                 end
               end
             end
@@ -515,6 +709,146 @@ module WXRuby3
           fout.puts 'end'
         end
       end
+
+      def generate_docs
+        # make sure all modules have been extracted from xml
+        included_directors.each {|dir| dir.extract_interface(false) }
+        # generate the docs
+        included_directors.each {|dir| dir.generate_doc }
+      end
+
+    end # class Package
+
+    include Util::StringUtil
+
+    class << self
+      def Package(pkgid, *required_features, &block)
+        block.call(self[pkgid].require(*required_features))
+      end
+
+      def Spec(pkg, modname, name: nil, director:  nil, processors: nil, requirements: [])
+        pkg.add_director(WXRuby3::Director::Spec.new(pkg,
+                                                     modname,
+                                                     name: name,
+                                                     director: director,
+                                                     processors: processors,
+                                                     requirements: requirements))
+      end
+
+      private
+
+      def package(pkgname)
+        packages[pkgname] ||= Package.new(pkgname)
+      end
+
+      # def generate_modules_initializer
+      #   init_inc = File.join(Config.instance.inc_path, 'all_modules_init.inc')
+      #   # collect code
+      #   decls = []
+      #   init_fn = []
+      #
+      #   # next initialize all modules without classes
+      #   Spec.module_registry.each_pair do |mod, modreg|
+      #     if modreg.empty?
+      #       init = "Init_#{mod}()"
+      #       decls << "extern \"C\" void #{init};"
+      #       init_fn << "  #{init};"
+      #     end
+      #   end
+      #
+      #   # next initialize all modules with empty class dependencies
+      #   Spec.module_registry.each_pair do |mod, modreg|
+      #     if !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
+      #       init = "Init_#{mod}()"
+      #       decls << "extern \"C\" void #{init};"
+      #       init_fn << "  #{init};"
+      #     end
+      #   end
+      #
+      #   # next initialize all modules with class dependencies ordered according to dependency
+      #   # collect all modules with actual dependencies
+      #   dep_mods = Spec.module_registry.select do |_mod, modreg|
+      #     !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
+      #   end
+      #   # now sort these according to dependencies
+      #   dep_mods.sort do |mreg1, mreg2|
+      #     m1 = mreg1.first
+      #     m2 = mreg2.first
+      #     order = 0
+      #     mreg2.last.each_pair do |cls, base|
+      #       if Spec.class_index[base] == m1
+      #         order = -1
+      #         break
+      #       end
+      #     end
+      #     if order == 0
+      #       mreg1.last.each_pair do |cls, base|
+      #         if Spec.class_index[base] == m2
+      #           order = 1
+      #           break
+      #         end
+      #       end
+      #     end
+      #     order
+      #   end
+      #   dep_mods.each do |modreg|
+      #     init = "Init_#{modreg.first}()"
+      #     decls << "extern \"C\" void #{init};"
+      #     init_fn << "  #{init};"
+      #   end
+      #
+      #   # finally initialize helper modules
+      #   Config.instance.helper_inits.each do |mod|
+      #     init = "Init_wx#{mod}()"
+      #     decls << "extern \"C\" void #{init};"
+      #     init_fn << "  #{init};"
+      #   end
+      #
+      #   Stream.transaction do
+      #     fsrc = CodeStream.new(init_inc)
+      #     fsrc.puts
+      #     fsrc.puts decls.join("\n")
+      #
+      #     fsrc.puts
+      #     fsrc.puts 'static void InitializeOtherModules()'
+      #     fsrc.puts '{'
+      #     fsrc.puts init_fn.join("\n")
+      #     fsrc.puts '}'
+      #   end
+      # end
+
+      # def generate_event_list
+      #   Stream.transaction do
+      #     evt_list = File.join(Config.instance.rb_events_path, 'evt_list.rb')
+      #     fout = CodeStream.new(evt_list)
+      #     fout << <<~__HEREDOC
+      #       #-------------------------------------------------------------------------
+      #       # This file is automatically generated by the WXRuby3 interface generator.
+      #       # Do not alter this file.
+      #       #-------------------------------------------------------------------------
+      #
+      #       class Wx::EvtHandler
+      #       __HEREDOC
+      #     directors.each do |dir|
+      #       dir.defmod.items.each do |item|
+      #         if Extractor::ClassDef === item && (item.event || item.event_list)
+      #           fout.puts "  # from #{item.name}"
+      #           item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
+      #             evt_klass ||= item.name
+      #             fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
+      #               self.register_event_type EventType[
+      #                   '#{evt_hnd.downcase}', #{evt_arity},
+      #                   Wx::#{evt_type},
+      #                   Wx::#{evt_klass.sub(/\Awx/i, '')}
+      #                 ] if Wx.const_defined?(:#{evt_type})
+      #               __HEREDOC
+      #           end
+      #         end
+      #       end
+      #     end
+      #     fout.puts 'end'
+      #   end
+      # end
 
       def scan_for_includes(file)
         incs = []
@@ -526,8 +860,11 @@ module WXRuby3
       end
 
       def get_common_dependencies
-        common_deps = ['swig/wx.i', *WXRuby3::Config.instance.include_modules].inject({}) do |hash, incmod|
-          hash[incmod] = scan_for_includes(incmod); hash
+        mods = ['swig/wx.i']
+                 .concat(WXRuby3::Config.instance.helper_modules.collect { |m| "swig/#{m}.i" })
+                 .concat(WXRuby3::Config.instance.include_modules)
+        common_deps = mods.inject({}) do |hash, mod|
+          hash[mod] = scan_for_includes(mod); hash
         end
         common_deps.keys.each do |incmod|
           common_deps[incmod].concat(common_deps[incmod].collect { |dep| common_deps[dep] || [] }.flatten)
@@ -537,67 +874,88 @@ module WXRuby3
 
       public
 
+      def packages
+        @packages ||= {}
+      end
+
+      def each_package(&block)
+        packages.each_value do |pkg|
+          pkg.each_package(&block) if Config::WxRubyFeatureInfo.features_set?(*pkg.required_features)
+        end
+      end
+
+      def all_packages
+        ::Enumerator::Chain.new(*packages.collect { |_, pkg| pkg.all_packages })
+      end
+
       def common_dependencies
         @common_deps ||= get_common_dependencies
       end
 
-      def [](mod)
-        director_index[mod]
+      def [](pkg)
+        pkg.split('::').inject(self) { |p, pkgnm| p.__send__(:package, pkgnm) }
+      end
+
+      def cpp_flags(cpp_src)
+        each_package do |pkg|
+          return pkg.cpp_flags if pkg.all_cpp_files.include?(cpp_src)
+        end
+        ''
       end
     end
 
-    def self.get_swig_targets
-      mod_excludes = WXRuby3::Config.instance.feature_info.excluded_modules(WXRuby3::Config.instance.wx_setup_h)
-      wxruby_root = Pathname(WXRuby3::Config.wxruby_root)
-      # make sure all modules have been extracted from xml
-      directors.each {|dir| dir.extract_interface(false) }
-      # get dependencies for each module
-      deps = directors.select {|dir| !mod_excludes.include?(dir.spec.name) }.inject({}) do |hash, dir|
-        hash[Pathname(dir.spec.interface_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
-        hash
-      end
-      # add common wxRuby helper module (except swig/wx.i)
-      deps['swig/Functions.i'] =
-        %w[swig/common.i swig/shared/arrayint_selections.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
-      deps['swig/RubyStockObjects.i'] =
-        %w[swig/common.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
-      deps['swig/RubyConstants.i'] =
-        %w[swig/common.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
-      deps
-    end
+    # def self.get_swig_targets
+    #   mod_excludes = WXRuby3::Config.instance.feature_info.excluded_modules(WXRuby3::Config.instance.wx_setup_h)
+    #   wxruby_root = Pathname(WXRuby3::Config.wxruby_root)
+    #   # make sure all modules have been extracted from xml
+    #   directors.each {|dir| dir.extract_interface(false) }
+    #   # get dependencies for each module
+    #   deps = directors.select {|dir| !mod_excludes.include?(dir.spec.name) }.inject({}) do |hash, dir|
+    #     hash[Pathname(dir.spec.interface_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
+    #     hash
+    #   end
+    #   # add common wxRuby helper module (except swig/wx.i)
+    #   deps['swig/Functions.i'] =
+    #     %w[swig/common.i swig/shared/arrayint_selections.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
+    #   deps['swig/RubyStockObjects.i'] =
+    #     %w[swig/common.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
+    #   deps['swig/RubyConstants.i'] =
+    #     %w[swig/common.i].inject([]) { |list, inc| (list << inc).concat(common_dependencies[inc]) }
+    #   deps
+    # end
 
-    def self.extract(*mods, genint: true)
-      directors.each {|dir| dir.extract_interface(genint && (mods.empty? || mods.include?(dir.spec.name))) }
+    # def self.extract(*mods, genint: true)
+    #   directors.each {|dir| dir.extract_interface(genint && (mods.empty? || mods.include?(dir.spec.name))) }
+    #
+    #   generate_modules_initializer if mods.empty?
+    #
+    #   generate_event_list if directors.any? {|dir| (mods.empty? || mods.include?(dir.spec.name)) && dir.has_events? }
+    # end
 
-      generate_modules_initializer if mods.empty?
+    # def self.generate_code(mod, *processors)
+    #   modnm = mod.end_with?('.i') ? File.basename(mod, '.i') : mod
+    #   if director_index.has_key?(modnm)
+    #     director_index[modnm].generate_code
+    #   elsif mod.end_with?('.i')
+    #     modnm = File.basename(mod, '.i')
+    #     dir = Director.new(Spec('Wx', modnm, name: modnm, processors: (processors.empty? ? nil : processors)))
+    #     dir.spec.interface_file = File.expand_path(mod, Config.wxruby_root)
+    #     dir.generate_code
+    #   else
+    #     raise "Unknown module #{mod}"
+    #   end
+    # end
+    #
+    # def self.generate_docs
+    #   # make sure all modules have been extracted from xml
+    #   directors.each {|dir| dir.extract_interface(false) }
+    #   # generate the docs
+    #   directors.each {|dir| dir.generate_doc }
+    # end
 
-      generate_event_list if directors.any? {|dir| (mods.empty? || mods.include?(dir.spec.name)) && dir.has_events? }
-    end
-
-    def self.generate_code(mod, *processors)
-      modnm = mod.end_with?('.i') ? File.basename(mod, '.i') : mod
-      if director_index.has_key?(modnm)
-        director_index[modnm].generate_code
-      elsif mod.end_with?('.i')
-        modnm = File.basename(mod, '.i')
-        dir = Director.new(Spec('Wx', modnm, name: modnm, processors: (processors.empty? ? nil : processors)))
-        dir.spec.interface_file = File.expand_path(mod, Config.wxruby_root)
-        dir.generate_code
-      else
-        raise "Unknown module #{mod}"
-      end
-    end
-
-    def self.generate_docs
-      # make sure all modules have been extracted from xml
-      directors.each {|dir| dir.extract_interface(false) }
-      # generate the docs
-      directors.each {|dir| dir.generate_doc }
-    end
-
-    def self.all_modules
-      WXRuby3::SPECIFICATIONS.collect {|spec| spec.name }
-    end
+    # def self.all_modules
+    #   WXRuby3::SPECIFICATIONS.collect {|spec| spec.name }
+    # end
 
     def initialize(spec)
       @spec = spec
@@ -635,9 +993,8 @@ module WXRuby3
         if Extractor::ClassDef === item && !item.ignored && !genspec.is_folded_base?(item.name)
           genspec.base_list(item).reverse.each do |base|
             unless genspec.def_item(base)
-              mod = base.sub(/\Awx/, '')
-              mod_dir = Director[mod]
-              deps << Pathname(mod_dir.spec.interface_file).relative_path_from(wxruby_root).to_s if mod_dir
+              spec = Spec.class_index[base]
+              deps << Pathname(spec.interface_file).relative_path_from(wxruby_root).to_s if spec
             end
           end
         end
@@ -824,7 +1181,7 @@ module WXRuby3
       genspec.def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored
           mreg[item.name] = genspec.base_class(item)
-          Spec.class_index[item.name] = genspec.module_name
+          Spec.class_index[item.name] = genspec
         end
         Spec.module_registry[genspec.module_name] = mreg
       end

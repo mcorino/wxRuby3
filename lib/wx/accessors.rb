@@ -50,19 +50,21 @@ module WxRubyStyleAccessors
       super
     end
   end
-end
 
-# Allow Wx-global functions to be accessed with nice syntax
-module Wx
-  extend WxRubyStyleAccessors
-end
-
-# Apply the syntax extensions to every class, both class methods and
-# instance methods
-all_classes = Wx::constants.collect { | c | Wx::const_get(c) }.grep(Class)
-all_classes.each do | klass |
-  klass.class_eval do
-    include WxRubyStyleAccessors
-    extend WxRubyStyleAccessors
+  class << self
+    # Apply the syntax extensions to the given module
+    def apply_to(mod)
+      # Allow any module functions to be accessed with nice syntax
+      mod.extend WxRubyStyleAccessors
+      # Apply the syntax extensions to every class, both class methods and
+      # instance methods
+      all_classes = mod.constants.collect { | c | mod.const_get(c) }.grep(Class)
+      all_classes.each do | klass |
+        klass.class_eval do
+          include WxRubyStyleAccessors
+          extend WxRubyStyleAccessors
+        end
+      end
+    end
   end
 end

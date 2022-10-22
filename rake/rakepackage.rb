@@ -13,10 +13,7 @@ task :version do
 end
 
 $base_gemspec = Gem::Specification.new do | spec |
-  spec.name = 'wxruby'
-  if RUBY_VERSION >= "1.9.0"
-    spec.name << "-ruby19"
-  end
+  spec.name = 'wxruby3'
 
   spec.version = "#{WXRUBY_VERSION}"
 
@@ -27,7 +24,7 @@ $base_gemspec = Gem::Specification.new do | spec |
 
   spec.rubyforge_project = 'wxruby'
   spec.description = <<-DESC
-  wxRuby allows the creation of graphical user interface (GUI)
+  wxRuby3 allows the creation of graphical user interface (GUI)
   applications via the wxWidgets library. wxRuby provides native-style
   GUI windows, dialogs and controls on platforms including Windows, OS X
   and Linux.

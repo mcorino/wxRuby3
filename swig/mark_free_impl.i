@@ -17,7 +17,7 @@
 // Code to be run when the ruby object is swept by GC - this only
 // unlinks the C++ object from the ruby VALUE but doesn't delete
 // it because it is still needed and will be managed by WxWidgets.
-void GcNullFreeFunc(void *ptr)
+WXRUBY_EXPORT void GcNullFreeFunc(void *ptr)
 {
   SWIG_RubyRemoveTracking(ptr);
 }
@@ -39,7 +39,7 @@ void GcNullFreeFunc(void *ptr)
 
 // Tests if the window has been signalled as destroyed by a
 // WindowDestroyEvent handled by wxRubyApp
-bool GC_IsWindowDeleted(void *ptr)
+WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)
 {
   // If objects have been 'unlinked' then DATA_PTR = 0
   if ( ! ptr )
@@ -55,7 +55,7 @@ extern void wxRuby_ReleaseEvtHandlerProcs(void *);
 
 // Records when a wxWindow has been signalled as destroyed by a
 // WindowDestroyEvent, handled by wxRubyApp (see swig/classes/App.i).
-void GC_SetWindowDeleted(void *ptr)
+WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
 {
   // All Windows are EvtHandlers, so prevent any pending events being
   // sent after destruction (otherwise ObjectPreviouslyDeleted errors result)
@@ -145,7 +145,7 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 
 // Default mark routine for Windows - preserve the main sizer and caret
 // belong to this window
-void GC_mark_wxWindow(void *ptr)
+WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
 {
 #ifdef __WXRB_TRACE__
   std::wcout << "> GC_mark_wxWindow : " << ptr << std::endl;
@@ -219,7 +219,7 @@ void GC_mark_wxWindow(void *ptr)
 }
 
 
-void GC_mark_wxFrame(void *ptr)
+WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
 {
 #ifdef __WXRB_TRACE__
   std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
@@ -257,7 +257,7 @@ void GC_mark_wxFrame(void *ptr)
 // id less than wxEVT_USER_FIRST, from wx/event.h) also use ClientData
 // for their own purposes, and this must not be marked as the data is
 // not a ruby object, and will thus crash.
-void GC_mark_wxEvent(void *ptr)
+WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
 {
 #ifdef __WXRB_TRACE__
   std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
@@ -283,10 +283,10 @@ void GC_mark_wxEvent(void *ptr)
 
 // Prevents Ruby's GC sweeping up items that are stored as client data
 // Checks whether the C++ object is still around first...
-void mark_wxControlWithItems(void* ptr)
+WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr)
 {
 #ifdef __WXRB_TRACE__
-  std::wcout << "> mark_wxControlWithItems : " << ptr << std::endl;
+  std::wcout << "> GC_mark_wxControlWithItems : " << ptr << std::endl;
 #endif
 
   if ( GC_IsWindowDeleted(ptr) )
@@ -309,7 +309,7 @@ void mark_wxControlWithItems(void* ptr)
 	}
 
 #ifdef __WXRB_TRACE__
-  std::wcout << "< mark_wxControlWithItems : " << ptr << std::endl;
+  std::wcout << "< GC_mark_wxControlWithItems : " << ptr << std::endl;
 #endif
 }
 %}

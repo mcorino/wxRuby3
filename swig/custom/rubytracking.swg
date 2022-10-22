@@ -10,15 +10,59 @@
  * garbage collector.
  * ----------------------------------------------------------------------------- */
 
+/*
+ * Since SWIG does not provide readily usable export macros
+ * and we need them here already before we can rely on the ones from
+ * wxWidgets we define our own.
+ */
+
+#ifndef WXRB_EXPORT_FLAG
+# if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#   if defined(WXRUBY_STATIC_BUILD)
+#     define WXRB_EXPORT_FLAG
+#   else
+#     define WXRB_EXPORT_FLAG __declspec(dllexport)
+#   endif
+# else
+#   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+#     define WXRB_EXPORT_FLAG __attribute__ ((visibility("default")))
+#   else
+#     define WXRB_EXPORT_FLAG
+#   endif
+# endif
+#endif
+
+#ifndef WXRB_IMPORT_FLAG
+# if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#   if defined(WXRUBY_STATIC_BUILD)
+#     define WXRB_IMPORT_FLAG
+#   else
+#     define WXRB_IMPORT_FLAG __declspec(dllimport)
+#   endif
+# else
+#   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+#     define WXRB_IMPORT_FLAG __attribute__ ((visibility("default")))
+#   else
+#     define WXRB_IMPORT_FLAG
+#   endif
+# endif
+#endif
+
+#ifdef BUILD_WXRUBY_CORE
+ 	#define WXRUBY_EXPORT WXRB_EXPORT_FLAG
+#else
+ 	#define WXRUBY_EXPORT WXRB_IMPORT_FLAG
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // Shared custom swig tracking functions
-extern void wxRuby_AddTracking(void* ptr, VALUE object);
-extern VALUE wxRuby_FindTracking(void* ptr);
-extern void wxRuby_RemoveTracking(void* ptr);
-extern void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) );
+WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object);
+WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr);
+WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr);
+WXRUBY_EXPORT void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) );
 
 /* Setup a Ruby hash table to store Trackings - mostly done in wx.i */
 SWIGRUNTIME void SWIG_RubyInitializeTrackings(void) {

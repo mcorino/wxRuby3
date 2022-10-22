@@ -9,106 +9,112 @@
 
 module WXRuby3
 
-  SPECIFICATIONS = [
-    Director.Spec('Wx', 'wxDefs'),
-    Director.Spec('Wx', 'wxGDICommon'),
-    Director.Spec('Wx', 'wxColour'),
-    Director.Spec('Wx', 'wxObject'),
-    Director.Spec('Wx', 'wxEvent'),
-    Director.Spec('Wx', 'wxEvtHandler'),
-    Director.Spec('Wx', 'wxApp'),
-    Director.Spec('Wx', 'wxDC'),
-    Director.Spec('Wx', 'wxWindowDC'),
-    Director.Spec('Wx', 'wxClientDC'),
-    Director.Spec('Wx', 'wxPaintDC'),
-    Director.Spec('Wx', 'wxMemoryDC'),
-    Director.Spec('Wx', 'wxWindow'),
-    Director.Spec('Wx', 'wxNonOwnedWindow', director: Director::Window),
-    Director.Spec('Wx', 'wxTopLevelWindow'),
-    Director.Spec('Wx', 'wxFrame'),
-    Director.Spec('Wx', 'wxGDIObject'),
-    Director.Spec('Wx', 'wxIconLocation'),
-    Director.Spec('Wx', 'wxMask'),
-    Director.Spec('Wx', 'wxBitmap'),
-    Director.Spec('Wx', 'wxIcon'),
-    Director.Spec('Wx', 'wxAccelerator'),
-    Director.Spec('Wx', 'wxMenuItem'),
-    Director.Spec('Wx', 'wxMenuBar'),
-    Director.Spec('Wx', 'wxMenu'),
-    Director.Spec('Wx', 'wxAboutDialogInfo'),
-    Director.Spec('Wx', 'wxDialog'),
-    Director.Spec('Wx', 'wxMessageDialog', director: Director::TopLevelWindow),
-    Director.Spec('Wx', 'wxSizerItem'),
-    Director.Spec('Wx', 'wxSizer'),
-    Director.Spec('Wx', 'wxBoxSizer', director: Director::Sizer),
-    Director.Spec('Wx', 'wxControl', director: Director::Window),
-    Director.Spec('Wx', 'wxTextCtrl'),
-    Director.Spec('Wx', 'wxCheckBox', director: Director::Window),
-    Director.Spec('Wx', 'wxAnyButton', director: Director::Window),
-    Director.Spec('Wx', 'wxButton'),
-    Director.Spec('Wx', 'wxToggleButton'),
-    Director.Spec('Wx', 'wxControlWithItems'),
-    Director.Spec('Wx', 'wxComboBox'),
-    Director.Spec('Wx', 'wxRadioBox'),
-    Director.Spec('Wx', 'wxPanel'),
-    Director.Spec('Wx', 'wxBookCtrlEvent'),
-    Director.Spec('Wx', 'wxBookCtrlBase', director: Director::BookCtrls),
-    Director.Spec('Wx', 'wxNotebook', director: Director::BookCtrls),
-    Director.Spec('Wx', 'wxImageList'),
-    Director.Spec('Wx', 'wxListBox'),
-    Director.Spec('Wx', 'wxChoice'),
-    Director.Spec('Wx', 'wxStaticBox', director: Director::Window),
-    Director.Spec('Wx', 'wxGauge', director: Director::Window),
-    Director.Spec('Wx', 'wxSlider', director: Director::Window),
-    Director.Spec('Wx', 'wxStaticText', director: Director::Window),
-    Director.Spec('Wx', 'wxSpinButton', director: Director::Window),
-    Director.Spec('Wx', 'wxSpinEvent'),
-    Director.Spec('Wx', 'wxSpinCtrl', director: Director::Window),
-    Director.Spec('Wx', 'wxStaticBitmap'),
-    Director.Spec('Wx', 'wxBitmapButton', director: Director::Button),
-    Director.Spec('Wx', 'wxArtProvider'),
-    Director.Spec('Wx', 'wxStaticBoxSizer', director: Director::Sizer),
-    Director.Spec('Wx', 'wxCursor'),
-    Director.Spec('Wx', 'wxRadioButton', director: Director::Window),
-    Director.Spec('Wx', 'wxToolTip'),
-    Director.Spec('Wx', 'wxLog'),
-    Director.Spec('Wx', 'wxRichTextEvent'),
-    Director.Spec('Wx', 'wxRichTextBuffer'),
-    Director.Spec('Wx', 'wxRichTextCtrl'),
-    Director.Spec('Wx', 'wxToolBar'),
-    Director.Spec('Wx', 'wxImage'),
-    Director.Spec('Wx', 'wxDragImage'),
-    Director.Spec('Wx', 'wxRichTextFileHandler'),
-    Director.Spec('Wx', 'wxRichTextXMLHandler', director: Director::RichTextFileHandler),
-    Director.Spec('Wx', 'wxRichTextHTMLHandler', director: Director::RichTextFileHandler),
-    Director.Spec('Wx', 'wxFont'),
-    Director.Spec('Wx', 'wxFontData'),
-    Director.Spec('Wx', 'wxFontDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxFileDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxLocale'),
-    Director.Spec('Wx', 'wxStyledTextEvent'),
-    Director.Spec('Wx', 'wxStyledTextCtrl'),
-    Director.Spec('Wx', 'wxSystemSettings'),
-    Director.Spec('Wx', 'wxPropertySheetDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxScrolledWindow', director: Director::ScrolledT),
-    Director.Spec('Wx', 'wxScrolledCanvas', director: Director::ScrolledT),
-    Director.Spec('Wx', 'wxFindReplaceData'),
-    Director.Spec('Wx', 'wxFindReplaceDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxFindDialogEvent'),
-    Director.Spec('Wx', 'wxToolbook', director: Director::BookCtrls),
-    Director.Spec('Wx', 'wxColourData'),
-    Director.Spec('Wx', 'wxColourDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxTextEntryDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxSingleChoiceDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxMultiChoiceDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxTipProvider'),
-    Director.Spec('Wx', 'wxDirDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxProgressDialog', director: Director::Dialog),
-    Director.Spec('Wx', 'wxWindowDisabler'),
-    Director.Spec('Wx', 'wxBusyInfo'),
-    Director.Spec('Wx', 'wxListCtrl'),
-    Director.Spec('Wx', 'wxListEvent'),
-    Director.Spec('Wx', 'wxGridEvent'),
-  ]
+  Director.Package('Wx') { |pkg|
+    Director.Spec(pkg, 'wxDefs')
+    Director.Spec(pkg, 'wxGDICommon')
+    Director.Spec(pkg, 'wxColour')
+    Director.Spec(pkg, 'wxObject')
+    Director.Spec(pkg, 'wxEvent')
+    Director.Spec(pkg, 'wxEvtHandler')
+    Director.Spec(pkg, 'wxApp')
+    Director.Spec(pkg, 'wxDC')
+    Director.Spec(pkg, 'wxWindowDC')
+    Director.Spec(pkg, 'wxClientDC')
+    Director.Spec(pkg, 'wxPaintDC')
+    Director.Spec(pkg, 'wxMemoryDC')
+    Director.Spec(pkg, 'wxWindow')
+    Director.Spec(pkg, 'wxNonOwnedWindow', director: Director::Window)
+    Director.Spec(pkg, 'wxTopLevelWindow')
+    Director.Spec(pkg, 'wxFrame')
+    Director.Spec(pkg, 'wxGDIObject')
+    Director.Spec(pkg, 'wxIconLocation')
+    Director.Spec(pkg, 'wxMask')
+    Director.Spec(pkg, 'wxBitmap')
+    Director.Spec(pkg, 'wxIcon')
+    Director.Spec(pkg, 'wxAccelerator')
+    Director.Spec(pkg, 'wxMenuItem')
+    Director.Spec(pkg, 'wxMenuBar')
+    Director.Spec(pkg, 'wxMenu')
+    Director.Spec(pkg, 'wxAboutDialogInfo')
+    Director.Spec(pkg, 'wxDialog')
+    Director.Spec(pkg, 'wxMessageDialog', director: Director::TopLevelWindow)
+    Director.Spec(pkg, 'wxSizerItem')
+    Director.Spec(pkg, 'wxSizer')
+    Director.Spec(pkg, 'wxBoxSizer', director: Director::Sizer)
+    Director.Spec(pkg, 'wxControl', director: Director::Window)
+    Director.Spec(pkg, 'wxTextCtrl')
+    Director.Spec(pkg, 'wxCheckBox', director: Director::Window)
+    Director.Spec(pkg, 'wxAnyButton', director: Director::Window)
+    Director.Spec(pkg, 'wxButton')
+    Director.Spec(pkg, 'wxToggleButton')
+    Director.Spec(pkg, 'wxControlWithItems')
+    Director.Spec(pkg, 'wxComboBox')
+    Director.Spec(pkg, 'wxRadioBox')
+    Director.Spec(pkg, 'wxPanel')
+    Director.Spec(pkg, 'wxBookCtrlEvent')
+    Director.Spec(pkg, 'wxBookCtrlBase', director: Director::BookCtrls)
+    Director.Spec(pkg, 'wxNotebook', director: Director::BookCtrls)
+    Director.Spec(pkg, 'wxImageList')
+    Director.Spec(pkg, 'wxListBox')
+    Director.Spec(pkg, 'wxChoice')
+    Director.Spec(pkg, 'wxStaticBox', director: Director::Window)
+    Director.Spec(pkg, 'wxGauge', director: Director::Window)
+    Director.Spec(pkg, 'wxSlider', director: Director::Window)
+    Director.Spec(pkg, 'wxStaticText', director: Director::Window)
+    Director.Spec(pkg, 'wxSpinButton', director: Director::Window)
+    Director.Spec(pkg, 'wxSpinEvent')
+    Director.Spec(pkg, 'wxSpinCtrl', director: Director::Window)
+    Director.Spec(pkg, 'wxStaticBitmap')
+    Director.Spec(pkg, 'wxBitmapButton', director: Director::Button)
+    Director.Spec(pkg, 'wxArtProvider')
+    Director.Spec(pkg, 'wxStaticBoxSizer', director: Director::Sizer)
+    Director.Spec(pkg, 'wxCursor')
+    Director.Spec(pkg, 'wxRadioButton', director: Director::Window)
+    Director.Spec(pkg, 'wxToolTip')
+    Director.Spec(pkg, 'wxLog')
+    Director.Spec(pkg, 'wxToolBar')
+    Director.Spec(pkg, 'wxImage')
+    Director.Spec(pkg, 'wxDragImage')
+    Director.Spec(pkg, 'wxFont')
+    Director.Spec(pkg, 'wxFontData')
+    Director.Spec(pkg, 'wxFontDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxFileDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxLocale')
+    Director.Spec(pkg, 'wxSystemSettings')
+    Director.Spec(pkg, 'wxPropertySheetDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxScrolledWindow', director: Director::ScrolledT)
+    Director.Spec(pkg, 'wxScrolledCanvas', director: Director::ScrolledT)
+    Director.Spec(pkg, 'wxFindReplaceData')
+    Director.Spec(pkg, 'wxFindReplaceDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxFindDialogEvent')
+    Director.Spec(pkg, 'wxToolbook', director: Director::BookCtrls)
+    Director.Spec(pkg, 'wxColourData')
+    Director.Spec(pkg, 'wxColourDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxTextEntryDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxSingleChoiceDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxMultiChoiceDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxTipProvider')
+    Director.Spec(pkg, 'wxDirDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxProgressDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxWindowDisabler')
+    Director.Spec(pkg, 'wxBusyInfo')
+    Director.Spec(pkg, 'wxListCtrl')
+    Director.Spec(pkg, 'wxListEvent')
+    Director.Spec(pkg, 'wxGridEvent')
+  }
+
+  Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
+    Director.Spec(pkg, 'wxRichTextEvent')
+    Director.Spec(pkg, 'wxRichTextBuffer')
+    Director.Spec(pkg, 'wxRichTextCtrl')
+    Director.Spec(pkg, 'wxRichTextFileHandler')
+    Director.Spec(pkg, 'wxRichTextXMLHandler', director: Director::RichTextFileHandler)
+    Director.Spec(pkg, 'wxRichTextHTMLHandler', director: Director::RichTextFileHandler)
+  }
+
+  Director.Package('Wx::Stc', 'wxUSE_STC') { |pkg|
+    Director.Spec(pkg, 'wxStyledTextEvent')
+    Director.Spec(pkg, 'wxStyledTextCtrl')
+  }
 
 end # module WXRuby3

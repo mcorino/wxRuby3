@@ -28,7 +28,7 @@ module WXRuby3
           // accepts a wxWindow* parent argument which may be null - but it does
           // not inherit from TopLevelWindow - so special typemap for this class.
           %typemap(check) wxWindow* parent {
-            if ( ! rb_const_defined(mWxruby3, rb_intern("THE_APP") ) )
+            if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP")) )
             { 
               rb_raise(rb_eRuntimeError,
                    "Cannot create BusyInfo before App.main_loop has been called");

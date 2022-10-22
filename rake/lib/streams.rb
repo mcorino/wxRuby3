@@ -104,6 +104,8 @@ module WXRuby3
           # remove backup
           File.unlink(ftmp_name)
         else
+          # make sure the file's folder exists
+          FileUtils.mkdir_p(File.dirname(@fullpath))
           # just rename newly generated file
           FileUtils.mv(fgen.path, @fullpath)
           # set default mode for new files

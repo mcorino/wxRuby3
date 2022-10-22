@@ -2,7 +2,7 @@
 # Linux. Normally Bitmap is used
 class Wx::Icon
   # Load the type-guessing hash from Wx::Bitmap
-  require 'wx/classes/bitmap'
+  require 'wx/core/bitmap'
   BITMAP_TYPE_GUESS = Wx::Bitmap::BITMAP_TYPE_GUESS
 
   # Analogous to Image.from_bitmap
