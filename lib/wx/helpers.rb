@@ -1,16 +1,6 @@
 # Various non-GUI helper functions
 module Wx
 
-  class << self
-    # to import namespaces/modules
-    def import(mod)
-      # include the module itself if not Wx
-      Wx.include mod unless mod == Wx
-      # for backward compatibility include all enum submodules in Wx
-      mod.constants.select {|c| mod.const_get(c).class == ::Module }.each { |c| Wx.include mod.const_get(c) }
-    end
-  end
-
   # A named parameter in a Wx named-arg parameter list
   Parameter = Struct.new( :name, :default )
 

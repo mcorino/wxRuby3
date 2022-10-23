@@ -17,8 +17,8 @@ Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
 # Helper functions
 require 'wx/helpers'
 
-# import all enum submodules in Wx itself
-Wx.import(Wx) # need to do this before loading any of the submodules
+# global constant compatibility helper
+require 'wx/global_const'
 
 # Load in all the class extension methods written in ruby
 # evthandler must be required first b/c it sets up methods modified elsewhere
@@ -35,6 +35,8 @@ WxRubyStyleAccessors.apply_to(Wx)
 
 require 'wx/keyword_ctors'
 require 'wx/keyword_defs'
+
+::Wx.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
 
 # If a program is ended by ruby's exit, it can bypass doing the proper
 # Wx clean-up routines called by Wx::App#on_exit. This can under some

@@ -7,7 +7,7 @@ class Wx::ToolBar
                       Wx::Parameter[ :position, -1 ], 
                       Wx::Parameter[ :id, -1 ],
                       Wx::Parameter[ :label, "" ], 
-                      Wx::Parameter[ :kind, Wx::ITEM_NORMAL ], 
+                      Wx::Parameter[ :kind, Wx::ItemKind::ITEM_NORMAL ],
                       Wx::Parameter[ :short_help, "" ], 
                       Wx::Parameter[ :long_help, "" ], 
                       Wx::Parameter[ :client_data, nil ] ]

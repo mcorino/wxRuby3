@@ -8,3 +8,5 @@ require 'wxruby_richtext'
 require 'wx/rich_text/require'
 
 WxRubyStyleAccessors.apply_to(Wx::RichText)
+
+::Wx::RichText.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

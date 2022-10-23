@@ -2,22 +2,22 @@
 class Wx::Bitmap
   # Allow wxRuby to guess the type of an image file from its extension.
   BITMAP_TYPE_GUESS = { 
-    'bmp'  => Wx::BITMAP_TYPE_BMP,
-    'gif'  => Wx::BITMAP_TYPE_GIF,
-    'ico'  => Wx::BITMAP_TYPE_ICO,
-    'jpeg' => Wx::BITMAP_TYPE_JPEG,
-    'jpg'  => Wx::BITMAP_TYPE_JPEG,
-    'pbm'  => Wx::BITMAP_TYPE_PNM,
-    'pcx'  => Wx::BITMAP_TYPE_PCX,
-    'pgm'  => Wx::BITMAP_TYPE_PNM,
-    'png'  => Wx::BITMAP_TYPE_PNG,
-    'pnm'  => Wx::BITMAP_TYPE_PNM,
-    'ppm'  => Wx::BITMAP_TYPE_PNM,
-    'tga'  => Wx::BITMAP_TYPE_TGA,
-    'tif'  => Wx::BITMAP_TYPE_TIF,
-    'tiff' => Wx::BITMAP_TYPE_TIF,
-    'xbm'  => Wx::BITMAP_TYPE_XBM,
-    'xpm'  => Wx::BITMAP_TYPE_XPM
+    'bmp'  => Wx::BitmapType::BITMAP_TYPE_BMP,
+    'gif'  => Wx::BitmapType::BITMAP_TYPE_GIF,
+    'ico'  => Wx::BitmapType::BITMAP_TYPE_ICO,
+    'jpeg' => Wx::BitmapType::BITMAP_TYPE_JPEG,
+    'jpg'  => Wx::BitmapType::BITMAP_TYPE_JPEG,
+    'pbm'  => Wx::BitmapType::BITMAP_TYPE_PNM,
+    'pcx'  => Wx::BitmapType::BITMAP_TYPE_PCX,
+    'pgm'  => Wx::BitmapType::BITMAP_TYPE_PNM,
+    'png'  => Wx::BitmapType::BITMAP_TYPE_PNG,
+    'pnm'  => Wx::BitmapType::BITMAP_TYPE_PNM,
+    'ppm'  => Wx::BitmapType::BITMAP_TYPE_PNM,
+    'tga'  => Wx::BitmapType::BITMAP_TYPE_TGA,
+    'tif'  => Wx::BitmapType::BITMAP_TYPE_TIF,
+    'tiff' => Wx::BitmapType::BITMAP_TYPE_TIF,
+    'xbm'  => Wx::BitmapType::BITMAP_TYPE_XBM,
+    'xpm'  => Wx::BitmapType::BITMAP_TYPE_XPM
   }
 
   # Constructor copying data from an image
