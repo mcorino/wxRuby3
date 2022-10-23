@@ -92,14 +92,14 @@ class Wx::EvtHandler
       class_eval %Q|
         def #{ev_type.name}(meth = nil, &block)
           handler = acquire_handler(meth, block)
-          connect(Wx::ID_ANY, Wx::ID_ANY, #{ev_type.const}, &handler)
+          connect(Wx::ID_ANY, Wx::ID_ANY, #{ev_type.const}, handler)
         end |
     when 1 # events with an id
       class_eval %Q|
         def #{ev_type.name}(id, meth = nil, &block)
           handler = acquire_handler(meth, block)
           id  = acquire_id(id)
-          connect(id, Wx::ID_ANY, #{ev_type.const}, &handler)
+          connect(id, Wx::ID_ANY, #{ev_type.const}, handler)
         end |
     when 2 # events with id range
       class_eval %Q|
@@ -107,7 +107,7 @@ class Wx::EvtHandler
           handler  = acquire_handler(meth, block)
           first_id = acquire_id(first_id)
           last_id  = acquire_id(last_id)
-          connect(first_id, last_id, #{ev_type.const}, &handler)
+          connect(first_id, last_id, #{ev_type.const}, handler)
         end |
     end
   end
@@ -122,15 +122,21 @@ class Wx::EvtHandler
       return block
     elsif meth and not block
       h_meth = case meth
-        when Symbol, String then self.method(meth)
-        when Proc then meth
-        when Method then meth.to_proc
+               when Symbol, String then self.method(meth)
+               when Proc then meth
+               when Method then meth
+               end
+      # check arity <= 1
+      if h_meth.arity>1
+        Kernel.raise ArgumentError,
+                     "Event handler should not accept more than at most a single argument"
+                     caller
       end
-      # Create an anonymous block to call the relevant method
-      if h_meth.arity == 1
-        return proc { | evt | h_meth.call(evt) }
+      # wrap method without any argument in anonymous proc to prevent strict argument checking
+      if Method === h_meth && h_meth.arity == 0
+        Proc.new { h_meth.call }
       else
-        return proc { h_meth.call }
+        h_meth
       end
     else
       Kernel.raise ArgumentError,

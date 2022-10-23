@@ -66,12 +66,25 @@ module WXRuby3
           // handlers which are called many times (eg evt_motion)
           class wxRbCallback : public wxObject 
           {
-          
+          private:
+              static ID c_call_id;
+              static bool c_init_done;
+            
           public:
-              wxRbCallback(VALUE func) { m_func = func; 
-                                         m_call_id = rb_intern("call"); }
-              wxRbCallback(const wxRbCallback &other) { m_func = other.m_func; 
-                                                       m_call_id = rb_intern("call"); }
+              static ID call_id ()
+              {
+                if (!c_init_done)
+                {
+                  c_init_done = true;
+                  c_call_id = rb_intern("call");
+                }
+                return c_call_id;
+              }
+
+              wxRbCallback(VALUE func) 
+                : m_func(func) {}
+              wxRbCallback(const wxRbCallback &other) 
+                : wxObject(), m_func(other.m_func) {}
           
               // This method handles all events on the WxWidgets/C++ side. It link
               // inspects the event and based on the event's type wraps it in the
@@ -82,21 +95,23 @@ module WXRuby3
               {
                 VALUE rb_event = wxRuby_WrapWxEventInRuby(&event);
                 wxRbCallback *cb = (wxRbCallback *)event.m_callbackUserData;
-                rb_funcall(cb->m_func, cb->m_call_id, 1, rb_event);
+                rb_funcall(cb->m_func, call_id (), 1, rb_event);
               }
           
-              ID m_call_id;
               VALUE m_func;
           };
+
+          ID wxRbCallback::c_call_id = 0;
+          bool wxRbCallback::c_init_done = false;
+
         __HEREDOC
         spec.add_extend_code 'wxEvtHandler', <<~__HEREDOC
           // This provides the public Ruby 'connect' method
-          VALUE connect(int firstId, int lastId, wxEventType eventType)
+          VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
           {
-            VALUE func = rb_funcall(rb_cProc, rb_intern("new"), 0);
-            wxRuby_ProtectEvtHandlerProc((void *)$self, func);
+            wxRuby_ProtectEvtHandlerProc((void *)$self, proc);
         
-            wxObject* userData = new wxRbCallback(func);
+            wxObject* userData = new wxRbCallback(proc);
             wxObjectEventFunction function = 
                 (wxObjectEventFunction )&wxRbCallback::EventThunker;
             self->Connect(firstId, lastId, eventType, function, userData);
