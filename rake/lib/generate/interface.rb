@@ -392,14 +392,14 @@ module WXRuby3
           elsif item.value =~ /wx(Colour|Font)(\(.*\))/
             frbext = init_rb_ext_file(spec) unless frbext
             frbext.indent do
-              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { Wx::#{$1}.new#{$2} }"
+              frbext.puts "Wx.add_delayed_constant(self, :#{rb_wx_name(item.name)}) { Wx::#{$1}.new#{$2} }"
             end
             frbext.puts
           elsif item.value =~ /wxSystemSettings::(\w+)\((.*)\)/
             frbext = init_rb_ext_file(spec) unless frbext
             args = $2.split(',').collect {|a| rb_constant_value(a) }.join(', ')
             frbext.indent do
-              frbext.puts "Wx.add_delayed_constant(:#{rb_wx_name(item.name)}) { Wx::SystemSettings.#{rb_method_name($1)}(#{args}) }"
+              frbext.puts "Wx.add_delayed_constant(self, :#{rb_wx_name(item.name)}) { Wx::SystemSettings.#{rb_method_name($1)}(#{args}) }"
             end
             frbext.puts
           else
