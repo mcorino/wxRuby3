@@ -95,6 +95,10 @@ module WXRuby3
         @ld          = wx_config("--ld")
         @wx_libs     = wx_config("--libs all")
 
+        # remove all warning flags provided by Ruby config
+        @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
+        @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
+
         # maintain minimum compatibility with ABI 3.0.0
         version = [ @wx_version, "3.0.0" ].min
         @wx_cppflags << " -DwxABI_VERSION=%s" % version.tr(".", "0")
