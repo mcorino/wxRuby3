@@ -59,12 +59,9 @@ if $config.has_wxwidgets_xml?
   rescue LoadError # package tasks will not be available
   end
 
-end
+  #############################
+  # public tasks
 
-#############################
-# public tasks
-
-if $config.has_wxwidgets_xml?
   if Object.respond_to?(:create_release_tasks, true)
     create_release_tasks
   end

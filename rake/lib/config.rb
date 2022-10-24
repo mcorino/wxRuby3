@@ -38,10 +38,6 @@ module WXRuby3
 
             @extmk = /extmk\.rb/ =~ $0
             @platform = case RUBY_PLATFORM
-                        when /mswin/
-                          :mswin
-                        when /bccwin/
-                          :bccwin
                         when /mingw/
                           :mingw
                         when /cygwin/
@@ -200,7 +196,7 @@ module WXRuby3
             @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].join(' ')
           end
 
-          attr_reader :ruby_exe, :extmk, :helper_modules, :helper_inits, :include_modules
+          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules
           attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
