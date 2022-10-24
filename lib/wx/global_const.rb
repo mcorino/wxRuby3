@@ -10,17 +10,20 @@ module WxGlobalConstants
     def mod.const_missing(sym)
       # check for delayed constants
       Wx.check_delayed_constant(self, sym)
-      # check any nested enum modules
-      csym = self.constants.detect do |c|
-        (sm = self.const_get(c)).class == ::Module && sm.const_defined?(sym)
+      # check any nested modules
+      const_val = nil
+      self.constants
+          .select { |c| self.const_get(c).class == ::Module }
+          .detect do |c|
+        sm =  self.const_get(c)
+        begin
+          const_val = sm.const_get(sym)
+          true
+        rescue NameError
+          false
+        end
       end
-      if csym
-        return self.const_get(csym).const_get(sym)
-      elsif self != ::Wx # check the global Wx module (if we're not it)
-        ::Wx.const_get(sym)
-      else
-        super
-      end
+      const_val || super
     end
   end
 
