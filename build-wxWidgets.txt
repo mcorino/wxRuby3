@@ -3,3 +3,15 @@ mkdir wxbuild
 mkdir install
 cd wxbuild
 ../configure --prefix=`pwd`/../install --with-gtk --enable-cxx11 --enable-stl --disable-tests --without-subdirs --with-zlib --disable-shared
+
+WINDOWS (Ruby Devkit)
+---------------------
+
+ ridk exec bash -c 'pacman -S --needed --noconfirm ${MINGW_PACKAGE_PREFIX}-libjpeg-turbo'
+ ridk exec bash -c 'pacman -S --needed --noconfirm ${MINGW_PACKAGE_PREFIX}-libpng'
+ ridk exec bash -c 'pacman -S --needed --noconfirm ${MINGW_PACKAGE_PREFIX}-libtiff'
+
+ cd %WXWIN%
+ mkdir build-msw
+ cd build-msw
+ ridk exec bash -c '../configure --disable-tests --without-subdirs'
