@@ -39,10 +39,6 @@ module WXRuby3
             nix_path(ENV['WXWIN'] || '')
           end
 
-          def get_wx_xml_path
-            nix_path(ENV['WXXML'] || '')
-          end
-
         end
       end
 
