@@ -27,6 +27,23 @@ module WXRuby3
         @wxruby_root = path
       end
 
+      def platform
+        case RUBY_PLATFORM
+        when /mingw/
+          :mingw
+        when /cygwin/
+          :cygwin
+        when /netbsd/
+          :netbsd
+        when /darwin/
+          :macosx
+        when /linux/
+          :linux
+        else
+          :unknown
+        end
+      end
+
       def create
         klass = Class.new do
           include Config
@@ -37,18 +54,7 @@ module WXRuby3
             @ruby_exe = RbConfig::CONFIG["ruby_install_name"]
 
             @extmk = /extmk\.rb/ =~ $0
-            @platform = case RUBY_PLATFORM
-                        when /mingw/
-                          :mingw
-                        when /cygwin/
-                          :cygwin
-                        when /netbsd/
-                          :netbsd
-                        when /darwin/
-                          :macosx
-                        else
-                          :linux
-                        end
+            @platform = Config.platform
             require File.join(File.dirname(__FILE__), 'config', @platform.to_s)
             self.class.include(WXRuby3::Config::Platform)
 

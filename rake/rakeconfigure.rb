@@ -2,11 +2,7 @@
 require 'yaml'
 require_relative './lib/config'
 
-WXRuby3::Config.wxruby_root = WXRUBY_ROOT
-$config = WXRuby3::Config.instance
-
-
-if $config.platform == :mingw && ENV['RI_DEVKIT'].nil?
+if WXRuby3::Config.platform == :mingw && ENV['RI_DEVKIT'].nil?
   # check if ridk installed
   if `(cmd /c ridk >null 2>&1) && echo ok`.chomp == 'ok'
     # check if ridk has msys2 and gcc installed
@@ -19,6 +15,9 @@ if $config.platform == :mingw && ENV['RI_DEVKIT'].nil?
   STDERR.puts "Missing a fully installed & configured Ruby devkit. Make sure to install the Ruby devkit with MSYS2 and MINGW toolchains."
   exit(1)
 end
+
+WXRuby3::Config.wxruby_root = WXRUBY_ROOT
+$config = WXRuby3::Config.instance
 
 if $config.macosx?
   ###

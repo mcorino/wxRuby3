@@ -14,4 +14,6 @@ WINDOWS (Ruby Devkit)
  cd %WXWIN%
  mkdir build-msw
  cd build-msw
- ridk exec bash -c '../configure --disable-tests --without-subdirs'
+ ridk exec bash -c '../configure --prefix=<installdir> --disable-tests --without-subdirs'
+ ridk exec bash -c 'make'
+ ridk exec bash -c 'make install'

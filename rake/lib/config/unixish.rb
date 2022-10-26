@@ -17,6 +17,20 @@ module WXRuby3
 
       private
 
+      def sh(cmd)
+        `#{cmd}`
+      end
+
+      # Allow specification of custom wxWidgets build (mostly useful for
+      # static wxRuby3 builds)
+      def get_wx_path
+        ENV['WXWIN'] || ''
+      end
+
+      def get_wx_xml_path
+        ENV['WXXML'] || ''
+      end
+
       # Helper function that runs the wx-config command line program from
       # wxWidgets to determine suitable builds and build options. Passed an
       # option which corresponds to one of the command-line options to
@@ -40,7 +54,7 @@ module WXRuby3
         end
 
 
-        cfg = `#{@wx_config} #{debug_mode} #{static_mode} #{option} 2>&1`
+        cfg = sh("#{@wx_config} #{debug_mode} #{static_mode} #{option} 2>&1")
 
         # Check status for errors
         unless $?.exitstatus.zero?
@@ -58,9 +72,9 @@ module WXRuby3
       def init_unix_platform
         # Allow specification of custom wxWidgets build (mostly useful for
         # static wxRuby3 builds)
-        @wx_path = ENV['WXWIN'] || ''
+        @wx_path = get_wx_path
 
-        @wx_xml_path = ENV['WXXML'] || ''
+        @wx_xml_path = get_wx_xml_path
 
         @wx_config = @wx_path.empty? ? 'wx-config' : File.join(@wx_path, 'bin', 'wx-config')
 
