@@ -8,6 +8,7 @@ if WXRuby3::Config.platform == :mingw && ENV['RI_DEVKIT'].nil?
     # check if ridk has msys2 and gcc installed
     ridk_cfg = YAML.load `ridk version`.chomp
     if ridk_cfg['msys2'] && ridk_cfg['msys2']['path'] && ridk_cfg['cc']
+      STDERR.puts "> respawning under ridk" if Rake.verbose
       # respawn rake under ridk
       ::Kernel.exec("cmd /c ridk exec rake #{ARGV.join(' ')}")
     end

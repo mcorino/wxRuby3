@@ -74,6 +74,8 @@ module WXRuby3
         # static wxRuby3 builds)
         @wx_path = get_wx_path
 
+        STDERR.puts "> wx_path = '#{@wx_path}'" if Rake.verbose
+
         @wx_xml_path = get_wx_xml_path
 
         @wx_config = @wx_path.empty? ? 'wx-config' : File.join(@wx_path, 'bin', 'wx-config')
