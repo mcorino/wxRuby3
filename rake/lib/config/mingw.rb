@@ -45,6 +45,8 @@ module WXRuby3
       def init_platform
         init_unix_platform
 
+        @wx_setup_h = win_path(@wx_setup_h) # need to convert this to windows path
+
         @extra_cppflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
         @extra_cppflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
