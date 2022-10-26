@@ -16,7 +16,9 @@ module WXRuby3
       def setup
         spec.ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText])
         spec.no_proxy('wxMenuItem::GetAccel')
-        spec.set_only_for('__WXMSW__', 'wxMenuItem::SetBitmap(const wxBitmap &,bool)')
+        if Config.instance.wx_version < '3.2.0'
+          spec.set_only_for('__WXMSW__', 'wxMenuItem::SetBitmap(const wxBitmap &,bool)')
+        end
         super
       end
     end # class MenuItem
