@@ -19,7 +19,9 @@ module WXRuby3
 
       def sh(cmd)
         STDERR.puts "> sh: #{cmd}" if Rake.verbose
-        `#{cmd}`
+        s = `#{cmd}`
+        STDERR.puts "< #{s}" if Rake.verbose
+        s
       end
 
       # Allow specification of custom wxWidgets build (mostly useful for
