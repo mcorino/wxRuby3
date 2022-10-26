@@ -908,7 +908,7 @@ module WXRuby3
           end
         end
       else
-        STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}', item '#{item}') to #{action}."
+        STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to #{action}."
       end
     end
 

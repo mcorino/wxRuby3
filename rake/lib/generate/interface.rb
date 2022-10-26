@@ -272,7 +272,7 @@ module WXRuby3
             end
           end
         when Extractor::EnumDef
-          if member.protection == visibility && !member.ignored && !member.deprecated
+          if member.protection == visibility && !member.ignored && !member.deprecated && member.items.any? {|e| !e.ignored }
             gen_only_for(fout, member) do
               fout.puts "  // from #{classdef.name}::#{member.name}"
               fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
@@ -339,7 +339,7 @@ module WXRuby3
 
     def gen_enums(fout, spec)
       fout << spec.def_items.inject('') do |code, item|
-        if Extractor::EnumDef === item && !item.ignored
+        if Extractor::EnumDef === item && !item.ignored && !item.items.all? {|e| e.ignored }
           fout.puts
           fout.puts "// from enum #{item.name.start_with?('@') ? '' : item.name}"
           item.items.each do |e|

@@ -32,10 +32,11 @@ module WXRuby3
         update_attributes(**kwargs)
       end
 
-      attr_accessor :in_class, :protection
+      attr_accessor :is_anonymous, :in_class, :protection
 
       def extract(element)
         super
+        @is_anonymous = name.start_with?('@')
         element.xpath('enumvalue').each do |node|
           value = EnumValueDef.new(node)
           items << value

@@ -350,6 +350,10 @@ module WXRuby3
             else
               return item.find(tail)
             end
+          elsif head == '@' && EnumDef === item && item.is_anonymous
+            break unless tail # MUST have an enumerator name for anonymous enums
+            e = item.find_item(tail)
+            return e if e
           end
         end
         raise ExtractorError.new(

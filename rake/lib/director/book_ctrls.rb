@@ -33,7 +33,7 @@ module WXRuby3
           spec.items.replace %w[wxBookCtrlBase wxWithImages]
           spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
-          spec.ignore('wxWithImages::@57', 'wxWithImages::SetImageList')
+          spec.ignore('wxWithImages::@.NO_IMAGE', 'wxWithImages::SetImageList')
           spec.rename_for_ruby('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
         when 'wxNotebook'
