@@ -17,33 +17,34 @@ module WXRuby3
 
       def self.included(base)
         base.include Config::UnixLike
+        base.class_eval do
+
+          private
+
+          def sh(cmd)
+            super("bash -c '#{cmd}'")
+          end
+
+          def nix_path(winpath)
+            (winpath.nil? || winpath.empty?) ? '' : `cygpath -a -u #{winpath}`.strip
+          end
+
+          # Allow specification of custom wxWidgets build (mostly useful for
+          # static wxRuby3 builds)
+          def win_path(nixpath)
+            (nixpath.nil? || nixpath.empty?) ? '' : `cygpath -a -w #{nixpath}`.strip
+          end
+
+          def get_wx_path
+            nix_path(ENV['WXWIN'] || '')
+          end
+
+          def get_wx_xml_path
+            nix_path(ENV['WXXML'] || '')
+          end
+
+        end
       end
-
-      private
-
-      def sh(cmd)
-        `bash -c '#{cmd}'`
-      end
-
-      def nix_path(winpath)
-        (winpath.nil? || winpath.empty?) ? '' : `cygpath -a -u #{winpath}`.strip
-      end
-
-      # Allow specification of custom wxWidgets build (mostly useful for
-      # static wxRuby3 builds)
-      def win_path(nixpath)
-        (nixpath.nil? || nixpath.empty?) ? '' : `cygpath -a -w #{nixpath}`.strip
-      end
-
-      def get_wx_path
-        nix_path(ENV['WXWIN'] || '')
-      end
-
-      def get_wx_xml_path
-        nix_path(ENV['WXXML'] || '')
-      end
-
-      public
 
       def init_platform
         init_unix_platform

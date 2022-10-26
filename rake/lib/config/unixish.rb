@@ -18,6 +18,7 @@ module WXRuby3
       private
 
       def sh(cmd)
+        STDERR.puts "> sh: #{cmd}" if Rake.verbose
         `#{cmd}`
       end
 
