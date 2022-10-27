@@ -37,7 +37,7 @@ $base_gemspec = Gem::Specification.new do | spec |
                       FileList[ 'samples/**/*' ].to_a +
                       FileList[ 'README', 'INSTALL', 'LICENSE' ].to_a
 
-  spec.has_rdoc = false
+  # spec.has_rdoc = false
 end
 
 def create_release_tasks
