@@ -47,7 +47,7 @@ module WXRuby3
       end
 
       def init_platform
-        @with_ridk = !!ENV['RI_DEVKIT'].nil?
+        @with_ridk = !!ENV['RI_DEVKIT']
         unless @with_ridk
           # check if ridk installed
           has_ridk = false
