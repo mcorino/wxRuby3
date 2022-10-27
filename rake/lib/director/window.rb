@@ -112,7 +112,7 @@ module WXRuby3
             VALUE get_handle()
             {
               wxWindow *win = self;
-              in64_t handle = (int64_t)win->GetHandle();
+              int64_t handle = (int64_t)win->GetHandle();
               return LL2NUM(handle);
             }
           
