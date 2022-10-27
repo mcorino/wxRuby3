@@ -21,22 +21,18 @@ module WXRuby3
 
           private
 
-          def ridk_cmd(cmd)
-            @with_ridk ? cmd : "ridk exec #{cmd}"
-          end
-
           def sh(cmd)
-            super(ridk_cmd("bash -c \"#{cmd}\""))
+            super("bash -c \"#{cmd}\"")
           end
 
           def nix_path(winpath)
-            (winpath.nil? || winpath.empty?) ? '' : `#{ridk_cmd("cygpath -a -u #{winpath}")}`.strip
+            (winpath.nil? || winpath.empty?) ? '' : `cygpath -a -u #{winpath}`.strip
           end
 
           # Allow specification of custom wxWidgets build (mostly useful for
           # static wxRuby3 builds)
           def win_path(nixpath)
-            (nixpath.nil? || nixpath.empty?) ? '' : `#{ridk_cmd("cygpath -a -w #{nixpath}")}`.strip
+            (nixpath.nil? || nixpath.empty?) ? '' : `cygpath -a -w #{nixpath}`.strip
           end
 
           def get_wx_path
@@ -47,23 +43,6 @@ module WXRuby3
       end
 
       def init_platform
-        @with_ridk = !!ENV['RI_DEVKIT']
-        unless @with_ridk
-          # check if ridk installed
-          has_ridk = false
-          if `(cmd /c ridk >null 2>&1) && echo ok`.chomp == 'ok'
-            # check if ridk has msys2 and gcc installed
-            ridk_cfg = YAML.load `ridk version`.chomp
-            if ridk_cfg['msys2'] && ridk_cfg['msys2']['path'] && ridk_cfg['cc']
-              has_ridk = true
-            end
-          end
-          unless has_ridk
-            STDERR.puts "Missing a fully installed & configured Ruby devkit. Make sure to install the Ruby devkit with MSYS2 and MINGW toolchains."
-            exit(1)
-          end
-        end
-
         init_unix_platform
 
         # need to convert these to windows paths
