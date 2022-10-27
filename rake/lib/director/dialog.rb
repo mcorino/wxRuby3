@@ -19,7 +19,8 @@ module WXRuby3
         super
         case spec.module_name
         when 'wxDialog'
-          spec.ignore('wxDialog::GetContentWindow')
+          spec.ignore('wxDialog::GetContentWindow',
+                      'wxDialog::GetToolBar') # seemingly removed from MSW
           spec.swig_import('swig/classes/include/wxDefs.h')
         when 'wxFontDialog'
           spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFontData* data };'
