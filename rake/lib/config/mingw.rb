@@ -21,18 +21,22 @@ module WXRuby3
 
           private
 
+          def ridk_cmd(cmd)
+            @with_ridk ? cmd : "ridk exec #{cmd}"
+          end
+
           def sh(cmd)
-            super("bash -c '#{cmd}'")
+            super(ridk_cmd("bash -c '#{cmd}'"))
           end
 
           def nix_path(winpath)
-            (winpath.nil? || winpath.empty?) ? '' : `cygpath -a -u #{winpath}`.strip
+            (winpath.nil? || winpath.empty?) ? '' : `#{ridk_cmd("cygpath -a -u #{winpath}")}`.strip
           end
 
           # Allow specification of custom wxWidgets build (mostly useful for
           # static wxRuby3 builds)
           def win_path(nixpath)
-            (nixpath.nil? || nixpath.empty?) ? '' : `cygpath -a -w #{nixpath}`.strip
+            (nixpath.nil? || nixpath.empty?) ? '' : `#{ridk_cmd("cygpath -a -w #{nixpath}")}`.strip
           end
 
           def get_wx_path
@@ -43,9 +47,29 @@ module WXRuby3
       end
 
       def init_platform
+        @with_ridk = !!ENV['RI_DEVKIT'].nil?
+        unless @with_ridk
+          # check if ridk installed
+          has_ridk = false
+          if `(cmd /c ridk >null 2>&1) && echo ok`.chomp == 'ok'
+            # check if ridk has msys2 and gcc installed
+            ridk_cfg = YAML.load `ridk version`.chomp
+            if ridk_cfg['msys2'] && ridk_cfg['msys2']['path'] && ridk_cfg['cc']
+              has_ridk = true
+            end
+          end
+          unless has_ridk
+            STDERR.puts "Missing a fully installed & configured Ruby devkit. Make sure to install the Ruby devkit with MSYS2 and MINGW toolchains."
+            exit(1)
+          end
+        end
+
         init_unix_platform
 
-        @wx_setup_h = win_path(@wx_setup_h) # need to convert this to windows path
+        # need to convert these to windows paths
+        @wx_setup_h = win_path(@wx_setup_h)
+        @wx_cppflags.gsub(/^-I(\S+)|\s-I(\S+)/) { |s| win_path($1 || $2) }
+        @wx_libs.gsub(/^-L(\S+)|\s-L(\S+)/) { |s| win_path($1 || $2) }
 
         @extra_cppflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
         @extra_cppflags << ' -Wno-deprecated-declarations' unless @no_deprecated
