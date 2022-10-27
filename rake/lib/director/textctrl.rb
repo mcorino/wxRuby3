@@ -22,6 +22,9 @@ module WXRuby3
         spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore ['wxTextCtrl::HitTest(const wxPoint &,long *)', 'wxTextAttr::Merge(const wxTextAttr &,const wxTextAttr &)']
+        if Config.instance.wx_version > '3.1.5'
+          spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
+        end
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
         spec.add_swig_code <<~__HEREDOC
           %apply long * OUTPUT { long * }
