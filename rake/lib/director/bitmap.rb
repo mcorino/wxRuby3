@@ -35,7 +35,7 @@ module WXRuby3
         # // wxPalette not supported in wxRuby
         spec.ignore 'wxBitmap::SetPalette'
         spec.ignore 'wxBitmap::UseAlpha'
-        spec.extend_code 'wxBitmap', <<~__HEREDOC
+        spec.add_extend_code 'wxBitmap', <<~__HEREDOC
           // wxw documentation incorrectly declares this method
           // with a 'bool' return type which should be void
           void use_alpha(bool val)
