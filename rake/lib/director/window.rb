@@ -111,13 +111,13 @@ module WXRuby3
             // Return a window handle as a platform-specific ruby integer
             VALUE get_handle()
             {
-            wxWindow *win = self;
-              long handle = (long)win->GetHandle();
-            return LONG2NUM(handle);
+              wxWindow *win = self;
+              in64_t handle = (int64_t)win->GetHandle();
+              return LONG2NUM(handle);
             }
           
             // Attach a wx Object to an existing Windows handle (MSW only)
-            VALUE associate_handle(long handle)
+            VALUE associate_handle(int64_t handle)
             {
               WXWidget wx_handle = (WXWidget)handle;
               $self->AssociateHandle(wx_handle);
