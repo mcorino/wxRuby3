@@ -113,7 +113,7 @@ module WXRuby3
             {
               wxWindow *win = self;
               in64_t handle = (int64_t)win->GetHandle();
-              return LONG2NUM(handle);
+              return LL2NUM(handle);
             }
           
             // Attach a wx Object to an existing Windows handle (MSW only)
