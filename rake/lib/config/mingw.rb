@@ -68,8 +68,8 @@ module WXRuby3
 
         # need to convert these to windows paths
         @wx_setup_h = win_path(@wx_setup_h)
-        @wx_cppflags.gsub(/^-I(\S+)|\s-I(\S+)/) { |s| win_path($1 || $2) }
-        @wx_libs.gsub(/^-L(\S+)|\s-L(\S+)/) { |s| win_path($1 || $2) }
+        @wx_cppflags.gsub!(/^-I(\S+)|\s-I(\S+)/) { |s| win_path($1 || $2) }
+        @wx_libs.gsub!(/^-L(\S+)|\s-L(\S+)/) { |s| win_path($1 || $2) }
 
         @extra_cppflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
         @extra_cppflags << ' -Wno-deprecated-declarations' unless @no_deprecated
