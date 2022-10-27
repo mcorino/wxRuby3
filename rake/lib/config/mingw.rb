@@ -26,7 +26,7 @@ module WXRuby3
           end
 
           def sh(cmd)
-            super(ridk_cmd("bash -c '#{cmd}'"))
+            super(ridk_cmd("bash -c \"#{cmd}\""))
           end
 
           def nix_path(winpath)
