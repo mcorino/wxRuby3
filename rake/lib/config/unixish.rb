@@ -119,8 +119,8 @@ module WXRuby3
         @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
 
         # maintain minimum compatibility with ABI 3.0.0
-        version = [ @wx_version, "3.0.0" ].min
-        @wx_cppflags << " -DwxABI_VERSION=%s" % version.tr(".", "0")
+        @wx_abi_version = [ @wx_version, "3.0.0" ].min
+        @wx_cppflags << " -DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
 
         # Find out where the wxWidgets setup.h file being used is located; this
         # will be used later in rakeconfigure.rb

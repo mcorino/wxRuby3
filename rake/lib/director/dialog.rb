@@ -38,6 +38,10 @@ module WXRuby3
             }
             __HEREDOC
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
+          if Config.instance.wx_version >= '3.2.1'
+            # doc does not seem to match actual header code so just ignore for now
+            spec.ignore('wxFileDialog::AddShortcut')
+          end
         when 'wxPropertySheetDialog'
           spec.ignore 'wxPropertySheetDialog::GetContentWindow'
           # In Ruby a derived class with customized '#initialize' is far easier
