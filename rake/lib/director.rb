@@ -662,7 +662,7 @@ module WXRuby3
           fsrc.puts '#ifdef __cplusplus'
           fsrc.puts 'extern "C"'
           fsrc.puts '#endif'
-          fsrc.puts "void Init_#{libname}()"
+          fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
           fsrc.puts '{'
           fsrc.indent do
             fsrc.puts 'static bool initialized;'
