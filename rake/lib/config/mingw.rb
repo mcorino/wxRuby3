@@ -19,6 +19,11 @@ module WXRuby3
         base.include Config::UnixLike
         base.class_eval do
 
+          alias :base_ldflags :ldflags
+          def ldflags(target)
+            "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
+          end
+
           private
 
           def sh(cmd)
