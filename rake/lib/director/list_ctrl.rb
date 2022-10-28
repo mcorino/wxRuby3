@@ -80,7 +80,7 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           // Helper code for SortItems - yields the two items being compared into
           // the associated block, and get an integer return value
-          int wxCALLBACK wxListCtrl_SortByYielding(long item1, long item2, long data)
+          int wxCALLBACK wxListCtrl_SortByYielding(wxIntPtr item1, wxIntPtr item2, wxIntPtr data)
           {
             VALUE items = rb_ary_new();
             rb_ary_push(items, (VALUE)item1);
