@@ -7,6 +7,12 @@ cd wxbuild
 WINDOWS (Ruby Devkit)
 ---------------------
 
+ Prerequisities:
+ - RubyInstaller with Devkit
+ - SWIG for windows (binary in path)
+ - Doxygen for windows (binary in path)
+ - wxWidgets source installation
+
  ridk exec bash -c 'pacman -S --needed --noconfirm ${MINGW_PACKAGE_PREFIX}-libjpeg-turbo'
  ridk exec bash -c 'pacman -S --needed --noconfirm ${MINGW_PACKAGE_PREFIX}-libpng'
  ridk exec bash -c 'pacman -S --needed --noconfirm ${MINGW_PACKAGE_PREFIX}-libtiff'
