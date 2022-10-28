@@ -129,8 +129,8 @@ module WXRuby3
               @ruby_includes = " -I. -I " + RbConfig::CONFIG["archdir"]
             end
 
-            @ruby_ldflags = RbConfig::CONFIG['LDFLAGS']
-            @ruby_libs  = "#{RbConfig::CONFIG['LIBS']} #{RbConfig::CONFIG['LIBRUBYARG']}"
+            @ruby_ldflags = "#{RbConfig::CONFIG['LDFLAGS']} #{RbConfig::CONFIG['DLDFLAGS']} #{RbConfig::CONFIG['ARCHFLAG']}"
+            @ruby_libs  = "#{RbConfig::CONFIG['LIBS']} #{RbConfig::CONFIG['DLDLIBS']} #{RbConfig::CONFIG['LIBRUBYARG_SHARED']}"
             @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
             @extra_ldflags = ''
             @extra_objs = ''
