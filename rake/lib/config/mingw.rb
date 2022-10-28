@@ -74,6 +74,7 @@ module WXRuby3
         @wx_libs = libs.join(' ')
 
         @ruby_ldflags << " -L#{RbConfig::CONFIG['libdir']}"
+        @ruby_cppflags << " #{RbConfig::CONFIG['debugflags']}" if @debug_build
 
         # # Where the directory containing setup.h with the wxWidgets compile
         # # options can be found; name depends on whether unicode and whether
