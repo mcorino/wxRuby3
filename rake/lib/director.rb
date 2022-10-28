@@ -620,17 +620,49 @@ module WXRuby3
         Stream.transaction do
           fsrc = CodeStream.new(initializer_src)
           fsrc.puts '#include <ruby.h>'
-          fsrc.puts '#include <wx/dlimpexp.h>'
+          fsrc.puts <<~__HEREDOC
+            #ifndef WXRB_EXPORT_FLAG
+            # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+            #   if defined(WXRUBY_STATIC_BUILD)
+            #     define WXRB_EXPORT_FLAG
+            #   else
+            #     define WXRB_EXPORT_FLAG __declspec(dllexport)
+            #   endif
+            # else
+            #   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+            #     define WXRB_EXPORT_FLAG __attribute__ ((visibility("default")))
+            #   else
+            #     define WXRB_EXPORT_FLAG
+            #   endif
+            # endif
+            #endif
+
+            #ifndef WXRB_IMPORT_FLAG
+            # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+            #   if defined(WXRUBY_STATIC_BUILD)
+            #     define WXRB_IMPORT_FLAG
+            #   else
+            #     define WXRB_IMPORT_FLAG __declspec(dllimport)
+            #   endif
+            # else
+            #   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+            #     define WXRB_IMPORT_FLAG __attribute__ ((visibility("default")))
+            #   else
+            #     define WXRB_IMPORT_FLAG
+            #   endif
+            # endif
+            #endif
+            __HEREDOC
           fsrc.puts
           fsrc.puts "VALUE #{module_variable} = 0;"
-          fsrc.puts "WXIMPORT VALUE wxRuby_Core();" unless is_core?
+          fsrc.puts "WXRB_IMPORT_FLAG VALUE wxRuby_Core();" unless is_core?
           fsrc.puts
           fsrc.puts decls.join("\n")
           fsrc.puts
           fsrc.puts '#ifdef __cplusplus'
           fsrc.puts 'extern "C"'
           fsrc.puts '#endif'
-          fsrc.puts "WXEXPORT void Init_#{libname}()"
+          fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
           fsrc.puts '{'
           fsrc.indent do
             fsrc.puts 'static bool initialized;'
