@@ -25,8 +25,8 @@ class Wx::ToolBar
 
     # backwards compatibility support for Wx >= 3.1.6
     if Wx::WXWIDGETS_VERSION > '3.1.5'
-      bitmap1 = wxBitmapBundle.new(bitmap1) if Wx::Bitmap === bitmap1
-      bitmap2 = wxBitmapBundle.new(bitmap2) if Wx::Bitmap === bitmap2
+      bitmap1 = Wx::BitmapBundle.new(bitmap1) if Wx::Bitmap === bitmap1
+      bitmap2 = Wx::BitmapBundle.new(bitmap2) if Wx::Bitmap === bitmap2
     end
 
     pos = args.shift
