@@ -130,7 +130,7 @@ module WXRuby3
             end
 
             @ruby_ldflags = RbConfig::CONFIG['LDFLAGS']
-            @ruby_libs  = RbConfig::CONFIG['LIBS']
+            @ruby_libs  = "#{RbConfig::CONFIG['LIBS']} #{RbConfig::CONFIG['LIBRUBYARG']}"
             @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
             @extra_ldflags = ''
             @extra_objs = ''
