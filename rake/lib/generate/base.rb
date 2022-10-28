@@ -160,6 +160,12 @@ module WXRuby3
         @ifspec.forced_proxy?(cls)
       end
 
+      def has_proxy?(class_def)
+        !disabled_proxies &&
+          (class_def.ignored || class_def.is_template? || has_virtuals?(class_def) || forced_proxy?(class_def.name)) &&
+          !no_proxies.include?(class_name(class_def))
+      end
+
       def disowns
         @ifspec.disowns
       end

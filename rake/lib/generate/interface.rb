@@ -76,7 +76,7 @@ module WXRuby3
         end
       else
         spec.def_classes.each do |cls|
-          unless cls.ignored && cls.is_template? || (spec.has_virtuals?(cls) || spec.forced_proxy?(cls.name))
+          unless cls.ignored || cls.is_template? || spec.has_virtuals?(cls) || spec.forced_proxy?(cls.name)
             fout.puts "%feature(\"nodirector\") #{spec.class_name(cls)};"
           end
         end
@@ -200,16 +200,19 @@ module WXRuby3
 
       unless is_struct
         fout.puts 'public:'
-        if (abstract_class = spec.is_abstract?(classdef))
-          fout.puts "  virtual ~#{spec.class_name(classdef)}() =0;"
-        end
       end
+      if (abstract_class = spec.is_abstract?(classdef))
+        fout.puts "  virtual ~#{spec.class_name(classdef)}() =0;"
+      end
+      requires_purevirtual = spec.has_proxy?(classdef)
 
       methods = []
-      gen_interface_class_members(fout, spec, classdef.name, classdef, 'public', methods, abstract_class)
+      gen_interface_class_members(fout, spec, classdef.name, classdef,
+                                  'public', methods, abstract_class, requires_purevirtual)
 
       spec.folded_bases(classdef.name).each do |basename|
-        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), 'public', methods)
+        gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename),
+                                    'public', methods, abstract_class, requires_purevirtual)
       end
 
       spec.member_extensions(classdef.name).each do |extdecl|
@@ -222,17 +225,19 @@ module WXRuby3
       unless is_struct || !need_protected
         fout.puts
         fout.puts ' protected:'
-        gen_interface_class_members(fout, spec, classdef.name, classdef, 'protected', methods, abstract_class)
+        gen_interface_class_members(fout, spec, classdef.name, classdef,
+                                    'protected', methods, abstract_class, requires_purevirtual)
 
         spec.folded_bases(classdef.name).each do |basename|
-          gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename), 'protected', methods)
+          gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename),
+                                      'protected', methods, abstract_class, requires_purevirtual)
         end
       end
 
       fout.puts '};'
     end
 
-    def gen_interface_class_members(fout, spec, class_name, classdef, visibility, methods, abstract=false)
+    def gen_interface_class_members(fout, spec, class_name, classdef, visibility, methods, abstract=false, requires_purevirtual=false)
       # generate any inner classes
       classdef.innerclasses.each do |inner|
         if inner.protection == visibility && !inner.ignored && !inner.deprecated
@@ -264,10 +269,10 @@ module WXRuby3
               fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{ctor_sig};"
             end
           elsif member.protection == visibility
-            gen_interface_class_method(fout, member, methods) if !member.ignored && !member.deprecated && !member.is_template?
+            gen_interface_class_method(fout, member, methods, requires_purevirtual) if !member.ignored && !member.deprecated && !member.is_template?
             member.overloads.each do |ovl|
-              if ovl.protection == visibility && !ovl.ignored && !ovl.deprecated && !member.is_template?
-                gen_interface_class_method(fout, ovl, methods)
+              if ovl.protection == visibility && !ovl.ignored && !ovl.deprecated && !ovl.is_template?
+                gen_interface_class_method(fout, ovl, methods, requires_purevirtual)
               end
             end
           end
@@ -296,7 +301,7 @@ module WXRuby3
       end
     end
 
-    def gen_interface_class_method(fout, methoddef, methods)
+    def gen_interface_class_method(fout, methoddef, methods, requires_purevirtual=false)
       # skip virtuals that have been overridden
       unless (methoddef.is_virtual && methods.any? { |m| m.signature == methoddef.signature }) ||
         # skip virtual that have non-virtual shadowing overloads
@@ -305,7 +310,8 @@ module WXRuby3
           fout.puts "  // from #{methoddef.definition}"
           mdecl = methoddef.is_static ? 'static ' : ''
           mdecl << 'virtual ' if methoddef.is_virtual
-          fout.puts "  #{mdecl}#{methoddef.type} #{methoddef.name}#{methoddef.args_string};"
+          purespec = (requires_purevirtual && methoddef.is_pure_virtual) ? ' =0' : ''
+          fout.puts "  #{mdecl}#{methoddef.type} #{methoddef.name}#{methoddef.args_string}#{purespec};"
         end
         methods << methoddef
       end
