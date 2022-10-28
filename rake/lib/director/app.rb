@@ -173,8 +173,10 @@ module WXRuby3
             int main_loop()
             {
               rb_define_const(#{spec.package.module_variable}, "THE_APP", SWIG_RubyInstanceFor(this));
+          #ifndef __WXMSW__
               static int argc = 1;
               static wxChar *argv[] = {const_cast<wxChar*> (wxT("wxruby")), NULL};
+          #endif
               this->Connect(wxEVT_DESTROY,
                     wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
           
