@@ -68,6 +68,8 @@ module WXRuby3
 
         @wx_libs = libs.join(' ')
 
+        @ruby_ldflags << " #{RbConfig::CONFIG['libdir']}"
+
         # # Where the directory containing setup.h with the wxWidgets compile
         # # options can be found; name depends on whether unicode and whether
         # # debug or release. For now, only support unicode.
