@@ -14,6 +14,10 @@ module WXRuby3
     class Bitmap < Director
 
       def setup
+        if Config.instance.wx_version > '3.1.5'
+          spec.items << 'wxBitmapBundle'
+          spec.gc_as_object 'wxBitmapBundle'
+        end
         spec.no_proxy 'wxBitmap'
         # // Handler functions are not needed in wxRuby - all standard handlers
         # // are loaded at startup, and we don't allow custom image handlers to be
