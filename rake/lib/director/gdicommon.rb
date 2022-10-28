@@ -27,6 +27,10 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &) const',
           'wxRect::Union(const wxRect &) const'
         ]
+        spec.regard %w[
+          wxPoint::x wxPoint::y
+          wxRealPoint::x wxRealPoint::y
+          ]
         spec.set_only_for '__WXGTK__', 'wxStockCursor.wxCURSOR_DEFAULT'
         spec.set_only_for '__X__', %w{
           wxStockCursor.wxCURSOR_CROSS_REVERSE
