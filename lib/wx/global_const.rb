@@ -28,3 +28,16 @@ module WxGlobalConstants
   end
 
 end
+
+# also take care of things when the Wx module itself is included somewhere
+module Wx
+  def self.included(mod)
+    def mod.const_missing(sym)
+      begin
+        return ::Wx.const_get(sym)
+      rescue NameError
+      end
+      super
+    end
+  end
+end
