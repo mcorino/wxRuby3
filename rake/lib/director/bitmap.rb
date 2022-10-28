@@ -17,6 +17,7 @@ module WXRuby3
         if Config.instance.wx_version > '3.1.5'
           spec.items << 'wxBitmapBundle'
           spec.gc_as_object 'wxBitmapBundle'
+          spec.ignore 'wxBitmapBundle::FromSVG(char *,const wxSize &)'
         end
         spec.no_proxy 'wxBitmap'
         # // Handler functions are not needed in wxRuby - all standard handlers
