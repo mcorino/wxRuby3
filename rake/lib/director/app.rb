@@ -242,21 +242,12 @@ module WXRuby3
               }
             }
           
-          #ifdef __WXMSW__
-            void OnEndSession(wxCloseEvent& event) override
-            {
-              wxRuby_Cleanup();
-
-              return this->wxApp::OnEndSession(event);
-            }
-          #else
             int OnExit() override
             {
               wxRuby_Cleanup();
       
               return this->wxApp::OnExit();
             }
-          #endif
           
             // actually implemented in ruby in classes/app.rb
             virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
