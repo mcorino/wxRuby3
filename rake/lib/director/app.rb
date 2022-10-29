@@ -56,6 +56,9 @@ module WXRuby3
           wxSafeYield
           wxExit
         }
+        unless Config.instance.wx_abi_version >= '3.2.1'
+          spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
+        end
         spec.extend_class('wxApp', 'int main_loop ()')
         spec.ignore [
           'wxEntry(int &,wxChar **)',
