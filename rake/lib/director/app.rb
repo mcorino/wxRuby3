@@ -214,7 +214,7 @@ module WXRuby3
             // before yielding to ruby by calling the App's on_init method.
             // Note that as of wxWidget 2.8, the stock fonts in particular cannot
             // be initialized any earlier than this without crashing
-            bool OnInit()
+            bool OnInit() override
             {
           #ifdef __WXRB_DEBUG__
               std::wcout << "OnInit..." << std::endl;
@@ -242,10 +242,34 @@ module WXRuby3
               }
             }
           
-            virtual int OnExit()
+          #ifdef __WXMSW__
+            void OnEndSession(wxCloseEvent& event) override
+            {
+              wxRuby_Cleanup();
+
+              return this->wxApp::OnEndSession(event);
+            }
+          #else
+            int OnExit() override
+            {
+              wxRuby_Cleanup();
+      
+              return this->wxApp::OnExit();
+            }
+          #endif
+          
+            // actually implemented in ruby in classes/app.rb
+            virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
+            {
+              std::wcout << "ASSERT fired" << std::endl;
+            }
+
+          private:
+
+            void wxRuby_Cleanup()
             {
           #ifdef __WXRB_DEBUG__
-              std::wcout << "OnExit..." << std::endl;
+              std::wcout << "wxRuby_Cleanup..." << std::endl;
           #endif
               // Note in a global variable that the App has ended, so that we
               // can skip any GC marking later
@@ -257,14 +281,6 @@ module WXRuby3
               {
                 delete oldlog;
               }
-      
-              return 0;
-            }
-          
-            // actually implemented in ruby in classes/app.rb
-            virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
-            {
-              std::wcout << "ASSERT fired" << std::endl;
             }
           };
           __HEREDOC
