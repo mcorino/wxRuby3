@@ -17,20 +17,19 @@ module WXRuby3
       private
 
       def _stack
-        @stack ||= []
+        Thread.current[:stream_transaction_stack] ||= []
       end
 
       def _start_transaction
-        _stack << (@transaction = [])
+        _stack << []
       end
 
       def _close_transaction
         _stack.pop
-        @transaction = _stack.last
       end
 
       def _transaction
-        @transaction
+        _stack.last
       end
 
       def _commit
