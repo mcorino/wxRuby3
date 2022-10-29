@@ -379,6 +379,18 @@ module WXRuby3
         self
       end
 
+      def has_interface_include?
+        !interface_code || interface_code.empty?
+      end
+
+      def interface_include
+        "#{File.basename(WXRuby3::Config.instance.interface_dir)}/#{module_name}.h"
+      end
+
+      def interface_include_file
+        "#{WXRuby3::Config.instance.interface_path}/#{module_name}.h"
+      end
+
       def add_extend_code(classname, *code)
         (@extend_code[classname] ||= []).concat code.flatten
         self
@@ -488,6 +500,9 @@ module WXRuby3
         # get dependencies for each module
         deps = included_directors.inject({}) do |hash, dir|
                  hash[Pathname(dir.spec.interface_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
+                 if dir.spec.has_interface_include?
+                   hash[Pathname(dir.spec.interface_include_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
+                 end
                  hash
                end
         # in case this is the root (core) package add the common wxRuby helper modules

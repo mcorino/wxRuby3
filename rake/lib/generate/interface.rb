@@ -167,10 +167,8 @@ module WXRuby3
         end
       end
 
-      if spec.interface_code && !spec.interface_code.empty?
-        fout.puts
-        fout.puts spec.interface_code
-      end
+      fout.puts
+      fout.puts spec.interface_code
     end
 
     def gen_swig_interface_file(spec)
@@ -511,7 +509,7 @@ module WXRuby3
 
         gen_swig_interface_file(spec)
 
-        gen_interface_include(spec)
+        gen_interface_include(spec) if spec.has_interface_include?
 
       end
     end

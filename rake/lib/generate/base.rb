@@ -36,11 +36,11 @@ module WXRuby3
       end
 
       def interface_include
-        "#{File.basename(WXRuby3::Config.instance.interface_dir)}/#{@ifspec.module_name}.h"
+        @ifspec.interface_include
       end
 
       def interface_include_file
-        "#{WXRuby3::Config.instance.interface_path}/#{@ifspec.module_name}.h"
+        @ifspec.interface_include_file
       end
 
       def interface_ext_file
@@ -200,6 +200,10 @@ module WXRuby3
         else
           %Q{%include "#{interface_include}"\n}
         end
+      end
+
+      def has_interface_include?
+        @ifspec.has_interface_include?
       end
 
       def extend_code(cnm)

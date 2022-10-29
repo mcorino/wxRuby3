@@ -19,7 +19,7 @@ if $config.has_wxwidgets_xml?
     end
 
     # Target to run the linker to create a final .so/.dll wxruby3 package library
-    file pkg.lib_target => pkg.all_obj_files + pkg.dep_libs do | t |
+    file pkg.lib_target => [*pkg.all_obj_files, *pkg.dep_libs] do | t |
       objs = $config.extra_objs + ' ' + pkg.all_obj_files.join(' ') + ' ' + pkg.dep_libs.join(' ')
       sh "#{$config.ld} #{$config.ldflags(t.name)} #{objs} #{$config.libs} #{$config.link_output_flag}#{t.name}"
     end
@@ -30,7 +30,7 @@ if $config.has_wxwidgets_xml?
     end
 
     # Generate cpp source files from all SWIG files
-    swig_targets.each_key do |mod|
+    swig_targets.each_key.select {|m| m.end_with?('.i') }.each do |mod|
       file File.join($config.src_dir, File.basename(mod, '.i')+'.cpp') =>  mod do | _ |
         pkg.generate_code(mod)
       end
@@ -40,7 +40,7 @@ if $config.has_wxwidgets_xml?
 
     task :"compile_#{pkg.name.downcase}"   => pkg.all_obj_files
 
-    task :"default_#{pkg.name.downcase}"   => pkg.lib_target
+    task :"default_#{pkg.name.downcase}"   => [pkg.lib_target, *pkg.dep_libs]
 
     task :"doc_#{pkg.name.downcase}" => pkg.all_swig_files do
       pkg.generate_docs
