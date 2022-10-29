@@ -114,6 +114,9 @@ module WXRuby3
             void OnWindowDestroy(wxWindowDestroyEvent &event)
             {
               wxObject* wx_obj = event.GetEventObject();
+          #ifdef __WXRB_DEBUG__
+              std::wcout << "== OnWindowDestroy [" << wx_obj << "]" << std::endl;
+          #endif
               GC_SetWindowDeleted((void *)wx_obj);
               event.Skip();
             }
