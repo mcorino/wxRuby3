@@ -177,16 +177,15 @@ module WXRuby3
               puts "Enabling ANSI build; NOT RECOMMENDED"
             end
 
+            @verbose_flag = ''
             if @debug_build
               puts "Enabling debugging output"
-              @extra_cppflags << ' -D__WXRB_DEBUG__=1'
+              @verbose_flag << '-D__WXRB_DEBUG__=1'
             end
 
             if @verbose_debug
               puts "Enabling VERBOSE debugging output"
-              @verbose_flag = '-D__WXRB_TRACE__=1'
-            else
-              @verbose_flag = ''
+              @verbose_flag << ' -D__WXRB_TRACE__=1'
             end
 
             # SIXTH: Putting it all together

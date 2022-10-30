@@ -60,7 +60,7 @@ module WXRuby3
       def run_swig(source)
         check_swig unless swig_state
         target = File.join(config.src_path, File.basename(source, '.i') + '.cpp')
-        sh "#{SWIG_CMD} #{config.wx_cppflags} -Iswig/custom " +
+        sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.verbose_flag} -Iswig/custom " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
              "-o #{target} #{source}"
