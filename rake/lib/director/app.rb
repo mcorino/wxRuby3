@@ -116,10 +116,13 @@ module WXRuby3
             {
               wxObject* wx_obj = event.GetEventObject();
           #ifdef __WXRB_DEBUG__
-              std::wcout << "== OnWindowDestroy [" << wx_obj << "]" << std::endl;
+              std::wcout << "<= OnWindowDestroy [" << wx_obj << "]" << std::endl;
           #endif
               GC_SetWindowDeleted((void *)wx_obj);
               event.Skip();
+          #ifdef __WXRB_DEBUG__
+              std::wcout << "=> OnWindowDestroy [" << wx_obj << "]" << std::endl;
+          #endif
             }
           
             // When ruby's garbage collection runs, if the app is still active, it
