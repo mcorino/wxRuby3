@@ -20,6 +20,8 @@ module WXRuby3
         spec.ignore %w{
           wxApp.ProcessMessage
           wxApp::GetGUIInstance
+          wxAppConsole::OnExit
+          wxAppConsole::OnRun
           wxAppConsole.OnFatalException
           wxAppConsole::OnExceptionInMainLoop
           wxAppConsole::OnUnhandledException
@@ -68,7 +70,6 @@ module WXRuby3
           wxRubyApp::GetDisplayMode
           wxRubyApp::GetTopWindow
           wxRubyApp::OnInit
-          wxRubyApp::OnExit
         }
         spec.include %w{
           wx/init.h
