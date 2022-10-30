@@ -152,7 +152,11 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 // Cached reference to EvtHandler evt_type_id -> ruby_event_class map
 static VALUE Evt_Type_Map = NULL;
 
+#ifdef __WXRB_TRACE__
+WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent *wx_event)
+#else
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
+#endif
 {
   // Get the mapping of event types to classes
   if ( ! Evt_Type_Map )
@@ -161,7 +165,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
     }
 
 #ifdef __WXRB_TRACE__
-  std::wcout << "* wxRuby_WrapWxEventInRuby(" << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
+  std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
 #endif
 
   // Then, look up the event type in this hash (MUCH faster than calling

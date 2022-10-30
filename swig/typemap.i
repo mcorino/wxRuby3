@@ -399,16 +399,34 @@
 }
 
 // For ProcessEvent and AddPendingEvent and wxApp::FilterEvent
-%typemap("directorin") wxEvent &event "$input = wxRuby_WrapWxEventInRuby(const_cast<wxEvent*> (&$1));"
+%typemap("directorin") wxEvent &event {
+#ifdef __WXRB_TRACE__
+$input = wxRuby_WrapWxEventInRuby(this, const_cast<wxEvent*> (&$1));
+#else
+$input = wxRuby_WrapWxEventInRuby(const_cast<wxEvent*> (&$1));
+#endif
+}
 
 // Thin and trusting wrapping to bypass SWIG's normal mechanisms; we
 // don't want SWIG changing ownership or typechecking these.
 %typemap("in") wxEvent &event "$1 = (wxEvent*)DATA_PTR($input);"
 
 // For wxWindow::DoUpdateUIEvent
-%typemap("directorin") wxUpdateUIEvent & "$input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));"
+%typemap("directorin") wxUpdateUIEvent & {
+#ifdef __WXRB_TRACE__
+$input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+#else
+$input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
+#endif
+}
 
 // For wxControl::Command
-%typemap("directorin") wxCommandEvent & "$input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));"
+%typemap("directorin") wxCommandEvent & {
+#ifdef __WXRB_TRACE__
+$input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+#else
+$input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
+#endif
+}
 
 %apply int *OUTPUT { int * x , int * y , int * w, int * h };

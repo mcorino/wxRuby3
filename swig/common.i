@@ -60,7 +60,11 @@ WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty);
 
 // Common wrapping functions
 WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject* obj);
+#ifdef __WXRB_TRACE__
+WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent* event);
+#else
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent* event);
+#endif
 
 // event handling helpers
 WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
