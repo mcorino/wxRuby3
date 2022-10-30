@@ -161,7 +161,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
     }
 
 #ifdef __WXRB_TRACE__
-  std::wcout << "* wxRuby_WrapWxEventInRuby(" << wx_event << ":{" << wx_event->GetEventType() << "})" << std::endl;
+  std::wcout << "* wxRuby_WrapWxEventInRuby(" << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
 #endif
 
   // Then, look up the event type in this hash (MUCH faster than calling
