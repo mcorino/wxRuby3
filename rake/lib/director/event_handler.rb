@@ -93,7 +93,11 @@ module WXRuby3
               // into the ruby proc for handling on the ruby side
               void EventThunker(wxEvent &event)
               {
+          #ifdef __WXRB_TRACE__                
+                VALUE rb_event = wxRuby_WrapWxEventInRuby(0, &event);
+          #else
                 VALUE rb_event = wxRuby_WrapWxEventInRuby(&event);
+          #endif
                 wxRbCallback *cb = (wxRbCallback *)event.m_callbackUserData;
                 rb_funcall(cb->m_func, call_id (), 1, rb_event);
               }
