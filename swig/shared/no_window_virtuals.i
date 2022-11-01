@@ -67,5 +67,7 @@
 %feature("nodirector") kls::ShouldInheritColour;
 %feature("nodirector") kls::Thaw;
 %feature("nodirector") kls::Layout;
+%feature("nodirector") kls::InheritAttributes;
+%feature("nodirector") kls::GetDefaultAttributes;
 
 %enddef

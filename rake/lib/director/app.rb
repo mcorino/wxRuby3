@@ -19,7 +19,6 @@ module WXRuby3
         spec.ignore_bases('wxAppConsole' => 'wxEventFilter')
         spec.ignore %w{
           wxApp.ProcessMessage
-          wxApp::GetGUIInstance
           wxAppConsole::OnInit
           wxAppConsole::OnExit
           wxAppConsole::OnRun
@@ -45,9 +44,6 @@ module WXRuby3
           wxAppConsole::argv
           wxDECLARE_APP
           wxIMPLEMENT_APP
-          wxIMPLEMENT_APP_CONSOLE
-          wxIMPLEMENT_WXWIN_MAIN
-          wxIMPLEMENT_WXWIN_MAIN_CONSOLE
           wxDISABLE_DEBUG_SUPPORT
           wxTheApp
           wxGetApp
@@ -59,6 +55,9 @@ module WXRuby3
           wxSafeYield
           wxExit
         }
+        if Config.instance.version > '3.1.5'
+          spec.ignore 'wxApp::GetGUIInstance'
+        end
         unless Config.instance.wx_abi_version >= '3.2.1' || Config.instance.wx_version < '3.2.1'
           spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
         end

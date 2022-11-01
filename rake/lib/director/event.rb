@@ -97,7 +97,6 @@ module WXRuby3
             %rename(wxCommandEvent) wxRubyCommandEvent;
             __HEREDOC
           spec.ignore %w{
-            wxCommandEvent::Checked
             wxCommandEvent::GetClientObject
             wxCommandEvent::SetClientObject
             wxCommandEvent::GetExtraLong

@@ -126,6 +126,10 @@ module WXRuby3
           __HEREDOC
         when 'wxNonOwnedWindow'
           spec.no_proxy('wxNonOwnedWindow')
+        when 'wxControl'
+          spec.add_overrides('wxControl',
+                             'bool ShouldInheritColours() const',
+                             'void DoUpdateWindowUI(wxUpdateUIEvent& event)')
         end
         spec.no_proxy %w[
           wxWindow::GetDropTarget

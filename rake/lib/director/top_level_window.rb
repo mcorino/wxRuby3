@@ -25,7 +25,12 @@ module WXRuby3
         }
         if spec.module_name == 'wxTopLevelWindow'
           spec.add_overrides('wxTopLevelWindow',
-                             'bool Destroy()')
+                             'bool Destroy()',
+                             'bool IsTopLevel()',
+                             'void SetLayoutDirection(wxLayoutDirection dir)',
+                             'bool Show(bool show = true)',
+                             'void Raise()',
+                             'void Refresh(bool eraseBackground = true, wxRect const *rect = NULL)')
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetTopLevelWindowClass() {
               return SwigClassWxTopLevelWindow.klass;
