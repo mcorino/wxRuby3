@@ -51,6 +51,11 @@ module WXRuby3
         end
 
         @wx_libs = libs.join(' ')
+
+        unless @wx_path.empty?
+          libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
+          @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{libdirs.join(':')}"
+        end
       end
       private :init_platform
 

@@ -97,10 +97,9 @@ if $config.has_wxwidgets_xml?
     force_rmdir($config.obj_dir)
   end
 
-  MAKE_NUM_THREADS = 2
-  desc "Experimental generation of Makefile so can use multiprocessors to compile faster!"
-  task :rake_make => "Makefile" do
-    sh "make -j #{MAKE_NUM_THREADS}"
+  desc "Run a wxRuby example"
+  task :example, [:sample] => :default do |t, args|
+    sh $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:sample]
   end
 else
   desc "Bootstrap the wxRuby3 build environment"

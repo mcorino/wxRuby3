@@ -76,6 +76,11 @@ module WXRuby3
         @ruby_ldflags << " -L#{RbConfig::CONFIG['libdir']}"
         @ruby_cppflags << " #{RbConfig::CONFIG['debugflags']}" if @debug_build
 
+        unless @wx_path.empty?
+          libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
+          @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']}:#{libdirs.join(':')}"
+        end
+
         # # Where the directory containing setup.h with the wxWidgets compile
         # # options can be found; name depends on whether unicode and whether
         # # debug or release. For now, only support unicode.
