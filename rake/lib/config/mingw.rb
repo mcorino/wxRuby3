@@ -78,6 +78,7 @@ module WXRuby3
 
         unless @wx_path.empty?
           libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
+          libdirs << winpath(File.join(ENV['MSYSTEM_PREFIX'], 'lib'))
           @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']}:#{libdirs.join(':')}"
         end
 
