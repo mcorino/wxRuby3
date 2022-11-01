@@ -23,3 +23,5 @@ WINDOWS (Ruby Devkit)
  ridk exec bash -c '../configure --prefix=<installdir> --disable-tests --without-subdirs'
  ridk exec bash -c 'make'
  ridk exec bash -c 'make install'
+
+need RUBY_DLL_PATH when requiring DLLs outside normal Ruby extension folders or system folders
