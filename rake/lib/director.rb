@@ -49,29 +49,30 @@ module WXRuby3
                 else
                   modname[0].upcase << modname[1,modname.size-1]
                 end
-        @class_renames = {}
-        @base_overrides = {}
-        @templates_as_class = {}
-        @class_members = {}
-        @folded_bases = {}
-        @ignored_bases = {}
+        @class_renames = ::Hash.new
+        @base_overrides = ::Hash.new
+        @templates_as_class = ::Hash.new
+        @class_members = ::Hash.new
+        @folded_bases = ::Hash.new
+        @ignored_bases = ::Hash.new
         @abstracts = ::Hash.new
         @items = [modname]
         @director = director
         @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : Director)
         @gc_type = nil
-        @ignores = {}
-        @regards = {}
+        @ignores = ::Hash.new
+        @regards = ::Hash.new
+        @overrides = ::Hash.new
         @disabled_proxies = false
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
         @disowns = ::Set.new
-        @only_for = {}
-        @param_mappings = {}
-        @includes = Set.new
-        @swig_imports = Set.new
-        @swig_includes = Set.new
-        @renames = Hash.new
+        @only_for = ::Hash.new
+        @param_mappings = ::Hash.new
+        @includes = ::Set.new
+        @swig_imports = ::Set.new
+        @swig_includes = ::Set.new
+        @renames = ::Hash.new
         @swig_code = []
         @begin_code = []
         @runtime_code = []
@@ -79,14 +80,14 @@ module WXRuby3
         @wrapper_code = []
         @init_code = []
         @interface_code = []
-        @extend_code = {}
+        @extend_code = ::Hash.new
         @nogen_sections = ::Set.new
         @post_processors = processors || [:rename, :fixmodule]
         @requirements = requirements
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
+                  :ignores, :regards, :overrides, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements
@@ -270,6 +271,11 @@ module WXRuby3
 
       def regard(*names, regard_doc: true)
         names.flatten.each {|n| @regards[n] = regard_doc}
+        self
+      end
+
+      def add_overrides(cls, *names, visibility: 'public')
+        ((@overrides[cls] ||= {})[visibility] ||= ::Set.new).merge names.flatten
         self
       end
 
@@ -928,34 +934,32 @@ module WXRuby3
 
     def handle_item_ignore(defmod, fullname, ignore, ignoredoc)
       action = ignore ? 'ignore' : 'regard'
-      name = fullname
-      args = nil
-      const = false
-      if (ix = name.index('('))   # full signature supplied?
-        args = name.slice(ix, name.size)
-        name = name.slice(0, ix)
-        const = !!args.index(/\)\s+const/)
-        args.sub(/\)\s+const/, ')') if const
-      end
-      item = defmod.find_item(name)
+      # find the item
+      item = defmod.find_item(fullname)
       if item
-        if args
-          if item.is_a?(Extractor::FunctionDef) && (overload = item.find_overload(args, const))
-            overload.ignore(ignore, ignore_doc: ignoredoc) if overload
-          else
-            STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to #{action}. "+
-                          "Possible match is '#{item.is_a?(Extractor::FunctionDef) ? item.signature : item.name}'."
-          end
-        else
-          if item.is_a?(Extractor::FunctionDef)
-            item.ignore(ignore, ignore_doc: ignoredoc)
-            item.overloads.each {|ovl| ovl.ignore(ignore, ignore_doc: ignoredoc) }
-          else
-            item.ignore(ignore, ignore_doc: ignoredoc)
-          end
+        # set the item's ignore flags
+        item.ignore(ignore, ignore_doc: ignoredoc)
+        # in case we looked up a function without arg mask also set the ignore flags of any overloads
+        if Extractor::FunctionDef === item && !fullname.index('(')
+          item.overloads.each {|ovl| ovl.ignore(ignore, ignore_doc: ignoredoc) }
         end
       else
         STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to #{action}."
+      end
+    end
+
+    def handle_item_only_for(defmod, fullname, platform_id)
+      # find the item
+      item = defmod.find_item(fullname)
+      if item
+        # set the item's only_for specs
+        item.only_for = platform_id
+        # in case we looked up a function without arg mask also set the only_for specs of any overloads
+        if Extractor::FunctionDef === item && !fullname.index('(')
+          item.overloads.each {|ovl| ovl.only_for = platform_id }
+        end
+      else
+        raise "Cannot find '#{fullname}' for module '#{spec.module_name}' to set only_for [#{platform_id}]"
       end
     end
 
@@ -973,30 +977,7 @@ module WXRuby3
       # handle only_for settings
       spec.only_for.each_pair do |platform_id, names|
         names.each do |fullname|
-          name = fullname
-          args = nil
-          const = false
-          if (ix = name.index('('))   # full signature supplied?
-            args = name.slice(ix, name.size)
-            name = name.slice(0, ix)
-            const = !!args.index(/\)\s+const/)
-            args.sub(/\)\s+const/, ')') if const
-          end
-          item = defmod.find_item(name)
-          if item
-            if args
-              overload = item.find_overload(args, const)
-              if overload
-                overload.only_for = platform_id if overload
-              else
-                raise "Cannot find '#{fullname}' for module '#{spec.module_name}'. Possible match is '#{item.signature}'"
-              end
-            else
-              item.only_for = platform_id
-            end
-          else
-            raise "Cannot find '#{fullname}' for module '#{spec.module_name}'"
-          end
+          handle_item_only_for(defmod, fullname, platform_id)
         end
       end
       # handle class specific parameter mappings
@@ -1014,6 +995,7 @@ module WXRuby3
           spec.includes.merge(cls.includes) unless cls.includes.empty?
         end
       end
+      # TODO - should we just ignore all deprecations?
       # create deprecated function proxies unless deprecates suppressed
       unless Config.instance.no_deprecate
         defmod.items.select {|i| !i.ignored }.each do |item|

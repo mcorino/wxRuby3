@@ -24,6 +24,8 @@ module WXRuby3
           wxWindow::GetValidator
         }
         if spec.module_name == 'wxTopLevelWindow'
+          spec.add_overrides('wxTopLevelWindow',
+                             'bool Destroy()')
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetTopLevelWindowClass() {
               return SwigClassWxTopLevelWindow.klass;

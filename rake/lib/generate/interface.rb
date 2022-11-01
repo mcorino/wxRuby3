@@ -218,6 +218,11 @@ module WXRuby3
         fout.puts "  #{extdecl};"
       end
 
+      spec.overrides(classdef).each do |override|
+        fout.puts '  // forced wxRuby3 override'
+        fout.puts "  virtual #{override} override;"
+      end
+
       need_protected = classdef.regards_protected_members? ||
                           spec.folded_bases(classdef.name).any? { |base| spec.def_item(base).regards_protected_members? }
       unless is_struct || !need_protected
@@ -229,6 +234,11 @@ module WXRuby3
         spec.folded_bases(classdef.name).each do |basename|
           gen_interface_class_members(fout, spec, classdef.name, spec.def_item(basename),
                                       'protected', methods, abstract_class, requires_purevirtual)
+        end
+
+        spec.overrides(classdef, 'protected').each do |override|
+          fout.puts '  // forced wxRuby3 override'
+          fout.puts "  virtual #{override} override;"
         end
       end
 

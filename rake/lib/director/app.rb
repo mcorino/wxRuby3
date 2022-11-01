@@ -20,6 +20,7 @@ module WXRuby3
         spec.ignore %w{
           wxApp.ProcessMessage
           wxApp::GetGUIInstance
+          wxAppConsole::OnInit
           wxAppConsole::OnExit
           wxAppConsole::OnRun
           wxAppConsole.OnFatalException
@@ -69,7 +70,6 @@ module WXRuby3
         spec.no_proxy %w{
           wxRubyApp::GetDisplayMode
           wxRubyApp::GetTopWindow
-          wxRubyApp::OnInit
         }
         spec.include %w{
           wx/init.h
@@ -77,9 +77,6 @@ module WXRuby3
         }
         spec.gc_never
         spec.rename_class('wxApp', 'wxRubyApp')
-        spec.rename_for_ruby(
-          'OnCInit' =>
-            'wxRubyApp::OnInit()')
         spec.add_swig_code <<~__HEREDOC
           // The App class in wxRuby is actually a custom-written subclass, but it
           // is presented to the user as Wx::App
@@ -248,8 +245,23 @@ module WXRuby3
           
             int OnExit() override
             {
+          #ifdef __WXRB_DEBUG__
+              std::wcout << "OnExit..." << std::endl;
+          #endif
+
+              // Get the ruby representation of the App object, and call the
+              // ruby on_exit method (if any) for application level cleanup
+              VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
+              ID on_exit_id = rb_intern("on_exit");
+              if (rb_funcall(the_app, rb_intern("respond_to?"), 1, ID2SYM(on_exit_id)) == Qtrue)
+              {
+                rb_funcall(the_app, on_exit_id, 0, 0);
+              }
+
+              // perform wxRuby cleanup
               wxRuby_Cleanup();
       
+              // execute base wxWidgets functionality 
               return this->wxApp::OnExit();
             }
           

@@ -23,7 +23,6 @@ module WXRuby3
           spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
           spec.ignore([
             'wxItemContainer::Insert(const std::vector< wxString > &)',
-            'wxItemContainer::Insert(const std::vector< wxString > &)',
             'wxItemContainer::GetClientObject',
             'wxItemContainer::SetClientObject'])
           spec.ignore(%w[wxItemContainer::GetClientData wxItemContainer::SetClientData], ignore_doc: false) # keep docs

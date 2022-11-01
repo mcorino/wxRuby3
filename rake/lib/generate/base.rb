@@ -166,6 +166,13 @@ module WXRuby3
           !no_proxies.include?(class_name(class_def))
       end
 
+      def overrides(classdef_or_name, visibility='public')
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                       classdef_or_name : @defmod.find(classdef_or_name))
+        class_hierarchy = class_def.hierarchy
+        (@ifspec.overrides[class_def.name] || {})[visibility] || []
+      end
+
       def disowns
         @ifspec.disowns
       end

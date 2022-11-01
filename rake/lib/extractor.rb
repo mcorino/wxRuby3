@@ -340,13 +340,35 @@ module WXRuby3
       def find(name)
         # Locate and return an item within this item that has a matching name.
         # The name string can use a dotted notation to continue the search
-        # recursively.  Raises ExtractorError if not found.
+        # recursively.
+        # The name string can also specify arguments in which case only
+        # FunctionDefs are considered
+        # Raises ExtractorError if not found.
+        argix = name.index('(')
         sep = name.index('::') ? '::' : '.'
-        head, tail = name.split(sep, 2)
+        sepix = name.index(sep)
+        args = nil
+        const = false
+        if argix.nil? || (sepix && argix > sepix)
+          head, tail = name.split(sep, 2)
+        else
+          tail = nil
+          args = name.slice(argix, name.size)
+          head = name.slice(0, argix)
+          const = !!args.index(/\)\s+const/)
+          args.sub!(/\)\s+const/, ')') if const
+          args.tr!(' ', '')
+        end
         _find_items.each do |item|
-          if item.name == head # TODO: exclude ignored items?
+          if item.name == head && (args.nil? || FunctionDef === item) # TODO: exclude ignored items?
             unless tail
-              return item
+              if args
+                if (overload = item.find_overload(args, const))
+                  return overload
+                end
+              else
+                return item
+              end
             else
               return item.find(tail)
             end

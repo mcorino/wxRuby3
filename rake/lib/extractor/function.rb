@@ -191,6 +191,7 @@ module WXRuby3
           sig << '()'
         else
           sig << '(' << parameters.collect {|p| "#{p.type}#{p.array ? '[]' : ''}" }.join(',') << ')'
+          sig.tr!(' ', '')
         end
         sig
       end

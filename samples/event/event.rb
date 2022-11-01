@@ -177,6 +177,9 @@ class TargetApp < Wx::App
     TargetFrame.new("Event Handling Sample").show
     return true
   end
+  def on_exit
+    STDERR.puts 'TargetApp#on_exit'
+  end
 end
 
 a = TargetApp.new
