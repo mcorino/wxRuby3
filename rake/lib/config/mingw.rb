@@ -77,7 +77,8 @@ module WXRuby3
         @ruby_cppflags << " #{RbConfig::CONFIG['debugflags']}" if @debug_build
 
         unless @wx_path.empty?
-          libdirs = [File.join(wx_config("--exec-prefix"), 'bin')]
+          exec_pfx = win_path(wx_config("--exec-prefix"))
+          libdirs = [File.join(exec_pfx, 'bin')]
           libdirs << win_path(File.join(ENV['MSYSTEM_PREFIX'], 'bin'))
           @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']}:#{libdirs.join(':')}"
         end
