@@ -31,7 +31,7 @@ module WXRuby3
         # but generate from interface wxRubyTipProvider
         spec.rename_class('wxTipProvider', 'wxRubyTipProvider')
         # add setter to class def
-        spec.extend_class('wxTipProvider', 'void SetCurrentTip(size_t currentTip)')
+        spec.extend_interface('wxTipProvider', 'void SetCurrentTip(size_t currentTip)')
         super
       end
     end # class TipProvider

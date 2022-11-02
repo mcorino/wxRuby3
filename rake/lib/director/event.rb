@@ -43,8 +43,8 @@ module WXRuby3
             %rename(wxEvent) wxRubyEvent;
             __HEREDOC
           spec.rename_class('wxEvent', 'wxRubyEvent')
-          spec.extend_class('wxEvent', 'wxRubyEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
-          spec.extend_class('wxEvent', 'virtual wxEvent* Clone() const')
+          spec.extend_interface('wxEvent', 'wxRubyEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
+          spec.extend_interface('wxEvent', 'virtual wxEvent* Clone() const')
           spec.ignore 'wxEvent::Clone'
           spec.ignore 'wxEvent::wxEvent(int,wxEventType)'
           spec.no_proxy 'wxRubyEvent::Clone'
@@ -103,7 +103,7 @@ module WXRuby3
           }
           spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')
           # spec.override_base('wxCommandEvent', 'wxRubyEvent')
-          spec.extend_class('wxCommandEvent', 'virtual wxCommandEvent* Clone() const')
+          spec.extend_interface('wxCommandEvent', 'virtual wxCommandEvent* Clone() const')
           spec.no_proxy 'wxRubyCommandEvent::Clone'
           spec.add_header_code <<~__HEREDOC
             // Cf wxEvent - has to be written as a C+++ subclass to ensure correct

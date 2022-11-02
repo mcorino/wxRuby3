@@ -113,8 +113,10 @@ module WXRuby3
         (@ifspec.ignored_bases[cnm] || []) + Director::Spec::IGNORED_BASES
       end
 
-      def member_extensions(cnm)
-        @ifspec.member_extensions(cnm)
+      def interface_extensions(classdef_or_name, visibility='public')
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                       classdef_or_name : @defmod.find(classdef_or_name))
+        @ifspec.interface_extensions(class_def.name)[visibility] || []
       end
 
       def is_abstract?(classdef_or_name)
@@ -164,13 +166,6 @@ module WXRuby3
         !disabled_proxies &&
           (class_def.ignored || class_def.is_template? || has_virtuals?(class_def) || forced_proxy?(class_def.name)) &&
           !no_proxies.include?(class_name(class_def))
-      end
-
-      def overrides(classdef_or_name, visibility='public')
-        class_def = (Extractor::ClassDef === classdef_or_name ?
-                       classdef_or_name : @defmod.find(classdef_or_name))
-        class_hierarchy = class_def.hierarchy
-        (@ifspec.overrides[class_def.name] || {})[visibility] || []
       end
 
       def disowns

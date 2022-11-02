@@ -61,7 +61,7 @@ module WXRuby3
         unless Config.instance.wx_abi_version >= '3.2.1' || Config.instance.wx_version < '3.2.1'
           spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
         end
-        spec.extend_class('wxApp', 'int main_loop ()')
+        spec.extend_interface('wxApp', 'int main_loop ()')
         spec.ignore [
           'wxEntry(int &,wxChar **)',
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'

@@ -127,9 +127,16 @@ module WXRuby3
         when 'wxNonOwnedWindow'
           spec.no_proxy('wxNonOwnedWindow')
         when 'wxControl'
-          spec.add_overrides('wxControl',
-                             'bool ShouldInheritColours() const',
-                             'void DoUpdateWindowUI(wxUpdateUIEvent& event)')
+          # add these to the generated interface to be parsed by SWIG
+          # the wxWidgets docs are flawed in this respect that several reimplemented
+          # virtual methods are not documented at the reimplementing class as such
+          # that would cause them missing from the interface which would cause a problem
+          # for a SWIG director redirecting to the Ruby class as the SWIG wrappers
+          # redirect explicitly to the implementation at the same class level as the wrapper
+          # for upcalls
+          spec.extend_interface('wxControl',
+                                'virtual bool ShouldInheritColours() const override',
+                                'virtual void DoUpdateWindowUI(wxUpdateUIEvent& event) override')
         end
         spec.no_proxy %w[
           wxWindow::GetDropTarget

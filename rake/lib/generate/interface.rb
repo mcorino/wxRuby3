@@ -213,14 +213,9 @@ module WXRuby3
                                     'public', methods, abstract_class, requires_purevirtual)
       end
 
-      spec.member_extensions(classdef.name).each do |extdecl|
+      spec.interface_extensions(classdef).each do |extdecl|
         fout.puts '  // custom wxRuby3 extension'
         fout.puts "  #{extdecl};"
-      end
-
-      spec.overrides(classdef).each do |override|
-        fout.puts '  // forced wxRuby3 override'
-        fout.puts "  virtual #{override} override;"
       end
 
       need_protected = classdef.regards_protected_members? ||
@@ -236,9 +231,9 @@ module WXRuby3
                                       'protected', methods, abstract_class, requires_purevirtual)
         end
 
-        spec.overrides(classdef, 'protected').each do |override|
-          fout.puts '  // forced wxRuby3 override'
-          fout.puts "  virtual #{override} override;"
+        spec.interface_extensions(classdef, 'protected').each do |extdecl|
+          fout.puts '  // custom wxRuby3 extension'
+          fout.puts "  #{extdecl};"
         end
       end
 

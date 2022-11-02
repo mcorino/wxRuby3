@@ -23,7 +23,7 @@ module WXRuby3
         when 'wxScrolledWindow'
           spec.use_template_as_class('wxScrolled', 'wxScrolledWindow')
           spec.override_base('wxScrolled', 'wxPanel')
-          spec.extend_class('wxScrolled', 'virtual ~wxScrolledWindow();')
+          spec.extend_interface('wxScrolled', 'virtual ~wxScrolledWindow();')
           spec.include 'wx/panel.h'
           spec.swig_import %w[
             swig/classes/include/wxObject.h
@@ -39,7 +39,7 @@ module WXRuby3
         when 'wxScrolledCanvas'
           spec.use_template_as_class('wxScrolled', 'wxScrolledCanvas')
           spec.override_base('wxScrolled', 'wxWindow')
-          spec.extend_class('wxScrolled', 'virtual ~wxScrolledCanvas();')
+          spec.extend_interface('wxScrolled', 'virtual ~wxScrolledCanvas();')
           spec.include 'wx/window.h'
           spec.swig_import %w[
             swig/classes/include/wxObject.h

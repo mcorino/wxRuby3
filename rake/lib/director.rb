@@ -52,7 +52,7 @@ module WXRuby3
         @class_renames = ::Hash.new
         @base_overrides = ::Hash.new
         @templates_as_class = ::Hash.new
-        @class_members = ::Hash.new
+        @interface_extensions = ::Hash.new
         @folded_bases = ::Hash.new
         @ignored_bases = ::Hash.new
         @abstracts = ::Hash.new
@@ -62,7 +62,6 @@ module WXRuby3
         @gc_type = nil
         @ignores = ::Hash.new
         @regards = ::Hash.new
-        @overrides = ::Hash.new
         @disabled_proxies = false
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
@@ -87,7 +86,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :regards, :overrides, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
+                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements
@@ -123,13 +122,13 @@ module WXRuby3
         @base_overrides[cls]
       end
 
-      def extend_class(cls, *declarations)
-        (@class_members[cls] ||= ::Set.new).merge declarations.flatten
+      def extend_interface(cls, *declarations, visibility: 'public')
+        ((@interface_extensions[cls] ||= {})[visibility] ||= ::Set.new).merge declarations.flatten
         self
       end
 
-      def member_extensions(cls)
-        @class_members[cls] || []
+      def interface_extensions(cls)
+        @interface_extensions[cls] || {}
       end
 
       def fold_bases(*specs)
@@ -271,11 +270,6 @@ module WXRuby3
 
       def regard(*names, regard_doc: true)
         names.flatten.each {|n| @regards[n] = regard_doc}
-        self
-      end
-
-      def add_overrides(cls, *names, visibility: 'public')
-        ((@overrides[cls] ||= {})[visibility] ||= ::Set.new).merge names.flatten
         self
       end
 

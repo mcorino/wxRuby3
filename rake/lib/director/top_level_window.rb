@@ -24,13 +24,20 @@ module WXRuby3
           wxWindow::GetValidator
         }
         if spec.module_name == 'wxTopLevelWindow'
-          spec.add_overrides('wxTopLevelWindow',
-                             'bool Destroy()',
-                             'bool IsTopLevel()',
-                             'void SetLayoutDirection(wxLayoutDirection dir)',
-                             'bool Show(bool show = true)',
-                             'void Raise()',
-                             'void Refresh(bool eraseBackground = true, wxRect const *rect = NULL)')
+          # add these to the generated interface to be parsed by SWIG
+          # the wxWidgets docs are flawed in this respect that several reimplemented
+          # virtual methods are not documented at the reimplementing class as such
+          # that would cause them missing from the interface which would cause a problem
+          # for a SWIG director redirecting to the Ruby class as the SWIG wrappers
+          # redirect explicitly to the implementation at the same class level as the wrapper
+          # for upcalls
+          spec.extend_interface('wxTopLevelWindow',
+                                'virtual bool Destroy() override',
+                                'virtual bool IsTopLevel() override',
+                                'virtual void SetLayoutDirection(wxLayoutDirection dir) override',
+                                'virtual bool Show(bool show = true) override',
+                                'virtual void Raise() override',
+                                'virtual void Refresh(bool eraseBackground = true, wxRect const *rect = NULL) override')
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetTopLevelWindowClass() {
               return SwigClassWxTopLevelWindow.klass;

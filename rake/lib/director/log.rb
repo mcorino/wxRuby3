@@ -21,7 +21,7 @@ module WXRuby3
         spec.disown 'wxLog *logtarget'
         spec.do_not_generate(:functions)
         spec.make_concrete('wxLog')
-        spec.extend_class('wxLog', '  virtual ~wxLog ();')
+        spec.extend_interface('wxLog', '  virtual ~wxLog ();')
         super
       end
     end # class Log
