@@ -9,6 +9,15 @@
 
 require_relative './unixish'
 
+if ENV['RI_DEVKIT'].nil?
+  begin
+    require 'devkit'
+  rescue LoadError
+    STDERR.puts "Missing a fully installed & configured Ruby devkit. Make sure to install the Ruby devkit with MSYS2 and MINGW toolchains."
+    exit(1)
+  end
+end
+
 module WXRuby3
 
   module Config
