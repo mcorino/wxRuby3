@@ -9,31 +9,34 @@ if $config.has_wxwidgets_xml?
 
   WXRuby3::Director.each_package do |pkg|
 
-    swig_targets = pkg.get_swig_targets
-
-    # file tasks for each generated SWIG module file
-    swig_targets.each_pair do |mod, deps|
-      file mod => deps do |t|
-        pkg.extract(File.basename(t.name, '.i'))
+    pkg.included_directors.each do |dir|
+      # file tasks for each module's rake file
+      file dir.rake_file  => %w[rakefile rake/rakewx.rb]+dir.source_files do |_|
+        dir.create_rakefile
       end
+
+      # imports of each module's dependency file
+      import dir.rake_file
+    end
+
+    # file tasks to generate cpp wrapper sources for any extra package modules (core only)
+    pkg.all_extra_modules.each do |mod|
+      _deps = [File.join($config.swig_dir, "#{mod}.i")]
+      _deps.concat(WXRuby3::Director.common_dependencies[_deps.first])
+      file File.join($config.src_dir, "#{mod}.cpp") => _deps do |_|
+        pkg.generate_code(mod)
+      end
+    end
+
+    # The main source module - which needs to initialize all the other modules in the package
+    file pkg.initializer_src => pkg.all_swig_files do |t|
+      pkg.generate_initializer
     end
 
     # Target to run the linker to create a final .so/.dll wxruby3 package library
     file pkg.lib_target => [*pkg.all_obj_files, *pkg.dep_libs] do | t |
       objs = $config.extra_objs + ' ' + pkg.all_obj_files.join(' ') + ' ' + pkg.dep_libs.join(' ')
       sh "#{$config.ld} #{$config.ldflags(t.name)} #{objs} #{$config.libs} #{$config.link_output_flag}#{t.name}"
-    end
-
-    # The main source module - which needs to initialize all the other modules in the package
-    file pkg.initializer_src => pkg.all_swig_files do |t|
-      pkg.extract(genint: false)
-    end
-
-    # Generate cpp source files from all SWIG files
-    swig_targets.each_key.select {|m| m.end_with?('.i') }.each do |mod|
-      file File.join($config.src_dir, File.basename(mod, '.i')+'.cpp') =>  mod do | _ |
-        pkg.generate_code(mod)
-      end
     end
 
     task :"swig_#{pkg.name.downcase}"   => [ $config.classes_path ] + pkg.all_cpp_files

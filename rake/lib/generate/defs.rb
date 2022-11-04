@@ -79,9 +79,6 @@ module WXRuby3
     end
 
     def run(spec)
-      super
-
-      # TODO : append type definitions to shared typedefs.i???
       Stream.transaction do
         f = CodeStream.new(File.join(Config.instance.classes_dir, 'common', 'typedefs.i'))
         f << <<~__HEREDOC
@@ -92,6 +89,8 @@ module WXRuby3
         __HEREDOC
         gen_typedefs(f, spec)
       end
+      # make sure to keep this last for the parallel builds synchronize on the *.i files
+      super
     end
 
   end # class DefsGenerator

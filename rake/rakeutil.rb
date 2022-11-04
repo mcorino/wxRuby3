@@ -7,35 +7,25 @@
 # in the standard rake program
 
 def force_mkdir(dir)
-    if(!File.exists?(dir))
-        Dir.mkdir(dir)
-    end
+  if (!File.exists?(dir))
+    Dir.mkdir(dir)
+  end
 end
 
 def force_rmdir(dir)
-	if(dir != '.' && dir != '..' && File.directory?(dir))
-        rmdir(dir)
-    end
+  if (dir != '.' && dir != '..' && File.directory?(dir))
+    rmdir(dir)
+  end
 end
 
 def force_delete(f)
-	if(f != '.' && f != '..' && File.exists?(f))
-        rm(f)
-    end
+  if (f != '.' && f != '..' && File.exists?(f))
+    rm(f)
+  end
 end
 
-def delete_files_in(dir)
-    Dir[File.join(dir, "*")].each do |f|
-	if !(f =~ /CVS/)
-        	force_delete(f)
-	end
-    end
-end
-
-def delete_files_in_with_ext(dir,ext)
-    Dir[File.join(dir, "*#{ext}")].each do |f|
-	if !(f =~ /CVS/)
-        	force_delete(f)
-	end
-    end
+def delete_files_in(dir, mask='*')
+  Dir[File.join(dir, mask)].each do |f|
+    force_delete(f)
+  end
 end

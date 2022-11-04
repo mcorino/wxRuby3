@@ -511,11 +511,10 @@ module WXRuby3
 
     def run(spec)
       Stream.transaction do
-
-        gen_swig_interface_file(spec)
-
         gen_interface_include(spec) if spec.has_interface_include?
 
+        # make sure to keep this last for the parallel builds synchronize on the *.i files
+        gen_swig_interface_file(spec)
       end
     end
 

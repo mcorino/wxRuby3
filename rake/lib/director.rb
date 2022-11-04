@@ -165,7 +165,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_NEVER
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_NEVER }
         end
         self
@@ -175,7 +175,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_OBJECT
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_OBJECT }
         end
         self
@@ -185,7 +185,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_WINDOW
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_WINDOW }
         end
         self
@@ -195,7 +195,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_FRAME
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_FRAME }
         end
         self
@@ -205,7 +205,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_DIALOG
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_DIALOG }
         end
         self
@@ -215,7 +215,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_EVENT
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_EVENT }
         end
         self
@@ -225,7 +225,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_SIZER
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_SIZER }
         end
         self
@@ -235,7 +235,7 @@ module WXRuby3
         if names.empty?
           @gc_type = :GC_MANAGE_AS_TEMP
         else
-          @gc_type = ::Hash.new if !@gc_type.is_a?(::Hash)
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
           names.each {|n| @gc_type[n] = :GC_MANAGE_AS_TEMP }
         end
         self
@@ -334,28 +334,13 @@ module WXRuby3
         self
       end
 
-      def add_swig_begin_code(*code)
-        @swig_begin_code.concat code.flatten
-        self
-      end
-
       def add_begin_code(*code)
         @begin_code.concat code.flatten
         self
       end
 
-      def add_swig_runtime_code(*code)
-        @swig_runtime_code.concat code.flatten
-        self
-      end
-
       def add_runtime_code(*code)
         @runtime_code.concat code.flatten
-        self
-      end
-
-      def add_swig_header_code(*code)
-        @swig_header_code.concat code.flatten
         self
       end
 
@@ -418,7 +403,7 @@ module WXRuby3
       attr_reader :name, :parent, :required_features, :directors, :director_index, :subpackages
 
       def is_core?
-        name == 'Wx'
+        name == 'Wx' && !parent
       end
 
       def fullname
@@ -476,7 +461,7 @@ module WXRuby3
         end
       end
 
-      def require(*features)
+      def requires(*features)
         required_features.merge(features.flatten)
         self
       end
@@ -491,35 +476,15 @@ module WXRuby3
       def included_directors
         directors.select { |dir| !Config::WxRubyFeatureInfo.excluded_module?(dir.spec) }
       end
-      private :included_directors
 
-      def get_swig_targets
-        wxruby_root = Pathname(Config.wxruby_root)
-        # make sure all modules have been extracted from xml
-        directors.each {|dir| dir.extract_interface(false) }
-        # get dependencies for each module
-        deps = included_directors.inject({}) do |hash, dir|
-                 hash[Pathname(dir.spec.interface_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
-                 if dir.spec.has_interface_include?
-                   hash[Pathname(dir.spec.interface_include_file).relative_path_from(wxruby_root).to_s] = dir.get_dependencies
-                 end
-                 hash
-               end
-        # in case this is the root (core) package add the common wxRuby helper modules
-        unless parent || !is_core?
-          Config.instance.helper_modules.each do |hm|
-            mod = "swig/#{hm}.i"
-            deps[mod] = Director.common_dependencies[mod]
-          end
-          deps['swig/wx.i'] = Director.common_dependencies['swig/wx.i']
-        end
-        deps
+      def all_extra_modules
+        is_core? ? [*Config.instance.helper_modules, 'wx'] : []
       end
 
       def all_build_modules
         unless @all_build_modules
           @all_build_modules = included_directors.collect {|dir| dir.spec.name }
-          @all_build_modules.concat(Config.instance.helper_modules) << 'wx' unless parent || !is_core?
+          @all_build_modules.concat(all_extra_modules)
         end
         @all_build_modules
       end
@@ -527,10 +492,7 @@ module WXRuby3
       def all_swig_files
         unless @all_swig_files
           @all_swig_files = included_directors.collect {|dir| File.join(Config.instance.classes_dir,"#{dir.spec.name}.i") }
-          unless parent || !is_core?
-            @all_swig_files.concat(Config.instance.helper_modules.collect { |m| File.join(Config.instance.swig_dir,"#{m}.i") })
-            @all_swig_files << File.join(Config.instance.swig_dir,"wx.i")
-          end
+          @all_swig_files.concat(all_extra_modules.collect { |m| File.join(Config.instance.swig_dir,"#{m}.i") })
         end
         @all_swig_files
       end
@@ -563,7 +525,7 @@ module WXRuby3
         File.join(Config.instance.src_dir, "#{libname}_init.cpp")
       end
 
-      def generate_initializer
+      def generate_initializer_src
         # collect code
         decls = []
         init_fn = []
@@ -599,14 +561,14 @@ module WXRuby3
           m1 = mreg1.first
           m2 = mreg2.first
           order = 0
-          mreg2.last.each_pair do |cls, base|
+          mreg2.last.each_pair do |_cls, base|
             if Spec.class_index[base] && Spec.class_index[base].module_name == m1
               order = -1
               break
             end
           end
           if order == 0
-            mreg1.last.each_pair do |cls, base|
+            mreg1.last.each_pair do |_cls, base|
               if Spec.class_index[base] && Spec.class_index[base].module_name == m2
                 order = 1
                 break
@@ -695,26 +657,31 @@ module WXRuby3
           fsrc.puts '}'
         end
       end
-      private :generate_initializer
+      private :generate_initializer_src
+
+      def generate_initializer
+        # make sure all included director modules have been extracted
+        included_directors.each do |dir|
+          dir.extract_interface(false) # no need to generate anything here
+        end
+
+        generate_initializer_src
+
+        generate_event_list if included_directors.any? {|dir| dir.has_events? }
+      end
 
       def extract(*mods, genint: true)
         included_directors.each do |dir|
           dir.extract_interface(genint && (mods.empty? || mods.include?(dir.spec.name)))
         end
-
-        generate_initializer if mods.empty?
-
-        generate_event_list if directors.any? {|dir| (mods.empty? || mods.include?(dir.spec.name)) && dir.has_events? }
       end
 
       def generate_code(mod)
-        modnm = mod.end_with?('.i') ? File.basename(mod, '.i') : mod
-        if director_index.has_key?(modnm)
-          director_index[modnm].generate_code
-        elsif mod.end_with?('.i')
-          modnm = File.basename(mod, '.i')
-          dir = Director.new(Director::Spec.new(self, modnm, processors: [:rename, :fixmodule]))
-          dir.spec.interface_file = File.expand_path(mod, Config.wxruby_root)
+        if director_index.has_key?(mod)
+          director_index[mod].generate_code
+        elsif all_extra_modules.include?(mod)
+          dir = Director.new(Director::Spec.new(self, mod, processors: [:rename, :fixmodule]))
+          dir.spec.interface_file = File.join(Config.instance.swig_path, "#{mod}.i")
           dir.generate_code
         else
           raise "Unknown module #{mod}"
@@ -756,6 +723,7 @@ module WXRuby3
           fout.puts 'end'
         end
       end
+      private :generate_event_list
 
       def generate_docs
         # make sure all modules have been extracted from xml
@@ -770,7 +738,7 @@ module WXRuby3
 
     class << self
       def Package(pkgid, *required_features, &block)
-        block.call(self[pkgid].require(*required_features))
+        block.call(self[pkgid].requires(*required_features))
       end
 
       def Spec(pkg, modname, name: nil, director:  nil, processors: nil, requirements: [])
@@ -782,6 +750,10 @@ module WXRuby3
                                                      requirements: requirements))
       end
 
+      def verbose?
+        ::Rake.verbose
+      end
+
       private
 
       def package(pkgname)
@@ -790,9 +762,9 @@ module WXRuby3
 
       def scan_for_includes(file)
         incs = []
-        File.read(file).scan(/^%include\s+["'](.*?)["']\s*$/) do |inc|
-          # exclude generated typedefs include and SWIG standard typemaps include
-          incs << File.join(File.dirname(file), $1) unless $1 == 'classes/common/typedefs.i' || $1 == 'typemaps.i'
+        File.read(file).scan(/^%include\s+["'](.*?)["']\s*$/) do |_inc|
+          # exclude SWIG standard typemaps include
+          incs << File.join(File.dirname(file), $1) unless $1 == 'typemaps.i'
         end
         incs
       end
@@ -840,6 +812,28 @@ module WXRuby3
         end
         ''
       end
+
+      def source_file
+        @source_file ||= __FILE__
+      end
+
+      def source_file=(v)
+        @source_file = v
+      end
+
+      def handle_subclassing(sub)
+        sub.class_eval do
+          def self.inherited(subsub)
+            self.source_file = caller_locations.first.absolute_path
+            Director.handle_subclassing(subsub)
+          end
+        end
+      end
+    end
+
+    def self.inherited(sub)
+      self.source_file = caller_locations.first.absolute_path
+      Director.handle_subclassing(sub)
     end
 
     def initialize(spec)
@@ -866,20 +860,64 @@ module WXRuby3
         register(genspec)
       end
 
-      generate(genspec) if genint
+      if genint
+        STDERR.puts "* generating #{genspec.interface_file}" if Director.verbose?
+        generate(genspec)
+      end
     end
 
-    def get_dependencies
+    def rake_file
+      File.join(Config.instance.classes_path, ".#{spec.name}.rake")
+    end
+
+    def source_files
+      list = [Pathname(Director.source_file).relative_path_from(WXRuby3::Config.wxruby_root).to_s]
+      kls = self.class
+      while kls != Director
+        list << kls.source_file
+        kls = kls.superclass
+      end
+      list
+    end
+
+    def wrapper_source
+      File.join($config.src_dir, "#{spec.name}.cpp")
+    end
+
+    def get_common_dependencies
+      list = [File.join(WXRuby3::Config.instance.swig_dir, 'common.i')]
+      list.concat(Director.common_dependencies[list.first])
+    end
+    private :get_common_dependencies
+
+    def create_rake_tasks(frake)
       wxruby_root = Pathname(WXRuby3::Config.wxruby_root)
-      deps = [File.join(WXRuby3::Config.instance.swig_dir, 'common.i')]
-      deps.concat(Director.common_dependencies[deps.first])
+      # determine dependencies for the generated SWIG input files
+      swig_i_file = Pathname(spec.interface_file).relative_path_from(wxruby_root).to_s
+      frake << <<~__TASK__
+          # file task for module's SWIG interface input file
+          file '#{swig_i_file}' => ['rakefile', '#{source_files.join("', '")}'] do |_|
+            WXRuby3::Director['#{spec.package.fullname}'].extract('#{spec.name}')
+          end
+      __TASK__
+      if spec.has_interface_include?
+        swig_i_h_file = Pathname(spec.interface_include_file).relative_path_from(wxruby_root).to_s
+        frake << <<~__TASK__
+            # file task for module's SWIG interface include input file
+            file '#{swig_i_h_file}' => '#{swig_i_file}'
+        __TASK__
+      end
+      # determine dependencies for the SWIG generated wrapper sourcefiles
+      list = [swig_i_file]
+      list << swig_i_h_file if spec.has_interface_include?
+      list.concat(get_common_dependencies)
+
       genspec = Generator::Spec.new(spec, defmod)
       defmod.items.each do |item|
         if Extractor::ClassDef === item && !item.ignored && !genspec.is_folded_base?(item.name)
           genspec.base_list(item).reverse.each do |base|
             unless genspec.def_item(base)
-              spec = Spec.class_index[base]
-              deps << Pathname(spec.interface_file).relative_path_from(wxruby_root).to_s if spec
+              list << File.join(Config.instance.interface_dir, "#{base}.h")
             end
           end
         end
@@ -890,9 +928,9 @@ module WXRuby3
           # make sure all import dependencies are relative to wxruby root
           if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
             inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-            deps << Pathname(inc).relative_path_from(WXRuby3::Config.wxruby_root).to_s
+            list << Pathname(inc).relative_path_from(wxruby_root).to_s
           else
-            deps << inc
+            list << inc
           end
         end
       end
@@ -902,14 +940,31 @@ module WXRuby3
           # make sure all include dependencies are relative to wxruby root
           if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
             inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-            deps << Pathname(inc).relative_path_from(WXRuby3::Config.wxruby_root).to_s
+            list << Pathname(inc).relative_path_from(wxruby_root).to_s
           else
-            deps << inc
+            list << inc
           end
-          deps.concat(Director.common_dependencies[deps.last] || [])
+          list.concat(Director.common_dependencies[list.last] || [])
         end
       end
-      deps
+
+      frake << <<~__TASK__
+          # file task for module's SWIG generated wrapper source file
+          file '#{wrapper_source}' => #{list} do |_|
+            WXRuby3::Director['#{spec.package.fullname}'].generate_code('#{spec.name}')
+          end
+      __TASK__
+    end
+    protected :create_rake_tasks
+
+    def create_rakefile
+      # make sure XML specs have been extracted
+      extract_interface(false) # no need to generated anything yet
+      # create dependencies
+      Stream.transaction do
+        # create dependencies file
+        create_rake_tasks(CodeStream.new(rake_file))
+      end
     end
 
     def generate_code

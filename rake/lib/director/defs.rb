@@ -36,6 +36,13 @@ module WXRuby3
       def generator
         WXRuby3::DefsGenerator.new
       end
+
+      protected def create_rake_tasks(frake)
+        super
+        frake << <<~__TASK
+          file '#{File.join(Config.instance.common_dir, 'typedefs.i')}' => '#{File.join(Config.instance.classes_dir, 'Defs.i')}'
+          __TASK
+      end
     end # class Defs
 
   end # class Director
