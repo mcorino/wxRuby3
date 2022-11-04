@@ -102,6 +102,11 @@ if $config.has_wxwidgets_xml?
   task :example, [:sample] => :default do |t, args|
     sh $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:sample]
   end
+
+  desc "Debug a wxRuby example"
+  task :debug, [:sample] => :default do |t, args|
+    $config.debug $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:sample]
+  end
 else
   desc "Bootstrap the wxRuby3 build environment"
   task :bootstrap do

@@ -14,6 +14,10 @@ module WXRuby3
 
   module Config
 
+    def debug(env, *cmd)
+      raise "Do not know how to debug for platform #{platform}"
+    end
+
     class << self
 
       def wxruby_root
