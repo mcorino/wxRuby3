@@ -59,7 +59,7 @@ module WXRuby3
 
       def run_swig(source)
         check_swig unless swig_state
-        target = File.join(config.src_path, File.basename(source, '.i') + '.cpp')
+        target = File.join(config.src_path, File.basename(source, '.i') + '.cpp.temp')
         sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.verbose_flag} -Iswig/custom " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
@@ -76,6 +76,9 @@ module WXRuby3
     def self.process(spec)
       target = run_swig(spec.interface_file)
       run_post_processors(target, spec, *spec.post_processors)
+      final_tgt = target.sub(/.temp\Z/, '')
+      (FileUtils.rm_f(final_tgt) if File.exists?(final_tgt)) rescue nil
+      FileUtils.mv(target, final_tgt)
     end
 
     module Processor
