@@ -44,6 +44,6 @@ require 'wx/keyword_defs'
 Kernel::at_exit do
   # These are set at App startup and wxRuby shut down respectively - see App.i
   if Wx::const_defined?(:THE_APP) and not $__wx_app_ended__
-    Wx::THE_APP.on_exit
+    Wx::THE_APP._wx_ruby_cleanup
   end
 end
