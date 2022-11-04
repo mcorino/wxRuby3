@@ -2,7 +2,7 @@
 module Wx
 
   # A named parameter in a Wx named-arg parameter list
-  Parameter = Struct.new( :name, :default )
+  Parameter = Struct.new( :name, :default_or_proc )
 
   # Convert mixed positional / named args into a list to be passed to
   # an underlying API method. +param_spec+ is an Array of Parameter
@@ -16,13 +16,16 @@ module Wx
       kwa = mixed_args.last.kind_of?(Hash) ? mixed_args.pop : {}
       out_args = []
       param_spec.each_with_index do | param, i |
-        if arg = mixed_args[i] # use the supplied list arg 
-          out_args << arg
-        elsif kwa.key?(param.name) # use the keyword arg
-          out_args << kwa.delete(param.name)
-        else # use the default argument
-          out_args << param.default
+        # has supplied list arg or the keyword arg?
+        if (arg = mixed_args[i]) || kwa.key?(param.name)
+          arg = kwa.delete(param.name) unless arg
         end
+        if Proc === param.default_or_proc
+          arg = param.default_or_proc.call(arg) # provides default or converts arg
+        elsif arg.nil?
+          arg = param.default_or_proc # simple default value
+        end
+        out_args << arg
       end
     rescue
       Kernel.raise ArgumentError, 
@@ -50,6 +53,16 @@ module Wx
     consts.find_all do | c | 
       c_val = const_get(c)
       c_val.instance_of?(Fixnum) and c_val == sought
+    end
+  end
+
+  if Wx::WXWIDGETS_VERSION > '3.1.5'
+    def self.bitmap_to_bundle(obj)
+      Wx::Bitmap === obj ? Wx::BitmapBundle.new(obj) : obj
+    end
+  else
+    def self.bitmap_or_bundle(obj)
+      obj
     end
   end
 end

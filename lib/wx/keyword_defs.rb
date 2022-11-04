@@ -11,6 +11,11 @@
 # the wxRuby core library accepts. Because hashes are unordered in Ruby
 # 1.8, if a default argument is specified, this must be the last in a
 # list of parameters.
+# To support complex (context dependent) defaults and/or autoconversion
+# of arguments for backwards the specified default can also be a lambda
+# or  a proc accepting a single argument. This argument will be the
+# value of the specified parameter (or nil) and the lambda or proc
+# should return the constructed or converted argument value to be used.
 # 
 # Some common parameters to constructors such as size, position, title,
 # id and so forth always have a standard default argumnet, which is
@@ -334,7 +339,9 @@ end
 
 # Push button control, displaying a bitmap
 Wx::define_keyword_ctors('BitmapButton') do
-  wx_ctor_params :id, :bitmap, :pos, :size, :style => Wx::BU_AUTODRAW
+  wx_ctor_params :id
+  wx_ctor_params :bitmap => ->(arg) { Wx.bitmap_to_bundle(arg) }
+  wx_ctor_params :pos, :size, :style => Wx::BU_AUTODRAW
   wx_ctor_params :validator, :name => 'button'
 end
 
@@ -455,7 +462,10 @@ end
 
 # wxStaticBitmap 	A control to display a bitmap
 Wx::define_keyword_ctors('StaticBitmap') do
-  wx_ctor_params :id, :label, :pos, :size, :style, :name => Wx::StaticBitmapNameStr
+  wx_ctor_params :id
+  # autoconvert Bitmaps to BitmapBundles for downward compatibility
+  wx_ctor_params :label => ->(arg) { Wx.bitmap_to_bundle(arg) }
+  wx_ctor_params :pos, :size, :style, :name => Wx::StaticBitmapNameStr
 end
 
 

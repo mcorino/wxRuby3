@@ -90,6 +90,14 @@
 # desired.
 #
 #  Wx::Button.new(parent, 'press me', :style => Wx::BU_RIGHT)
+#
+# == Handling complex defaults or version differences
+#
+# To support complex (context dependent) defaults and/or autoconversion
+# of arguments for backwards compatibility the keyword constructors
+# extension allows the definition of lambdas or procs to be associated
+# with a parameter specification.
+#
 
 module Wx
   module KeywordConstructor
@@ -142,7 +150,11 @@ module Wx
       
       def describe_constructor()
         param_spec.inject("") do | desc, param |
-          desc << ":#{param.name} => (#{param.default.class.name})\n"
+          if Proc === param.default_or_proc
+            desc << ":#{param.name} => (#{param.default_or_proc.call(nil).class.name})\n"
+          else
+            desc << ":#{param.name} => (#{param.default_or_proc.class.name})\n"
+          end
         end
       end
     end
@@ -169,6 +181,7 @@ module Wx
           rescue => err
             msg = "Error initializing #{self.inspect}\n"+
                   " : #{err.message} \n" +
+                  "Provided are #{real_args} \n" +
                   "Correct parameters for #{self.class.name}.new are:\n" + 
                    self.class.describe_constructor()
 
@@ -201,4 +214,3 @@ module Wx
     end
   end
 end
-
