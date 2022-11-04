@@ -219,7 +219,8 @@ module WXRuby3
       end
 
       need_protected = classdef.regards_protected_members? ||
-                          spec.folded_bases(classdef.name).any? { |base| spec.def_item(base).regards_protected_members? }
+        !spec.interface_extensions(classdef, 'protected').empty? ||
+        spec.folded_bases(classdef.name).any? { |base| spec.def_item(base).regards_protected_members? }
       unless is_struct || !need_protected
         fout.puts
         fout.puts ' protected:'
