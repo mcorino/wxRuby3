@@ -594,6 +594,8 @@ module WXRuby3
           init_fn << '  Init_wxruby3();'
         end
 
+        STDERR.puts "* generating package #{name} initializer : #{initializer_src}" if Director.verbose?
+
         Stream.transaction do
           fsrc = CodeStream.new(initializer_src)
           fsrc.puts '#include <ruby.h>'
