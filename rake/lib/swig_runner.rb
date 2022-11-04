@@ -59,7 +59,7 @@ module WXRuby3
 
       def run_swig(source)
         check_swig unless swig_state
-        target = File.join(config.src_path, File.basename(source, '.i') + '.cpp.temp')
+        target = File.join(config.src_path, '.generate', File.basename(source, '.i') + '.cpp')
         sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.verbose_flag} -Iswig/custom " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
@@ -76,9 +76,13 @@ module WXRuby3
     def self.process(spec)
       target = run_swig(spec.interface_file)
       run_post_processors(target, spec, *spec.post_processors)
-      final_tgt = target.sub(/.temp\Z/, '')
+      final_tgt = File.join(config.src_path, File.basename(target))
+      target_h = target.sub(/\.cpp\Z/, '.h')
+      final_tgt_h = File.join(config.src_path, File.basename(target_h))
       (FileUtils.rm_f(final_tgt) if File.exists?(final_tgt)) rescue nil
+      (FileUtils.rm_f(final_tgt_h) if File.exists?(final_tgt_h)) rescue nil
       FileUtils.mv(target, final_tgt)
+      FileUtils.mv(target_h, final_tgt_h)
     end
 
     module Processor
@@ -133,8 +137,8 @@ module WXRuby3
 
         enum_table = collect_enumerators(spec)
 
-        core_name = File.basename(target, ".cpp")
-        core_name = 'ruby3' if core_name == 'wx'
+        core_name = spec.name
+        core_name = 'ruby3' if /\Awx\Z/i =~ core_name
 
         skip_entire_method = false
         brace_level = 0
