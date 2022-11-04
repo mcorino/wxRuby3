@@ -60,6 +60,8 @@ module WXRuby3
       end
 
       def setup_ctrl_with_items(clsnm)
+        # used in GC phase so DO NOT trigger Ruby redirection
+        spec.no_proxy "#{clsnm}::GetCount"
         spec.add_swig_code <<~__HEREDOC
           // adjust GC marker
           %markfunc #{clsnm} "GC_mark_wxControlWithItems";
