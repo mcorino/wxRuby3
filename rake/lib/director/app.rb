@@ -62,6 +62,7 @@ module WXRuby3
           spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
         end
         spec.extend_interface('wxApp', 'int main_loop ()')
+        spec.extend_interface('wxApp', 'void _wxRuby_Cleanup()')
         spec.ignore [
           'wxEntry(int &,wxChar **)',
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
@@ -258,7 +259,7 @@ module WXRuby3
               }
 
               // perform wxRuby cleanup
-              wxRuby_Cleanup();
+              _wxRuby_Cleanup();
       
               // execute base wxWidgets functionality 
               return this->wxApp::OnExit();
@@ -270,9 +271,7 @@ module WXRuby3
               std::wcout << "ASSERT fired" << std::endl;
             }
 
-          private:
-
-            void wxRuby_Cleanup()
+            void _wxRuby_Cleanup()
             {
           #ifdef __WXRB_DEBUG__
               std::wcout << "wxRuby_Cleanup..." << std::endl;
