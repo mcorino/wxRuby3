@@ -65,6 +65,9 @@ module WXRuby3
             # STANDARD BUILD DIRECTORIES
             @swig_dir = defined?(SWIG_DIR) ? SWIG_DIR : 'swig'
             @swig_path = File.join(Config.wxruby_root, 'swig')
+            @rake_deps_dir = File.join('rake', 'deps')
+            @rake_deps_path = File.join(Config.wxruby_root, @rake_deps_dir)
+            FileUtils.mkdir_p(@rake_deps_path)
             @src_dir = 'src'
             @src_path = File.join(Config.wxruby_root, @src_dir)
             FileUtils.mkdir_p(@src_path)
@@ -217,7 +220,7 @@ module WXRuby3
                       :cppflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
-                      :dest_dir, :classes_dir, :classes_path,
+                      :rake_deps_dir, :rake_deps_path, :dest_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
           attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path, :rb_doc_dir, :rb_doc_path
 

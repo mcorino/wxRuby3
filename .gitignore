@@ -6,6 +6,7 @@ src
 bak
 ext
 doc
+rake/deps
 swig/classes
 swig/inc
 lib/wx/**/ext

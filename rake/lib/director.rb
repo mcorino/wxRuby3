@@ -879,7 +879,7 @@ module WXRuby3
     end
 
     def rake_file
-      File.join(Config.instance.classes_path, ".#{spec.name}.rake")
+      File.join(Config.instance.rake_deps_path, ".#{spec.name}.rake")
     end
 
     def source_files

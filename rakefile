@@ -82,7 +82,8 @@ if $config.has_wxwidgets_xml?
     delete_files_in($config.common_dir)
     force_rmdir($config.common_dir)
     delete_files_in($config.classes_dir)
-    delete_files_in($config.classes_dir, '.*.rake')
+    delete_files_in($config.rake_deps_dir, '.*.rake')
+    force_rmdir($config.rake_deps_dir)
     force_rmdir($config.src_gen_dir)
     force_rmdir($config.src_dir)
   end
