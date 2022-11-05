@@ -127,6 +127,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridTableBase')
     Director.Spec(pkg, 'wxGridCellAttr')
     Director.Spec(pkg, 'wxGridCellEditor')
+    Director.Spec(pkg, 'wxGridCellRenderer')
   }
 
 end # module WXRuby3
