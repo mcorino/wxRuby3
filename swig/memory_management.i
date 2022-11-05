@@ -25,6 +25,7 @@
 // These are implemented in swig/wx.i, so they are shared among all classes
 %{
 WXRUBY_EXPORT void GcNullFreeFunc(void *);
+WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
 WXRUBY_EXPORT void GC_mark_wxWindow(void *);
 WXRUBY_EXPORT void GC_mark_wxFrame(void *);
 WXRUBY_EXPORT void GC_mark_wxEvent(void *);
@@ -112,6 +113,14 @@ GC_NEVER(kls);
 %define GC_MANAGE_AS_SIZER(kls)
 %trackobjects;
 %feature("freefunc") kls "GcNullFreeFunc";
+%enddef
+
+// wxRefCounter derived objects need to dereferenced when GC-ed but
+// *not* deleted. Destruction will be automatic if the reference count
+// reaches zero. Need to be disowned though in certain circumstances.
+%define GC_MANAGE_AS_REFCOUNTED(kls)
+%trackobjects;
+%feature("freefunc") kls "GcRefCountedFreeFunc";
 %enddef
 
 // All other classes - mainly helper classes (eg Sizer, GridCellxxx) and

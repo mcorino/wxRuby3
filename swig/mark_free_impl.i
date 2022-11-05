@@ -22,6 +22,16 @@ WXRUBY_EXPORT void GcNullFreeFunc(void *ptr)
   SWIG_RubyRemoveTracking(ptr);
 }
 
+// Code to be run when the ruby object is swept by GC - this only
+// unlinks the C++ object from the ruby VALUE and decrements the
+// reference counter.
+WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
+{
+  SWIG_RubyRemoveTracking(ptr);
+  if (ptr)
+    ((wxRefCounter*)ptr)->DecRef();
+}
+
 // This does not work
 // // Code to be run when the ruby object is swept by GC - this checks
 // // for orphaned sizers and deletes those, only unlinking others

@@ -231,6 +231,16 @@ module WXRuby3
         self
       end
 
+      def gc_as_refcounted(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_REFCOUNTED
+        else
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_REFCOUNTED }
+        end
+        self
+      end
+
       def gc_as_temporary(*names)
         if names.empty?
           @gc_type = :GC_MANAGE_AS_TEMP

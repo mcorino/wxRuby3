@@ -124,6 +124,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridSizeEvent')
     Director.Spec(pkg, 'wxGridEditorCreatedEvent')
     Director.Spec(pkg, 'wxGridRangeSelectEvent')
+    Director.Spec(pkg, 'wxGridTableBase')
   }
 
 end # module WXRuby3
