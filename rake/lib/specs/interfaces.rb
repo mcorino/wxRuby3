@@ -100,7 +100,6 @@ module WXRuby3
     Director.Spec(pkg, 'wxBusyInfo')
     Director.Spec(pkg, 'wxListCtrl')
     Director.Spec(pkg, 'wxListEvent')
-    Director.Spec(pkg, 'wxGridEvent')
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
@@ -115,6 +114,13 @@ module WXRuby3
   Director.Package('Wx::Stc', 'wxUSE_STC') { |pkg|
     Director.Spec(pkg, 'wxStyledTextEvent')
     Director.Spec(pkg, 'wxStyledTextCtrl')
+  }
+
+  Director.Package('Wx::Grid', 'wxUSE_GRID') { |pkg|
+    Director.Spec(pkg, 'wxGridEvent')
+    Director.Spec(pkg, 'wxGridSizeEvent')
+    Director.Spec(pkg, 'wxGridEditorCreatedEvent')
+    Director.Spec(pkg, 'wxGridRangeSelectEvent')
   }
 
 end # module WXRuby3
