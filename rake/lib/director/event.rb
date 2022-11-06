@@ -51,7 +51,7 @@ module WXRuby3
           spec.add_header_code <<~__HEREDOC
             // Custom subclass implementation. Provide a constructor, destructor and
             // clone functions to allow proper linking to a Ruby object.
-            class wxRubyEvent : public wxEvent
+            class WXRUBY_EXPORT wxRubyEvent : public wxEvent
             {
               public:
               wxRubyEvent(wxEventType commandType = wxEVT_NULL, 
@@ -113,7 +113,7 @@ module WXRuby3
             //
             // FIXME : intermittent errors with CommandEvent losing the tracked
             // object before handling - though the same code works fine with Wx::Event
-            class wxRubyCommandEvent : public wxCommandEvent
+            class WXRUBY_EXPORT wxRubyCommandEvent : public wxCommandEvent
             {
             public:
               wxRubyCommandEvent(wxEventType commandType = wxEVT_NULL, 
@@ -158,7 +158,7 @@ module WXRuby3
             // Custom subclass implementation. Provides a constructor, destructor and
             // clone functions to allow proper linking to a Ruby object.
             // Defined in Event.cpp
-            class wxRubyEvent : public wxEvent
+            class WXRUBY_EXPORT wxRubyEvent : public wxEvent
             {
               public:
               wxRubyEvent(wxEventType commandType = wxEVT_NULL, 
@@ -181,7 +181,7 @@ module WXRuby3
             // GC/thread protection of Ruby instance variables when user-written
             // event classes are queued.
             // Defined in Event.cpp
-            class wxRubyCommandEvent : public wxCommandEvent
+            class WXRUBY_EXPORT wxRubyCommandEvent : public wxCommandEvent
             {
             public:
               wxRubyCommandEvent(wxEventType commandType = wxEVT_NULL, 
