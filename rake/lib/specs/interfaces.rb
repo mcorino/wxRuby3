@@ -129,6 +129,22 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridCellEditor')
     Director.Spec(pkg, 'wxGridCellRenderer')
     Director.Spec(pkg, 'wxGridCellActivatableEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellBoolEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellChoiceEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellEnumEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellDateEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellTextEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellFloatEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellNumberEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellAutoWrapStringEditor', director: Director::GridCellEditor)
+    Director.Spec(pkg, 'wxGridCellBoolRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellStringRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellFloatRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellAutoWrapStringRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellDateRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellDateTimeRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellEnumRenderer', director: Director::GridCellRenderer)
+    Director.Spec(pkg, 'wxGridCellNumberRenderer', director: Director::GridCellRenderer)
   }
 
 end # module WXRuby3

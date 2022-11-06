@@ -15,16 +15,24 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version >= '3.1.7'
-          spec.items << 'wxSharedClientDataContainer'
-          spec.fold_bases('wxGridCellRenderer' => ['wxSharedClientDataContainer'])
+        spec.gc_as_refcounted
+        if spec.module_name == 'wxGridCellRenderer'
+          if Config.instance.wx_version >= '3.1.7'
+            spec.items << 'wxSharedClientDataContainer'
+            spec.fold_bases('wxGridCellRenderer' => ['wxSharedClientDataContainer'])
+          else
+            spec.items << 'wxClientDataContainer'
+            spec.fold_bases('wxGridCellRenderer' => ['wxClientDataContainer'])
+          end
+          spec.ignore_bases('wxGridCellRenderer' => ['wxRefCounter'])
+          spec.regard('wxGridCellRenderer::~wxGridCellRenderer')
         else
-          spec.items << 'wxClientDataContainer'
-          spec.fold_bases('wxGridCellRenderer' => ['wxClientDataContainer'])
+          if Config.instance.wx_version >= '3.1.7'
+            spec.ignore_bases('wxGridCellRenderer' => ['wxSharedClientDataContainer', 'wxRefCounter'])
+          else
+            spec.ignore_bases('wxGridCellRenderer' => ['wxClientDataContainer', 'wxRefCounter'])
+          end
         end
-        spec.ignore_bases('wxGridCellRenderer' => ['wxRefCounter'])
-        spec.gc_as_refcounted('wxGridCellRenderer')
-        spec.regard('wxGridCellRenderer::~wxGridCellRenderer')
       end
     end # class GridCellRenderer
 

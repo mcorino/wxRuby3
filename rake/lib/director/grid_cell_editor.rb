@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         super
+        spec.gc_as_refcounted
         if spec.module_name == 'wxGridCellEditor'
           spec.post_processors << :fix_gridcelleditor
           if Config.instance.wx_version >= '3.1.7'
@@ -25,7 +26,6 @@ module WXRuby3
             spec.fold_bases('wxGridCellEditor' => ['wxClientDataContainer'])
           end
           spec.ignore_bases('wxGridCellEditor' => ['wxRefCounter'])
-          spec.gc_as_refcounted('wxGridCellEditor')
           spec.regard('wxGridCellEditor::~wxGridCellEditor')
         elsif spec.module_name == 'wxGridCellActivatableEditor'
           spec.post_processors << :fix_gridcelleditor
@@ -50,6 +50,13 @@ module WXRuby3
             wxGridCellActivatableEditor::IsAcceptedKey
             wxGridCellActivatableEditor::GetValue
             ]
+        else
+          spec.post_processors << :fix_gridcelleditor
+          if Config.instance.wx_version >= '3.1.7'
+            spec.ignore_bases('wxGridCellEditor' => ['wxSharedClientDataContainer', 'wxRefCounter'])
+          else
+            spec.ignore_bases('wxGridCellEditor' => ['wxClientDataContainer', 'wxRefCounter'])
+          end
         end
       end
 
@@ -206,6 +213,7 @@ module WXRuby3
     def self.fix_gridcelleditor(target, spec)
       puts "Processor.fix_gridcelleditor: #{target}"
       skip_lines = false
+      helpers_added = false
       Stream.transaction do
         fout = CodeStream.new(target)
         File.foreach(target) do |line|
@@ -232,9 +240,10 @@ module WXRuby3
               result = rb_funcall(swig_get_self(), rb_intern("try_activate"), 4,obj0,obj1,obj2,obj3);
               return array_to_wxGridActivationResult(result);
               __METHOD__
-          elsif line["SwigDirector_#{spec.module_name}::SwigDirector_#{spec.module_name}(VALUE self):"]
+          elsif !helpers_added && line["SwigDirector_#{spec.module_name}::SwigDirector_#{spec.module_name}(VALUE self"]
             # insert helper methods
             fout.puts Director::GridCellEditor::WRAPPER_HELPERS
+            helpers_added = true
           elsif line["_wrap_#{spec.module_name}_TryActivate(int argc, VALUE *argv, VALUE self) {"]
             skip_lines = true
             # append new method implementation
