@@ -351,31 +351,6 @@ module WXRuby3
         end
       end
 
-      # def self.fixmainmodule(target, _)
-      #   puts "Processor.fixmainmodule: #{target}"
-      #   this_module = 'unknown'
-      #   Stream.transaction do
-      #     out = CodeStream.new(target)
-      #     found_main_module = false
-      #     File.foreach(target) do |line|
-      #       if line.index("static VALUE m#{MAIN_MODULE};")
-      #         line = "VALUE m#{MAIN_MODULE};"
-      #         found_main_module = true
-      #       end
-      #
-      #       if line.index("char* type_name = RSTRING(value)->ptr;")
-      #         line = "        const char* type_name = (value == Qnil) ? \"\" : RSTRING(value)->ptr;\n";
-      #       end
-      #
-      #       out.puts(line)
-      #     end
-      #     if !found_main_module
-      #       puts("didn't find main module")
-      #       exit(1)
-      #     end
-      #   end
-      # end
-
     end # module Processor
 
   end # module SwigRunner
