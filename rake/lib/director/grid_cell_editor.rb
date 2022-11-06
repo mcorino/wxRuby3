@@ -27,6 +27,29 @@ module WXRuby3
           spec.ignore_bases('wxGridCellEditor' => ['wxRefCounter'])
           spec.gc_as_refcounted('wxGridCellEditor')
           spec.regard('wxGridCellEditor::~wxGridCellEditor')
+        elsif spec.module_name == 'wxGridCellActivatableEditor'
+          spec.post_processors << :fix_gridcelleditor
+          if Config.instance.wx_version >= '3.1.7'
+            spec.ignore_bases('wxGridCellEditor' => ['wxSharedClientDataContainer', 'wxRefCounter'])
+          else
+            spec.ignore_bases('wxGridCellEditor' => ['wxClientDataContainer', 'wxRefCounter'])
+          end
+          spec.no_proxy %w[
+            wxGridCellActivatableEditor::BeginEdit
+            wxGridCellActivatableEditor::Create
+            wxGridCellActivatableEditor::Destroy
+            wxGridCellActivatableEditor::EndEdit
+            wxGridCellActivatableEditor::ApplyEdit
+            wxGridCellActivatableEditor::HandleReturn
+            wxGridCellActivatableEditor::PaintBackground
+            wxGridCellActivatableEditor::Reset
+            wxGridCellActivatableEditor::SetSize
+            wxGridCellActivatableEditor::Show
+            wxGridCellActivatableEditor::StartingClick
+            wxGridCellActivatableEditor::StartingKey
+            wxGridCellActivatableEditor::IsAcceptedKey
+            wxGridCellActivatableEditor::GetValue
+            ]
         end
       end
 
@@ -183,7 +206,6 @@ module WXRuby3
     def self.fix_gridcelleditor(target, spec)
       puts "Processor.fix_gridcelleditor: #{target}"
       skip_lines = false
-      brace_level = 0
       Stream.transaction do
         fout = CodeStream.new(target)
         File.foreach(target) do |line|
@@ -192,7 +214,7 @@ module WXRuby3
             if /\A}\s*\Z/ =~ line
               skip_lines = false
             end
-          elsif line['wxGridActivationResult SwigDirector_wxGridCellEditor::TryActivate(']
+          elsif line["wxGridActivationResult SwigDirector_#{spec.module_name}::TryActivate("]
             skip_lines = true
             # append new method implementation
             fout.puts line
@@ -210,15 +232,15 @@ module WXRuby3
               result = rb_funcall(swig_get_self(), rb_intern("try_activate"), 4,obj0,obj1,obj2,obj3);
               return array_to_wxGridActivationResult(result);
               __METHOD__
-          elsif line['SwigDirector_wxGridCellEditor::SwigDirector_wxGridCellEditor(VALUE self):']
+          elsif line["SwigDirector_#{spec.module_name}::SwigDirector_#{spec.module_name}(VALUE self):"]
             # insert helper methods
             fout.puts Director::GridCellEditor::WRAPPER_HELPERS
-          elsif line['_wrap_wxGridCellEditor_TryActivate(int argc, VALUE *argv, VALUE self) {']
+          elsif line["_wrap_#{spec.module_name}_TryActivate(int argc, VALUE *argv, VALUE self) {"]
             skip_lines = true
             # append new method implementation
             fout.puts line
             fout.puts <<~__METHOD__
-                wxGridCellEditor *arg1 = (wxGridCellEditor *) 0 ;
+                #{spec.module_name} *arg1 = (#{spec.module_name} *) 0 ;
                 int arg2 ;
                 int arg3 ;
                 wxGrid *arg4 = (wxGrid *) 0 ;
@@ -237,11 +259,11 @@ module WXRuby3
                 if ((argc < 4) || (argc > 4)) {
                   rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
                 }
-                res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_wxGridCellEditor, 0 |  0 );
+                res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_#{spec.module_name}, 0 |  0 );
                 if (!SWIG_IsOK(res1)) {
-                  SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "wxGridCellEditor *","TryActivate", 1, self )); 
+                  SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "#{spec.module_name} *","TryActivate", 1, self )); 
                 }
-                arg1 = reinterpret_cast< wxGridCellEditor * >(argp1);
+                arg1 = reinterpret_cast< #{spec.module_name} * >(argp1);
                 ecode2 = SWIG_AsVal_int(argv[0], &val2);
                 if (!SWIG_IsOK(ecode2)) {
                   SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","TryActivate", 2, argv[0] ));
@@ -261,7 +283,13 @@ module WXRuby3
                 upcall = (director && (director->swig_get_self() == self));
                 try {
                   if (upcall) {
-                    vresult = wxGridActivationResult_to_array((arg1)->wxGridCellEditor::TryActivate(arg2,arg3,arg4,array_to_wxGridActivationSource(argv[3], 4)));
+                    #{
+                      if spec.module_name == 'wxGridCellActivatableEditor'
+                        'Swig::DirectorPureVirtualException::raise("wxGridCellActivatableEditor::TryActivate");'
+                      else
+                        "vresult = wxGridActivationResult_to_array((arg1)->#{spec.module_name}::TryActivate(arg2,arg3,arg4,array_to_wxGridActivationSource(argv[3], 4)));"
+                      end
+                    }
                   } else {
                     vresult = wxGridActivationResult_to_array((arg1)->TryActivate(arg2,arg3,arg4,array_to_wxGridActivationSource(argv[3], 4)));
                   }
