@@ -57,6 +57,16 @@ module WXRuby3
           else
             spec.ignore_bases('wxGridCellEditor' => ['wxClientDataContainer', 'wxRefCounter'])
           end
+          # due to the flawed wxWidgets XML docs we need to explicitly add these here
+          # otherwise the derived editors won't be allocable due to pure virtuals
+          spec.extend_interface spec.module_name,
+            'void BeginEdit(int row, int col, wxGrid *grid)',
+            'wxGridCellEditor * Clone() const',
+            'void Create(wxWindow *parent, wxWindowID id, wxEvtHandler *evtHandler)',
+            'bool EndEdit(int row, int col, const wxGrid *grid, const wxString &oldval, wxString *newval)',
+            'void ApplyEdit(int row, int col, wxGrid *grid)',
+            'void Reset()',
+            'wxString GetValue() const'
         end
       end
 

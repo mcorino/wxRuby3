@@ -32,6 +32,12 @@ module WXRuby3
           else
             spec.ignore_bases('wxGridCellRenderer' => ['wxClientDataContainer', 'wxRefCounter'])
           end
+          # due to the flawed wxWidgets XML docs we need to explicitly add these here
+          # otherwise the derived renderers won't be allocable due to pure virtuals
+          spec.extend_interface spec.module_name,
+              'wxGridCellRenderer* Clone() const',
+              'void Draw(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, const wxRect &rect, int row, int col, bool isSelected)',
+              'wxSize GetBestSize(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, int row, int col)'
         end
       end
     end # class GridCellRenderer

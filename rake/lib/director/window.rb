@@ -15,9 +15,7 @@ module WXRuby3
 
       def setup
         # for all wxWindow derived classes (not wxFrame and descendants)
-        spec.add_swig_code <<~__HEREDOC
-          SWIG_WXWINDOW_NO_USELESS_VIRTUALS(#{spec.module_name});
-        __HEREDOC
+        spec.items.each { |itm| spec.add_swig_code "SWIG_WXWINDOW_NO_USELESS_VIRTUALS(#{itm});" }
         # only for actual wxWindow class
         case spec.module_name
         when 'wxWindow'

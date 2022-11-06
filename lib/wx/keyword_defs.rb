@@ -132,12 +132,6 @@ Wx::define_keyword_ctors('ScrolledWindow') do
   wx_ctor_params :name => 'scrolledWindow'
 end
 
-# wxGrid 	A grid (table) window
-Wx::define_keyword_ctors('Grid') do
-  wx_ctor_params :id, :pos, :size, :style => Wx::WANTS_CHARS
-  wx_ctor_params :name => 'grid'
-end
-
 # Window which can be split vertically or horizontally
 Wx::define_keyword_ctors('SplitterWindow') do
   wx_ctor_params :id, :pos, :size, :style => Wx::SP_3D

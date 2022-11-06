@@ -22,7 +22,7 @@
 // Needed for get_selected_cells, get_selection_block_top_left etc
 %typemap(out) wxGridCellCoordsArray {
   $result = rb_ary_new();
-  for ( int i = 0; i < $1.GetCount(); i++ )
+  for (size_t i = 0; i < $1.GetCount(); i++)
     {
       wxGridCellCoords coord = $1.Item(i);
       VALUE rb_coord = rb_ary_new();
