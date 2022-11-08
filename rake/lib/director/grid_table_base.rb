@@ -25,6 +25,8 @@ module WXRuby3
           __HEREDOC
         # wxWidgets takes over managing the ref count
         spec.disown('wxGridCellAttr* attr')
+        # this requires wxRuby to take ownership (ref counted)
+        spec.new_object 'wxGridTableBase::GetAttr'
       end
     end # class GridTableBase
 
