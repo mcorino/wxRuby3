@@ -173,6 +173,10 @@ module WXRuby3
         @ifspec.disowns
       end
 
+      def new_objects
+        @ifspec.new_objects
+      end
+
       def swig_code
         @ifspec.swig_code.join("\n")
       end

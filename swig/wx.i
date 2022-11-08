@@ -164,7 +164,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
       Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
     }
 
-#ifdef __WXRB_TRACE__
+#if __WXRB_TRACE__ == 2
   std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
 #endif
 
@@ -205,7 +205,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
   rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
-#ifdef __WXRB_TRACE__
+#if __WXRB_TRACE__ == 2
   std::wcout << "* wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}" << std::endl;
 #endif
 

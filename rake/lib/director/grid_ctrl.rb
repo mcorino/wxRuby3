@@ -55,18 +55,33 @@ module WXRuby3
           // Needed for methods that return cell and label alignments
           %apply int *OUTPUT { int *horiz, int *vert };
 
-          // Disown reference counted arguments.
-          %apply SWIGTYPE *DISOWN { wxGridCellAttr* attr };
-          %apply SWIGTYPE *DISOWN { wxGridCellEditor* editor };
-          %apply SWIGTYPE *DISOWN { wxGridCellRenderer* renderer };
-
           // If invalid grid-cell co-ordinates are passed into wxWidgets,
           // segfaults may result, so check to avoid this.
           %typemap(check) int row, int col {
             if ( $1 < 0 )
               rb_raise(rb_eIndexError, "Negative grid cell co-ordinate is not valid");
           }
+          enum wxGridSelectionModes;
+          enum CellSpan;
+          enum TabBehaviour;
           __HEREDOC
+        spec.ignore 'wxGrid::GetOrCreateCellAttrPtr'  # ignore this variant
+        # wxWidgets takes over managing the ref count
+        spec.disown({'const wxGridCellAttr* attr' => false }, # tricky! apply regular arg conversion to const FIRST
+                    'wxGridCellAttr* attr',                   # next; apply DISOWN conversion for non-const
+                    'wxGridCellEditor* editor',
+                    'wxGridCellRenderer* renderer',
+                    'wxGridTableBase* table')
+        # these require wxRuby to take ownership (ref counted)
+        spec.new_object('wxGrid::GetOrCreateCellAttr',
+                        'wxGrid::GetCellEditor',
+                        'wxGrid::GetDefaultEditor',
+                        'wxGrid::GetDefaultEditorForCell',
+                        'wxGrid::GetDefaultEditorForType',
+                        'wxGrid::GetCellRenderer',
+                        'wxGrid::GetDefaultRenderer',
+                        'wxGrid::GetDefaultRendererForCell',
+                        'wxGrid::GetDefaultRendererForType')
       end
     end # class GridCtrl
 

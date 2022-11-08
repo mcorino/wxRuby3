@@ -146,6 +146,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridCellEnumRenderer', director: Director::GridCellRenderer)
     Director.Spec(pkg, 'wxGridCellNumberRenderer', director: Director::GridCellRenderer)
     Director.Spec(pkg, 'wxGridCtrl')
+    Director.Spec(pkg, 'wxGridTableMessage')
   }
 
 end # module WXRuby3

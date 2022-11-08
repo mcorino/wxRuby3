@@ -66,6 +66,7 @@ module WXRuby3
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
         @disowns = ::Set.new
+        @new_objects = ::Set.new
         @only_for = ::Hash.new
         @param_mappings = ::Hash.new
         @includes = ::Set.new
@@ -86,7 +87,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :only_for, :param_mappings,
+                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :only_for, :param_mappings,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements
@@ -304,6 +305,11 @@ module WXRuby3
 
       def disown(*decls)
         @disowns.merge(decls.flatten)
+        self
+      end
+
+      def new_object(*decls)
+        @new_objects.merge(decls.flatten)
         self
       end
 

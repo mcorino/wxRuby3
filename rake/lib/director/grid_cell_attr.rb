@@ -25,8 +25,15 @@ module WXRuby3
         spec.ignore_bases('wxGridCellAttr' => ['wxRefCounter'])
         spec.gc_as_refcounted('wxGridCellAttr')
         spec.ignore %w[wxGridCellAttr::IncRef wxGridCellAttr::DecRef]
-        spec.disown 'wxGridCellEditor* editor',
-                    'wxGridCellRenderer* renderer'
+        # wxWidgets takes over managing the ref count
+        spec.disown('wxGridCellEditor* editor',
+                    'wxGridCellRenderer* renderer')
+        spec.ignore('wxGridCellAttr::GetEditorPtr')
+        spec.ignore('wxGridCellAttr::GetRendererPtr')
+        # these require wxRuby to take ownership (ref counted)
+        spec.new_object('wxGridCellAttr::Clone',
+                        'wxGridCellAttr::GetEditor',
+                        'wxGridCellAttr::GetRenderer')
       end
     end # class GridCellAttr
 

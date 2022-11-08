@@ -43,10 +43,22 @@ module WXRuby3
       unless spec.disowns.empty?
         fout.puts
         spec.disowns.each do |dis|
-          fout.puts "%apply SWIGTYPE *DISOWN { #{dis} };"
+          if ::Hash === dis
+            decl, flag = dis.first
+            fout.puts "%apply SWIGTYPE *#{flag ? 'DISOWN' : ''} { #{decl} };"
+          else
+            fout.puts "%apply SWIGTYPE *DISOWN { #{dis} };"
+          end
+        end
+      end
+      unless spec.new_objects.empty?
+        fout.puts
+        spec.new_objects.each do |decl|
+          fout.puts "%newobject { #{decl} };"
         end
       end
       unless spec.includes.empty? && spec.header_code.empty?
+        fout.puts
         fout.puts "%header %{"
         spec.includes.each do |inc|
           fout.puts "#include \"#{inc}\"" unless inc.index('wx.h')

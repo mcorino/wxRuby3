@@ -68,6 +68,8 @@ module WXRuby3
             'void Reset()',
             'wxString GetValue() const'
         end
+        # these require wxRuby to take ownership (ref counted)
+        spec.new_object "#{spec.module_name}::Clone"
       end
 
       # helper methods for custom wrapper to handle wxGridActivationResult and wxGridActivationSource
@@ -200,11 +202,19 @@ module WXRuby3
                 break;
               case wxGridActivationSource::Key:
                 rb_ary_push(rbresult, ID2SYM(rb_intern("key")));
-                rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(const_cast<wxKeyEvent*> (&arg.GetKeyEvent()))); 
+            #ifdef __WXRB_TRACE__
+                rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(0, const_cast<wxKeyEvent*> (&arg.GetKeyEvent())));
+            #else 
+                rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(const_cast<wxKeyEvent*> (&arg.GetKeyEvent())));
+            #endif 
                 break;
               case wxGridActivationSource::Mouse:
                 rb_ary_push(rbresult, ID2SYM(rb_intern("mouse")));
+            #ifdef __WXRB_TRACE__
+                rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(0, const_cast<wxMouseEvent*> (&arg.GetMouseEvent()))); 
+            #else 
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(const_cast<wxMouseEvent*> (&arg.GetMouseEvent()))); 
+            #endif 
                 break;
               }
               return rbresult;

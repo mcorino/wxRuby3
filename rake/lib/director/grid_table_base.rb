@@ -23,7 +23,8 @@ module WXRuby3
         spec.add_swig_code <<~__HEREDOC
           %typemap(directorin) wxGridCellAttr::wxAttrKind "$input = INT2NUM($1);"
           __HEREDOC
-        spec.disown 'wxGridCellAttr* attr'
+        # wxWidgets takes over managing the ref count
+        spec.disown('wxGridCellAttr* attr')
       end
     end # class GridTableBase
 

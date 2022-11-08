@@ -39,6 +39,8 @@ module WXRuby3
               'void Draw(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, const wxRect &rect, int row, int col, bool isSelected)',
               'wxSize GetBestSize(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, int row, int col)'
         end
+        # these require wxRuby to take ownership (ref counted)
+        spec.new_object "#{spec.module_name}::Clone"
       end
     end # class GridCellRenderer
 
