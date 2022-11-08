@@ -402,7 +402,7 @@ module WXRuby3
     end
 
     def gen_class_doc(fdoc, genspec)
-      genspec.def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm }.each do |item|
+      genspec.def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !genspec.is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || genspec.template_as_class?(item.name)
           clsnm = rb_wx_name(item.name)
           basecls = genspec.base_class(item)
