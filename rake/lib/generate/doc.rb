@@ -40,14 +40,18 @@ module WXRuby3
             STDOUT.puts JSON.dump(table)
           end
         __SCRIPT
+        STDERR.puts "* executing constants collection script:\n#{script}" if Rake.application.options.trace
         begin
           tmpfile = Tempfile.new('script')
           ftmp_name = tmpfile.path.dup
           tmpfile << script
           tmpfile.close(false)
-          rubycmd = `which ruby`.chomp
-          rubycmd << " -I#{File.join(WXRuby3::Config.wxruby_root, 'lib')} #{ftmp_name}"
-          result = `#{rubycmd} 2>/dev/null`
+          result = if Rake.application.options.trace
+                     Config.instance.run(ftmp_name, capture: :out)
+                   else
+                     Config.instance.run(ftmp_name, capture: :no_err)
+                   end
+          STDERR.puts "* got constants collection output:\n#{result}" if Rake.application.options.trace
           db = JSON.load(result)
           return db
         ensure
