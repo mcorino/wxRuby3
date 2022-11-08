@@ -842,7 +842,7 @@ module WXRuby3
       def handle_subclassing(sub)
         sub.class_eval do
           def self.inherited(subsub)
-            subsub.source_file = Pathname(caller_locations.first.absolute_path).relative_path_from(Config.wxruby_root).to_s
+            subsub.source_file = Pathname(caller_locations.first.absolute_path).relative_path_from(Pathname(Config.wxruby_root)).to_s
             Director.handle_subclassing(subsub)
           end
         end
@@ -850,7 +850,7 @@ module WXRuby3
     end
 
     def self.inherited(sub)
-      sub.source_file = Pathname(caller_locations.first.absolute_path).relative_path_from(Config.wxruby_root).to_s
+      sub.source_file = Pathname(caller_locations.first.absolute_path).relative_path_from(Pathname(Config.wxruby_root)).to_s
       Director.handle_subclassing(sub)
     end
 
@@ -889,7 +889,7 @@ module WXRuby3
     end
 
     def source_files
-      list = [Pathname(Director.source_file).relative_path_from(WXRuby3::Config.wxruby_root).to_s]
+      list = [Pathname(Director.source_file).relative_path_from(Pathname(WXRuby3::Config.wxruby_root)).to_s]
       kls = self.class
       while kls != Director
         list << kls.source_file
