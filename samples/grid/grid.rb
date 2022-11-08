@@ -120,7 +120,7 @@ class GridFrame < Wx::Frame
 
   # Create a wxGrid object
   def make_grid(panel)
-    @grid = Wx::Grid::Grid.new(panel, -1)
+    @grid = Wx::Grids::Grid.new(panel, -1)
 
     # Then we call CreateGrid to set the dimensions of the grid
     # (11 rows and 12 columns in this example)
@@ -152,9 +152,9 @@ class GridFrame < Wx::Frame
     # values rather than strings. Here we set grid column 6 
     # to hold floating point values displayed with width 
     # of 2 and precision of 2. The column is highlighted in light grey
-    cell_attr = Wx::Grid::GridCellAttr.new
+    cell_attr = Wx::Grids::GridCellAttr.new
     cell_attr.set_background_colour( Wx::LIGHT_GREY )
-    cell_attr.set_renderer( Wx::Grid::GridCellFloatRenderer.new(2, 2) )
+    cell_attr.set_renderer( Wx::Grids::GridCellFloatRenderer.new(2, 2) )
 
     @grid.set_col_attr(5, cell_attr)
     @grid.set_cell_value(0, 5, "3.1415")
@@ -162,23 +162,23 @@ class GridFrame < Wx::Frame
                          "The whole column to the left uses float format")
     
     # Custom Editors Can be used
-    editor = Wx::Grid::GridCellNumberEditor.new(5, 20)
+    editor = Wx::Grids::GridCellNumberEditor.new(5, 20)
     @grid.set_cell_value(3, 1, 'Number editor below')
     @grid.set_cell_editor(4, 1, editor)
 
-    editor = Wx::Grid::GridCellFloatEditor.new(4, 2)
+    editor = Wx::Grids::GridCellFloatEditor.new(4, 2)
     @grid.set_cell_value(3, 2, 'Float editor below')
     @grid.set_cell_editor(4, 2, editor)
 
-    editor = Wx::Grid::GridCellChoiceEditor.new(['foo', 'bar', 'baz'])
+    editor = Wx::Grids::GridCellChoiceEditor.new(['foo', 'bar', 'baz'])
     @grid.set_cell_value(3, 3, 'Choice editor below')
     @grid.set_cell_editor(4, 3, editor)
 
     @grid.auto_size_row(3, true)
 
     # Display of cells can be customised
-    @grid.set_cell_editor(6, 0, Wx::Grid::GridCellBoolEditor.new)
-    @grid.set_cell_renderer(6, 0, Wx::Grid::GridCellBoolRenderer.new)
+    @grid.set_cell_editor(6, 0, Wx::Grids::GridCellBoolEditor.new)
+    @grid.set_cell_renderer(6, 0, Wx::Grids::GridCellBoolRenderer.new)
     @grid.set_cell_value(6, 1, 'Cell to the left displayed as boolean')
   end
   

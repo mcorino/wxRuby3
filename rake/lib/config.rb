@@ -17,25 +17,23 @@ module WXRuby3
     def run(*cmd, capture: nil)
       r_p = nil
       w_p = nil
-      opts = case capture
+      case capture
       when :out, :err, :all, :no_err
         r_p, w_p = IO.pipe
         case capture
         when :out
-          {out: w_p }
+          cmd << {out: w_p }
         when :no_err
-          {out: w_p, err: '/dev/null' }
+          cmd << {out: w_p, err: '/dev/null' }
         when :err
-          {err: w_p}
+          cmd << {err: w_p}
         when :all
-          {out: w_p, :err=>[:child, :out]}
+          cmd << {out: w_p, :err=>[:child, :out]}
         end
       when :null
-        {[:err, :out] => '/dev/null'}
-      else
-        {}
+        cmd << {[:err, :out] => '/dev/null'}
       end
-      spawn Config.instance.exec_env, FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), *cmd, opts
+      spawn Config.instance.exec_env, FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), *cmd
       w_p.close if w_p
       r_p.read if r_p
     end

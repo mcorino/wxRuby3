@@ -104,7 +104,7 @@ if $config.has_wxwidgets_xml?
 
   desc "Run a wxRuby app"
   task :run, [:app] => :default do |t, args|
-    sh $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:app]
+    $config.run args[:app]
   end
 
   desc "Debug a wxRuby app"

@@ -3,10 +3,10 @@
 
 require 'wx/core'
 
-require 'wxruby_grid'
+require 'wxruby_grids'
 
-require_relative './grid/require'
+require_relative './grids/require'
 
-WxRubyStyleAccessors.apply_to(Wx::Grid)
+WxRubyStyleAccessors.apply_to(Wx::Grids)
 
-::Wx::Grid.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx::Grids.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

@@ -1,5 +1,5 @@
 # A data-oriented editable table control.
-class Wx::Grid::Grid
+class Wx::Grids::Grid
   # The following extensions are all to prevent crashes associated with
   # garbage collection of Grid-related classes; they do not extend the
   # public functionality of the class in any way. 
@@ -57,7 +57,7 @@ class Wx::Grid::Grid
 
   # Set a grid table base to provide data
   alias :__assign_table :assign_table
-  def assign_table(table, sel_mode = Wx::Grid::Grid::GridSelectCells)
+  def assign_table(table, sel_mode = Wx::Grids::Grid::GridSelectCells)
     # we do not allow assigning another table; wxWidgets itself does not allow that anymore either
     # in AssignTable (SetTable still allows but we do not use that).
     # GridTableBase provides enough options to adjust to grid changes that there is no need.
@@ -155,7 +155,7 @@ class Wx::Grid::Grid
   end
 end
 
-class Wx::Grid::GridCellAttr
+class Wx::Grids::GridCellAttr
 
   alias :__set_editor :set_editor
   def set_editor(editor)
