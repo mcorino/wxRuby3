@@ -102,14 +102,14 @@ if $config.has_wxwidgets_xml?
     force_rmdir($config.obj_dir)
   end
 
-  desc "Run a wxRuby example"
-  task :example, [:sample] => :default do |t, args|
-    sh $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:sample]
+  desc "Run a wxRuby app"
+  task :run, [:app] => :default do |t, args|
+    sh $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:app]
   end
 
-  desc "Debug a wxRuby example"
-  task :debug, [:sample] => :default do |t, args|
-    $config.debug $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:sample]
+  desc "Debug a wxRuby app"
+  task :debug, [:app] => :default do |t, args|
+    $config.debug $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:app]
   end
 else
   desc "Bootstrap the wxRuby3 build environment"
