@@ -15,7 +15,7 @@ module WXRuby3
 
       def setup
         # for all wxWindow derived classes (not wxFrame and descendants)
-        spec.items.each { |itm| spec.add_swig_code "SWIG_WXWINDOW_NO_USELESS_VIRTUALS(#{itm});" }
+        spec.items.each { |itm| spec.add_swig_code "SWIG_WXWINDOW_NO_USELESS_VIRTUALS(#{itm});" unless /\.h\Z/ =~ itm }
         # only for actual wxWindow class
         case spec.module_name
         when 'wxWindow'

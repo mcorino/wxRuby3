@@ -69,5 +69,6 @@
 %feature("nodirector") kls::Layout;
 %feature("nodirector") kls::InheritAttributes;
 %feature("nodirector") kls::GetDefaultAttributes;
+%feature("nodirector") kls::GetWindowStyleFlag;
 
 %enddef

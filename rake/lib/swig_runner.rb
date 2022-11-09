@@ -174,31 +174,6 @@ module WXRuby3
                 end
               end
 
-              # TODO : is this still needed?
-              # Ugly: special fixes for TreeCtrl - these macros and extra funcs
-              # are needed to allow user-defined sorting to work
-              if core_name == "TreeCtrl"
-                # default ctor needed for Swig::Director
-                if line["Director(VALUE self) : swig_self(self), swig_disown_flag(false)"]
-                  line = "    Director() { } // added by fixmodule.rb \n" + line
-                end
-                if line["SwigDirector_wxTreeCtrl::SwigDirector_wxTreeCtrl(VALUE self)"]
-                  line = "IMPLEMENT_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl,  wxTreeCtrl);\n" + line
-                  # We also need to tweak the header file
-                  treectrl_h_file = filename.sub(/cpp$/, "h")
-                  contents = File.read(treectrl_h_file)
-                  contents.sub!(/\};/, <<~__HEREDOC
-                    private:
-                    DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
-                    };
-                  __HEREDOC
-                  )
-                  contents.sub!(/public:/, "public:\nSwigDirector_wxTreeCtrl() {};")
-
-                  File.open(treectrl_h_file, 'w') { |f| f.write(contents) }
-                end
-              end # end horrible TreeCtrl fixes
-
               # comment out swig_up because it is defined global in every module
               if (line.index("bool Swig::Director::swig_up"))
                 line = "//" + line

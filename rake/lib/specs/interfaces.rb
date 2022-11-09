@@ -103,6 +103,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxFlexGridSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxGridBagSizer', director: Director::Sizer)
+    Director.Spec(pkg, 'wxSplitterEvent')
+    Director.Spec(pkg, 'wxSplitterWindow')
+    Director.Spec(pkg, 'wxTreeEvent')
+    Director.Spec(pkg, 'wxTreeCtrl')
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|

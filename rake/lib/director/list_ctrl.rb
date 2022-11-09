@@ -75,7 +75,7 @@ module WXRuby3
           // required for hit_test, return flags as second part of array return value
           %apply int *OUTPUT { int& flags }
 
-          %markfunc wxListCtrl "mark_wxListCtrl";
+          %markfunc wxListCtrl "GC_mark_wxListCtrl";
           __HEREDOC
         spec.add_header_code <<~__HEREDOC
           // Helper code for SortItems - yields the two items being compared into
@@ -90,7 +90,7 @@ module WXRuby3
           }
 
           // Prevents Ruby's GC sweeping up items that are stored as item data
-          static void mark_wxListCtrl(void* ptr) 
+          static void GC_mark_wxListCtrl(void* ptr) 
           {
             if ( GC_IsWindowDeleted(ptr) )
             {

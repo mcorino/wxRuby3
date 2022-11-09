@@ -364,6 +364,7 @@ module WXRuby3
         if Extractor::EnumDef === item && !item.ignored && !item.items.all? {|e| e.ignored }
           fout.puts
           fout.puts "// from enum #{item.name.start_with?('@') ? '' : item.name}"
+          fout.puts "enum #{item.name};" unless item.name.start_with?('@')
           item.items.each do |e|
             unless e.ignored
               gen_only_for(fout, e) do
