@@ -58,6 +58,9 @@ module WXRuby3
             wxListCtrl::OnGetItemText
             wxListCtrl::OnGetItemIsChecked
           ]
+        # this reimplemented window base method need to be properly wrapped but
+        # is missing from the XML docs
+        spec.extend_interface('wxListCtrl', 'virtual void OnInternalIdle()')
         # dealt with below
         spec.ignore 'wxListCtrl::GetItem(wxListItem &) const',
                     'wxListCtrl::GetItemData',

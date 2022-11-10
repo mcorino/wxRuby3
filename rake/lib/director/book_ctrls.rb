@@ -38,6 +38,9 @@ module WXRuby3
           spec.no_proxy('wxBookCtrlBase')
         when 'wxNotebook'
           spec.ignore("wxNotebook::OnSelChange")
+          # this reimplemented window base method need to be properly wrapped but
+          # is missing from the XML docs
+          spec.extend_interface('wxNotebook', 'virtual void OnInternalIdle()')
           setup_book_ctrl_class(spec.module_name)
         when 'wxToolbook'
           setup_book_ctrl_class(spec.module_name)

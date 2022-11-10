@@ -5,11 +5,11 @@
 // item ids into simple ruby integers
 
 %{
-#define TREEID2RUBY(id) LL2NUM((size_t)id.m_pItem)
+#define TREEID2RUBY(id) LL2NUM((int64_t)id.m_pItem)
 %}
 
-%typemap(in) wxTreeItemId& "$1 = new wxTreeItemId((void*)NUM2LL($input));"
-%typemap(out) wxTreeItemId "$result = TREEID2RUBY($1);"
-%typemap(directorin) wxTreeItemId& "$input = TREEID2RUBY($1);"
-%typemap(directorout) wxTreeItemId& "$result = new wxTreeItemId((void*)NUM2LL($1));"
+%typemap(in) wxTreeItemId& "$1 = ($input == Qnil) ? new wxTreeItemId() : new wxTreeItemId((void*)NUM2LL($input));"
+%typemap(out) wxTreeItemId "$result = $1.IsOk() ? TREEID2RUBY($1) : Qnil;"
+%typemap(directorin) wxTreeItemId& "$input = $1.IsOk() ? TREEID2RUBY($1) : Qnil;"
+%typemap(directorout) wxTreeItemId& "$result = ($input == Qnil) ? new wxTreeItemId() : new wxTreeItemId((void*)NUM2LL($1));"
 %typemap(freearg) wxTreeItemId& "delete $1;"

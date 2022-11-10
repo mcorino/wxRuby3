@@ -55,6 +55,12 @@ module WXRuby3
           wxTreeCtrl::GetFocusedItem
           wxTreeCtrl::GetSelection
           ]
+        # simply dangerous and a nuisance to support
+        spec.no_proxy %w[
+          wxTreeCtrl::GetEditControl
+          wxTreeCtrl::EditLabel
+          wxTreeCtrl::EndEditLabel
+          ]
         spec.set_only_for('wxHAS_GENERIC_TREECTRL', 'wxTreeCtrl::SetButtonsImageList')
         # these reimplemented window base methods need to be properly wrapped but
         # are missing from the XML docs
@@ -63,7 +69,10 @@ module WXRuby3
                               'virtual bool SetForegroundColour(const wxColour& colour)',
                               'virtual void Refresh(bool eraseBackground = true, const wxRect *rect = NULL)',
                               'virtual bool SetFont( const wxFont &font )',
-                              'virtual void SetWindowStyleFlag(long styles)')
+                              'virtual void SetWindowStyleFlag(long styles)',
+                              'virtual void OnInternalIdle()')
+        # TODO - needs type mapping for wxVector < wxBitmapBundle >
+        spec.ignore 'wxWithImages::SetImages'
         # see below
         spec.ignore 'wxTreeCtrl::InsertItem(const wxTreeItemId &,size_t,const wxString &,int,int,wxTreeItemData *)'
         # Dealt with below
@@ -117,6 +126,8 @@ module WXRuby3
           // rec_func should be a funtion that receives a treectrl pointer and an ItemId
           static void RecurseOverTreeIds(wxTreeCtrl *tree_ctrl, const wxTreeItemId& base_id, void(*rec_func)(void *, const wxTreeItemId&) )
           {
+            if (!base_id.IsOk())
+              return;
             rec_func(tree_ctrl, base_id);
             // recurse through children
             if ( tree_ctrl->ItemHasChildren(base_id) )
@@ -172,7 +183,7 @@ module WXRuby3
               RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
               while ( ( base_id = tree_ctrl->GetNextSibling(base_id) ) &&
                   base_id.IsOk() )
-              RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
+                RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
               return;
             }
           }
@@ -181,7 +192,7 @@ module WXRuby3
           static void DoTreeCtrlYielding(void *ptr, const wxTreeItemId& item_id)
           {
             // create a copy to wrap and give to ruby
-            VALUE rb_item_id = LONG2NUM((size_t)item_id.m_pItem);
+            VALUE rb_item_id = LONG2NUM((int64_t)item_id.m_pItem);
             rb_yield(rb_item_id);
           }
         
@@ -246,30 +257,15 @@ module WXRuby3
             VALUE array = rb_ary_new();
           
             rb_ary_push(array, TREEID2RUBY(ret_item) );
-            rb_ary_push(array,LL2NUM((size_t)cookie));
+            rb_ary_push(array,LL2NUM((int64_t)cookie));
           
             return array;
           }
 
-          // Change signature so it returns an array of the TreeItemId and the
-          // cookie, as Ruby Fixnums. This behaviour matches that used by
-          // wxPython.
-          // VALUE get_first_child_and_cookie(const wxTreeItemId& item)
-          // {
-          //   void* cookie = 0;
-          //   wxTreeItemId ret_item = self->GetFirstChild(item, cookie);
-          //   VALUE array = rb_ary_new();
-          //
-          //   rb_ary_push(array, TREEID2RUBY(ret_item) );
-          //   rb_ary_push(array,LONG2NUM((long)cookie));
-          //
-          //   return array;
-          // }
-  
           // Change signature so it accepts a TreeItemId and Ruby cookie value 
           // and returns an array of the next child TreeItemId and the cookie 
           // as Ruby Fixnums. 
-          VALUE get_next_child(const wxTreeItemId& item, size_t rbcookie)
+          VALUE get_next_child(const wxTreeItemId& item, int64_t rbcookie)
           {
             void* cookie = (void*)rbcookie;
             wxTreeItemId ret_item = self->GetNextChild(item, cookie);

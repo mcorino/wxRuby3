@@ -426,7 +426,7 @@ end
 
 # wxTreeCtrl 	Tree (hierarchy) control
 Wx::define_keyword_ctors('TreeCtrl') do
-  wx_ctor_params :id, :pos, :size, :style => Wx::TR_HAS_BUTTONS
+  wx_ctor_params :id, :pos, :size, :style => Wx::TR_DEFAULT_STYLE
   wx_ctor_params :validator, :name => 'treeCtrl'
 end
 
