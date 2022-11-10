@@ -22,7 +22,7 @@ module WXRuby3
         spec.ignore('operator!=', 'operator==')
         spec.include 'wx/dirctrl.h'
         # wxTreeItemId fixes - these typemaps convert them to ruby Integers
-        spec.swig_include '../shared/treeitemid_typemaps.i'
+        # spec.swig_include '../shared/treeitemid_typemaps.i'
         # These only differ from SetXXXList in the way memory ownership is
         # transferred. So only support the version that won't leak on wxRuby.
         spec.ignore %w[
@@ -192,7 +192,8 @@ module WXRuby3
           static void DoTreeCtrlYielding(void *ptr, const wxTreeItemId& item_id)
           {
             // create a copy to wrap and give to ruby
-            VALUE rb_item_id = LONG2NUM((int64_t)item_id.m_pItem);
+            wxTreeItemId* item_p = new wxTreeItemId(item_id);
+            VALUE rb_item_id = SWIG_NewPointerObj(item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 );
             rb_yield(rb_item_id);
           }
         
@@ -256,7 +257,8 @@ module WXRuby3
             wxTreeItemId ret_item = self->GetFirstChild(item, cookie);
             VALUE array = rb_ary_new();
           
-            rb_ary_push(array, TREEID2RUBY(ret_item) );
+            wxTreeItemId* ret_item_p = new wxTreeItemId(ret_item);
+            rb_ary_push(array, SWIG_NewPointerObj(ret_item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
             rb_ary_push(array,LL2NUM((int64_t)cookie));
           
             return array;
@@ -272,7 +274,8 @@ module WXRuby3
 
             VALUE array = rb_ary_new();
 
-            rb_ary_push(array, TREEID2RUBY(ret_item) );
+            wxTreeItemId* ret_item_p = new wxTreeItemId(ret_item);
+            rb_ary_push(array, SWIG_NewPointerObj(ret_item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
             rb_ary_push(array,LL2NUM((long)cookie));
 
             return array;
@@ -287,22 +290,20 @@ module WXRuby3
             if ( self->GetWindowStyle() & wxTR_HIDE_ROOT )	  
             {
               wxTreeItemId base_id = FindFirstRoot(self);
-    
+
               // now do recursion
-              if ( base_id.IsOk() ) 
+              while (base_id.IsOk())
               {
-                rb_ary_push(rb_tree_ids, TREEID2RUBY(base_id));
-                
-                while ( ( base_id = self->GetNextSibling(base_id) ) &&
-                      base_id.IsOk() )
-                rb_ary_push(rb_tree_ids, TREEID2RUBY(base_id));
+                wxTreeItemId* base_id_p = new wxTreeItemId(base_id);
+                rb_ary_push(rb_tree_ids, SWIG_NewPointerObj(base_id_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
+                base_id = self->GetNextSibling(base_id);
               }
             }
             // Standard single-root TreeCtrl
             else
             {
-              rb_ary_push(rb_tree_ids, 
-                    TREEID2RUBY( self->GetRootItem() ));
+              wxTreeItemId* root_p = new wxTreeItemId(self->GetRootItem());
+              rb_ary_push(rb_tree_ids, SWIG_NewPointerObj(root_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
             }
             return rb_tree_ids;
           }
@@ -315,7 +316,8 @@ module WXRuby3
             size_t sel_count = self->GetSelections(tree_ids);
             for ( size_t i = 0; i < sel_count; i++ )
             {
-              rb_ary_push(rb_tree_ids, TREEID2RUBY(tree_ids.Item(i)));
+              wxTreeItemId* item_p = new wxTreeItemId(tree_ids.Item(i));
+              rb_ary_push(rb_tree_ids, SWIG_NewPointerObj(item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
             }
             return rb_tree_ids;
           }
@@ -337,17 +339,23 @@ module WXRuby3
           // passed ruby block. Starts from root and covers all if no arg.
           VALUE traverse(	VALUE start_id = Qnil )
           {
-            wxTreeItemId base_id;
             if ( start_id == Qnil )
-            RecurseFromRoot(self, &DoTreeCtrlYielding);
+              RecurseFromRoot(self, &DoTreeCtrlYielding);
             else
             {
-              base_id = wxTreeItemId( (void *)NUM2LL(start_id) );
-              if ( ! base_id.IsOk() ) 
-              rb_raise(rb_eArgError, "Invalid tree identifier");
+              void* base_ptr;
+              wxTreeItemId* base_id;
+              int res2 = SWIG_ConvertPtr(start_id, &base_ptr, SWIGTYPE_p_wxTreeItemId,  0 );
+              if (!SWIG_IsOK(res2)) {
+                SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "wxTreeItemId const &","traverse", 2, start_id)); 
+              }
+              base_id = reinterpret_cast< wxTreeItemId * >(base_ptr);
+              if (!base_id->IsOk()) 
+                rb_raise(rb_eArgError, "Invalid tree identifier");
               else
-              RecurseOverTreeIds(self, base_id, &DoTreeCtrlYielding);
+                RecurseOverTreeIds(self, *base_id, &DoTreeCtrlYielding);
             }
+          fail:
             return Qnil;
           }
           __HEREDOC

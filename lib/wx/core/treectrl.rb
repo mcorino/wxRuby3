@@ -9,10 +9,10 @@ class Wx::TreeCtrl
   def get_children(parent)
     kids = []
     kid, _ = get_first_child(parent)
-    return [] if kid.zero?
+    return [] unless kid.ok?
     kids << kid
 
-    while kid = get_next_sibling(kids.last) and not kid.zero?
+    while kid = get_next_sibling(kids.last) and kid.ok?
       kids << kid
     end
     kids
