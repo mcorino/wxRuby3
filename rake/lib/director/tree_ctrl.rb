@@ -21,8 +21,8 @@ module WXRuby3
         spec.ignore('wxWithImages::@.NO_IMAGE')
         spec.ignore('operator!=', 'operator==')
         spec.include 'wx/dirctrl.h'
-        # wxTreeItemId fixes - these typemaps convert them to ruby Integers
-        # spec.swig_include '../shared/treeitemid_typemaps.i'
+        # wxTreeItemId type mapping
+        spec.swig_include '../shared/treeitemid_typemaps.i'
         # These only differ from SetXXXList in the way memory ownership is
         # transferred. So only support the version that won't leak on wxRuby.
         spec.ignore %w[
@@ -121,6 +121,10 @@ module WXRuby3
         # GC handling for item data objects. These are static because it avoids
         # having to wrap a complete subclass
         spec.add_header_code <<~__HEREDOC
+          extern VALUE mWxTreeItemId;
+          extern VALUE _wxRuby_Wrap_wxTreeItemId(const wxTreeItemId& id);
+          extern wxTreeItemId _wxRuby_Unwrap_wxTreeItemId(VALUE id);
+
           // general recursion over a treectrl, starting from a base_id
           // the function rec_func will be called in turn for each tree item, 
           // rec_func should be a funtion that receives a treectrl pointer and an ItemId
@@ -191,10 +195,8 @@ module WXRuby3
           // Recursively-called function to implement of TreeCtrl#traverse
           static void DoTreeCtrlYielding(void *ptr, const wxTreeItemId& item_id)
           {
-            // create a copy to wrap and give to ruby
-            wxTreeItemId* item_p = new wxTreeItemId(item_id);
-            VALUE rb_item_id = SWIG_NewPointerObj(item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 );
-            rb_yield(rb_item_id);
+            // wrap and give to ruby
+            rb_yield(_wxRuby_Wrap_wxTreeItemId(item_id));
           }
         
           // Recursively-called function to do GC marking of itemdata for every
@@ -257,8 +259,7 @@ module WXRuby3
             wxTreeItemId ret_item = self->GetFirstChild(item, cookie);
             VALUE array = rb_ary_new();
           
-            wxTreeItemId* ret_item_p = new wxTreeItemId(ret_item);
-            rb_ary_push(array, SWIG_NewPointerObj(ret_item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
+            rb_ary_push(array, _wxRuby_Wrap_wxTreeItemId(ret_item));
             rb_ary_push(array,LL2NUM((int64_t)cookie));
           
             return array;
@@ -274,8 +275,7 @@ module WXRuby3
 
             VALUE array = rb_ary_new();
 
-            wxTreeItemId* ret_item_p = new wxTreeItemId(ret_item);
-            rb_ary_push(array, SWIG_NewPointerObj(ret_item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
+            rb_ary_push(array, _wxRuby_Wrap_wxTreeItemId(ret_item));
             rb_ary_push(array,LL2NUM((long)cookie));
 
             return array;
@@ -294,16 +294,14 @@ module WXRuby3
               // now do recursion
               while (base_id.IsOk())
               {
-                wxTreeItemId* base_id_p = new wxTreeItemId(base_id);
-                rb_ary_push(rb_tree_ids, SWIG_NewPointerObj(base_id_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
+                rb_ary_push(rb_tree_ids, _wxRuby_Wrap_wxTreeItemId(base_id));
                 base_id = self->GetNextSibling(base_id);
               }
             }
             // Standard single-root TreeCtrl
             else
             {
-              wxTreeItemId* root_p = new wxTreeItemId(self->GetRootItem());
-              rb_ary_push(rb_tree_ids, SWIG_NewPointerObj(root_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
+              rb_ary_push(rb_tree_ids, _wxRuby_Wrap_wxTreeItemId(self->GetRootItem()));
             }
             return rb_tree_ids;
           }
@@ -316,8 +314,7 @@ module WXRuby3
             size_t sel_count = self->GetSelections(tree_ids);
             for ( size_t i = 0; i < sel_count; i++ )
             {
-              wxTreeItemId* item_p = new wxTreeItemId(tree_ids.Item(i));
-              rb_ary_push(rb_tree_ids, SWIG_NewPointerObj(item_p, SWIGTYPE_p_wxTreeItemId, SWIG_POINTER_OWN |  0 ));
+              rb_ary_push(rb_tree_ids, _wxRuby_Wrap_wxTreeItemId(tree_ids.Item(i)));
             }
             return rb_tree_ids;
           }
@@ -343,19 +340,12 @@ module WXRuby3
               RecurseFromRoot(self, &DoTreeCtrlYielding);
             else
             {
-              void* base_ptr;
-              wxTreeItemId* base_id;
-              int res2 = SWIG_ConvertPtr(start_id, &base_ptr, SWIGTYPE_p_wxTreeItemId,  0 );
-              if (!SWIG_IsOK(res2)) {
-                SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "wxTreeItemId const &","traverse", 2, start_id)); 
-              }
-              base_id = reinterpret_cast< wxTreeItemId * >(base_ptr);
-              if (!base_id->IsOk()) 
+              wxTreeItemId base_id = _wxRuby_Unwrap_wxTreeItemId(start_id);
+              if (!base_id.IsOk()) 
                 rb_raise(rb_eArgError, "Invalid tree identifier");
               else
-                RecurseOverTreeIds(self, *base_id, &DoTreeCtrlYielding);
+                RecurseOverTreeIds(self, base_id, &DoTreeCtrlYielding);
             }
-          fail:
             return Qnil;
           }
           __HEREDOC

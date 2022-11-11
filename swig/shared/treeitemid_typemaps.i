@@ -1,15 +1,16 @@
-// Copyright 2004-2007, wxRuby development team
-// released under the MIT-like wxRuby2 license
+// Copyright 2004-2022, wxRuby development team
+// released under the MIT license
 
 // These typemaps are used by TreeCtrl and TreeEvent to convert wx tree
-// item ids into simple ruby integers
+// item ids into lightweight wrapper objects
 
-%{
-#define TREEID2RUBY(id) LL2NUM((int64_t)id.m_pItem)
-%}
-
-%typemap(in) wxTreeItemId& "$1 = ($input == Qnil) ? new wxTreeItemId() : new wxTreeItemId((void*)NUM2LL($input));"
-%typemap(out) wxTreeItemId "$result = $1.IsOk() ? TREEID2RUBY($1) : Qnil;"
-%typemap(directorin) wxTreeItemId& "$input = $1.IsOk() ? TREEID2RUBY($1) : Qnil;"
-%typemap(directorout) wxTreeItemId& "$result = ($input == Qnil) ? new wxTreeItemId() : new wxTreeItemId((void*)NUM2LL($1));"
-%typemap(freearg) wxTreeItemId& "delete $1;"
+%typemap(in) wxTreeItemId& (wxTreeItemId tmpId) {
+    if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);
+    $1 = &tmpId;
+}
+%typemap(out) wxTreeItemId "$result = _wxRuby_Wrap_wxTreeItemId($1);"
+%typemap(directorin) wxTreeItemId& "$input = _wxRuby_Wrap_wxTreeItemId($1);"
+%typemap(directorout) wxTreeItemId&  (wxTreeItemId tmpId) {
+    if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);
+    $result = &tmpId;
+}

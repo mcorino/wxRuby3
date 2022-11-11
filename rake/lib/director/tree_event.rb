@@ -20,44 +20,65 @@ module WXRuby3
         spec.ignore_bases('wxTreeEvent' => %w[wxNotifyEvent]) # needed to suppress imports
         spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h') # provide base definitions
         spec.override_base('wxTreeEvent', 'wxNotifyEvent') # re-establish correct base
-        # wxTreeItemId fixes - these typemaps convert them to ruby Integers
-        # spec.swig_include '../shared/treeitemid_typemaps.i'
-        # add to items but ignore extracted class def
-        spec.items << 'wxTreeItemId'
-        spec.ignore 'wxTreeItemId'
-        spec.ignore('operator!=', 'operator==')
-        # Add simplified interface definition for wxTreeItemId to trigger minimal wrapper generation
-        spec.add_swig_code <<~__HEREDOC
-          class wxTreeItemId
-          {
-          public:
-            wxTreeItemId ();
-            wxTreeItemId (void *pItem);
 
-            // we only want a type and this wrapped
-            bool IsOk () const;      
+        # create a lightweight, but typesafe, wrapper for wxEventId
+
+        spec.add_init_code <<~__HEREDOC
+          // define TreeItemId wrapper class
+          mWxTreeItemId = rb_define_class_under(mWxCore, "TreeItemId", rb_cObject);
+          rb_define_method(mWxTreeItemId, "is_ok", VALUEFUNC(_wxRuby_wxTreeItemId_IsOk), 0);
+          rb_define_method(mWxTreeItemId, "ok?", VALUEFUNC(_wxRuby_wxTreeItemId_IsOk), 0);
+          __HEREDOC
+
+        # common wxTreeItemId type mapping
+        spec.swig_include '../shared/treeitemid_typemaps.i'
+
+        spec.add_header_code <<~__HEREDOC
+          VALUE mWxTreeItemId;
+          VALUE _wxRuby_Wrap_wxTreeItemId(const wxTreeItemId& id);
+          wxTreeItemId _wxRuby_Unwrap_wxTreeItemId(VALUE id);
+          __HEREDOC
+        
+        spec.add_wrapper_code <<~__HEREDOC
+          // wxTreeItemId wrapper class definition and helper functions
+          static size_t __wxTreeEventId_size(const void* data)
+          {
+            return 0;
+          }
+
+          #include <ruby/version.h> 
+
+          static const rb_data_type_t __wxTreeEventId_type = {
+            "TreeEventId",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { NULL, NULL, __wxTreeEventId_size, 0, 0},
+          #else
+            { NULL, NULL, __wxTreeEventId_size, 0},
+          #endif 
+            NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
           };
 
-          // extend with comparison operator
-          // we do not want exceptions on failed conversions here
-          %extend wxTreeItemId {
-            VALUE __eq__(VALUE other)
-            {
-              void* item_ptr;
-              wxTreeItemId* item_id;
-              int res2 = SWIG_ConvertPtr(other, &item_ptr, SWIGTYPE_p_wxTreeItemId,  0 );
-              if (!SWIG_IsOK(res2)) {
-                return Qfalse; 
-              }
-              item_id = reinterpret_cast< wxTreeItemId * >(item_ptr);
-              return self->GetID() == item_id->GetID() ? Qtrue : Qfalse;
-            }
+          VALUE _wxRuby_Wrap_wxTreeItemId(const wxTreeItemId& id)
+          {
+            void* data = id.GetID();
+            VALUE ret = TypedData_Wrap_Struct(mWxTreeItemId, &__wxTreeEventId_type, data);
+            return ret;
+          } 
+
+          wxTreeItemId _wxRuby_Unwrap_wxTreeItemId(VALUE id)
+          {
+            void *data = 0;
+            TypedData_Get_Struct(id, void, &__wxTreeEventId_type, data);
+            return wxTreeItemId(data);
+          }
+
+          VALUE _wxRuby_wxTreeItemId_IsOk(VALUE self)
+          {
+            void *data = 0;
+            TypedData_Get_Struct(self, void, &__wxTreeEventId_type, data);
+            return wxTreeItemId(data).IsOk() ? Qtrue : Qfalse;
           }
           __HEREDOC
-        # no tracking or special GC handling
-        spec.gc_as_temporary('wxTreeItemId')
-
-        spec.do_not_generate(:variables, :enums, :defines, :functions)
       end
     end # class TreeEvent
 
