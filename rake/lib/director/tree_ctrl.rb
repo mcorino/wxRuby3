@@ -42,6 +42,8 @@ module WXRuby3
           wxTreeCtrl::GetPrevSibling
           wxTreeCtrl::GetNextSibling
           wxTreeCtrl::GetItemData
+          wxTreeCtrl::IsVisible
+          wxTreeCtrl::GetBoundingRect
           ]
         # as the above can't be proxied it doesn not really make
         # sense to allow these
@@ -55,6 +57,9 @@ module WXRuby3
           wxTreeCtrl::GetFocusedItem
           wxTreeCtrl::GetSelection
           ]
+        if Config::WxRubyFeatureInfo.features_set?('wxHAS_LAST_VISIBLE')
+          spec.no_proxy 'wxTreeCtrl::GetLastVisible'
+        end
         # simply a nuisance to support
         spec.no_proxy %w[
           wxTreeCtrl::GetEditControl
@@ -71,7 +76,9 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
           __HEREDOC
-        spec.set_only_for('wxHAS_GENERIC_TREECTRL', 'wxTreeCtrl::SetButtonsImageList')
+        if Config::WxRubyFeatureInfo.features_set?('__WXMSW__')
+          spec.ignore('wxTreeCtrl::SetButtonsImageList')
+        end
         # these reimplemented window base methods need to be properly wrapped but
         # are missing from the XML docs
         spec.extend_interface('wxTreeCtrl',
