@@ -383,32 +383,10 @@ module WXRuby3
           @explicit_excluded_modules ||= []
         end
 
-        # def _calculate_excluded_modules
-        #   excluded_modules = []
-        #
-        #   # MediaCtrl is not always included or easily built, esp on Linux
-        #   unless features['wxUSE_MEDIACTRL']
-        #     excluded_modules += %w|MediaCtrl MediaEvent|
-        #   end
-        #
-        #   # GraphicsContext is not enabled by default on some platforms
-        #   unless features['wxUSE_GRAPHICS_CONTEXT']
-        #     excluded_modules += %w|GCDC GraphicsBrush GraphicsContext GraphicsFont
-        #                         GraphicsMatrix GraphicsObject GraphicsPath GraphicsPen|
-        #   end
-        #
-        #   if not excluded_modules.empty?
-        #     puts "The following wxWidgets features are not available and will be skipped:"
-        #     puts "  " + excluded_modules.sort.join("\n  ")
-        #   end
-        #
-        #   excluded_modules + explicit_excluded_modules
-        # end
-
         def _retrieve_features(wxwidgets_setup_h)
           features = {}
 
-          File.read(wxwidgets_setup_h).scan(/^#define\s+(\w+)\s+([01])/) do | define |
+          File.read(wxwidgets_setup_h).scan(/^#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
             features[$1] = $2.to_i.zero? ? false : true
           end
 

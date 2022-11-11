@@ -65,4 +65,8 @@ module Wx
       obj
     end
   end
+
+  def self.has_feature?(featsym)
+    Wx::Setup.const_defined?(featsym) && !!Wx::Setup.const_get(featsym)
+  end
 end
