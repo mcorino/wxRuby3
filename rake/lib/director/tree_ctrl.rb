@@ -278,7 +278,7 @@ module WXRuby3
           // Change signature so it accepts a TreeItemId and Ruby cookie value 
           // and returns an array of the next child TreeItemId and the cookie 
           // as Ruby Fixnums. 
-          VALUE get_next_child(const wxTreeItemId& item, int64_t rbcookie)
+          VALUE get_next_child(const wxTreeItemId& item, long long rbcookie)
           {
             void* cookie = (void*)rbcookie;
             wxTreeItemId ret_item = self->GetNextChild(item, cookie);
