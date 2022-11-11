@@ -55,12 +55,22 @@ module WXRuby3
           wxTreeCtrl::GetFocusedItem
           wxTreeCtrl::GetSelection
           ]
-        # simply dangerous and a nuisance to support
+        # simply a nuisance to support
         spec.no_proxy %w[
           wxTreeCtrl::GetEditControl
-          wxTreeCtrl::EditLabel
           wxTreeCtrl::EndEditLabel
           ]
+        # for now, ignore this version as the added customization features
+        # do not work as yet and may cause us more trouble than it's worth
+        spec.ignore 'wxTreeCtrl::EditLabel'
+        # add simplified non-virtual version
+        spec.add_extend_code 'wxTreeCtrl', <<~__HEREDOC
+          void EditLabel(const wxTreeItemId &item)
+          {
+            // route to original method
+            (void)self->EditLabel(item);
+          }
+          __HEREDOC
         spec.set_only_for('wxHAS_GENERIC_TREECTRL', 'wxTreeCtrl::SetButtonsImageList')
         # these reimplemented window base methods need to be properly wrapped but
         # are missing from the XML docs

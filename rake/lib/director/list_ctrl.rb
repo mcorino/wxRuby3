@@ -42,8 +42,18 @@ module WXRuby3
 
         # Ruby handles memory management - always use SetImageList
         spec.ignore 'wxListCtrl::AssignImageList'
-        # Doesn't work on wxMac
-        spec.ignore 'wxListCtrl::GetEditControl'
+        # for now, ignore this version as the added customization features
+        # have no added value without custom edit controls which we can't
+        # define in Ruby for this
+        spec.ignore 'wxListCtrl::EditLabel'
+        # add simplified non-virtual version
+        spec.add_extend_code 'wxListCtrl', <<~__HEREDOC
+          void EditLabel(long item)
+          {
+            // route to original method
+            (void)self->EditLabel(item);
+          }
+        __HEREDOC
         spec.set_only_for 'wxHAS_LISTCTRL_COLUMN_ORDER',
                           %w[wxListCtrl::GetColumnIndexFromOrder
                              wxListCtrl::GetColumnOrder
