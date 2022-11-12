@@ -107,6 +107,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxSplitterWindow', requirements: %w[wxUSE_SPLITTER])
     Director.Spec(pkg, 'wxTreeEvent', requirements: %w[wxUSE_TREECTRL])
     Director.Spec(pkg, 'wxTreeCtrl', requirements: %w[wxUSE_TREECTRL])
+    Director.Spec(pkg, 'wxDateEvent', requirements: %w[wxUSE_DATETIME])
+    Director.Spec(pkg, 'wxCalendarEvent', director: Director::DateEvent, requirements: %w[wxUSE_CALENDARCTRL])
+    Director.Spec(pkg, 'wxCalendarDateAttr', requirements: %w[wxUSE_CALENDARCTRL])
+    Director.Spec(pkg, 'wxCalendarCtrl', requirements: %w[wxUSE_CALENDARCTRL])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
