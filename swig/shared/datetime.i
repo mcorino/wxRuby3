@@ -8,9 +8,9 @@
 #ifndef __WXRB_DATETIME_HELPERS__
 #include <wx/datetime.h>
 
-extern VALUE wxRuby_wxDateTimeToRuby(wxDateTime& dt);
+WXRB_EXPORT_FLAG VALUE wxRuby_wxDateTimeToRuby(const wxDateTime& dt);
 
-extern wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
+WXRB_EXPORT_FLAG wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
 #endif
 %}
 
@@ -18,8 +18,6 @@ extern wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
 %typemap(in) wxDateTime& (wxrb_flag dtalloc){
     $1 = wxRuby_wxDateTimeFromRuby($input); dtalloc = true;
 }
-
-%typemap(freearg) wxDateTime& "if (dtalloc$argnum) delete $1;"
 
 // Converts a return value of wxDateTime& to a Ruby Time object
 %typemap(out) wxDateTime& {
@@ -30,6 +28,21 @@ extern wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
 %typemap(out) wxDateTime {
     $result = wxRuby_wxDateTimeToRuby($1);
 }
+
+%typemap(directorin) wxDateTime& {
+    $input = wxRuby_wxDateTimeToRuby($1);
+}
+%typemap(directorin) wxDateTime* {
+    $input = wxRuby_wxDateTimeToRuby(*$1);
+}
+%typemap(directorout) wxDateTime (wxrb_flag dtalloc) {
+    wxDateTime* tmp = wxRuby_wxDateTimeFromRuby($input);
+    $result = *tmp;
+    delete tmp;
+}
+
+
+%typemap(freearg) wxDateTime& "if (dtalloc$argnum) delete $1;"
 
 // Need to have this to over-ride the default which does not work
 %typemap(typecheck) wxDateTime& "$1 = (TYPE($input) != T_NONE);"

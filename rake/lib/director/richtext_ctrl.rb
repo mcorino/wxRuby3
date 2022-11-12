@@ -41,6 +41,11 @@ module WXRuby3
           wxRichTextCtrl::GetBasicStyle
           ]
         spec.swig_include 'swig/shared/richtext.i'
+        if Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
+          spec.swig_include 'swig/shared/datetime.i'
+        else
+          spec.ignore %w[wxRichTextCtrl::GetDragStartTime wxRichTextCtrl::SetDragStartTime]
+        end
         spec.swig_import 'swig/classes/include/wxRichTextBuffer.h'
         spec.add_swig_code <<~__HEREDOC
           %warnfilter(402) wxRichTextAttr;

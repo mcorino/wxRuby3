@@ -68,6 +68,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxBitmapButton', director: Director::Button)
     Director.Spec(pkg, 'wxArtProvider')
     Director.Spec(pkg, 'wxStaticBoxSizer', director: Director::Sizer)
+    Director.Spec(pkg, 'wxStdDialogButtonSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxCursor')
     Director.Spec(pkg, 'wxRadioButton', director: Director::Window)
     Director.Spec(pkg, 'wxToolTip')
@@ -111,6 +112,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxCalendarEvent', director: Director::DateEvent, requirements: %w[wxUSE_CALENDARCTRL])
     Director.Spec(pkg, 'wxCalendarDateAttr', requirements: %w[wxUSE_CALENDARCTRL])
     Director.Spec(pkg, 'wxCalendarCtrl', requirements: %w[wxUSE_CALENDARCTRL])
+    Director.Spec(pkg, 'wxDatePickerCtrl', requirements: %w[wxUSE_DATEPICKCTRL])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|

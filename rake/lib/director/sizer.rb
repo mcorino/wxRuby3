@@ -49,6 +49,7 @@ module WXRuby3
             wxStaticBoxSizer::Remove
             wxStaticBoxSizer::Clear])
           spec.no_proxy 'wxStaticBoxSizer::AddSpacer'
+        when 'wxStdDialogButtonSizer'
         end
         super
       end
