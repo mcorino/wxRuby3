@@ -33,8 +33,7 @@ module WXRuby3
           'SetRgbData' => 'wxImage::SetData(unsigned char *)')
         # Handler methods are not supported in wxRuby; all standard handlers
         # are loaded at startup, and we don't allow custom image handlers to be
-        # written in Ruby. Note if these methods are added, corrected freearg
-        # typemap for input wxString in static methods will be required.
+        # written in Ruby.
         spec.ignore %w[
           wxImage::AddHandler
           wxImage::CleanUpHandlers
