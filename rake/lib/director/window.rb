@@ -38,7 +38,7 @@ module WXRuby3
                 node = node->GetNext();
               }
             }
-          __HEREDOC
+            __HEREDOC
           spec.ignore [
             'wxWindow::TransferDataFromWindow',
             'wxWindow::TransferDataToWindow',
@@ -57,6 +57,8 @@ module WXRuby3
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.rename_for_ruby('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
           spec.swig_import %w{
+            swig/classes/include/wxObject.h
+            swig/classes/include/wxEvtHandler.h
             swig/classes/include/wxDC.h
             swig/classes/include/wxWindowDC.h
             swig/classes/include/wxClientDC.h
@@ -79,31 +81,31 @@ module WXRuby3
             // (recommended) or else a ClientDC.
             VALUE paint()
             {  
-            if ( ! rb_block_given_p() )
+              if ( ! rb_block_given_p() )
               rb_raise(rb_eArgError, "No block given for Window#paint");
           
-            wxWindow *ptr = self;
-            VALUE rb_win = SWIG_RubyInstanceFor(ptr);
-            // see if within an evt_paint block - see classes/window.rb
-            // if so, supply a PaintDC to the block
-            if ( rb_ivar_defined(rb_win, rb_intern("@__painting__") ) == Qtrue ) 
+              wxWindow *ptr = self;
+              VALUE rb_win = SWIG_RubyInstanceFor(ptr);
+              // see if within an evt_paint block - see classes/window.rb
+              // if so, supply a PaintDC to the block
+              if ( rb_ivar_defined(rb_win, rb_intern("@__painting__") ) == Qtrue ) 
               {
-              wxPaintDC dc(ptr);
-              VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxPaintDC, 0);
-              rb_yield(dcVal);
-              SWIG_RubyRemoveTracking((void *) &dc);
-              DATA_PTR(dcVal) = NULL;
+                wxPaintDC dc(ptr);
+                VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxPaintDC, 0);
+                rb_yield(dcVal);
+                SWIG_RubyRemoveTracking((void *) &dc);
+                DATA_PTR(dcVal) = NULL;
               }
-            else // supply a ClientDC
+              else // supply a ClientDC
               {
-              wxClientDC dc(ptr);
-              VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxClientDC, 0);
-              rb_yield(dcVal);
-              SWIG_RubyRemoveTracking((void *) &dc);
-              DATA_PTR(dcVal) = NULL;
+                wxClientDC dc(ptr);
+                VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxClientDC, 0);
+                rb_yield(dcVal);
+                SWIG_RubyRemoveTracking((void *) &dc);
+                DATA_PTR(dcVal) = NULL;
               }
           
-            return Qnil;
+              return Qnil;
             }
           
             // Return a window handle as a platform-specific ruby integer

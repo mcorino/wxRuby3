@@ -154,6 +154,13 @@ module WXRuby3
     end
 
     def gen_swig_interface_code(fout, spec)
+      unless spec.swig_imports.empty?
+        fout.puts ''
+        spec.swig_imports.each do |inc|
+          fout .puts %Q{%import "#{inc}"}
+        end
+      end
+
       spec.def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored && !spec.is_folded_base?(item.name)
           fout.puts ''
@@ -162,13 +169,6 @@ module WXRuby3
               fout.puts %Q{%import "#{WXRuby3::Config.instance.interface_dir}/#{base}.h"}
             end
           end
-        end
-      end
-
-      unless spec.swig_imports.empty?
-        fout.puts ''
-        spec.swig_imports.each do |inc|
-          fout .puts %Q{%import "#{inc}"}
         end
       end
 
