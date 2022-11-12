@@ -76,11 +76,11 @@
 %}
 
 // Accepts any Time-like object from Ruby and creates a wxDateTime
-%typemap(in) wxDateTime& {
-    $1 = wxRuby_wxDateTimeFromRuby($input);
+%typemap(in) wxDateTime& (wxrb_flag dtalloc){
+    $1 = wxRuby_wxDateTimeFromRuby($input); dtalloc = true;
 }
 
-%typemap(freearg) wxDateTime& "if ( argc > $argnum - 2 ) delete $1;"
+%typemap(freearg) wxDateTime& "if (dtalloc$argnum) delete $1;"
 
 // Converts a return value of wxDateTime& to a Ruby Time object
 %typemap(out) wxDateTime& {
