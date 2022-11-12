@@ -24,10 +24,6 @@ module WXRuby3
           // ArtId and ArtClient are basically just strings ...
           typedef wxString wxArtID;
           typedef wxString wxArtClient;
-          // ... but because they are used only in static methods, which have one
-          // fewer argument (no "self") than instance methods, we need to do
-          // deletion differently from the standard technique in typemap.i
-          %typemap(freearg) wxString& "if ( argc > $argnum - 1 ) delete $1;";
           
           %apply SWIGTYPE *DISOWN {wxArtProvider* provider};
           __HEREDOC

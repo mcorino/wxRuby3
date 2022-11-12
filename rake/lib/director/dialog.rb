@@ -61,9 +61,6 @@ module WXRuby3
           spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFindReplaceData* data };'
           spec.do_not_generate(:variables, :enums)
         when 'wxColourDialog'
-          spec.add_swig_code <<~__HEREDOC
-            %typemap(freearg) const wxString &caption "if ( argc && ( argc > 2 ) ) delete $1;"
-            __HEREDOC
         when 'wxTextEntryDialog'
         when 'wxSingleChoiceDialog'
           # unnneeded and unwanted for Ruby

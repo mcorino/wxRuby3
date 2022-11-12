@@ -27,6 +27,21 @@
 #  undef Connect
 #  undef connect
 
+// flag type to keep track of stuff like typemap arg allocations that need to be freed in freearg typemaps
+// by default always 'false'
+struct wxrb_flag
+{
+  bool flag_ {};
+  wxrb_flag() = default;
+  wxrb_flag(const wxrb_flag&) = default;
+  wxrb_flag(wxrb_flag&&) = default;
+  operator bool () const { return flag_; }
+  bool operator! () const { return !flag_; }
+  wxrb_flag& operator =(const wxrb_flag&) = default;
+  wxrb_flag& operator =(wxrb_flag&&) = default;
+  wxrb_flag& operator =(bool f) { flag_ = f; return *this; }
+};
+
 // Different string conversions for ruby 2.5+
 
 #define WXSTR_TO_RSTR(wx_str) rb_utf8_str_new_cstr((const char *)wx_str.utf8_str())

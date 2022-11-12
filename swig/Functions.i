@@ -147,14 +147,6 @@ cpp_ptr_addr(VALUE self, VALUE obj)
 			   "Cannot display dialog before App.main_loop has been called");}
 }
 
-
-// All the functions in here are static, so free-ing of wxString
-// arguments needs to be adjusted to be "-1" instead of "-2" avoid
-// crashes. This is because there is no "self" argument in the C++ arg
-// list. See typemap.i for more info.
-%typemap(freearg) wxString & "if ( argc > $argnum - 1 ) delete $1;"
-%typemap(freearg) wxString* "if ( argc > $argnum - 1 ) delete $1;"
-
 // App-wide user information methods
 void wxBeginBusyCursor(wxCursor *cursor = wxHOURGLASS_CURSOR);
 void wxEndBusyCursor();

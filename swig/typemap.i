@@ -50,22 +50,16 @@
 }
 
 // (ruby) String <-> wxString
-%typemap(in) wxString& "$1 = RSTR_TO_WXSTR_PTR($input);"
-%typemap(in) wxString* "$1 = RSTR_TO_WXSTR_PTR($input);"
+%typemap(in) wxString& (wxrb_flag salloc_flag) "$1 = RSTR_TO_WXSTR_PTR($input); salloc_flag = true;"
+%typemap(in) wxString* (wxrb_flag salloc_flag) "$1 = RSTR_TO_WXSTR_PTR($input); salloc_flag = true;"
 
 %typemap(directorout) wxString, wxString& "$result = RSTR_TO_WXSTR($input);"
 
 // Only free the wxString argument if it has been assigned as a heap
-// variable by the typemap - SWIG assigns the default as stack varialbes
-// - but can't get stack variables to work in the input typemap for now.
-//
-// Note that these freearg typemaps only work for instance methods -
-// they shouldn't be applied to static/class methods because these have
-// one fewer argument. Fortunately there are very few static methods in
-// Wx that accept wxString, and can be dealt with on a case-by-case
-// basis in the appropriate class .i files.
-%typemap(freearg) wxString& "if ( argc && ( argc > $argnum - 2 ) ) delete $1;"
-%typemap(freearg) wxString* "if ( argc && ( argc > $argnum - 2 ) ) delete $1;"
+// variable by the typemap - SWIG assigns the default as stack variables
+// - and we track heap allocations through temp wxrb_flag variables
+%typemap(freearg) wxString& "if (salloc_flag$argnum) delete $1;"
+%typemap(freearg) wxString* "if (salloc_flag$argnum) delete $1;"
 
 %typemap(directorin) wxString  "$input = WXSTR_TO_RSTR($1);";
 %typemap(directorin) wxString& "$input = WXSTR_TO_RSTR($1);";
