@@ -273,18 +273,24 @@ class MyTreeCtrl < Wx::TreeCtrl
 
     # should correspond to TreeCtrlIcon_xxx enum
     Wx::BusyCursor.busy do
-      icons = [
-        Wx::Icon.new("icon3.xpm"), # closed
-        Wx::Icon.new("icon3.xpm"), # closed, selected
-        Wx::Icon.new("icon5.xpm"), # open
-        Wx::Icon.new("icon5.xpm")] # open, selected
+      icons = if @alternate_images
+                [Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon3.xpm'), Wx::BITMAP_TYPE_XPM),
+                 Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon3.xpm'), Wx::BITMAP_TYPE_XPM),
+                 Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon5.xpm'), Wx::BITMAP_TYPE_XPM),
+                 Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon5.xpm'), Wx::BITMAP_TYPE_XPM)
+                ]
+              else
+                icon_size = Wx::Size.new(@image_size, @image_size)
+                ic1 = Wx::ArtProvider::get_icon(Wx::ART_FOLDER, Wx::ART_LIST, icon_size)
+                ic2 = Wx::ArtProvider::get_icon(Wx::ART_FOLDER_OPEN, Wx::ART_LIST, icon_size)
+                [ic1, ic1, ic2, ic2]
+              end
 
       icons.each do |ic|
-        orig_size = ic.width
-        if images.size.width == orig_size
+        if ic.width == size
           images.add(ic)
         else
-          resized = ic.convert_to_image.rescale(images.size.width, images.size.height)
+          resized = ic.convert_to_image.rescale(size, size)
           images.add(Wx::Bitmap.new(resized))
         end
       end
@@ -733,8 +739,11 @@ class MyTreeCtrl < Wx::TreeCtrl
     # need to explicitly allow drag
     if event.item != root_item
       @dragged_item = event.item
-      Wx::log_message("OnBeginDrag: started dragging %s",
-                      item_text(@dragged_item))
+
+      clientpt = event.point
+      screenpt = client_to_screen(clientpt)
+      Wx::log_message("OnBeginDrag: started dragging %s at screen coords (%i,%i)" %
+                        [item_text(@dragged_item), screenpt.x, screenpt.y])
       event.allow
     else
       Wx::log_message("OnBeginDrag: selected item can't be dragged.")
@@ -744,7 +753,7 @@ class MyTreeCtrl < Wx::TreeCtrl
   def on_end_drag(event)
     src_item = @dragged_item
     dest_item = event.item
-    @dragged_item = 0
+    @dragged_item = nil
 
     if dest_item.ok? && !item_has_children(dest_item)
       # copy to the parent then
@@ -970,7 +979,8 @@ class MyFrame < Wx::Frame
     style_menu.append_separator
     style_menu.append(TreeTest_ResetStyle, "&Reset to default\tF10")
 
-    tree_menu.append(TreeTest_FreezeThaw, "&Freeze the tree")
+    tree_menu.append(TreeTest_FreezeThaw,
+                     "&Freeze the tree", "", Wx::ITEM_CHECK)
     tree_menu.append(TreeTest_Recreate, "&Recreate the tree")
     tree_menu.append(TreeTest_CollapseAndReset, "C&ollapse and reset")
     tree_menu.append_separator
@@ -1173,7 +1183,7 @@ class MyFrame < Wx::Frame
   def create_tree(style)
     @treectrl = MyTreeCtrl.new(@panel, :style => style)
 
-    menu_bar.enable(Wx::TreeTest_SelectRoot, !(style & Wx::TR_HIDE_ROOT))
+    menu_bar.enable(Wx::TreeTest_SelectRoot, (style & Wx::TR_HIDE_ROOT) == 0)
 
     resize
   end
@@ -1444,7 +1454,7 @@ class MyFrame < Wx::Frame
         @treectrl.create_buttons_image_list(-1)
         Wx::get_app.show_buttons = false
       else
-        @treectrl.create_buttons_image_list(-15)
+        @treectrl.create_buttons_image_list(15)
         Wx::get_app.show_buttons = true
       end
     end
