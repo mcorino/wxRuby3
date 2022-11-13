@@ -63,6 +63,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxListBox')
     Director.Spec(pkg, 'wxChoice')
     Director.Spec(pkg, 'wxStaticBox', director: Director::Window)
+    Director.Spec(pkg, 'wxStaticLine', director: Director::Window)
     Director.Spec(pkg, 'wxGauge', director: Director::Window)
     Director.Spec(pkg, 'wxSlider', director: Director::Window)
     Director.Spec(pkg, 'wxStaticText', director: Director::Window)
