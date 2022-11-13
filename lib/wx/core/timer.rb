@@ -94,3 +94,12 @@ class Wx::Timer
     end
   end
 end
+
+class Wx::EvtHandler
+  # missing from XML docs so we add this here manually
+  self.register_event_type EventType[
+    'evt_timer', 1,
+    Wx::EVT_TIMER,
+    Wx::TimerEvent
+  ] if Wx.const_defined?(:EVT_TIMER)
+end
