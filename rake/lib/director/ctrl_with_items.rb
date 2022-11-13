@@ -27,21 +27,21 @@ module WXRuby3
             'wxItemContainer::SetClientObject'])
           spec.ignore(%w[wxItemContainer::GetClientData wxItemContainer::SetClientData], ignore_doc: false) # keep docs
           # Replace the old Wx definitions of these methods - which segfault
-          spec.add_extend_code('wxItemContainer', <<~__HEREDOC
+          spec.add_extend_code('wxControlWithItems', <<~__HEREDOC
             VALUE get_client_data(int n) {
-            // Avoid an assert failure if no data previously set
-            if ( ! self->HasClientUntypedData() )
-              return Qnil;
-          
-            VALUE returnVal = (VALUE) self->GetClientData(n);
-            if ( ! returnVal )
-              return Qnil;
-            return returnVal;
+              // Avoid an assert failure if no data previously set
+              if ( ! self->HasClientUntypedData() )
+                return Qnil;
+            
+              VALUE returnVal = (VALUE) self->GetClientData(n);
+              if ( ! returnVal )
+                return Qnil;
+              return returnVal;
             }
           
             VALUE set_client_data(int n, VALUE item_data) {
-            self->SetClientData(n, (void *)item_data);
-            return item_data;
+              self->SetClientData(n, (void *)item_data);
+              return item_data;
             }
             __HEREDOC
           )
