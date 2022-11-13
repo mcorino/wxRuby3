@@ -728,19 +728,24 @@ module WXRuby3
   
             class Wx::EvtHandler
           __HEREDOC
+          evts_handled = ::Set.new
           included_directors.each do |dir|
             dir.defmod.items.each do |item|
               if Extractor::ClassDef === item && (item.event || item.event_list)
                 fout.puts "  # from #{item.name}"
                 item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
-                  evt_klass ||= item.name
-                  fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
-                    self.register_event_type EventType[
-                        '#{evt_hnd.downcase}', #{evt_arity},
-                        #{fullname}::#{evt_type},
-                        #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
-                      ] if #{fullname}.const_defined?(:#{evt_type})
-                  __HEREDOC
+                  evh_name = evt_hnd.downcase
+                  unless evts_handled.include?(evh_name)
+                    evt_klass ||= item.name
+                    fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
+                      self.register_event_type EventType[
+                          '#{evh_name}', #{evt_arity},
+                          #{fullname}::#{evt_type},
+                          #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
+                        ] if #{fullname}.const_defined?(:#{evt_type})
+                    __HEREDOC
+                    evts_handled << evh_name
+                  end
                 end
               end
             end
