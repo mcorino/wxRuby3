@@ -27,6 +27,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxTopLevelWindow')
     Director.Spec(pkg, 'wxFrame')
     Director.Spec(pkg, 'wxGDIObject')
+    Director.Spec(pkg, 'wxGraphicsObject')
+    Director.Spec(pkg, 'wxGraphicsContext')
     Director.Spec(pkg, 'wxBrush')
     Director.Spec(pkg, 'wxPen')
     Director.Spec(pkg, 'wxIconLocation')
