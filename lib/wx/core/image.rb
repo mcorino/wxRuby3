@@ -4,9 +4,9 @@ class Wx::Image
 
   # restore the overloaded method
   def set_rgb_data(data, *size)
-    if size.empty
-      height = self.size.height
-      width = self.size.width
+    if size.empty?
+      height = self.get_size.height
+      width = self.get_size.width
     else
       width, height = size
       if Wx::Size === width
