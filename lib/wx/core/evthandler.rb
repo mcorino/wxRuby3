@@ -1042,6 +1042,13 @@ class Wx::EvtHandler
     evt_scrollwin_thumbtrack(&block)
     evt_scrollwin_thumbrelease(&block)
   end
+
+  # missing from XML docs so we add this here manually
+  self.register_event_type EventType[
+    'evt_window_destroy', 0,
+    Wx::EVT_DESTROY,
+    Wx::WindowDestroyEvent
+  ] if Wx.const_defined?(:EVT_DESTROY)
 end
 
 # Definitions for all event types that are part by core wxRuby. Events
