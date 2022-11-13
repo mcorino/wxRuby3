@@ -26,6 +26,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxNonOwnedWindow', director: Director::Window)
     Director.Spec(pkg, 'wxTopLevelWindow')
     Director.Spec(pkg, 'wxFrame')
+    Director.Spec(pkg, 'wxMiniFrame', director: Director::Frame)
     Director.Spec(pkg, 'wxGDIObject')
     Director.Spec(pkg, 'wxGraphicsObject')
     Director.Spec(pkg, 'wxGraphicsContext')
@@ -121,6 +122,11 @@ module WXRuby3
     Director.Spec(pkg, 'wxDatePickerCtrl', requirements: %w[wxUSE_DATEPICKCTRL])
     Director.Spec(pkg, 'wxTimerEvent', director: Director::Event, requirements: %w[wxUSE_TIMER])
     Director.Spec(pkg, 'wxTimer', requirements: %w[wxUSE_TIMER])
+    Director.Spec(pkg, 'wxSashEvent', requirements: %w[wxUSE_SASH])
+    Director.Spec(pkg, 'wxSashWindow', requirements: %w[wxUSE_SASH])
+    Director.Spec(pkg, 'wxSashLayoutWindow', requirements: %w[wxUSE_SASH])
+    Director.Spec(pkg, 'wxQueryLayoutInfoEvent', director: Director::SashLayoutEvent)
+    Director.Spec(pkg, 'wxCalculateLayoutEvent', director: Director::SashLayoutEvent)
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
