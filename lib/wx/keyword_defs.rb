@@ -140,7 +140,7 @@ end
 
 # Implements the status bar on a frame
 Wx::define_keyword_ctors('StatusBar') do
-  wx_ctor_params :id, :style => Wx::ST_SIZEGRIP
+  wx_ctor_params :id, :style => Wx::STB_SIZEGRIP
   wx_ctor_params :name => 'statusBar'
 end
 
