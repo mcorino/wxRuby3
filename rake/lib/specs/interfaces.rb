@@ -113,6 +113,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxCalendarDateAttr', requirements: %w[wxUSE_CALENDARCTRL])
     Director.Spec(pkg, 'wxCalendarCtrl', requirements: %w[wxUSE_CALENDARCTRL])
     Director.Spec(pkg, 'wxDatePickerCtrl', requirements: %w[wxUSE_DATEPICKCTRL])
+    Director.Spec(pkg, 'wxTimerEvent', director: Director::Event, requirements: %w[wxUSE_TIMER])
+    Director.Spec(pkg, 'wxTimer', requirements: %w[wxUSE_TIMER])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
