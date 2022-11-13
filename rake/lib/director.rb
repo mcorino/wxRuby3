@@ -573,7 +573,7 @@ module WXRuby3
           !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
         end.collect {|dir| [dir.spec.module_name, Spec.module_registry[dir.spec.module_name]] }
         # now sort these according to dependencies
-        dep_mods.sort do |mreg1, mreg2|
+        dep_mods.sort! do |mreg1, mreg2|
           m1 = mreg1.first
           m2 = mreg2.first
           order = 0
