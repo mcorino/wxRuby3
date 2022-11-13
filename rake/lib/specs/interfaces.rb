@@ -127,6 +127,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxSashLayoutWindow', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxQueryLayoutInfoEvent', director: Director::SashLayoutEvent)
     Director.Spec(pkg, 'wxCalculateLayoutEvent', director: Director::SashLayoutEvent)
+    Director.Spec(pkg, 'wxWizardEvent', requirements: %w[wxUSE_WIZARDDLG])
+    Director.Spec(pkg, 'wxWizardPage', requirements: %w[wxUSE_WIZARDDLG])
+    Director.Spec(pkg, 'wxWizardPageSimple', director: Director::WizardPage, requirements: %w[wxUSE_WIZARDDLG])
+    Director.Spec(pkg, 'wxWizard', director: Director::Dialog, requirements: %w[wxUSE_WIZARDDLG])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|

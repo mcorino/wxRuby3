@@ -103,7 +103,9 @@ end
 
 # wxWizard 	A wizard dialog
 Wx::define_keyword_ctors('Wizard') do
-  wx_ctor_params :id, :title, :bitmap => Wx::NULL_BITMAP
+  wx_ctor_params :id
+  wx_ctor_params :title
+  wx_ctor_params :bitmap => ->(arg) { Wx.bitmap_to_bundle(arg) }
   wx_ctor_params :pos # NB - no size argument for this class
   wx_ctor_params :style => Wx::DEFAULT_DIALOG_STYLE
 end
@@ -216,7 +218,7 @@ end
 Wx::define_keyword_ctors('WizardPageSimple') do
   wx_ctor_params :prev => nil
   wx_ctor_params :next => nil
-  wx_ctor_params :bitmap => Wx::NULL_BITMAP
+  wx_ctor_params :bitmap => ->(arg) { Wx.bitmap_to_bundle(arg) }
 end
 
 ### DIALOGS

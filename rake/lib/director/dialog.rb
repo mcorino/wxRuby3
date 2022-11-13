@@ -169,6 +169,17 @@ module WXRuby3
               return ret;
             }
             __HEREDOC
+        when 'wxWizard'
+          # special handling
+          spec.ignore 'wxWizard::GetBitmap'
+          # add custom Ruby version
+          spec.add_extend_code 'wxWizard', <<~__HEREDOC
+            wxBitmap GetBitmap() const
+            {
+              return $self->GetBitmap();
+            }
+            __HEREDOC
+          spec.do_not_generate(:variables, :enums, :defines, :functions)
         end
       end
     end # class Dialog
