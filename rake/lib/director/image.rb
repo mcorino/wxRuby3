@@ -30,7 +30,9 @@ module WXRuby3
           'SetAlphaData' => 'wxImage::SetAlpha(unsigned char *,bool)',
           # Renaming for consistency with above methods and SetRGB method
           # 'GetRgbData' => 'wxImage::GetData() const',
-          'SetRgbData' => 'wxImage::SetData(unsigned char *)')
+          'SetRgbDataWithSize' => 'wxImage::SetData(unsigned char *,int,int,bool)')
+        # handle this in Ruby
+        spec.ignore 'wxImage::SetData(unsigned char *,bool)'
         # Handler methods are not supported in wxRuby; all standard handlers
         # are loaded at startup, and we don't allow custom image handlers to be
         # written in Ruby.
