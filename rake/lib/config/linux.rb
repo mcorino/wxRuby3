@@ -23,8 +23,11 @@ module WXRuby3
             "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
           end
 
-          def debug(env, *cmd)
-            Rake.sh env, 'gdb', '--args', *cmd
+          def debug_command(*args)
+            args.unshift(FileUtils::RUBY)
+            args.unshift('--args')
+            args.unshift('gdb')
+            args.join(' ')
           end
         end
       end

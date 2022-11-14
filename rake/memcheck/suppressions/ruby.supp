@@ -1,0 +1,83 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:g_malloc
+   fun:g_strdup
+   fun:icon_info_ensure_scale_and_pixbuf
+   fun:gtk_icon_info_load_icon
+   fun:gtk_icon_theme_load_icon
+   fun:render_icon_name_pixbuf
+   fun:find_and_render_icon_source
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectAddWithBinding
+   fun:FcPatternAppend
+   fun:FcParsePattern
+   fun:FcEndElement
+   fun:doContent
+   fun:contentProcessor
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoadFromMemoryInternal
+   fun:_FcConfigParse
+   fun:FcConfigParseAndLoadDir
+   fun:_FcConfigParse
+   fun:FcParseInclude
+   fun:FcEndElement
+   fun:doContent
+   fun:contentProcessor
+   fun:doProlog
+   fun:prologProcessor
+   fun:prologInitProcessor
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoadFromMemoryInternal
+   fun:_FcConfigParse
+   fun:FcInitLoadOwnConfig
+   fun:FcInitLoadOwnConfigAndFonts
+   fun:FcConfigEnsure
+   fun:FcConfigInit
+   fun:*
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectListAdd
+   fun:FcFontRenderPrepare
+   fun:*
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectAddWithBinding
+   fun:FcDefaultSubstitute
+   fun:pango_fc_default_substitute
+   fun:pango_fc_font_map_get_patterns
+   fun:pango_fc_font_map_load_fontset
+   fun:*
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:FcPatternObjectInsertElt
+   fun:FcPatternObjectAddWithBinding
+   fun:FcListAppend
+   fun:FcFontSetList
+   fun:ensure_families
+   fun:pango_fc_font_map_list_families
+   fun:pango_font_map_list_families
+   fun:*
+}

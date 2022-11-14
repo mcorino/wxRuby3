@@ -103,13 +103,21 @@ if $config.has_wxwidgets_xml?
   end
 
   desc "Run a wxRuby app"
-  task :run, [:app] => :default do |t, args|
+  task :run, [:app,:flag] do |t, args|
+    Rake::Task[:default].invoke unless args[:flag] == 'nodep'
     $config.run args[:app]
   end
 
   desc "Debug a wxRuby app"
-  task :debug, [:app] => :default do |t, args|
-    $config.debug $config.exec_env, FileUtils::RUBY, '-I', File.join(File.dirname(__FILE__), 'lib'), args[:app]
+  task :debug, [:app,:flag]  do |t, args|
+    Rake::Task[:default].invoke unless args[:flag] == 'nodep'
+    $config.debug args[:app]
+  end
+
+  desc "Memory check a wxRuby app"
+  task :memcheck, [:app,:flag]  do |t, args|
+    Rake::Task[:default].invoke unless args[:flag] == 'nodep'
+    $config.memcheck args[:app]
   end
 else
   desc "Bootstrap the wxRuby3 build environment"

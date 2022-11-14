@@ -9,12 +9,15 @@
 
 require 'rbconfig'
 require 'fileutils'
+require 'ruby_memcheck'
 
 module WXRuby3
 
   module Config
 
-    def run(*cmd, capture: nil)
+    include RubyMemcheck::TestTaskReporter
+
+    def do_run(*cmd, capture: nil)
       r_p = nil
       w_p = nil
       case capture
@@ -33,13 +36,38 @@ module WXRuby3
       when :null
         cmd << {[:err, :out] => '/dev/null'}
       end
-      spawn Config.instance.exec_env, FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), *cmd
+      spawn Config.instance.exec_env, *cmd
       w_p.close if w_p
       r_p.read if r_p
     end
+    private :do_run
 
-    def debug(env, *cmd)
+    def run(*cmd, capture: nil)
+      do_run(FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), *cmd, capture: capture)
+    end
+
+    def debug_command(*args)
       raise "Do not know how to debug for platform #{platform}"
+    end
+
+    def debug(*args, **options)
+      args.unshift("-I#{File.join(Config.wxruby_root, 'lib')}")
+      Rake.sh(Config.instance.exec_env, debug_command(*args), **options)
+    end
+
+    attr_reader :configuration
+
+    def memcheck(*args, **options)
+      RubyMemcheck.config(binary_name: "wxruby_core", valgrind_suppressions_dir: File.join(Config.wxruby_root, 'rake', 'memcheck', 'suppressions'))
+      args.unshift("-r#{File.join('ruby_memcheck', 'test_helper.rb')}")
+      args.unshift("-I#{File.join(Config.wxruby_root, 'lib')}")
+      @configuration = RubyMemcheck.default_configuration
+      command = configuration.command(args)
+      Rake.sh(Config.instance.exec_env, command, **options) do |ok, res|
+        report_valgrind_errors
+
+        yield ok, res if block_given?
+      end
     end
 
     class << self
