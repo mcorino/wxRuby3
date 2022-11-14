@@ -12,6 +12,7 @@ typedef int wxWindowID;
 
 enum wxBitmapType;
 enum wxStockCursor;
+enum wxLayoutDirection;
 
 // make sure wxEventType is known as 'int'
 typedef int wxEventType;
