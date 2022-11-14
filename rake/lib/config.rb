@@ -58,7 +58,10 @@ module WXRuby3
     attr_reader :configuration
 
     def memcheck(*args, **options)
-      RubyMemcheck.config(binary_name: "wxruby_core", valgrind_suppressions_dir: File.join(Config.wxruby_root, 'rake', 'memcheck', 'suppressions'))
+      RubyMemcheck.config(binary_name: "wxruby_core",
+                          valgrind_suppressions_dir: File.join(Config.wxruby_root, 'rake', 'memcheck', 'suppressions'),
+                          valgrind_generate_suppressions: !!options[:gensup])
+      options.delete(:gensup)
       args.unshift("-r#{File.join('ruby_memcheck', 'test_helper.rb')}")
       args.unshift("-I#{File.join(Config.wxruby_root, 'lib')}")
       @configuration = RubyMemcheck.default_configuration

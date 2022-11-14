@@ -81,3 +81,21 @@
    fun:pango_font_map_list_families
    fun:*
 }
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:_Znwm
+  fun:_wrap_new_wxSize__SWIG_1
+  fun:_ZL16_wrap_new_wxSizeiPmm
+  fun:vm_call0_cfunc_with_frame
+  fun:*
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:_Znwm
+  fun:_wrap_new_wxPoint__SWIG_1
+  fun:_ZL17_wrap_new_wxPointiPmm
+  fun:vm_call0_cfunc_with_frame
+  fun:*
+}
