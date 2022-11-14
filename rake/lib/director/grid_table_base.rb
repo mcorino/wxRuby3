@@ -27,6 +27,10 @@ module WXRuby3
         spec.disown('wxGridCellAttr* attr')
         # this requires wxRuby to take ownership (ref counted)
         spec.new_object 'wxGridTableBase::GetAttr'
+        # these warnings are handled and can be suppressed
+        spec.suppress_warning(473,
+                              'wxGridTableBase::GetAttr',
+                              'wxGridTableBase::GetView')
       end
     end # class GridTableBase
 

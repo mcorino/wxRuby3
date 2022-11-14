@@ -154,9 +154,9 @@ module WXRuby3
     end
 
     def gen_swig_interface_code(fout, spec)
-      unless spec.swig_imports.empty?
+      unless spec.swig_imports[:prepend].empty?
         fout.puts
-        spec.swig_imports.each do |inc|
+        spec.swig_imports[:prepend].each do |inc|
           fout .puts %Q{%import "#{inc}"}
         end
       end
@@ -170,6 +170,13 @@ module WXRuby3
               fout.puts %Q{%import "#{import_fnm}"} unless spec.swig_imports.include?(import_fnm)
             end
           end
+        end
+      end
+
+      unless spec.swig_imports[:append].empty?
+        fout.puts
+        spec.swig_imports[:append].each do |inc|
+          fout .puts %Q{%import "#{inc}"}
         end
       end
 
@@ -500,6 +507,12 @@ module WXRuby3
         #ifndef __#{spec.module_name.upcase}_H_INCLUDED__
         #define __#{spec.module_name.upcase}_H_INCLUDED__
       HEREDOC
+      unless spec.warn_filters.empty?
+        fout.puts
+        spec.warn_filters.each_pair do |warn, decls|
+          decls.each { |decl| fout.puts "%warnfilter(#{warn}) #{decl};" }
+        end
+      end
     end
 
     def gen_interface_include_footer(fout, spec)

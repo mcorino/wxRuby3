@@ -82,6 +82,12 @@ module WXRuby3
                         'wxGrid::GetDefaultRenderer',
                         'wxGrid::GetDefaultRendererForCell',
                         'wxGrid::GetDefaultRendererForType')
+        # handled; can be suppressed
+        spec.suppress_warning(473,
+                              'wxGrid::GetDefaultEditorForCell',
+                              'wxGrid::GetDefaultEditorForType',
+                              'wxGrid::GetDefaultRendererForCell',
+                              'wxGrid::GetDefaultRendererForType')
       end
     end # class GridCtrl
 

@@ -41,6 +41,8 @@ module WXRuby3
         end
         # these require wxRuby to take ownership (ref counted)
         spec.new_object "#{spec.module_name}::Clone"
+        # handled; can be suppressed
+        spec.suppress_warning(473, "#{spec.module_name}::Clone")
       end
     end # class GridCellRenderer
 

@@ -177,6 +177,10 @@ module WXRuby3
         @ifspec.new_objects
       end
 
+      def warn_filters
+        @ifspec.warn_filters
+      end
+
       def swig_code
         @ifspec.swig_code.join("\n")
       end

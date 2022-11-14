@@ -29,6 +29,10 @@ module WXRuby3
                                 'virtual wxWizardPage * GetPrev() const'
         end
         spec.do_not_generate(:variables, :enums, :defines, :functions)
+        # handled; can be suppressed
+        spec.suppress_warning(473,
+                              "#{spec.module_name}::GetNext",
+                              "#{spec.module_name}::GetPrev")
       end
     end # class WizardPage
 

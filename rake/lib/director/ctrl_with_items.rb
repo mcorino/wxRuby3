@@ -70,7 +70,7 @@ module WXRuby3
           extern swig_class cWxControlWithItems;
           WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr);
           __HEREDOC
-        spec.swig_import 'swig/classes/include/wxControlWithItems.h'
+        spec.swig_import('swig/classes/include/wxControlWithItems.h', append_to_base_imports: true)
       end
     end # class ControlWithItems
 

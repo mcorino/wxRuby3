@@ -21,7 +21,7 @@ module WXRuby3
         # xml specs incorrectly list this method for MWS while it does not exist anymore
         spec.ignore('wxIcon::ConvertToDisabled')
         spec.override_base('wxIcon', 'wxBitmap')
-        spec.swig_import('swig/classes/include/wxBitmap.h')
+        spec.swig_import('swig/classes/include/wxBitmap.h', append_to_base_imports: true)
         super
       end
     end # class Icon

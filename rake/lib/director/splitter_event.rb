@@ -18,7 +18,7 @@ module WXRuby3
       def setup
         super
         spec.ignore_bases('wxSplitterEvent' => %w[wxNotifyEvent]) # needed to suppress imports
-        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h') # provide base definitions
+        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h', append_to_base_imports: true) # provide base definitions
         spec.override_base('wxSplitterEvent', 'wxNotifyEvent') # re-establish correct base
         # because of error in XML docs
         spec.ignore('wxSplitterEvent::GetOldSize', ignore_doc: false)

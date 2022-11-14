@@ -18,7 +18,7 @@ module WXRuby3
       def setup
         super
         spec.ignore_bases('wxDateEvent' => %w[wxCommandEvent]) # needed to suppress imports
-        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h') # provide base definitions
+        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h', append_to_base_imports: true) # provide base definitions
         if spec.module_name == 'wxDateEvent'
           spec.override_base('wxDateEvent', 'wxCommandEvent') # re-establish correct base
           # add DateTime conversion helpers

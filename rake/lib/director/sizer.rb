@@ -20,8 +20,6 @@ module WXRuby3
         when 'wxSizer'
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
-          spec.no_proxy 'wxSizer::AddSpacer'
-          #spec.no_proxy 'wxSizer'
           spec.add_swig_code <<~__HEREDOC
             // get rid of unwanted SWIG warning
             %warnfilter(517) wxSizer;
@@ -48,9 +46,9 @@ module WXRuby3
             wxStaticBoxSizer::Detach
             wxStaticBoxSizer::Remove
             wxStaticBoxSizer::Clear])
-          spec.no_proxy 'wxStaticBoxSizer::AddSpacer'
         when 'wxStdDialogButtonSizer'
         end
+        spec.no_proxy 'wxBoxSizer::AddSpacer'
         super
       end
     end # class Object

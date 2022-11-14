@@ -47,6 +47,13 @@ module WXRuby3
               delete $2;
             }
           __HEREDOC
+          # handled; can be suppressed
+          spec.suppress_warning(473,
+                                'wxFrame::CreateStatusBar',
+                                'wxFrame::CreateToolBar',
+                                'wxFrame::GetMenuBar',
+                                'wxFrame::GetStatusBar',
+                                'wxFrame::GetToolBar')
         end
       end
     end # class Frame

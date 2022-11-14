@@ -179,6 +179,10 @@ module WXRuby3
               return $self->GetBitmap();
             }
             __HEREDOC
+          # handled; can be suppressed
+          spec.suppress_warning(473,
+                                'wxWizard::GetCurrentPage',
+                                'wxWizard::GetPageAreaSizer')
           spec.do_not_generate(:variables, :enums, :defines, :functions)
         end
       end

@@ -67,10 +67,11 @@ module WXRuby3
         @no_proxies = ::Set.new
         @disowns = ::Set.new
         @new_objects = ::Set.new
+        @warn_filters = ::Hash.new
         @only_for = ::Hash.new
         @param_mappings = ::Hash.new
         @includes = ::Set.new
-        @swig_imports = ::Set.new
+        @swig_imports = {prepend: ::Set.new, append: ::Set.new}
         @swig_includes = ::Set.new
         @renames = ::Hash.new
         @swig_code = []
@@ -87,7 +88,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :only_for, :param_mappings,
+                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for, :param_mappings,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements
@@ -313,6 +314,11 @@ module WXRuby3
         self
       end
 
+      def suppress_warning(warn, *decls)
+        (@warn_filters[warn] ||= ::Set.new).merge(decls.flatten)
+        self
+      end
+
       def set_only_for(id, *names)
         (@only_for[id.to_s] ||= ::Set.new).merge(names.flatten)
         self
@@ -328,8 +334,8 @@ module WXRuby3
         self
       end
 
-      def swig_import(*paths)
-        @swig_imports.merge(paths.flatten)
+      def swig_import(*paths, append_to_base_imports: false)
+        @swig_imports[append_to_base_imports ? :append : :prepend].merge(paths.flatten)
         self
       end
 
@@ -953,14 +959,16 @@ module WXRuby3
         end
       end
 
-      unless genspec.swig_imports.empty?
-        genspec.swig_imports.each do |inc|
-          # make sure all import dependencies are relative to wxruby root
-          if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
-            inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-            list << Pathname(inc).relative_path_from(wxruby_root).to_s
-          else
-            list << inc
+      [:prepend, :append].each do |pos|
+        unless genspec.swig_imports[pos].empty?
+          genspec.swig_imports[pos].each do |inc|
+            # make sure all import dependencies are relative to wxruby root
+            if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
+              inc = File.join(WXRuby3::Config.instance.classes_path, inc)
+              list << Pathname(inc).relative_path_from(wxruby_root).to_s
+            else
+              list << inc
+            end
           end
         end
       end
