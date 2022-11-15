@@ -36,7 +36,7 @@ module WXRuby3
             {
               SWIG_RubyRemoveTracking(go);
               if ( rb_gv_get("__wx_app_ended__" ) != Qtrue )
-                delete arg1;
+                delete go;
             }
           __HEREDOC
           spec.add_swig_code '%feature("freefunc") wxGraphicsPen "GC_free_GraphicsObject";'
