@@ -294,7 +294,7 @@ module WXRuby3
             VALUE array = rb_ary_new();
 
             rb_ary_push(array, _wxRuby_Wrap_wxTreeItemId(ret_item));
-            rb_ary_push(array,LL2NUM((long)cookie));
+            rb_ary_push(array,LL2NUM((long long)cookie));
 
             return array;
           }
