@@ -76,8 +76,9 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
           __HEREDOC
-        if Config::WxRubyFeatureInfo.features_set?('__WXMSW__')
+        if Config.platform == :mingw
           spec.ignore('wxTreeCtrl::SetButtonsImageList')
+          spec.ignore('wxTreeCtrl::GetButtonsImageList')
         end
         # these reimplemented window base methods need to be properly wrapped but
         # are missing from the XML docs
