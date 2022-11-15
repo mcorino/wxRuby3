@@ -38,7 +38,6 @@ module WXRuby3
             }
             __HEREDOC
         when 'wxBoxSizer'
-          spec.no_proxy 'wxBoxSizer::AddSpacer'
         when 'wxStaticBoxSizer'
           # Must ensure that the C++ detach method is called, else the associated
           # StaticBox will be double-freed
@@ -48,7 +47,7 @@ module WXRuby3
             wxStaticBoxSizer::Clear])
         when 'wxStdDialogButtonSizer'
         end
-        spec.no_proxy 'wxBoxSizer::AddSpacer'
+        spec.no_proxy 'wxSizer::AddSpacer'
         super
       end
     end # class Object

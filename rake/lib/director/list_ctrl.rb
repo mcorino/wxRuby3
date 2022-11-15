@@ -68,6 +68,10 @@ module WXRuby3
             wxListCtrl::OnGetItemText
             wxListCtrl::OnGetItemIsChecked
           ]
+        # handled; can be suppressed
+        spec.suppress_warning(473,
+                              'wxListCtrl::OnGetItemAttr',
+                              'wxListCtrl::OnGetItemColumnAttr')
         # this reimplemented window base method need to be properly wrapped but
         # is missing from the XML docs
         spec.extend_interface('wxListCtrl', 'virtual void OnInternalIdle()')

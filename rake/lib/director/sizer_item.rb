@@ -15,6 +15,11 @@ module WXRuby3
 
       def setup
         spec.disable_proxies
+        # do not allow creating SizerItems in Ruby; this has limited benefits and
+        # memory management of sizer items is a nightmare
+        spec.make_abstract 'wxSizerItem'
+        # ignore constructors
+        spec.ignore 'wxSizerItem::wxSizerItem'
         spec.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow])
         super
       end

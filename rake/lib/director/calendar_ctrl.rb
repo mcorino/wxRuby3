@@ -20,6 +20,15 @@ module WXRuby3
         spec.ignore 'wxCalendarCtrl::HitTest'
         # deprecated
         spec.ignore 'wxCalendarCtrl::EnableYearChange'
+        # handled; can be suppressed
+        spec.suppress_warning(473,
+                              'wxCalendarCtrl::GetAttr',
+                              'wxCalendarCtrl::GetHeaderColourBg',
+                              'wxCalendarCtrl::GetHeaderColourFg',
+                              'wxCalendarCtrl::GetHighlightColourBg',
+                              'wxCalendarCtrl::GetHighlightColourFg',
+                              'wxCalendarCtrl::GetHolidayColourBg',
+                              'wxCalendarCtrl::GetHolidayColourFg')
 
         # These are managed by the CalendarCtrl once set via set_attr
         spec.disown 'wxCalendarDateAttr* attr'
