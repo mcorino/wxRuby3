@@ -33,6 +33,13 @@ module WXRuby3
             "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
           end
 
+          def debug_command(*args)
+            args.unshift(FileUtils::RUBY)
+            args.unshift('--args')
+            args.unshift('gdb')
+            args.join(' ')
+          end
+
           private
 
           def sh(cmd)
