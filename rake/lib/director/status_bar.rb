@@ -32,7 +32,7 @@ module WXRuby3
             if(result)
               $result = SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 0);
             else {
-              free($1);
+              delete $1;
               $result = Qnil;
             }
           }
