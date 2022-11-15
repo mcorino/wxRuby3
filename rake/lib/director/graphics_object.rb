@@ -27,6 +27,25 @@ module WXRuby3
                                   wxDouble *tx , wxDouble *ty };
           __HEREDOC
       end
+      if Config.platform == :mingw
+        # it seems for WXMSW there is a problem cleaning up GraphicsObjects in GC after
+        # the wxApp has ended (probably because the graphics engine has been shut down)
+        spec.add_header_code <<~__HEREDOC
+            // special free func is needed to clean up only as long the app still runs
+            // the rest we leave for the system clean up as the process terminates
+            void GC_free_GraphicsObject(wxGraphicsObject *go) 
+            {
+              SWIG_RubyRemoveTracking(go);
+              if ( rb_gv_get("__wx_app_ended__" ) != Qtrue )
+                delete arg1;
+            }
+        __HEREDOC
+        spec.add_swig_code '%feature("freefunc") wxGraphicsPen "GC_free_GraphicsObject";'
+        spec.add_swig_code '%feature("freefunc") wxGraphicsBrush "GC_free_GraphicsObject";'
+        spec.add_swig_code '%feature("freefunc") wxGraphicsPath "GC_free_GraphicsObject";'
+        spec.add_swig_code '%feature("freefunc") wxGraphicsFont "GC_free_GraphicsObject";'
+        spec.add_swig_code '%feature("freefunc") wxGraphicsMatrix "GC_free_GraphicsObject";'
+      end
     end # class GraphicsObject
 
   end # class Director
