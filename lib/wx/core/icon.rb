@@ -12,6 +12,14 @@ class Wx::Icon
     ico
   end
 
+  def to_bitmap
+    # for WXMSW platform Icon is not derived from Bitmap
+    return self unless Wx::PLATFORM == 'WXMSW'
+    bm = Wx::Bitmap.new
+    bm.copy_from_icon(self)
+    bm
+  end
+
   # Redefine the initialize method so it raises an exception if a
   # non-existent file is given to the constructor; otherwise, wx Widgets
   # just carries on with an empty icon, which may cause faults

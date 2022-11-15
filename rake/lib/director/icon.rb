@@ -20,8 +20,10 @@ module WXRuby3
         spec.ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)')
         # xml specs incorrectly list this method for MWS while it does not exist anymore
         spec.ignore('wxIcon::ConvertToDisabled')
-        spec.override_base('wxIcon', 'wxBitmap')
-        spec.swig_import('swig/classes/include/wxBitmap.h', append_to_base_imports: true)
+        unless Config.platform == :mingw
+          spec.override_base('wxIcon', 'wxBitmap')
+          spec.swig_import('swig/classes/include/wxBitmap.h', append_to_base_imports: true)
+        end
         super
       end
     end # class Icon

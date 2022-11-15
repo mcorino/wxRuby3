@@ -58,10 +58,10 @@ module Wx
 
   if Wx::WXWIDGETS_VERSION > '3.1.5'
     def self.bitmap_to_bundle(obj)
-      Wx::Bitmap === obj ? Wx::BitmapBundle.new(obj) : (obj || Wx::BitmapBundle.new(Wx::NULL_BITMAP))
+      Wx::BitmapBundle === obj ? obj : Wx::BitmapBundle.new(obj || Wx::NULL_BITMAP)
     end
   else
-    def self.bitmap_or_bundle(obj)
+    def self.bitmap_to_bundle(obj)
       obj
     end
   end
