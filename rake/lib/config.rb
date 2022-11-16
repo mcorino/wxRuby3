@@ -55,6 +55,17 @@ module WXRuby3
       Rake.sh(Config.instance.exec_env, debug_command(*args), **options)
     end
 
+    def test(*tests, **options)
+      tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
+      tests.each do |test|
+        unless File.exist?(test)
+          test = File.join(Config.instance.test_dir, test)
+          test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
+        end
+        Rake.sh(Config.instance.exec_env, FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), test)
+      end
+    end
+
     attr_reader :configuration
 
     def memcheck(*args, **options)
@@ -133,6 +144,7 @@ module WXRuby3
             @obj_path = File.join(Config.wxruby_root, @obj_dir)
             FileUtils.mkdir_p(@obj_path)
             @dest_dir = File.join(Config.wxruby_root, 'lib')
+            @test_dir = File.join(Config.wxruby_root, 'tests')
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
             FileUtils.mkdir_p(@classes_path)
@@ -275,7 +287,7 @@ module WXRuby3
                       :cppflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
-                      :rake_deps_dir, :rake_deps_path, :dest_dir, :classes_dir, :classes_path,
+                      :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
           attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path, :rb_doc_dir, :rb_doc_path
 
