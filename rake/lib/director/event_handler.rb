@@ -24,7 +24,13 @@ module WXRuby3
             'wxEvtHandler::Connect(int,int,wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)',
             'wxEvtHandler::Disconnect(int,int,wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)'],
             ignore_doc: false) # keep docs
-        spec.ignore(%w[wxEvtHandler::QueueEvent wxEVT_HOTKEY])
+        spec.ignore(%w[wxEVT_HOTKEY])
+        spec.ignore(%w[wxEvtHandler::SetClientData wxEvtHandler::GetClientData
+                       wxEvtHandler::SetClientObject wxEvtHandler::GetClientObject])
+        # special type mapping for wxEvtHander::QueueEvent
+        # we do not need any 'disown' actions as the Ruby object should be tracked and will remain
+        # alive as long as the C++ object is alive (which will be cleaned up in time by wxWidgets)
+        spec.add_swig_code %Q{%typemap("in") wxEvent *event "$1 = (wxEvent*)DATA_PTR($input);"}
         spec.add_runtime_code <<~__HEREDOC
           static swig_class wxRuby_GetSwigClassWxEvtHandler();
           WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
