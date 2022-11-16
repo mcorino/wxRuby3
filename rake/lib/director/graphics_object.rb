@@ -28,7 +28,8 @@ module WXRuby3
           __HEREDOC
         if Config.platform == :mingw
           # it seems for WXMSW there is a problem cleaning up GraphicsObjects in GC after
-          # the wxApp has ended (probably because the graphics engine has been shut down)
+          # the wxApp has ended (probably because some other wxWidgets cleanup already
+          # forcibly deleted their resources)
           spec.add_header_code <<~__HEREDOC
             // special free func is needed to clean up only as long the app still runs
             // the rest we leave for the system clean up as the process terminates
