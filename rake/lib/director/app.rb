@@ -104,7 +104,12 @@ module WXRuby3
           #ifdef __WXTRACE__
             std::wcout << "~wxRubyApp" << std::endl;
           #endif
+              // unlink
+              VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
+              if (the_app != Qnil) {
+                DATA_PTR(the_app) = 0;
               }
+            }
           
             // special event handler for destruction of windows which is done
             // automatically by wxWidgets. Tag the object as having been destroyed
@@ -180,10 +185,6 @@ module WXRuby3
             int main_loop()
             {
               rb_define_const(#{spec.package.module_variable}, "THE_APP", SWIG_RubyInstanceFor(this));
-          #ifndef __WXMSW__
-              static int argc = 1;
-              static wxChar *argv[] = {const_cast<wxChar*> (wxT("wxruby")), NULL};
-          #endif
               this->Connect(wxEVT_DESTROY,
                     wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
           
@@ -198,6 +199,8 @@ module WXRuby3
                          int nCmdShow);
               wxEntry(GetModuleHandle(NULL),(HINSTANCE)0,(wxCmdLineArgType)"",(int)true);
           #else
+              int argc = 0;
+              char** argv = 0;
               wxEntry(argc, argv);
           #endif
           
@@ -220,6 +223,8 @@ module WXRuby3
           #ifdef __WXRB_DEBUG__
               std::wcout << "OnInit..." << std::endl;
           #endif
+              // set standard App name
+              this->SetAppName(wxString("wxruby"));
               // Signal that we're started
               rb_gv_set("__wx_app_ended__", Qfalse);
               // Set up the GDI objects
