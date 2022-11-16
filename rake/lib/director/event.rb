@@ -45,7 +45,7 @@ module WXRuby3
           spec.rename_class('wxEvent', 'wxRubyEvent')
           spec.extend_interface('wxEvent', 'wxRubyEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
           spec.extend_interface('wxEvent', 'virtual wxEvent* Clone() const')
-          spec.ignore 'wxEvent::Clone'
+          spec.ignore %w[wxEvent::Clone wxEvent::GetEventUserData]
           spec.ignore 'wxEvent::wxEvent(int,wxEventType)'
           spec.no_proxy 'wxRubyEvent::Clone'
           spec.add_header_code <<~__HEREDOC
@@ -63,7 +63,8 @@ module WXRuby3
               // and remove that object from the tracking hash so it can be
               // collected by GC.
               virtual ~wxRubyEvent() {
-                wxRuby_RemoveTracking( (void*)this );
+                SWIG_RubyUnlinkObjects((void*)this);
+                wxRuby_RemoveTracking((void*)this);
               }
             
               // Will be called when add_pending_event is used to queue an event
@@ -89,8 +90,8 @@ module WXRuby3
             // used for custom event types.
             static VALUE new_event_type()
             {
-            int event_type_id = (int)wxNewEventType();
-            return INT2NUM(event_type_id );
+              int event_type_id = (int)wxNewEventType();
+              return INT2NUM(event_type_id );
             }
             __HEREDOC
           spec.add_swig_code <<~__HEREDOC
@@ -99,6 +100,8 @@ module WXRuby3
           spec.ignore %w{
             wxCommandEvent::GetClientObject
             wxCommandEvent::SetClientObject
+            wxCommandEvent::SetClientData
+            wxCommandEvent::GetClientData
             wxCommandEvent::GetExtraLong
           }
           spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')
@@ -124,7 +127,8 @@ module WXRuby3
               // and remove that object from the tracking hash so it can be
               // collected by GC.
               virtual ~wxRubyCommandEvent() {
-                wxRuby_RemoveTracking( (void*)this );
+                SWIG_RubyUnlinkObjects((void*)this);
+                wxRuby_RemoveTracking((void*)this);
               }
             
               // Will be called when add_pending_event is used to queue an event
