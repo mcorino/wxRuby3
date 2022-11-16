@@ -18,6 +18,18 @@ module WXRuby3
         spec.disable_proxies
         spec.items << 'wxLanguageInfo' << 'language.h'
         spec.gc_as_object('wxLocale')
+        spec.gc_as_temporary('wxLanguageInfo')
+        spec.regard %w[
+          wxLanguageInfo::Language
+          wxLanguageInfo::LocaleTag
+          wxLanguageInfo::CanonicalName
+          wxLanguageInfo::CanonicalRef
+          wxLanguageInfo::Description
+          wxLanguageInfo::DescriptionNative
+          wxLanguageInfo::LayoutDirection
+          wxLanguageInfo::WinLang
+          wxLanguageInfo::WinSublang
+          ]
         spec.set_only_for('__WIN32__', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
         spec.add_swig_code 'enum wxFontEncoding;'
       end
