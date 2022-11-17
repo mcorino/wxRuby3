@@ -1,0 +1,155 @@
+name: linux
+
+on:
+  push:
+    branches:
+      - master
+      - v*
+    tags:
+      - wxruby-v*
+  pull_request:
+    branches:
+      - master
+      - v*
+  schedule:
+    - cron: '0 1 * * SUN'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+  WXWIN: ${{ github.workspace }}/ext/wxWidgets/install
+  WXRUBY_RELEASE: 1
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-18.04
+            CC: gcc-7
+            CXX: g++-7
+            ruby: '2.5'
+            wxWidgets: '3.1.5'
+            PackageDeps: g++-7 doxygen
+          - os: ubuntu-18.04
+            CC: gcc-7
+            CXX: g++-7
+            ruby: '2.5'
+            wxWidgets: '3.2.1'
+            PackageDeps: g++-7 doxygen
+          - os: ubuntu-18.04
+            CC: gcc-9
+            CXX: g++-9
+            ruby: '2.7'
+            wxWidgets: '3.1.5'
+            PackageDeps: g++-9 doxygen
+          - os: ubuntu-18.04
+            CC: gcc-9
+            CXX: g++-9
+            ruby: '2.7'
+            wxWidgets: '3.2.1'
+            PackageDeps: g++-9 doxygen
+          - os: ubuntu-20.04
+            CC: gcc-11
+            CXX: g++-11
+            ruby: '3.0'
+            wxWidgets: '3.1.5'
+            PackageDeps: g++-11 doxygen
+          - os: ubuntu-20.04
+            CC: gcc-11
+            CXX: g++-11
+            ruby: '3.0'
+            wxWidgets: '3.2.1'
+            PackageDeps: g++-11 doxygen
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}
+    env:
+      CC: ${{ matrix.CC }}
+      CXX: ${{ matrix.CXX }}
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+    steps:
+    - name: Set up build system
+      run: |
+        case '${{ matrix.container }}' in
+          ubuntu:*)
+            export DEBIAN_FRONTEND=noninteractive
+            if [ '${{ matrix.container }}' = 'ubuntu:18.04' ]; then
+              # First get the package containing /usr/bin/apt-add-repository.
+              apt-get update -qq
+              apt-get install -qq software-properties-common
+              # Git 2.17 in the official repository is too old to checkout
+              # submodules using it, so get a newer version.
+              apt-add-repository ppa:git-core/ppa
+            fi
+            compiler=${{ matrix.compiler }}
+            # Explanation for installing some less obvious packages:
+            #   - coreutils contains nproc used in proc_count.sh called below.
+            #   - locales contains locale-gen also used below.
+            #   - Python can't be installed using the action as usual because
+            #     it installs an ABI-incompatible version, see (wrongly, IMO)
+            #     closed https://github.com/actions/setup-python/issues/370
+            #   - xvfb is used for running the GUI tests.
+            apt-get update -qq
+            apt-get install -qq coreutils ${compiler-g++} git locales make pkg-config sudo xvfb
+            ;;
+          '')
+            ;;
+          *)
+            echo '::error ::Unknown container kind.'
+            exit 1
+        esac
+
+    - name: checkout wxWidgets
+      uses: actions/checkout@v3
+      with:
+        repository: wxWidgets/wxWidgets
+        path: ${{ env.WXWIDGETS_ROOT }}
+        ref: v${{ matrix.wxWidgets }}
+        submodules: 'recursive'
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+    - name: Add repository ${{ matrix.Repo }}
+      if: matrix.Repo != ''
+      run:
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+        sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ ${{ matrix.Repo }} main"
+    - name: Add packages
+      run: |
+        sudo apt-get --yes update
+        sudo apt-get --yes install ${{ matrix.PackageDeps }}
+    - name: Configuring wxWidgets
+      run: |
+        pushd ${{ env.WXWIDGETS_ROOT }}
+        ./configure --prefix=${{ env.WXWIN }} --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        popd
+        if [ -n "$rc" ]; then
+          echo '*** Configuring failed, contents of config.log follows: ***'
+          echo '-----------------------------------------------------------'
+          cat config.log
+          echo '-----------------------------------------------------------'
+          exit $rc
+        fi
+    - name: Build wxWidgets
+      run: |
+        pushd ${{ env.WXWIDGETS_ROOT }}
+        make && make install
+        popd
+    - name: Bootstrap wxRuby3
+      run: |
+        bundle exec rake bootstrap
+    - name: Build wxRuby3
+      run: |
+        bundle exec rake
+    - name: Run wxRuby3 regression tests
+      run: |
+        bundle exec rake test
