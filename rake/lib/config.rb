@@ -358,17 +358,17 @@ module WXRuby3
               check_git
               # clone wxWidgets GIT repository under ext_path
               Dir.chdir(ext_path) do
-                sh "git clone https://github.com/wxWidgets/wxWidgets.git"
+                Rake.sh("git clone https://github.com/wxWidgets/wxWidgets.git")
                 Dir.chdir('wxWidgets') do
                   # checkout the version we are building against
-                  sh "git checkout v#{wx_version}"
+                  Rake.sh( "git checkout v#{wx_version}")
                 end
               end
             end
             # generate the doxygen XML output
             regen_cmd = windows? ? 'regen.bat' : './regen.sh'
             Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
+              Rake.sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
             end
           end
         end
