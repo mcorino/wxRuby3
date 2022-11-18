@@ -158,4 +158,4 @@ jobs:
         bundle exec rake
     - name: Run wxRuby3 regression tests
       run: |
-        bundle exec rake test
+        bundle exec rake wxtest
