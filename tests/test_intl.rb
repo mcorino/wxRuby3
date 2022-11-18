@@ -1,6 +1,7 @@
 require 'test/unit'
 require 'test/unit/ui/console/testrunner'
 require 'wx'
+
 class TestApp < Wx::App
   attr_accessor :test_class
   def on_init
