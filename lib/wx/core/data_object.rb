@@ -7,8 +7,4 @@ class Wx::DataObject
   def get_format_count(direction)
     get_all_formats(direction).length
   end
-
-  def get_data_size(format)
-    get_data_here(format).size
-  end
 end
