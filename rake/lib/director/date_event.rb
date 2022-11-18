@@ -91,7 +91,7 @@ module WXRuby3
                   // for 2038 not the entire year is available in the numerical representation.
                   void* ptr = const_cast<wxDateTime*> (&dt);
                   VALUE rbdt = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
-                  ruby_value = rb_rescue2(VALUEFUNC(wxRuby_WXDT2RBT), rbdt, VALUE_FUNC(rescue), Qnil, rb_eException, 0);
+                  ruby_value = rb_rescue2(VALUEFUNC(wxRuby_WXDT2RBT), rbdt, VALUEFUNC(rescue), Qnil, rb_eException, 0);
                   if (ruby_value == Qnil)
                   {
                       int year = dt.GetYear();
