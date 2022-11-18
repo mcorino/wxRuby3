@@ -48,14 +48,9 @@ typedef bool WXRUBY_DATA_IN;
 // For SetData: the data contents to be set upon the data object is
 // passed in as a Ruby string; the ruby method should return a true
 // value if the data could be set successfully, or false/nil if it could
-// not. This string is marked as tainted (different calls are used for
-// this for Ruby 1.8 and Ruby 1.9
+// not. This string is marked as tainted.
 %typemap(directorin) (size_t len, const void* buf) {
-#ifdef HAVE_RUBY_INTERN_H
   $input = rb_external_str_new( (const char *)buf, len );
-#else
-  $input = rb_tainted_str_new( (const char *)buf, len );
-#endif
 }
 %typemap(directorout) WXRUBY_DATA_IN "$result = RTEST($1);"
 
@@ -64,5 +59,3 @@ typedef bool WXRUBY_DATA_IN;
 %typemap(out) WXRUBY_DATA_FORMATS "";
 %typemap(out) WXRUBY_DATA_OUT "";
 %typemap(out) WXRUBY_DATA_IN "";
-
-
