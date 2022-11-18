@@ -80,6 +80,8 @@ jobs:
     env:
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
+      # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
+      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
     steps:
     - name: Set up build system
       run: |
@@ -112,6 +114,8 @@ jobs:
             exit 1
         esac
 
+    - name: Checkout wxRuby3
+      uses: actions/checkout@v3
     - name: checkout wxWidgets
       uses: actions/checkout@v3
       with:
@@ -122,9 +126,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-    - name: Install Ruby gems
-      run: |
-        bundle install --gemfile ${{ github.workspace }}/Gemfile
+        bundler-cache: true
     - name: Add repository ${{ matrix.Repo }}
       if: matrix.Repo != ''
       run:
