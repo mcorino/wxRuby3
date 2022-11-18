@@ -124,7 +124,7 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
     - name: Install Ruby gems
       run: |
-        bundle install
+        bundle install --gemfile ${{ github.workspace }}/Gemfile
     - name: Add repository ${{ matrix.Repo }}
       if: matrix.Repo != ''
       run:
