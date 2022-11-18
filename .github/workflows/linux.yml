@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - master
-      - v*
-    tags:
-      - wxruby-v*
   pull_request:
     branches:
       - master
