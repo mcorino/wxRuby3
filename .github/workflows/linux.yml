@@ -1,15 +1,6 @@
 name: linux
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-      - v*
-  schedule:
-    - cron: '0 1 * * SUN'
   workflow_dispatch:
 
 concurrency:
