@@ -135,6 +135,9 @@ module WXRuby3
     Director.Spec(pkg, 'wxDataFormat', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxDataObject', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxClipboard', requirements: %w[wxUSE_CLIPBOARD])
+    Director.Spec(pkg, 'wxContextHelpButton', director: Director::Button, requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxHelpProvider', requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxHelpController', requirements: %w[wxUSE_HELP])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
