@@ -134,6 +134,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxCheckListBox', requirements: %w[wxUSE_CHECKLISTBOX])
     Director.Spec(pkg, 'wxDataFormat', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxDataObject', requirements: %w[wxUSE_CLIPBOARD])
+    Director.Spec(pkg, 'wxClipboard', requirements: %w[wxUSE_CLIPBOARD])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
