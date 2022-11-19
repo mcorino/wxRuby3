@@ -16,14 +16,15 @@ module WXRuby3
       def setup
         super
         spec.gc_never
+        # there is no need or support for clipboard derivatives
+        # not least because wxRuby only ever allows a single global clipboard
+        spec.disable_proxies
         spec.swig_include '../shared/data_format.i'
         spec.swig_include '../shared/data_object_common.i'
         spec.make_abstract 'wxClipboard'
-        spec.add_swig_code <<~__HEREDOC
-          // After a data object has been set to the clipboard using set_data, it
-          // becomes owned by the clipboard and shouldn't be freed
-          %apply SWIGTYPE *DISOWN { wxDataObject* data };
-          __HEREDOC
+        # After a data object has been set to the clipboard using set_data, it
+        # becomes owned by the clipboard and shouldn't be freed
+        spec.disown 'wxDataObject* data'
         spec.add_extend_code 'wxClipboard', <<~__HEREDOC
           // Provide access to the global clipboard; same clipboard must be used
           // between calls to do data transfer properly.

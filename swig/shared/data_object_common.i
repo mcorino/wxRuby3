@@ -53,9 +53,3 @@ typedef bool WXRUBY_DATA_IN;
   $input = rb_external_str_new( (const char *)buf, len );
 }
 %typemap(directorout) WXRUBY_DATA_IN "$result = RTEST($1);"
-
-// These don't matter if called directly, since the ruby implementation
-// will return the right value anyway.
-%typemap(out) WXRUBY_DATA_FORMATS "";
-%typemap(out) WXRUBY_DATA_OUT "";
-%typemap(out) WXRUBY_DATA_IN "";
