@@ -1,15 +1,6 @@
 name: linux
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-      - v*
-  schedule:
-    - cron: '0 1 * * SUN'
   workflow_dispatch:
 
 concurrency:
@@ -158,4 +149,12 @@ jobs:
         bundle exec rake
     - name: Run wxRuby3 regression tests
       run: |
-        bundle exec rake test
+        ulimit -c unlimited
+        /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake wxtest 2>&1 | tee -a wxtest.out" || rc=$?
+        if [ -n "$rc" ]; then
+          if fgrep -q '(core dumped)' wxtest.out; then
+            echo '*** Test crashed, trying to get more information ***'
+            gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args bundle exec rake wxtest
+          fi
+        exit $rc
+        fi
