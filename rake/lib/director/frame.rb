@@ -18,7 +18,8 @@ module WXRuby3
       def setup
         super
         # only for wxFrame class itself
-        if spec.module_name == 'wxFrame'
+        case spec.module_name
+        when 'wxFrame'
           spec.no_proxy %w[
             wxFrame::CreateStatusBar wxFrame::CreateToolBar wxFrame::GetMenuBar wxFrame::GetStatusBar wxFrame::GetToolBar]
           spec.ignore %w[
@@ -54,6 +55,9 @@ module WXRuby3
                                 'wxFrame::GetMenuBar',
                                 'wxFrame::GetStatusBar',
                                 'wxFrame::GetToolBar')
+        when 'wxMiniFrame'
+          spec.no_proxy %w[
+            wxMiniFrame::CreateStatusBar wxMiniFrame::CreateToolBar wxMiniFrame::GetMenuBar wxMiniFrame::GetStatusBar wxMiniFrame::GetToolBar]
         end
       end
     end # class Frame
