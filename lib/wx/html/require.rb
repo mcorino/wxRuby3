@@ -5,3 +5,4 @@
 require_relative './events/evt_list'
 require_relative './keyword_defs'
 require_relative './htmlwindow'
+require_relative './htmlhelpcontroller'
