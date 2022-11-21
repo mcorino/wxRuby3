@@ -1,4 +1,4 @@
-# Wx::Grid sub package loader for wxRuby3
+# Wx::Grids sub package loader for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
 require 'wx/core'

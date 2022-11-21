@@ -409,15 +409,6 @@ Wx::define_keyword_ctors('GenericDirCtrl') do
   wx_ctor_params :name => 'genericDirCtrl'
 end
 
-
-# wxHtmlListBox 	A listbox showing HTML content
-# wxListBox 	A list of strings for single or multiple selection
-Wx::define_keyword_ctors('ListBox') do
-  wx_ctor_params :id, :pos, :size, :choices => []
-  wx_ctor_params :style
-  wx_ctor_params :validator, :name => 'listBox'
-end
-
 # wxListCtrl 	A control for displaying lists of strings and/or icons, plus a multicolumn report view
 Wx::define_keyword_ctors('ListCtrl') do
   wx_ctor_params :id, :pos, :size, :style => Wx::LC_ICON
@@ -511,12 +502,6 @@ Wx::define_keyword_ctors('TextCtrl') do
   wx_ctor_params :validator, :name => 'textCtrl'
 end
 
-# wxHtmlWindow - Control for displaying HTML
-Wx::define_keyword_ctors('HtmlWindow') do
-  wx_ctor_params :id, :pos, :size, :style => Wx::HW_DEFAULT_STYLE
-  wx_ctor_params :name => 'htmlWindow'
-end
-
 # wxHyperTextCtrl - display a clickable URL
 Wx::define_keyword_ctors('HyperlinkCtrl') do
   wx_ctor_params :id, :label => ''
@@ -557,10 +542,6 @@ end
 
 Wx::define_keyword_ctors('VListBox') do
   wx_ctor_params :id, :pos, :size, :style, :name => 'VListBoxNameStr'
-end
-
-Wx::define_keyword_ctors('HtmlListBox') do
-  wx_ctor_params :id, :pos, :size, :style, :name => 'HtmlListBoxNameStr'
 end
 
 Wx::define_keyword_ctors('DatePickerCtrl') do

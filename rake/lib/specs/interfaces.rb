@@ -185,4 +185,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridCtrl')
   }
 
+  Director.Package('Wx::Html', 'wxUSE_HTML') { |pkg|
+    Director.Spec(pkg, 'wxHtmlWindow')
+    Director.Spec(pkg, 'wxHtmlCellEvent', director: Director::HtmlEvent)
+    Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
+  }
+
 end # module WXRuby3

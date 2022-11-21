@@ -6,4 +6,5 @@ WX_GLOBAL_CONSTANTS=true
 require 'wx/core'
 require 'wx/rich_text'
 require 'wx/stc'
-require 'wx/grid'
+require 'wx/grids'
+require 'wx/html'
