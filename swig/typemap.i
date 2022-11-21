@@ -50,16 +50,10 @@
 }
 
 // (ruby) String <-> wxString
-%typemap(in) wxString& (wxrb_flag salloc_flag) "$1 = RSTR_TO_WXSTR_PTR($input); salloc_flag = true;"
-%typemap(in) wxString* (wxrb_flag salloc_flag) "$1 = RSTR_TO_WXSTR_PTR($input); salloc_flag = true;"
+%typemap(in) wxString& (wxString tmp) "tmp = RSTR_TO_WXSTR($input); $1 = &tmp;"
+%typemap(in) wxString* (wxString tmp) "tmp = RSTR_TO_WXSTR($input); $1 = &tmp;"
 
 %typemap(directorout) wxString, wxString& "$result = RSTR_TO_WXSTR($input);"
-
-// Only free the wxString argument if it has been assigned as a heap
-// variable by the typemap - SWIG assigns the default as stack variables
-// - and we track heap allocations through temp wxrb_flag variables
-%typemap(freearg) wxString& "if (salloc_flag$argnum) delete $1;"
-%typemap(freearg) wxString* "if (salloc_flag$argnum) delete $1;"
 
 %typemap(directorin) wxString  "$input = WXSTR_TO_RSTR($1);";
 %typemap(directorin) wxString& "$input = WXSTR_TO_RSTR($1);";
