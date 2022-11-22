@@ -16,6 +16,7 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object
+        spec.ignore 'wxDataFormat::operator ==(wxDataFormatId)'
         spec.add_swig_code <<~__HEREDOC
           // In wxWidgets system-standard DataFormats are represented by
           // wxDF_XXX constants. These can be passed directly to methods which
