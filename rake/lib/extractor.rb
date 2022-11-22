@@ -354,7 +354,7 @@ module WXRuby3
         else
           tail = nil
           args = name.slice(argix, name.size)
-          head = name.slice(0, argix)
+          head = name.slice(0, argix).tr(' ','')
           const = !!args.index(/\)\s+const/)
           args.sub!(/\)\s+const/, ')') if const
           args.tr!(' ', '')
