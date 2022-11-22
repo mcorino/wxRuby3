@@ -30,17 +30,6 @@ module WXRuby3
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long from, long to)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *from, long *to) const')
         spec.add_swig_code '%apply long * OUTPUT { long *from, long *to }'
-        # // redundant with good typemaps
-        spec.no_proxy %Q{Create(wxWindow *parent,
-            wxWindowID id,
-            const wxString& value = wxEmptyString,
-            const wxPoint& pos = wxDefaultPosition,
-            const wxSize& size = wxDefaultSize,
-            int n = 0,
-            const wxString choices[] = NULL,
-            long style = 0,
-            const wxValidator& validator = wxDefaultValidator,
-            const wxString& name = wxComboBoxNameStr)}
       end
 
     end # class ComboBox
