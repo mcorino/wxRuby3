@@ -70,5 +70,7 @@
 %feature("nodirector") kls::InheritAttributes;
 %feature("nodirector") kls::GetDefaultAttributes;
 %feature("nodirector") kls::GetWindowStyleFlag;
+%feature("nodirector") kls::GetDropTarget;
+%feature("nodirector") kls::GetValidator;
 
 %enddef

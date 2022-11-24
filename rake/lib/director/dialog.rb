@@ -22,6 +22,7 @@ module WXRuby3
           spec.ignore('wxDialog::GetContentWindow',
                       'wxDialog::GetToolBar') # seemingly removed from MSW
           spec.swig_import('swig/classes/include/wxDefs.h')
+        when 'wxMessageDialog'
         when 'wxFontDialog'
           spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFontData* data };'
         when 'wxFileDialog'

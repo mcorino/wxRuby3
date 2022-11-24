@@ -16,13 +16,13 @@ module WXRuby3
     class MenuBar < Window
 
       def setup
-        spec.no_proxy('wxMenuBar::Refresh',
-                'wxMenuBar::FindItem',
+        spec.no_proxy('wxMenuBar::FindItem',
                 'wxMenuBar::Remove',
                 'wxMenuBar::Replace')
         spec.ignore('wxMenuBar::wxMenuBar(size_t,wxMenu *[],const wxString[],long)',
                 'wxMenuBar::GetLabelTop',
-                'wxMenuBar::SetLabelTop')
+                'wxMenuBar::SetLabelTop',
+                'wxMenuBar::Refresh')
         super
       end
     end # class MenuBar

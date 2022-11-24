@@ -53,6 +53,7 @@
 %feature("nodirector") kls::Update;
 %feature("nodirector") kls::UpdateWindow;
 %feature("nodirector") kls::Validate;
+%feature("nodirector") kls::IsFullScreen;
 
 
 // And, un-virtual all the methods from the inherited class wxWindow

@@ -30,6 +30,13 @@ module WXRuby3
             ]
         when 'wxRichTextHTMLHandler'
         end
+        spec.no_proxy "#{spec.module_name}::LoadFile",
+                      "#{spec.module_name}::SaveFile",
+                      "#{spec.module_name}::CanHandle",
+                      "#{spec.module_name}::CanSave",
+                      "#{spec.module_name}::CanLoad",
+                      "#{spec.module_name}::IsVisible",
+                      "#{spec.module_name}::SetVisible"
       end
     end # class RichTextFileHandler
 

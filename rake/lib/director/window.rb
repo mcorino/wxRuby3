@@ -14,11 +14,67 @@ module WXRuby3
     class Window < Director
 
       def setup
+        super
         # for all wxWindow derived classes (not wxFrame and descendants)
-        spec.items.each { |itm| spec.add_swig_code "SWIG_WXWINDOW_NO_USELESS_VIRTUALS(#{itm});" unless /\.h\Z/ =~ itm }
-        # only for actual wxWindow class
+        spec.items.each do |itm|
+          # Avoid adding unneeded directors
+          spec.no_proxy("#{itm}::AddChild",
+                        "#{itm}::Fit",
+                        "#{itm}::FitInside",
+                        "#{itm}::Freeze",
+                        "#{itm}::GetBackgroundStyle",
+                        "#{itm}::GetCharHeight",
+                        "#{itm}::GetCharWidth",
+                        "#{itm}::GetLabel",
+                        "#{itm}::GetName",
+                        "#{itm}::GetScreenPosition",
+                        "#{itm}::GetScrollPos",
+                        "#{itm}::GetScrollRange",
+                        "#{itm}::GetScrollThumb",
+                        "#{itm}::GetTextExtent",
+                        "#{itm}::HasCapture",
+                        "#{itm}::HasMultiplePages",
+                        "#{itm}::IsDoubleBuffered",
+                        "#{itm}::IsEnabled",
+                        "#{itm}::IsFrozen",
+                        "#{itm}::IsRetained",
+                        "#{itm}::IsShown",
+                        "#{itm}::IsShownOnScreen",
+                        "#{itm}::MakeModal",
+                        "#{itm}::ReleaseMouse",
+                        "#{itm}::RemoveChild",
+                        "#{itm}::ScrollLines",
+                        "#{itm}::ScrollPages",
+                        "#{itm}::ScrollWindow",
+                        "#{itm}::SetAcceleratorTable",
+                        "#{itm}::SetBackgroundColour",
+                        "#{itm}::SetBackgroundStyle",
+                        "#{itm}::SetCursor",
+                        "#{itm}::SetFocus",
+                        "#{itm}::SetFocusFromKbd",
+                        "#{itm}::SetFont",
+                        "#{itm}::SetForegroundColour",
+                        "#{itm}::SetHelpText",
+                        "#{itm}::SetLabel",
+                        "#{itm}::SetName",
+                        "#{itm}::SetScrollPos",
+                        "#{itm}::SetScrollbar",
+                        "#{itm}::SetThemeEnabled",
+                        "#{itm}::SetThemeEnabled",
+                        "#{itm}::SetValidator",
+                        "#{itm}::SetWindowStyleFlag",
+                        "#{itm}::ShouldInheritColour",
+                        "#{itm}::Thaw",
+                        "#{itm}::Layout",
+                        "#{itm}::InheritAttributes",
+                        "#{itm}::GetDefaultAttributes",
+                        "#{itm}::GetWindowStyleFlag",
+                        "#{itm}::GetDropTarget",
+                        "#{itm}::GetValidator") unless /\.h\Z/ =~ itm
+        end
+
         case spec.module_name
-        when 'wxWindow'
+        when 'wxWindow' # only for actual wxWindow class
           # // Any of these following kind of objects become owned by the window
           # // when passed into Wx, and so will be deleted automatically; using
           # // DISOWN resets their %freefunc to avoid deleting the object twice
@@ -69,10 +125,6 @@ module WXRuby3
               return SwigClassWxWindow.klass;
             }
             __HEREDOC
-          spec.no_proxy %w[
-            wxWindow::GetDropTarget
-            wxWindow::GetValidator
-          ]
           spec.add_extend_code 'wxWindow', <<~__HEREDOC
             // passes a DC for drawing on Window into a passed ruby block, and
             // ensure that the DC is correctly deleted when drawing is
@@ -138,11 +190,6 @@ module WXRuby3
                                 'virtual bool ShouldInheritColours() const override',
                                 'virtual void DoUpdateWindowUI(wxUpdateUIEvent& event) override')
         end
-        spec.no_proxy %w[
-          wxWindow::GetDropTarget
-          wxWindow::GetValidator
-        ]
-        super
       end
     end # class Window
 

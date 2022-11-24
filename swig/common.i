@@ -91,7 +91,3 @@ WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
 %include "typedefs.i"
 %include "typemap.i"
 %include "memory_management.i"
-
-// Used to reduce bloat in classes inheriting from Wx::Window
-%include "shared/no_window_virtuals.i"
-%include "shared/no_toplevelwindow_virtuals.i"

@@ -190,13 +190,16 @@ module WXRuby3
         BaseDef.wx_type_to_rb(type)
       end
 
+      def argument_list
+        parameters.collect {|p| "#{p.type}#{p.array ? '[]' : ''}" }.join(',')
+      end
+
       def signature
         sig = "#{@type} #{name}"
         if parameters.empty?
           sig << '()'
         else
-          sig << '(' << parameters.collect {|p| "#{p.type}#{p.array ? '[]' : ''}" }.join(',') << ')'
-          sig.tr!(' ', '')
+          sig << '(' << argument_list << ')'
         end
         sig
       end
@@ -219,8 +222,10 @@ module WXRuby3
       def find_overload(matchText, isConst = nil, printSig = false)
         # Search for an overloaded method that has matchText in its C++ argsString.
         all.each do |o|
-          puts(o.signature) if printSig
-          if o.signature.index(matchText) && !o.ignored
+          sig = o.signature
+          puts(sig) if printSig
+          sig.tr!(' ', '')
+          if sig.index(matchText) && !o.ignored
             unless isConst
               return o
             else
@@ -234,41 +239,6 @@ module WXRuby3
       def has_overloads
         # Returns True if there are any overloads that are not ignored.
         overloads.any? { |o| !o.ignored }
-      end
-
-      def rename_overload(matchText, newName, **kwargs)
-        # Rename the overload with matching matchText in the argsString to
-        # newName. The overload is moved out of this function's overload list
-        # and directly into the parent module or class so it can appear to be a
-        # separate function.
-        if self.respond_to?(:module)
-          parent = @module
-        else
-          parent = @klass
-        end
-        item = find_overload(matchText)
-        item.rb_name = newName
-        item.update_attributes(**kwargs)
-
-        unless item == self && !has_overloads # unless we're done and there actually is only one instance of this method
-          if item == self
-            # Make the first overload take the place of this node in the
-            # parent, and then insert this item into the parent's list again
-            _overloads = @overloads.sort { |o1, o2| o1.ignored ? (o2.ignored ? 0 : 1) : (o2.ignored ? -1 : 0) }
-            first = _overloads.first
-            @overloads = []
-            _overloads.shift
-            first.overloads = _overloads
-            idx = parent.items.index(self)
-            parent.items[idx] = first
-            parent.insert_item_after(first, self)
-          else
-            # Just remove from the overloads list and insert it into the parent.
-            overloads.delete(item)
-            parent.insert_item_after(self, item)
-          end
-        end
-        item
       end
 
       def ignore(val = true, ignore_doc: nil)

@@ -63,9 +63,17 @@ module WXRuby3
         @ifspec.template_as_class?(tpl)
       end
 
+      def template_class_name(tpl)
+        @ifspec.template_class_name(tpl)
+      end
+
+      def classdef_for_name(name)
+        @defmod.find(@ifspec.classdef_name(name))
+      end
+
       def class_name(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
-                          classdef_or_name : @defmod.find(classdef_or_name))
+                          classdef_or_name : classdef_for_name(classdef_or_name))
         @ifspec.class_name(class_def.name)
       end
 
@@ -81,7 +89,7 @@ module WXRuby3
 
       def base_class(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
-                          classdef_or_name : @defmod.find(classdef_or_name))
+                          classdef_or_name : classdef_for_name(classdef_or_name))
         @ifspec.base_override(class_def.name) ||
               get_base_class(class_def.name, class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
       end
@@ -97,7 +105,7 @@ module WXRuby3
 
       def base_list(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
-                          classdef_or_name : @defmod.find(classdef_or_name))
+                          classdef_or_name : classdef_for_name(classdef_or_name))
         get_base_list(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name)).to_a
       end
 
@@ -115,19 +123,19 @@ module WXRuby3
 
       def interface_extensions(classdef_or_name, visibility='public')
         class_def = (Extractor::ClassDef === classdef_or_name ?
-                       classdef_or_name : @defmod.find(classdef_or_name))
+                       classdef_or_name : classdef_for_name(classdef_or_name))
         @ifspec.interface_extensions(class_def.name)[visibility] || []
       end
 
       def is_abstract?(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
-                          classdef_or_name : @defmod.find(classdef_or_name))
+                          classdef_or_name : classdef_for_name(classdef_or_name))
         @ifspec.abstract?(class_def.name) || (class_def.abstract && !@ifspec.concrete?(class_def.name))
       end
 
       def has_virtuals?(classdef_or_name)
         class_def = (Extractor::ClassDef === classdef_or_name ?
-                       classdef_or_name : @defmod.find(classdef_or_name))
+                       classdef_or_name : classdef_for_name(classdef_or_name))
         return class_def.all_methods.any? { |m| m.is_virtual }
       end
 
@@ -163,10 +171,59 @@ module WXRuby3
         @ifspec.forced_proxy?(cls)
       end
 
-      def has_proxy?(class_def)
+      def has_proxy?(classdef_or_name)
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                       classdef_or_name : classdef_for_name(classdef_or_name))
         !disabled_proxies &&
           (class_def.ignored || class_def.is_template? || has_virtuals?(class_def) || forced_proxy?(class_def.name)) &&
           !no_proxies.include?(class_name(class_def))
+      end
+
+      def has_method_proxy?(classdef_or_name, methoddef)
+        return false unless methoddef.is_virtual
+        class_def = (Extractor::ClassDef === classdef_or_name ?
+                       classdef_or_name : classdef_for_name(classdef_or_name))
+        if has_proxy?(class_def)
+          no_proxies.each do |decls|
+            decl_clsnm, decl_mtd = decls.split('::')
+            # do we have a no_proxy decl for a method in this class?
+            if decl_mtd && decl_clsnm == class_name(class_def)
+              decl_mtd.tr!("\n", ' ')
+              # do we have a full method signature for the no_proxy decl?
+              if /\A(\w+)\s*\(([^\)]*)\)\s*(const)?/ =~ decl_mtd
+                # does the method name match?
+                if $1 == methoddef.name
+                  arg_list = $2
+                  is_const = $3 == 'const'
+                  # remove any default arg values
+                  arg_list = arg_list.split(',').collect {|argdecl| argdecl.split('=').first.strip }
+                  # remove any argument names
+                  arg_list.collect do |argdecl|
+                    lst = argdecl.split(' ')
+                    argdecl = lst.shift # 'const' or type
+                    argdecl << " #{lst.shift}" if argdecl == 'const' # type if 'const'
+                    unless lst.empty? # name of [] left?
+                      argdecl << lst.shift if lst.first == '*' || lst.first == '&'
+                      if /\A([\*\&]?)\w+/ =~ lst.first
+                        argdecl << $1 unless $1 == ''
+                        lst.shift # loose name
+                      end
+                      argdecl << lst.join unless lst.empty?
+                    end
+                    argdecl
+                  end
+                  # in case the complete signature maches the proxy is suppressed for this method
+                  return false if arg_list.join.tr(' ', '') == methoddef.argument_list.tr(' ', '') && is_const == methoddef.is_const
+                end
+              else
+                # in case the method name matches the proxy is suppressed for this method
+                return false if decl_mtd == methoddef.name
+              end
+            end
+          end
+          return true # method will have proxy
+        end
+        false # method will not have proxy as there will not be a proxy (director) class
       end
 
       def disowns
@@ -249,6 +306,13 @@ module WXRuby3
         @ifspec.nogen_sections.include?(section)
       end
 
+      def to_s
+        "<#{@ifspec.module_name}>"
+      end
+
+      def inspect
+        to_s
+      end
     end
 
     def run(spec)

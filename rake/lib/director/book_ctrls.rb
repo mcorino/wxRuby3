@@ -72,6 +72,9 @@ module WXRuby3
           #{clsnm}::SetPageImage
           #{clsnm}::SetPageText
           #{clsnm}::SetSelection
+          #{clsnm}::DeletePage
+          #{clsnm}::RemovePage
+          #{clsnm}::SetPageSize
           ])
       end
     end # class Object

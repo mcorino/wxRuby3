@@ -29,6 +29,7 @@ module WXRuby3
           wxINT64_MAX
           wxUINT64_MAX
           wxVaCopy
+          wxDataFormatId
         }
         super
       end

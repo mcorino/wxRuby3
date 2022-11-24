@@ -36,7 +36,7 @@ module WXRuby3
       def check_swig
         begin
           version = `#{SWIG_CMD} -version`[/\d+\.\d+\.\d+/]
-        rescue
+        rescue Exception
           raise "Could not run SWIG (#{SWIG_CMD})"
         end
 

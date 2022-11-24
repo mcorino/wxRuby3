@@ -42,7 +42,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxMenu')
     Director.Spec(pkg, 'wxAboutDialogInfo')
     Director.Spec(pkg, 'wxDialog')
-    Director.Spec(pkg, 'wxMessageDialog', director: Director::TopLevelWindow)
+    Director.Spec(pkg, 'wxMessageDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxSizerItem')
     Director.Spec(pkg, 'wxSizer')
     Director.Spec(pkg, 'wxBoxSizer', director: Director::Sizer)

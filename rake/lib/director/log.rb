@@ -16,7 +16,12 @@ module WXRuby3
       def setup
         spec.gc_as_object
         spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow])
-        spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogWindow])
+        spec.no_proxy(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow])
+        spec.ignore 'wxLogBuffer::Flush'
+        spec.ignore 'wxLogGui::Flush'
+        if Config::WxRubyFeatureInfo.features_set?(%w[wxUSE_STD_IOSTREAM])
+          spec.ignore 'wxLogStream'
+        end
         spec.ignore 'wxLog::SetThreadActiveTarget'
         spec.disown 'wxLog *logtarget'
         spec.do_not_generate(:functions)

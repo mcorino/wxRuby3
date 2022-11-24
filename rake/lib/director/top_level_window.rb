@@ -7,22 +7,56 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
+require_relative './window'
+
 module WXRuby3
 
   class Director
 
-    class TopLevelWindow < Director
+    class TopLevelWindow < Window
 
       def setup
+        super
         # for all wxTopLevelWindow (derived) classes
-        spec.add_swig_code <<~__HEREDOC
-          SWIG_WXTOPLEVELWINDOW_NO_USELESS_VIRTUALS(#{spec.module_name});
-        __HEREDOC
-        spec.no_proxy %w{
-          wxTopLevelWindow::IsFullScreen
-          wxWindow::GetDropTarget
-          wxWindow::GetValidator
-        }
+        spec.no_proxy("#{spec.module_name}::ClearBackground",
+                      "#{spec.module_name}::Enable",
+                      "#{spec.module_name}::EnableCloseButton",
+                      "#{spec.module_name}::EndModal",
+                      "#{spec.module_name}::GetHelpTextAtPoint",
+                      "#{spec.module_name}::GetMaxSize",
+                      "#{spec.module_name}::GetMinSize",
+                      "#{spec.module_name}::GetTitle",
+                      "#{spec.module_name}::Iconize",
+                      "#{spec.module_name}::IsActive",
+                      "#{spec.module_name}::IsFullScreen",
+                      "#{spec.module_name}::IsMaximzed",
+                      "#{spec.module_name}::IsModal",
+                      "#{spec.module_name}::IsTopLevel",
+                      "#{spec.module_name}::IsVisible",
+                      "#{spec.module_name}::Maximize",
+                      "#{spec.module_name}::Navigate",
+                      "#{spec.module_name}::Refresh",
+                      "#{spec.module_name}::Reparent",
+                      "#{spec.module_name}::RequestUserAttention",
+                      "#{spec.module_name}::Restore",
+                      "#{spec.module_name}::SetIcon",
+                      "#{spec.module_name}::SetIcons",
+                      #"#{spec.module_name}::SetMaxSize",
+                      #"#{spec.module_name}::SetMinSize",
+                      "#{spec.module_name}::SetShape",
+                      "#{spec.module_name}::SetSize",
+                      "#{spec.module_name}::SetSize",
+                      #"#{spec.module_name}::SetSizeHints",
+                      #"#{spec.module_name}::SetSizeHints",
+                      "#{spec.module_name}::SetTitle",
+                      #"#{spec.module_name}::SetTransparent",
+                      #"#{spec.module_name}::Show",
+                      "#{spec.module_name}::ShowFullScreen",
+                      "#{spec.module_name}::ShowModal",
+                      "#{spec.module_name}::Update",
+                      "#{spec.module_name}::UpdateWindow",
+                      "#{spec.module_name}::Validate")
+
         if spec.module_name == 'wxTopLevelWindow'
           # add these to the generated interface to be parsed by SWIG
           # the wxWidgets docs are flawed in this respect that several reimplemented
@@ -56,7 +90,6 @@ module WXRuby3
           spec.set_only_for '__WXMSW__', 'wxTopLevelWindow::MSWGetSystemMenu'
           spec.swig_import 'swig/classes/include/wxDefs.h'
         end
-        super
       end
     end # class Frame
 

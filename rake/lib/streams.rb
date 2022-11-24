@@ -95,7 +95,7 @@ module WXRuby3
             FileUtils.mv(fgen.path, @fullpath)
             # preserve file mode
             FileUtils.chmod(File.lstat(ftmp_name).mode, @fullpath)
-          rescue
+          rescue Exception
             # restore backup
             FileUtils.mv(ftmp_name, @fullpath)
             raise
