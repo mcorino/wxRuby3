@@ -280,7 +280,7 @@ module WXRuby3
       end
 
       def to_s
-        "#{self.class.name}: '#{name}', '#{rb_name}'"
+        "#{self.class.name}: '#{name}'"
       end
 
       def extract(element)
@@ -454,8 +454,11 @@ module WXRuby3
         # subclass can override this to give a different list.
         items
       end
-
       protected :_find_items
+
+      def inspect
+        to_s
+      end
 
       def self.flatten_node(node, rstrip=true)
         # Extract just the text from a node and its children, tossing out any child
