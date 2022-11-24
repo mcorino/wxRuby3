@@ -57,14 +57,12 @@ module WXRuby3
         @swig_state = true
       end
 
-      def run_swig(source)
+      def run_swig(source, target)
         check_swig unless swig_state
-        target = File.join(config.src_path, '.generate', File.basename(source, '.i') + '.cpp')
         sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.verbose_flag} -Iswig/custom " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
              "-o #{target} #{source}"
-        target
       end
 
       def run_post_processors(target, spec, *processors)
@@ -74,15 +72,21 @@ module WXRuby3
     end
 
     def self.process(spec)
-      target = run_swig(spec.interface_file)
-      run_post_processors(target, spec, *spec.post_processors)
-      final_tgt = File.join(config.src_path, File.basename(target))
+      target = File.join(config.src_path, '.generate', File.basename(spec.interface_file, '.i') + '.cpp')
       target_h = target.sub(/\.cpp\Z/, '.h')
-      final_tgt_h = File.join(config.src_path, File.basename(target_h))
-      (FileUtils.rm_f(final_tgt) if File.exists?(final_tgt)) rescue nil
-      (FileUtils.rm_f(final_tgt_h) if File.exists?(final_tgt_h)) rescue nil
-      FileUtils.mv(target, final_tgt)
-      FileUtils.mv(target_h, final_tgt_h)
+      begin
+        run_swig(spec.interface_file, target)
+        run_post_processors(target, spec, *spec.post_processors)
+        final_tgt = File.join(config.src_path, File.basename(target))
+        final_tgt_h = File.join(config.src_path, File.basename(target_h))
+        (FileUtils.rm_f(final_tgt) if File.exists?(final_tgt)) rescue nil
+        (FileUtils.rm_f(final_tgt_h) if File.exists?(final_tgt_h)) rescue nil
+        FileUtils.mv(target, final_tgt)
+        FileUtils.mv(target_h, final_tgt_h)
+      ensure
+        FileUtils.rm_f(target) if File.exists?(target)
+        FileUtils.rm_f(target_h) if File.exists?(target_h)
+      end
     end
 
     module Processor

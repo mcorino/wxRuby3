@@ -236,7 +236,7 @@ module WXRuby3
       end
 
       def preprocess_class(spec, class_name, classdef)
-        STDERR.puts "** Preprocessing #{spec.module_name} class #{class_name}" if Director.verbose?
+        STDERR.puts "** Preprocessing #{spec.module_name} class #{class_name}" if Director.trace?
         # start new class registry
         class_registry = ClassRegistry.new
         # preprocess any public inner classes
@@ -286,7 +286,7 @@ module WXRuby3
       end
 
       def preprocess(spec)
-        STDERR.puts "** Preprocessing #{spec.module_name}" if Director.verbose?
+        STDERR.puts "** Preprocessing #{spec.module_name}" if Director.trace?
         spec.def_items.each do |item|
           if Extractor::ClassDef === item && !item.ignored &&
             (!item.is_template? || spec.template_as_class?(item.name)) &&

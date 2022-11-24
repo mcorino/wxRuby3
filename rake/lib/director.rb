@@ -47,6 +47,10 @@ module WXRuby3
         ::Rake.verbose
       end
 
+      def trace?
+        ::Rake.application.options.trace
+      end
+
       private
 
       def package(pkgname)
@@ -146,7 +150,7 @@ module WXRuby3
       genspec = nil
       self.synchronize do
         unless @defmod
-          STDERR.puts "* extracting #{spec.module_name}" if Director.verbose?
+          STDERR.puts "* extracting #{spec.module_name}" if Director.trace?
 
           @defmod = process
 
@@ -274,10 +278,12 @@ module WXRuby3
     end
 
     def generate_code
+      extract_interface(false) # make sure interface specs have been extracted
       SwigRunner.process(Generator::Spec.new(spec, defmod))
     end
 
     def generate_doc
+      extract_interface(false) # make sure interface specs have been extracted
       WXRuby3::DocGenerator.new.run(Generator::Spec.new(spec, defmod))
     end
 
@@ -418,6 +424,13 @@ module WXRuby3
 
     def generator
       WXRuby3::InterfaceGenerator.new
+    end
+
+    class FixedInterface < Director
+
+      def extract_interface(genint = nil)
+        # noop
+      end
     end
 
   end # class Director

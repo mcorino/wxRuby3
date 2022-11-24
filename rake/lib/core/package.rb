@@ -319,7 +319,7 @@ module WXRuby3
         if director_index.has_key?(mod)
           director_index[mod].generate_code
         elsif all_extra_modules.include?(mod)
-          dir = Director.new(Director::Spec.new(self, mod, processors: [:rename, :fixmodule]))
+          dir = Director::FixedInterface.new(Director::Spec.new(self, mod, processors: [:rename, :fixmodule]))
           dir.spec.interface_file = File.join(Config.instance.swig_path, "#{mod}.i")
           dir.generate_code
         else
