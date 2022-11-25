@@ -142,7 +142,8 @@ module WXRuby3
             method: mtdef,
             virtual: mtdef.is_virtual,
             purevirt: req_pure_virt && mtdef.is_pure_virtual,
-            proxy: spec.has_method_proxy?(class_name, mtdef)
+            proxy: spec.has_method_proxy?(class_name, mtdef),
+            extension: true
           }
         end
       end
@@ -294,11 +295,16 @@ module WXRuby3
         class_interface_registry(class_name).protected_members
       end
 
+      def class_interface_method_ignored?(class_name, mtdef)
+        !!(class_interface_methods(class_name)[mtdef.signature] || {})[:ignore]
+      end
+
       def check_interface_methods(spec)
         # preprocess definitions if not yet done
         preprocess(spec)
         # check the preprocessed definitions
         errors = []
+        warnings = []
         spec.def_items.each do |item|
           if Extractor::ClassDef === item && !item.ignored &&
             (!item.is_template? || spec.template_as_class?(item.name)) &&
@@ -322,11 +328,14 @@ module WXRuby3
                 # only check on methods we have not handled yet
                 if !mtdlist.include?(mtdsig)
                   # did we inherit a virtual method that was not proxied in the base
-                  # for which we did NOT generate a wrapper override
-                  if mtdreg[:virtual] && !mtdreg[:proxy] && !cls_mtdreg.has_key?(mtdsig)
-                    # if we do not have the proxy suppressed we're in trouble
-                    if spec.has_method_proxy?(item.name, mtdreg[:method])
+                  if mtdreg[:virtual] && !mtdreg[:proxy]
+                    # if we did NOT generate a wrapper override and we do not have the proxy suppressed we're in trouble
+                    if !cls_mtdreg.has_key?(mtdsig) && spec.has_method_proxy?(item.name, mtdreg[:method])
                       errors << "* ERROR: method #{mtdreg[:method].signature} is proxied without wrapper implementation in class #{item.name} but not proxied in base class #{base_name}!"
+                    elsif cls_mtdreg.has_key?(mtdsig) && !cls_mtdreg[mtdsig][:extension] && !spec.has_method_proxy?(item.name, cls_mtdreg[mtdsig][:method])
+                      # if this is not a custom extension and we do have an override wrapper and no proxy this is unnecessary code bloat
+                      warnings << " * WARNING: Unnecessary override #{mtdreg[:method].signature} in class #{item.name} for non-proxied base in #{base_name}. Ignoring."
+                      cls_mtdreg[mtdsig][:ignore] = true
                     end
                     # or did we inherit a virtual method that was proxied in the base
                     # for which we DO generate a wrapper override
@@ -341,6 +350,9 @@ module WXRuby3
               end
             end
           end
+        end
+        unless warnings.empty?
+          warnings.each { |warn| STDERR.puts warn }
         end
         unless errors.empty?
           errors.each {|err| STDERR.puts err }

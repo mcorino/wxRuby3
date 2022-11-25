@@ -235,7 +235,7 @@ module WXRuby3
                         end
 
       InterfaceAnalyzer.class_interface_members_public(intf_class_name).each do |member|
-        gen_interface_class_member(fout, spec, classdef, member, requires_purevirtual)
+        gen_interface_class_member(fout, spec, intf_class_name, classdef, member, requires_purevirtual)
       end
 
       need_protected = classdef.regards_protected_members? ||
@@ -246,14 +246,14 @@ module WXRuby3
         fout.puts ' protected:'
 
         InterfaceAnalyzer.class_interface_members_protected(intf_class_name).each do |member|
-          gen_interface_class_member(fout, spec, classdef, member, requires_purevirtual)
+          gen_interface_class_member(fout, spec, intf_class_name, classdef, member, requires_purevirtual)
         end
       end
 
       fout.puts '};'
     end
 
-    def gen_interface_class_member(fout, spec, classdef, member, requires_purevirtual)
+    def gen_interface_class_member(fout, spec, class_name, classdef, member, requires_purevirtual)
       case member
       when Extractor::ClassDef
         fout.indent { gen_inner_class(fout, spec, member) }
@@ -267,7 +267,7 @@ module WXRuby3
             ctor_sig = "~#{spec.class_name(classdef)}()"
             fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{ctor_sig};"
           end
-        else
+        elsif !InterfaceAnalyzer.class_interface_method_ignored?(class_name, member)
           gen_interface_class_method(fout, member, requires_purevirtual)
         end
       when Extractor::EnumDef
