@@ -168,7 +168,7 @@ module WXRuby3
           VALUE get_item_data(int row)
           {
             if ( row < 0 || row >= self->GetItemCount() ) return Qnil;
-            size_t item_data = self->GetItemData(row);
+            wxUIntPtr item_data = self->GetItemData(row);
             if ( item_data == 0 ) return Qnil;
             return (VALUE)item_data;
           }
@@ -179,7 +179,7 @@ module WXRuby3
             {
               rb_raise(rb_eIndexError, "Uninitialized item");
             }
-            size_t item_data = (size_t) ruby_obj;
+            wxUIntPtr item_data = (wxUIntPtr)ruby_obj;
             bool result = self->SetItemData(row, item_data);
             if ( result )
               return Qtrue;
