@@ -81,6 +81,7 @@ module WXRuby3
         spec.ignore 'wxListCtrl::GetItem(wxListItem &) const',
                     'wxListCtrl::GetItemData',
                     'wxListCtrl::SetItemData',
+                    'wxListCtrl::SetItemPtrData',
                     'wxListCtrl::SortItems'
         spec.add_swig_code <<~__HEREDOC
           // required for GetItemRect and GetSubItemRect
@@ -138,7 +139,8 @@ module WXRuby3
             
             for (int i = 0; i < count; ++i)
             {
-              VALUE object = (VALUE) wx_lc->GetItemData(i);
+              wxUIntPtr data = wx_lc->GetItemData(i);
+              VALUE object = reinterpret_cast<VALUE> (data);
               if ( object && object != Qnil ) 
               {
                 rb_gc_mark(object);
@@ -170,7 +172,7 @@ module WXRuby3
             if ( row < 0 || row >= self->GetItemCount() ) return Qnil;
             wxUIntPtr item_data = self->GetItemData(row);
             if ( item_data == 0 ) return Qnil;
-            return (VALUE)item_data;
+            return reinterpret_cast<VALUE> (item_data);
           }
         
           VALUE set_item_data(int row, VALUE ruby_obj)
@@ -179,8 +181,8 @@ module WXRuby3
             {
               rb_raise(rb_eIndexError, "Uninitialized item");
             }
-            wxUIntPtr item_data = (wxUIntPtr)ruby_obj;
-            bool result = self->SetItemData(row, item_data);
+            wxUIntPtr item_data = reinterpret_cast<wxUIntPtr> (ruby_obj);
+            bool result = self->SetItemPtrData(row, item_data);
             if ( result )
               return Qtrue;
             return Qnil;
