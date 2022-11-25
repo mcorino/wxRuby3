@@ -149,41 +149,41 @@ module WXRuby3
         spec.add_extend_code 'wxListCtrl', <<~__HEREDOC
           VALUE get_item(int row, int col = -1)
           {
-          VALUE returnVal = Qnil;
-          wxListItem *list_item = new wxListItem();
-          list_item->SetId(row);
-          if ( col != -1 )
-            list_item->SetColumn(col);
-          // We don't know what fields the ruby user might wish to access, so
-          // we fetch them all
-          list_item->SetMask(wxLIST_MASK_DATA|wxLIST_MASK_FORMAT|wxLIST_MASK_IMAGE|wxLIST_MASK_STATE|wxLIST_MASK_TEXT|wxLIST_MASK_WIDTH);
+            VALUE returnVal = Qnil;
+            wxListItem *list_item = new wxListItem();
+            list_item->SetId(row);
+            if ( col != -1 )
+              list_item->SetColumn(col);
+            // We don't know what fields the ruby user might wish to access, so
+            // we fetch them all
+            list_item->SetMask(wxLIST_MASK_DATA|wxLIST_MASK_FORMAT|wxLIST_MASK_IMAGE|wxLIST_MASK_STATE|wxLIST_MASK_TEXT|wxLIST_MASK_WIDTH);
         
-          bool success = self->GetItem(*list_item);
-          if ( success ) 
-            returnVal = SWIG_NewPointerObj(list_item, SWIGTYPE_p_wxListItem, 1);
+            bool success = self->GetItem(*list_item);
+            if ( success ) 
+              returnVal = SWIG_NewPointerObj(list_item, SWIGTYPE_p_wxListItem, 1);
         
-          return returnVal;
+            return returnVal;
           }
         
           VALUE get_item_data(int row)
           {
-          if ( row < 0 || row >= self->GetItemCount() ) return Qnil;
-          long item_data = self->GetItemData(row);
-          if ( item_data == 0 ) return Qnil;
-          return (VALUE)item_data;
+            if ( row < 0 || row >= self->GetItemCount() ) return Qnil;
+            size_t item_data = self->GetItemData(row);
+            if ( item_data == 0 ) return Qnil;
+            return (VALUE)item_data;
           }
         
           VALUE set_item_data(int row, VALUE ruby_obj)
           {
-          if ( row < 0 || row >= self->GetItemCount() ) 
+            if (row < 0 || row >= self->GetItemCount()) 
             {
-            rb_raise(rb_eIndexError, "Uninitialized item");
+              rb_raise(rb_eIndexError, "Uninitialized item");
             }
-          long item_data = (long) ruby_obj;
-          bool result = self->SetItemData(row, item_data);
-          if ( result )
-            return Qtrue;
-          return Qnil;
+            size_t item_data = (size_t) ruby_obj;
+            bool result = self->SetItemData(row, item_data);
+            if ( result )
+              return Qtrue;
+            return Qnil;
           }	
           
           void sort_items()
