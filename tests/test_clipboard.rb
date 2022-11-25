@@ -99,10 +99,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
 
     if Wx::PLATFORM == 'WXMSW'
       assert_equal d_obj.received_format, Wx::DF_DIB
+      d_bmp = d_obj.object(Wx::DF_DIB)
     else
       assert_equal d_obj.received_format, Wx::DF_BITMAP
+      d_bmp = d_obj.object(Wx::DF_BITMAP)
     end
-    d_bmp = d_obj.object(Wx::DF_BITMAP)
     bmp_out = d_bmp.bitmap
     assert bmp_out.ok?, "Read out bitmap OK"
     assert_equal bmp.width, bmp_out.width
@@ -128,7 +129,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
     end
 
     assert_equal d_obj_2.received_format, d_txt.preferred_format(Wx::DataObject::Set)
-    d_txt = d_obj_2.object(Wx::DF_TEXT)
+    if Wx::PLATFORM == 'WXMSW'
+      d_txt = d_obj_2.object(Wx::DF_UNICODETEXT)
+    else
+      d_txt = d_obj_2.object(Wx::DF_TEXT)
+    end
     assert_equal d_txt.text, 'THE TEXT'
   end
 end
