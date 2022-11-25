@@ -17,6 +17,13 @@ module WXRuby3
         super
         spec.gc_as_object
         spec.ignore 'wxDataFormat::operator ==(wxDataFormatId)'
+        if Config.platform == :mingw
+          # The formal signature for these is NativeFormat; this is required on
+          # MSVC as otherwise an impermissible implicit cast is tried, and so
+          # doesn't compile
+          spec.ignore 'wxDataFormat::GetType'
+          spec.extend_interface 'wxDataFormat', 'wxDataFormat::NativeFormat GetType() const'
+        end
         spec.add_swig_code <<~__HEREDOC
           // In wxWidgets system-standard DataFormats are represented by
           // wxDF_XXX constants. These can be passed directly to methods which
