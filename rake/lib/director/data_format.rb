@@ -22,7 +22,9 @@ module WXRuby3
           # MSVC as otherwise an impermissible implicit cast is tried, and so
           # doesn't compile
           spec.ignore 'wxDataFormat::GetType'
-          spec.extend_interface 'wxDataFormat', 'wxDataFormat::NativeFormat GetType() const'
+          spec.extend_interface 'wxDataFormat',
+                                'typedef unsigned short NativeFormat',
+                                'wxDataFormat::NativeFormat GetType() const'
         end
         spec.add_swig_code <<~__HEREDOC
           // In wxWidgets system-standard DataFormats are represented by
