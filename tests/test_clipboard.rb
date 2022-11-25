@@ -76,8 +76,13 @@ class TestDataObjectComposite < Test::Unit::TestCase
     bmp = Wx::Bitmap.new('samples/minimal/mondrian.png')
 
     d_obj.add( Wx::BitmapDataObject.new )
-    assert_equal( 2, d_txt.format_count(0) )
-    assert_equal( 3, d_obj.format_count(0) )
+    if Wx::PLATFORM == 'WXMSW'
+      assert_equal( 1, d_txt.format_count(0) )
+      assert_equal( 2, d_obj.format_count(0) )
+    else
+      assert_equal( 2, d_txt.format_count(0) )
+      assert_equal( 3, d_obj.format_count(0) )
+    end
 
     d_bmp = Wx::BitmapDataObject.new(bmp)
     Wx::Clipboard.open do | clip |
@@ -92,7 +97,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.fetch d_obj
     end
 
-    assert_equal d_obj.received_format, Wx::DF_BITMAP
+    if Wx::PLATFORM == 'WXMSW'
+      assert_equal d_obj.received_format, Wx::DF_DIB
+    else
+      assert_equal d_obj.received_format, Wx::DF_BITMAP
+    end
     d_bmp = d_obj.object(Wx::DF_BITMAP)
     bmp_out = d_bmp.bitmap
     assert bmp_out.ok?, "Read out bitmap OK"

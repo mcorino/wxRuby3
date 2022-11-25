@@ -17,6 +17,9 @@ module Wx
   if Wx::PLATFORM != 'WXGTK'
     DF_METAFILE    = DataFormat.new( DATA_FORMAT_ID_METAFILE )
   end
+  if Wx::PLATFORM == 'WXMSW'
+    DF_DIB         = DataFormat.new( DATA_FORMAT_ID_DIB )
+  end
   DF_FILENAME    = DataFormat.new( DATA_FORMAT_ID_FILENAME )
   DF_UNICODETEXT = DataFormat.new( DATA_FORMAT_ID_UNICODETEXT )
   # DF_HTML is only supported on Windows + MSVC, so don't offer it
