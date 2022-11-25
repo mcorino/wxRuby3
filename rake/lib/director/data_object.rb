@@ -25,7 +25,7 @@ module WXRuby3
         spec.ignore 'wxDataObject::SetData(const wxDataFormat &, size_t, const void *)'
         # and add our own (typemapping specific) altered version
         spec.extend_interface 'wxDataObject',
-                              'virtual WXRUBY_DATA_OUT GetDataHere(wxDataFormat const &format, void *buf) const',
+                              'virtual WXRUBY_DATA_OUT GetDataHere(wxDataFormat const &format, void *buf) const = 0',
                               'virtual WXRUBY_DATA_IN SetData(wxDataFormat const &format, size_t len, void const *buf)'
 
         # we only allow Ruby derivatives from wxDataObject but not of any of the C++ implemented
