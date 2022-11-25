@@ -35,10 +35,8 @@ class TestTextData < Test::Unit::TestCase
   end
 end
 
-
 class TestBitmapData < Test::Unit::TestCase
   def test_bitmap_data
-    # FIXME - this doesn't appear to load correctly on MingW-Ruby 1.9
     bmp = Wx::Bitmap.new('samples/minimal/mondrian.png')
     height = bmp.height
     width  = bmp.width
@@ -72,7 +70,6 @@ class TestDataObjectComposite < Test::Unit::TestCase
     d_obj = Wx::DataObjectComposite.new
     d_txt = Wx::TextDataObject.new
     d_obj.add( d_txt )
-    # FIXME - this doesn't appear to load correctly on MingW-Ruby 1.9
     bmp = Wx::Bitmap.new('samples/minimal/mondrian.png')
 
     d_obj.add( Wx::BitmapDataObject.new )
@@ -146,8 +143,8 @@ class TestDataObject < Test::Unit::TestCase
 
     def initialize(the_data = '')
       super()
-      # store in the preferred format
-      @my_data = "<b>#{the_data}</b>"
+      # expect data in the preferred format
+      @my_data = the_data
       @format = MY_CUSTOM_FORMAT
     end
 
@@ -212,7 +209,8 @@ class TestDataObject < Test::Unit::TestCase
   end
 
   def test_data_obj
-    d_obj = MyBasicDataObject.new('HELLO')
+    d_obj = MyBasicDataObject.new
+    d_obj.set_data(Wx::DF_TEXT, 'HELLO')
     assert_equal( 2, d_obj.format_count(0) )
     assert_equal('HELLO', d_obj.get_data_here(Wx::DF_TEXT) )
     assert_equal('<b>HELLO</b>', d_obj.get_data_here(MY_CUSTOM_FORMAT) )
@@ -229,13 +227,10 @@ class TestDataObject < Test::Unit::TestCase
     end
     assert_equal('<b>HELLO</b>', d_obj_2.get_data_here(MY_CUSTOM_FORMAT) )
 
-    # FIXME - the non-preferred data object isn't set
     assert_equal('HELLO', d_obj_2.get_data_here(Wx::DF_TEXT) )
   end
 end
 
-
-# FIXME - test is run twice
 Wx::App.run do
   # Must run whilst App is alive
   Test::Unit::UI::Console::TestRunner.run(TestTextData)
