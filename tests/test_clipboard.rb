@@ -136,7 +136,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
 end
 
 class TestDataObject < Test::Unit::TestCase
-  MY_CUSTOM_FORMAT = Wx::DataFormat.new('custom.text.format')
+  MY_CUSTOM_FORMAT = Wx::DataFormat.new('text/custom_format')
 
   class MyBasicDataObject < Wx::DataObject
     attr_reader :my_data
