@@ -143,13 +143,13 @@ class TestDataObject < Test::Unit::TestCase
 
     def initialize(the_data = '')
       super()
-      # expect data in the preferred format
+      # expect data in the preferred format initially
       @my_data = the_data
-      @format = MY_CUSTOM_FORMAT
+      @format = MY_CUSTOM_FORMAT.get_type
     end
 
     def get_as_text
-      if @my_data.nil? || @my_data.empty? || @format == Wx::DF_TEXT
+      if @my_data.nil? || @my_data.empty? || @format == Wx::DATA_FORMAT_ID_TEXT
         @my_data
       else
         @my_data.gsub(/<[^>]+>/, '') # not f(ul|oo)lproof, I know
@@ -157,7 +157,7 @@ class TestDataObject < Test::Unit::TestCase
     end
 
     def get_formatted
-      if @my_data.nil? || @my_data.empty? || @format == MY_CUSTOM_FORMAT
+      if @my_data.nil? || @my_data.empty? || @format != Wx::DATA_FORMAT_ID_TEXT
         @my_data
       else
         "<b>#{@my_data}</b>"
@@ -174,10 +174,10 @@ class TestDataObject < Test::Unit::TestCase
 
     # Do setting the data
     def set_data(format, the_data)
-      case format
-      when MY_CUSTOM_FORMAT, Wx::DF_TEXT
+      case format.get_type
+      when MY_CUSTOM_FORMAT.get_type, Wx::DATA_FORMAT_ID_TEXT
         @my_data = the_data
-        @format = format
+        @format = format.get_type
         true
       else
         false
@@ -185,10 +185,10 @@ class TestDataObject < Test::Unit::TestCase
     end
 
     def get_data_size(format)
-      case format
-      when Wx::DF_TEXT
+      case format.get_type
+      when Wx::DATA_FORMAT_ID_TEXT
         get_as_text.to_s.size
-      when MY_CUSTOM_FORMAT
+      when MY_CUSTOM_FORMAT.get_type
         get_formatted.to_s.size
       else
         0
@@ -197,10 +197,10 @@ class TestDataObject < Test::Unit::TestCase
 
     # Do getting the data
     def get_data_here(format)
-      case format
-      when Wx::DF_TEXT
+      case format.get_type
+      when Wx::DATA_FORMAT_ID_TEXT
         get_as_text
-      when MY_CUSTOM_FORMAT
+      when MY_CUSTOM_FORMAT.get_type
         get_formatted
       else
         nil
