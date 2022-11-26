@@ -6,14 +6,12 @@
 %include "common.i"
 
 %{
-
 #include <wx/gdicmn.h>
 #include <wx/image.h>
 #include <wx/xrc/xmlres.h>
 
 #include <wx/filesys.h>
 #include <wx/fs_zip.h>
-
 %}
 
 // Some common functions
