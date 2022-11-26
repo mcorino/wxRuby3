@@ -40,8 +40,8 @@ class Wx::Clipboard
 
   wx_clear = instance_method(:clear)
   define_method(:clear) do 
-    @@__clip_data.clear
     wx_clear.bind(self).call
+    @@__clip_data.clear
   end
 
   wx_set_data = instance_method(:set_data)
