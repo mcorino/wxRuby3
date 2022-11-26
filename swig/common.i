@@ -8,11 +8,55 @@
 %feature("compactdefaultargs");
 %feature("flatnested");
 
+%begin %{
+/*
+ * Since SWIG does not provide readily usable export macros
+ * and we need them here already before we can rely on the ones from
+ * wxWidgets we define our own.
+ */
+
+#ifndef WXRB_EXPORT_FLAG
+# if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#   if defined(WXRUBY_STATIC_BUILD)
+#     define WXRB_EXPORT_FLAG
+#   else
+#     define WXRB_EXPORT_FLAG __declspec(dllexport)
+#   endif
+# else
+#   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+#     define WXRB_EXPORT_FLAG __attribute__ ((visibility("default")))
+#   else
+#     define WXRB_EXPORT_FLAG
+#   endif
+# endif
+#endif
+
+#ifndef WXRB_IMPORT_FLAG
+# if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+#   if defined(WXRUBY_STATIC_BUILD)
+#     define WXRB_IMPORT_FLAG
+#   else
+#     define WXRB_IMPORT_FLAG __declspec(dllimport)
+#   endif
+# else
+#   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+#     define WXRB_IMPORT_FLAG __attribute__ ((visibility("default")))
+#   else
+#     define WXRB_IMPORT_FLAG
+#   endif
+# endif
+#endif
+
+#ifdef BUILD_WXRUBY_CORE
+ 	#define WXRUBY_EXPORT WXRB_EXPORT_FLAG
+#else
+ 	#define WXRUBY_EXPORT WXRB_IMPORT_FLAG
+#endif
+%}
+
 %runtime %{
 // # SWIG 1.3.29 added this new feature which we can't use (yet)
 #define SWIG_DIRECTOR_NOUEH TRUE
-
-
 
 #  undef GetClassName
 #  undef GetClassInfo
