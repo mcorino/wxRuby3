@@ -33,7 +33,7 @@ module WXRuby3
         # add setter to class def
         spec.extend_interface('wxTipProvider', 'void SetCurrentTip(size_t currentTip)')
         # make Ruby object responsible for returned C++ tip provider
-        spec.add_swig_code '%newobject wxCreateFileTipProvider;'
+        spec.new_object 'wxCreateFileTipProvider'
         super
       end
     end # class TipProvider
