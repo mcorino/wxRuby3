@@ -16,6 +16,9 @@ module WXRuby3
       def setup
         super
         spec.gc_never
+        # this one is protected so ignored by defaylt but we want it here
+        # (we do not want GetPopupMenu available for override in Ruby)
+        spec.regard %w[wxTaskBarIcon::CreatePopupMenu]
         # This is used for CreatePopupMenu, a virtual method which is
         # overridden in user subclasses of TaskBarIcon to create the menu over
         # the icon.
@@ -34,7 +37,7 @@ module WXRuby3
             else
             {
               void * ptr;
-              bool swig_res = SWIG_ConvertPtr(result, &ptr,$1 _descriptor,0 | SWIG_POINTER_DISOWN);
+              int swig_res = SWIG_ConvertPtr(result, &ptr, $1_descriptor, 0 | SWIG_POINTER_DISOWN);
               if (!SWIG_IsOK(swig_res))
               {
                 rb_raise(rb_eTypeError,
