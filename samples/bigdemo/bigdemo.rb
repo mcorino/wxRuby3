@@ -312,20 +312,11 @@ class WxRubyDemo < Wx::Frame
         Wx::TE_RICH | Wx::TE_NOHIDESEL)
     @nb.add_page(@ovr, "Overview")
 
-    if Wx.const_defined?(:Scintilla)
+    if Wx.const_defined?(:Stc)
       panel, @txt = setup_editor(@nb)
       @nb.add_page(panel, "Demo Code")
     else
-      # FIXME: Should use DemoCodeViewer, but when we do (on Windows) it
-      #         puts all text on one line!  Can remove instance_eval
-      #         once that's resolved
-      # @txt = Wx::TextCtrl.new(@nb, :value => OVR_TEXT, :style =>
-      #   Wx::TE_MULTILINE | Wx::TE_READONLY |
-      #     Wx::HSCROLL | Wx::TE_RICH | Wx::TE_RICH2 |
-      #     Wx::TE_NOHIDESEL)
-      # @txt.instance_eval { alias clear_all clear }
       @txt = DemoCodeViewer.new(@nb)
-      # @txt.set_max_length(0) unless Wx::PLATFORM == 'WXGTK'
       @nb.add_page(@txt, "Demo Code")
     end
 
@@ -614,14 +605,13 @@ class WxRubyDemo < Wx::Frame
   # FIXME: Refactor into a class
   def setup_editor(parent)
     panel = Wx::Panel.new(parent)
-    panel.hide
     sci = setup_scintilla(panel)
     @save_button = Wx::Button.new(panel, -1, 'Save Changes')
     @delete_button = Wx::Button.new(panel, -1, 'Delete Modified')
     @save_button.enable(false);
     panel.evt_button(@save_button.get_id) { on_save }
     panel.evt_button(@delete_button.get_id) { on_delete }
-    panel.evt_sci_modified { on_modified }
+    panel.evt_stc_modified(sci) { on_modified }
 
     radio_buttons = { :original => Wx::RadioButton.new(panel, -1, "Original", Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE, Wx::RB_GROUP),
                       :modified => Wx::RadioButton.new(panel, -1, "Modified") }
@@ -646,18 +636,18 @@ class WxRubyDemo < Wx::Frame
   end
 
   def setup_scintilla(parent)
-    sci = Wx::Scintilla.new(parent)
-    font = Wx::Font.new(10, Wx::TELETYPE, Wx::NORMAL, Wx::NORMAL)
-    sci.style_set_font(Wx::SCI_STYLE_DEFAULT, font);
-    sci.set_edge_mode(Wx::SCI_EDGE_LINE)
-    line_num_margin = sci.text_width(Wx::SCI_STYLE_LINENUMBER, "_99999")
+    sci = Wx::Stc::StyledTextCtrl.new(parent)
+    font = Wx::Font.new(10, Wx::FONTFAMILY_TELETYPE, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
+    sci.style_set_font(Wx::Stc::STC_STYLE_DEFAULT, font);
+    sci.set_edge_mode(Wx::Stc::STC_EDGE_LINE)
+    line_num_margin = sci.text_width(Wx::Stc::STC_STYLE_LINENUMBER, "_99999")
     sci.set_margin_width(0, line_num_margin)
 
-    sci.style_set_foreground(Wx::SCI_STYLE_DEFAULT, Wx::BLACK);
-    sci.style_set_background(Wx::SCI_STYLE_DEFAULT, Wx::WHITE);
-    sci.style_set_foreground(Wx::SCI_STYLE_LINENUMBER, Wx::LIGHT_GREY);
-    sci.style_set_background(Wx::SCI_STYLE_LINENUMBER, Wx::WHITE);
-    sci.style_set_foreground(Wx::SCI_STYLE_INDENTGUIDE, Wx::LIGHT_GREY);
+    sci.style_set_foreground(Wx::Stc::STC_STYLE_DEFAULT, Wx::BLACK);
+    sci.style_set_background(Wx::Stc::STC_STYLE_DEFAULT, Wx::WHITE);
+    sci.style_set_foreground(Wx::Stc::STC_STYLE_LINENUMBER, Wx::LIGHT_GREY);
+    sci.style_set_background(Wx::Stc::STC_STYLE_LINENUMBER, Wx::WHITE);
+    sci.style_set_foreground(Wx::Stc::STC_STYLE_INDENTGUIDE, Wx::LIGHT_GREY);
 
     sci.set_tab_width(2)
     sci.set_use_tabs(false)
@@ -666,7 +656,7 @@ class WxRubyDemo < Wx::Frame
     sci.set_indent(2)
     sci.set_edge_column(80)
 
-    sci.set_lexer(Wx::SCI_LEX_RUBY)
+    sci.set_lexer(Wx::Stc::STC_LEX_RUBY)
     sci.style_clear_all
     sci.style_set_foreground(2, Wx::RED)
     sci.style_set_foreground(3, Wx::GREEN)
@@ -681,17 +671,17 @@ class WxRubyDemo < Wx::Frame
     sci.set_property("fold.preprocessor", "1")
 
     sci.set_margin_width(1, 0)
-    sci.set_margin_type(1, Wx::SCI_MARGIN_SYMBOL)
-    sci.set_margin_mask(1, Wx::SCI_MASK_FOLDERS)
+    sci.set_margin_type(1, Wx::Stc::STC_MARGIN_SYMBOL)
+    sci.set_margin_mask(1, Wx::Stc::STC_MASK_FOLDERS)
     sci.set_margin_width(1, 20)
 
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDER, Wx::SCI_MARK_PLUS)
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDEROPEN, Wx::SCI_MARK_MINUS)
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDEREND, Wx::SCI_MARK_EMPTY)
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDERMIDTAIL, Wx::SCI_MARK_EMPTY)
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDEROPENMID, Wx::SCI_MARK_EMPTY)
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDERSUB, Wx::SCI_MARK_EMPTY)
-    sci.marker_define(Wx::SCI_MARKNUM_FOLDERTAIL, Wx::SCI_MARK_EMPTY)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDER, Wx::Stc::STC_MARK_PLUS)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDEROPEN, Wx::Stc::STC_MARK_MINUS)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDEREND, Wx::Stc::STC_MARK_EMPTY)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDERMIDTAIL, Wx::Stc::STC_MARK_EMPTY)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDEROPENMID, Wx::Stc::STC_MARK_EMPTY)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDERSUB, Wx::Stc::STC_MARK_EMPTY)
+    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDERTAIL, Wx::Stc::STC_MARK_EMPTY)
     sci.set_fold_flags(16)
 
     sci.set_margin_sensitive(1, 1)
