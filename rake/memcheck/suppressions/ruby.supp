@@ -99,3 +99,86 @@
   fun:vm_call0_cfunc_with_frame
   fun:*
 }
+{
+  insert_a_suppression_name_here
+  Memcheck:Overlap
+  fun:strncpy
+  fun:_ZN12wxXPMDecoder8ReadFileER13wxInputStream
+  fun:_ZN12wxXPMHandler8LoadFileEP7wxImageR13wxInputStreambi
+  fun:_ZN7wxImage6DoLoadER14wxImageHandlerR13wxInputStreami
+  fun:_ZN7wxImage8LoadFileER13wxInputStream12wxBitmapTypei
+  fun:_ZN7wxImage8LoadFileERK8wxString12wxBitmapTypei
+  fun:wxImage
+  fun:*
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:malloc
+  fun:g_malloc
+  fun:g_slice_alloc
+  fun:g_slist_prepend
+  fun:gtk_menu_shell_activate_item
+  fun:gtk_menu_shell_button_release
+  fun:_gtk_marshal_BOOLEAN__BOXED
+  fun:g_closure_invoke
+  fun:signal_emit_unlocked_R
+  fun:g_signal_emit_valist
+  fun:g_signal_emit
+  fun:gtk_widget_event_internal
+  fun:gtk_propagate_event
+  fun:gtk_main_do_event
+  fun:gdk_event_dispatch
+  fun:g_main_dispatch
+  fun:g_main_context_dispatch
+  fun:g_main_context_iterate.isra.20
+  fun:g_main_context_iteration
+  fun:gtk_main_iteration
+  fun:_ZN8wxWindow11DoPopupMenuEP6wxMenuii
+  ...
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:calloc
+  fun:calloc1
+  fun:objspace_xcalloc
+  fun:ruby_xcalloc_body
+  fun:rb_method_definition_create
+  fun:rb_method_entry_make
+  fun:rb_add_method
+  fun:SWIG_Ruby_define_class
+  fun:Init_wxRubyStockObjects
+  ...
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:_Znwm
+  fun:_ZN13wxTaskBarIcon10RemoveIconEv
+  fun:*
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:_Znwm
+  fun:_ZL23_wrap_new_wxTaskBarIconiPmm
+  fun:*
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:_Znwm
+  ...
+  fun:_ZN8wxModule4InitEv
+  fun:*
+}
+{
+  insert_a_suppression_name_here
+  Memcheck:Leak
+  fun:_Znwm
+  ...
+  fun:_ZNK11wxClassInfo12CreateObjectEv
+  fun:_ZN8wxModule15RegisterModulesEv
+  fun:*
+}
