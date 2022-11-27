@@ -21,22 +21,19 @@ module WXRuby3
         script = <<~__SCRIPT
           require 'json'
           require 'wx'
-          Wx::App.run do 
-            table = { 'Wx' => {}}
-            Wx.constants.each do |c|
-              the_const = Wx.const_get(c)
-              if the_const.class == ::Module  # Enum submodule
-                modname = c.to_s
-                mod = Wx.const_get(c) 
-                table[modname] = {}
-                mod.constants.each do |ec|
-                  e_const = mod.const_get(ec)
-                  table[modname][ec.to_s] = { type: e_const.class.name.split('::').last, value: e_const }
-                end
+          def handle_module(mod, table)
+            mod.constants.each do |c|
+              a_const = mod.const_get(c)
+              if a_const.class == ::Module  # Enum or Package submodule
+                handle_module(mod.const_get(c), table[c.to_s] = {}) 
               else
-                table['Wx'][c.to_s] = { type: the_const.class.name.split('::').last, value: the_const } unless ::Class === the_const || c == :THE_APP
+                table[c.to_s] = { type: a_const.class.name.split('::').last, value: a_const } unless ::Class === a_const || c == :THE_APP
               end
             end
+          end
+          Wx::App.run do 
+            table = { 'Wx' => {}}
+            handle_module(Wx, table['Wx'])
             STDOUT.puts JSON.dump(table)
           end
         __SCRIPT
@@ -331,7 +328,7 @@ module WXRuby3
         fdoc.puts
         fdoc.indent do
           gen_constants_doc(fdoc, genspec)
-          gen_class_doc(fdoc, genspec)
+          gen_class_doc(fdoc, genspec) unless genspec.no_gen?(:classes)
         end
         fdoc.puts
         fdoc.puts 'end'
@@ -377,24 +374,30 @@ module WXRuby3
 
     def gen_constants_doc(fdoc, genspec)
       const_table = DocGenerator.constants_db
-      wx_consts = const_table['Wx'] || {}
+      wx_consts = genspec.package.all_modules.reduce(const_table) {|tbl, mod| tbl[mod] || {} }
       genspec.def_items.select {|itm| !itm.docs_ignored }.each do |item|
         case item
         when Extractor::GlobalVarDef
-          const_name = underscore!(rb_wx_name(item.name)).upcase
-          if wx_consts.has_key?(const_name)
-            gen_constant_doc(fdoc, const_name, wx_consts[const_name], DocGenerator::XMLTransform.to_doc(item.brief_doc))
-          end
-        when Extractor::EnumDef
-          enum_name = rb_wx_name(item.name)
-          if const_table.has_key?(enum_name)
-            gen_enum_doc(fdoc, enum_name, item, const_table[enum_name])
-          end
-        when Extractor::DefineDef
-          if !item.is_macro? && item.value && !item.value.empty?
+          unless genspec.no_gen?(:variables)
             const_name = underscore!(rb_wx_name(item.name)).upcase
             if wx_consts.has_key?(const_name)
               gen_constant_doc(fdoc, const_name, wx_consts[const_name], DocGenerator::XMLTransform.to_doc(item.brief_doc))
+            end
+          end
+        when Extractor::EnumDef
+          unless genspec.no_gen?(:enums)
+            enum_name = rb_wx_name(item.name)
+            if const_table.has_key?(enum_name)
+              gen_enum_doc(fdoc, enum_name, item, const_table[enum_name])
+            end
+          end
+        when Extractor::DefineDef
+          unless genspec.no_gen?(:defines)
+            if !item.is_macro? && item.value && !item.value.empty?
+              const_name = underscore!(rb_wx_name(item.name)).upcase
+              if wx_consts.has_key?(const_name)
+                gen_constant_doc(fdoc, const_name, wx_consts[const_name], DocGenerator::XMLTransform.to_doc(item.brief_doc))
+              end
             end
           end
         end
