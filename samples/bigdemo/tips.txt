@@ -1,0 +1,7 @@
+Welcome to the WxRuby Tutorial!  Click on all the different demos to learn how to use each kind of widget.
+This demo was ported from wxPython.  Thanks to Robin Dunn for his hard work and generosity!
+Check out the WxRuby wiki at http://wxruby.rubyforge.org!
+Don't forget to check out the samples that come with WxRuby - many contain more advanced examples of WxRuby than you'll find here.
+Thanks to Kevin Smith for all his hard work - he made this Demo possible!
+Thanks to Curt Hibbs for all his hard work - his WxRuby installer for Windows saved my life!
+Thanks to Robert Carlin for porting this demo (I know, it's a shameless plug :-)

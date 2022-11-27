@@ -1,0 +1,38 @@
+/* XPM */
+static char *tog1[] = {
+/* width height num_colors chars_per_pixel */
+"    16    15       16            1",
+/* colors */
+"` c #000000",
+". c #bf0000",
+"# c #00bf00",
+"a c #bfbf00",
+"b c #0000bf",
+"c c #bf00bf",
+"d c #00bfbf",
+"e c #c0c0c0",
+"f c #808080",
+"g c #ff0000",
+"h c #00ff00",
+"i c #ffff00",
+"j c #0000ff",
+"k c #ff00ff",
+"l c #00ffff",
+"m c #ffffff",
+/* pixels */
+"eeeeeeeeeeeeeeee",
+"eeeeeeeeeeeeeeee",
+"ee````````````ee",
+"ee````````````fe",
+"eeeeeee``ffffffe",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeee``feeeeee",
+"eeeeeeeeefeeeeee",
+"eeeeeeeeeeeeeeee"
+};
