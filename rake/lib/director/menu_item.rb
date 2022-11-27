@@ -14,6 +14,11 @@ module WXRuby3
     class MenuItem < Director
 
       def setup
+        # this assumes all MenuItem-s created by users will always be added to a menu
+        # (which seems acceptable as there is no use for menu items otherwise)
+        # if not the C++ item will never be deleted before the process terminates
+        # (but this goes for all object marked for GC_NEVER).
+        spec.gc_never
         spec.ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText])
         # ignore this as there is no implementation anymore
         spec.ignore 'wxMenuItem::GetAccelFromString'
