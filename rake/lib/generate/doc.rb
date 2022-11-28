@@ -195,6 +195,17 @@ module WXRuby3
         end.join(',')
       end
 
+      def _is_static_method?(clsnm, mtdname)
+        if clsspec = Director::Spec.class_index[clsnm]
+          if clsdef = clsspec.def_item(clsnm)
+            if mtdef = clsdef.find_item(mtdname)
+              return mtdef.is_static
+            end
+          end
+        end
+        false
+      end
+
       def _ident_str_to_doc(s, ref_scope = nil)
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
@@ -205,11 +216,12 @@ module WXRuby3
             args = _arglist_to_doc($2)
             mtdsig = "#{rb_method_name(fn)}(#{args})"
             if ref_scope
+              sep = _is_static_method?(ref_scope, fn) ? '.' : '#'
               constnm = rb_wx_name(ref_scope)
               if DocGenerator.constants_xref_db.has_key?(constnm)
-                "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}\##{mtdsig}}"
+                "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdsig}}"
               else
-                "{Wx::#{constnm}\##{mtdsig}}"
+                "{Wx::#{constnm}#{sep}#{mtdsig}}"
               end
             else
               "{#{mtdsig}}"
@@ -234,9 +246,10 @@ module WXRuby3
             end
           end
         else
-          mtd = nmlist.shift.to_s
+          itmnm = nmlist.shift.to_s
+          mtd = nil
           args =  nil
-          if /(\w+)\s*\(([^\)]*)\)/ =~ mtd
+          if /(\w+)\s*\(([^\)]*)\)/ =~ itmnm
             mtd = $1
             args = _arglist_to_doc($2)
           end
@@ -245,10 +258,13 @@ module WXRuby3
           elsif nm_str.start_with?('wx')
             constnm = "Wx::#{constnm}"
           end
-          if nm_str == mtd # ctor?
+          if mtd.nil?
+            "{#{constnm}::#{rb_wx_name(itmnm)}}"
+          elsif nm_str == mtd # ctor?
             "{#{constnm}\#initialize(#{args})}"
           else
-            "{#{constnm}\##{rb_method_name(mtd)}#{args}}"
+            sep = _is_static_method?(nm_str, mtd) ? '.' : '#'
+            "{#{constnm}#{sep}#{rb_method_name(mtd)}#{args}}"
           end
         end
       end

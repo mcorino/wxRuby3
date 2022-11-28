@@ -19,7 +19,7 @@ module WXRuby3
         super
         spec.swig_include '../shared/datetime.i'
         # Custom implementation for Ruby
-        spec.ignore 'wxCalendarCtrl::HitTest'
+        spec.ignore('wxCalendarCtrl::HitTest', ignore_doc: false)
         # deprecated
         spec.ignore 'wxCalendarCtrl::EnableYearChange'
         # handled; can be suppressed

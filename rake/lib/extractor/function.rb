@@ -192,12 +192,16 @@ module WXRuby3
         paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ')
         if has_ovl
           stream.doc.puts "@overload #{rb_decl_name}(#{paramlist})"
+          stream.doc.puts doc.split("\n").collect { |ln| '  '+ln }
+        else
+          stream.doc.puts doc
         end
-        stream.doc.puts doc.split("\n").collect { |ln| '  '+ln }
         params.each do |p|
-          stream.doc.puts ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
+          stream.doc << '  ' if has_ovl
+          stream.doc.puts ('@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
-        stream.doc.puts "  @return [#{rb_return_type}]"
+        stream.doc << '  ' if has_ovl
+        stream.doc.puts "@return [#{rb_return_type}]"
         paramlist
       end
 
