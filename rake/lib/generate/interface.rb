@@ -362,7 +362,7 @@ module WXRuby3
     def gen_interface_enum(fout, member, classdef)
       gen_only_for(fout, member) do
         fout.puts "  // from #{classdef.name}::#{member.name}"
-        fout.puts "  enum #{member.name.start_with?('@') ? '' : member.name} {"
+        fout.puts "  enum #{member.is_anonymous ? '' : member.name} {"
         enum_size = member.items.size
         member.items.each_with_index do |e, i|
           gen_only_for(fout, e) do
@@ -403,8 +403,8 @@ module WXRuby3
       spec.def_items.each do |item|
         if Extractor::EnumDef === item && !item.ignored && !item.items.all? {|e| e.ignored }
           fout.puts
-          fout.puts "// from enum #{item.name.start_with?('@') ? '' : item.name}"
-          fout.puts "enum #{item.name};" unless item.name.start_with?('@')
+          fout.puts "// from enum #{item.is_anonymous ? '' : item.name}"
+          fout.puts "enum #{item.name};" unless item.is_anonymous
           item.items.each do |e|
             unless e.ignored
               gen_only_for(fout, e) do

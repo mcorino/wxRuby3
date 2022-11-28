@@ -207,7 +207,7 @@ module WXRuby3
             if ref_scope
               constnm = rb_wx_name(ref_scope)
               if DocGenerator.constants_xref_db.has_key?(constnm)
-                "{#{DocGenerator.constants_xref_db[constnm]['mod']}#{constnm}\##{mtdsig}}"
+                "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}\##{mtdsig}}"
               else
                 "{Wx::#{constnm}\##{mtdsig}}"
               end
@@ -411,7 +411,6 @@ module WXRuby3
     end
 
     def gen_constants_doc(fdoc, genspec)
-      const_table = DocGenerator.constants_db
       xref_table = DocGenerator.constants_xref_db
       genspec.def_items.select {|itm| !itm.docs_ignored }.each do |item|
         case item
@@ -446,6 +445,7 @@ module WXRuby3
       genspec.def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !genspec.is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || genspec.template_as_class?(item.name)
           clsnm = rb_wx_name(item.name)
+          xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
           basecls = genspec.base_class(item)
           fdoc.doc.puts(@xml_trans.to_doc(item.brief_doc))
           fdoc.doc.puts
@@ -453,6 +453,21 @@ module WXRuby3
           fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
           fdoc.puts
           fdoc.indent do
+            # generate documentation for any enums /and/or inner classes
+            item.items.each do |member|
+              unless member.docs_ignored
+                case member
+                when Extractor::EnumDef
+                  member.items.each do |e|
+                    const_name = rb_wx_name(e.name)
+                    if xref_table.has_key?(const_name)
+                      gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(e.brief_doc))
+                    end
+                  end if xref_table
+                end
+              end
+            end
+            # generate method documentation
             item.rb_doc(fdoc, @xml_trans)
           end
           fdoc.puts "end # #{clsnm}"

@@ -96,7 +96,7 @@ module WXRuby3
 
         def collect_enumerators(spec)
           spec.def_items.select do |item|
-            Extractor::EnumDef === item && !(item.name.empty? || item.name.start_with?('@'))
+            Extractor::EnumDef === item && !(item.name.empty? || item.is_anonymous)
           end.inject({}) do |hash, enum|
             enum.items.inject(hash) { |hsh, e| hsh[rb_wx_name(e.name)] = rb_wx_name(enum.name); hsh }
           end
