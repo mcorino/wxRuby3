@@ -24,10 +24,10 @@ module WXRuby3
           def handle_module(mod, table)
             mod.constants.each do |c|
               a_const = mod.const_get(c)
-              if a_const.class == ::Module  # Enum or Package submodule
+              if a_const.class == ::Module || a_const.class == ::Class  # Enum or Package submodule or Class
                 handle_module(mod.const_get(c), table[c.to_s] = {}) 
-              else
-                table[c.to_s] = { type: a_const.class.name.split('::').last, value: a_const } unless ::Class === a_const || c == :THE_APP
+              elsif !(::Hash === a_const || ::Array === a_const) 
+                table[c.to_s] = { type: a_const.class.name.split('::').last, value: a_const } unless c == :THE_APP
               end
             end
           end
@@ -50,17 +50,21 @@ module WXRuby3
                    end
           STDERR.puts "* got constants collection output:\n#{result}" if Rake.application.options.trace
           db = JSON.load(result)
+          File.open('constants.json', "w") { |f| f << JSON.pretty_generate(db) } if Rake.application.options.trace
           return db
         ensure
           File.unlink(ftmp_name)
         end
       end
 
-      def get_constants_xref_db
+      def get_constants_xref_db(const_tbl = nil, mods = [])
         xref_tbl = {}
-        constants_db.each_pair do |modnm, modtbl|
-          modtbl.each_pair do |const_name, const_spec|
-            xref_tbl[const_name] = const_spec.merge({ 'mod' => modnm })
+        (const_tbl || constants_db).each_pair do |constnm, constspec|
+          unless constspec.has_key?('type')
+            xref_tbl[constnm] = { 'mod' => mods.join('::') }
+            xref_tbl.merge!(get_constants_xref_db(constspec, mods + [constnm]))
+          else
+            xref_tbl[constnm] = constspec.merge({'mod' => mods.join('::') })
           end
         end
         xref_tbl
@@ -205,8 +209,10 @@ module WXRuby3
             else
               if DocGenerator.constants_xref_db.has_key?(constnm)
                 "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}}"
+              elsif nm_str.start_with?('wx')
+                "{Wx::#{constnm}}"
               else
-                "{#{nm_str.start_with?('wx') ? 'Wx::' : ''}#{constnm}}"
+                "{#{rb_method_name(nm_str)}}"
               end
             end
           else
@@ -216,10 +222,15 @@ module WXRuby3
               mtd = $1
               args = _arglist_to_doc($2)
             end
+            if DocGenerator.constants_xref_db.has_key?(constnm)
+              constnm = "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+            elsif nm_str.start_with?('wx')
+              constnm = "Wx::#{constnm}"
+            end
             if nm_str == mtd
-              "{#{nm_str.start_with?('wx') ? 'Wx::' : ''}#{constnm}\#initialize(#{args})}"
+              "{#{constnm}\#initialize(#{args})}"
             else
-              "{#{nm_str.start_with?('wx') ? 'Wx::' : ''}#{constnm}\##{rb_method_name(mtd)}#{args}}"
+              "{#{constnm}\##{rb_method_name(mtd)}#{args}}"
             end
           end
         end
