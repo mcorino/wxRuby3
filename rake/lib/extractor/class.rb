@@ -241,13 +241,11 @@ module WXRuby3
       end
 
       def rb_doc(stream, xml_trans)
-        methods.select do |m|
-          !m.is_dtor
-        end.each do |mtd|
-          mtd_ovls = mtd.all.select {|m| !m.docs_ignored && !m.deprecated }
-          mtd_ovls.each_with_index { |mo,i| stream.doc.puts(mo.rb_doc(self, xml_trans, i, mtd_ovls.size)) }
-          stream.puts unless mtd_ovls.empty?
-        end
+        methods.select { |m| !m.is_dtor }.each { |mtd| mtd.rb_doc(self, stream, xml_trans) }
+          # mtd_ovls = mtd.all.select {|m| !m.docs_ignored && !m.deprecated }
+          # mtd_ovls.each_with_index { |mo,i| stream.doc.puts(mo.rb_doc(self, xml_trans, i, mtd_ovls.size)) }
+          # stream.puts unless mtd_ovls.empty?
+          # end
       end
 
       def methods

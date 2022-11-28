@@ -124,7 +124,21 @@ module WXRuby3
         rb_method_name(name)
       end
 
-      def rb_doc(clsdef, xml_trans, fnix, fncount)
+      def rb_doc(clsdef, stream, xml_trans)
+        ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
+        paramlist = nil
+        ovls.each { |mo| paramlist = mo.rb_doc_decl(clsdef, stream, xml_trans, ovls.size>1) }
+        unless ovls.empty?
+          if ovls.size>1
+            stream.puts "def #{rb_decl_name}(*args) end"
+          else
+            stream.puts "def #{rb_decl_name}(#{paramlist}) end"
+          end
+          stream.puts
+        end
+      end
+
+      def rb_doc_decl(clsdef, stream, xml_trans, has_ovl=false)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # unlink params_doc if any
@@ -155,7 +169,11 @@ module WXRuby3
                   end
             params << {name: pnm, type: rb_type}
             if paramdef.default
-              params.last[:default] = rb_constant_value(paramdef.default)
+              params.last[:default] = if /[\w\s]/ =~ paramdef.default
+                                        "(#{paramdef.default.gsub(/\w+/) { |s| rb_constant_value(s) }})"
+                                      else
+                                        rb_constant_value(paramdef.default)
+                                      end
             end
           end
         end
@@ -171,19 +189,16 @@ module WXRuby3
           end
         end if params_doc
         # collect full function docs
-        rb_doc = []
         paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ')
-        if fncount>1
-          rb_doc << "@!method #{rb_decl_name}(*args)" if fnix==0
-          rb_doc << "@overload #{rb_decl_name}(#{paramlist})"
-        else
-          rb_doc << "@!method #{rb_decl_name}(#{paramlist})"
+        if has_ovl
+          stream.doc.puts "@overload #{rb_decl_name}(#{paramlist})"
         end
-        rb_doc.concat(doc.split("\n").collect { |ln| '  '+ln })
+        stream.doc.puts doc.split("\n").collect { |ln| '  '+ln }
         params.each do |p|
-          rb_doc << ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
+          stream.doc.puts ('  @param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
-        rb_doc << "  @return [#{rb_return_type}]"
+        stream.doc.puts "  @return [#{rb_return_type}]"
+        paramlist
       end
 
       def rb_return_type
