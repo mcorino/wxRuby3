@@ -207,7 +207,7 @@ module WXRuby3
         super
       end
 
-      def process
+      def process(gendoc: false)
         defmod = super
         spec.items.each do |citem|
           unless citem == 'wxEvent'

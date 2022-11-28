@@ -146,13 +146,13 @@ module WXRuby3
       @defmod.items.any? {|item| Extractor::ClassDef === item && item.event && !item.event_types.empty? }
     end
 
-    def extract_interface(genint = true)
+    def extract_interface(genint = true, gendoc: false)
       genspec = nil
       self.synchronize do
         unless @defmod
           STDERR.puts "* extracting #{spec.module_name}" if Director.trace?
 
-          @defmod = process
+          @defmod = process(gendoc: gendoc)
 
           genspec = Generator::Spec.new(spec, defmod)
 
@@ -283,7 +283,7 @@ module WXRuby3
     end
 
     def generate_doc
-      extract_interface(false) # make sure interface specs have been extracted
+      extract_interface(false, gendoc: true) # make sure interface specs have been extracted
       WXRuby3::DocGenerator.new.run(Generator::Spec.new(spec, defmod))
     end
 
@@ -324,9 +324,9 @@ module WXRuby3
       end
     end
 
-    def process
+    def process(gendoc: false)
       # extract the module definitions
-      defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, doc: '')
+      defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, gendoc: gendoc)
       # handle ignores
       spec.ignores.each_pair do |fullname, ignoredoc|
         handle_item_ignore(defmod, fullname, true, ignoredoc)

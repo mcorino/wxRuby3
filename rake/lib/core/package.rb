@@ -371,7 +371,7 @@ module WXRuby3
 
       def generate_docs
         # make sure all modules have been extracted from xml
-        included_directors.each {|dir| dir.extract_interface(false) }
+        included_directors.each {|dir| dir.extract_interface(false, gendoc: true) }
         # generate the docs
         included_directors.each {|dir| dir.generate_doc }
       end

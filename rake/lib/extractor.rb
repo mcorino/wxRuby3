@@ -133,6 +133,10 @@ module WXRuby3
         @verbose = !!v
       end
 
+      def crossref_table
+        @crossref_table ||= {}
+      end
+
       def extracting_msg(kind, element, name_tag='name')
         puts('Extracting %s: %s' % [kind, element.at_xpath("#{name_tag}").text]) if verbose
       end
@@ -141,8 +145,8 @@ module WXRuby3
         puts('Skipping %s: %s' % [kind, element.at_xpath('name').text]) if verbose
       end
 
-      def extract_module(pkg, mod, name, items, doc: nil)
-        moddef = ModuleDef.new(pkg, mod, name, doc)
+      def extract_module(pkg, mod, name, items, gendoc: false)
+        moddef = ModuleDef.new(pkg, mod, name, gendoc: gendoc)
         parse_doxy_xml(moddef, items)
         moddef
       end

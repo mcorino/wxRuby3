@@ -127,7 +127,7 @@ module WXRuby3
         super
       end
 
-      def process
+      def process(gendoc: false)
         defmod = super
         e = defmod.find('wxBitmapType')
         e.items.each do |item|

@@ -13,22 +13,21 @@ module WXRuby3
 
     # This class holds all the items that will be in the generated module
     class ModuleDef < BaseDef
-      def initialize(package, modname, name, docstring = '', check4unittest = true)
+      def initialize(package, modname, name, gendoc: false)
         super()
         @package = package
         @module_name = modname
         @name = name
-        @docstring = docstring
-        @check4unittest = check4unittest
         @header_code = []
         @cpp_code = []
         @initializer_code = []
         @pre_initializer_code = []
         @post_initializer_code = []
         @is_a_real_module = (module_name == name)
+        @gendoc = gendoc
       end
 
-      attr_accessor :package, :module_name, :docstring, :check4unittest, :header_code, :cpp_code, :initializer_code,
+      attr_accessor :package, :module_name, :header_code, :cpp_code, :initializer_code,
                     :pre_initializer_code, :post_initializer_code, :is_a_real_module
 
       # Called after the loading of items from the XML has completed, just
@@ -74,6 +73,13 @@ module WXRuby3
         #     item.isCore = _globalIsCore
       end
 
+      def add_crossrefs(element)
+        element.xpath('listofallmembers/member').each do |node|
+          Extractor.crossref_table[node['refid']] = { scope: node.at_xpath('scope').text, name: node.at_xpath('name').text }
+        end
+      end
+      private :add_crossrefs
+
       def add_element(element)
         item = nil
         kind = element['kind']
@@ -82,11 +88,13 @@ module WXRuby3
           Extractor.extracting_msg(kind, element, ClassDef::NAME_TAG)
           item = ClassDef.new(element, module: self)
           self.items << item
+          add_crossrefs(element) if @gendoc
 
         when 'struct'
           Extractor.extracting_msg(kind, element, ClassDef::NAME_TAG)
           item = ClassDef.new(element, kind: 'struct')
           self.items << item
+          add_crossrefs(element) if @gendoc
 
         when 'function'
           Extractor.extracting_msg(kind, element)
