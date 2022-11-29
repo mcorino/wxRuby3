@@ -101,6 +101,14 @@ module WXRuby3
 
       private
 
+      def event_section(f = true)
+        @event_section = !!f
+      end
+
+      def event_section?
+        !!@event_section
+      end
+
       def event_list(f = true)
         @event_list = !!f
       end
@@ -138,16 +146,22 @@ module WXRuby3
             end
           end
         end
-        if event_list?
+        if event_section?
           case text
           when /Event macros for events emitted by this class:/
+            event_list(true)
             'Event handler methods for events emitted by this class:'
           when /Event macros:/
+            event_list(true)
             'Event handler methods:'
-          when /(EVT_[_A-Z]+)\((.*,)\s+\w+\):(.*)/
-            "#{$1.downcase}(#{$2} meth = nil, &block):#{$3}"
           else
-            text
+            if event_list? && /(EVT_[_A-Z]+)\((.*,)\s+\w+\):(.*)/ =~ text
+              "#{$1.downcase}(#{$2} meth = nil, &block):#{$3}"
+            elsif event_list? && /(EVT_[_A-Z]+)(\*)?\(\w+\):(.*)/ =~ text
+              "#{$1.downcase}#{$2}(meth = nil, &block):#{$3}"
+            else
+              text
+            end
           end
         else
           text
@@ -315,13 +329,19 @@ module WXRuby3
       def heading_to_doc(node)
         lvl = 1+(node['level'] || '1').to_i
         txt = node_to_doc(node)
-        event_list(/Events emitted by this class|Events using this class/i =~ txt)
+        event_section(/Events emitted by this class|Events using this class/i =~ txt)
         "#{'=' * lvl} #{txt}"
       end
 
       # transform all itemizedlist
       def itemizedlist_to_doc(node)
-        node_to_doc(node)
+        doc = node_to_doc(node)
+        if event_list?
+          # event emitter block ended
+          event_list(false)
+          event_section(false)
+        end
+        doc
       end
 
       # transform all listitem
@@ -346,14 +366,14 @@ module WXRuby3
           /\A\s*Library:/        # Library note
           ''
         else
-          if event_list?
+          if event_section?
             case para
             when /The following event handler macros redirect.*(\{.*})/
               event_ref = $1
               "The following event-handler methods redirect the events to member method or handler blocks for #{event_ref} events."
-            when /Event handler methods for events emitted by this class:/
-              event_list(false) # event emitter block ended
-              para
+            # when /Event handler methods for events emitted by this class:/
+            #   event_section(false) # event emitter block ended
+            #   para
             else
               para
             end
@@ -386,7 +406,7 @@ module WXRuby3
               else
                 node_to_doc(xmlnode_or_set)
               end
-        event_list(false)
+        event_section(false)
         doc.strip!
         # reduce triple(or more) newlines to max 2
         doc.gsub!(/\n\n\n+/, "\n\n")
