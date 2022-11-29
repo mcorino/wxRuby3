@@ -131,9 +131,9 @@ module WXRuby3
               s
             else
               if s==$1
-                _ident_str_to_doc($1)
+                "{#{_ident_str_to_doc($1)}}"
               else
-                "#{s[0]}#{_ident_str_to_doc($1)}"
+                "#{s[0]}{#{_ident_str_to_doc($1)}}"
               end
             end
           end
@@ -181,7 +181,10 @@ module WXRuby3
         when 'since' # get rid of 'Since' notes
           ''
         when 'see'
-          "<b>See also:</b>\n#{node_to_doc(node)}"
+          no_ref do
+            @see_list << node_to_doc(node)
+          end
+          ''
         else
           node_to_doc(node)
         end
@@ -192,14 +195,32 @@ module WXRuby3
           a = a.gsub(/const\s+/, '')
           a.tr!('*&[]', '')
           a.split(' ').last
-        end.join(',')
+        end.join(',').strip
+      end
+
+      def _is_method?(itmname, clsnm=nil)
+        spec = clsnm ? Director::Spec.class_index[clsnm] : @genspec
+        if spec
+          if clsnm
+            if clsdef = spec.def_item(clsnm)
+              if itmdef = clsdef.find_item(itmname)
+                return Extractor::FunctionDef === itmdef
+              end
+            end
+          else
+            if itmdef = spec.def_item(itmname)
+              return Extractor::FunctionDef === itmdef
+            end
+          end
+        end
+        false
       end
 
       def _is_static_method?(clsnm, mtdname)
         if clsspec = Director::Spec.class_index[clsnm]
           if clsdef = clsspec.def_item(clsnm)
             if mtdef = clsdef.find_item(mtdname)
-              return mtdef.is_static
+              return Extractor::MethodDef === mtdef && mtdef.is_static
             end
           end
         end
@@ -214,34 +235,35 @@ module WXRuby3
           if /(\w+)\s*\(([^\)]*)\)/ =~ nm_str
             fn = $1
             args = _arglist_to_doc($2)
-            mtdsig = "#{rb_method_name(fn)}(#{args})"
+            mtdsig = args.empty? ? "#{rb_method_name(fn)}" : "#{rb_method_name(fn)}(#{args})"
             if ref_scope
               sep = _is_static_method?(ref_scope, fn) ? '.' : '#'
               constnm = rb_wx_name(ref_scope)
               if DocGenerator.constants_xref_db.has_key?(constnm)
-                "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdsig}}"
+                "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdsig}"
               else
-                "{Wx::#{constnm}#{sep}#{mtdsig}}"
+                "Wx::#{constnm}#{sep}#{mtdsig}"
               end
             else
-              "{#{mtdsig}}"
+              mtdsig
             end
           else
             if DocGenerator.constants_xref_db.has_key?(constnm)
-              "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}}"
-            elsif nm_str.start_with?('wx')
-              "{Wx::#{constnm}}"
+              "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+            elsif !_is_method?(nm_str, ref_scope)
+              "Wx::#{constnm}"
             else
               mtdnm = rb_method_name(nm_str)
               if ref_scope
+                sep = _is_static_method?(ref_scope, nm_str) ? '.' : '#'
                 constnm = rb_wx_name(ref_scope)
                 if DocGenerator.constants_xref_db.has_key?(constnm)
-                  "{#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}\##{mtdnm}}"
+                  "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdnm}"
                 else
-                  "{Wx::#{constnm}\##{mtdnm}}"
+                  "Wx::#{constnm}#{sep}#{mtdnm}"
                 end
               else
-                "{#{mtdnm}}"
+                mtdnm
               end
             end
           end
@@ -259,23 +281,29 @@ module WXRuby3
             constnm = "Wx::#{constnm}"
           end
           if mtd.nil?
-            "{#{constnm}::#{rb_wx_name(itmnm)}}"
+            if DocGenerator.constants_xref_db.has_key?(rb_wx_name(itmnm)) || !_is_method?(itmnm, nm_str)
+              "#{constnm}::#{rb_wx_name(itmnm)}"
+            else
+              sep = _is_static_method?(nm_str, itmnm) ? '.' : '#'
+              "#{constnm}#{sep}#{rb_method_name(itmnm)}"
+            end
           elsif nm_str == mtd # ctor?
-            "{#{constnm}\#initialize(#{args})}"
+            "#{constnm}\#initialize(#{args})"
           else
             sep = _is_static_method?(nm_str, mtd) ? '.' : '#'
-            "{#{constnm}#{sep}#{rb_method_name(mtd)}#{args}}"
+            args.empty? ? "#{constnm}#{sep}#{rb_method_name(mtd)}" : "#{constnm}#{sep}#{rb_method_name(mtd)}(#{args}})"
           end
         end
       end
 
       # transform all cross references
       def ref_to_doc(node)
+        ref_id = Extractor.crossref_table[node['refid']] || {}
         if no_ref?
           node.text
-        else
-          ref_id = Extractor.crossref_table[node['refid']] || {}
           _ident_str_to_doc(node.text, ref_id[:scope])
+        else
+          "{#{_ident_str_to_doc(node.text, ref_id[:scope])}}"
         end
       end
 
@@ -347,19 +375,24 @@ module WXRuby3
 
       def initialize(genspec)
         @genspec = genspec
+        @see_list = []
       end
 
       def to_doc(xmlnode_or_set)
         return '' unless xmlnode_or_set
+        @see_list.clear
         doc = if Nokogiri::XML::NodeSet === xmlnode_or_set
                 xmlnode_or_set.inject('') { |s, n| s << node_to_doc(n) }
               else
                 node_to_doc(xmlnode_or_set)
               end
         event_list(false)
-        doc.lstrip!
+        doc.strip!
         # reduce triple(or more) newlines to max 2
         doc.gsub!(/\n\n\n+/, "\n\n")
+        doc << "\n" # always end with a NL without following whitespace
+        # add crossref tags
+        @see_list.each { |s| doc << "@see #{s}\n" }
         doc
       end
 

@@ -143,8 +143,10 @@ module WXRuby3
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # unlink params_doc if any
         params_doc.unlink if params_doc
-        # get detailed doc text without params doc
-        doc = xml_trans.to_doc(@detailed_doc)
+        # get brief doc
+        doc = xml_trans.to_doc(@brief_doc)
+        # add detailed doc text without params doc
+        doc << xml_trans.to_doc(@detailed_doc)
         # get mapped ruby parameter list
         param_defs = parameters
         params = []
