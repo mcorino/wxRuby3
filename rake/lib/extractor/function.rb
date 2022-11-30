@@ -175,11 +175,12 @@ module WXRuby3
                   end
             params << {name: pnm, type: rb_type}
             if paramdef.default
-              # in case the default expression contains anything else but simple numbers or identifiers characters, wrap in ()
-              params.last[:default] = if /\A([\d\-\+\.]+|[\w:]+)\Z/ =~ paramdef.default
-                                        rb_constant_value(paramdef.default)
+              defexp = rb_constant_expression(paramdef.default)
+              # in case the default expression contains anything else but simple numbers or identifiers, wrap in ()
+              params.last[:default] = if /\A([\d\-\+\.]+|[\w:]+)\Z/ =~ defexp
+                                        defexp
                                       else
-                                        "(#{paramdef.default.gsub(/\w+/) { |s| rb_constant_value(s) }})"
+                                        "(#{defexp})"
                                       end
             end
           end

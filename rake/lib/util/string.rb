@@ -80,6 +80,50 @@ module WXRuby3
         val == 'NULL' ? 'nil' : val
       end
 
+      def rb_constant_expression(exp)
+        exp.gsub(/(\w+(::\w+)*)(\s*\()?/) do |s|
+          idstr = $1
+          is_call = !!$3
+          is_scoped = false
+          ids = idstr.split('::')
+          if ids.size > 1
+            is_scoped = true
+            scoped_name = rb_constant_value(ids.shift)
+            while ids.size > 1
+              scoped_name << '::' << ids.shift
+            end
+          end
+          idstr = ids.shift
+          if is_call
+            # object ctor or static method call
+            if is_scoped
+              # static method
+              "#{scoped_name}.#{rb_method_name(idstr)}("
+            else
+              # ctor
+              case idstr
+              when 'wxString'
+                '('
+              else
+                "#{rb_constant_value(idstr)}.new("
+              end
+            end
+          else
+            if is_scoped
+              # nested identifier
+              "#{scoped_name}::#{idstr}"
+            else
+              # constant
+              if /[\-\+\.\d]+/ =~ idstr
+                idstr # numeric constant
+              else
+                "Wx::#{rb_constant_name(idstr)}"
+              end
+            end
+          end
+        end
+      end
+
     end
 
   end
