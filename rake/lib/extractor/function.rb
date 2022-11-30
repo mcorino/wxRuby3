@@ -131,6 +131,8 @@ module WXRuby3
         unless ovls.empty?
           if ovls.size>1
             stream.puts "def #{rb_decl_name}(*args) end"
+          elsif paramlist.empty?
+            stream.puts "def #{rb_decl_name}; end"
           else
             stream.puts "def #{rb_decl_name}(#{paramlist}) end"
           end
@@ -191,7 +193,7 @@ module WXRuby3
           end
         end if params_doc
         # collect full function docs
-        paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ')
+        paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ').strip
         if has_ovl
           stream.doc.puts "@overload #{rb_decl_name}(#{paramlist})"
           stream.doc.puts doc.split("\n").collect { |ln| '  '+ln }
