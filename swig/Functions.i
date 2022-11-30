@@ -38,6 +38,46 @@ public:
 // sprintf in ruby, then pass the composed message directly to the
 // log. This also avoids format string attacks.
 
+// Log a Wx message with the given level to the current Wx log output
+static VALUE log_generic(int argc, VALUE *argv, VALUE self)
+{
+  if ( wxLog::IsEnabled() )
+    {
+      wxLogLevel lvl = static_cast<wxLogLevel> (NUM2INT(argv[0]));
+      VALUE log_msg = rb_f_sprintf(argc-1, &argv[1]);
+      wxLog::OnLog( lvl,
+                    wxString(StringValuePtr(log_msg), wxConvUTF8),
+                    time(NULL) );
+    }
+  return Qnil;
+}
+
+// Log a Wx low prio Message to the current Wx log output
+static VALUE log_info(int argc, VALUE *argv, VALUE self)
+{
+  if ( wxLog::IsEnabled() )
+    {
+      VALUE log_msg = rb_f_sprintf(argc, argv);
+      wxLog::OnLog( wxLOG_Info,
+                    wxString(StringValuePtr(log_msg), wxConvUTF8),
+                    time(NULL) );
+    }
+  return Qnil;
+}
+
+// Log a Wx verbose Message to the current Wx log output
+static VALUE log_verbose(int argc, VALUE *argv, VALUE self)
+{
+  if ( wxLog::IsEnabled() && wxLog::GetVerbose () )
+    {
+      VALUE log_msg = rb_f_sprintf(argc, argv);
+      wxLog::OnLog( wxLOG_Info,
+                    wxString(StringValuePtr(log_msg), wxConvUTF8),
+                    time(NULL) );
+    }
+  return Qnil;
+}
+
 // Log a Wx Message to the current Wx log output
 static VALUE log_message(int argc, VALUE *argv, VALUE self)
 {
@@ -232,6 +272,9 @@ wxString wxGetStockHelpString(wxWindowID id,
 
 
 %init %{
+    rb_define_module_function(mWxCore, "log_generic", VALUEFUNC(log_generic), -1);
+    rb_define_module_function(mWxCore, "log_info", VALUEFUNC(log_info), -1);
+    rb_define_module_function(mWxCore, "log_verbose", VALUEFUNC(log_verbose), -1);
     rb_define_module_function(mWxCore, "log_message", VALUEFUNC(log_message), -1);
     rb_define_module_function(mWxCore, "log_warning", VALUEFUNC(log_warning), -1);
     rb_define_module_function(mWxCore, "log_status", VALUEFUNC(log_status), -1);
