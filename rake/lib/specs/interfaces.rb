@@ -14,6 +14,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxGDICommon')
     Director.Spec(pkg, 'wxColour')
     Director.Spec(pkg, 'wxObject')
+    Director.Spec(pkg, 'wxKeyboardState')
+    Director.Spec(pkg, 'wxMouseState')
     Director.Spec(pkg, 'wxEvent')
     Director.Spec(pkg, 'wxEvtHandler')
     Director.Spec(pkg, 'wxApp')
