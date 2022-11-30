@@ -322,8 +322,8 @@ module WXRuby3
       # transform all cross references
       def ref_to_doc(node)
         ref_id = Extractor.crossref_table[node['refid']] || {}
+        return node.text if /\s/ =~ node.text # no crossref transforming if text contains whitespace; return plain text
         if no_ref?
-          node.text
           _ident_str_to_doc(node.text, ref_id[:scope])
         else
           "{#{_ident_str_to_doc(node.text, ref_id[:scope])}}"
