@@ -121,13 +121,16 @@ module WXRuby3
       end
 
       def rb_decl_name
-        rb_method_name(name)
+        "self.#{rb_method_name(name)}"
       end
 
-      def rb_doc(clsdef, stream, xml_trans)
+      def rb_doc(stream, xml_trans)
         ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
         paramlist = nil
-        ovls.each { |mo| paramlist = mo.rb_doc_decl(clsdef, stream, xml_trans, ovls.size>1) }
+        param_mapping = ->(param_defs) {
+          BaseDef.find_param_mapping(param_defs)
+        }
+        ovls.each { |mo| paramlist = mo.rb_doc_decl(stream, xml_trans, param_mapping, ovls.size>1) }
         unless ovls.empty?
           if ovls.size>1
             stream.puts "def #{rb_decl_name}(*args) end"
@@ -140,7 +143,7 @@ module WXRuby3
         end
       end
 
-      def rb_doc_decl(clsdef, stream, xml_trans, has_ovl=false)
+      def rb_doc_decl(stream, xml_trans, param_mapping, has_ovl=false)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # unlink params_doc if any
@@ -153,9 +156,8 @@ module WXRuby3
         param_defs = parameters
         params = []
         until param_defs.empty?
-          # check for param mapping at current pos in param list, either class defined
-          if (mapping = clsdef.find_param_mapping(param_defs) ||
-                BaseDef.find_param_mapping(param_defs)) # or globally
+          # check for param mapping at current pos in param list
+          if (mapping = param_mapping.call(param_defs))
             # remove mapped param definitions
             param_defs.shift(mapping.from_count)
             # store mapping
@@ -173,10 +175,11 @@ module WXRuby3
                   end
             params << {name: pnm, type: rb_type}
             if paramdef.default
-              params.last[:default] = if /[\w\s]/ =~ paramdef.default
-                                        "(#{paramdef.default.gsub(/\w+/) { |s| rb_constant_value(s) }})"
-                                      else
+              # in case the default expression contains anything else but simple numbers or identifiers characters, wrap in ()
+              params.last[:default] = if /\A([\d\-\+\.]+|[\w:]+)\Z/ =~ paramdef.default
                                         rb_constant_value(paramdef.default)
+                                      else
+                                        "(#{paramdef.default.gsub(/\w+/) { |s| rb_constant_value(s) }})"
                                       end
             end
           end
@@ -368,7 +371,7 @@ module WXRuby3
         if is_ctor
           'initialize'
         else
-          "#{is_static ? 'self.' : ''}#{super}"
+          "#{is_static ? 'self.' : ''}#{rb_method_name(name)}"
         end
       end
 
@@ -376,6 +379,25 @@ module WXRuby3
         sig = super
         sig << ' const' if is_const
         sig
+      end
+
+      def rb_doc(stream, xml_trans, clsdef)
+        ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
+        paramlist = nil
+        param_mapping = ->(param_defs) {
+          clsdef.find_param_mapping(param_defs) || BaseDef.find_param_mapping(param_defs)
+        }
+        ovls.each { |mo| paramlist = mo.rb_doc_decl(stream, xml_trans, param_mapping, ovls.size>1) }
+        unless ovls.empty?
+          if ovls.size>1
+            stream.puts "def #{rb_decl_name}(*args) end"
+          elsif paramlist.empty?
+            stream.puts "def #{rb_decl_name}; end"
+          else
+            stream.puts "def #{rb_decl_name}(#{paramlist}) end"
+          end
+          stream.puts
+        end
       end
 
     end # class MethodDef

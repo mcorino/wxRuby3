@@ -435,6 +435,7 @@ module WXRuby3
         fdoc.puts
         fdoc.indent do
           gen_constants_doc(fdoc, genspec)
+          gen_functions_doc(fdoc, genspec) unless genspec.no_gen?(:functions)
           gen_class_doc(fdoc, genspec) unless genspec.no_gen?(:classes)
         end
         fdoc.puts
@@ -506,6 +507,14 @@ module WXRuby3
               end
             end
           end
+        end
+      end
+    end
+
+    def gen_functions_doc(fdoc, genspec)
+      genspec.def_items.select {|itm| !itm.docs_ignored }.each do |item|
+        if Extractor::FunctionDef === item && !item.docs_ignored
+          item.rb_doc(fdoc, @xml_trans)
         end
       end
     end

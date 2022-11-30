@@ -241,7 +241,7 @@ module WXRuby3
       end
 
       def rb_doc(stream, xml_trans)
-        methods.select { |m| !m.is_dtor }.each { |mtd| mtd.rb_doc(self, stream, xml_trans) }
+        methods.select { |m| !m.is_dtor }.each { |mtd| mtd.rb_doc(stream, xml_trans, self) }
       end
 
       def methods
