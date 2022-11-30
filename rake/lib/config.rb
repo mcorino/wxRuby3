@@ -161,7 +161,7 @@ module WXRuby3
             @rb_lib_path = File.join(Config.wxruby_root, @rb_lib_dir)
             @rb_doc_dir = File.join(@rb_lib_dir, 'wx', 'doc')
             @rb_doc_path = File.join(Config.wxruby_root, @rb_doc_dir)
-            @rb_docgen_dir = File.join(@rb_doc_dir, 'ext')
+            @rb_docgen_dir = File.join(@rb_doc_dir, 'gen')
             @rb_docgen_path = File.join(Config.wxruby_root, @rb_docgen_dir)
             FileUtils.mkdir_p(@rb_docgen_path)
 
