@@ -159,9 +159,11 @@ module WXRuby3
             FileUtils.mkdir_p(@ext_path)
             @rb_lib_dir = 'lib'
             @rb_lib_path = File.join(Config.wxruby_root, @rb_lib_dir)
-            @rb_doc_dir = File.join(@rb_lib_dir, 'wx', 'ext')
+            @rb_doc_dir = File.join(@rb_lib_dir, 'wx', 'doc')
             @rb_doc_path = File.join(Config.wxruby_root, @rb_doc_dir)
-            FileUtils.mkdir_p(@rb_doc_path)
+            @rb_docgen_dir = File.join(@rb_doc_dir, 'ext')
+            @rb_docgen_path = File.join(Config.wxruby_root, @rb_docgen_dir)
+            FileUtils.mkdir_p(@rb_docgen_path)
 
             # Extra swig helper files to be built
             @helper_modules = if macosx?
@@ -289,7 +291,8 @@ module WXRuby3
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
-          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path, :rb_doc_dir, :rb_doc_path
+          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path,
+                      :rb_doc_dir, :rb_doc_path, :rb_docgen_dir, :rb_docgen_path
 
           def mswin?
             @platform == :mswin

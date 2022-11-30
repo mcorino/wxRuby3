@@ -56,9 +56,9 @@ module WXRuby3
 
       def ruby_doc_path
         if is_core?
-          Config.instance.rb_doc_path
+          Config.instance.rb_docgen_path
         else
-          File.join(Config.instance.rb_doc_path, underscore(name))
+          File.join(Config.instance.rb_docgen_path, underscore(name))
         end
       end
 
