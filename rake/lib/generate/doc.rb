@@ -211,6 +211,7 @@ module WXRuby3
           a.split(' ').last
         end.join(',').strip
       end
+      private :_arglist_to_doc
 
       def _is_method?(itmname, clsnm=nil)
         spec = clsnm ? Director::Spec.class_index[clsnm] : @genspec
@@ -229,6 +230,7 @@ module WXRuby3
         end
         false
       end
+      private :_is_method?
 
       def _is_static_method?(clsnm, mtdname)
         if clsspec = Director::Spec.class_index[clsnm]
@@ -240,6 +242,7 @@ module WXRuby3
         end
         false
       end
+      private :_is_static_method?
 
       def _ident_str_to_doc(s, ref_scope = nil)
         nmlist = s.split('::')
@@ -264,6 +267,8 @@ module WXRuby3
           else
             if DocGenerator.constants_xref_db.has_key?(constnm)
               "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+            elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
+              "Wx::#{rb_constant_name(nm_str)}"
             elsif !_is_method?(nm_str, ref_scope)
               "Wx::#{constnm}"
             else
@@ -291,6 +296,9 @@ module WXRuby3
           end
           if DocGenerator.constants_xref_db.has_key?(constnm)
             constnm = "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+          elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
+            cnm = rb_constant_name(nm_str)
+            constnm = "#{DocGenerator.constants_xref_db[cnm]['mod']}::#{cnm}"
           elsif nm_str.start_with?('wx')
             constnm = "Wx::#{constnm}"
           end
@@ -309,6 +317,7 @@ module WXRuby3
           end
         end
       end
+      private :_ident_str_to_doc
 
       # transform all cross references
       def ref_to_doc(node)

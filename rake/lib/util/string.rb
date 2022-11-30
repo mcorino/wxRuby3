@@ -54,6 +54,13 @@ module WXRuby3
         rbnm
       end
 
+      def rb_constant_name(name)
+        rbnm = underscore(name)
+        rbnm.sub!(/\Awx_/, '')
+        rbnm.upcase!
+        rbnm
+      end
+
       def rb_param_name(name)
         rbnm = name.dup
         rbnm << '_' if RBKW.include?(name)
