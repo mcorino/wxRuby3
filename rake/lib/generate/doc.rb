@@ -302,7 +302,7 @@ module WXRuby3
               "#{constnm}#{sep}#{rb_method_name(itmnm)}"
             end
           elsif nm_str == mtd # ctor?
-            "#{constnm}\#initialize(#{args})"
+            args.empty? ? "#{constnm}\#initialize" : "#{constnm}\#initialize(#{args})"
           else
             sep = _is_static_method?(nm_str, mtd) ? '.' : '#'
             args.empty? ? "#{constnm}#{sep}#{rb_method_name(mtd)}" : "#{constnm}#{sep}#{rb_method_name(mtd)}(#{args}})"
