@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxFontInfo'
         spec.ignore %w[
           wxFont::SetNativeFontInfo wxFont::GetNativeFontInfo wxFont::operator!=
           ]
