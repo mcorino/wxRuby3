@@ -73,9 +73,13 @@ module WXRuby3
               *redirect = RSTR_TO_WXSTR(result);
               c_result = wxHTML_REDIRECT;
             }
+            else if (result != Qnil && result != Qfalse)
+            {
+              c_result = wxHTML_OPEN;
+            }
             else
             {
-              c_result = static_cast<wxHtmlOpeningStatus> (NUM2INT(result));
+              c_result = wxHTML_BLOCK;
             }
           }
 
