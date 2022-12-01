@@ -280,6 +280,8 @@ module WXRuby3
             fsrc.puts
             if is_core?
               fsrc.puts %Q{#{module_variable} = rb_define_module("Wx");}
+              # create instance variable for main module with array to record package submodules in
+              fsrc.puts %Q{rb_ivar_set(#{module_variable}, rb_intern("@__pkgmods__"), rb_ary_new());}
               fsrc.puts
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
@@ -289,6 +291,8 @@ module WXRuby3
               end
             else
               fsrc.puts %Q{#{module_variable} = rb_define_module_under(wxRuby_Core(), "#{name}");}
+              # record package submodule in main module's list
+              fsrc.puts %Q{rb_ary_push(rb_ivar_get(wxRuby_Core(), rb_intern("@__pkgmods__")), #{module_variable});}
             end
             fsrc.puts
           end

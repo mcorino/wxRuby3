@@ -121,13 +121,31 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
   wxString class_name( wx_obj->GetClassInfo()->GetClassName() );
   wxCharBuffer wx_classname = class_name.mb_str();
   VALUE r_class_name = rb_intern(wx_classname.data () + 2);
-  VALUE r_class;
+  VALUE r_class = Qnil;
+
+  if ( class_name.Len() > 2 )
+  {
+    // lookup the class in the main module and any package submodules loaded
+    if (rb_const_defined(mWxCore, r_class_name))
+      r_class = rb_const_get(mWxCore, r_class_name);
+    else
+    {
+      VALUE submod_ary = rb_ivar_get(mWxCore, rb_intern("@__pkgmods__"));
+      for (long n=0; n<RARRAY_LEN(submod_ary); ++n)
+      {
+        VALUE submod = rb_ary_entry(submod_ary, n);
+        if (rb_const_defined(submod, r_class_name))
+        {
+          r_class = rb_const_get(submod, r_class_name);
+          break;
+        }
+      }
+    }
+  }
 
   // If the class is loadable from XML, but not yet supported in wxRuby,
   // raise an error because class-specific methods won't be accessible
-  if ( class_name.Len() > 2 && rb_const_defined(mWxCore, r_class_name) )
-	r_class = rb_const_get(mWxCore, r_class_name);
-  else
+  if ( r_class == Qnil )
     rb_raise(rb_eNotImpError,
              "Error wrapping object; class `%s' is not supported in wxRuby",
              (const char *)class_name.mb_str() );
