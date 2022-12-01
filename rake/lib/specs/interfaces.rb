@@ -198,6 +198,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
     Director.Spec(pkg, 'wxHtmlHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHtmlCell')
+    Director.Spec(pkg, 'wxHtmlEasyPrinting')
   }
 
 end # module WXRuby3
