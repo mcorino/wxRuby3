@@ -15,7 +15,7 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'wxHtmlWidgetCell'
+        spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'wxHtmlWidgetCell' << 'htmldefs.h'
         spec.no_proxy 'wxHtmlCell'
       end
     end # class HtmlCell
