@@ -209,7 +209,7 @@ module Wx
       # its own copy of the param_spec
       def klass.inherited(sub_klass)
         sub_klass.instance_variable_set(:@param_spec, 
-                                        instance_variable_get(:@param_spec) )
+                                        instance_variable_get(:@param_spec).dup )
       end
     end
   end

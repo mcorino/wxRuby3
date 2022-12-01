@@ -44,6 +44,13 @@ module Wx
       STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx::RB_DEBUG
       return nil
     end if ::String === klass
+    # if the klass inherited from a class already including Wx::KeywordConstructor
+    # it already will have a @param_spec array copied from the base
+    # we need to clear it here because we're going to define a new param_spec for
+    # this specific derivative
+    if klass < Wx::KeywordConstructor
+      klass.param_spec.clear
+    end
     klass.module_eval { include Wx::KeywordConstructor }
     klass.instance_eval(&block)
   end
