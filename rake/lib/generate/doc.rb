@@ -168,6 +168,12 @@ module WXRuby3
         end
       end
 
+      def computeroutput_to_doc(node)
+        no_ref do
+          "<code>#{node_to_doc(node)}</code>"
+        end
+      end
+
       def bold_to_doc(node)
         "<b>#{node_to_doc(node)}</b>"
       end
