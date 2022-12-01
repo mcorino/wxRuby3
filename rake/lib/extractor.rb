@@ -133,10 +133,6 @@ module WXRuby3
         @verbose = !!v
       end
 
-      def crossref_table
-        @crossref_table ||= {}
-      end
-
       def extracting_msg(kind, element, name_tag='name')
         puts('Extracting %s: %s' % [kind, element.at_xpath("#{name_tag}").text]) if verbose
       end

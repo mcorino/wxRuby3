@@ -33,13 +33,14 @@ module WXRuby3
         @event_list = false # if so, class has emitted events specified
         @event_types = []
         @param_mappings = []
+        @crossref_table = {}
 
         update_attributes(**kwargs)
         extract(element) if element
       end
 
-      attr_accessor :kind, :protection, :template_params, :bases, :sub_classes, :hierarchy, :includes,
-                    :abstract, :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_list, :event_types
+      attr_accessor :kind, :protection, :template_params, :bases, :sub_classes, :hierarchy, :includes, :abstract,
+                    :no_def_ctor, :innerclasses, :is_inner, :klass, :event, :event_list, :event_types, :crossref_table
 
       def is_template?
         !template_params.empty?
@@ -90,6 +91,13 @@ module WXRuby3
       def is_derived_from?(classname)
         !!find_base(@hierarchy, classname)
       end
+
+      def add_crossrefs(element)
+        element.xpath('listofallmembers/member').each do |node|
+          crossref_table[node['refid']] = { scope: node.at_xpath('scope').text, name: node.at_xpath('name').text }
+        end
+      end
+      private :add_crossrefs
 
       def extract(element)
         super
@@ -177,7 +185,7 @@ module WXRuby3
             unless %w[class struct].include?(kind)
               raise ExtractorError.new("Invalid innerclass kind [#{kind}]")
             end
-            item = ClassDef.new(innerclass, kind)
+            item = ClassDef.new(innerclass, kind, gendoc: self.gendoc)
             item.protection = node['prot']
             item.is_inner = true
             item.klass = self # This makes a reference cycle but it's okay
@@ -194,22 +202,22 @@ module WXRuby3
             case _kind = node['kind']
             when 'function'
               Extractor.extracting_msg(_kind, node)
-              member = MethodDef.new(node, self.name, klass: self)
+              member = MethodDef.new(node, self.name, klass: self, gendoc: self.gendoc)
               #@abstract = true if m.is_pure_virtual
               unless member.check_for_overload(self.items)
                 self.items << member
               end
             when 'variable'
               Extractor.extracting_msg(_kind, node)
-              member = MemberVarDef.new(node)
+              member = MemberVarDef.new(node, gendoc: self.gendoc)
               self.items << member
             when 'enum'
               Extractor.extracting_msg(_kind, node)
-              member = EnumDef.new(node, [self])
+              member = EnumDef.new(node, [self], gendoc: self.gendoc)
               self.items << member
             when 'typedef'
               Extractor.extracting_msg(_kind, node)
-              member = TypedefDef.new(node)
+              member = TypedefDef.new(node, gendoc: self.gendoc)
               self.items << member
             when 'friend'
               # noop
@@ -220,6 +228,8 @@ module WXRuby3
             member.ignore if member.protection == 'protected'
           end
         end
+
+        add_crossrefs(element) if self.gendoc
 
         # make abstract unless the class has at least 1 public ctor
         ctor = self.items.find {|m| MethodDef === m && m.is_ctor }

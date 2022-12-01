@@ -321,12 +321,15 @@ module WXRuby3
 
       # transform all cross references
       def ref_to_doc(node)
-        ref_id = Extractor.crossref_table[node['refid']] || {}
+        if @classdef
+          ref = @classdef.crossref_table[node['refid']]
+        end
+        ref ||= {}
         return node.text if /\s/ =~ node.text # no crossref transforming if text contains whitespace; return plain text
         if no_ref?
-          _ident_str_to_doc(node.text, ref_id[:scope])
+          _ident_str_to_doc(node.text, ref[:scope])
         else
-          "{#{_ident_str_to_doc(node.text, ref_id[:scope])}}"
+          "{#{_ident_str_to_doc(node.text, ref[:scope])}}"
         end
       end
 
@@ -404,7 +407,18 @@ module WXRuby3
 
       def initialize(genspec)
         @genspec = genspec
+        @classdef = nil
         @see_list = []
+      end
+
+      def for_class(clsdef, &block)
+        prevcls = @classdef
+        @classdef = clsdef
+        begin
+          block.call
+        ensure
+          @classdef = prevcls
+        end
       end
 
       def to_doc(xmlnode_or_set)
@@ -531,34 +545,36 @@ module WXRuby3
     def gen_class_doc(fdoc, genspec)
       genspec.def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !genspec.is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || genspec.template_as_class?(item.name)
-          clsnm = rb_wx_name(item.name)
-          xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
-          basecls = genspec.base_class(item)
-          fdoc.doc.puts(@xml_trans.to_doc(item.brief_doc))
-          fdoc.doc.puts
-          fdoc.doc.puts(@xml_trans.to_doc(item.detailed_doc))
-          fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
-          fdoc.puts
-          fdoc.indent do
-            # generate documentation for any enums /and/or inner classes
-            item.items.each do |member|
-              unless member.docs_ignored
-                case member
-                when Extractor::EnumDef
-                  member.items.each do |e|
-                    const_name = rb_wx_name(e.name)
-                    if xref_table.has_key?(const_name)
-                      gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(e.brief_doc))
-                    end
-                  end if xref_table
+          @xml_trans.for_class(item) do
+            clsnm = rb_wx_name(item.name)
+            xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
+            basecls = genspec.base_class(item)
+            fdoc.doc.puts(@xml_trans.to_doc(item.brief_doc))
+            fdoc.doc.puts
+            fdoc.doc.puts(@xml_trans.to_doc(item.detailed_doc))
+            fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
+            fdoc.puts
+            fdoc.indent do
+              # generate documentation for any enums /and/or inner classes
+              item.items.each do |member|
+                unless member.docs_ignored
+                  case member
+                  when Extractor::EnumDef
+                    member.items.each do |e|
+                      const_name = rb_wx_name(e.name)
+                      if xref_table.has_key?(const_name)
+                        gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(e.brief_doc))
+                      end
+                    end if xref_table
+                  end
                 end
               end
+              # generate method documentation
+              item.rb_doc(fdoc, @xml_trans)
             end
-            # generate method documentation
-            item.rb_doc(fdoc, @xml_trans)
+            fdoc.puts "end # #{clsnm}"
+            fdoc.puts
           end
-          fdoc.puts "end # #{clsnm}"
-          fdoc.puts
         end
       end
     end

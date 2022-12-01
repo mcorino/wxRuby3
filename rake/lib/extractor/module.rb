@@ -28,7 +28,7 @@ module WXRuby3
       end
 
       attr_accessor :package, :module_name, :header_code, :cpp_code, :initializer_code,
-                    :pre_initializer_code, :post_initializer_code, :is_a_real_module
+                    :pre_initializer_code, :post_initializer_code, :is_a_real_module, :gendoc
 
       # Called after the loading of items from the XML has completed, just
       # before the tweaking stage is done.
@@ -65,20 +65,7 @@ module WXRuby3
           end
         end
         self.items = one + two + three
-
-        # # give everything an isCore flag
-        # global _globalIsCore
-        # _globalIsCore = self.module == '_core'
-        # for item in self.allItems():
-        #     item.isCore = _globalIsCore
       end
-
-      def add_crossrefs(element)
-        element.xpath('listofallmembers/member').each do |node|
-          Extractor.crossref_table[node['refid']] = { scope: node.at_xpath('scope').text, name: node.at_xpath('name').text }
-        end
-      end
-      private :add_crossrefs
 
       def add_element(element)
         item = nil
@@ -86,36 +73,34 @@ module WXRuby3
         case kind
         when 'class'
           Extractor.extracting_msg(kind, element, ClassDef::NAME_TAG)
-          item = ClassDef.new(element, module: self)
+          item = ClassDef.new(element, gendoc: @gendoc)
           self.items << item
-          add_crossrefs(element) if @gendoc
 
         when 'struct'
           Extractor.extracting_msg(kind, element, ClassDef::NAME_TAG)
-          item = ClassDef.new(element, kind: 'struct')
+          item = ClassDef.new(element, kind: 'struct', gendoc: @gendoc)
           self.items << item
-          add_crossrefs(element) if @gendoc
 
         when 'function'
           Extractor.extracting_msg(kind, element)
-          item = FunctionDef.new(element, module: self)
+          item = FunctionDef.new(element, gendoc: @gendoc)
           self.items << item unless item.check_for_overload(self.items)
 
         when 'enum'
           in_class = []
           self.items.each { |el| in_class << el if el.is_a?(ClassDef) }
           Extractor.extracting_msg(kind, element)
-          item = EnumDef.new(element, in_class)
+          item = EnumDef.new(element, in_class, gendoc: @gendoc)
           self.items << item
 
         when 'variable'
           Extractor.extracting_msg(kind, element)
-          item = GlobalVarDef.new(element)
+          item = GlobalVarDef.new(element, gendoc: @gendoc)
           self.items << item
 
         when 'typedef'
           Extractor.extracting_msg(kind, element)
-          item = TypedefDef.new(element)
+          item = TypedefDef.new(element, gendoc: @gendoc)
           self.items << item
 
         when 'define'
@@ -128,7 +113,7 @@ module WXRuby3
             # There will have to be some tweaking done for items that are
             # not numeric...
             Extractor.extracting_msg(kind, element)
-            item = DefineDef.new(element)
+            item = DefineDef.new(element, gendoc: @gendoc)
             self.items << item
           end
 
