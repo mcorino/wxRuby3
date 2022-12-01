@@ -192,6 +192,7 @@ module WXRuby3
   Director.Package('Wx::Html', 'wxUSE_HTML') { |pkg|
     Director.Spec(pkg, 'wxHtmlWindow')
     Director.Spec(pkg, 'wxHtmlHelpData')
+    Director.Spec(pkg, 'wxHtmlHelpWindow', director: Director::Window)
     Director.Spec(pkg, 'wxHtmlHelpFrame')
     Director.Spec(pkg, 'wxHtmlCellEvent', director: Director::HtmlEvent)
     Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
