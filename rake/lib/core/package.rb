@@ -331,6 +331,24 @@ module WXRuby3
         end
       end
 
+      def generate_event_types(fout, item, evts_handled)
+        fout.puts "  # from #{item.name}"
+        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
+          evh_name = evt_hnd.downcase
+          unless evts_handled.include?(evh_name)
+            evt_klass ||= item.name
+            fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
+                      self.register_event_type EventType[
+                          '#{evh_name}', #{evt_arity},
+                          #{fullname}::#{evt_type},
+                          #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
+                        ] if #{fullname}.const_defined?(:#{evt_type})
+            __HEREDOC
+            evts_handled << evh_name
+          end
+        end
+      end
+
       def generate_event_list
         # determine Ruby library events root for package
         rbevt_root = File.join(ruby_classes_path, 'events')
@@ -347,24 +365,19 @@ module WXRuby3
             class Wx::EvtHandler
           __HEREDOC
           evts_handled = ::Set.new
+          # first iterate all event classes
           included_directors.each do |dir|
             dir.defmod.items.each do |item|
-              if Extractor::ClassDef === item && (item.event || item.event_list)
-                fout.puts "  # from #{item.name}"
-                item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
-                  evh_name = evt_hnd.downcase
-                  unless evts_handled.include?(evh_name)
-                    evt_klass ||= item.name
-                    fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
-                      self.register_event_type EventType[
-                          '#{evh_name}', #{evt_arity},
-                          #{fullname}::#{evt_type},
-                          #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
-                        ] if #{fullname}.const_defined?(:#{evt_type})
-                    __HEREDOC
-                    evts_handled << evh_name
-                  end
-                end
+              if Extractor::ClassDef === item && item.event
+                generate_event_types(fout, item, evts_handled)
+              end
+            end
+          end
+          # now see what's left in the arbitrary event lists declared in various classes
+          included_directors.each do |dir|
+            dir.defmod.items.each do |item|
+              if Extractor::ClassDef === item && item.event_list
+                generate_event_types(fout, item, evts_handled)
               end
             end
           end
