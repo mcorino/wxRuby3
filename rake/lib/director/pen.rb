@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxPenInfo'
         spec.disable_proxies
         spec.add_header_code <<~__HEREDOC
           // special free func is needed to clean up Dashes array if it has been
@@ -34,7 +35,7 @@ module WXRuby3
         # dealt with below - these require special handling becaause of the use
         # of wxDash array, which cannot be freed until the pen is disposed of
         # or until a new dash pattern is specified.
-        spec.ignore %w[wxPen::GetDashes wxPen::SetDashes]
+        spec.ignore(%w[wxPen::GetDashes wxPen::SetDashes], ignore_doc: false)
         spec.add_extend_code 'wxPen', <<~__HEREDOC
           // Returns a ruby array with the dash lengths
           VALUE get_dashes() {
