@@ -509,22 +509,31 @@ module WXRuby3
         case item
         when Extractor::GlobalVarDef
           unless genspec.no_gen?(:variables)
-            const_name = underscore!(rb_wx_name(item.name)).upcase
+            const_name = rb_constant_name(item.name)
             if xref_table.has_key?(const_name)
               gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(item.brief_doc))
             end
           end
         when Extractor::EnumDef
           unless genspec.no_gen?(:enums)
-            enum_name = rb_wx_name(item.name)
-            if xref_table.has_key?(enum_name)
-              gen_enum_doc(fdoc, enum_name, item, xref_table[enum_name]['table'] || {})
+            if item.is_anonymous
+              item.items.each do |e|
+                const_name = rb_constant_name(e.name)
+                if xref_table.has_key?(const_name)
+                  gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(e.brief_doc))
+                end
+              end
+            else
+              enum_name = rb_wx_name(item.name)
+              if xref_table.has_key?(enum_name)
+                gen_enum_doc(fdoc, enum_name, item, xref_table[enum_name]['table'] || {})
+              end
             end
           end
         when Extractor::DefineDef
           unless genspec.no_gen?(:defines)
             if !item.is_macro? && item.value && !item.value.empty?
-              const_name = underscore!(rb_wx_name(item.name)).upcase
+              const_name = rb_constant_name(item.name)
               if xref_table.has_key?(const_name)
                 gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(item.brief_doc))
               end
