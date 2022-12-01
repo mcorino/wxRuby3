@@ -30,7 +30,8 @@ module WXRuby3
         case spec.module_name
         when 'wxBookCtrlBase'
           spec.make_abstract 'wxBookCtrlBase'
-          spec.items.replace %w[wxBookCtrlBase wxWithImages]
+          spec.items.replace %w[wxBookCtrlBase wxWithImages bookctrl.h]
+          spec.ignore 'wxBookCtrl' # useless define in bookctrl.h doc
           spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.ignore('wxWithImages::@.NO_IMAGE', 'wxWithImages::SetImageList')
