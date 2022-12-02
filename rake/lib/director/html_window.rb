@@ -17,7 +17,8 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_window
+        spec.items << 'wxHtmlFilter'
+        spec.gc_as_window 'wxHtmlWindow'
         spec.ignore_bases('wxHtmlWindow' => %w[wxScrolledWindow wxHtmlWindowInterface])
         spec.override_base('wxHtmlWindow', 'wxScrolledWindow')
         spec.swig_import %w[
@@ -32,9 +33,6 @@ module WXRuby3
         # what we would get if we used fold_bases)
         spec.extend_interface 'wxHtmlWindow',
                               'enum HTMLCursor { HTMLCursor_Default, HTMLCursor_Link, HTMLCursor_Text }',
-                              'virtual void SetHTMLWindowTitle(const wxString& title)',
-                              'virtual void OnHTMLLinkClicked(const wxHtmlLinkInfo& link)',
-                              'virtual wxHtmlOpeningStatus OnHTMLOpeningURL(wxHtmlURLType type, const wxString& url, wxString *redirect) const',
                               'virtual wxPoint HTMLCoordsToWindow(wxHtmlCell *cell, const wxPoint& pos) const',
                               'virtual wxWindow* GetHTMLWindow()',
                               'virtual wxColour GetHTMLBackgroundColour() const',
@@ -44,10 +42,17 @@ module WXRuby3
                               'virtual wxCursor GetHTMLCursor(HTMLCursor type) const'
         # handled; can be suppressed
         spec.suppress_warning(473, "wxHtmlWindow::GetHTMLWindow")
-        # implement in ruby
-        spec.ignore 'wxHtmlWindow::LoadFile'
+        # deprecated; use event handler instead
+        spec.ignore 'wxHtmlWindow::OnLinkClicked'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
+        # type mapping for LoadFile, SetFonts and OnOpeningURL
         spec.add_swig_code <<~__HEREDOC
+          // Deal with wxFileName
+          %typemap(in) const wxFileName &filename (wxFileName tmp) {
+            tmp = wxFileName(RSTR_TO_WXSTR($input));
+            $1 = &tmp;
+          }
+
           // Deal with sizes argument to SetFonts
           %typemap(in) const int* sizes {
             if ( TYPE($input) != T_ARRAY || RARRAY_LEN($input) != 7 )
@@ -96,6 +101,8 @@ module WXRuby3
             }
           }
           __HEREDOC
+        # disown added HtmlFilter-s (pure Ruby override takes care of GC marking)
+        spec.disown 'wxHtmlFilter*'
       end
     end # class HtmlWindow
 
