@@ -226,6 +226,32 @@ wxString wxGetPasswordFromUser(const wxString& message,
 							   const wxString& caption = wxT("Input text"),
 							   const wxString& default_value = wxT(""),
 							   wxWindow *parent = NULL);
+
+
+wxString wxFileSelector (const wxString &message,
+                         const wxString &default_path=wxEmptyString,
+                         const wxString &default_filename=wxEmptyString,
+                         const wxString &default_extension=wxEmptyString,
+                         const wxString &wildcard=wxFileSelectorDefaultWildcardStr,
+                         int flags=0, wxWindow *parent=NULL, int x=wxDefaultCoord, int y=wxDefaultCoord);
+
+wxString wxFileSelectorEx (const wxString &message=wxFileSelectorPromptStr,
+                           const wxString &default_path=wxEmptyString,
+                           const wxString &default_filename=wxEmptyString,
+                           int *indexDefaultExtension=NULL,
+                           const wxString &wildcard=wxFileSelectorDefaultWildcardStr,
+                           int flags=0, wxWindow *parent=NULL, int x=wxDefaultCoord, int y=wxDefaultCoord);
+
+wxString wxLoadFileSelector (const wxString &what,
+                             const wxString &extension,
+                             const wxString &default_name=wxEmptyString,
+                             wxWindow *parent=NULL);
+
+wxString wxSaveFileSelector (const wxString &what,
+                             const wxString &extension,
+                             const wxString &default_name=wxEmptyString,
+                             wxWindow *parent=NULL);
+
 // wxString wxFileSelector(const wxString& message,
 // 						const wxString& default_path = wxT(""),
 // 						const wxString& default_filename = wxT(""),

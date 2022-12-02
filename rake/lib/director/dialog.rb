@@ -43,6 +43,7 @@ module WXRuby3
             # doc does not seem to match actual header code so just ignore for now
             spec.ignore('wxFileDialog::AddShortcut')
           end
+          spec.do_not_generate :functions
         when 'wxPropertySheetDialog'
           spec.ignore 'wxPropertySheetDialog::GetContentWindow'
           # In Ruby a derived class with customized '#initialize' is far easier
