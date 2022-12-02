@@ -17,6 +17,7 @@ module WXRuby3
 
       def setup
         super
+        spec.add_swig_code('%typemap(check) wxWindow* parent "";') # overrule common typemap to allow default NULL
         case spec.module_name
         when 'wxDialog'
           spec.ignore('wxDialog::GetContentWindow',
