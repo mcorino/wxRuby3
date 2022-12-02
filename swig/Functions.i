@@ -187,26 +187,10 @@ cpp_ptr_addr(VALUE self, VALUE obj)
 			   "Cannot display dialog before App.main_loop has been called");}
 }
 
-// App-wide user information methods
-void wxBeginBusyCursor(wxCursor *cursor = wxHOURGLASS_CURSOR);
-void wxEndBusyCursor();
-void wxBell();
 bool wxSafeYield(wxWindow* win = NULL, bool onlyIfNeeded = false);
 
-// System information
-wxString wxGetEmailAddress();
-wxString wxGetHostName();
-wxString wxGetFullHostName();
-wxString wxGetUserId();
-wxString wxGetUserName();
-wxString wxGetHomeDir();
-
 // Mouse / keyboard information
-bool wxGetKeyState(wxKeyCode key);
-wxWindow* wxFindWindowAtPoint(const wxPoint& pt);
 wxWindow * wxGetActiveWindow();
-wxPoint wxGetMousePosition();
-wxMouseState wxGetMouseState();
 
 // Dialog shortcuts
 int wxMessageBox(const wxString& message,

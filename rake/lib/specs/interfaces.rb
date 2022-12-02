@@ -143,6 +143,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxTaskBarIconEvent', director: Director::Event, requirements: %w[wxUSE_TASKBARICON])
     Director.Spec(pkg, 'wxTaskBarIcon', requirements: %w[wxUSE_TASKBARICON])
     Director.Spec(pkg, 'wxFSFile', requirements: %[wxUSE_FILESYSTEM])
+    Director.Spec(pkg, 'wxUtils')
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
