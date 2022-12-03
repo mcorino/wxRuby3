@@ -399,7 +399,7 @@ module WXRuby3
       public
 
       def initialize(director)
-        super
+        @director = director
         @classdef = nil
         @see_list = []
       end
@@ -459,6 +459,12 @@ module WXRuby3
       end
     end
 
+    protected
+
+    def get_constant_doc(const)
+      @xml_trans.to_doc(const.brief_doc)
+    end
+
     def gen_constant_value(val)
       if ::String === val && /\A#<(.*)>\Z/ =~ val
         valstr = $1
@@ -478,17 +484,22 @@ module WXRuby3
       fdoc.puts
     end
 
+    def get_enum_doc(enumdef)
+      doc = @xml_trans.to_doc(enumdef.brief_doc)
+      doc << "\n" if enumdef.detailed_doc
+      doc << @xml_trans.to_doc(enumdef.detailed_doc) if enumdef.detailed_doc
+      doc
+    end
+
     def gen_enum_doc(fdoc, enumname, enumdef, enum_table)
-      fdoc.doc.puts @xml_trans.to_doc(enumdef.brief_doc)
-      fdoc.doc.puts
-      fdoc.doc.puts @xml_trans.to_doc(enumdef.detailed_doc) if enumdef.detailed_doc
+      fdoc.doc.puts get_enum_doc(enumdef)
       fdoc.puts "module #{enumname}"
       fdoc.puts
       fdoc.indent do
         enumdef.items.each do |e|
           const_name = rb_wx_name(e.name)
           if enum_table.has_key?(const_name)
-            gen_constant_doc(fdoc, const_name, enum_table[const_name], @xml_trans.to_doc(e.brief_doc))
+            gen_constant_doc(fdoc, const_name, enum_table[const_name], get_constant_doc(e))
           end
         end
       end
@@ -504,7 +515,7 @@ module WXRuby3
           unless no_gen?(:variables)
             const_name = rb_constant_name(item.name)
             if xref_table.has_key?(const_name)
-              gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(item.brief_doc))
+              gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(item))
             end
           end
         when Extractor::EnumDef
@@ -513,7 +524,7 @@ module WXRuby3
               item.items.each do |e|
                 const_name = rb_constant_name(e.name)
                 if xref_table.has_key?(const_name)
-                  gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(e.brief_doc))
+                  gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(e))
                 end
               end
             else
@@ -528,7 +539,7 @@ module WXRuby3
             if !item.is_macro? && item.value && !item.value.empty?
               const_name = rb_constant_name(item.name)
               if xref_table.has_key?(const_name)
-                gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(item.brief_doc))
+                gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(item))
               end
             end
           end
@@ -536,12 +547,33 @@ module WXRuby3
       end
     end
 
+    def get_function_doc(func)
+      func.rb_doc(@xml_trans)
+    end
+
     def gen_functions_doc(fdoc)
       def_items.select {|itm| !itm.docs_ignored }.each do |item|
         if Extractor::FunctionDef === item && !item.docs_ignored
-          item.rb_doc(fdoc, @xml_trans)
+          decl, *doc = get_function_doc(item)
+          doc.each { |s| fdoc.doc.puts s }
+          fdoc.puts decl
         end
       end
+    end
+
+    def get_class_doc(cls)
+      doc = @xml_trans.to_doc(cls.brief_doc)
+      doc << "\n" if cls.detailed_doc
+      doc << @xml_trans.to_doc(cls.detailed_doc) if cls.detailed_doc
+      doc
+    end
+
+    def get_method_doc(mtd, cls)
+      mtd.rb_doc(@xml_trans, cls)
+    end
+
+    def get_class_constant_doc(const, _clsnm)
+      @xml_trans.to_doc(const.brief_doc)
     end
 
     def gen_class_doc(fdoc)
@@ -551,9 +583,7 @@ module WXRuby3
             clsnm = rb_wx_name(item.name)
             xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
             basecls = base_class(item)
-            fdoc.doc.puts(@xml_trans.to_doc(item.brief_doc))
-            fdoc.doc.puts
-            fdoc.doc.puts(@xml_trans.to_doc(item.detailed_doc))
+            fdoc.doc.puts get_class_doc(item)
             fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
             fdoc.puts
             fdoc.indent do
@@ -565,14 +595,19 @@ module WXRuby3
                     member.items.each do |e|
                       const_name = rb_wx_name(e.name)
                       if xref_table.has_key?(const_name)
-                        gen_constant_doc(fdoc, const_name, xref_table[const_name], @xml_trans.to_doc(e.brief_doc))
+                        gen_constant_doc(fdoc, const_name, xref_table[const_name], get_class_constant_doc(e, clsnm))
                       end
                     end if xref_table
                   end
                 end
               end
               # generate method documentation
-              item.rb_doc(fdoc, @xml_trans)
+              item.methods.select { |m| !m.is_dtor }.each do |mtd|
+                decl, *doc = get_method_doc(mtd, item)
+                doc.each { |s| fdoc.doc.puts s }
+                fdoc.puts decl
+                fdoc.puts
+              end
             end
             fdoc.puts "end # #{clsnm}"
             fdoc.puts

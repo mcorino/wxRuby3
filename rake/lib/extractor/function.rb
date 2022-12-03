@@ -124,26 +124,26 @@ module WXRuby3
         "self.#{rb_method_name(name)}"
       end
 
-      def rb_doc(stream, xml_trans)
+      def rb_doc(xml_trans)
         ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
         paramlist = nil
         param_mapping = ->(param_defs) {
           BaseDef.find_param_mapping(param_defs)
         }
-        ovls.each { |mo| paramlist = mo.rb_doc_decl(stream, xml_trans, param_mapping, ovls.size>1) }
+        doc = ovls.collect { |mo| paramlist, docstr = mo.rb_doc_decl(xml_trans, param_mapping, ovls.size>1); docstr }
         unless ovls.empty?
           if ovls.size>1
-            stream.puts "def #{rb_decl_name}(*args) end"
+            doc.unshift "def #{rb_decl_name}(*args) end"
           elsif paramlist.empty?
-            stream.puts "def #{rb_decl_name}; end"
+            doc.unshift "def #{rb_decl_name}; end"
           else
-            stream.puts "def #{rb_decl_name}(#{paramlist}) end"
+            doc.unshift "def #{rb_decl_name}(#{paramlist}) end"
           end
-          stream.puts
         end
+        doc
       end
 
-      def rb_doc_decl(stream, xml_trans, param_mapping, has_ovl=false)
+      def rb_doc_decl(xml_trans, param_mapping, has_ovl=false)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # unlink params_doc if any
@@ -198,19 +198,20 @@ module WXRuby3
         end if params_doc
         # collect full function docs
         paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ').strip
+        doclns = []
         if has_ovl
-          stream.doc.puts "@overload #{rb_decl_name}(#{paramlist})"
-          stream.doc.puts doc.split("\n").collect { |ln| '  '+ln }
+          doclns << "@overload #{rb_decl_name}(#{paramlist})"
+          doclns.concat doc.split("\n").collect { |ln| '  '+ln }
         else
-          stream.doc.puts doc
+          doclns << doc
         end
         params.each do |p|
-          stream.doc << '  ' if has_ovl
-          stream.doc.puts ('@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
+          s = has_ovl ? '  ' : ''
+          doclns << (s << '@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
-        stream.doc << '  ' if has_ovl
-        stream.doc.puts "@return [#{rb_return_type}]"
-        paramlist
+        s = has_ovl ? '  ' : ''
+        doclns << "#{s}@return [#{rb_return_type}]"
+        [paramlist, doclns.join("\n")]
       end
 
       def rb_return_type
@@ -382,23 +383,23 @@ module WXRuby3
         sig
       end
 
-      def rb_doc(stream, xml_trans, clsdef)
+      def rb_doc(xml_trans, clsdef)
         ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
         paramlist = nil
         param_mapping = ->(param_defs) {
           clsdef.find_param_mapping(param_defs) || BaseDef.find_param_mapping(param_defs)
         }
-        ovls.each { |mo| paramlist = mo.rb_doc_decl(stream, xml_trans, param_mapping, ovls.size>1) }
+        doc = ovls.collect { |mo| paramlist, docstr = mo.rb_doc_decl(xml_trans, param_mapping, ovls.size>1); docstr }
         unless ovls.empty?
           if ovls.size>1
-            stream.puts "def #{rb_decl_name}(*args) end"
+            doc.unshift "def #{rb_decl_name}(*args) end"
           elsif paramlist.empty?
-            stream.puts "def #{rb_decl_name}; end"
+            doc.unshift "def #{rb_decl_name}; end"
           else
-            stream.puts "def #{rb_decl_name}(#{paramlist}) end"
+            doc.unshift "def #{rb_decl_name}(#{paramlist}) end"
           end
-          stream.puts
         end
+        doc
       end
 
     end # class MethodDef

@@ -250,10 +250,6 @@ module WXRuby3
         @param_mappings.detect { |pm| pm.matches?(paramdefs) }
       end
 
-      def rb_doc(stream, xml_trans)
-        methods.select { |m| !m.is_dtor }.each { |mtd| mtd.rb_doc(stream, xml_trans, self) }
-      end
-
       def methods
         ::Enumerator.new { |y| items.each {|i|  y << i if MethodDef === i }}
       end
