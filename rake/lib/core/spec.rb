@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    spec.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 wxWidgets interface package
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 Director specs class
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 module WXRuby3
 

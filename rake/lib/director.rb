@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    director.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 wxWidgets interface director
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 interface Director class
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'ostruct'
 require 'set'
@@ -147,23 +143,18 @@ module WXRuby3
     end
 
     def extract_interface(genint = true, gendoc: false)
-      genspec = nil
       self.synchronize do
         unless @defmod
           STDERR.puts "* extracting #{spec.module_name}" if Director.trace?
 
           @defmod = process(gendoc: gendoc)
 
-          genspec = Generator::Spec.new(spec, defmod)
-
-          register(genspec)
+          register
         end
       end
 
       if genint
-        genspec ||= Generator::Spec.new(spec, defmod)
-        STDERR.puts "* generating #{genspec.interface_file}" if Director.verbose?
-        generate(genspec)
+        generator.run
       end
     end
 
@@ -181,110 +172,21 @@ module WXRuby3
       list
     end
 
-    def wrapper_source
-      File.join($config.src_dir, "#{spec.name}.cpp")
-    end
-
-    def get_common_dependencies
-      list = [File.join(WXRuby3::Config.instance.swig_dir, 'common.i')]
-      list.concat(Director.common_dependencies[list.first])
-    end
-    private :get_common_dependencies
-
-    def create_rake_tasks(frake)
-      wxruby_root = Pathname(WXRuby3::Config.wxruby_root)
-      genspec = Generator::Spec.new(spec, defmod)
-
-      # determine baseclass dependencies (generated baseclass interface header) for this module
-      base_deps = []
-      defmod.items.each do |item|
-        if Extractor::ClassDef === item && !item.ignored && !genspec.is_folded_base?(item.name)
-          genspec.base_list(item).reverse.each do |base|
-            unless genspec.def_item(base)
-              base_deps << File.join(Config.instance.interface_dir, "#{base}.h")
-            end
-          end
-        end
-      end
-
-      # setup file task with dependencies for the generated SWIG input file
-      # (by making it dependent on generated baseclass interface headers we ensure ordered generation
-      # which allows us to perform various interface checks while generating)
-      swig_i_file = Pathname(spec.interface_file).relative_path_from(wxruby_root).to_s
-      frake << <<~__TASK__
-        # file task for module's SWIG interface input file
-        file '#{swig_i_file}' => ['rakefile', '#{(source_files + base_deps).join("', '")}'] do |_|
-          WXRuby3::Director['#{spec.package.fullname}'].extract('#{spec.name}')
-        end
-      __TASK__
-      if spec.has_interface_include?
-        swig_i_h_file = Pathname(spec.interface_include_file).relative_path_from(wxruby_root).to_s
-        frake << <<~__TASK__
-          # file task for module's SWIG interface header include file
-          file '#{swig_i_h_file}' => '#{swig_i_file}'
-        __TASK__
-      end
-      # determine dependencies for the SWIG generated wrapper source file
-      list = [swig_i_file]
-      list << swig_i_h_file if spec.has_interface_include?
-      list.concat(get_common_dependencies)
-      list.concat(base_deps)
-
-      [:prepend, :append].each do |pos|
-        unless genspec.swig_imports[pos].empty?
-          genspec.swig_imports[pos].each do |inc|
-            # make sure all import dependencies are relative to wxruby root
-            if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
-              inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-              list << Pathname(inc).relative_path_from(wxruby_root).to_s
-            else
-              list << inc
-            end
-          end
-        end
-      end
-
-      unless genspec.swig_includes.empty?
-        genspec.swig_includes.each do |inc|
-          # make sure all include dependencies are relative to wxruby root
-          if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
-            inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-            list << Pathname(inc).relative_path_from(wxruby_root).to_s
-          else
-            list << inc
-          end
-          list.concat(Director.common_dependencies[list.last] || [])
-        end
-      end
-
-      # setup file task with dependencies for SWIG generated wrapper source file
-      frake << <<~__TASK__
-        # file task for module's SWIG generated wrapper source file
-        file '#{wrapper_source}' => #{list} do |_|
-          WXRuby3::Director['#{spec.package.fullname}'].generate_code('#{spec.name}')
-        end
-      __TASK__
-    end
-    protected :create_rake_tasks
-
     def create_rakefile
       # make sure XML specs have been extracted
       extract_interface(false) # no need to generate anything yet
       # create dependencies
-      Stream.transaction do
-        # create dependencies file
-        create_rake_tasks(CodeStream.new(rake_file))
-      end
+      rake_generator.run
     end
 
     def generate_code
       extract_interface(false) # make sure interface specs have been extracted
-      SwigRunner.process(Generator::Spec.new(spec, defmod))
+      SwigRunner.process(self)
     end
 
     def generate_doc
       extract_interface(false, gendoc: true) # make sure interface specs have been extracted
-      WXRuby3::DocGenerator.new.run(Generator::Spec.new(spec, defmod))
+      doc_generator.run
     end
 
     protected
@@ -404,26 +306,29 @@ module WXRuby3
       defmod
     end
 
-    def register(genspec)
+    def register
+      helper = DirectorSpecsHelper::Simple.new(self)
       mreg = {}
-      genspec.def_items.each do |item|
+      helper.def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored
-          mreg[item.name] = genspec.base_class(item)
-          Spec.class_index[item.name] = genspec
+          mreg[item.name] = helper.base_class(item)
+          Spec.class_index[item.name] = helper
         end
-        Spec.module_registry[genspec.module_name] = mreg
+        Spec.module_registry[helper.module_name] = mreg
       end
     end
     private :register
 
-    def generate(genspec)
-      # generate SWIG specifications
-      generator.run(genspec)
-    end
-    private :generate
-
     def generator
-      WXRuby3::InterfaceGenerator.new
+      WXRuby3::InterfaceGenerator.new(self)
+    end
+
+    def doc_generator
+      WXRuby3::DocGenerator.new(self)
+    end
+
+    def rake_generator
+      RakeDependencyGenerator.new(self)
     end
 
     class FixedInterface < Director

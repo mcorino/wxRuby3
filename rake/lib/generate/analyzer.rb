@@ -1,13 +1,11 @@
-#--------------------------------------------------------------------
-# @file    analyzer.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 wxWidgets interface
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 base interface Analyzer class
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'monitor'
+
+require_relative '../core/spec_helper'
 
 module WXRuby3
 
@@ -61,18 +59,20 @@ module WXRuby3
 
     class ClassProcessor
 
-      def initialize(spec, classdef)
-        @spec = spec
+      include DirectorSpecsHelper
+
+      def initialize(director, classdef)
+        @director = director
         @classdef = classdef
-        @class_name = if classdef.is_template? && spec.template_as_class?(classdef.name)
-                        spec.template_class_name(classdef.name)
-                      else
-                        classdef.name
-                      end
+        @class_spec_name = if classdef.is_template? && template_as_class?(classdef.name)
+                             template_class_name(classdef.name)
+                           else
+                             classdef.name
+                           end
         @class_registry = ClassRegistry.new
       end
 
-      attr_reader :spec, :classdef, :class_name, :class_registry
+      attr_reader :classdef, :class_spec_name, :class_registry
 
       def register_interface_member(member, req_pure_virt=false)
         if member.protection == 'public'
@@ -85,7 +85,7 @@ module WXRuby3
             method: member,
             virtual: member.is_virtual,
             purevirt: req_pure_virt && member.is_pure_virtual,
-            proxy: spec.has_method_proxy?(class_name, member)
+            proxy: has_method_proxy?(class_spec_name, member)
           }
         end
       end
@@ -102,7 +102,7 @@ module WXRuby3
             is_override: $6 && $6.strip == 'override',
             args_string: "(#{arglist})"
           }
-          swig_clsnm = spec.class_name(class_name)
+          swig_clsnm = class_name(class_spec_name)
           if type == '~' && swig_clsnm == kwargs[:name]
             kwargs[:is_dtor] = true
           elsif type.empty? && swig_clsnm == kwargs[:name]
@@ -110,7 +110,7 @@ module WXRuby3
           else
             kwargs[:type] = type
           end
-          mtdef = Extractor::MethodDef.new(nil, class_name, **kwargs)
+          mtdef = Extractor::MethodDef.new(nil, class_spec_name, **kwargs)
           arglist.split(',').each do |arg|
             if /\A(const\s+)?(\w+)\s*(const\s+)?(\s*[\*\&])?\s*(\w+)\s*(\[\s*\])?(\s*=\s*(\S+))?\Z/ =~ arg.strip
               mtdef.items << Extractor::ParamDef.new(nil,
@@ -119,12 +119,12 @@ module WXRuby3
                                                      array: !$5.to_s.empty?,
                                                      default: $7)
             else
-              raise "Unable to parse argument #{arg} of custom declaration [#{decl}] for class #{class_name}"
+              raise "Unable to parse argument #{arg} of custom declaration [#{decl}] for class #{class_spec_name}"
             end
           end
           return mtdef
         else
-          raise "Unable to parse custom declaration [#{decl}] for class #{class_name}"
+          raise "Unable to parse custom declaration [#{decl}] for class #{class_spec_name}"
         end
         nil
       end
@@ -142,7 +142,7 @@ module WXRuby3
             method: mtdef,
             virtual: mtdef.is_virtual,
             purevirt: req_pure_virt && mtdef.is_pure_virtual,
-            proxy: spec.has_method_proxy?(class_name, mtdef),
+            proxy: has_method_proxy?(class_spec_name, mtdef),
             extension: true
           }
         end
@@ -165,7 +165,7 @@ module WXRuby3
           case member
           when Extractor::MethodDef
             if member.is_ctor
-              if member.protection == visibility && member.name == class_name
+              if member.protection == visibility && member.name == class_spec_name
                 if !member.ignored && !member.deprecated
                   register_interface_member(member)
                 end
@@ -176,7 +176,7 @@ module WXRuby3
                 end
               end
             elsif member.is_dtor && member.protection == visibility
-              if member.name == "~#{class_name}"
+              if member.name == "~#{class_spec_name}"
                 register_interface_member(member)
               end
             elsif member.protection == visibility
@@ -202,7 +202,7 @@ module WXRuby3
       end
 
       def preprocess
-        STDERR.puts "** Preprocessing #{spec.module_name} class #{class_name}" if Director.trace?
+        STDERR.puts "** Preprocessing #{module_name} class #{class_spec_name}" if Director.trace?
         # preprocess any public inner classes
         classdef.innerclasses.each do |inner|
           if inner.protection == 'public' && !inner.ignored && !inner.deprecated
@@ -210,29 +210,29 @@ module WXRuby3
           end
         end
         # preprocess members (if any)
-        requires_purevirtual = spec.has_proxy?(classdef)
+        requires_purevirtual = has_proxy?(classdef)
         methods = []
         preprocess_class_members(classdef, 'public', methods, requires_purevirtual)
 
-        spec.folded_bases(classdef.name).each do |basename|
-          preprocess_class_members(spec.def_item(basename), 'public', methods, requires_purevirtual)
+        folded_bases(classdef.name).each do |basename|
+          preprocess_class_members(def_item(basename), 'public', methods, requires_purevirtual)
         end
 
-        spec.interface_extensions(classdef).each do |extdecl|
+        interface_extensions(classdef).each do |extdecl|
           register_custom_interface_member('public', extdecl, requires_purevirtual)
         end
 
         need_protected = classdef.regards_protected_members? ||
-          !spec.interface_extensions(classdef, 'protected').empty? ||
-          spec.folded_bases(classdef.name).any? { |base| spec.def_item(base).regards_protected_members? }
+          !interface_extensions(classdef, 'protected').empty? ||
+          folded_bases(classdef.name).any? { |base| def_item(base).regards_protected_members? }
         unless classdef.kind == 'struct' || !need_protected
           preprocess_class_members(classdef, 'protected', methods, requires_purevirtual)
 
-          spec.folded_bases(classdef.name).each do |basename|
-            preprocess_class_members(spec.def_item(basename), 'protected', methods, requires_purevirtual)
+          folded_bases(classdef.name).each do |basename|
+            preprocess_class_members(def_item(basename), 'protected', methods, requires_purevirtual)
           end
 
-          spec.interface_extensions(classdef, 'protected').each do |extdecl|
+          interface_extensions(classdef, 'protected').each do |extdecl|
             register_custom_interface_member('protected', extdecl, requires_purevirtual)
           end
         end
@@ -241,6 +241,8 @@ module WXRuby3
     end # ClassProcessor
 
     class << self
+
+      include DirectorSpecsHelper
 
       private
 
@@ -270,18 +272,28 @@ module WXRuby3
         end
       end
 
-      def preprocess(spec)
-        STDERR.puts "** Preprocessing #{spec.module_name}" if Director.trace?
-        spec.def_items.each do |item|
+      def preprocess
+        STDERR.puts "** Preprocessing #{module_name}" if Director.trace?
+        def_items.each do |item|
           if Extractor::ClassDef === item && !item.ignored &&
-            (!item.is_template? || spec.template_as_class?(item.name)) &&
-            !spec.is_folded_base?(item.name)
-            clsproc = ClassProcessor.new(spec, item)
-            unless has_class_interface(clsproc.class_name)
+            (!item.is_template? || template_as_class?(item.name)) &&
+            !is_folded_base?(item.name)
+            clsproc = ClassProcessor.new(@director, item)
+            unless has_class_interface(clsproc.class_spec_name)
               clsproc.preprocess
-              interface_method_registry.add_class_registry(clsproc.class_name, clsproc.class_registry)
+              interface_method_registry.add_class_registry(clsproc.class_spec_name, clsproc.class_registry)
             end
           end
+        end
+      end
+
+      def for_director(director, &block)
+        olddir = @director
+        begin
+          @director = director
+          block.call
+        ensure
+          @director = olddir
         end
       end
 
@@ -299,64 +311,66 @@ module WXRuby3
         !!(class_interface_methods(class_name)[mtdef.signature] || {})[:ignore]
       end
 
-      def check_interface_methods(spec)
-        # preprocess definitions if not yet done
-        preprocess(spec)
-        # check the preprocessed definitions
-        errors = []
-        warnings = []
-        spec.def_items.each do |item|
-          if Extractor::ClassDef === item && !item.ignored &&
-            (!item.is_template? || spec.template_as_class?(item.name)) &&
-            !spec.is_folded_base?(item.name)
-            intf_class_name = if item.is_template? || spec.template_as_class?(item.name)
-                                spec.template_class_name(item.name)
-                              else
-                                item.name
-                              end
-            # this should not happen
-            raise "Missing preprocessed data for class #{intf_class_name}\n#{interface_method_registry.keys}" unless has_class_interface(intf_class_name)
-            # get the class's method registry
-            cls_mtdreg = class_interface_methods(intf_class_name)
-            # check all directly inherited generated methods
-            mtdlist = ::Set.new # remember handled signatures
-            spec.base_list(item).each do |base_name|
-              # make sure the base class has been preprocessed
-              get_class_interface(spec.package, base_name) unless has_class_interface(base_name)
-              # iterate the base class's method registrations
-              class_interface_methods(base_name).each_pair do |mtdsig, mtdreg|
-                # only check on methods we have not handled yet
-                if !mtdlist.include?(mtdsig)
-                  # did we inherit a virtual method that was not proxied in the base
-                  if mtdreg[:virtual] && !mtdreg[:proxy]
-                    # if we did NOT generate a wrapper override and we do not have the proxy suppressed we're in trouble
-                    if !cls_mtdreg.has_key?(mtdsig) && spec.has_method_proxy?(item.name, mtdreg[:method])
-                      errors << "* ERROR: method #{mtdreg[:method].signature} is proxied without wrapper implementation in class #{item.name} but not proxied in base class #{base_name}!"
-                    elsif cls_mtdreg.has_key?(mtdsig) && !cls_mtdreg[mtdsig][:extension] && !spec.has_method_proxy?(item.name, cls_mtdreg[mtdsig][:method])
-                      # if this is not a custom extension and we do have an override wrapper and no proxy this is unnecessary code bloat
-                      warnings << " * WARNING: Unnecessary override #{mtdreg[:method].signature} in class #{item.name} for non-proxied base in #{base_name}. Ignoring."
-                      cls_mtdreg[mtdsig][:ignore] = true
+      def check_interface_methods(director)
+        for_director(director) do
+          # preprocess definitions if not yet done
+          preprocess
+          # check the preprocessed definitions
+          errors = []
+          warnings = []
+          def_items.each do |item|
+            if Extractor::ClassDef === item && !item.ignored &&
+              (!item.is_template? || template_as_class?(item.name)) &&
+              !is_folded_base?(item.name)
+              intf_class_name = if item.is_template? || template_as_class?(item.name)
+                                  template_class_name(item.name)
+                                else
+                                  item.name
+                                end
+              # this should not happen
+              raise "Missing preprocessed data for class #{intf_class_name}\n#{interface_method_registry.keys}" unless has_class_interface(intf_class_name)
+              # get the class's method registry
+              cls_mtdreg = class_interface_methods(intf_class_name)
+              # check all directly inherited generated methods
+              mtdlist = ::Set.new # remember handled signatures
+              base_list(item).each do |base_name|
+                # make sure the base class has been preprocessed
+                get_class_interface(package, base_name) unless has_class_interface(base_name)
+                # iterate the base class's method registrations
+                class_interface_methods(base_name).each_pair do |mtdsig, mtdreg|
+                  # only check on methods we have not handled yet
+                  if !mtdlist.include?(mtdsig)
+                    # did we inherit a virtual method that was not proxied in the base
+                    if mtdreg[:virtual] && !mtdreg[:proxy]
+                      # if we did NOT generate a wrapper override and we do not have the proxy suppressed we're in trouble
+                      if !cls_mtdreg.has_key?(mtdsig) && has_method_proxy?(item.name, mtdreg[:method])
+                        errors << "* ERROR: method #{mtdreg[:method].signature} is proxied without wrapper implementation in class #{item.name} but not proxied in base class #{base_name}!"
+                      elsif cls_mtdreg.has_key?(mtdsig) && !cls_mtdreg[mtdsig][:extension] && !has_method_proxy?(item.name, cls_mtdreg[mtdsig][:method])
+                        # if this is not a custom extension and we do have an override wrapper and no proxy this is unnecessary code bloat
+                        warnings << " * WARNING: Unnecessary override #{mtdreg[:method].signature} in class #{item.name} for non-proxied base in #{base_name}. Ignoring."
+                        cls_mtdreg[mtdsig][:ignore] = true
+                      end
+                      # or did we inherit a virtual method that was proxied in the base
+                      # for which we DO generate a wrapper override
+                    elsif mtdreg[:virtual] && mtdreg[:proxy] && cls_mtdreg.has_key?(mtdsig)
+                      # if we do not have a proxy as well we're in trouble
+                      if !has_method_proxy?(item, mtdreg[:method])
+                        errors << "* ERROR: method #{mtdreg[:method].signature} is NOT proxied with an overriden wrapper implementation in class #{item.name} but is also implemented and proxied in base class #{base_name}!"
+                      end
                     end
-                    # or did we inherit a virtual method that was proxied in the base
-                    # for which we DO generate a wrapper override
-                  elsif mtdreg[:virtual] && mtdreg[:proxy] && cls_mtdreg.has_key?(mtdsig)
-                    # if we do not have a proxy as well we're in trouble
-                    if !spec.has_method_proxy?(item, mtdreg[:method])
-                      errors << "* ERROR: method #{mtdreg[:method].signature} is NOT proxied with an overriden wrapper implementation in class #{item.name} but is also implemented and proxied in base class #{base_name}!"
-                    end
+                    mtdlist << mtdsig
                   end
-                  mtdlist << mtdsig
                 end
               end
             end
           end
-        end
-        unless warnings.empty?
-          warnings.each { |warn| STDERR.puts warn }
-        end
-        unless errors.empty?
-          errors.each {|err| STDERR.puts err }
-          raise "Errors found generating for module #{spec.module_name} from package #{spec.package.name}"
+          unless warnings.empty?
+            warnings.each { |warn| STDERR.puts warn }
+          end
+          unless errors.empty?
+            errors.each {|err| STDERR.puts err }
+            raise "Errors found generating for module #{module_name} from package #{package.name}"
+          end
         end
       end
 

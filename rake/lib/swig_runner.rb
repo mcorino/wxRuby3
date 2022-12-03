@@ -7,9 +7,11 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
+require 'fileutils'
+
 require_relative './streams'
 require_relative './util/string'
-require 'fileutils'
+require_relative './core/spec_helper'
 
 module WXRuby3
 
@@ -71,7 +73,8 @@ module WXRuby3
 
     end
 
-    def self.process(spec)
+    def self.process(director)
+      spec = DirectorSpecsHelper::Simple.new(director)
       target = File.join(config.src_path, '.generate', File.basename(spec.interface_file, '.i') + '.cpp')
       target_h = target.sub(/\.cpp\Z/, '.h')
       begin

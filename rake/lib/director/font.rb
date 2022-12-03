@@ -37,8 +37,8 @@ module WXRuby3
           __HEREDOC
       end
 
-      def generator
-        WXRuby3::FontGenerator.new
+      protected def generator
+        WXRuby3::FontGenerator.new(self)
       end
 
     end # class Font
@@ -47,9 +47,9 @@ module WXRuby3
 
   class FontGenerator < InterfaceGenerator
 
-    def run(spec)
+    def run
       # determine Ruby library font root for package
-      rbfont_root = File.join(spec.package.ruby_classes_path, 'font')
+      rbfont_root = File.join(package.ruby_classes_path, 'font')
       Stream.transaction do
         f = CodeStream.new(File.join(rbfont_root, 'encoding.rb'))
         f << <<~__HEREDOC
@@ -64,7 +64,7 @@ module WXRuby3
             ENCODING_NAMES = %w[
           __HEREDOC
         f.indent(2) do
-          spec.def_item('wxFontEncoding').items.each do |item|
+          def_item('wxFontEncoding').items.each do |item|
             unless item.name == 'wxFONTENCODING_SYSTEM'
               const_name = item.name.sub(/\AwxFONTENCODING_/, '')
               const_name.tr!('_', '-')
