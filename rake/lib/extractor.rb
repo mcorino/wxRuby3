@@ -162,7 +162,7 @@ module WXRuby3
           'ssize_t', 'size_t' ] => 'Integer',
         ['char', 'char*', 'unsigned char*', 'wchar_t*'] => 'String',
         [ 'double', 'float' ] => 'Float',
-        'bool' => 'Boolean',
+        'bool' => %w[true false],
         'void' => 'nil'
       }
 
