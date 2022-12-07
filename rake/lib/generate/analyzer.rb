@@ -268,7 +268,7 @@ module WXRuby3
         dir.synchronize do
           dir.extract_interface(false) # make sure the Director has extracted data from XML
           # preprocess the items for this director
-          preprocess(Generator::Spec.new(dir.spec, dir.defmod))
+          for_director(dir) {  preprocess }
         end
       end
 
