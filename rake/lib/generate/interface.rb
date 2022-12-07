@@ -115,6 +115,8 @@ module WXRuby3
     end
 
     def gen_swig_code(fout)
+      fout.puts
+      fout.puts type_maps.to_swig
       if swig_code && !swig_code.empty?
         fout.puts
         fout.puts swig_code

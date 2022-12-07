@@ -1,27 +1,20 @@
 
 // Deals with GetAllFormats
-%typemap(directorin) (wxDataFormat* formats, wxDataObject::Direction dir) "$input = INT2NUM($2);";
-
-// Deals with GetAllFormats
-%typemap(directorargout) (wxDataFormat* formats) {
-  for ( size_t i = 0; i < this->GetFormatCount(); i++ )
-    {
-      void* tmp;
-	  SWIG_ConvertPtr(rb_ary_entry(result, i), 
-                      &tmp, 
-                      SWIGTYPE_p_wxDataFormat, 0);
-      wxDataFormat* fmt = reinterpret_cast< wxDataFormat* >(tmp);
-      $1[i] = *fmt;
-    }
-}
 
 %{
 #include <memory>
 %}
 
-%typemap(in) (wxDataFormat* formats, wxDataObject::Direction dir) (std::unique_ptr<wxDataFormat> fmts, size_t nfmt) {
-  $2 = static_cast< wxDataObject::Direction >(NUM2INT($input));
-  nfmt = arg1->GetFormatCount($2);
+// ignore argument for Ruby
+// since an "ignored" typemap is inserted before any other argument conversions we need
+// we cannot handle any C++ argument setup here; we use the 'check' typemap for that
+%typemap(in, numinputs=0) (wxDataFormat* formats) "";
+
+// "misuse" the 'check' typemap to initialize the ignored argument
+// since this is inserted after any non-ignored arguments have been converted we can use these
+// here
+%typemap(check) (wxDataFormat* formats) (std::unique_ptr<wxDataFormat> fmts, size_t nfmt) {
+  nfmt = arg1->GetFormatCount(arg3);
   if (nfmt > 0)
   {
     fmts.reset(new wxDataFormat[nfmt]);
@@ -29,17 +22,34 @@
   $1 = fmts.get ();
 }
 
-%typemap(argout) wxDataFormat* formats {
-    VALUE rb_fmt_arr = Qnil;
-    if (nfmt$argnum > 0)
+// now convert the ignored argument to setup the Ruby style output
+%typemap(argout) (wxDataFormat* formats) {
+  VALUE rb_fmt_arr = Qnil;
+  if (nfmt$argnum > 0)
+  {
+    rb_fmt_arr = rb_ary_new ();
+    for (size_t n=0; n<nfmt$argnum ;++n)
     {
-      rb_fmt_arr = rb_ary_new ();
-      for (size_t n=0; n<nfmt$argnum ;++n)
-      {
-        wxDataFormat* fmt = &(fmts$argnum.get ()[n]);
-        VALUE rb_fmt = SWIG_NewPointerObj(new wxDataFormat(*fmt), SWIGTYPE_p_wxDataFormat, SWIG_POINTER_OWN |  0 );
-        rb_ary_push (rb_fmt_arr, rb_fmt);
-      }
+      wxDataFormat* fmt = &(fmts$argnum.get ()[n]);
+      VALUE rb_fmt = SWIG_NewPointerObj(new wxDataFormat(*fmt), SWIGTYPE_p_wxDataFormat, SWIG_POINTER_OWN |  0 );
+      rb_ary_push (rb_fmt_arr, rb_fmt);
     }
-    $result = rb_fmt_arr;
+  }
+  $result = rb_fmt_arr;
+}
+
+// just skip this; nothing to convert
+%typemap(directorin) (wxDataFormat* formats) "";
+
+// handle the Ruby style result
+%typemap(directorargout) (wxDataFormat* formats) {
+  for ( size_t i = 0; i < this->GetFormatCount(); i++ )
+  {
+    void* tmp;
+    SWIG_ConvertPtr(rb_ary_entry(result, i),
+                    &tmp,
+                    SWIGTYPE_p_wxDataFormat, 0);
+    wxDataFormat* fmt = reinterpret_cast< wxDataFormat* >(tmp);
+    $1[i] = *fmt;
+  }
 }

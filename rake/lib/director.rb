@@ -17,6 +17,7 @@ require_relative './swig_runner'
 require_relative './util/string'
 require_relative './core/spec'
 require_relative './core/package'
+require_relative './core/mapping'
 
 module WXRuby3
 
@@ -137,6 +138,15 @@ module WXRuby3
     end
 
     attr_reader :spec, :defmod
+
+    def type_maps
+      # delayed initialization of typemaps (only when demanded)
+      unless spec.type_maps
+        spec.type_maps = Typemap::Collection.new
+        create_typemaps
+      end
+      spec.type_maps
+    end
 
     def has_events?
       @defmod.items.any? {|item| Extractor::ClassDef === item && item.event && !item.event_types.empty? }
@@ -348,5 +358,10 @@ end
 Dir.glob(File.join(File.dirname(__FILE__), 'director', '*.rb')).each do |fn|
   require fn
 end
+Dir.glob(File.join(File.dirname(__FILE__), 'typemap', '*.rb')).each do |fn|
+  require fn
+end
+
+WXRuby3::Director.include(WXRuby3::Typemap::Common)
 
 require_relative './specs/interfaces'

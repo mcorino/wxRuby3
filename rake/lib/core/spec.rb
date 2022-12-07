@@ -69,6 +69,7 @@ module WXRuby3
         @nogen_sections = ::Set.new
         @post_processors = processors || [:rename, :fixmodule]
         @requirements = requirements
+        @type_maps = nil
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
@@ -77,6 +78,7 @@ module WXRuby3
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements
       attr_writer :interface_file
+      attr_accessor :type_maps
 
       def interface_file
         @interface_file || File.join(Config.instance.classes_path, @name + '.i')

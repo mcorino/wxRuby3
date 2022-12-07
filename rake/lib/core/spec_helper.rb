@@ -306,6 +306,10 @@ module WXRuby3
       ifspec.nogen_sections.include?(section)
     end
 
+    def type_maps
+      @director.type_maps
+    end
+
     class Simple
       include DirectorSpecsHelper
       def initialize(director)
