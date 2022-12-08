@@ -404,6 +404,8 @@ module WXRuby3
         @see_list = []
       end
 
+      attr_reader :director
+
       def for_class(clsdef, &block)
         prevcls = @classdef
         @classdef = clsdef

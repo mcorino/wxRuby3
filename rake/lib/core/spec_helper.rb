@@ -15,11 +15,11 @@ module WXRuby3
     include Util::StringUtil
 
     def ifspec
-      @director.spec
+      director.spec
     end
 
     def defmod
-      @director.defmod
+      director.defmod
     end
 
     def post_processors
@@ -307,7 +307,7 @@ module WXRuby3
     end
 
     def type_maps
-      @director.type_maps
+      director.type_maps
     end
 
     class Simple
@@ -315,6 +315,8 @@ module WXRuby3
       def initialize(director)
         @director = director
       end
+
+      attr_reader :director
     end
 
   end
