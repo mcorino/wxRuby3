@@ -43,12 +43,12 @@ module WXRuby3
           argmasks = @map.patterns.collect { |p| "(#{p.param_masks.collect { |pm| pm.to_s }.join(', ')})#{tmpstr}" }.join(', ')
           if @mapping_code.inject(0) { |lc, s| lc += (1 + s.count("\n")); lc } > 1
             <<~__SWIG
-              %typemap(#{kind}) #{argmasks} {
+              %typemap(#{kind}#{mods}) #{argmasks} {
                 #{@mapping_code.collect { |s| s.split("\n") }.flatten.join("\n  ")}
               }
             __SWIG
           else
-            %Q{%typemap(#{kind}) #{argmasks} "#{@mapping_code.first}";}
+            %Q{%typemap(#{kind}#{mods}) #{argmasks} "#{@mapping_code.first}";}
           end
         end
       end
@@ -61,7 +61,7 @@ module WXRuby3
         end
 
         def modifiers
-          @ignore ? "numinputs=0" : nil
+          @ignore ? ",numinputs=0" : nil
         end
       end
 
@@ -80,7 +80,7 @@ module WXRuby3
         end
 
         def modifiers
-          @precedence ? "precedence=SWIG_TYPECHECK_#{@precendence.to_s.upcase}" : nil
+          @precedence ? ",precedence=SWIG_TYPECHECK_#{@precedence.to_s.upcase}" : nil
         end
       end
 

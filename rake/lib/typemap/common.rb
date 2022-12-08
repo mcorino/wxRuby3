@@ -69,7 +69,7 @@ module WXRuby3
           map_out code: '$result = WXSTR_PTR_TO_RSTR($1);'
           map_directorout code: '$result = RSTR_TO_WXSTR($input);'
           map_directorin code: '$input = WXSTR_TO_RSTR($1);'
-          map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
+          map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
         end
 
         map 'wxString*' do
@@ -77,14 +77,14 @@ module WXRuby3
           map_in temp: 'wxString tmp', code: 'tmp = RSTR_TO_WXSTR($input); $1 = &tmp;'
           map_out code: '$result = WXSTR_PTR_TO_RSTR($1);'
           map_directorin code: '$input = WXSTR_PTR_TO_RSTR($1);'
-          map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
+          map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
         end
 
         map 'wxString' do
           map_type 'String'
           map_out code: '$result = WXSTR_TO_RSTR($1);'
           map_directorout code: '$result = RSTR_TO_WXSTR($input);'
-          map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
+          map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
           map_varout code: '$result = WXSTR_TO_RSTR($1);'
         end
 
@@ -173,8 +173,7 @@ module WXRuby3
             'int nItems, const wxString *items' do
           map_type type: 'Array<String>', name: 1
           map_in temp: 'wxString *arr', code: <<~__CODE
-            {
-              if (($input == Qnil) || (TYPE($input) != T_ARRAY))
+            if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;
               $2 = NULL;
@@ -359,7 +358,7 @@ module WXRuby3
             if ( ! $1 && ! rb_obj_is_kind_of(self, wxRuby_GetTopLevelWindowClass()) )
             { 
               rb_raise(rb_eArgError,
-                       "Window parent argument must not be nil"); }
+                       "Window parent argument must not be nil");
             }
             __CODE
         end
