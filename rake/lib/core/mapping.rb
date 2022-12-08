@@ -281,6 +281,8 @@ module WXRuby3
         @type_maps = []
       end
 
+      attr_reader :type_maps
+
       def add(typemap)
         @type_maps << typemap
       end
@@ -297,6 +299,32 @@ module WXRuby3
       def to_s
         "typemap collection"
       end
+
+      class Chain
+        def initialize(*collections)
+          @collections = collections.collect do |coll|
+            raise ArgumentError,
+                  "Do not know how to chain #{coll}. Expected Typemap::Collection" unless Collection === coll
+            coll
+          end
+        end
+
+        private def typemaps
+          ::Enumerator::Chain.new(*@collections.collect { |c| c.type_maps })
+        end
+
+        def find(pattern)
+          typemaps.detect { |map| map.patterns.any? { |mp| mp == pattern } }
+        end
+
+        def to_swig
+          @collections.collect { |coll| coll.to_swig }.join("\n")
+        end
+
+        def to_s
+          "typemap collection chain"
+        end
+      end
     end
 
     # module NoReturnMap
@@ -307,28 +335,28 @@ module WXRuby3
     #
     # end
 
-    module Module
+    module MappingMethods
 
-      module MappingMethods
-
-        # creates a type mapping set
-        def map(*mappings, &block)
-          type_maps << Map.new(*mappings, &block)
-        end
-
-        # creates type mapping applications sets for different parameter sets
-        def map_apply(application)
-          application.each_pair do |src_mapping, tgt_mappings|
-            src_pattern = ParameterSet.new(src_mapping)
-            type_maps << AppliedMap.new(type_maps.find(src_pattern), src_pattern, *tgt_mappings)
-          end
-        end
-
-        protected def create_typemaps
-          # noop
-        end
-
+      # creates a type mapping set
+      def map(*mappings, &block)
+        type_maps << Map.new(*mappings, &block)
       end
+
+      # creates type mapping applications sets for different parameter sets
+      def map_apply(application)
+        application.each_pair do |src_mapping, tgt_mappings|
+          src_pattern = ParameterSet.new(src_mapping)
+          type_maps << AppliedMap.new(type_maps.find(src_pattern), src_pattern, *tgt_mappings)
+        end
+      end
+
+      protected def create_typemaps
+        # noop
+      end
+
+    end
+
+    module Module
 
       def self.included(base)
         base.singleton_class.class_eval do
@@ -348,7 +376,7 @@ module WXRuby3
         base.module_eval <<~__HEREDOC
           def self.included(map_user_mod)
             # provide the map creation methods
-            map_user_mod.include Typemap::Module::MappingMethods unless map_user_mod.include?(Typemap::Module::MappingMethods)
+            map_user_mod.include Typemap::MappingMethods unless map_user_mod.include?(Typemap::MappingMethods)
             # provide an overload to add the typemap definitions from typemap module
             map_user_mod.module_eval %Q{
                 protected def create_typemaps

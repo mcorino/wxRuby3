@@ -134,18 +134,19 @@ module WXRuby3
       super()
       @spec = spec
       @defmod = nil
+      @type_maps = nil
       setup
     end
 
     attr_reader :spec, :defmod
 
     def type_maps
-      # delayed initialization of typemaps (only when demanded)
-      unless spec.type_maps
-        spec.type_maps = Typemap::Collection.new
+      # delayed initialization of typemaps (only when requested the first time)
+      unless @type_maps
+        @type_maps = Typemap::Collection.new
         create_typemaps
       end
-      spec.type_maps
+      @type_maps
     end
 
     def has_events?
