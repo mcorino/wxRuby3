@@ -133,5 +133,4 @@ WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
 %}
 
 %include "typedefs.i"
-//%include "typemap.i"
 %include "memory_management.i"
