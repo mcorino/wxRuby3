@@ -187,7 +187,7 @@ module WXRuby3
           @patterns.inject(@mapped_types) do |map, pattern|
             mapped_type = _get_mapped_type(types)
             if ::Integer === mapped_type.name
-              mapped_type.name = pattern.param_masks[mapped_type.name].name
+              mapped_type.name = pattern.param_masks.fetch(mapped_type.name).name
             end
             map[pattern] = mapped_type
             map
