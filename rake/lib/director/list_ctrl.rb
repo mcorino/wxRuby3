@@ -83,20 +83,15 @@ module WXRuby3
                     'wxListCtrl::SetItemData',
                     'wxListCtrl::SetItemPtrData',
                     'wxListCtrl::SortItems'
-        spec.add_swig_code <<~__HEREDOC
-          // required for GetItemRect and GetSubItemRect
-          %typemap(in, numinputs=0) (wxRect &rect) {
-            $1 = new wxRect();
-          }
-          %typemap(argout) ( wxRect &rect ) {
-            $result = SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 1);
-          }
-          
-          // required for hit_test, return flags as second part of array return value
-          %apply int *OUTPUT { int& flags }
-
-          %markfunc wxListCtrl "GC_mark_wxListCtrl";
-          __HEREDOC
+        # required for GetItemRect and GetSubItemRect
+        spec.map 'wxRect &rect' do
+          map_type 'Wx::Rect'
+          map_in ignore: true, code: '$1 = new wxRect();'
+          map_argout code: '$result = SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 1);'
+        end
+        # required for hit_test, return flags as second part of array return value
+        spec.map_apply 'int *OUTPUT' => 'int& flags'
+        spec.add_swig_code '%markfunc wxListCtrl "GC_mark_wxListCtrl";'
         spec.add_header_code <<~__HEREDOC
           // Helper code for SortItems - yields the two items being compared into
           // the associated block, and get an integer return value
