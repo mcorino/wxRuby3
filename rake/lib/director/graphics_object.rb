@@ -20,12 +20,10 @@ module WXRuby3
         spec.ignore 'wxGraphicsObject::GetRenderer'
         spec.ignore 'wxGraphicsMatrix::Concat(const wxGraphicsMatrix &)'
         spec.ignore 'wxGraphicsMatrix::IsEqual(const wxGraphicsMatrix &)'
-        spec.add_swig_code <<~__HEREDOC
-          // Deal with GraphicsMatrix#get method
-          %apply double *OUTPUT { wxDouble *a, wxDouble *b,
-                                  wxDouble *c, wxDouble *d,
-                                  wxDouble *tx , wxDouble *ty };
-          __HEREDOC
+        # Deal with GraphicsMatrix#get method
+        spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
+                                             'wxDouble *c', 'wxDouble *d',
+                                             'wxDouble *tx' , 'wxDouble *ty' ]
         if Config.platform == :mingw
           # it seems for WXMSW there is a problem cleaning up GraphicsObjects in GC after
           # the wxApp has ended (probably because some other wxWidgets cleanup already

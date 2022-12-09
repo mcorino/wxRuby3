@@ -26,10 +26,8 @@ module WXRuby3
           spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
         end
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
-        spec.add_swig_code <<~__HEREDOC
-          %apply long * OUTPUT { long * }
-          %apply long * OUTPUT { wxTextCoord *col, wxTextCoord *row }
-          __HEREDOC
+        spec.map_apply 'long * OUTPUT' => 'long *'
+        spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
         spec.ignore 'wxTextCtrl::operator<<'
         spec.add_header_code <<~__HEREDOC
           // Allow << to work with a TextCtrl
