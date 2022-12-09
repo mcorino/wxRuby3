@@ -75,7 +75,7 @@ module WXRuby3
       def ==(param)
         case param
         when ParameterMask
-          @type_mask == param.type_mask && name == param.name && array? == param.array?
+          type_mask == param.type_mask && name == param.name && array? == param.array?
         when ArgumentDecl
           param == self
         else

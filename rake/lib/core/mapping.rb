@@ -141,7 +141,7 @@ module WXRuby3
       end
 
       def initialize(*mappings, &block)
-        @patterns = mappings.collect { |paramset| ParameterSet.new(paramset) }
+        @patterns = mappings.collect { |paramset| ParameterSet === paramset ? paramset : ParameterSet.new(paramset) }
         @mapped_types = {}
         @in = nil
         @default = nil
@@ -276,21 +276,49 @@ module WXRuby3
       end
     end
 
+    class SystemMap
+      def initialize(*mappings)
+        @patterns = mappings.collect { |paramset| ParameterSet === paramset ? paramset : ParameterSet.new(paramset) }
+      end
+
+      attr_reader :patterns
+
+      def to_swig
+        ''
+      end
+
+      def to_s
+        "system typemap #{@patterns.join(', ')}"
+      end
+    end
+
     class Collection
+      module Find
+        def find(*patterns)
+          if patterns.size == 1
+            # in case of a single pattern find the first map matching the pattern
+            pattern = ParameterSet === patterns.first ? patterns.first : ParameterSet.new(patterns.first)
+            type_maps.detect { |map| map.patterns.any? { |mp| mp == pattern } }
+          else
+            # in case of multiple patterns the list must exactly identical as the pattern list of a map
+            patterns = patterns.collect { |p| ParameterSet === p ? p : ParameterSet.new(p) }
+            type_maps.detect { |map| map.patterns == patterns }
+          end
+        end
+      end
+
       def initialize
         @type_maps = []
       end
 
       attr_reader :type_maps
 
+      include Find
+
       def add(typemap)
         @type_maps << typemap
       end
       alias :<< :add
-
-      def find(pattern)
-        @type_maps.detect { |map| map.patterns.any? { |mp| mp == pattern } }
-      end
 
       def to_swig
         @type_maps.collect { |map| map.to_swig }.join("\n")
@@ -309,13 +337,11 @@ module WXRuby3
           end
         end
 
-        private def typemaps
+        private def type_maps
           ::Enumerator::Chain.new(*@collections.collect { |c| c.type_maps })
         end
 
-        def find(pattern)
-          typemaps.detect { |map| map.patterns.any? { |mp| mp == pattern } }
-        end
+        include Find
 
         def to_swig
           @collections.collect { |coll| coll.to_swig }.join("\n")
@@ -346,7 +372,9 @@ module WXRuby3
       def map_apply(application)
         application.each_pair do |src_mapping, tgt_mappings|
           src_pattern = ParameterSet.new(src_mapping)
-          type_maps << AppliedMap.new(type_maps.find(src_pattern), src_pattern, *tgt_mappings)
+          map = type_maps.find(src_pattern)
+          map ||= SystemMap.new(src_pattern) # assume system (SWIG) defined map if not found
+          type_maps << AppliedMap.new(map, src_pattern, *[tgt_mappings].flatten)
         end
       end
 
