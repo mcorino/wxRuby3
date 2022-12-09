@@ -174,7 +174,7 @@ module WXRuby3
         # dialogs, so the parent argument can be nil (which is not permitted in
         # the normal typemap defined in common.rb). So override the standard
         # typemap and just check that the App has been started.
-        map 'wxWindow* parent' do
+        spec.map 'wxWindow* parent' do
           map_check code: <<~__CODE
             if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP") ) )
             { 

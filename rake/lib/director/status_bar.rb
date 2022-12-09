@@ -37,7 +37,7 @@ module WXRuby3
             __CODE
         end
         # For SetStatusWidths
-        map 'int n, int *widths' do
+        spec.map 'int n, int *widths' do
           map_type type: 'Array<Integer>', name: 1
           map_in temp: 'int *arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
