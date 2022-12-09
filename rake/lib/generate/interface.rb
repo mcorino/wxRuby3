@@ -262,8 +262,8 @@ module WXRuby3
           end
         elsif member.is_dtor
           unless is_abstract?(classdef)
-            ctor_sig = "~#{class_name(classdef)}()"
-            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{ctor_sig};"
+            dtor_sig = "~#{class_name(classdef)}()"
+            fout.puts "  #{member.is_virtual ? 'virtual ' : ''}#{dtor_sig};"
           end
         elsif !InterfaceAnalyzer.class_interface_method_ignored?(class_name, member)
           gen_interface_class_method(fout, member, requires_purevirtual)

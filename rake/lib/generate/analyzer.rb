@@ -160,12 +160,29 @@ module WXRuby3
         methods << methoddef
       end
 
+      private def ctor_name(ctor)
+        if @classdef.is_template? && template_as_class?(ctor.name)
+          template_class_name(ctor.name)
+        else
+          ctor.name
+        end
+      end
+
+      private def dtor_name(dtor)
+        dtor_name = dtor.name.sub(/~/, '')
+        if @classdef.is_template? && template_as_class?(dtor_name)
+          template_class_name(dtor_name)
+        else
+          dtor.name
+        end
+      end
+
       def preprocess_class_members(classdef, visibility, methods, requires_purevirt)
         classdef.items.each do |member|
           case member
           when Extractor::MethodDef
             if member.is_ctor
-              if member.protection == visibility && member.name == class_spec_name
+              if member.protection == visibility && ctor_name(member) == class_spec_name
                 if !member.ignored && !member.deprecated
                   register_interface_member(member)
                 end
@@ -176,7 +193,7 @@ module WXRuby3
                 end
               end
             elsif member.is_dtor && member.protection == visibility
-              if member.name == "~#{class_spec_name}"
+              if dtor_name(member) == "~#{class_spec_name}"
                 register_interface_member(member)
               end
             elsif member.protection == visibility
