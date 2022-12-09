@@ -20,13 +20,11 @@ module WXRuby3
         when 'wxSizer'
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
-          spec.add_swig_code <<~__HEREDOC
-            // get rid of unwanted SWIG warning
-            %warnfilter(517) wxSizer;
-            // Typemap for GetChildren - convert to array of Sizer items
-            %typemap(out) wxSizerItemList& {
+          # Typemap for GetChildren - convert to array of Sizer items
+          spec.map 'wxSizerItemList&' do
+            map_type 'Array<Wx::SizerItem>'
+            map_out code: <<~__CODE
               $result = rb_ary_new();
-            
               wxSizerItemList::compatibility_iterator node = $1->GetFirst();
               while (node)
               {
@@ -35,8 +33,10 @@ module WXRuby3
                 rb_ary_push($result, rb_si);
                 node = node->GetNext();
               }
-            }
-            __HEREDOC
+              __CODE
+          end
+          # get rid of unwanted SWIG warning
+          spec.suppress_warning(517, 'wxSizer')
         when 'wxBoxSizer'
         when 'wxStaticBoxSizer'
           # Must ensure that the C++ detach method is called, else the associated
