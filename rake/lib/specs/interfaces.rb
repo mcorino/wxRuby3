@@ -11,6 +11,7 @@ module WXRuby3
 
   Director.Package('Wx') { |pkg|
     Director.Spec(pkg, 'wxDefs')
+    Director.Spec(pkg, 'wxFunctions')
     Director.Spec(pkg, 'wxGDICommon')
     Director.Spec(pkg, 'wxColour')
     Director.Spec(pkg, 'wxObject')

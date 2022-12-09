@@ -159,7 +159,7 @@ module WXRuby3
         # next initialize all modules without classes
         included_directors.each do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if modreg.empty?
+          if modreg.nil? || modreg.empty?
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
@@ -169,7 +169,7 @@ module WXRuby3
         # next initialize all modules with empty class dependencies
         included_directors.each do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
+          if modreg && !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
@@ -180,7 +180,7 @@ module WXRuby3
         # collect all modules with actual dependencies
         dep_mods = included_directors.select do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
+          modreg && !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
         end.collect {|dir| [dir.spec.module_name, Spec.module_registry[dir.spec.module_name]] }
         # now sort these according to dependencies
         dep_mods.sort! do |mreg1, mreg2|
