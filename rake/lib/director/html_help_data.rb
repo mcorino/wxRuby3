@@ -17,8 +17,9 @@ module WXRuby3
         super
         spec.items << 'wxHtmlBookRecord' << 'wxHtmlHelpDataItem'
         # type mapping for wxHtmlBookRecArray and wxHtmlHelpDataItems
-        spec.add_swig_code <<~__HEREDOC
-          %typemap(out) (const wxHtmlBookRecArray&) {
+        spec.map 'const wxHtmlBookRecArray&' do
+          map_type 'Array<Wx::HtmlBookRecord>'
+          map_out code: <<~__CODE
             $result = rb_ary_new();
             for (size_t n=0; n<$1->GetCount() ;++n)
             {
@@ -26,9 +27,11 @@ module WXRuby3
               VALUE rb_hbr = Data_Wrap_Struct(rb_cObject, 0, 0, hbr_ptr);
               rb_ary_push($result, rb_hbr);
             }
-          }
-
-          %typemap(out) (const wxHtmlHelpDataItems&) {
+            __CODE
+        end
+        spec.map 'const wxHtmlHelpDataItems&' do
+          map_type 'Array<Wx::HtmlHelpDataItem>'
+          map_out code: <<~__CODE
             $result = rb_ary_new();
             for (size_t n=0; n<$1->GetCount() ;++n)
             {
@@ -36,8 +39,8 @@ module WXRuby3
               VALUE rb_hdi = Data_Wrap_Struct(rb_cObject, 0, 0, hdi_ptr);
               rb_ary_push($result, rb_hdi);
             }
-          }
-          __HEREDOC
+            __CODE
+        end
       end
     end # class HtmlHelpData
 
