@@ -39,20 +39,21 @@ module WXRuby3
         spec.rename_for_ruby(
           'AppendItem' =>
             'wxRubyMenu::Append(wxMenuItem *item)')
-        spec.add_swig_code <<~__HEREDOC
-          // Fix for GetMenuItems - converts list of MenuItems to Array
-          %typemap(out) wxMenuItemList& {
+        # Fix for GetMenuItems - converts list of MenuItems to Array
+        spec.map 'wxMenuItemList&' do
+          map_type 'Array<Wx::MenuItem>'
+          map_out code: <<~__CODE
             $result = rb_ary_new();
             wxMenuItemList::iterator iter;
             for (iter = $1->begin(); iter != $1->end(); ++iter)
-              {
-                  wxMenuItem *wx_menu_item = *iter;
-                  VALUE rb_menu_item = SWIG_NewPointerObj(SWIG_as_voidptr(wx_menu_item), 
-                                                          SWIGTYPE_p_wxMenuItem, 0);
-                  rb_ary_push($result, rb_menu_item);
-              }
-          }
-          __HEREDOC
+            {
+                wxMenuItem *wx_menu_item = *iter;
+                VALUE rb_menu_item = SWIG_NewPointerObj(SWIG_as_voidptr(wx_menu_item), 
+                                                        SWIGTYPE_p_wxMenuItem, 0);
+                rb_ary_push($result, rb_menu_item);
+            }
+            __CODE
+        end
         spec.add_header_code <<~__HEREDOC
           // Mark Function
           // Need to protect MenuItems which are included in the Menu, including
