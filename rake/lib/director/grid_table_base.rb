@@ -20,9 +20,9 @@ module WXRuby3
           wxGridTableBase::GetAttrProvider
           wxGridTableBase::SetAttrProvider
           wxGridTableBase::GetAttrPtr]
-        spec.add_swig_code <<~__HEREDOC
-          %typemap(directorin) wxGridCellAttr::wxAttrKind "$input = INT2NUM($1);"
-          __HEREDOC
+        spec.map 'wxGridCellAttr::wxAttrKind' do
+          map_directorin code: '$input = INT2NUM($1);'
+        end
         # wxWidgets takes over managing the ref count
         spec.disown('wxGridCellAttr* attr')
         # this requires wxRuby to take ownership (ref counted)
