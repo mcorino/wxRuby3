@@ -97,10 +97,8 @@ module WXRuby3
         spec.ignore 'wxTreeCtrl::InsertItem(const wxTreeItemId &,size_t,const wxString &,int,int,wxTreeItemData *)'
         # Dealt with below
         spec.ignore 'wxTreeCtrl::GetSelections'
-        spec.add_swig_code <<~__HEREDOC
-          // Typemap to return the flags in hit_test
-          %apply int *OUTPUT { int& flags };
-          __HEREDOC
+        # Typemap to return the flags in hit_test
+        spec.map_apply 'int *OUTPUT' => 'int& flags'
 
         # ITEM DATA fixes - This is done so the API user never sees a
         # TreeItemData object - where in Wx C++ such an object
@@ -115,16 +113,15 @@ module WXRuby3
               VALUE m_obj;
           };
           __HEREDOC
-        spec.add_swig_code <<~__HEREDOC
-          // typemaps for setting and getting ruby objects as itemdata.
-          %typemap(in) wxTreeItemData* "$1 = new wxRbTreeItemData($input);"
-          
-          %typemap(directorin) wxTreeItemData* {
+        # typemaps for setting and getting ruby objects as itemdata.
+        spec.map 'wxTreeItemData*' do
+          map_type 'Object'
+          map_in code: '$1 = new wxRbTreeItemData($input);'
+          map_directorin code: <<~__CODE
             wxRbTreeItemData* ruby_item_data = (wxRbTreeItemData *)$1;
             $input = ruby_item_data->GetRubyObject();
-          }
-
-          %typemap(out) wxTreeItemData* {
+            __CODE
+          map_out code: <<~__CODE
             if ( $1 == NULL )
             {
               $result = Qnil;
@@ -134,8 +131,8 @@ module WXRuby3
               wxRbTreeItemData* ruby_item_data = (wxRbTreeItemData *)$1;
               $result = ruby_item_data->GetRubyObject();
             }
-          }
-          __HEREDOC
+            __CODE
+        end
         # End item data fixes
 
         # GC handling for item data objects. These are static because it avoids
