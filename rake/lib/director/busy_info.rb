@@ -26,7 +26,7 @@ module WXRuby3
         # BusyInfo is an exception to the general rule in typemap.i - it
         # accepts a wxWindow* parent argument which may be null - but it does
         # not inherit from TopLevelWindow - so special typemap for this class.
-        map 'wxWindow* parent' do
+        spec.map 'wxWindow* parent' do
           map_check code: <<~__CODE
             if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP")) )
             { 
