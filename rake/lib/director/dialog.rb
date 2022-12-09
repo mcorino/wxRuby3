@@ -17,7 +17,10 @@ module WXRuby3
 
       def setup
         super
-        spec.add_swig_code('%typemap(check) wxWindow* parent "";') # overrule common typemap to allow default NULL
+        # overrule common typemap to allow default NULL
+        spec.map 'wxWindow* parent' do
+          map_check code: ''
+        end
         case spec.module_name
         when 'wxDialog'
           spec.ignore('wxDialog::GetContentWindow',
@@ -25,20 +28,17 @@ module WXRuby3
           spec.swig_import('swig/classes/include/wxDefs.h')
         when 'wxMessageDialog'
         when 'wxFontDialog'
-          spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFontData* data };'
         when 'wxFileDialog'
-          spec.add_swig_code <<~__HEREDOC
-            %typemap(in,numinputs=0) wxArrayString &(wxArrayString sel)
-            {
-              $1 = &sel;
-            }
-            
-            %typemap(argout) wxArrayString &{
-              $result = rb_ary_new();
-              for (size_t i = 0; i < $1->GetCount(); i++)
-                rb_ary_push($result, WXSTR_TO_RSTR( (*$1)[i] ) );
-            }
-            __HEREDOC
+          # override the wxArrayString& typemap for GetFilenames and GetPaths
+          spec.map 'wxArrayString&' do
+            map_type 'Array<String>'
+            map_in ignore: true, temp: 'wxArrayString sel', code: '$1 = &sel;'
+            map_argout code: <<~__CODE
+             $result = rb_ary_new();
+             for (size_t i = 0; i < $1->GetCount(); i++)
+               rb_ary_push($result, WXSTR_TO_RSTR( (*$1)[i] ) );
+             __CODE
+          end
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
           if Config.instance.wx_version >= '3.2.1'
             # doc does not seem to match actual header code so just ignore for now
@@ -61,31 +61,31 @@ module WXRuby3
             __HEREDOC
         when 'wxFindReplaceDialog'
           spec.ignore 'wxFindReplaceDialog::wxFindReplaceDialog()'
-          spec.add_swig_code '%apply SWIGTYPE *DISOWN { wxFindReplaceData* data };'
+          spec.map_apply 'SWIGTYPE *DISOWN' => 'wxFindReplaceData* data'
           spec.do_not_generate(:variables, :enums)
         when 'wxColourDialog'
         when 'wxTextEntryDialog'
         when 'wxSingleChoiceDialog'
           # unnneeded and unwanted for Ruby
           spec.ignore 'wxSingleChoiceDialog::wxSingleChoiceDialog(wxWindow *,const wxString &,const wxString &,int,const wxString *,void **,long,const wxPoint &)'
-          spec.add_swig_code <<~__HEREDOC
-            // Wx's SingleChoiceDialog offers the possibility of attaching client
-            // data to each choice. However this would need memory management, and a
-            // pure ruby implementation is trivial and likely to be more convenient
-            // on a per-case basis.
-            %typemap("in", numinputs=0) char** clientData "$1 = (char **)NULL;"
-            __HEREDOC
+          # Wx's SingleChoiceDialog offers the possibility of attaching client
+          # data to each choice. However this would need memory management, and a
+          # pure ruby implementation is trivial and likely to be more convenient
+          # on a per-case basis so just ignore this argument for Ruby.
+          spec.map 'char** clientData' do
+            map_in ignore: true, code: '$1 = (char **)NULL;'
+          end
           spec.do_not_generate(:functions)
         when 'wxMultiChoiceDialog'
           # unnneeded and unwanted for Ruby
           spec.ignore 'wxMultiChoiceDialog::wxMultiChoiceDialog(wxWindow *,const wxString &,const wxString &,int,const wxString *,long,const wxPoint &)'
-          spec.add_swig_code <<~__HEREDOC
-            // Wx's MultiChoiceDialog offers the possibility of attaching client
-            // data to each choice. However this would need memory management, and a
-            // pure ruby implementation is trivial and likely to be more convenient
-            // on a per-case basis.
-            %typemap("in", numinputs=0) char** clientData "$1 = (char **)NULL;"
-          __HEREDOC
+          # Wx's MultiChoiceDialog offers the possibility of attaching client
+          # data to each choice. However this would need memory management, and a
+          # pure ruby implementation is trivial and likely to be more convenient
+          # on a per-case basis so just ignore this argument for Ruby.
+          spec.map 'char** clientData' do
+            map_in ignore: true, code: '$1 = (char **)NULL;'
+          end
           spec.do_not_generate(:functions, :enums, :defines)
         when 'wxDirDialog'
         when 'wxProgressDialog'
