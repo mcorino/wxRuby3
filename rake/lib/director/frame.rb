@@ -29,25 +29,20 @@ module WXRuby3
           # is missing from the XML docs
           spec.extend_interface('wxFrame', 'virtual void OnInternalIdle()')
           spec.disown 'wxMenuBar *'
-          spec.add_swig_code <<~__HEREDOC
-            %typemap(in,numinputs=1) (int n, int * widths) (int size, int i, int *arr){
-            
+          spec.map 'int n, int * widths' do
+            map_type type: 'Array<Integer>', name: 1
+            map_in temp: 'int size, int i, int *arr', code: <<~__CODE
               size = RARRAY_LEN($input);
               arr = new int[size];
-            
               for(i = 0; i < size; i++)
               {
                 arr[i] = NUM2INT(rb_ary_entry($input,i));
               }
-            
               $1 = size;
               $2 = arr;
-            }
-            
-            %typemap(freearg) (int n, int * widths) {
-              delete $2;
-            }
-          __HEREDOC
+              __CODE
+            map_freearg code: 'delete $2;'
+          end
           # handled; can be suppressed
           spec.suppress_warning(473,
                                 'wxFrame::CreateStatusBar',
