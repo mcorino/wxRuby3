@@ -20,6 +20,8 @@ module WXRuby3
           # add include for unique_ptr<>
           add_include 'memory'
 
+          map_type 'Array<Wx::DataFormat>'
+
           # ignore argument for Ruby
           # since an "ignored" typemap is inserted before any other argument conversions we need
           # we cannot handle any C++ argument setup here; we use the 'check' typemap for that

@@ -22,11 +22,14 @@ module WXRuby3
         map 'const wxDataFormat& format, void *buf' do
           # this is needed for this and all other mappings
           add_include 'wx/dataobj.h'
+
+          map_type type: 'Wx::DataFormat', name: 0
           # convert the dataformat and ignore the buffer pointer for now
           map_directorin code: '$input = SWIG_NewPointerObj(SWIG_as_voidptr(&$1), SWIGTYPE_p_wxDataFormat, 0);'
         end
 
         map 'WXRUBY_DATA_OUT' do
+          map_type 'String'
           map_directorout code: <<~__CODE
             if ( RTEST($1) )
               if ( TYPE($1) == T_STRING )
@@ -50,10 +53,12 @@ module WXRuby3
         # value if the data could be set successfully, or false/nil if it could
         # not. This string is marked as tainted.
         map 'size_t len, const void* buf' do
+          map_type type: 'String', name: 1
           map_directorin code: '$input = rb_external_str_new( (const char *)buf, len );'
         end
 
         map 'WXRUBY_DATA_IN' do
+          map_type 'true,false'
           map_directorout code: '$result = RTEST($1);'
         end
 
