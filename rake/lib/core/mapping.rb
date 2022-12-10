@@ -3,6 +3,8 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require 'set'
+
 require_relative './parameter'
 
 module WXRuby3
@@ -153,6 +155,7 @@ module WXRuby3
         @directorin = nil
         @directorargout = nil
         @directorout = nil
+        @includes = ::Set.new
         self.instance_eval &block if block
       end
 
@@ -171,6 +174,11 @@ module WXRuby3
                       end
       end
       private :_get_mapped_type
+
+      def add_include(*paths)
+        @includes.merge(paths.flatten)
+      end
+      alias :add_includes :add_include
 
       def map_type(types)
         if ::Hash === types && !types.has_key?(:type)
@@ -240,16 +248,20 @@ module WXRuby3
       end
 
       def to_swig
-        [@in,
-         @default,
-         @typecheck,
-         @check,
-         @argout,
-         @out,
-         @freearg,
-         @directorin,
-         @directorargout,
-         @directorout].collect { |mapping| mapping ? mapping.to_swig : nil }.compact.join("\n")
+        if @includes.empty?
+          ''
+        else
+          %Q[%{\n#{@includes.collect { |inc| %Q{#include #{File.extname(inc) == '.h' ? "\"#{inc}\"" : "<#{inc}>"}} }.join("\n")}\n%}\n]
+        end << [@in,
+          @default,
+          @typecheck,
+          @check,
+          @argout,
+          @out,
+          @freearg,
+          @directorin,
+          @directorargout,
+          @directorout].collect { |mapping| mapping ? mapping.to_swig : nil }.compact.join("\n")
       end
 
       def to_s
@@ -298,30 +310,30 @@ module WXRuby3
           if patterns.size == 1
             # in case of a single pattern find the first map matching the pattern
             pattern = ParameterSet === patterns.first ? patterns.first : ParameterSet.new(patterns.first)
-            type_maps.detect { |map| map.patterns.any? { |mp| mp == pattern } }
+            list.detect { |map| map.patterns.any? { |mp| mp == pattern } }
           else
             # in case of multiple patterns the list must exactly identical as the pattern list of a map
             patterns = patterns.collect { |p| ParameterSet === p ? p : ParameterSet.new(p) }
-            type_maps.detect { |map| map.patterns == patterns }
+            list.detect { |map| map.patterns == patterns }
           end
         end
       end
 
       def initialize
-        @type_maps = []
+        @list = []
       end
 
-      attr_reader :type_maps
+      attr_reader :list
 
       include Find
 
       def add(typemap)
-        @type_maps << typemap
+        @list << typemap
       end
       alias :<< :add
 
       def to_swig
-        @type_maps.collect { |map| map.to_swig }.join("\n")
+        @list.collect { |map| map.to_swig }.join("\n")
       end
 
       def to_s
@@ -337,8 +349,8 @@ module WXRuby3
           end
         end
 
-        private def type_maps
-          ::Enumerator::Chain.new(*@collections.collect { |c| c.type_maps })
+        private def list
+          ::Enumerator::Chain.new(*@collections.collect { |c| c.list })
         end
 
         include Find
@@ -378,42 +390,47 @@ module WXRuby3
         end
       end
 
-      protected def create_typemaps
-        # noop
-      end
-
     end
 
     module Module
 
-      def self.included(base)
-        base.singleton_class.class_eval do
+      def self.included(typemap_mod)
+        typemap_mod.singleton_class.class_eval do
           def define(&block)
             @typemap_setup = block
           end
 
-          def create(typemap_user)
-            typemap_user.instance_eval &@typemap_setup
+          def add_maps(typemap_user)
+            typemap_user.module_eval &@typemap_setup
           end
         end
 
-        this_typemap_module = base.name
-
-        # define an include handler for the typemap module which sets up the module/class
+        # Define an include handler for the typemap module which sets up the module/class
         # using the typemap module (most likely a Director class).
-        base.module_eval <<~__HEREDOC
+        # The method implemented below makes sure type maps are ever only created when needed.
+        typemap_mod.module_eval do
           def self.included(map_user_mod)
-            # provide the map creation methods
-            map_user_mod.include Typemap::MappingMethods unless map_user_mod.include?(Typemap::MappingMethods)
-            # provide an overload to add the typemap definitions from typemap module
-            map_user_mod.module_eval %Q{
-                protected def create_typemaps
-                  super
-                  #{this_typemap_module}.create(self)
+            # first time we included a type map module?
+            unless map_user_mod.singleton_class.include?(Typemap::MappingMethods)
+              # add map creation and collection support methods
+              map_user_mod.singleton_class.class_eval do
+                # provide the map creation methods
+                include Typemap::MappingMethods
+                # define type_maps collection initializer
+                private def init_type_maps
+                  @type_maps = Collection.new
+                  # create the type maps from included type map modules (by us or our ancestors)
+                  self.included_modules.reverse.select { |mod| mod.include?(Typemap::Module) }.each { |mod| mod.add_maps(self) }
+                  @type_maps
                 end
-              }
+                # type maps accessor
+                public def type_maps
+                  @type_maps ||= init_type_maps
+                end
+              end
+            end
           end
-          __HEREDOC
+        end
       end
 
     end

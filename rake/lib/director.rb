@@ -353,16 +353,18 @@ module WXRuby3
 
 end # module WXRuby3
 
+Dir.glob(File.join(File.dirname(__FILE__), 'typemap', '*.rb')).each do |fn|
+  require fn
+end
+
+# include this before loading any derived directors
+WXRuby3::Director.include(WXRuby3::Typemap::Common)
+
 Dir.glob(File.join(File.dirname(__FILE__), 'generate', '*.rb')).each do |fn|
   require fn
 end
 Dir.glob(File.join(File.dirname(__FILE__), 'director', '*.rb')).each do |fn|
   require fn
 end
-Dir.glob(File.join(File.dirname(__FILE__), 'typemap', '*.rb')).each do |fn|
-  require fn
-end
-
-WXRuby3::Director.include(WXRuby3::Typemap::Common)
 
 require_relative './specs/interfaces'

@@ -307,7 +307,7 @@ module WXRuby3
     end
 
     def type_maps
-      Typemap::Collection::Chain.new(director.type_maps, ifspec.type_maps)
+      Typemap::Collection::Chain.new(director.class.type_maps, ifspec.type_maps)
     end
 
     class Simple
