@@ -13,14 +13,14 @@ module WXRuby3
 
     class Clipboard < Director
 
+      include Typemap::DataFormat
+
       def setup
         super
         spec.gc_never
         # there is no need or support for clipboard derivatives
         # not least because wxRuby only ever allows a single global clipboard
         spec.disable_proxies
-        spec.swig_include '../shared/data_format.i'
-        spec.swig_include '../shared/data_object_common.i'
         spec.make_abstract 'wxClipboard'
         # After a data object has been set to the clipboard using set_data, it
         # becomes owned by the clipboard and shouldn't be freed

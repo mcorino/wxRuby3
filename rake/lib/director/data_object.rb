@@ -13,14 +13,27 @@ module WXRuby3
 
     class DataObject < Director
 
+      include Typemap::DataFormat
+      include Typemap::DataObjectData
+
       def setup
         super
         spec.items.concat %w[wxDataObjectSimple wxDataObjectComposite wxBitmapDataObject wxFileDataObject wxTextDataObject wxCustomDataObject wxImageDataObject wxURLDataObject]
         spec.gc_as_object
-        spec.swig_include '../shared/data_format.i'
-        spec.swig_include '../shared/data_object_common.i'
 
-        # ignore the original method declarattions
+        # We cheat in the headers and differentiate GetDataHere and SetData
+        # methods by giving them these special names so that the correct
+        # typemaps (see below) can be applied. For the sake of the compiler, we
+        # need to map them back to the correct definitions (ie bool).
+        spec.add_header_code <<~__HEREDOC
+          typedef bool WXRUBY_DATA_OUT;
+          typedef bool WXRUBY_DATA_IN;
+          __HEREDOC
+        spec.add_swig_code <<~__HEREDOC
+          typedef bool WXRUBY_DATA_OUT;
+          typedef bool WXRUBY_DATA_IN;
+          __HEREDOC
+        # ignore the original method declarations
         spec.ignore 'wxDataObject::GetDataHere(const wxDataFormat &, void *) const'
         spec.ignore 'wxDataObject::SetData(const wxDataFormat &, size_t, const void *)'
         # and add our own (typemapping specific) altered version
