@@ -13,6 +13,8 @@ module WXRuby3
 
     class Functions < Director
 
+      include Typemap::ArrayIntSelections
+
       def setup
         super
         spec.items.clear
@@ -183,8 +185,6 @@ module WXRuby3
             }
             __CODE
         end
-        # Fix selections to be the return value in ruby
-        spec.swig_include 'swig/shared/arrayint_selections.i'
         # hardcoded interface declarations
         spec.add_interface_code <<~__HEREDOC
           bool wxSafeYield(wxWindow* win = NULL, bool onlyIfNeeded = false);
@@ -200,7 +200,7 @@ module WXRuby3
                    int x = -1,
                    int y = -1);
           
-          int wxGetSelectedChoices(wxArrayInt& selections,
+          VOID_INT wxGetSelectedChoices(wxArrayInt& selections,
                         const wxString& message,
                         const wxString& caption,
                         int n, const wxString *choices,
