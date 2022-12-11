@@ -13,6 +13,10 @@ module WXRuby3
 
     RubyArg = Struct.new(:type, :name)
 
+    def self.rb_void_type(ctype)
+      "VOID_#{ctype.tr(' ', '_').upcase}"
+    end
+
     class Map
 
       class Base
@@ -94,9 +98,32 @@ module WXRuby3
       end
 
       class Out < Base
-        def initialize(map, temp: nil, code: nil, &block)
+        def initialize(map, ignore: nil, temp: nil, code: nil, &block)
           super(map, temp: temp, code: code)
+          @ignored = ignore ? [ignore].flatten : []
+          @ignore = !!ignore
           block.call(self) if block
+        end
+
+        attr_reader :ignored
+
+        def ignore?
+          @ignore
+        end
+
+        private def ignored_out_to_swig(typename)
+          <<~__SWIG
+            typedef #{typename} #{Typemap.rb_void_type(typename)};
+            %{
+              typedef #{typename} #{Typemap.rb_void_type(typename)};
+            %}
+            %typemap(out) #{Typemap.rb_void_type(typename)} \"wxUnusedVar(result);\";
+            %typemap(directorout) #{Typemap.rb_void_type(typename)} \"wxUnusedVar(result);\";
+            __SWIG
+        end
+
+        def to_swig
+          @ignore ? @ignored.collect { |typename|  ignored_out_to_swig(typename) } : super
         end
       end
 
@@ -219,8 +246,8 @@ module WXRuby3
         @check = Check.new(self, temp: temp, code: code, &block)
       end
 
-      def map_out(temp: nil, code: nil, &block)
-        @out = Out.new(self, temp: temp, code: code, &block)
+      def map_out(ignore: nil, temp: nil, code: nil, &block)
+        @out = Out.new(self, ignore: ignore, temp: temp, code: code, &block)
       end
 
       def map_freearg(temp: nil, code: nil, &block)
@@ -247,21 +274,34 @@ module WXRuby3
         @argout = VarOut.new(self, temp: temp, code: code, &block)
       end
 
+      def matches?(pattern)
+        @patterns.any? { |p| p == pattern }
+      end
+
+      def has_ignored_out?
+        @out && @out.ignore?
+      end
+
+      def ignored
+        @out ? @out.ignored : []
+      end
+
       def to_swig
-        if @includes.empty?
-          ''
-        else
-          %Q[%{\n#{@includes.collect { |inc| %Q{#include #{File.extname(inc) == '.h' ? "\"#{inc}\"" : "<#{inc}>"}} }.join("\n")}\n%}\n]
-        end << [@in,
-          @default,
-          @typecheck,
-          @check,
-          @argout,
-          @out,
-          @freearg,
-          @directorin,
-          @directorargout,
-          @directorout].collect { |mapping| mapping ? mapping.to_swig : nil }.compact.join("\n")
+        s = []
+        unless @includes.empty?
+          [%Q[%{\n#{@includes.collect { |inc| %Q{#include #{File.extname(inc) == '.h' ? "\"#{inc}\"" : "<#{inc}>"}} }.join("\n")}\n%}\n]]
+        end
+        maps = [@in,
+                @default,
+                @typecheck,
+                @check,
+                @argout,
+                @out,
+                @freearg,
+                @directorin,
+                @directorargout]
+        maps << @directorout unless has_ignored_out?
+        s << maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
       end
 
       def to_s
@@ -279,6 +319,14 @@ module WXRuby3
 
       attr_reader :patterns
 
+      def matches?(pattern)
+        @patterns.any? { |p| p == pattern }
+      end
+
+      def has_ignored_out?
+        false
+      end
+
       def to_swig
         "%apply #{@src_pattern} { #{@patterns.join(', ')} };"
       end
@@ -295,6 +343,14 @@ module WXRuby3
 
       attr_reader :patterns
 
+      def matches?(pattern)
+        @patterns.any? { |p| p == pattern }
+      end
+
+      def has_ignored_out?
+        false
+      end
+
       def to_swig
         ''
       end
@@ -310,12 +366,16 @@ module WXRuby3
           if patterns.size == 1
             # in case of a single pattern find the first map matching the pattern
             pattern = ParameterSet === patterns.first ? patterns.first : ParameterSet.new(patterns.first)
-            list.detect { |map| map.patterns.any? { |mp| mp == pattern } }
+            list.detect { |map| map.matches?(pattern) }
           else
             # in case of multiple patterns the list must exactly identical as the pattern list of a map
             patterns = patterns.collect { |p| ParameterSet === p ? p : ParameterSet.new(p) }
             list.detect { |map| map.patterns == patterns }
           end
+        end
+
+        def select(&block)
+          list.select(&block)
         end
       end
 
@@ -333,7 +393,7 @@ module WXRuby3
       alias :<< :add
 
       def to_swig
-        @list.collect { |map| map.to_swig }.join("\n")
+        @list.collect { |map| map.to_swig }.flatten
       end
 
       def to_s
@@ -364,14 +424,6 @@ module WXRuby3
         end
       end
     end
-
-    # module NoReturnMap
-    #
-    #   def no_return(*decls)
-    #     no_return_methods.concat decls.flatten
-    #   end
-    #
-    # end
 
     module MappingMethods
 

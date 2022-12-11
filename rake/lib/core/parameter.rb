@@ -78,6 +78,10 @@ module WXRuby3
           type_mask == param.type_mask && name == param.name && array? == param.array?
         when ArgumentDecl
           param == self
+        when Extractor::ParamDef
+          (name.empty? || name == param.name) &&
+            type_mask == param.type.sub(/const\s*/, '').tr(' ', '') &&
+            array? == param.array
         else
           ArgumentDecl.new(param.to_s) == self
         end
@@ -95,13 +99,35 @@ module WXRuby3
 
       attr_reader :param_masks
 
-      def ==(paramset)
-        case paramset
+      def ==(params)
+        case params
         when ParameterSet
-          @param_masks == paramset.param_masks
+          @param_masks == params.param_masks
+        when Extractor::FunctionDef
+          match(params)
         else
-          @param_masks == ParameterSet.new(paramset.to_s).param_masks
+          @param_masks == ParameterSet.new(params.to_s).param_masks
         end
+      end
+
+      private def match(funcdef)
+        STDERR.puts "*** matching #{self} to #{funcdef.signature}"
+        # see if the first parameter mask matches anywhere in the function's argument list
+        if fpix = (0...funcdef.parameters.size).to_a.detect { |pix| @param_masks.first == funcdef.parameters[pix] }
+          STDERR.puts "*** match found at argument #{fpix}"
+          # if this is the only param mask we're done
+          return true if @param_masks.size == 1
+          # are there enough arguments to match all masks from the position of the argument we matched first?
+          if (parameters.size - fpix) >= @param_masks.size
+            # do the remainder of the parameter masks (if any) all match as well?
+            fpix += 1 # start matching at the next function arg
+            @param_masks[1,@param_masks.size-1].each_with_index do |pm, pix|
+              return false unless pm == funcdef.parameters[fpix+pix]
+            end
+            return true # fully matched
+          end
+        end
+        false
       end
 
       def to_s
