@@ -289,7 +289,7 @@ module WXRuby3
       def to_swig
         s = []
         unless @includes.empty?
-          [%Q[%{\n#{@includes.collect { |inc| %Q{#include #{File.extname(inc) == '.h' ? "\"#{inc}\"" : "<#{inc}>"}} }.join("\n")}\n%}\n]]
+          s << %Q[%{\n#{@includes.collect { |inc| %Q{#include #{File.extname(inc) == '.h' ? "\"#{inc}\"" : "<#{inc}>"}} }.join("\n")}\n%}\n]
         end
         maps = [@in,
                 @default,
