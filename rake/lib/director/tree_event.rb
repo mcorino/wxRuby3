@@ -15,6 +15,8 @@ module WXRuby3
 
     class TreeEvent < Event
 
+      include Typemap::TreeItemId
+
       def setup
         super
         spec.ignore_bases('wxTreeEvent' => %w[wxNotifyEvent]) # needed to suppress imports
@@ -29,9 +31,6 @@ module WXRuby3
           rb_define_method(mWxTreeItemId, "is_ok", VALUEFUNC(_wxRuby_wxTreeItemId_IsOk), 0);
           rb_define_method(mWxTreeItemId, "ok?", VALUEFUNC(_wxRuby_wxTreeItemId_IsOk), 0);
           __HEREDOC
-
-        # common wxTreeItemId type mapping
-        spec.swig_include '../shared/treeitemid_typemaps.i'
 
         spec.add_header_code <<~__HEREDOC
           VALUE mWxTreeItemId;

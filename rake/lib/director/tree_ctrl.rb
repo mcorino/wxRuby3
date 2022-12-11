@@ -15,6 +15,8 @@ module WXRuby3
 
     class TreeCtrl < Window
 
+      include Typemap::TreeItemId
+
       def setup
         spec.post_processors << :fixtreectrl
         spec.items.replace %w[wxTreeCtrl wxWithImages treebase.h]
@@ -23,8 +25,6 @@ module WXRuby3
         spec.ignore('wxWithImages::@.NO_IMAGE')
         spec.ignore('operator!=', 'operator==')
         spec.include 'wx/dirctrl.h'
-        # wxTreeItemId type mapping
-        spec.swig_include '../shared/treeitemid_typemaps.i'
         # These only differ from SetXXXList in the way memory ownership is
         # transferred. So only support the version that won't leak on wxRuby.
         spec.ignore %w[
