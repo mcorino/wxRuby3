@@ -21,7 +21,7 @@ module WXRuby3
         # data, or nil if the data cannot be provided for some reason.
         map 'const wxDataFormat& format, void *buf' do
           # this is needed for this and all other mappings
-          add_include 'wx/dataobj.h'
+          add_header '#include <wx/dataobj.h>'
 
           map_type type: 'Wx::DataFormat', name: 0
           # convert the dataformat and ignore the buffer pointer for now

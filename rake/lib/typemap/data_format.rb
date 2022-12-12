@@ -18,7 +18,7 @@ module WXRuby3
         map 'wxDataFormat* formats' do
 
           # add include for unique_ptr<>
-          add_include 'memory'
+          add_header '#include <memory>'
 
           map_type 'Array<Wx::DataFormat>'
 

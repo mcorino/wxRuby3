@@ -182,7 +182,7 @@ module WXRuby3
         @directorin = nil
         @directorargout = nil
         @directorout = nil
-        @includes = ::Set.new
+        @header_code = []
         self.instance_eval &block if block
       end
 
@@ -202,10 +202,10 @@ module WXRuby3
       end
       private :_get_mapped_type
 
-      def add_include(*paths)
-        @includes.merge(paths.flatten)
+      def add_header_code(*code)
+        @header_code.concat(code.flatten)
       end
-      alias :add_includes :add_include
+      alias :add_header :add_header_code
 
       def map_type(types)
         if ::Hash === types && !types.has_key?(:type)
@@ -288,8 +288,10 @@ module WXRuby3
 
       def to_swig
         s = []
-        unless @includes.empty?
-          s << %Q[%{\n#{@includes.collect { |inc| %Q{#include #{File.extname(inc) == '.h' ? "\"#{inc}\"" : "<#{inc}>"}} }.join("\n")}\n%}\n]
+        unless @header_code.empty?
+          s << "%{\n"
+          s.concat @header_code
+          s << "\n%}"
         end
         maps = [@in,
                 @default,
@@ -301,7 +303,7 @@ module WXRuby3
                 @directorin,
                 @directorargout]
         maps << @directorout unless has_ignored_out?
-        s << maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
+        s.concat maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
       end
 
       def to_s
