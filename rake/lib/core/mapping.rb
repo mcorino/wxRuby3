@@ -79,14 +79,18 @@ module WXRuby3
       end
 
       class Typecheck < Base
-        def initialize(map, precedence: , temp: nil, code: nil, &block)
+        def initialize(map, precedence: nil, temp: nil, code: nil, &block)
           super(map, temp: temp, code: code)
           @precedence = precedence
           block.call(self) if block
         end
 
         def modifiers
-          @precedence ? ",precedence=SWIG_TYPECHECK_#{@precedence.to_s.upcase}" : nil
+          if @precedence
+            %Q[,precedence=#{Integer === @precedence ? @precedence : "SWIG_TYPECHECK_#{@precedence.to_s.upcase}"}]
+          else
+            nil
+          end
         end
       end
 
@@ -238,7 +242,7 @@ module WXRuby3
         @default = Default.new(self, temp: temp, code: code, &block)
       end
 
-      def map_typecheck(precedence: , temp: nil, code: nil, &block)
+      def map_typecheck(precedence: nil, temp: nil, code: nil, &block)
         @typecheck = Typecheck.new(self, precedence: precedence, temp: temp, code: code, &block)
       end
 
