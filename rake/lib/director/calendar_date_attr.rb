@@ -15,6 +15,7 @@ module WXRuby3
 
       def setup
         spec.gc_as_object
+        spec.add_swig_code 'enum wxCalendarDateBorder;'
         spec.do_not_generate(:variables, :enums, :defines, :functions)
         super
       end
