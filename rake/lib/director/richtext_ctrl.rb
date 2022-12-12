@@ -16,6 +16,9 @@ module WXRuby3
     class RichTextCtrl < Window
 
       include Typemap::RichText
+      if Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
+        include Typemap::DateTime
+      end
 
       def setup
         super
@@ -43,9 +46,7 @@ module WXRuby3
           wxRichTextCtrl::GetDefaultStyleEx
           wxRichTextCtrl::GetBasicStyle
           ]
-        if Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
-          spec.swig_include 'swig/shared/datetime.i'
-        else
+        unless Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
           spec.ignore %w[wxRichTextCtrl::GetDragStartTime wxRichTextCtrl::SetDragStartTime]
         end
         spec.swig_import 'swig/classes/include/wxRichTextBuffer.h'

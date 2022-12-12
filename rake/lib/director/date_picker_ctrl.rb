@@ -15,9 +15,10 @@ module WXRuby3
 
     class DatePickerCtrl < Window
 
+      include Typemap::DateTime
+
       def setup
         super
-        spec.swig_include '../shared/datetime.i'
         # Custom implementation for Ruby
         spec.ignore 'wxDatePickerCtrl::GetRange'
 
