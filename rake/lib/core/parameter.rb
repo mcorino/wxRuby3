@@ -111,14 +111,12 @@ module WXRuby3
       end
 
       private def match(funcdef)
-        STDERR.puts "*** matching #{self} to #{funcdef.signature}"
         # see if the first parameter mask matches anywhere in the function's argument list
         if fpix = (0...funcdef.parameters.size).to_a.detect { |pix| @param_masks.first == funcdef.parameters[pix] }
-          STDERR.puts "*** match found at argument #{fpix}"
           # if this is the only param mask we're done
           return true if @param_masks.size == 1
           # are there enough arguments to match all masks from the position of the argument we matched first?
-          if (parameters.size - fpix) >= @param_masks.size
+          if (funcdef.parameters.size - fpix) >= @param_masks.size
             # do the remainder of the parameter masks (if any) all match as well?
             fpix += 1 # start matching at the next function arg
             @param_masks[1,@param_masks.size-1].each_with_index do |pm, pix|
