@@ -15,6 +15,8 @@ module WXRuby3
 
     class GridCtrl < Window
 
+      include Typemap::GridCoords
+
       def setup
         # replace before calling super
         spec.items.replace %w[wxGrid]
@@ -47,7 +49,6 @@ module WXRuby3
 
         spec.ignore 'wxGrid::GetSelectedBlocks' # for now (flawed interface)
 
-        spec.swig_include '../shared/grid_coords.i'
         spec.add_header_code <<~__HEREDOC
           typedef wxGrid::wxGridSelectionModes wxGridSelectionModes;
           typedef wxGrid::CellSpan CellSpan;
