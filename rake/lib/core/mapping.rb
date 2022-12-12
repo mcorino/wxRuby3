@@ -468,6 +468,8 @@ module WXRuby3
         # The method implemented below makes sure type maps are ever only created when needed.
         typemap_mod.module_eval do
           def self.included(map_user_mod)
+            # do we have an #on_include handler?
+            self.on_include(map_user_mod) if self.respond_to?(:on_include)
             # first time we included a type map module?
             unless map_user_mod.singleton_class.include?(Typemap::MappingMethods)
               # add map creation and collection support methods

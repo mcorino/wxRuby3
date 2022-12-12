@@ -13,9 +13,10 @@ module WXRuby3
 
     class RichTextFileHandler < Director
 
+      include Typemap::RichText
+
       def setup
         super
-        spec.swig_include 'swig/shared/richtext.i'
         case spec.module_name
         when 'wxRichTextFileHandler'
           spec.items << 'wxRichTextPlainTextHandler'

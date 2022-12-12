@@ -13,9 +13,10 @@ module WXRuby3
 
     class Image < Director
 
+      include Typemap::IOStreams
+
       def setup
         super
-        spec.swig_include 'swig/shared/streams.i'
         # Handled in Ruby: lib/wx/classes/image.rb
         spec.ignore [
           'wxImage::wxImage(wxInputStream &,wxBitmapType,int)',

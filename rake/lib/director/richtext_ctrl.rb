@@ -15,9 +15,10 @@ module WXRuby3
 
     class RichTextCtrl < Window
 
+      include Typemap::RichText
+
       def setup
         super
-        #spec.items << 'richtext/richtextctrl.h'
         spec.ignore_bases('wxRichTextCtrl' => %w[wxTextCtrlIface wxScrollHelper])
         spec.include 'wx/dc.h'
         spec.ignore [
@@ -42,7 +43,6 @@ module WXRuby3
           wxRichTextCtrl::GetDefaultStyleEx
           wxRichTextCtrl::GetBasicStyle
           ]
-        spec.swig_include 'swig/shared/richtext.i'
         if Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
           spec.swig_include 'swig/shared/datetime.i'
         else
