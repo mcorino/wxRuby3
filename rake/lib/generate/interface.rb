@@ -354,13 +354,15 @@ module WXRuby3
 
     def gen_interface_class_method(fout, methoddef, requires_purevirtual=false)
       mtd_type = methoddef.type
+      no_output = false
       # check if this method matches a type map with ignored out defs
       if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(methoddef) }
-        mtd_type = Typemap.rb_void_type(mtd_type) if type_map.ignored.include?(mtd_type)
+        mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = type_map.ignored.include?(mtd_type))
       end
       # generate method declaration
       gen_only_for(fout, methoddef) do
         fout.puts "  // from #{methoddef.definition}"
+        fout.puts %Q[  %feature("numoutputs", "0") #{methoddef.name};] if no_output
         mdecl = methoddef.is_static ? 'static ' : ''
         mdecl << 'virtual ' if methoddef.is_virtual
         purespec = (requires_purevirtual && methoddef.is_pure_virtual) ? ' =0' : ''
