@@ -487,6 +487,10 @@ module WXRuby3
             raise
         end
       end
+
+      def to_s
+        "#{@type} #{@name} #{@array ? '[]' : ''}"
+      end
     end # class ParamDef
 
   end # module Extractor
