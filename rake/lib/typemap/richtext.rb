@@ -39,6 +39,8 @@ module WXRuby3
 
           map_typecheck precedence: 1, code: '$1 = ( CLASS_OF($input) == rb_cRange );'
 
+          map_out code: '$result = rb_range_new (LONG2NUM($1->GetStart()),LONG2NUM($1->GetEnd()),0);'
+
           map_directorin code: '$input = rb_range_new (LONG2NUM($1.GetStart()),LONG2NUM($1.GetEnd()),0);'
 
         end
