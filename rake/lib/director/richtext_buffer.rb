@@ -26,9 +26,6 @@ module WXRuby3
           ]
         spec.gc_as_object 'wxRichTextAttr'
         spec.gc_never 'wxRichTextBuffer'
-        spec.ignore_bases('wxRichTextAttr' => %w[wxTextAttr])
-        spec.override_base('wxRichTextAttr', 'wxTextAttr')
-        spec.swig_import 'swig/classes/include/wxTextAttr.h'
         spec.ignore_bases('wxRichTextBuffer' => %w[wxRichTextParagraphLayoutBox])
         spec.ignore %w[
           wxRichTextBuffer::GetBatchedCommand
@@ -37,7 +34,6 @@ module WXRuby3
         spec.disown 'wxRichTextFileHandler* handler'
         spec.ignore(%w[wxRICHTEXT_ALL wxRICHTEXT_NONE wxRICHTEXT_NO_SELECTION])
         spec.do_not_generate(:functions)
-        spec.add_swig_code '%warnfilter(402) wxRichTextAttr;'
         super
       end
     end # class RichTextBuffer

@@ -49,7 +49,8 @@ module WXRuby3
         unless Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
           spec.ignore %w[wxRichTextCtrl::GetDragStartTime wxRichTextCtrl::SetDragStartTime]
         end
-        spec.swig_import 'swig/classes/include/wxRichTextBuffer.h'
+        spec.swig_import 'swig/classes/include/wxTextAttr.h',
+                         'swig/classes/include/wxRichTextBuffer.h'
         spec.suppress_warning(402, 'wxRichTextAttr')
         # Deal with some output values from TextCtrl methods - PositionToXY
         spec.map_apply 'long * OUTPUT' => 'long *'
