@@ -122,7 +122,7 @@ module WXRuby3
               typedef #{typename} #{Typemap.rb_void_type(typename)};
             %}
             %typemap(out) #{Typemap.rb_void_type(typename)} \"wxUnusedVar(result);\";
-            %typemap(directorout) #{Typemap.rb_void_type(typename)} \"wxUnusedVar(result);\";
+            %typemap(directorout) #{Typemap.rb_void_type(typename)} \"\";
             __SWIG
         end
 

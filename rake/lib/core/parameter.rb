@@ -72,6 +72,19 @@ module WXRuby3
 
       attr_reader :type_mask
 
+      private def match(paramdef)
+        if (name.empty? || name == paramdef.name) && array? == paramdef.array
+          # compare unmodified types
+          return true if type_mask == paramdef.type.tr(' ', '')
+          # reduce const modifiers and compare
+          param_type = paramdef.type.dup
+          while param_type.sub!(CONST_RE) { |s| "#{s.start_with?('c') ? '' : s[0]}#{s[-1]}" }
+            return true if type_mask == param_type.tr(' ', '')
+          end
+        end
+        false
+      end
+
       def ==(param)
         case param
         when ParameterMask
@@ -79,9 +92,8 @@ module WXRuby3
         when ArgumentDecl
           param == self
         when Extractor::ParamDef
-          (name.empty? || name == param.name) &&
-            type_mask == param.type.sub(/const\s*/, '').tr(' ', '') &&
-            array? == param.array
+          STDERR.puts "**** matching #{self} to #{param}" if Director.trace?
+          match(param)
         else
           ArgumentDecl.new(param.to_s) == self
         end
@@ -111,8 +123,10 @@ module WXRuby3
       end
 
       private def match(funcdef)
+        STDERR.puts "*** matching #{self} to #{funcdef.signature}" if Director.trace?
         # see if the first parameter mask matches anywhere in the function's argument list
         if fpix = (0...funcdef.parameters.size).to_a.detect { |pix| @param_masks.first == funcdef.parameters[pix] }
+          STDERR.puts "*** match found at argument #{fpix}" if Director.trace?
           # if this is the only param mask we're done
           return true if @param_masks.size == 1
           # are there enough arguments to match all masks from the position of the argument we matched first?
