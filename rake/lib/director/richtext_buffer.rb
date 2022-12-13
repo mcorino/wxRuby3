@@ -22,15 +22,14 @@ module WXRuby3
           wxTextAttrBorders
           wxTextBoxAttr
           wxRichTextAttr
-          wxRichTextRange
           wxRichTextBuffer
           ]
         spec.gc_as_object 'wxRichTextAttr'
         spec.gc_never 'wxRichTextBuffer'
         spec.ignore_bases('wxRichTextAttr' => %w[wxTextAttr])
         spec.override_base('wxRichTextAttr', 'wxTextAttr')
+        spec.swig_import 'swig/classes/include/wxTextAttr.h'
         spec.ignore_bases('wxRichTextBuffer' => %w[wxRichTextParagraphLayoutBox])
-        spec.ignore 'wxRichTextRange::operator!='
         spec.ignore %w[
           wxRichTextBuffer::GetBatchedCommand
           wxRichTextBuffer::GetCommandProcessor

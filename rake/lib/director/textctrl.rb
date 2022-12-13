@@ -17,11 +17,10 @@ module WXRuby3
 
       def setup
         super
-        spec.items.concat(%w[wxTextEntry wxTextAttr])
-        spec.gc_as_object('wxTextAttr')
+        spec.items << 'wxTextEntry'
         spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')
-        spec.ignore ['wxTextCtrl::HitTest(const wxPoint &,long *)', 'wxTextAttr::Merge(const wxTextAttr &,const wxTextAttr &)']
+        spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
         if Config.instance.wx_version > '3.1.5'
           spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
         end
@@ -48,6 +47,7 @@ module WXRuby3
           extern VALUE mWxTextCtrl;
           rb_define_method(mWxTextCtrl, "<<", VALUEFUNC(op_append), 1);
           __HEREDOC
+        spec.swig_import 'swig/classes/include/wxTextAttr.h'
       end
     end # class TextCtrl
 
