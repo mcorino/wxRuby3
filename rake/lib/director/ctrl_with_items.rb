@@ -45,18 +45,6 @@ module WXRuby3
             }
             __HEREDOC
             )
-          # Typemap for GetStrings - which returns an object not a reference,
-          # unlike all other ArrayString-returning methods
-          spec.map 'wxArrayString' do
-            map_type 'Array<String>'
-            map_out code: <<~__CODE
-              $result = rb_ary_new();
-              for (size_t i = 0; i < $1.GetCount(); i++)
-              {
-                rb_ary_push($result, WXSTR_TO_RSTR($1.Item(i)));
-              }
-              __CODE
-          end
        end
       end
 

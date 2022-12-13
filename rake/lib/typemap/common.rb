@@ -230,6 +230,18 @@ module WXRuby3
           map_typecheck precedence: 'STRING_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
+        # wxArrayString return by value
+        map 'wxArrayString' do
+          map_type 'Array<String>'
+          map_out code: <<~__CODE
+              $result = rb_ary_new();
+              for (size_t i = 0; i < $1.GetCount(); i++)
+              {
+                rb_ary_push($result, WXSTR_TO_RSTR($1.Item(i)));
+              }
+          __CODE
+        end
+
         # Array<Integer> <> wxArrayInt/wxArrayInt& type mappings
 
         map 'wxArrayInt' do
