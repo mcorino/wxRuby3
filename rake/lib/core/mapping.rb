@@ -66,6 +66,10 @@ module WXRuby3
           block.call(self) if block
         end
 
+        def ignore?
+          @ignore
+        end
+
         def modifiers
           @ignore ? ",numinputs=0" : nil
         end
@@ -186,6 +190,7 @@ module WXRuby3
         @directorin = nil
         @directorargout = nil
         @directorout = nil
+        @varout = nil
         @header_code = []
         self.instance_eval &block if block
       end
@@ -275,7 +280,7 @@ module WXRuby3
       end
 
       def map_varout(temp: nil, code: nil, &block)
-        @argout = VarOut.new(self, temp: temp, code: code, &block)
+        @varout = VarOut.new(self, temp: temp, code: code, &block)
       end
 
       def resolve(_)
@@ -286,7 +291,15 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
-      def has_ignored_out?
+      def maps_input?
+        @in && !@in.ignore?
+      end
+
+      def maps_output?
+        (@out && !@out.ignore?) || @argout
+      end
+
+      def has_ignored_output?
         @out && @out.ignore?
       end
 
@@ -309,8 +322,9 @@ module WXRuby3
                 @out,
                 @freearg,
                 @directorin,
-                @directorargout]
-        maps << @directorout unless has_ignored_out?
+                @directorargout,
+                @varout]
+        maps << @directorout unless has_ignored_output?
         s.concat maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
       end
 
@@ -341,7 +355,7 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
-      def has_ignored_out?
+      def has_ignored_output?
         false
       end
 
@@ -355,6 +369,7 @@ module WXRuby3
     end
 
     class SystemMap
+
       def initialize(*mappings)
         @patterns = mappings.collect { |paramset| ParameterSet === paramset ? paramset : ParameterSet.new(paramset) }
       end
@@ -369,7 +384,7 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
-      def has_ignored_out?
+      def has_ignored_output?
         false
       end
 
