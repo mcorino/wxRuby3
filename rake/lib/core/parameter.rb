@@ -11,6 +11,7 @@ module WXRuby3
     class ParameterBase
       PTR_RE = /\A(\*|&)\s*([_a-zA-Z]\w*)?\Z/
       CONST_RE = /(\Aconst|\Wconst)\W/
+      MULTI_WORD_TYPES = %w[char short int long]
       def initialize(param)
         @array = false
         if ::Array === param
@@ -35,10 +36,16 @@ module WXRuby3
           tmp = @ctype.gsub(CONST_RE) { |s| "#{s.start_with?('c') ? '' : s[0]}#{s[-1]}" }
           # check if there is still an identifier left
           if /\w+/ =~ tmp
-            # does the name still contain a pointer/reference indicator?
-            PTR_RE.match(@name) do |md|
-              @ctype << ' ' << md[1] # attach to type
-              @name = md[2].to_s.strip # remove from name
+            # is this really a name or part of multiword type?
+            if MULTI_WORD_TYPES.include?(@name)
+              @ctype << ' ' << @name
+              @name = nil # nameless
+            else
+              # does the name still contain a pointer/reference indicator?
+              PTR_RE.match(@name) do |md|
+                @ctype << ' ' << md[1] # attach to type
+                @name = md[2].to_s.strip # remove from name
+              end
             end
           else
             # @name is actually the type identifier and this parameter spec is nameless
