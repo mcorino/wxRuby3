@@ -499,7 +499,7 @@ class MyFrame < Frame
                           "", "",
                           @ext_def,
                           "Waveform (*.wav)|*.wav|Plain text (*.txt)|*.txt|All files (*.*)|*.*",
-                          CHANGE_DIR,
+                          FD_CHANGE_DIR,
                           self
                         )
 
