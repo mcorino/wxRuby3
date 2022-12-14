@@ -489,7 +489,7 @@ module WXRuby3
       end
 
       def to_s
-        "#{@type} #{@name} #{@array ? '[]' : ''}"
+        "#{@type} #{@name}#{@array ? ' []' : ''}"
       end
     end # class ParamDef
 

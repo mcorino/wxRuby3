@@ -14,7 +14,7 @@ module WXRuby3
 
     def initialize(dir)
       super
-      # select all typemaps that have an ignored (director)out map
+      # select all typemaps that have an ignored out map
       @typemaps_with_ignored_out = type_maps.select { |tm| tm.has_ignored_out? }
     end
 
@@ -495,11 +495,13 @@ module WXRuby3
         active_overloads.each do |ovl|
           fout.puts
           fn_type = ovl.type
+          no_output = false
           # check if this method matches a type map with ignored out defs
           if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(ovl) }
-            fn_type = Typemap.rb_void_type(fn_type) if type_map.ignored.include?(fn_type)
+            fn_type = Typemap.rb_void_type(fn_type) if (no_output = type_map.ignored.include?(fn_type))
           end
           gen_only_for(fout, ovl) do
+            fout.puts %Q[  %feature("numoutputs", "0") #{ovl.name};] if no_output
             fout.puts "#{fn_type} #{ovl.name}#{ovl.args_string};"
           end
         end

@@ -9,7 +9,7 @@ module WXRuby3
 
     # represents a basic parameter definition
     class ParameterBase
-      PTR_RE = /\A(\*|&)([_a-zA-Z]\w*)\Z/
+      PTR_RE = /\A(\*|&)\s*([_a-zA-Z]\w*)?\Z/
       CONST_RE = /(\Aconst|\Wconst)\W/
       def initialize(param)
         @array = false
@@ -37,8 +37,8 @@ module WXRuby3
           if /\w+/ =~ tmp
             # does the name still contain a pointer/reference indicator?
             PTR_RE.match(@name) do |md|
-              @ctype << md[1] # attach to type
-              @name = md[2] # remove from name
+              @ctype << ' ' << md[1] # attach to type
+              @name = md[2].to_s.strip # remove from name
             end
           else
             # @name is actually the type identifier and this parameter spec is nameless
@@ -59,7 +59,7 @@ module WXRuby3
       end
 
       def to_s
-        "#{ctype}#{name.empty? ? '' : ' '}#{name}#{array? ? '[]' : ''}"
+        "#{ctype}#{name.empty? ? '' : ' '+name}#{array? ? '[]' : ''}"
       end
     end # ParameterBase
 
@@ -73,7 +73,7 @@ module WXRuby3
       attr_reader :type_mask
 
       private def match(paramdef)
-        if (name.empty? || name == paramdef.name) && array? == paramdef.array
+        if (name.empty? || name == paramdef.name) && (array? == paramdef.array)
           # compare unmodified types
           return true if type_mask == paramdef.type.tr(' ', '')
           # reduce const modifiers and compare
@@ -92,7 +92,6 @@ module WXRuby3
         when ArgumentDecl
           param == self
         when Extractor::ParamDef
-          STDERR.puts "**** matching #{self} to #{param}" if Director.trace?
           match(param)
         else
           ArgumentDecl.new(param.to_s) == self
@@ -144,6 +143,10 @@ module WXRuby3
 
       def to_s
         "(#{@param_masks.join(', ')})"
+      end
+
+      def inspect
+        to_s
       end
     end
 
@@ -198,6 +201,10 @@ module WXRuby3
 
       def to_s
         @args.join(', ')
+      end
+
+      def inspect
+        to_s
       end
     end
 

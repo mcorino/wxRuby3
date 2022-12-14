@@ -278,6 +278,10 @@ module WXRuby3
         @argout = VarOut.new(self, temp: temp, code: code, &block)
       end
 
+      def resolve(_)
+        self
+      end
+
       def matches?(pattern)
         @patterns.any? { |p| p == pattern }
       end
@@ -325,6 +329,14 @@ module WXRuby3
 
       attr_reader :patterns
 
+      def resolve(resolver)
+        unless @applied_map
+          @applied_map = resolver.call(@src_pattern) || SystemMap.new(@src_pattern) # assume system (SWIG) defined map if not found
+          STDERR.puts "*** apply #{@applied_map} (from #{@src_pattern}) for #{@patterns}" if Director.trace?
+        end
+        self
+      end
+
       def matches?(pattern)
         @patterns.any? { |p| p == pattern }
       end
@@ -349,6 +361,10 @@ module WXRuby3
 
       attr_reader :patterns
 
+      def resolve(_)
+        self
+      end
+
       def matches?(pattern)
         @patterns.any? { |p| p == pattern }
       end
@@ -367,7 +383,7 @@ module WXRuby3
     end
 
     class Collection
-      module Find
+      module EnumHelpers
         def find(*patterns)
           if patterns.size == 1
             # in case of a single pattern find the first map matching the pattern
@@ -383,6 +399,10 @@ module WXRuby3
         def select(&block)
           list.select(&block)
         end
+
+        def collect(&block)
+          list.inject(Collection.new) { |c, tm| c.list << block.call(tm); c }
+        end
       end
 
       def initialize
@@ -391,7 +411,7 @@ module WXRuby3
 
       attr_reader :list
 
-      include Find
+      include EnumHelpers
 
       def add(typemap)
         @list << typemap
@@ -419,7 +439,7 @@ module WXRuby3
           ::Enumerator::Chain.new(*@collections.collect { |c| c.list })
         end
 
-        include Find
+        include EnumHelpers
 
         def to_swig
           @collections.collect { |coll| coll.to_swig }.join("\n")
@@ -443,8 +463,8 @@ module WXRuby3
         application.each_pair do |src_mapping, tgt_mappings|
           src_pattern = ParameterSet.new(src_mapping)
           map = type_maps.find(src_pattern)
-          map ||= SystemMap.new(src_pattern) # assume system (SWIG) defined map if not found
           type_maps << AppliedMap.new(map, src_pattern, *[tgt_mappings].flatten)
+          STDERR.puts "*** apply #{map} (from #{src_pattern}) for #{tgt_mappings}" if map && Director.trace?
         end
       end
 

@@ -307,7 +307,8 @@ module WXRuby3
     end
 
     def type_maps
-      Typemap::Collection::Chain.new(director.class.type_maps, ifspec.type_maps)
+      resolver = ->(pattern) { director.class.type_maps.find(pattern) }
+      Typemap::Collection::Chain.new(director.class.type_maps, ifspec.type_maps.collect {|tm| tm.resolve(resolver) })
     end
 
     class Simple

@@ -18,22 +18,13 @@ module WXRuby3
         map 'int * OUTPUT' do
           map_type 'Array<Integer>'
           map_directorargout code: <<~__CODE
-            if($1 != NULL)
+            if(output != Qnil)
             {
-              if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 1 ) )
-              {
-                *$1 = (int)NUM2INT(rb_ary_entry(result,0));
-                rb_ary_shift(result);
-              }
-              else
-              {
-                *$1 = 0;
-              }
+              *$1 = (int)NUM2INT(output);
             }
             else
             {
-              if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 1) )
-                rb_ary_shift(result);  // Guess we should shift it anyhow!
+              *$1 = 0;
             }
             __CODE
         end
@@ -41,22 +32,13 @@ module WXRuby3
         map 'long * OUTPUT' do
           map_type 'Array<Integer>'
           map_directorargout code: <<~__CODE
-            if($1 != NULL)
+            if(output != Qnil)
             {
-              if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 1 ) )
-              {
-                *$1 = (int)NUM2INT(rb_ary_entry(result,0));
-                rb_ary_shift(result);
-              }
-              else
-              {
-                *$1 = 0;
-              }
+              *$1 = (int)NUM2INT(output);
             }
             else
             {
-              if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 1) )
-                rb_ary_shift(result);  // Guess we should shift it anyhow!
+              *$1 = 0;
             }
           __CODE
         end
@@ -313,45 +295,46 @@ module WXRuby3
         map_apply 'int *OUTPUT' => ['wxCoord * width', 'wxCoord * height', 'wxCoord * heightLine',
                                     'wxCoord * w', 'wxCoord * h', 'wxCoord * descent', 'wxCoord * externalLeading']
 
-        # special integer combination OUTPUT mappings
-
-        map 'int * x , int * y , int * descent, int * externalLeading' do
-          map_directorargout code: <<~__CODE
-            if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 2 ) )
-            {
-              *$1 = ($*1_ltype)NUM2INT(rb_ary_entry(result,0));
-              *$2 = ($*2_ltype)NUM2INT(rb_ary_entry(result,1));
-              if(($3 != NULL) && RARRAY_LEN(result) >= 3)
-                *$3 = ($*3_ltype)NUM2INT(rb_ary_entry(result,2));
-              if(($4 != NULL) && RARRAY_LEN(result) >= 4)
-                *$4 = ($*4_ltype)NUM2INT(rb_ary_entry(result,3));
-            }
-            __CODE
-        end
-        map 'wxCoord * width , wxCoord * height , wxCoord * heightLine' do
-          map_directorargout code: <<~__CODE
-            if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 2) )
-            {
-              *$1 = ($*1_ltype)NUM2INT(rb_ary_entry(result,0));
-              *$2 = ($*2_ltype)NUM2INT(rb_ary_entry(result,1));
-              if(($3 != NULL) && RARRAY_LEN(result) >= 3)
-                *$3 = ($*3_ltype)NUM2INT(rb_ary_entry(result,2));
-            }
-            __CODE
-        end
-        map 'wxCoord * w , wxCoord * h , wxCoord * descent, wxCoord * externalLeading' do
-          map_directorargout code: <<~__CODE
-            if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 2 ) )
-            {
-              *$1 = ($*1_ltype)NUM2INT(rb_ary_entry(result,0));
-              *$2 = ($*2_ltype)NUM2INT(rb_ary_entry(result,1));
-              if(($3 != NULL) && RARRAY_LEN(result) >= 3)
-                *$3 = ($*3_ltype)NUM2INT(rb_ary_entry(result,2));
-              if(($4 != NULL) && RARRAY_LEN(result) >= 4)
-                *$4 = ($*4_ltype)NUM2INT(rb_ary_entry(result,3));
-            }
-            __CODE
-        end
+        # DEPRECATED
+        # # special integer combination OUTPUT mappings
+        #
+        # map 'int * x , int * y , int * descent, int * externalLeading' do
+        #   map_directorargout code: <<~__CODE
+        #     if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 2 ) )
+        #     {
+        #       *$1 = ($*1_ltype)NUM2INT(rb_ary_entry(result,0));
+        #       *$2 = ($*2_ltype)NUM2INT(rb_ary_entry(result,1));
+        #       if(($3 != NULL) && RARRAY_LEN(result) >= 3)
+        #         *$3 = ($*3_ltype)NUM2INT(rb_ary_entry(result,2));
+        #       if(($4 != NULL) && RARRAY_LEN(result) >= 4)
+        #         *$4 = ($*4_ltype)NUM2INT(rb_ary_entry(result,3));
+        #     }
+        #     __CODE
+        # end
+        # map 'wxCoord * width , wxCoord * height , wxCoord * heightLine' do
+        #   map_directorargout code: <<~__CODE
+        #     if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 2) )
+        #     {
+        #       *$1 = ($*1_ltype)NUM2INT(rb_ary_entry(result,0));
+        #       *$2 = ($*2_ltype)NUM2INT(rb_ary_entry(result,1));
+        #       if(($3 != NULL) && RARRAY_LEN(result) >= 3)
+        #         *$3 = ($*3_ltype)NUM2INT(rb_ary_entry(result,2));
+        #     }
+        #     __CODE
+        # end
+        # map 'wxCoord * w , wxCoord * h , wxCoord * descent, wxCoord * externalLeading' do
+        #   map_directorargout code: <<~__CODE
+        #     if((TYPE(result) == T_ARRAY) && ( RARRAY_LEN(result) >= 2 ) )
+        #     {
+        #       *$1 = ($*1_ltype)NUM2INT(rb_ary_entry(result,0));
+        #       *$2 = ($*2_ltype)NUM2INT(rb_ary_entry(result,1));
+        #       if(($3 != NULL) && RARRAY_LEN(result) >= 3)
+        #         *$3 = ($*3_ltype)NUM2INT(rb_ary_entry(result,2));
+        #       if(($4 != NULL) && RARRAY_LEN(result) >= 4)
+        #         *$4 = ($*4_ltype)NUM2INT(rb_ary_entry(result,3));
+        #     }
+        #     __CODE
+        # end
 
         # Window check type mapping
 
