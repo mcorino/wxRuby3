@@ -27,6 +27,40 @@ module WXRuby3
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
         spec.map_apply 'long * OUTPUT' => 'long *'
         spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
+        # for PositionToXY
+        spec.map 'long pos, long *x, long *y' do
+          map_type 'Array<Integer>' # Ruby return type
+
+          map_in temp: 'long tmpX, long tmpY', code: <<~__CODE
+            $1 = (long)NUM2INT($input);
+            $2 = &tmpX;
+            $3 = &tmpY;
+            __CODE
+
+          # ignore C defined return value entirely (also affects directorout)
+          map_out ignore: 'bool'
+
+          map_argout code: <<~__CODE
+            $result = Qnil;
+            if (result)
+            {
+              $result = rb_ary_new ();
+              rb_ary_push ($result,INT2NUM(tmpX$argnum));
+              rb_ary_push ($result,INT2NUM(tmpY$argnum));
+            }
+          __CODE
+
+          map_directorin code: '$input = INT2NUM($1);'
+
+          map_directorargout code: <<~__CODE
+            c_result = false;
+            if (result != Qnil && TYPE(result) == T_ARRAY)
+            {
+              *x = (long)NUM2INT(rb_ary_entry(result, 0));
+              *y = (long)NUM2INT(rb_ary_entry(result, 1));
+            }
+          __CODE
+        end
         spec.ignore 'wxTextCtrl::operator<<'
         spec.add_header_code <<~__HEREDOC
           // Allow << to work with a TextCtrl
