@@ -412,6 +412,22 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
+      def mapped_arg_input(arg_pattern)
+        if maps_input? && !ignores_input? && tm_pset = @patterns.detect { |p| p == arg_pattern }
+          @in.from[tm_pset]
+        else
+          nil
+        end
+      end
+
+      def mapped_arg_output(arg_pattern)
+        if maps_input_as_output? && tm_pset = @patterns.detect { |p| p == arg_pattern }
+          @argout.as[tm_pset]
+        else
+          nil
+        end
+      end
+
       def map_input(parameters, param_offset)
         # does this map handle input mapping?
         if (maps_input? || maps_input_as_output?) &&
@@ -452,7 +468,7 @@ module WXRuby3
 
       def map_output(type)
         if maps_output?
-          if ignores_output? && ignored.include?(type)
+          if ignores_output? && ignored_output.include?(type)
             return ''
           end
           if (tm_pset = @patterns.detect { |pset| pset == type })
@@ -482,7 +498,7 @@ module WXRuby3
         @out && @out.ignore?
       end
 
-      def ignored
+      def ignored_output
         @out ? @out.ignored : []
       end
 
@@ -537,16 +553,72 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
+      def mapped_arg_input(arg_pattern)
+        if maps_input? && !ignores_input? && @patterns.any? { |p| p == arg_pattern }
+          @applied_maps.detect { |tm| tm.maps_input? && !tm.ignores_input? }.mapped_arg_input(@src_pattern)
+        else
+          nil
+        end
+      end
+
+      def mapped_arg_output(arg_pattern)
+        if maps_input_as_output? && @patterns.any? { |p| p == arg_pattern }
+          @applied_maps.detect { |tm| tm.maps_input_as_output? }.mapped_arg_output(@src_pattern)
+        else
+          nil
+        end
+      end
+
       def map_input(parameters, param_offset)
-        result = nil
-        @applied_maps.detect { |map| result = map.map_input(parameters, param_offset) } if @applied_maps
-        result
+        # does this map handle input mapping?
+        if (maps_input? || maps_input_as_output?) &&
+          # and if so, do any of the pattern sets match the first parameter
+          !(tm_psets = @patterns.select { |pset| pset.param_masks.first == parameters.first }).empty?
+          # ok, do any match the rest of the pattern (if any) as well?
+          tm_match = tm_psets.any? do |pset|
+            pset.param_masks.size == 1 ||
+              (parameters.size >= pset.param_masks.size &&
+                (1...pset.param_masks.size).all? { |pi| pset.param_masks[pi] == parameters[pi] })
+          end
+          if tm_match
+            # find the applied map mapping input (if any)
+            tm_app = @applied_maps.detect { |tm| tm.maps_input? }
+            in_arg = nil
+            # map the matched parameters
+            if tm_app
+              unless tm_app.ignores_input?
+                mapped_arg = tm_app.mapped_arg_input(@src_pattern)
+                paramnr = mapped_arg.index || 0
+                in_arg = RubyArg.new(mapped_arg.type,
+                                     param_offset+paramnr)
+              end
+            end
+            # find the applied map mapping arg output (if any)
+            tm_app = @applied_maps.detect { |tm| tm.maps_input_as_output? }
+            out_arg = nil
+            if tm_app
+              mapped_arg = tm_app.mapped_arg_output(@src_pattern)
+              paramnr = mapped_arg.index || 0
+              out_arg = RubyArg.new(mapped_arg.type,
+                                    param_offset+paramnr)
+            end
+            # shift mapped parameters
+            parameters.shift(@src_pattern.param_masks.size)
+            # return mappings
+            return [in_arg, out_arg]
+          end
+        end
+        nil
       end
 
       def map_output(type)
-        result = nil
-        @applied_maps.detect { |map| result = map.map_output(type) } if @applied_maps
-        result
+        if maps_output?
+          if ignores_output? && ignored_output.include?(type)
+            return ''
+          end
+          return @applied_maps.detect { |tm| tm.maps_output? }.map_output(type)
+        end
+        nil
       end
 
       def maps_input?
@@ -567,6 +639,10 @@ module WXRuby3
 
       def ignores_output?
         @applied_maps ? @applied_maps.any? { |map| map.ignores_output? } : false
+      end
+
+      def ignored_output
+        ignores_output? ? @applied_maps.detect { |map| map.ignores_output? }.ignored_output : []
       end
 
       def to_swig
@@ -600,6 +676,22 @@ module WXRuby3
 
       def matches?(pattern)
         @patterns.any? { |p| p == pattern }
+      end
+
+      def mapped_arg_input(arg_pattern)
+        if maps_input? && !ignores_input? && @patterns.any? { |p| p == arg_pattern }
+          RubyArg.new(@mapped_type)
+        else
+          nil
+        end
+      end
+
+      def mapped_arg_output(arg_pattern)
+        if maps_input_as_output? && @patterns.any? { |p| p == arg_pattern }
+          RubyArg.new(@mapped_type)
+        else
+          nil
+        end
       end
 
       def map_input(parameters, param_offset)
@@ -659,6 +751,10 @@ module WXRuby3
 
       def ignores_output?
         false
+      end
+
+      def ignored_output
+        []
       end
 
       def to_swig

@@ -357,7 +357,7 @@ module WXRuby3
       no_output = false
       # check if this method matches a type map with ignored out defs
       if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(methoddef) }
-        mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = type_map.ignored.include?(mtd_type))
+        mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = type_map.ignored_output.include?(mtd_type))
       end
       # generate method declaration
       gen_only_for(fout, methoddef) do
