@@ -15,12 +15,10 @@ module WXRuby3
       include Typemap::Module
 
       define do
-        map 'wxDataFormat* formats' do
+        map 'wxDataFormat* formats' => 'Array<Wx::DataFormat>' do
 
           # add include for unique_ptr<>
           add_header '#include <memory>'
-
-          map_type 'Array<Wx::DataFormat>'
 
           # ignore argument for Ruby
           # since an "ignored" typemap is inserted before any other argument conversions we need

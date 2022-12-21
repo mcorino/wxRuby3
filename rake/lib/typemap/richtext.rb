@@ -26,9 +26,7 @@ module WXRuby3
         # ranges of text selections with a special class. It doesn't add
         # anything much that Ruby's own range class doesn't, so deal with using
         # typemaps
-        map 'wxRichTextRange&' do
-
-          map_type 'Range'
+        map 'wxRichTextRange&' => 'Range' do
 
           map_in code: <<~__CODE
             int start = NUM2INT( rb_funcall( $input, rb_intern("begin"), 0));
@@ -45,9 +43,7 @@ module WXRuby3
 
         end
 
-        map 'wxRichTextRange' do
-
-          map_type 'Range'
+        map 'wxRichTextRange' => 'Range' do
 
           map_out code: '$result = rb_range_new (LONG2NUM($1.GetStart()),LONG2NUM($1.GetEnd()),0);'
 

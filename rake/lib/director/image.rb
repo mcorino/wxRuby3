@@ -53,8 +53,7 @@ module WXRuby3
         # For Image#set_rgb_data, Image#set_alpha_data and Image.new with raw data arg:
         # copy raw string data from a Ruby string to a memory block that will be
         # managed by wxWidgets (see static_data typemap below)
-        spec.map 'unsigned char* data', 'unsigned char* alpha' do
-          map_type type: 'String', name: 0
+        spec.map 'unsigned char* data', 'unsigned char* alpha', as: 'String' do
           map_in code: <<~__CODE
             if ( TYPE($input) == T_STRING )
               {

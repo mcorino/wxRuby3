@@ -15,8 +15,7 @@ module WXRuby3
 
       define do
 
-        map 'int * OUTPUT' do
-          map_type 'Array<Integer>'
+        map 'int * OUTPUT' => 'Integer' do
           map_directorargout code: <<~__CODE
             if(output != Qnil)
             {
@@ -29,8 +28,7 @@ module WXRuby3
             __CODE
         end
 
-        map 'long * OUTPUT' do
-          map_type 'Array<Integer>'
+        map 'long * OUTPUT' => 'Integer' do
           map_directorargout code: <<~__CODE
             if(output != Qnil)
             {
@@ -45,8 +43,7 @@ module WXRuby3
 
         # String <> wxString type mappings
 
-        map 'wxString&' do
-          map_type 'String'
+        map 'wxString&' => 'String' do
           map_in temp: 'wxString tmp', code: 'tmp = RSTR_TO_WXSTR($input); $1 = &tmp;'
           map_out code: '$result = WXSTR_PTR_TO_RSTR($1);'
           map_directorout code: '$result = RSTR_TO_WXSTR($input);'
@@ -54,16 +51,14 @@ module WXRuby3
           map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
         end
 
-        map 'wxString*' do
-          map_type 'String'
+        map 'wxString*' => 'String' do
           map_in temp: 'wxString tmp', code: 'tmp = RSTR_TO_WXSTR($input); $1 = &tmp;'
           map_out code: '$result = WXSTR_PTR_TO_RSTR($1);'
           map_directorin code: '$input = WXSTR_PTR_TO_RSTR($1);'
           map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
         end
 
-        map 'wxString' do
-          map_type 'String'
+        map 'wxString' => 'String' do
           map_out code: '$result = WXSTR_TO_RSTR($1);'
           map_directorout code: '$result = RSTR_TO_WXSTR($input);'
           map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
@@ -77,8 +72,7 @@ module WXRuby3
         #   $1 = const_cast<wxChar*> (static_cast<wxChar const *> (temp.c_str()));
         # }
 
-        map 'const wxChar *' do
-          map_type 'String'
+        map 'const wxChar *' => 'String' do
           map_in temp: 'wxString temp', code: <<~__CODE
             temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
             $1 = const_cast<wxChar*> (static_cast<wxChar const *> (temp.c_str()));
@@ -91,8 +85,7 @@ module WXRuby3
 
         # Object <> void* type mappings
 
-        map 'void*' do
-          map_type 'Object'
+        map 'void*' => 'Object' do
           map_in code: '$1 = (void*)($input);'
           map_out code: '$result = (VALUE)($1);'
           map_typecheck precedence: 'POINTER', code: '$1 = TRUE;'
@@ -102,9 +95,8 @@ module WXRuby3
         # wxRuby permits these common input parameters to be represented as
         # two-element arrays [x, y] or [width, height].
 
-        map 'wxSize&', 'wxPoint&' do
-          map_type 'wxSize&' => 'Array<Integer>, Wx::Size',
-                   'wxPoint&' => 'Array<Integer>, Wx::Point'
+        map 'wxSize&' => 'Array<Integer>, Wx::Size',
+            'wxPoint&' => 'Array<Integer>, Wx::Point' do
           map_in code: <<~__CODE
             if ( TYPE($input) == T_DATA )
             {
@@ -136,8 +128,7 @@ module WXRuby3
 
         # Integer <> wxItemKind type mappings
 
-        map 'wxItemKind' do
-          map_type 'Integer'
+        map 'wxItemKind' => 'Integer' do
           map_in code: '$1 = (wxItemKind)NUM2INT($input);'
           map_out code: '$result = INT2NUM((int)$1);'
           # fixes mixup between
@@ -153,8 +144,7 @@ module WXRuby3
         map 'int n, const wxString choices []',
             'int n, const wxString* choices',
             'int nItems, const wxString *items' do
-          map_type type: 'Array<String>', name: 1
-          map_in temp: 'wxString *arr', code: <<~__CODE
+          map_in from: { type: 'Array<String>', index: 1 }, temp: 'wxString *arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;
@@ -184,8 +174,7 @@ module WXRuby3
 
         # Array<String> <> wxArrayString type mappings
 
-        map 'wxArrayString &' do
-          map_type 'Array<String>'
+        map 'wxArrayString &' => 'Array<String>' do
           map_in temp: 'wxArrayString tmp', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
@@ -213,8 +202,7 @@ module WXRuby3
         end
 
         # wxArrayString return by value
-        map 'wxArrayString' do
-          map_type 'Array<String>'
+        map 'wxArrayString' => 'Array<String>' do
           map_out code: <<~__CODE
               $result = rb_ary_new();
               for (size_t i = 0; i < $1.GetCount(); i++)
@@ -226,8 +214,7 @@ module WXRuby3
 
         # Array<Integer> <> wxArrayInt/wxArrayInt& type mappings
 
-        map 'wxArrayInt' do
-          map_type 'Array<Integer>'
+        map 'wxArrayInt' => 'Array<Integer>' do
           map_in temp: 'wxArrayInt tmp', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
@@ -253,8 +240,7 @@ module WXRuby3
           map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
-        map 'wxArrayInt&' do
-          map_type 'Array<Integer>'
+        map 'wxArrayInt&' => 'Array<Integer>' do
           map_in temp: 'wxArrayInt tmp', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
@@ -282,8 +268,7 @@ module WXRuby3
 
         # various enumerator type mappings
 
-        map *%w[wxEdge wxRelationship wxKeyCode] do
-          map_type 'Integer'
+        map *%w[wxEdge wxRelationship wxKeyCode], as: 'Integer' do
           map_in code: '$1 = ($1_type)NUM2INT($input);'
           map_out code: '$result = INT2NUM((int)$1);'
           map_typecheck precedence: 'INT32', code: '$1 = TYPE($input) == T_FIXNUM;'
@@ -338,8 +323,7 @@ module WXRuby3
 
         # Window check type mapping
 
-        map 'wxWindow* parent' do
-          map_type 'Wx::Window'
+        map 'wxWindow* parent' => 'Wx::Window' do
           # This typemap catches the first argument of all constructors and
           # Create() methods for Wx::Window classes. These should not be called
           # before App::main_loop is started, and, except for TopLevelWindows,
@@ -360,16 +344,14 @@ module WXRuby3
 
         # window/sizer object wrapping
 
-        map 'wxWindow*', 'wxSizer*' do
-          map_type 'wxWindow*' => 'Wx::Window', 'wxSizer*' => 'Wx::Sizer'
+        map 'wxWindow*' => 'Wx::Window', 'wxSizer*' => 'Wx::Sizer' do
           map_out code: '$result = wxRuby_WrapWxObjectInRuby($1);'
         end
 
 
         # Validators must be cast to correct subclass, but internal validator
         # is a clone, and should not be freed, so disown after wrapping.
-        map 'wxValidator*' do
-          map_type 'Wx::Validator'
+        map 'wxValidator*' => 'Wx::Validator' do
           map_out code: <<~__CODE
             $result = wxRuby_WrapWxObjectInRuby($1);
             RDATA($result)->dfree = SWIG_RubyRemoveTracking;
@@ -378,8 +360,7 @@ module WXRuby3
 
         # For ProcessEvent and AddPendingEvent and wxApp::FilterEvent
 
-        map 'wxEvent &event' do
-          map_type 'Wx::Event'
+        map 'wxEvent &event' => 'Wx::Event' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_TRACE__
             $input = wxRuby_WrapWxEventInRuby(this, const_cast<wxEvent*> (&$1));
@@ -395,8 +376,7 @@ module WXRuby3
 
         # For wxWindow::DoUpdateUIEvent
 
-        map 'wxUpdateUIEvent &' do
-          map_type 'Wx::UpdateUIEvent'
+        map 'wxUpdateUIEvent &' => 'Wx::UpdateUIEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_TRACE__
             $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
@@ -408,8 +388,7 @@ module WXRuby3
 
         # For wxControl::Command
 
-        map 'wxCommandEvent &' do
-          map_type 'Wx::CommandEvent'
+        map 'wxCommandEvent &' => 'Wx::CommandEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_TRACE__
             $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));

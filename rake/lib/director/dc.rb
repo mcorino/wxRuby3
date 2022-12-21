@@ -46,12 +46,6 @@ module WXRuby3
             return rb_result;
           }
           __HEREDOC
-        spec.map_parameters 'wxDC', 'int n*, wxPoint points[]',
-                            ['Array<Wx::Point>,Array<Array<Integer>>', 'points', 'array of points for the polygon (where each point can be either a Wx::Point or an array of 2 integers)']
-        spec.map_parameters 'wxDC', 'int n*, wxPoint *points',
-                            ['Array<Wx::Point>,Array<Array<Integer>>', 'points', 'array of points for the polygon (where each point can be either a Wx::Point or an array of 2 integers)']
-        spec.map_parameters 'wxDC', 'int n, int count[], wxPoint points[]',
-                            ['Array<Array<Wx::Point>>,Array<Array<Array<Integer>>>', 'points', 'array of polygon point arrays']
         super
       end
     end # class DC

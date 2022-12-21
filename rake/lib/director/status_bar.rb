@@ -23,8 +23,7 @@ module WXRuby3
         spec.disable_proxies
         # special type mappings
         # For GetFieldsRect
-        spec.map 'wxRect& rect' do
-          map_type 'Wx::Rect'
+        spec.map 'wxRect& rect' => 'Wx::Rect' do
           map_in ignore: true, code: '$1 = new wxRect;'
           map_argout code: <<~__CODE
             if (result)
@@ -38,8 +37,8 @@ module WXRuby3
         end
         # For SetStatusWidths
         spec.map 'int n, int *widths' do
-          map_type type: 'Array<Integer>', name: 1
-          map_in temp: 'int *arr', code: <<~__CODE
+          map_in from: {type: 'Array<Integer>', index: 1},
+                 temp: 'int *arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;

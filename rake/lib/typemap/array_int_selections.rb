@@ -19,8 +19,7 @@ module WXRuby3
 
       define do
 
-        map 'wxArrayInt& selections', 'wxArrayInt &checkedItems' do
-          map_type 'Array<Integer>' # Ruby return type
+        map 'wxArrayInt& selections', 'wxArrayInt &checkedItems', as: 'Array<Integer>' do
 
           map_in ignore: true, temp: 'wxArrayInt tmp', code: '$1 = &tmp;'
 

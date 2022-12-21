@@ -550,7 +550,7 @@ module WXRuby3
     end
 
     def get_function_doc(func)
-      func.rb_doc(@xml_trans)
+      func.rb_doc(@xml_trans, type_maps)
     end
 
     def gen_functions_doc(fdoc)
@@ -570,8 +570,8 @@ module WXRuby3
       doc
     end
 
-    def get_method_doc(mtd, cls)
-      mtd.rb_doc(@xml_trans, cls)
+    def get_method_doc(mtd)
+      mtd.rb_doc(@xml_trans, type_maps)
     end
 
     def get_class_constant_doc(const, _clsnm)
@@ -605,7 +605,7 @@ module WXRuby3
               end
               # generate method documentation
               item.methods.select { |m| !m.is_dtor }.each do |mtd|
-                decl, *doc = get_method_doc(mtd, item)
+                decl, *doc = get_method_doc(mtd)
                 doc.each { |s| fdoc.doc.puts s }
                 fdoc.puts decl
                 fdoc.puts

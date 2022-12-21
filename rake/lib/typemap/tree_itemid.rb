@@ -17,8 +17,7 @@ module WXRuby3
 
       define do
 
-        map 'wxTreeItemId&' do
-          map_type 'Wx::TreeItemId'
+        map 'wxTreeItemId&' => 'Wx::TreeItemId' do
           map_in temp: 'wxTreeItemId tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);
             $1 = &tmpId;
@@ -26,8 +25,7 @@ module WXRuby3
           map_directorin code: '$input = _wxRuby_Wrap_wxTreeItemId($1);'
         end
 
-        map 'wxTreeItemId' do
-          map_type 'Wx::TreeItemId'
+        map 'wxTreeItemId' => 'Wx::TreeItemId' do
           map_out code: '$result = _wxRuby_Wrap_wxTreeItemId($1);'
           map_directorout temp: 'wxTreeItemId tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);

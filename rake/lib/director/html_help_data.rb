@@ -17,8 +17,7 @@ module WXRuby3
         super
         spec.items << 'wxHtmlBookRecord' << 'wxHtmlHelpDataItem'
         # type mapping for wxHtmlBookRecArray and wxHtmlHelpDataItems
-        spec.map 'const wxHtmlBookRecArray&' do
-          map_type 'Array<Wx::HtmlBookRecord>'
+        spec.map 'const wxHtmlBookRecArray&' => 'Array<Wx::HtmlBookRecord>' do
           map_out code: <<~__CODE
             $result = rb_ary_new();
             for (size_t n=0; n<$1->GetCount() ;++n)
@@ -29,8 +28,7 @@ module WXRuby3
             }
             __CODE
         end
-        spec.map 'const wxHtmlHelpDataItems&' do
-          map_type 'Array<Wx::HtmlHelpDataItem>'
+        spec.map 'const wxHtmlHelpDataItems&' => 'Array<Wx::HtmlHelpDataItem>' do
           map_out code: <<~__CODE
             $result = rb_ary_new();
             for (size_t n=0; n<$1->GetCount() ;++n)

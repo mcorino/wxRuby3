@@ -116,6 +116,8 @@ module WXRuby3
               # constant
               if /[\-\+\.\d]+/ =~ idstr
                 idstr # numeric constant
+              elsif /\A(true|false|NULL)/ =~ idstr
+                $1 == 'NULL' ? 'nil' : $1
               else
                 "Wx::#{rb_constant_name(idstr)}"
               end

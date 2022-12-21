@@ -25,9 +25,7 @@ module WXRuby3
           # add include for unique_ptr<>
           add_header '#include <memory>'
 
-          map_type type: 'Wx::DataFormat', name: 0
-
-          map_in temp: 'std::unique_ptr<char> data_buf, size_t data_size', code: <<~__CODE
+          map_in from: {type: 'Wx::DataFormat', index: 0}, temp: 'std::unique_ptr<char> data_buf, size_t data_size', code: <<~__CODE
             void* argp$argnum = NULL;
             if ( TYPE($input) == T_DATA )
             {
@@ -48,7 +46,7 @@ module WXRuby3
           # ignore C defined return value entirely (also affects directorout)
           map_out ignore: 'bool'
 
-          map_argout code: <<~__CODE
+          map_argout as: {type: 'String', index: 1}, code: <<~__CODE
             if (result)
             {
               $result = rb_str_new( (const char*)data_buf$argnum.get(), data_size$argnum);
@@ -87,9 +85,7 @@ module WXRuby3
         # not. This string is marked as tainted.
         map 'size_t len, const void* buf' do
 
-          map_type type: 'String', name: 1
-
-          map_in code: <<~__CODE
+          map_in from: {type: 'String', index: 1}, code: <<~__CODE
             $1 = RSTRING_LEN($input);
             $2 = (void*)StringValuePtr($input);
             __CODE

@@ -84,8 +84,7 @@ module WXRuby3
                     'wxListCtrl::SetItemPtrData',
                     'wxListCtrl::SortItems'
         # required for GetItemRect and GetSubItemRect
-        spec.map 'wxRect &rect' do
-          map_type 'Wx::Rect'
+        spec.map 'wxRect &rect' => 'Wx::Rect' do
           map_in ignore: true, code: '$1 = new wxRect();'
           map_argout code: '$result = SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 1);'
         end

@@ -12,63 +12,7 @@ module WXRuby3
   module Extractor
 
     # Information about a standalone function.
-    class FunctionDef < BaseDef # , FixWxPrefix):
-
-      class ParamMapping
-        class MapDef
-          def initialize(mdef)
-            if ::Array === mdef
-              @rbtype, @rbname, @rbdoc, @rbdefault = mdef
-            else
-              mdef, @rbdoc = mdef.split('#')
-              @rbdoc.to_s.strip!
-              mdef, @rbdefault = mdef.split('=')
-              @rbdefault.to_s.strip!
-              mdlist = mdef.strip.split(' ')
-              @rbname = mdlist.pop
-              @rbtype = mdlist.join(' ')
-            end
-          end
-
-          def map
-            {name: @rbname, type: @rbtype, doc: @rbdoc, default: @rbdefault}
-          end
-        end
-
-        def initialize(from, to)
-          @from = (::Array === from ? from : from.split(',')).collect do |argmask|
-            if ParamDef::Mask === argmask
-              argmask
-            else
-              ParamDef::Mask.new(argmask)
-            end
-          end
-          @to = (::Array === to && ::Array === to.first ? to : [to]).collect do |argdef|
-            if MapDef === argdef
-              argdef
-            else
-              MapDef.new(argdef)
-            end
-          end
-        end
-
-        def from_count
-          @from.size
-        end
-
-        def get_mapped
-          @to.collect { |e| e.map }
-        end
-
-        def matches?(paramdefs)
-          @from.each_with_index do |mask, ix|
-            if ix >= paramdefs.size || mask != paramdefs[ix]
-              return false
-            end
-          end
-          true
-        end
-      end
+    class FunctionDef < BaseDef
 
       include Util::StringUtil
 
@@ -124,13 +68,10 @@ module WXRuby3
         "self.#{rb_method_name(name)}"
       end
 
-      def rb_doc(xml_trans)
+      def rb_doc(xml_trans, type_maps)
         ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
         paramlist = nil
-        param_mapping = ->(param_defs) {
-          BaseDef.find_param_mapping(param_defs)
-        }
-        doc = ovls.collect { |mo| paramlist, docstr = mo.rb_doc_decl(xml_trans, param_mapping, ovls.size>1); docstr }
+        doc = ovls.collect { |mo| paramlist, docstr = mo.rb_doc_decl(xml_trans, type_maps, ovls.size>1); docstr }
         unless ovls.empty?
           if ovls.size>1
             doc.unshift "def #{rb_decl_name}(*args) end"
@@ -143,7 +84,7 @@ module WXRuby3
         doc
       end
 
-      def rb_doc_decl(xml_trans, param_mapping, has_ovl=false)
+      def rb_doc_decl(xml_trans, type_maps, has_ovl=false)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # unlink params_doc if any
@@ -153,27 +94,21 @@ module WXRuby3
         # add detailed doc text without params doc
         doc << xml_trans.to_doc(@detailed_doc)
         # get mapped ruby parameter list
-        param_defs = parameters
         params = []
-        until param_defs.empty?
-          # check for param mapping at current pos in param list
-          if (mapping = param_mapping.call(param_defs))
-            # remove mapped param definitions
-            param_defs.shift(mapping.from_count)
-            # store mapping
-            params.concat(mapping.get_mapped)
-          else
-            # get param def at current pos
-            paramdef = param_defs.shift
-            # store param name with rb type mapped from wx typedefs
-            rb_type = BaseDef.wx_type_to_rb(paramdef.type)
-            rb_type = rb_type.join(',') if ::Array === rb_type
+        mapped_ret_args = nil
+        param_defs = self.parameters
+        unless param_defs.empty?
+          # map parameters
+          mapped_args, mapped_ret_args = type_maps.map_input(param_defs.dup)
+          # collect full param specs
+          mapped_args.each do |arg|
+            paramdef = param_defs[arg.index]
             pnm = if paramdef.name.empty?
                     "arg#{params.size > 0 ? params.size.to_s : ''}"
                   else
                     rb_param_name(paramdef.name)
                   end
-            params << {name: pnm, type: rb_type}
+            params << { name: pnm, type: arg.type }
             if paramdef.default
               defexp = rb_constant_expression(paramdef.default)
               # in case the default expression contains anything else but simple numbers or identifiers, wrap in ()
@@ -210,12 +145,23 @@ module WXRuby3
           doclns << (s << '@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
         s = has_ovl ? '  ' : ''
-        doclns << "#{s}@return [#{rb_return_type}]"
+        result = [rb_return_type(type_maps)]
+        result.concat(mapped_ret_args.collect { |mra| mra.type }) if mapped_ret_args
+        result.compact! # remove nil values (possible ignored output)
+        case result.size
+        when 0
+          doclns << "#{s}@return [void]"
+        when 1
+          doclns << "#{s}@return [#{result.first}]"
+        else
+          doclns << "#{s}@return [Array<(#{result.join(',')})>]"
+        end
         [paramlist, doclns.join("\n")]
       end
 
-      def rb_return_type
-        BaseDef.wx_type_to_rb(type)
+      def rb_return_type(type_maps)
+        mapped_type = type_maps.map_output(type)
+        (mapped_type.empty? || mapped_type == 'void') ? nil : mapped_type
       end
 
       def argument_list
@@ -361,7 +307,7 @@ module WXRuby3
         end
       end
 
-      def rb_return_type
+      def rb_return_type(type_maps)
         if is_ctor
           rb_wx_name(class_name)
         else
@@ -383,72 +329,10 @@ module WXRuby3
         sig
       end
 
-      def rb_doc(xml_trans, clsdef)
-        ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
-        paramlist = nil
-        param_mapping = ->(param_defs) {
-          clsdef.find_param_mapping(param_defs) || BaseDef.find_param_mapping(param_defs)
-        }
-        doc = ovls.collect { |mo| paramlist, docstr = mo.rb_doc_decl(xml_trans, param_mapping, ovls.size>1); docstr }
-        unless ovls.empty?
-          if ovls.size>1
-            doc.unshift "def #{rb_decl_name}(*args) end"
-          elsif paramlist.empty?
-            doc.unshift "def #{rb_decl_name}; end"
-          else
-            doc.unshift "def #{rb_decl_name}(#{paramlist}) end"
-          end
-        end
-        doc
-      end
-
     end # class MethodDef
 
     # A parameter of a function or method.
     class ParamDef < BaseDef
-
-      class Mask
-        RE = /\A(\*|&)([_a-zA-Z]\w*)\Z/
-        def initialize(maskdef)
-          @array = false
-          if ::Array === maskdef
-            @ctype, @name_mask, arr = maskdef
-            @array = (arr == '[]' || arr == true) if arr
-            if @name_mask.end_with?('[]')
-              @array = true
-              @name_mask = @name_mask[0..-3]
-            end
-          else
-            mdlist = maskdef.to_s.split(' ')
-            @name_mask = mdlist.pop
-            if @name_mask == '[]' || @name_mask.end_with?('[]')
-              @array = true
-              @name_mask = (@name_mask == '[]' ? mdlist.pop : @name_mask[0..-3])
-            end
-            @ctype = mdlist.join(' ')
-            RE.match(@name_mask) do |md|
-              @ctype << md[1]
-              @name_mask = md[2]
-            end
-          end
-          @ctype.sub!(/const\s*/,'')
-          @ctype.tr!(' ','')
-        end
-
-        def ==(paramdef)
-          paramtype = paramdef.type.sub(/const\s*/, '').tr(' ', '')
-          if paramtype == @ctype && paramdef.array == @array
-            if ::Regexp === @name_mask
-              return @name_mask =~ paramdef.name
-            elsif @name_mask.end_with?('*')
-              return paramdef.name.start_with?(@name_mask[0..-2])
-            else
-              return @name_mask.to_s == paramdef.name
-            end
-          end
-          false
-        end
-      end
 
       def initialize(element = nil, **kwargs)
         super()

@@ -30,8 +30,8 @@ module WXRuby3
           spec.extend_interface('wxFrame', 'virtual void OnInternalIdle()')
           spec.disown 'wxMenuBar *'
           spec.map 'int n, int * widths' do
-            map_type type: 'Array<Integer>', name: 1
-            map_in temp: 'int size, int i, int *arr', code: <<~__CODE
+            map_in from: {type: 'Array<Integer>', index: 1},
+                   temp: 'int size, int i, int *arr', code: <<~__CODE
               size = RARRAY_LEN($input);
               arr = new int[size];
               for(i = 0; i < size; i++)

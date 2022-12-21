@@ -17,8 +17,7 @@ module WXRuby3
         spec.gc_as_object
         spec.ignore 'wxSystemSettings::GetAppearance'
         %w[wxSystemColour wxSystemFont wxSystemMetric].each do |type|
-          spec.map type do
-            map_type type.sub(/\Awx/, 'Wx::')
+          spec.map type => type.sub(/\Awx/, 'Wx::') do
             map_in code: "$1 = (#{type})NUM2INT($input);"
             map_out code: " $result = INT2NUM((int)$1);"
           end

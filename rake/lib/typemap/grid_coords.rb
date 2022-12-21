@@ -17,9 +17,7 @@ module WXRuby3
 
       define do
 
-        map 'wxGridCellCoords' do
-
-          map_type 'Array<Integer>'
+        map 'wxGridCellCoords' => 'Array<Integer>' do
 
           map_in temp: 'int a, b', code: <<~__CODE
             if ( ! TYPE($input) == T_ARRAY )
@@ -42,9 +40,7 @@ module WXRuby3
         end
 
         # Needed for get_selected_cells, get_selection_block_top_left etc
-        map 'wxGridCellCoordsArray' do
-
-          map_type 'Array<Array<Integer>>'
+        map 'wxGridCellCoordsArray' => 'Array<Array<Integer>>' do
 
           map_out code: <<~__CODE
             $result = rb_ary_new();

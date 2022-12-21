@@ -40,8 +40,7 @@ module WXRuby3
           'AppendItem' =>
             'wxRubyMenu::Append(wxMenuItem *item)')
         # Fix for GetMenuItems - converts list of MenuItems to Array
-        spec.map 'wxMenuItemList&' do
-          map_type 'Array<Wx::MenuItem>'
+        spec.map 'wxMenuItemList&' => 'Array<Wx::MenuItem>' do
           map_out code: <<~__CODE
             $result = rb_ary_new();
             wxMenuItemList::iterator iter;

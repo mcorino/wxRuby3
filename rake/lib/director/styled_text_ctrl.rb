@@ -18,16 +18,14 @@ module WXRuby3
       def setup
         super
         spec.ignore_bases('wxStyledTextCtrl' => 'wxTextEntry')
-        spec.map 'int *OUTPUT' do
-          map_type 'Integer'
+        spec.map 'int *OUTPUT' => 'Integer' do
           map_in ignore: true, temp: 'int a', code: '$1 = &a;'
           map_argout code: <<~__CODE
             $result = rb_ary_new();
             rb_ary_push($result, INT2NUM(*$1));
             __CODE
         end
-        spec.map 'int *OUTPUT, int *OUTPUT' do
-          map_type 'Array<Integer>'
+        spec.map 'int *OUTPUT, int *OUTPUT' => 'Array<Integer>' do
           map_in ignore: true, temp: 'int a, int b', code: '$1 = &a; $2 = &b;'
           map_argout code: <<~__CODE
             $result = rb_ary_new();

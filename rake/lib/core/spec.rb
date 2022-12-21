@@ -57,7 +57,6 @@ module WXRuby3
         @new_objects = ::Set.new
         @warn_filters = ::Hash.new
         @only_for = ::Hash.new
-        @param_mappings = ::Hash.new
         @includes = ::Set.new
         @swig_imports = {prepend: ::Set.new, append: ::Set.new}
         @swig_includes = ::Set.new
@@ -77,7 +76,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
-                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for, :param_mappings,
+                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements, :type_maps
@@ -318,11 +317,6 @@ module WXRuby3
 
       def set_only_for(id, *names)
         (@only_for[id.to_s] ||= ::Set.new).merge(names.flatten)
-        self
-      end
-
-      def map_parameters(clsnm, from, to)
-        (@param_mappings[clsnm] ||= []) << [from, to]
         self
       end
 

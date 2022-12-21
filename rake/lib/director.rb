@@ -254,15 +254,6 @@ module WXRuby3
           handle_item_only_for(defmod, fullname, platform_id)
         end
       end
-      # handle class specific parameter mappings
-      spec.param_mappings.each_pair do |clsnm, maps|
-        item = defmod.find_item(clsnm)
-        if item && Extractor::ClassDef === item
-          maps.each { |map| item.add_param_mapping(*map) }
-        else
-          raise "Cannot find class '#{clsnm}' for parameter mapping #{map} in module '#{spec.module_name}'"
-        end
-      end
       # handle class specified includes
       defmod.classes.each do |cls|
         unless cls.ignored

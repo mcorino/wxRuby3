@@ -46,16 +46,14 @@ module WXRuby3
         spec.ignore 'wxHtmlWindow::OnLinkClicked'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
         # type mapping for LoadFile, SetFonts and OnOpeningURL
-        spec.map 'const wxFileName &filename' do
-          map_type type: 'String', name: 0
+        spec.map 'const wxFileName &filename' => 'String' do
           # Deal with wxFileName
           map_in temp: 'wxFileName tmp', code: <<~__CODE
             tmp = wxFileName(RSTR_TO_WXSTR($input));
             $1 = &tmp;
             __CODE
         end
-        spec.map 'const int* sizes' do
-          map_type type: 'Array<Integer>', name: 0
+        spec.map 'const int* sizes' => 'Array<Integer>' do
           # Deal with sizes argument to SetFonts
           map_in code: <<~__CODE
             if ( TYPE($input) != T_ARRAY || RARRAY_LEN($input) != 7 )
@@ -71,8 +69,7 @@ module WXRuby3
           # deal with OnOpeningURL's "wxString *redirect" argument
           map_directorin code: '$input = WXSTR_TO_RSTR($1);'
         end
-        spec.map 'wxHtmlOpeningStatus' do
-          map_type 'true,false,String'
+        spec.map 'wxHtmlOpeningStatus' => 'true,false,String' do
           map_directorout code: ''
           map_out code: <<~__CODE
             switch ($1)

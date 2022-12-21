@@ -11,10 +11,24 @@ module WXRuby3
 
   module Typemap
 
-    RubyArg = Struct.new(:type, :name)
+    RubyArg = Struct.new(:type, :index) do
+      def to_s
+        "RubyArg{type=#{type}; index=#{index}}"
+      end
+      def inspect
+        to_s
+      end
+    end
 
     def self.rb_void_type(ctype)
       "VOID_#{ctype.tr(' ', '_').upcase}"
+    end
+
+    def self.wx_type_to_rb(typestr)
+      c_type = typestr.gsub(/const\s+/, '')
+      c_type.gsub!(/\s+(\*|&)/, '\1')
+      c_type.strip!
+      c_type.tr('*&', '').sub(/\Awx/, 'Wx::')
     end
 
     class Map
@@ -57,13 +71,60 @@ module WXRuby3
             %Q{%typemap(#{kind}#{mods}) #{argmasks} "#{@mapping_code.first}";}
           end
         end
+
+        def to_s
+          "#{kind} #{@map}"
+        end
+
+        def _get_mapped_type(type)
+          mapped_type = case type
+                        when RubyArg
+                          type
+                        when ::Array
+                          RubyArg[*type]
+                        when ::Hash
+                          RubyArg[type[:type], type[:index]]
+                        else
+                          RubyArg[type.to_s]
+                        end
+        end
+        private :_get_mapped_type
+
+        def _map_args(argdef, argmap)
+          if ::Hash === argdef && !argdef.has_key?(:type)
+            argdef.each_pair do |argmasks, type|
+              pattern = @map.patterns.detect { |ps| ps == argmasks }
+              raise "Unknown parameter set [#{argmasks}] for [#{to_s}]" unless pattern
+              argmap[pattern] = _get_mapped_type(type)
+            end
+          else
+            mapped_type = _get_mapped_type(argdef)
+            @map.patterns.each { |pattern| argmap[pattern] = mapped_type }
+          end
+          argmap
+        end
+        protected :_map_args
       end
 
       class In < Base
-        def initialize(map, ignore: false, temp: nil, code: nil, &block)
+        def initialize(map, from: nil, ignore: nil, temp: nil, code: nil, &block)
           super(map, temp: temp, code: code)
+          raise "Cannot combine 'from' and 'ignore' in #{to_s}" if from && ignore
+          @from = {}
           @ignore = ignore
+          if from
+            map_from(from)
+          elsif !ignore
+            map.types.each_pair { |pset, type| @from[pset] = _get_mapped_type(type) }
+            @ignore = @from.empty?
+          end
           block.call(self) if block
+        end
+
+        attr_reader :from
+
+        def map_from(argdef)
+          @ignore = _map_args(argdef, @from).empty?
         end
 
         def ignore?
@@ -71,7 +132,7 @@ module WXRuby3
         end
 
         def modifiers
-          @ignore ? ",numinputs=0" : nil
+          ignore? ? ",numinputs=0" : nil
         end
       end
 
@@ -106,14 +167,36 @@ module WXRuby3
       end
 
       class Out < Base
-        def initialize(map, ignore: nil, temp: nil, code: nil, &block)
+        def initialize(map, ignore: nil, to: nil, temp: nil, code: nil, &block)
           super(map, temp: temp, code: code)
           @ignored = ignore ? [ignore].flatten : []
           @ignore = !!ignore
+          @to = {}
+          if to
+            map_to(to)
+          elsif !(@ignore || map.types.empty?)
+            map.types.each_pair { |pset, type| @to[pset] = _get_mapped_type(type) }
+          end
           block.call(self) if block
         end
 
-        attr_reader :ignored
+        attr_reader :ignored, :to
+
+        def map_to(typedef)
+          if ::Hash === typedef
+            typedef.each_pair do |argmasks, type|
+              pattern = @patterns.detect { |ps| ps == argmasks }
+              raise "Unknown parameter set [#{argmasks}] for [#{@map}]" unless pattern
+              @to[pattern] = type
+            end
+          else
+            @patterns.inject(@to) do |map, pattern|
+              map[pattern] = typedef
+              map
+            end
+          end
+          raise "Cannot combine 'ignore' and 'to' mapping in #{to_s}" if @ignore && !@to.empty?
+        end
 
         def ignore?
           @ignore
@@ -143,9 +226,21 @@ module WXRuby3
       end
 
       class ArgOut < Base
-        def initialize(map, temp: nil, code: nil, &block)
+        def initialize(map, as: nil, temp: nil, code: nil, &block)
           super(map, temp: nil, code: code)
+          @as = {}
+          if as
+            map_as(as)
+          elsif !map.types.empty?
+            map.types.each_pair { |pset, type| @as[pset] = _get_mapped_type(type) }
+          end
           block.call(self) if block
+        end
+
+        attr_reader :as
+
+        def map_as(argdef)
+          _map_args(argdef, @as)
         end
       end
 
@@ -177,9 +272,73 @@ module WXRuby3
         end
       end
 
-      def initialize(*mappings, &block)
-        @patterns = mappings.collect { |paramset| ParameterSet === paramset ? paramset : ParameterSet.new(paramset) }
-        @mapped_types = {}
+      class Configurator
+        def initialize(map)
+          @map = map
+        end
+        def add_header_code(*code)
+          @map.add_header_code(*code)
+        end
+        alias :add_header :add_header_code
+
+        def map_in(**kwargs, &block)
+          @map.map_in(**kwargs, &block)
+        end
+
+        def map_default(**kwargs, &block)
+          @map.map_default(**kwargs, &block)
+        end
+
+        def map_typecheck(**kwargs, &block)
+          @map.map_typecheck(**kwargs, &block)
+        end
+
+        def map_check(**kwargs, &block)
+          @map.map_check(**kwargs, &block)
+        end
+
+        def map_out(**kwargs, &block)
+          @map.map_out(**kwargs, &block)
+        end
+
+        def map_freearg(**kwargs, &block)
+          @map.map_freearg(**kwargs, &block)
+        end
+
+        def map_argout(**kwargs, &block)
+          @map.map_argout(**kwargs, &block)
+        end
+
+        def map_directorin(**kwargs, &block)
+          @map.map_directorin(**kwargs, &block)
+        end
+
+        def map_directorout(**kwargs, &block)
+          @map.map_directorout(**kwargs, &block)
+        end
+
+        def map_directorargout(**kwargs, &block)
+          @map.map_directorargout(**kwargs, &block)
+        end
+
+        def map_varout(**kwargs, &block)
+          @map.map_varout(**kwargs, &block)
+        end
+      end
+
+      def initialize(*mappings, as: nil, &block)
+        @types = {}
+        @patterns = mappings.collect do |mapping|
+          if ::Hash === mapping
+            pattern, type = *mapping.first
+            pset = ParameterSet === pattern ? pattern : ParameterSet.new(pattern)
+            @types[pset] = type
+            pset
+          else
+            ParameterSet === mapping ? mapping : ParameterSet.new(mapping)
+          end
+        end
+        @patterns.each { |pset| @types[pset] = as unless @types.has_key?(pset) } if as
         @in = nil
         @default = nil
         @typecheck = nil
@@ -192,55 +351,17 @@ module WXRuby3
         @directorout = nil
         @varout = nil
         @header_code = []
-        self.instance_eval &block if block
+        Configurator.new(self).instance_eval &block if block
       end
 
-      attr_reader :patterns, :mapped_types
-
-      def _get_mapped_type(type)
-        mapped_type = case type
-                      when RubyArg
-                        type
-                      when ::Array
-                        RubyArg[*type]
-                      when ::Hash
-                        RubyArg[type[:type], type[:name]]
-                      else
-                        RubyArg[type.to_s]
-                      end
-      end
-      private :_get_mapped_type
+      attr_reader :patterns, :types
 
       def add_header_code(*code)
         @header_code.concat(code.flatten)
       end
-      alias :add_header :add_header_code
 
-      def map_type(types)
-        if ::Hash === types && !types.has_key?(:type)
-          types.each_pair do |argmasks, type|
-            pattern = @patterns.detect { |ps| ps == argmasks }
-            raise "Unknown parameter set [#{argmasks}] for [#{to_s}]" unless pattern
-            mapped_type = _get_mapped_type(types)
-            if ::Integer === mapped_type.name
-              mapped_type.name = pattern.param_masks[mapped_type.name].name
-            end
-            @mapped_types[pattern] = _get_mapped_type(type)
-          end
-        else
-          @patterns.inject(@mapped_types) do |map, pattern|
-            mapped_type = _get_mapped_type(types)
-            if ::Integer === mapped_type.name
-              mapped_type.name = pattern.param_masks.fetch(mapped_type.name).name
-            end
-            map[pattern] = mapped_type
-            map
-          end
-        end
-      end
-
-      def map_in(ignore: false, temp: nil, code: nil, &block)
-        @in = In.new(self, ignore: ignore, temp: temp, code: code, &block)
+      def map_in(from: nil, ignore: nil, temp: nil, code: nil, &block)
+        @in = In.new(self, from: from, ignore: ignore, temp: temp, code: code, &block)
       end
 
       def map_default(temp: nil, code: nil, &block)
@@ -255,16 +376,16 @@ module WXRuby3
         @check = Check.new(self, temp: temp, code: code, &block)
       end
 
-      def map_out(ignore: nil, temp: nil, code: nil, &block)
-        @out = Out.new(self, ignore: ignore, temp: temp, code: code, &block)
+      def map_out(ignore: nil, to: nil, temp: nil, code: nil, &block)
+        @out = Out.new(self, ignore: ignore, to: nil, temp: temp, code: code, &block)
       end
 
       def map_freearg(temp: nil, code: nil, &block)
         @check = FreeArg.new(self, temp: temp, code: code, &block)
       end
 
-      def map_argout(temp: nil, code: nil, &block)
-        @argout = ArgOut.new(self, temp: temp, code: code, &block)
+      def map_argout(as: nil, temp: nil, code: nil, &block)
+        @argout = ArgOut.new(self, as: as, temp: temp, code: code, &block)
       end
 
       def map_directorin(temp: nil, code: nil, &block)
@@ -291,15 +412,73 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
+      def map_input(parameters, param_offset)
+        # does this map handle input mapping?
+        if (maps_input? || maps_input_as_output?) &&
+            # and if so, do any of the pattern sets match the first parameter
+            !(tm_psets = @patterns.select { |pset| pset.param_masks.first == parameters.first }).empty?
+          # ok, find first for which the rest of the pattern (if any) matches as well?
+          tm_pset = tm_psets.detect do |pset|
+            pset.param_masks.size == 1 ||
+              (parameters.size >= pset.param_masks.size &&
+                (1...pset.param_masks.size).all? { |pi| pset.param_masks[pi] == parameters[pi] })
+          end
+          if tm_pset
+            in_arg = nil
+            # map the matched parameters
+            if maps_input?
+              unless ignores_input?
+                mapped_arg = @in.from[tm_pset]
+                paramnr = mapped_arg.index || 0
+                in_arg = RubyArg.new(mapped_arg.type,
+                                     param_offset+paramnr)
+              end
+            end
+            out_arg = nil
+            if maps_input_as_output?
+              mapped_arg = @argout.as[tm_pset]
+              paramnr = mapped_arg.index || 0
+              out_arg = RubyArg.new(mapped_arg.type,
+                                    param_offset+paramnr)
+            end
+            # shift mapped parameters
+            parameters.shift(tm_pset.param_masks.size)
+            # return mappings
+            return [in_arg, out_arg]
+          end
+        end
+        nil
+      end
+
+      def map_output(type)
+        if maps_output?
+          if ignores_output? && ignored.include?(type)
+            return ''
+          end
+          if (tm_pset = @patterns.detect { |pset| pset == type })
+            return @out.to[tm_pset].type
+          end
+        end
+        nil
+      end
+
       def maps_input?
-        @in && !@in.ignore?
+        !!@in
       end
 
       def maps_output?
-        (@out && !@out.ignore?) || @argout
+        !!@out
       end
 
-      def has_ignored_output?
+      def ignores_input?
+        @in && @in.ignore?
+      end
+
+      def maps_input_as_output?
+        !!@argout
+      end
+
+      def ignores_output?
         @out && @out.ignore?
       end
 
@@ -324,7 +503,7 @@ module WXRuby3
                 @directorin,
                 @directorargout,
                 @varout]
-        maps << @directorout unless has_ignored_output?
+        maps << @directorout unless ignores_output?
         s.concat maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
       end
 
@@ -332,21 +511,24 @@ module WXRuby3
         "typemap #{@patterns.join(', ')}"
       end
 
+      def inspect
+        to_s
+      end
     end # Map
 
     class AppliedMap
-      def initialize(applied_map, src_pattern, *mappings)
+      def initialize(src_pattern, *mappings)
         @patterns = mappings.collect { |paramset| ParameterSet.new(paramset) }
         @src_pattern = src_pattern
-        @applied_map = applied_map
+        @applied_maps = nil
       end
 
       attr_reader :patterns
 
       def resolve(resolver)
-        unless @applied_map
-          @applied_map = resolver.call(@src_pattern) || SystemMap.new(@src_pattern) # assume system (SWIG) defined map if not found
-          STDERR.puts "*** apply #{@applied_map} (from #{@src_pattern}) for #{@patterns}" if Director.trace?
+        unless @applied_maps
+          @applied_maps = resolver.call(@src_pattern).reverse + STANDARD.find_all(@src_pattern) # assume system (SWIG) defined map if not found
+          STDERR.puts "*** apply #{@applied_maps} (from #{@src_pattern}) for #{@patterns}" if Director.trace?
         end
         self
       end
@@ -355,8 +537,36 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
-      def has_ignored_output?
-        false
+      def map_input(parameters, param_offset)
+        result = nil
+        @applied_maps.detect { |map| result = map.map_input(parameters, param_offset) } if @applied_maps
+        result
+      end
+
+      def map_output(type)
+        result = nil
+        @applied_maps.detect { |map| result = map.map_output(type) } if @applied_maps
+        result
+      end
+
+      def maps_input?
+        @applied_maps ? @applied_maps.any? { |map| map.maps_input? } : false
+      end
+
+      def maps_output?
+        @applied_maps ? @applied_maps.any? { |map| map.maps_output? } : false
+      end
+
+      def ignores_input?
+        @applied_maps ? @applied_maps.any? { |map| map.ignores_input? } : false
+      end
+
+      def maps_input_as_output?
+        @applied_maps ? @applied_maps.any? { |map| map.maps_input_as_output? } : false
+      end
+
+      def ignores_output?
+        @applied_maps ? @applied_maps.any? { |map| map.ignores_output? } : false
       end
 
       def to_swig
@@ -364,14 +574,22 @@ module WXRuby3
       end
 
       def to_s
-        "applied typemap #{@patterns.join(', ')} (applies #{@applied_map})"
+        "applied typemap #{@patterns.join(', ')} (applies #{@applied_maps})"
+      end
+
+      def inspect
+        to_s
       end
     end
 
     class SystemMap
 
-      def initialize(*mappings)
+      def initialize(*mappings, maps_in: false, maps_argout: false, maps_out: false, mapped_type: nil)
         @patterns = mappings.collect { |paramset| ParameterSet === paramset ? paramset : ParameterSet.new(paramset) }
+        @maps_in = maps_in || @patterns.any? { |p| p.param_masks.any? { |m| m.name == 'INPUT' } }
+        @maps_argout = maps_argout || @patterns.any? { |p| p.param_masks.any? { |m| m.name == 'OUTPUT' } }
+        @maps_out = maps_out
+        @mapped_type = mapped_type
       end
 
       attr_reader :patterns
@@ -384,16 +602,75 @@ module WXRuby3
         @patterns.any? { |p| p == pattern }
       end
 
-      def has_ignored_output?
+      def map_input(parameters, param_offset)
+        # does this map handle input mapping?
+        if (maps_input? || maps_input_as_output?) &&
+          # and if so, do any of the pattern sets match the first parameter
+          !(tm_psets = @patterns.select { |pset| pset.param_masks.first == parameters.first }).empty?
+          # ok, find first for which the rest of the pattern (if any) matches as well?
+          tm_pset = tm_psets.detect do |pset|
+            pset.param_masks.size == 1 ||
+              (parameters.size >= pset.param_masks.size &&
+                (1...pset.param_masks.size).all? { |pi| pset.param_masks[pi] == parameters[pi] })
+          end
+          if tm_pset
+            in_arg = nil
+            # map the matched parameters
+            if maps_input?
+              in_arg = RubyArg.new(@mapped_type,
+                                   param_offset)
+            end
+            out_arg = nil
+            if maps_input_as_output?
+              out_arg = RubyArg.new(@mapped_type,
+                                    param_offset)
+            end
+            # shift mapped parameters
+            parameters.shift(tm_pset.param_masks.size)
+            # return mappings
+            return [in_arg, out_arg]
+          end
+        end
+        nil
+      end
+
+      def map_output(type)
+        if maps_output? && matches?(type)
+          return @mapped_type
+        end
+        nil
+      end
+
+      def maps_input?
+        @maps_in
+      end
+
+      def ignores_input?
+        @maps_argout && !@maps_in
+      end
+
+      def maps_input_as_output?
+        @maps_argout
+      end
+
+      def maps_output?
+        @maps_out
+      end
+
+      def ignores_output?
         false
       end
 
       def to_swig
-        ''
+        nil
       end
 
       def to_s
         "system typemap #{@patterns.join(', ')}"
+      end
+
+      def inspect
+        to_s
       end
     end
 
@@ -408,6 +685,18 @@ module WXRuby3
             # in case of multiple patterns the list must exactly identical as the pattern list of a map
             patterns = patterns.collect { |p| ParameterSet === p ? p : ParameterSet.new(p) }
             list.detect { |map| map.patterns == patterns }
+          end
+        end
+
+        def find_all(*patterns)
+          if patterns.size == 1
+            # in case of a single pattern find the first map matching the pattern
+            pattern = ParameterSet === patterns.first ? patterns.first : ParameterSet.new(patterns.first)
+            list.select { |map| map.matches?(pattern) }
+          else
+            # in case of multiple patterns the list must exactly identical as the pattern list of a map
+            patterns = patterns.collect { |p| ParameterSet === p ? p : ParameterSet.new(p) }
+            list.select { |map| map.patterns == patterns }
           end
         end
 
@@ -430,11 +719,12 @@ module WXRuby3
 
       def add(typemap)
         @list << typemap
+        self
       end
       alias :<< :add
 
       def to_swig
-        @list.collect { |map| map.to_swig }.flatten
+        @list.collect { |map| map.to_swig }.flatten.compact
       end
 
       def to_s
@@ -445,16 +735,53 @@ module WXRuby3
         def initialize(*collections)
           @collections = collections.collect do |coll|
             raise ArgumentError,
-                  "Do not know how to chain #{coll}. Expected Typemap::Collection" unless Collection === coll
+                  "Do not know how to chain #{coll}. Expected Typemap::Collection" unless Collection === coll || Chain === coll
             coll
           end
         end
 
-        private def list
+        def list
           ::Enumerator::Chain.new(*@collections.collect { |c| c.list })
         end
 
         include EnumHelpers
+
+        def resolve
+          resolver = ->(pattern) { self.find_all(pattern) }
+          list.each { |tm| tm.resolve(resolver) }
+          self
+        end
+
+        def map_input(parameters)
+          param_offset = 0
+          args = []
+          ret = []
+          reverse_list = list.reverse_each
+          while !parameters.empty?
+            result = nil
+            param_count = parameters.size
+            reverse_list.detect { |map| result = map.map_input(parameters, param_offset) }
+            arg_in = arg_out = nil
+            if result
+              arg_in, arg_out = result
+            else
+              arg_in = RubyArg.new(Typemap.wx_type_to_rb(parameters.first.type), param_offset)
+              parameters.shift # loose the mapped param
+            end
+            # store mapped param
+            args << arg_in if arg_in
+            ret << arg_out if arg_out
+            # calculate new param offset
+            param_offset += (param_count - parameters.size)
+          end
+          [args, ret]
+        end
+
+        def map_output(type)
+          result = nil
+          list.reverse_each.detect { |map| result = map.map_output(type) }
+          result || Typemap.wx_type_to_rb(type)
+        end
 
         def to_swig
           @collections.collect { |coll| coll.to_swig }.join("\n")
@@ -466,20 +793,44 @@ module WXRuby3
       end
     end
 
+    # set up standard SWIG defined type maps
+    STANDARD = {
+      [ 'char', 'unsigned char', 'wchar_t',
+        'short', 'unsigned short',
+        'int', 'unsigned int',
+        'long', 'unsigned long',
+        'long int', 'unsigned long int',
+        'long long', 'unsigned long long',
+        'ssize_t', 'size_t' ] => 'Integer',
+      ['char*', 'unsigned char*', 'wchar_t*'] => 'String',
+      %w[double float] => 'Float',
+      %w[bool] => 'true,false'
+    }.inject(Typemap::Collection.new) do |list, (ctypes, rbtype)|
+      unless rbtype == 'String'
+        list << SystemMap.new(*ctypes.collect { |t| ["#{t} * OUTPUT", "#{t} & OUTPUT"]}.flatten,
+                              mapped_type: rbtype)
+        list << SystemMap.new(*ctypes.collect { |t| ["#{t} * INPUT", "#{t} & INPUT"]}.flatten,
+                              mapped_type: rbtype)
+      end
+      list << SystemMap.new(*ctypes, maps_in: true, maps_out: true, mapped_type: rbtype)
+    end << SystemMap.new('void', maps_out: true, mapped_type: 'void')
+
     module MappingMethods
 
       # creates a type mapping set
       def map(*mappings, &block)
-        type_maps << Map.new(*mappings, &block)
+        as = nil
+        if ::Hash === mappings.last && (as = mappings.last[:as])
+          mappings.pop
+        end
+        type_maps << Map.new(*mappings, as: as, &block)
       end
 
       # creates type mapping applications sets for different parameter sets
       def map_apply(application)
         application.each_pair do |src_mapping, tgt_mappings|
           src_pattern = ParameterSet.new(src_mapping)
-          map = type_maps.find(src_pattern)
-          type_maps << AppliedMap.new(map, src_pattern, *[tgt_mappings].flatten)
-          STDERR.puts "*** apply #{map} (from #{src_pattern}) for #{tgt_mappings}" if map && Director.trace?
+          type_maps << AppliedMap.new(src_pattern, *[tgt_mappings].flatten)
         end
       end
 

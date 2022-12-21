@@ -28,9 +28,7 @@ module WXRuby3
         spec.map_apply 'long * OUTPUT' => 'long *'
         spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
         # for PositionToXY
-        spec.map 'long pos, long *x, long *y' do
-          map_type 'Array<Integer>' # Ruby return type
-
+        spec.map 'long pos, long *x, long *y' => 'Array<Integer>' do
           map_in temp: 'long tmpX, long tmpY', code: <<~__CODE
             $1 = (long)NUM2INT($input);
             $2 = &tmpX;

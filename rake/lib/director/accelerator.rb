@@ -41,8 +41,7 @@ module WXRuby3
               
           }
         __HEREDOC
-        spec.map 'int keyCode' do
-          map_type type: 'Integer', name: 0
+        spec.map 'int keyCode' => 'Integer' do
           map_in code: '$1 = wxRuby_RubyStringOrIntToKeyCode($input);'
           map_typecheck precedence: 'INT32', code: <<~__CODE
             $1 = ( ( TYPE($input) == T_FIXNUM ) || 
@@ -55,8 +54,8 @@ module WXRuby3
           __HEREDOC
         # Type mapping for constructor, accepts an array of Wx::AcceleratorEntry objects
         spec.map 'int n, wxAcceleratorEntry entries[]' do
-          map_type type: 'Array<Wx::AcceleratorEntry>', name: 1
-          map_in temp: 'wxAcceleratorEntry *arr', code: <<~__CODE
+          map_in from: {type: 'Array<Wx::AcceleratorEntry>', index: 1},
+                 temp: 'wxAcceleratorEntry *arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;

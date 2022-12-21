@@ -41,8 +41,7 @@ module WXRuby3
         # constants are mapped to DataFormat objects (constructed in
         # lib/wx/classes/dataformat.rb) and the constants exposed as
         # Wx::DATA_FORMAT_ID_XXX, below.
-        spec.map 'wxDataFormatId' do
-          map_type 'Wx::DataFormat'
+        spec.map 'wxDataFormatId' => 'Integer' do
           map_in code: '$1 = static_cast<wxDataFormatId>(NUM2INT($input));'
           map_typecheck precedence: 'INT32', code: '$1 = ( TYPE($input) == T_FIXNUM );'
           map_out code: '$result = INT2NUM($1);'

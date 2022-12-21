@@ -80,8 +80,7 @@ module WXRuby3
           # // DISOWN resets their %freefunc to avoid deleting the object twice
           spec.disown 'wxCaret* caret', 'wxSizer* sizer', 'wxToolTip* tip', 'wxDropTarget* target'
           # Typemap for GetChildren - casts wxObjects to correct ruby wrappers
-          spec.map 'wxWindowList&' do
-            map_type 'Array<Wx::Window>'
+          spec.map 'wxWindowList&' => 'Array<Wx::Window>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
               wxWindowList::compatibility_iterator node = $1->GetFirst();

@@ -30,8 +30,7 @@ module WXRuby3
         # special type mapping for wxEvtHander::QueueEvent
         # we do not need any 'disown' actions as the Ruby object should be tracked and will remain
         # alive as long as the C++ object is alive (which will be cleaned up in time by wxWidgets)
-        spec.map 'wxEvent *event' do
-          map_type type: 'Wx::Event', name: 0
+        spec.map 'wxEvent *event' => 'Wx::Event' do
           map_in code: '$1 = (wxEvent*)DATA_PTR($input);'
         end
         spec.add_runtime_code <<~__HEREDOC

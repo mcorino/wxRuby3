@@ -17,7 +17,7 @@ module WXRuby3
 
       define do
 
-        map 'wxDateTime&' do
+        map 'wxDateTime&' => 'Time' do
 
           add_header_code <<~__CODE
             #ifndef __WXRB_DATETIME_HELPERS__
@@ -28,8 +28,6 @@ module WXRuby3
             WXRB_EXPORT_FLAG wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
             #endif
             __CODE
-
-          map_type 'Time'
 
           # Accepts any Time-like object from Ruby and creates a wxDateTime
           map_in temp: 'wxrb_flag dtalloc',
@@ -47,9 +45,7 @@ module WXRuby3
 
         end
 
-        map 'wxDateTime' do
-
-          map_type 'Time'
+        map 'wxDateTime' => 'Time' do
 
           # Converts a return value of wxDateTime to a Ruby Time object
           map_out code: '$result = wxRuby_wxDateTimeToRuby($1);'

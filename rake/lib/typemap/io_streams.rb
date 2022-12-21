@@ -26,7 +26,7 @@ module WXRuby3
 
       define do
 
-        map 'wxInputStream&' do
+        map 'wxInputStream&' => 'IO' do
 
           add_header_code <<~__CODE
             // Allows a ruby IO-like object to be treated as a wxInputStream
@@ -89,7 +89,6 @@ module WXRuby3
             };
             __CODE
 
-          map_type 'IO'
           map_in code: '$1 = new wxRubyInputStream($input);'
           map_typecheck precedence: 1, code: <<~__CODE
             $1 = (RTEST(rb_respond_to ($input, rb_intern ("read"))));
@@ -98,7 +97,7 @@ module WXRuby3
 
         end
 
-        map 'wxOutputStream&' do
+        map 'wxOutputStream&' => 'IO' do
 
           add_header_code <<~__CODE
             // Allows a ruby IO-like object to be used as a wxOutputStream
@@ -160,7 +159,6 @@ module WXRuby3
             };
             __CODE
 
-          map_type 'IO'
           map_in code: '$1 = new wxRubyOutputStream($input);'
           map_typecheck precedence: 1, code: <<~__CODE
             $1 = (RTEST(rb_respond_to ($input, rb_intern ("write"))));

@@ -30,8 +30,7 @@ module WXRuby3
         when 'wxFontDialog'
         when 'wxFileDialog'
           # override the wxArrayString& typemap for GetFilenames and GetPaths
-          spec.map 'wxArrayString&' do
-            map_type 'Array<String>'
+          spec.map 'wxArrayString&' => 'Array<String>' do
             map_in ignore: true, temp: 'wxArrayString sel', code: '$1 = &sel;'
             map_argout code: <<~__CODE
              $result = rb_ary_new();

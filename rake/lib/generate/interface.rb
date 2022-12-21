@@ -15,7 +15,7 @@ module WXRuby3
     def initialize(dir)
       super
       # select all typemaps that have an ignored out map
-      @typemaps_with_ignored_out = type_maps.select { |tm| tm.has_ignored_output? }
+      @typemaps_with_ignored_out = type_maps.select { |tm| tm.ignores_output? }
     end
 
     def gen_swig_header(fout)

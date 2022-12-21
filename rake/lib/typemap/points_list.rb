@@ -52,10 +52,9 @@ module WXRuby3
             }
             __CODE
 
-          map_type 'Array<Wx::Point>,Array<Array<Integer>>'
-
           # Set of typemaps for draw_lines, draw_polygon etc
-          map_in temp: 'wxPoint *arr', code: <<~__CODE
+          map_in from: {type: 'Array<Wx::Point>,Array<Array<Integer>>', index: 1},
+                 temp: 'wxPoint *arr', code: <<~__CODE
             if ( ($input == Qnil) || (TYPE($input) != T_ARRAY) )
             {
               $1 = 0;
@@ -83,9 +82,8 @@ module WXRuby3
         # For draw_poly_polygon only
         map 'int n, int count[], wxPoint points[]' do
 
-          map_type 'Array<Array<Wx::Point>>,Array<Array<Array<Integer>>>'
-
-          map_in temp: 'wxPoint *point_arr', code: <<~__CODE
+          map_in from: {type: 'Array<Array<Wx::Point>>,Array<Array<Array<Integer>>>', index: 2},
+                 temp: 'wxPoint *point_arr', code: <<~__CODE
             if ( ($input == Qnil) || (TYPE($input) != T_ARRAY) )
             {
               $1 = 0;

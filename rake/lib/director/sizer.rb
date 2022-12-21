@@ -21,8 +21,7 @@ module WXRuby3
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
           # Typemap for GetChildren - convert to array of Sizer items
-          spec.map 'wxSizerItemList&' do
-            map_type 'Array<Wx::SizerItem>'
+          spec.map 'wxSizerItemList&' => 'Array<Wx::SizerItem>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
               wxSizerItemList::compatibility_iterator node = $1->GetFirst();

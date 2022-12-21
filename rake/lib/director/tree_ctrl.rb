@@ -114,8 +114,7 @@ module WXRuby3
           };
           __HEREDOC
         # typemaps for setting and getting ruby objects as itemdata.
-        spec.map 'wxTreeItemData*' do
-          map_type 'Object'
+        spec.map 'wxTreeItemData*' => 'Object' do
           map_in code: '$1 = new wxRbTreeItemData($input);'
           map_directorin code: <<~__CODE
             wxRbTreeItemData* ruby_item_data = (wxRbTreeItemData *)$1;
