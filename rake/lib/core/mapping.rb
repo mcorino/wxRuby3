@@ -330,14 +330,15 @@ module WXRuby3
         @types = {}
         @patterns = mappings.collect do |mapping|
           if ::Hash === mapping
-            pattern, type = *mapping.first
-            pset = ParameterSet === pattern ? pattern : ParameterSet.new(pattern)
-            @types[pset] = type
-            pset
+            mapping.collect do |pattern, type|
+              pset = ParameterSet === pattern ? pattern : ParameterSet.new(pattern)
+              @types[pset] = type
+              pset
+            end
           else
             ParameterSet === mapping ? mapping : ParameterSet.new(mapping)
           end
-        end
+        end.flatten
         @patterns.each { |pset| @types[pset] = as unless @types.has_key?(pset) } if as
         @in = nil
         @default = nil
