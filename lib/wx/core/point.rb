@@ -4,6 +4,9 @@ class Wx::Point
     "#<Wx::Point: (#{x}, #{y})>"
   end
 
+  alias :get_x :x
+  alias :get_y :y
+
   # Correct comparison for Points - same if same x and y
   def ==(other)
     unless other.kind_of?(Wx::Point)
