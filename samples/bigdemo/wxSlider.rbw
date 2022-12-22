@@ -19,7 +19,7 @@ class TestPanel < Wx::Panel
         
         slider = Wx::Slider.new(self, 100, 25, 1, 100, Wx::Point.new(30,60), Wx::Size.new(250,-1),
                                     Wx::SL_HORIZONTAL | Wx::SL_AUTOTICKS | Wx::SL_LABELS)
-        slider.set_tick_freq(5,1)
+        slider.set_tick_freq(5)
     end
 end
 
