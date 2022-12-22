@@ -64,7 +64,7 @@ class TestPanel < Wx::Panel
         t4.set_insertion_point(0)
         t4.set_style(44,47, Wx::TextAttr.new(Wx::Colour.new("RED"), Wx::Colour.new("YELLOW")))
         points = t4.get_font().get_point_size() # get the current size
-        f = Wx::Font.new(points + 3, Wx::ROMAN, Wx::ITALIC, Wx::BOLD, true)
+        f = Wx::Font.new(points + 3, Wx::FONTFAMILY_ROMAN, Wx::FONTSTYLE_ITALIC, Wx::FONTWEIGHT_BOLD, true)
         t4.set_style(63, 77, Wx::TextAttr.new(Wx::Colour.new("BLUE"), Wx::NULL_COLOUR, f))
         
         l5 = Wx::StaticText.new(self, -1, "Test Positions")
