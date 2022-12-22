@@ -44,19 +44,19 @@ class MyCanvas < Wx::ScrolledWindow
     def do_drawing(dc, printing=false)
         # Reset the origin co-ordinates of the DC to reflect current scrolling
         do_prepare_dc(dc)
-        dc.set_pen(Wx::Pen.new("RED", 1, Wx::SOLID))
+        dc.set_pen(Wx::Pen.new(Wx::RED, 1, Wx::PENSTYLE_SOLID))
         dc.draw_rectangle(5,5,50,50)
         
         dc.set_brush(Wx::LIGHT_GREY_BRUSH)
-        dc.set_pen(Wx::Pen.new("BLUE", 4, Wx::SOLID))
+        dc.set_pen(Wx::Pen.new(Wx::BLUE, 4, Wx::PENSTYLE_SOLID))
         dc.draw_rectangle(15,15,50,50)
         
-        dc.set_font(Wx::Font.new(14, Wx::SWISS, Wx::NORMAL, Wx::NORMAL))
+        dc.set_font(Wx::Font.new(14, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL))
         dc.set_text_foreground(Wx::Colour.new(0xFF, 0x20, 0xFF))
         te = dc.get_text_extent("Hello World")
         dc.draw_text("Hello World", 60, 65)
         
-        dc.set_pen(Wx::Pen.new("VIOLET", 4, Wx::SOLID))
+        dc.set_pen(Wx::Pen.new(Wx::Colour.new('VIOLET'), 4, Wx::PENSTYLE_SOLID))
         dc.draw_line(5, 65+te[1], 60 + te[0], 65 + te[1])
         
         lst = [Wx::Point.new(100,110), Wx::Point.new(150, 110), Wx::Point.new(150, 160), Wx::Point.new(100, 160)]
@@ -70,7 +70,7 @@ class MyCanvas < Wx::ScrolledWindow
         dc.set_text_foreground(Wx::Colour.new(0, 0xFF, 0x80))
         dc.draw_text("a bitmap", 200,85)
         
-        font = Wx::Font.new(14, Wx::SWISS, Wx::NORMAL, Wx::NORMAL)
+        font = Wx::Font.new(14, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
         dc.set_font(font)
         dc.set_text_foreground(Wx::BLACK)
         0.step(360, 45) {|number| dc.draw_rotated_text("Rotated text...", 300, 300, number)}
@@ -80,7 +80,7 @@ class MyCanvas < Wx::ScrolledWindow
         dc.draw_rectangle(50, 500, 50, 50)
         dc.draw_rectangle(100, 500, 50, 50)
         
-        dc.set_pen(Wx::Pen.new("RED", 1, Wx::SOLID))
+        dc.set_pen(Wx::Pen.new(Wx::RED, 1, Wx::PENSTYLE_SOLID))
         dc.draw_elliptic_arc(200, 500, 50, 75, 0, 90)
         
         if not printing
@@ -88,12 +88,12 @@ class MyCanvas < Wx::ScrolledWindow
             # probably something to do with the pen styles and the scaling
             # it does...
             y = 20
-            [Wx::DOT, Wx::LONG_DASH, Wx::SHORT_DASH, Wx::DOT_DASH, Wx::USER_DASH].each do |style|
-                pen = Wx::Pen.new("DARK ORCHID", 1, style)
-                if style == Wx::USER_DASH
+            [Wx::PENSTYLE_DOT, Wx::PENSTYLE_LONG_DASH, Wx::PENSTYLE_SHORT_DASH, Wx::PENSTYLE_DOT_DASH, Wx::PENSTYLE_USER_DASH].each do |style|
+                pen = Wx::Pen.new(Wx::Colour.new('DARK ORCHID'), 1, style)
+                if style == Wx::PENSTYLE_USER_DASH
                     pen.set_cap(Wx::CAP_BUTT)
                     pen.set_dashes([1,2])
-                    pen.set_colour("RED")
+                    pen.set_colour(Wx::RED)
                 end
                 dc.set_pen(pen)
                 dc.draw_line(300, y, 400, y)
@@ -101,10 +101,10 @@ class MyCanvas < Wx::ScrolledWindow
             end
         end
         dc.set_brush(Wx::TRANSPARENT_BRUSH)
-        dc.set_pen(Wx::Pen.new(Wx::Colour.new(0xFF, 0x20, 0xFF), 1, Wx::SOLID))
+        dc.set_pen(Wx::Pen.new(Wx::Colour.new(0xFF, 0x20, 0xFF), 1, Wx::PENSTYLE_SOLID))
         dc.draw_rectangle(450, 50, 100, 100)
         old_pen = dc.get_pen()
-        new_pen = Wx::Pen.new("BLACK", 5, Wx::SOLID)
+        new_pen = Wx::Pen.new(Wx::BLACK, 5, Wx::PENSTYLE_SOLID)
         dc.set_pen(new_pen)
         dc.draw_rectangle(470, 70, 60, 60)
         dc.set_pen(old_pen)
@@ -114,7 +114,7 @@ class MyCanvas < Wx::ScrolledWindow
     end
     
     def draw_saved_lines(dc)
-        dc.set_pen(Wx::Pen.new("MEDIUM FOREST GREEN", 4, Wx::SOLID))
+        dc.set_pen(Wx::Pen.new(Wx::Colour.new('MEDIUM FOREST GREEN'), 4, Wx::PENSTYLE_SOLID))
         @lines.each do |line|
             line.each do |coords|
                 coords.flatten!()
@@ -128,9 +128,9 @@ class MyCanvas < Wx::ScrolledWindow
     end
     
     def convert_event_coords(event)
-        xView, yView = get_view_start()
-        xDelta, yDelta = get_scroll_pixels_per_unit()
-        return event.get_x() + (xView * xDelta), event.get_y() + (yView * yDelta)
+        viewPt = get_view_start
+        xDelta, yDelta = get_scroll_pixels_per_unit
+        return event.get_x + (viewPt.x * xDelta), event.get_y + (viewPt.y * yDelta)
     end
     
     def on_left_button_event_down(event)
@@ -166,7 +166,7 @@ class MyCanvas < Wx::ScrolledWindow
 #             end
 
           paint do | dc |
-            dc.set_pen(Wx::Pen.new("MEDIUM FOREST GREEN", 4, Wx::SOLID))
+            dc.set_pen(Wx::Pen.new(Wx::Colour.new('MEDIUM FOREST GREEN'), 4, Wx::PENSTYLE_SOLID))
             save_coords = [@x, @y] + convert_event_coords(event)             # translate the absolute coords to save them in the array
             coords = [@event_x_old, @event_y_old, event.get_x, event.get_y]  # the absolute coords to use for the first draw
             @curLine.push(save_coords)                                       # use the translated coords here
