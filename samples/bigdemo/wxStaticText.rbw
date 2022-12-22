@@ -25,7 +25,7 @@ class TestPanel < Wx::Panel
 
         str = "This is a different font."
         text = Wx::StaticText.new(self, -1, str, Wx::Point.new(20, 100))
-        font = Wx::Font.new(18, Wx::SWISS, Wx::NORMAL, Wx::NORMAL)
+        font = Wx::Font.new(18, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
         text.set_font(font)
         #text.set_size(text.get_best_size())
 
