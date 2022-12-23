@@ -11,6 +11,7 @@ module WXRuby3
 
   Director.Package('Wx') { |pkg|
     Director.Spec(pkg, 'wxDefs')
+    Director.Spec(pkg, 'wxFunctions')
     Director.Spec(pkg, 'wxGDICommon')
     Director.Spec(pkg, 'wxColour')
     Director.Spec(pkg, 'wxObject')
@@ -50,6 +51,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxBoxSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxControl', director: Director::Window)
     Director.Spec(pkg, 'wxStatusBar', requirements: %w[wxUSE_STATUSBAR])
+    Director.Spec(pkg, 'wxTextAttr')
     Director.Spec(pkg, 'wxTextCtrl')
     Director.Spec(pkg, 'wxCheckBox', director: Director::Window)
     Director.Spec(pkg, 'wxAnyButton', director: Director::Window)

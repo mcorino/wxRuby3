@@ -41,23 +41,21 @@ module WXRuby3
               
           }
         __HEREDOC
-        spec.add_swig_code <<~__HEREDOC
-          %typemap("in") int keyCode "$1 = wxRuby_RubyStringOrIntToKeyCode($input);"
-          
-          %typemap("typecheck") int keyCode {
+        spec.map 'int keyCode' => 'Integer' do
+          map_in code: '$1 = wxRuby_RubyStringOrIntToKeyCode($input);'
+          map_typecheck precedence: 'INT32', code: <<~__CODE
             $1 = ( ( TYPE($input) == T_FIXNUM ) || 
                    ( TYPE($input) == T_STRING && RSTRING_LEN($input) == 1) );
-          }
-        __HEREDOC
-
+            __CODE
+        end
         spec.set_only_for('__WXMSW__', 'wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
         spec.add_swig_code <<~__HEREDOC
           %warnfilter(509) wxAcceleratorTable::wxAcceleratorTable;
           __HEREDOC
-        spec.add_swig_code <<~__HEREDOC
-          // For constructor, accepts an array of Wx::AcceleratorEntry objects
-          %typemap(in,numinputs=1) (int n, wxAcceleratorEntry entries[]) (wxAcceleratorEntry *arr)
-          {
+        # Type mapping for constructor, accepts an array of Wx::AcceleratorEntry objects
+        spec.map 'int n, wxAcceleratorEntry entries[]' do
+          map_in from: {type: 'Array<Wx::AcceleratorEntry>', index: 1},
+                 temp: 'wxAcceleratorEntry *arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;
@@ -78,23 +76,14 @@ module WXRuby3
               $1 = RARRAY_LEN($input);
               $2 = arr;
             }
-          }
-          %typemap(default,numinputs=1) (int n, wxAcceleratorEntry entries[]) 
-          {
-              $1 = 0;
-              $2 = NULL;
-          }
-          
-          %typemap(freearg) (int n, wxAcceleratorEntry entries[])
-          {
-              if ($2 != NULL) delete [] $2;
-          }
-          
-          %typemap(typecheck) (int n , wxAcceleratorEntry entries[])
-          {
-             $1 = (TYPE($input) == T_ARRAY);
-          }
-          __HEREDOC
+            __CODE
+          map_default code: <<~__CODE
+            $1 = 0;
+            $2 = NULL;
+            __CODE
+          map_freearg code: 'if ($2 != NULL) delete [] $2;'
+          map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_ARRAY);'
+        end
         super
       end
     end # class Accelerator

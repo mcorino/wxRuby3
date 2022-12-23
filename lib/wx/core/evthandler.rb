@@ -1051,6 +1051,10 @@ class Wx::EvtHandler
   ] if Wx.const_defined?(:EVT_DESTROY)
 end
 
+if Wx.const_defined?(:EVT_SASH_DRAGGED) && !Wx.const_defined?(:EVT_SASH_DRAGGED_RANGE)
+  Wx.const_set(:EVT_SASH_DRAGGED_RANGE, Wx::EVT_SASH_DRAGGED)
+end
+
 # Definitions for all event types that are part by core wxRuby. Events
 # that are mapped to class Wx::Event are TODO as they are not
 # currently wrapped by the correct class.

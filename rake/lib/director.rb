@@ -17,6 +17,7 @@ require_relative './swig_runner'
 require_relative './util/string'
 require_relative './core/spec'
 require_relative './core/package'
+require_relative './core/mapping'
 
 module WXRuby3
 
@@ -133,10 +134,20 @@ module WXRuby3
       super()
       @spec = spec
       @defmod = nil
+      @type_maps = nil
       setup
     end
 
     attr_reader :spec, :defmod
+
+    def type_maps
+      # delayed initialization of typemaps (only when requested the first time)
+      unless @type_maps
+        @type_maps = Typemap::Collection.new
+        create_typemaps
+      end
+      @type_maps
+    end
 
     def has_events?
       @defmod.items.any? {|item| Extractor::ClassDef === item && item.event && !item.event_types.empty? }
@@ -243,15 +254,6 @@ module WXRuby3
           handle_item_only_for(defmod, fullname, platform_id)
         end
       end
-      # handle class specific parameter mappings
-      spec.param_mappings.each_pair do |clsnm, maps|
-        item = defmod.find_item(clsnm)
-        if item && Extractor::ClassDef === item
-          maps.each { |map| item.add_param_mapping(*map) }
-        else
-          raise "Cannot find class '#{clsnm}' for parameter mapping #{map} in module '#{spec.module_name}'"
-        end
-      end
       # handle class specified includes
       defmod.classes.each do |cls|
         unless cls.ignored
@@ -341,6 +343,13 @@ module WXRuby3
   end # class Director
 
 end # module WXRuby3
+
+Dir.glob(File.join(File.dirname(__FILE__), 'typemap', '*.rb')).each do |fn|
+  require fn
+end
+
+# include this before loading any derived directors
+WXRuby3::Director.include(WXRuby3::Typemap::Common)
 
 Dir.glob(File.join(File.dirname(__FILE__), 'generate', '*.rb')).each do |fn|
   require fn

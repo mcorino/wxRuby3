@@ -49,6 +49,7 @@ class MinimalApp < Wx::App
   end
 
   def on_init
+    Wx::Log::set_active_target(Wx::LogStderr.new)
     frame = RunFrame.new(@sample)
     frame.show
     win = Demo.run(frame, frame, Log.new)

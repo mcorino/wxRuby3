@@ -15,11 +15,11 @@ module WXRuby3
     include Util::StringUtil
 
     def ifspec
-      @director.spec
+      director.spec
     end
 
     def defmod
-      @director.defmod
+      director.defmod
     end
 
     def post_processors
@@ -306,11 +306,17 @@ module WXRuby3
       ifspec.nogen_sections.include?(section)
     end
 
+    def type_maps
+      Typemap::Collection::Chain.new(Typemap::STANDARD, Typemap::Collection::Chain.new(director.class.type_maps, ifspec.type_maps).resolve)
+    end
+
     class Simple
       include DirectorSpecsHelper
       def initialize(director)
         @director = director
       end
+
+      attr_reader :director
     end
 
   end

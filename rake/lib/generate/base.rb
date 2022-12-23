@@ -11,6 +11,8 @@ module WXRuby3
 
     include DirectorSpecsHelper
 
+    private attr_reader :director
+
     public
 
     def initialize(dir)

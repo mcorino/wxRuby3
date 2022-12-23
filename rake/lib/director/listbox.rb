@@ -15,13 +15,14 @@ module WXRuby3
 
     class ListBox < ControlWithItems
 
+      include Typemap::ArrayIntSelections
+
       def setup
         super
         setup_ctrl_with_items('wxListBox')
         spec.ignore_bases('wxListBox' => %w[wxItemContainer])
         spec.override_base('wxListBox', 'wxControlWithItems')
         spec.ignore('wxListBox::InsertItems(unsigned int,const wxString *,unsigned int)')
-        spec.swig_include('swig/shared/arrayint_selections.i')
       end
 
     end # class ListBox

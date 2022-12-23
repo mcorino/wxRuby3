@@ -44,19 +44,8 @@ module WXRuby3
               return item_data;
             }
             __HEREDOC
-          )
-          spec.add_swig_code <<~__HEREDOC
-            // Typemap for GetStrings - which returns an object not a reference,
-            // unlike all other ArrayString-returning methods
-            %typemap(out) wxArrayString {
-              $result = rb_ary_new();
-              for (size_t i = 0; i < $1.GetCount(); i++)
-              {
-                rb_ary_push($result, WXSTR_TO_RSTR($1.Item(i)));
-              }
-            }
-            __HEREDOC
-        end
+            )
+       end
       end
 
       def setup_ctrl_with_items(clsnm)

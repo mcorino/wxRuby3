@@ -27,8 +27,8 @@ module WXRuby3
         # object returned by the ruby method in an instance variable so it's
         # marked. It also handles the special case where +nil+ is returned, to
         # signal to Wx that no menu is to be shown.
-        spec.add_swig_code <<~__HEREDOC
-          %typemap(directorout) wxMenu * {
+        spec.map 'wxMenu *' do
+          map_directorout code: <<~__CODE
             rb_iv_set(swig_get_self(), "@__popmenu__", $1);
             if (NIL_P($1))
             {
@@ -45,8 +45,8 @@ module WXRuby3
               }
               $result = reinterpret_cast < wxMenu * > (ptr);
             }
-          }
-          __HEREDOC
+            __CODE
+        end
         spec.add_extend_code 'wxTaskBarIcon', <<~__HEREDOC
           // Explicitly dispose of a TaskBarIcon; needed for clean exits on
           // Windows.

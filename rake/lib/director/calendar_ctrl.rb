@@ -15,9 +15,51 @@ module WXRuby3
 
     class CalendarCtrl < Window
 
+      include Typemap::DateTime
+
       def setup
         super
-        spec.swig_include '../shared/datetime.i'
+        # for GetDataRange
+        spec.map 'wxDateTime *lowerdate, wxDateTime *upperdate' => 'Array<Time>, nil' do
+
+          map_in ignore: true, temp: 'wxDateTime lwrDt, wxDateTime hgrDt',
+                 code: 'arg2 = &lwrDt; arg3 = &hgrDt;'
+
+          map_argout code: <<~__CODE
+            if (result)
+            {
+              $result = rb_ary_new ();
+              rb_ary_push ($result, wxRuby_wxDateTimeToRuby(lwrDt$argnum));
+              rb_ary_push ($result, wxRuby_wxDateTimeToRuby(hgrDt$argnum));
+            }
+            else
+            {
+              $result = Qnil;
+            }
+            __CODE
+
+          # ignore C defined return value
+          map_out ignore: 'bool'
+
+          # just skip this; nothing to convert
+          map_directorin code: ''
+
+          # handle the Ruby style result
+          map_directorargout code: <<~__CODE
+            if (result != Qnil && TYPE(result) == T_ARRAY && RARRAY_LEN(result) == 2)
+            {
+              wxDateTime* tmpDT = wxRuby_wxDateTimeFromRuby(rb_ary_entry (result, 0));
+              *lowerdate = *tmpDT; delete tmpDT;
+              tmpDT = wxRuby_wxDateTimeFromRuby(rb_ary_entry (result, 1));
+              *upperdate = *tmpDT; delete tmpDT;
+              c_result = true;
+            }
+            else
+            {
+              c_result = false;
+            }
+          __CODE
+        end
         # Custom implementation for Ruby
         spec.ignore('wxCalendarCtrl::HitTest', ignore_doc: false)
         # deprecated

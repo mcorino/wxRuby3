@@ -12,6 +12,12 @@ module WXRuby3
 
   class InterfaceGenerator < Generator
 
+    def initialize(dir)
+      super
+      # select all typemaps that have an ignored out map
+      @typemaps_with_ignored_out = type_maps.select { |tm| tm.ignores_output? }
+    end
+
     def gen_swig_header(fout)
       fout << <<~__HEREDOC
         /**
@@ -115,6 +121,8 @@ module WXRuby3
     end
 
     def gen_swig_code(fout)
+      fout.puts
+      fout.puts type_maps.to_swig
       if swig_code && !swig_code.empty?
         fout.puts
         fout.puts swig_code
@@ -205,6 +213,14 @@ module WXRuby3
     end
 
     def gen_interface_class(fout, classdef)
+      requires_purevirtual = has_proxy?(classdef)
+
+      intf_class_name = if (classdef.is_template? && template_as_class?(classdef.name))
+                          template_class_name(classdef.name)
+                        else
+                          classdef.name
+                        end
+
       fout.puts ''
       basecls = base_class(classdef)
       if basecls
@@ -221,14 +237,6 @@ module WXRuby3
       if (abstract_class = is_abstract?(classdef))
         fout.puts "  virtual ~#{class_name(classdef)}() =0;"
       end
-
-      requires_purevirtual = has_proxy?(classdef)
-
-      intf_class_name = if (classdef.is_template? && template_as_class?(classdef.name))
-                          template_class_name(classdef.name)
-                        else
-                          classdef.name
-                        end
 
       InterfaceAnalyzer.class_interface_members_public(intf_class_name).each do |member|
         gen_interface_class_member(fout, intf_class_name, classdef, member, requires_purevirtual)
@@ -345,13 +353,20 @@ module WXRuby3
     end
 
     def gen_interface_class_method(fout, methoddef, requires_purevirtual=false)
+      mtd_type = methoddef.type
+      no_output = false
+      # check if this method matches a type map with ignored out defs
+      if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(methoddef) }
+        mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = type_map.ignored_output.include?(mtd_type))
+      end
       # generate method declaration
       gen_only_for(fout, methoddef) do
         fout.puts "  // from #{methoddef.definition}"
+        fout.puts %Q[  %feature("numoutputs", "0") #{methoddef.name};] if no_output
         mdecl = methoddef.is_static ? 'static ' : ''
         mdecl << 'virtual ' if methoddef.is_virtual
         purespec = (requires_purevirtual && methoddef.is_pure_virtual) ? ' =0' : ''
-        fout.puts "  #{mdecl}#{methoddef.type} #{methoddef.name}#{methoddef.args_string}#{purespec};"
+        fout.puts "  #{mdecl}#{mtd_type} #{methoddef.name}#{methoddef.args_string}#{purespec};"
       end
     end
 
@@ -479,8 +494,15 @@ module WXRuby3
         active_overloads = item.all.select { |ovl| !ovl.ignored && !ovl.deprecated }
         active_overloads.each do |ovl|
           fout.puts
+          fn_type = ovl.type
+          no_output = false
+          # check if this method matches a type map with ignored out defs
+          if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(ovl) }
+            fn_type = Typemap.rb_void_type(fn_type) if (no_output = type_map.ignored.include?(fn_type))
+          end
           gen_only_for(fout, ovl) do
-            fout.puts "#{ovl.type} #{ovl.name}#{ovl.args_string};"
+            fout.puts %Q[  %feature("numoutputs", "0") #{ovl.name};] if no_output
+            fout.puts "#{fn_type} #{ovl.name}#{ovl.args_string};"
           end
         end
       end

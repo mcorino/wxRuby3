@@ -24,9 +24,8 @@ module WXRuby3
           // ArtId and ArtClient are basically just strings ...
           typedef wxString wxArtID;
           typedef wxString wxArtClient;
-          
-          %apply SWIGTYPE *DISOWN {wxArtProvider* provider};
           __HEREDOC
+        spec.map_apply 'SWIGTYPE *DISOWN' => 'wxArtProvider* provider'
         spec.add_header_code <<~__HEREDOC
           extern swig_class SwigClassWxSize;
           extern swig_class SwigClassWxObject;

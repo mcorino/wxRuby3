@@ -15,6 +15,8 @@ module WXRuby3
 
     class RichTextEvent < Event
 
+      include Typemap::RichText # for wxRichTextRange
+
       def setup
         super
         spec.ignore_bases('wxRichTextEvent' => %w[wxNotifyEvent]) # needed to suppress imports

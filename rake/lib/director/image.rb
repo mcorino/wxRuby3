@@ -13,9 +13,10 @@ module WXRuby3
 
     class Image < Director
 
+      include Typemap::IOStreams
+
       def setup
         super
-        spec.swig_include 'swig/shared/streams.i'
         # Handled in Ruby: lib/wx/classes/image.rb
         spec.ignore [
           'wxImage::wxImage(wxInputStream &,wxBitmapType,int)',
@@ -49,11 +50,11 @@ module WXRuby3
         # The GetRgbData and GetAlphaData methods require special handling using %extend;
         spec.ignore %w[wxImage::GetData wxImage::GetAlpha]
         # The SetRgbData and SetAlphaData are dealt with by typemaps (see below).
-        spec.add_swig_code <<~__HEREDOC
-          // For Image#set_rgb_data, Image#set_alpha_data and Image.new with raw data arg:
-          // copy raw string data from a Ruby string to a memory block that will be
-          // managed by wxWidgets (see static_data typemap below)
-          %typemap(in) unsigned char* data, unsigned char* alpha {
+        # For Image#set_rgb_data, Image#set_alpha_data and Image.new with raw data arg:
+        # copy raw string data from a Ruby string to a memory block that will be
+        # managed by wxWidgets (see static_data typemap below)
+        spec.map 'unsigned char* data', 'unsigned char* alpha', as: 'String' do
+          map_in code: <<~__CODE
             if ( TYPE($input) == T_STRING )
               {
                 int data_len = RSTRING_LEN($input);
@@ -65,20 +66,21 @@ module WXRuby3
             else
               SWIG_exception_fail(SWIG_ERROR, 
                                   "String required as raw Image data argument");
-          }
-          
-          // Image.new(data...) and Image#set_alpha_data both accept a static_data
-          // argument to specify whether wxWidgets should delete the data
-          // pointer. Since in wxRuby we always copy from the Ruby string object
-          // to the Image, we always want wxWidgets to handle deletion of the copy
-          %typemap(in, numinputs=0) bool static_data "$1 = false;"
-          
-          // For get_or_find_mask_colour, which should returns a triplet
-          // containing the mask colours, plus its normal Boolean return value.
-          %apply unsigned char *OUTPUT { unsigned char* r, 
-                                         unsigned char* g, 
-                                         unsigned char* b }
-          __HEREDOC
+            __CODE
+        end
+        # Image.new(data...) and Image#set_alpha_data both accept a static_data
+        # argument to specify whether wxWidgets should delete the data
+        # pointer. Since in wxRuby we always copy from the Ruby string object
+        # to the Image, we always want wxWidgets to handle deletion of the copy
+        spec.map 'bool static_data' do
+          map_in ignore: true, code: '$1 = false;'
+        end
+
+        # For get_or_find_mask_colour, which should returns a triplet
+        # containing the mask colours, plus its normal Boolean return value.
+        spec.map_apply 'unsigned char *OUTPUT' => ['unsigned char* r',
+                                                   'unsigned char* g',
+                                                   'unsigned char* b' ]
         # GetRgbData and GetAlphaData methods return an unsigned char* pointer to the
         # internal representation of the image's data. We can't simply use
         # rb_str_new2 because the data is not NUL terminated, so strlen won't

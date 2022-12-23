@@ -15,6 +15,8 @@ module WXRuby3
 
     class DateEvent < Event
 
+      include Typemap::DateTime
+
       def setup
         super
         spec.ignore_bases('wxDateEvent' => %w[wxCommandEvent]) # needed to suppress imports
@@ -141,7 +143,6 @@ module WXRuby3
           # inconsistent definitions
           spec.add_swig_code %Q{%constant wxEventType wxEVT_CALENDAR = wxEVT_CALENDAR_DOUBLECLICKED;}
         end
-        spec.swig_include '../shared/datetime.i'
       end
     end # class DateEvent
 

@@ -23,18 +23,18 @@ module WXRuby3
         spec.ignore %w[
           wxBusyInfo::wxBusyInfo
           ]
-        spec.add_swig_code <<~__HEREDOC
-          // BusyInfo is an exception to the general rule in typemap.i - it
-          // accepts a wxWindow* parent argument which may be null - but it does
-          // not inherit from TopLevelWindow - so special typemap for this class.
-          %typemap(check) wxWindow* parent {
+        # BusyInfo is an exception to the general rule in typemap.i - it
+        # accepts a wxWindow* parent argument which may be null - but it does
+        # not inherit from TopLevelWindow - so special typemap for this class.
+        spec.map 'wxWindow* parent' do
+          map_check code: <<~__CODE
             if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP")) )
             { 
               rb_raise(rb_eRuntimeError,
                    "Cannot create BusyInfo before App.main_loop has been called");
             }
-          }
-          __HEREDOC
+            __CODE
+        end
         spec.add_extend_code 'wxBusyInfo', <<~__HEREDOC
           static VALUE busy(const wxString& message, wxWindow *parent = NULL)
           {

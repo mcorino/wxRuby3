@@ -26,27 +26,27 @@ module WXRuby3
                                 'typedef unsigned short NativeFormat',
                                 'wxDataFormat::NativeFormat GetType() const'
         end
+        # In wxWidgets system-standard DataFormats are represented by
+        # wxDF_XXX constants. These can be passed directly to methods which
+        # accept a DataFormat argument through C++ typecasting.
+        #
+        # In wxRuby it's hard to do the same thing safely (ie accept strings or
+        # integers for DataFormat arguments) b/c with typemaps they have a
+        # tendency to leak through the complex system of directors and
+        # overridden methods. So DataFormat arguments are strictly typed to
+        # require a DataFormat object.
+        #
+        # However, since normally we want to work with the standard DataFormat
+        # objects, rather than the underlying system ids, the Wx::DF_XXX
+        # constants are mapped to DataFormat objects (constructed in
+        # lib/wx/classes/dataformat.rb) and the constants exposed as
+        # Wx::DATA_FORMAT_ID_XXX, below.
+        spec.map 'wxDataFormatId' => 'Integer' do
+          map_in code: '$1 = static_cast<wxDataFormatId>(NUM2INT($input));'
+          map_typecheck precedence: 'INT32', code: '$1 = ( TYPE($input) == T_FIXNUM );'
+          map_out code: '$result = INT2NUM($1);'
+        end
         spec.add_swig_code <<~__HEREDOC
-          // In wxWidgets system-standard DataFormats are represented by
-          // wxDF_XXX constants. These can be passed directly to methods which
-          // accept a DataFormat argument through C++ typecasting.
-          // 
-          // In wxRuby it's hard to do the same thing safely (ie accept strings or
-          // integers for DataFormat arguments) b/c with typemaps they have a
-          // tendency to leak through the complex system of directors and
-          // overridden methods. So DataFormat arguments are strictly typed to
-          // require a DataFormat object.
-          //
-          // However, since normally we want to work with the standard DataFormat
-          // objects, rather than the underlying system ids, the Wx::DF_XXX
-          // constants are mapped to DataFormat objects (constructed in
-          // lib/wx/classes/dataformat.rb) and the constants exposed as
-          // Wx::DATA_FORMAT_ID_XXX, below.
-          
-          %typemap(in) wxDataFormatId "$1 = static_cast<wxDataFormatId>(NUM2INT($input));"
-          %typemap(typecheck) wxDataFormatId "$1 = ( TYPE($input) == T_FIXNUM );"
-          %typemap(out) wxDataFormatId "$result = INT2NUM($1);"
-
           %constant const int DATA_FORMAT_ID_INVALID     = wxDF_INVALID;     
           %constant const int DATA_FORMAT_ID_TEXT        = wxDF_TEXT;        
           %constant const int DATA_FORMAT_ID_BITMAP      = wxDF_BITMAP;      

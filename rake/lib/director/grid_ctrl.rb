@@ -15,6 +15,8 @@ module WXRuby3
 
     class GridCtrl < Window
 
+      include Typemap::GridCoords
+
       def setup
         # replace before calling super
         spec.items.replace %w[wxGrid]
@@ -47,22 +49,22 @@ module WXRuby3
 
         spec.ignore 'wxGrid::GetSelectedBlocks' # for now (flawed interface)
 
-        spec.swig_include '../shared/grid_coords.i'
         spec.add_header_code <<~__HEREDOC
           typedef wxGrid::wxGridSelectionModes wxGridSelectionModes;
           typedef wxGrid::CellSpan CellSpan;
           typedef wxGrid::TabBehaviour TabBehaviour;
           __HEREDOC
-        spec.add_swig_code <<~__HEREDOC
-          // Needed for methods that return cell and label alignments
-          %apply int *OUTPUT { int *horiz, int *vert };
-
-          // If invalid grid-cell co-ordinates are passed into wxWidgets,
-          // segfaults may result, so check to avoid this.
-          %typemap(check) int row, int col {
+        # Needed for methods that return cell and label alignments
+        spec.map_apply 'int *OUTPUT' => [ 'int *horiz', 'int *vert' ]
+        # If invalid grid-cell co-ordinates are passed into wxWidgets,
+        # segfaults may result, so check to avoid this.
+        spec.map 'int row', 'int col' do
+          map_check code: <<~__CODE
             if ( $1 < 0 )
               rb_raise(rb_eIndexError, "Negative grid cell co-ordinate is not valid");
-          }
+            __CODE
+        end
+        spec.add_swig_code <<~__HEREDOC
           enum wxGridSelectionModes;
           enum CellSpan;
           enum TabBehaviour;

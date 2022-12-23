@@ -13,6 +13,8 @@ module WXRuby3
 
     class RichTextBuffer < Director
 
+      include Typemap::RichText
+
       def setup
         spec.disable_proxies
         spec.items.replace %w[
@@ -20,16 +22,11 @@ module WXRuby3
           wxTextAttrBorders
           wxTextBoxAttr
           wxRichTextAttr
-          wxRichTextRange
           wxRichTextBuffer
           ]
         spec.gc_as_object 'wxRichTextAttr'
         spec.gc_never 'wxRichTextBuffer'
-        spec.ignore_bases('wxRichTextAttr' => %w[wxTextAttr])
-        spec.override_base('wxRichTextAttr', 'wxTextAttr')
         spec.ignore_bases('wxRichTextBuffer' => %w[wxRichTextParagraphLayoutBox])
-        spec.swig_include 'swig/shared/richtext.i'
-        spec.ignore 'wxRichTextRange::operator!='
         spec.ignore %w[
           wxRichTextBuffer::GetBatchedCommand
           wxRichTextBuffer::GetCommandProcessor
@@ -37,7 +34,6 @@ module WXRuby3
         spec.disown 'wxRichTextFileHandler* handler'
         spec.ignore(%w[wxRICHTEXT_ALL wxRICHTEXT_NONE wxRICHTEXT_NO_SELECTION])
         spec.do_not_generate(:functions)
-        spec.add_swig_code '%warnfilter(402) wxRichTextAttr;'
         super
       end
     end # class RichTextBuffer

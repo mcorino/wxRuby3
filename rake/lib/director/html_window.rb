@@ -46,33 +46,42 @@ module WXRuby3
         spec.ignore 'wxHtmlWindow::OnLinkClicked'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
         # type mapping for LoadFile, SetFonts and OnOpeningURL
-        spec.add_swig_code <<~__HEREDOC
-          // Deal with wxFileName
-          %typemap(in) const wxFileName &filename (wxFileName tmp) {
+        spec.map 'const wxFileName &filename' => 'String' do
+          # Deal with wxFileName
+          map_in temp: 'wxFileName tmp', code: <<~__CODE
             tmp = wxFileName(RSTR_TO_WXSTR($input));
             $1 = &tmp;
-          }
-
-          // Deal with sizes argument to SetFonts
-          %typemap(in) const int* sizes {
+            __CODE
+        end
+        spec.map 'const int* sizes' => 'Array<Integer>' do
+          # Deal with sizes argument to SetFonts
+          map_in code: <<~__CODE
             if ( TYPE($input) != T_ARRAY || RARRAY_LEN($input) != 7 )
               rb_raise(rb_eTypeError, 
                        "The 'font sizes' argument must be an array with 7 integers");
             $1 = new int[7];
             for ( size_t i = 0; i < 7; i++ )
               ($1)[i] = NUM2INT(rb_ary_entry($input, i));
-          }
-          
-          %typemap(freearg) const int* sizes "if ($1) delete($1);"
-
-          // deal with OnOpeningURL's "wxString *redirect" argument
-          %typemap(directorin) (const wxString &url, wxString *redirect) {
-            $input = WXSTR_TO_RSTR($1);
-          }
-
-          %typemap(directorout) wxHtmlOpeningStatus "";
-
-          %typemap(directorargout) wxString *redirect {
+            __CODE
+          map_freearg code: 'if ($1) delete($1);'
+        end
+        spec.map 'const wxString &url, wxString *redirect' do
+          # deal with OnOpeningURL's "wxString *redirect" argument
+          map_directorin code: '$input = WXSTR_TO_RSTR($1);'
+        end
+        spec.map 'wxHtmlOpeningStatus' => 'true,false,String' do
+          map_directorout code: ''
+          map_out code: <<~__CODE
+            switch ($1)
+            {
+              case wxHTML_OPEN: $result = Qtrue; break;
+              case wxHTML_REDIRECT: $result = WXSTR_TO_RSTR(redir_tmp4); break;
+              default: $result = Qfalse; break; // BLOCK
+            }
+          __CODE
+        end
+        spec.map 'wxString *redirect' do
+          map_directorargout code: <<~__CODE
             if (TYPE(result) == T_STRING)
             {
               *redirect = RSTR_TO_WXSTR(result);
@@ -86,21 +95,10 @@ module WXRuby3
             {
               c_result = wxHTML_BLOCK;
             }
-          }
+            __CODE
+          map_in ignore: true, temp: 'wxString redir_tmp', code: '$1 = &redir_tmp;'
+        end
 
-          %typemap(in, numinputs=0) (wxString *redirect) (wxString redir_tmp) {
-            $1 = &redir_tmp;
-          }
-
-          %typemap(out) wxHtmlOpeningStatus {
-            switch ($1)
-            {
-              case wxHTML_OPEN: $result = Qtrue; break;
-              case wxHTML_REDIRECT: $result = WXSTR_TO_RSTR(redir_tmp4); break;
-              default: $result = Qfalse; break; // BLOCK 
-            }
-          }
-          __HEREDOC
         # disown added HtmlFilter-s (pure Ruby override takes care of GC marking)
         spec.disown 'wxHtmlFilter*'
       end

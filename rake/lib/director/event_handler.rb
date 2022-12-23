@@ -30,7 +30,9 @@ module WXRuby3
         # special type mapping for wxEvtHander::QueueEvent
         # we do not need any 'disown' actions as the Ruby object should be tracked and will remain
         # alive as long as the C++ object is alive (which will be cleaned up in time by wxWidgets)
-        spec.add_swig_code %Q{%typemap("in") wxEvent *event "$1 = (wxEvent*)DATA_PTR($input);"}
+        spec.map 'wxEvent *event' => 'Wx::Event' do
+          map_in code: '$1 = (wxEvent*)DATA_PTR($input);'
+        end
         spec.add_runtime_code <<~__HEREDOC
           static swig_class wxRuby_GetSwigClassWxEvtHandler();
           WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();

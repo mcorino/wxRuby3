@@ -79,13 +79,10 @@ module WXRuby3
           # // when passed into Wx, and so will be deleted automatically; using
           # // DISOWN resets their %freefunc to avoid deleting the object twice
           spec.disown 'wxCaret* caret', 'wxSizer* sizer', 'wxToolTip* tip', 'wxDropTarget* target'
-          spec.add_swig_code <<~__HEREDOC
-            %apply int * INOUT { int * x_INOUT, int * y_INOUT }
-            
-            // Typemap for GetChildren - casts wxObjects to correct ruby wrappers
-            %typemap(out) wxWindowList& {
+          # Typemap for GetChildren - casts wxObjects to correct ruby wrappers
+          spec.map 'wxWindowList&' => 'Array<Wx::Window>' do
+            map_out code: <<~__CODE
               $result = rb_ary_new();
-            
               wxWindowList::compatibility_iterator node = $1->GetFirst();
               while (node)
               {
@@ -93,8 +90,8 @@ module WXRuby3
                 rb_ary_push($result, wxRuby_WrapWxObjectInRuby(obj));
                 node = node->GetNext();
               }
-            }
-            __HEREDOC
+            __CODE
+          end
           spec.ignore [
             'wxWindow::TransferDataFromWindow',
             'wxWindow::TransferDataToWindow',
@@ -107,7 +104,8 @@ module WXRuby3
             'wxWindow::GetScreenPosition(int *,int *) const',
             'wxWindow::FindWindow',
             'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)',
-            'wxWindow::SendIdleEvents'
+            'wxWindow::SendIdleEvents',
+            'wxWindow::ClientToScreen(int*,int*)' # no need; prefer the wxPoint version
           ]
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])

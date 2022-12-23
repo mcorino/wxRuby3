@@ -16,15 +16,12 @@ module WXRuby3
       def setup
         spec.gc_as_object
         spec.ignore 'wxSystemSettings::GetAppearance'
-        spec.add_swig_code <<~__HEREDOC
-          %typemap(in) wxSystemColour "$1 = (wxSystemColour)NUM2INT($input);"
-          %typemap(out) wxSystemColour " $result = INT2NUM((int)$1);"
-          %typemap(in) wxSystemFont "$1 = (wxSystemFont)NUM2INT($input);"
-          %typemap(out) wxSystemFont "$result = INT2NUM((int)$1);"
-          %typemap(in) wxSystemMetric "$1 = (wxSystemMetric)NUM2INT($input);"
-          %typemap(out) wxSystemMetric "$result = INT2NUM((int)$1);"
-        __HEREDOC
-        super
+        %w[wxSystemColour wxSystemFont wxSystemMetric].each do |type|
+          spec.map type => type.sub(/\Awx/, 'Wx::') do
+            map_in code: "$1 = (#{type})NUM2INT($input);"
+            map_out code: " $result = INT2NUM((int)$1);"
+          end
+        end
       end
     end # class SystemSettings
 

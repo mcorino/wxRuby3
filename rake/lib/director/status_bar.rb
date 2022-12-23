@@ -22,25 +22,23 @@ module WXRuby3
         # usefully re-implemented in Ruby.
         spec.disable_proxies
         # special type mappings
-        spec.add_swig_code <<~__HEREDOC
-          // For GetFieldsRect
-          %typemap(in,numinputs=0) (wxRect& rect)
-          {
-            $1 = new wxRect;
-          }
-          
-          %typemap(argout) (wxRect& rect)
-          {
-            if(result)
+        # For GetFieldsRect
+        spec.map 'wxRect& rect' => 'Wx::Rect' do
+          map_in ignore: true, code: '$1 = new wxRect;'
+          map_argout code: <<~__CODE
+            if (result)
               $result = SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 0);
-            else {
+            else 
+            {
               delete $1;
               $result = Qnil;
             }
-          }
-            
-          // For SetStatusWidths
-          %typemap(in,numinputs=1) (int n, int *widths) (int *arr){
+            __CODE
+        end
+        # For SetStatusWidths
+        spec.map 'int n, int *widths' do
+          map_in from: {type: 'Array<Integer>', index: 1},
+                 temp: 'int *arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;
@@ -56,14 +54,12 @@ module WXRuby3
               $1 = RARRAY_LEN($input);
               $2 = arr;
             }
-          }
-          
-          %typemap(freearg,numinputs=1) (int n, int *widths)
-          {
+            __CODE
+          map_freearg code: <<~__CODE
             if ($2 != NULL)
               delete [] $2;
-          }
-          __HEREDOC
+            __CODE
+        end
       end
     end # class StatusBar
 

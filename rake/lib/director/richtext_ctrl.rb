@@ -15,9 +15,13 @@ module WXRuby3
 
     class RichTextCtrl < Window
 
+      include Typemap::RichText
+      if Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
+        include Typemap::DateTime
+      end
+
       def setup
         super
-        #spec.items << 'richtext/richtextctrl.h'
         spec.ignore_bases('wxRichTextCtrl' => %w[wxTextCtrlIface wxScrollHelper])
         spec.include 'wx/dc.h'
         spec.ignore [
@@ -42,25 +46,18 @@ module WXRuby3
           wxRichTextCtrl::GetDefaultStyleEx
           wxRichTextCtrl::GetBasicStyle
           ]
-        spec.swig_include 'swig/shared/richtext.i'
-        if Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
-          spec.swig_include 'swig/shared/datetime.i'
-        else
+        unless Config::WxRubyFeatureInfo.features_set?('wxUSE_DATETIME')
           spec.ignore %w[wxRichTextCtrl::GetDragStartTime wxRichTextCtrl::SetDragStartTime]
         end
-        spec.swig_import 'swig/classes/include/wxRichTextBuffer.h'
-        spec.add_swig_code <<~__HEREDOC
-          %warnfilter(402) wxRichTextAttr;
-
-          // Deal with some output values from TextCtrl methods - PositionToXY
-          %apply long * OUTPUT { long * }
-          %apply long * OUTPUT { wxTextCoord *col, wxTextCoord *row }
-          
-          // GetViewStart
-          %apply int * OUTPUT { int * }
-          
-          %apply SWIGTYPE *DISOWN { wxRichTextStyleSheet* styleSheet };
-          __HEREDOC
+        spec.swig_import 'swig/classes/include/wxTextAttr.h',
+                         'swig/classes/include/wxRichTextBuffer.h'
+        spec.suppress_warning(402, 'wxRichTextAttr')
+        # Deal with some output values from TextCtrl methods - PositionToXY
+        spec.map_apply 'long * OUTPUT' => 'long *'
+        spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
+        # GetViewStart
+        spec.map_apply 'int * OUTPUT' => 'int *'
+        spec.map_apply 'SWIGTYPE *DISOWN' => 'wxRichTextStyleSheet* styleSheet'
       end
     end # class RichTextCtrl
 

@@ -100,8 +100,6 @@ module WXRuby3
           spec.ignore %w{
             wxCommandEvent::GetClientObject
             wxCommandEvent::SetClientObject
-            wxCommandEvent::SetClientData
-            wxCommandEvent::GetClientData
             wxCommandEvent::GetExtraLong
           }
           spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')

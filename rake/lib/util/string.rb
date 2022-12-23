@@ -36,7 +36,7 @@ module WXRuby3
       def underscore!(s)
         s.gsub!(/::/, '/')
         s.gsub!(/([A-Z]+)([A-Z][a-z])/,"\\1_\\2")
-        s.gsub!(/([a-z\d])([A-Z])/,"\\1_\\2")
+        s.gsub!(/([a-z])([A-Z])/,"\\1_\\2")
         s.tr('-','_')
         s.downcase!
         s
@@ -116,6 +116,8 @@ module WXRuby3
               # constant
               if /[\-\+\.\d]+/ =~ idstr
                 idstr # numeric constant
+              elsif /\A(true|false|NULL)/ =~ idstr
+                $1 == 'NULL' ? 'nil' : $1
               else
                 "Wx::#{rb_constant_name(idstr)}"
               end

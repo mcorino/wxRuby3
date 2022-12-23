@@ -15,7 +15,10 @@ module WXRuby3
 
       def setup
         spec.include('wx/generic/aboutdlgg.h')
-        spec.add_swig_code('%typemap(check) wxWindow* parent "";') # overrule common typemap to allow default NULL
+        # overrule common typemap to allow default NULL
+        spec.map 'wxWindow* parent' do
+          map_check code: ''
+        end
         super
       end
     end # class AboutDialogInfo

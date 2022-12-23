@@ -17,16 +17,15 @@ module WXRuby3
 
       def setup
         super
-        spec.add_swig_code <<~__HEREDOC
-          // Protect panels etc added as Toolbook pages from being GC'd by Ruby;
-          // avoids double-free segfaults on exit on GTK
-          %apply SWIGTYPE *DISOWN { wxWindow* page };
-          
-          // Avoid premature deletion of ImageList providing icons for notebook
-          // tabs; wxRuby takes ownership when the ImageList is assigned,
-          // wxWidgets will delete the ImageList with the Toolbook.
-          %apply SWIGTYPE *DISOWN { wxImageList* };
-          __HEREDOC
+        # Protect panels etc added as Toolbook pages from being GC'd by Ruby;
+        # avoids double-free segfaults on exit on GTK
+        spec.map_apply 'SWIGTYPE *DISOWN' => 'wxWindow* page'
+
+        # Avoid premature deletion of ImageList providing icons for notebook
+        # tabs; wxRuby takes ownership when the ImageList is assigned,
+        # wxWidgets will delete the ImageList with the Toolbook.
+        spec.map_apply 'SWIGTYPE *DISOWN' => 'wxImageList*'
+
         case spec.module_name
         when 'wxBookCtrlBase'
           spec.make_abstract 'wxBookCtrlBase'

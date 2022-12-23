@@ -17,19 +17,48 @@ module WXRuby3
 
       def setup
         super
-        spec.items.concat(%w[wxTextEntry wxTextAttr])
-        spec.gc_as_object('wxTextAttr')
+        spec.items << 'wxTextEntry'
         spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
         spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')
-        spec.ignore ['wxTextCtrl::HitTest(const wxPoint &,long *)', 'wxTextAttr::Merge(const wxTextAttr &,const wxTextAttr &)']
+        spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
         if Config.instance.wx_version > '3.1.5'
           spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
         end
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
-        spec.add_swig_code <<~__HEREDOC
-          %apply long * OUTPUT { long * }
-          %apply long * OUTPUT { wxTextCoord *col, wxTextCoord *row }
-          __HEREDOC
+        spec.map_apply 'long * OUTPUT' => 'long *'
+        spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
+        # for PositionToXY
+        spec.map 'long pos, long *x, long *y' => 'Array<Integer>' do
+          map_in temp: 'long tmpX, long tmpY', code: <<~__CODE
+            $1 = (long)NUM2INT($input);
+            $2 = &tmpX;
+            $3 = &tmpY;
+            __CODE
+
+          # ignore C defined return value entirely (also affects directorout)
+          map_out ignore: 'bool'
+
+          map_argout code: <<~__CODE
+            $result = Qnil;
+            if (result)
+            {
+              $result = rb_ary_new ();
+              rb_ary_push ($result,INT2NUM(tmpX$argnum));
+              rb_ary_push ($result,INT2NUM(tmpY$argnum));
+            }
+          __CODE
+
+          map_directorin code: '$input = INT2NUM($1);'
+
+          map_directorargout code: <<~__CODE
+            c_result = false;
+            if (result != Qnil && TYPE(result) == T_ARRAY)
+            {
+              *x = (long)NUM2INT(rb_ary_entry(result, 0));
+              *y = (long)NUM2INT(rb_ary_entry(result, 1));
+            }
+          __CODE
+        end
         spec.ignore 'wxTextCtrl::operator<<'
         spec.add_header_code <<~__HEREDOC
           // Allow << to work with a TextCtrl
@@ -50,6 +79,7 @@ module WXRuby3
           extern VALUE mWxTextCtrl;
           rb_define_method(mWxTextCtrl, "<<", VALUEFUNC(op_append), 1);
           __HEREDOC
+        spec.swig_import 'swig/classes/include/wxTextAttr.h'
       end
     end # class TextCtrl
 

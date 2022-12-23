@@ -29,7 +29,7 @@ module WXRuby3
         spec.rename_for_ruby(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long from, long to)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *from, long *to) const')
-        spec.add_swig_code '%apply long * OUTPUT { long *from, long *to }'
+        spec.map_apply 'long * OUTPUT' => [ 'long *from', 'long *to' ]
       end
 
     end # class ComboBox

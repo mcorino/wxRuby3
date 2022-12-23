@@ -15,6 +15,8 @@ module WXRuby3
 
     class CheckListBox < Window
 
+      include Typemap::ArrayIntSelections
+
       def setup
         super
         spec.ignore_bases('wxCheckListBox' => %w[wxListBox])
@@ -26,7 +28,6 @@ module WXRuby3
                          'swig/classes/include/wxControl.h',
                          'swig/classes/include/wxControlWithItems.h',
                          'swig/classes/include/wxListBox.h')
-        spec.swig_include('swig/shared/arrayint_selections.i')
       end
 
     end # class ListBox

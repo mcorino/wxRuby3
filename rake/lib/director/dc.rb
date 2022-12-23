@@ -13,6 +13,8 @@ module WXRuby3
 
     class DC < Director
 
+      include Typemap::PointsList
+
       def setup
         spec.ignore [
           'wxDC::StartPage',
@@ -24,7 +26,6 @@ module WXRuby3
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const'
         ]
         spec.no_proxy 'wxDC'
-        spec.swig_include 'swig/shared/points_list.i'
         spec.rename_for_ruby({
           'GetDimensions' => 'wxDC::GetSize(wxCoord * width , wxCoord * height)',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *width , wxCoord *height) const',
@@ -45,12 +46,6 @@ module WXRuby3
             return rb_result;
           }
           __HEREDOC
-        spec.map_parameters 'wxDC', 'int n*, wxPoint points[]',
-                            ['Array<Wx::Point>,Array<Array<Integer>>', 'points', 'array of points for the polygon (where each point can be either a Wx::Point or an array of 2 integers)']
-        spec.map_parameters 'wxDC', 'int n*, wxPoint *points',
-                            ['Array<Wx::Point>,Array<Array<Integer>>', 'points', 'array of points for the polygon (where each point can be either a Wx::Point or an array of 2 integers)']
-        spec.map_parameters 'wxDC', 'int n, int count[], wxPoint points[]',
-                            ['Array<Array<Wx::Point>>,Array<Array<Array<Integer>>>', 'points', 'array of polygon point arrays']
         super
       end
     end # class DC

@@ -19,14 +19,12 @@ module WXRuby3
         case spec.module_name
         when 'wxSizer'
           spec.make_abstract('wxSizer')
-          spec.ignore %w[wxSizer::IsShown wxSizer::Remove wxSizer::SetVirtualSizeHints]
-          spec.add_swig_code <<~__HEREDOC
-            // get rid of unwanted SWIG warning
-            %warnfilter(517) wxSizer;
-            // Typemap for GetChildren - convert to array of Sizer items
-            %typemap(out) wxSizerItemList& {
+          spec.ignore %w[wxSizer::IsShown wxSizer::SetVirtualSizeHints]
+          spec.ignore 'wxSizer::Remove(wxWindow *)' # long time deprecated
+          # Typemap for GetChildren - convert to array of Sizer items
+          spec.map 'wxSizerItemList&' => 'Array<Wx::SizerItem>' do
+            map_out code: <<~__CODE
               $result = rb_ary_new();
-            
               wxSizerItemList::compatibility_iterator node = $1->GetFirst();
               while (node)
               {
@@ -35,18 +33,20 @@ module WXRuby3
                 rb_ary_push($result, rb_si);
                 node = node->GetNext();
               }
-            }
-            __HEREDOC
-        when 'wxBoxSizer'
-        when 'wxStaticBoxSizer'
-          # Must ensure that the C++ detach method is called, else the associated
-          # StaticBox will be double-freed
-          spec.no_proxy(%w[
-            wxStaticBoxSizer::Detach
-            wxStaticBoxSizer::Remove
-            wxStaticBoxSizer::Clear])
-        when 'wxStdDialogButtonSizer'
+              __CODE
+          end
+          # get rid of unwanted SWIG warning
+          spec.suppress_warning(517, 'wxSizer')
         end
+        # no real use for allowing these to be overloaded but a whole lot of grieve
+        # if we do allow it
+        spec.no_proxy(%W[
+            #{spec.module_name}::Detach
+            #{spec.module_name}::Replace
+            #{spec.module_name}::Remove
+            #{spec.module_name}::Clear
+            #{spec.module_name}::Layout
+          ])
         spec.no_proxy "#{spec.module_name}::AddSpacer"
         super
       end

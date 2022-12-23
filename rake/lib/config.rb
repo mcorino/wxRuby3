@@ -167,9 +167,9 @@ module WXRuby3
 
             # Extra swig helper files to be built
             @helper_modules = if macosx?
-                                %w|RubyConstants RubyStockObjects Functions Mac|
+                                %w|RubyConstants RubyStockObjects Mac|
                               else
-                                %w|RubyConstants RubyStockObjects Functions|
+                                %w|RubyConstants RubyStockObjects|
                               end
             # helper to initialize on startup (stock objects can only be initialized after App creation)
             @helper_inits = @helper_modules - %w|RubyStockObjects|

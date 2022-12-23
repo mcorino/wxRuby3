@@ -72,7 +72,7 @@ module WXRuby3
         @class_registry = ClassRegistry.new
       end
 
-      attr_reader :classdef, :class_spec_name, :class_registry
+      attr_reader :director, :classdef, :class_spec_name, :class_registry
 
       def register_interface_member(member, req_pure_virt=false)
         if member.protection == 'public'
@@ -263,6 +263,20 @@ module WXRuby3
 
       private
 
+      def director
+        Thread.current.thread_variable_get(:IMRDirector)
+      end
+
+      def for_director(dir, &block)
+        olddir = Thread.current.thread_variable_get(:IMRDirector)
+        begin
+          Thread.current.thread_variable_set(:IMRDirector, dir)
+          block.call
+        ensure
+          Thread.current.thread_variable_set(:IMRDirector, olddir)
+        end
+      end
+
       def interface_method_registry
         @registry ||= InterfaceRegistry.new
       end
@@ -295,22 +309,12 @@ module WXRuby3
           if Extractor::ClassDef === item && !item.ignored &&
             (!item.is_template? || template_as_class?(item.name)) &&
             !is_folded_base?(item.name)
-            clsproc = ClassProcessor.new(@director, item)
+            clsproc = ClassProcessor.new(director, item)
             unless has_class_interface(clsproc.class_spec_name)
               clsproc.preprocess
               interface_method_registry.add_class_registry(clsproc.class_spec_name, clsproc.class_registry)
             end
           end
-        end
-      end
-
-      def for_director(director, &block)
-        olddir = @director
-        begin
-          @director = director
-          block.call
-        ensure
-          @director = olddir
         end
       end
 
@@ -345,7 +349,7 @@ module WXRuby3
                                   item.name
                                 end
               # this should not happen
-              raise "Missing preprocessed data for class #{intf_class_name}\n#{interface_method_registry.keys}" unless has_class_interface(intf_class_name)
+              raise "Missing preprocessed data for class #{intf_class_name}" unless has_class_interface(intf_class_name)
               # get the class's method registry
               cls_mtdreg = class_interface_methods(intf_class_name)
               # check all directly inherited generated methods
