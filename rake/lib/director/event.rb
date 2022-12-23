@@ -212,9 +212,9 @@ module WXRuby3
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item
               if def_item.hierarchy.has_key?('wxEvent')
-                spec.override_base(citem, 'wxRubyEvent')
+                spec.override_base(citem, 'wxRubyEvent', doc_override: false)
               elsif def_item.hierarchy.has_key?('wxCommandEvent')
-                spec.override_base(citem, 'wxRubyCommandEvent')
+                spec.override_base(citem, 'wxRubyCommandEvent', doc_override: false)
               end
             end
           end

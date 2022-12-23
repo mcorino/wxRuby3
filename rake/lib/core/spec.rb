@@ -111,13 +111,14 @@ module WXRuby3
         @class_renames.invert[name] || @templates_as_class.invert[name] || name
       end
 
-      def override_base(cls, base)
-        @base_overrides[cls] = base
+      def override_base(cls, base, doc_override: true)
+        @base_overrides[cls] = [base, doc_override ? base : nil]
         self
       end
 
-      def base_override(cls)
-        @base_overrides[cls]
+      def base_override(cls, doc: false)
+        base, doc_base = @base_overrides[cls]
+        doc ? doc_base : base
       end
 
       def extend_interface(cls, *declarations, visibility: 'public')

@@ -82,10 +82,10 @@ module WXRuby3
     end
     private :get_base_class
 
-    def base_class(classdef_or_name)
+    def base_class(classdef_or_name, doc: false)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
-      ifspec.base_override(class_def.name) ||
+      ifspec.base_override(class_def.name, doc: doc) ||
         get_base_class(class_def.name, class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
     end
 
