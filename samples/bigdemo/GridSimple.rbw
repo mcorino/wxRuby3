@@ -27,7 +27,7 @@ class SimpleGrid < Wx::Grid
         set_cell_value(1,1,"Another cell")
         set_cell_value(2,2,"Yet another cell")
         set_cell_value(3,3,"This cell is read-only")
-        set_cell_font(0,0, Wx::Font.new(12, Wx::ROMAN, Wx::ITALIC, Wx::NORMAL))
+        set_cell_font(0,0, Wx::Font.new(12, Wx::FONTFAMILY_ROMAN, Wx::FONTSTYLE_ITALIC, Wx::FONTWEIGHT_NORMAL))
         set_cell_text_colour(1,1,Wx::RED)
         set_cell_background_colour(2,2,Wx::CYAN)
         set_read_only(3,3,true)
