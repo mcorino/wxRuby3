@@ -20,20 +20,14 @@ class TestPanel < Wx::Panel
     
     @g1 = Wx::Gauge.new( self, -1, 50, 
                          Wx::Point.new(110,50), Wx::Size.new(250,25))
-    @g1.set_bezel_face(3)
-    @g1.set_shadow_width(3)
-    
+
     @g2 = Wx::Gauge.new( self, -1, 50, 
                          Wx::Point.new(110,95), Wx::Size.new(250,25), 
                          Wx::GA_HORIZONTAL|Wx::GA_SMOOTH)
-    @g2.set_bezel_face(5)
-    @g2.set_shadow_width(5)
-    
+
     @g3 = Wx::Gauge.new( self, -1, 50, 
                          Wx::Point.new(110, 140), Wx::Size.new(25,250), 
                          Wx::GA_VERTICAL)
-    @g3.set_bezel_face(3)
-    @g3.set_shadow_width(3)
 
     # start a timer to move the gauges forward every 1/4 s
     timer = Wx::Timer.new(self, 5001)
