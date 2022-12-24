@@ -119,6 +119,8 @@ module WXRuby3
             params << { name: pnm, type: arg.type }
             if paramdef.default
               defexp = rb_constant_expression(paramdef.default)
+              # in case the default expression dereferences a pointer or passes an address clean it up
+              defexp.sub!(/\A\s*[\*\&]/, '')
               # in case the default expression contains anything else but simple numbers or identifiers, wrap in ()
               params.last[:default] = if /\A([\d\-\+\.]+|[\w:]+)\Z/ =~ defexp
                                         defexp
