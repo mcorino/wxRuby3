@@ -7,6 +7,8 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
+require 'set'
+
 require_relative './base'
 require_relative './analyzer'
 
@@ -619,14 +621,20 @@ module WXRuby3
                 end
               end
               # generate method documentation
+              mtd_done = ::Set.new
               cls_members.select { |cm| Extractor::MethodDef === cm && !cm.is_dtor }.each do |mtd|
-                decl, *doc = get_method_doc(mtd)
-                doc.each { |s| fdoc.doc.puts s }
-                fdoc.puts decl
-                if alias_methods.has_key?(mtd.name)
-                  fdoc.puts "alias_method :#{alias_methods[mtd.name]}, :#{mtd.rb_decl_name}"
+                # overloads are flattened out by the Analyzer (with the head of the overloads list coming first)
+                # but for doc gen we only need the head item so keep track and skip the rest
+                unless mtd_done.include?(mtd.name)
+                  decl, *doc = get_method_doc(mtd)
+                  doc.each { |s| fdoc.doc.puts s }
+                  fdoc.puts decl
+                  if alias_methods.has_key?(mtd.name)
+                    fdoc.puts "alias_method :#{alias_methods[mtd.name]}, :#{mtd.rb_decl_name}"
+                  end
+                  fdoc.puts
+                  mtd_done << mtd.name
                 end
-                fdoc.puts
               end
             end
             fdoc.puts "end # #{clsnm}"
