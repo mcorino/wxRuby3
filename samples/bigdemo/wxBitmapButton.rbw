@@ -37,7 +37,7 @@ class TestPanel < Wx::Panel
 
     bmp_file = File.join( File.dirname(__FILE__), 'icons', 'smiles.bmp')
     bmp = Wx::Bitmap.new(bmp_file, Wx::BITMAP_TYPE_BMP)
-    b.bitmap_selected = bmp
+    b.bitmap_pressed = bmp
   end
   
   def on_click(event)
