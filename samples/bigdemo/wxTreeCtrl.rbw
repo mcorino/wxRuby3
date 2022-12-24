@@ -20,12 +20,12 @@ class MyTreeCtrl < Wx::TreeCtrl
     end
     
     def on_left_dclick(event)
-        pt = Wx::Point.new(event.get_x(), event.get_y())
+        pt = Wx::Point.new(event.get_x, event.get_y)
         
     end
     
     def on_right_click(event)
-        pt = Wx::Point.new(event.get_x(), event.get_y())
+        pt = Wx::Point.new(event.get_x, event.get_y)
         id = hit_test(pt)
         if id
             @log.write_text("on_right_click: ")# + @tree.get_item_text(id))
@@ -33,7 +33,7 @@ class MyTreeCtrl < Wx::TreeCtrl
     end
     
     def on_right_up(event)
-        pt = Wx::Point.new(event.get_x(), event.get_y())
+        pt = Wx::Point.new(event.get_x, event.get_y)
         id = hit_test(pt)
         if id
             @log.write_text("on_right_up: ")#+ @tree.get_item_text(id) + " (manually starting label edit)")
@@ -80,16 +80,16 @@ class TestTreeCtrlPanel < Wx::Panel
         @tree.set_item_image(@root, fldridx, Wx::TreeItemIcon::TreeItemIcon_Normal)
         @tree.set_item_image(@root, fldropenidx, Wx::TreeItemIcon::TreeItemIcon_Expanded)
         0.upto(15) do |x|
-            child = @tree.append_item(@root, "Item " + x.to_s())
+            child = @tree.append_item(@root, "Item " + x.to_s)
             @tree.set_item_image(child, fldridx, Wx::TreeItemIcon::TreeItemIcon_Normal)
             @tree.set_item_image(child, fldropenidx, Wx::TreeItemIcon::TreeItemIcon_Expanded)
             character = "a"
             0.upto(4) do |y|
-                last = @tree.append_item(child, "item " + x.to_s() + "-" + character)
+                last = @tree.append_item(child, "item " + x.to_s + "-" + character)
                 @tree.set_item_image(last, fldridx, Wx::TreeItemIcon::TreeItemIcon_Normal)
                 @tree.set_item_image(last, fldropenidx, Wx::TreeItemIcon::TreeItemIcon_Expanded)
                 0.upto(4) do |z|
-                    item = @tree.append_item(last, "item " + x.to_s() + "-" + character + "-" + z.to_s())
+                    item = @tree.append_item(last, "item " + x.to_s + "-" + character + "-" + z.to_s)
                     @tree.set_item_image(item, fileidx, Wx::TreeItemIcon::TreeItemIcon_Normal)
                     @tree.set_item_image(item, smileidx, Wx::TreeItemIcon::TreeItemIcon_Selected)
                 end
@@ -112,59 +112,59 @@ class TestTreeCtrlPanel < Wx::Panel
     def on_begin_edit(event)
         @log.write_text("on_begin_edit")
         # show how to prevent edit
-        if @tree.get_item_text(event.get_item()) == "The Root Item"
+        if @tree.get_item_text(event.get_item) == "The Root Item"
             @log.write_text("You can't edit this one...")
         
             # Let's just see what's visible of its children
             cookie = 0
-            root = event.get_item()
+            root = event.get_item
             child, cookie = @tree.get_first_child(root)
             while child != nil
-                @log.write_text("Child [" + @tree.get_item_text(child) + "] visible = " + @tree.is_visible(child).to_s())
+                @log.write_text("Child [" + @tree.get_item_text(child) + "] visible = " + @tree.is_visible(child).to_s)
                 child,cookie = @tree.get_next_child(root, cookie)
             end
-            event.veto()
+            event.veto
         end
     end
     
     def on_end_edit(event)
         @log.write_text("on_end_edit")
         #show how to reject edit, we'll not allow any digits
-        nums = ("0".."9").to_a()
-        x = event.get_label()
+        nums = ("0".."9").to_a
+        x = event.get_label
         x.each_byte do |byte|
-            if nums.include?(byte.chr())
+            if nums.include?(byte.chr)
                 @log.write_text("You can't enter digits...")
-                event.veto()
+                event.veto
                 return
             end
         end
     end
     
     def on_size(event)
-        size = get_client_size()
+        size = get_client_size
         @tree.set_dimensions(0,0,size.width, size.height)
     end
     
     def on_item_expanded(event)
-        item = event.get_item()
+        item = event.get_item
         @log.write_text("on_item_expanded: " + @tree.get_item_text(item))
     end
     
     def on_item_collapsed(event)
-        item = event.get_item()
+        item = event.get_item
         @log.write_text("on_item_collapsed: " + @tree.get_item_text(item))
     end
     
     def on_sel_changed(event)
-        @item = event.get_item()
-        if @item.nonzero?
+        @item = event.get_item
+        if @item.ok?
             @log.write_text("on_sel_changed: " + @tree.get_item_text(@item))
             # if Wx::PLATFORM == "WXMSW"
                 #@log.write_text("BoundingRect: " + @tree.get_bounding_rect(@item))
             #end
         end
-        event.skip()
+        event.skip
     end
     
     def on_activate(event)
