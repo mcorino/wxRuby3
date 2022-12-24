@@ -29,10 +29,6 @@ Dir.glob(class_files) do | class_file |
 end
 
 # Load in syntax sweeteners
-require 'wx/accessors'
-
-WxRubyStyleAccessors.apply_to(Wx)
-
 require 'wx/keyword_ctors'
 require 'wx/keyword_defs'
 

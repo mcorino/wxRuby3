@@ -225,8 +225,23 @@ module WXRuby3
       basecls = base_class(classdef)
       if basecls
         fout.puts "class #{basecls};"
-        fout.puts ''
+        fout.puts
       end
+
+      # collect possible aliases
+      alias_methods = classdef.aliases
+      folded_bases(classdef.name).each do |basename|
+        alias_methods = def_item(basename).aliases.merge(alias_methods)
+      end
+      # don't worry about aliases for methods that are not actually generated
+      # unmatched '%alias' directives are silently ignored.
+      unless alias_methods.empty?
+        alias_methods.each_pair do |mtd_name, alias_name|
+          fout.puts %Q{%alias #{class_name(classdef)}::#{mtd_name} "#{alias_name}";}
+        end
+        fout.puts
+      end
+
       is_struct = classdef.kind == 'struct'
       fout.puts "#{classdef.kind} #{class_name(classdef)}#{basecls ? ' : public '+basecls : ''}"
       fout.puts '{'

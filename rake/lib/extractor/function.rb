@@ -64,6 +64,14 @@ module WXRuby3
         items.select {|i| ParamDef === i }
       end
 
+      def parameter_count
+        items.inject(0) { |c, i| c += 1 if ParamDef === i; c }
+      end
+
+      def required_param_count
+        items.inject(0) { |c, i| c += 1 if ParamDef === i && !i.default; c }
+      end
+
       def rb_decl_name
         "self.#{rb_method_name(name)}"
       end

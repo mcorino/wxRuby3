@@ -13,6 +13,9 @@ module WXRuby3
 
     # The information about a class that is needed to generate wrappers for it.
     class ClassDef < BaseDef
+
+      include Util::StringUtil
+
       NAME_TAG = 'compoundname'
 
       def initialize(element = nil, kind = 'class', **kwargs)
@@ -252,6 +255,40 @@ module WXRuby3
 
       def methods
         ::Enumerator.new { |y| items.each {|i|  y << i if MethodDef === i }}
+      end
+
+      def aliases
+        methods.select do |mtd|
+          # exclude ctor/dtor, static and ignored methods
+          rc = false
+          if !(mtd.is_ctor || mtd.is_dtor) && !mtd.is_static && !mtd.ignored
+            nreqparam = mtd.required_param_count
+            unless (rc = /\A(Is|Has|Can)[A-Z]/ =~ mtd.name || (/\ASet[A-Z]/ =~ mtd.name && nreqparam==1))
+              if /\AGet[A-Z]/ =~ mtd.name && nreqparam==0
+                # since getters have no decoration ('=' or '?') a C++ method with the same
+                # name could exist already; check this and exclude if so
+                alias_name = mtd.name.sub(/\AGet/, '')
+                rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
+              end
+            end
+            if rc
+              # check there is not a static method with the same name; SWIG alias handling chokes on that
+              rc = !methods.any? { |m| !m.ignored && m.is_static && m.name == mtd.name}
+            end
+          end
+          rc
+        end.collect do |mtd|
+          case mtd.name
+          when /\AGet/
+            [mtd.name, rb_method_name(mtd.name.sub(/\AGet/, ''))]
+          when /\ASet/
+            [mtd.name, rb_method_name(mtd.name.sub(/\ASet/, ''))+'=']
+          when /\AIs/
+            [mtd.name, rb_method_name(mtd.name.sub(/\AIs/, ''))+'?']
+          else # when /\A(Has|Can)/
+            [mtd.name, rb_method_name(mtd.name)+'?']
+          end
+        end.to_h
       end
 
       def all_methods

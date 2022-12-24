@@ -74,11 +74,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
 
     d_obj.add( Wx::BitmapDataObject.new )
     if Wx::PLATFORM == 'WXMSW'
-      assert_equal( 1, d_txt.format_count(0) )
-      assert_equal( 2, d_obj.format_count(0) )
+      assert_equal( 1, d_txt.get_format_count(0) )
+      assert_equal( 2, d_obj.get_format_count(0) )
     else
-      assert_equal( 2, d_txt.format_count(0) )
-      assert_equal( 3, d_obj.format_count(0) )
+      assert_equal( 2, d_txt.get_format_count(0) )
+      assert_equal( 3, d_obj.get_format_count(0) )
     end
 
     d_bmp = Wx::BitmapDataObject.new(bmp)
@@ -96,10 +96,10 @@ class TestDataObjectComposite < Test::Unit::TestCase
 
     if Wx::PLATFORM == 'WXMSW'
       assert_equal d_obj.received_format, Wx::DF_DIB
-      d_bmp = d_obj.object(Wx::DF_DIB)
+      d_bmp = d_obj.get_object(Wx::DF_DIB)
     else
       assert_equal d_obj.received_format, Wx::DF_BITMAP
-      d_bmp = d_obj.object(Wx::DF_BITMAP)
+      d_bmp = d_obj.get_object(Wx::DF_BITMAP)
     end
     bmp_out = d_bmp.bitmap
     assert bmp_out.ok?, "Read out bitmap OK"
@@ -125,11 +125,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.fetch d_obj_2
     end
 
-    assert_equal d_obj_2.received_format, d_txt.preferred_format(Wx::DataObject::Set)
+    assert_equal d_obj_2.received_format, d_txt.get_preferred_format(Wx::DataObject::Set)
     if Wx::PLATFORM == 'WXMSW'
-      d_txt = d_obj_2.object(Wx::DF_UNICODETEXT)
+      d_txt = d_obj_2.get_object(Wx::DF_UNICODETEXT)
     else
-      d_txt = d_obj_2.object(Wx::DF_TEXT)
+      d_txt = d_obj_2.get_object(Wx::DF_TEXT)
     end
     assert_equal d_txt.text, 'THE TEXT'
   end
@@ -211,7 +211,7 @@ class TestDataObject < Test::Unit::TestCase
   def test_data_obj
     d_obj = MyBasicDataObject.new
     d_obj.set_data(Wx::DF_TEXT, 'HELLO')
-    assert_equal( 2, d_obj.format_count(0) )
+    assert_equal( 2, d_obj.get_format_count(0) )
     assert_equal('HELLO', d_obj.get_data_here(Wx::DF_TEXT) )
     assert_equal('<b>HELLO</b>', d_obj.get_data_here(MY_CUSTOM_FORMAT) )
 

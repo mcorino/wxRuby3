@@ -117,6 +117,9 @@ module WXRuby3
               unless name == '"THE_APP"'
                 line[name] = '"%s"' % rb_method_name(name[1..-2])
               end
+            when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*")/
+              name = $1
+              line[name] = '"%s"' % rb_method_name(name[1..-2])
             when /rb_define_class_under.*("[_a-zA-Z0-9]*")/
               name = $1
               line[name] = '"%s"' % rb_class_name(name[1..-2])
