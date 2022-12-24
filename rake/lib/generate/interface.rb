@@ -393,7 +393,7 @@ module WXRuby3
         member.items.each_with_index do |e, i|
           gen_only_for(fout, e) do
             fout.puts "    #{e.name}#{(i+1)<enum_size ? ',' : ''}"
-          end
+          end unless e.ignored
         end
         fout.puts "  };"
       end

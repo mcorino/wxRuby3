@@ -61,9 +61,10 @@ module WXRuby3
 
       include DirectorSpecsHelper
 
-      def initialize(director, classdef)
+      def initialize(director, classdef, doc_gen = false)
         @director = director
         @classdef = classdef
+        @doc_gen = doc_gen
         @class_spec_name = if classdef.is_template? && template_as_class?(classdef.name)
                              template_class_name(classdef.name)
                            else
@@ -73,6 +74,10 @@ module WXRuby3
       end
 
       attr_reader :director, :classdef, :class_spec_name, :class_registry
+
+      private def item_ignored?(item)
+        @doc_gen ? item.docs_ignored : item.ignored
+      end
 
       def register_interface_member(member, req_pure_virt=false)
         if member.protection == 'public'
@@ -183,11 +188,11 @@ module WXRuby3
           when Extractor::MethodDef
             if member.is_ctor
               if member.protection == visibility && ctor_name(member) == class_spec_name
-                if !member.ignored && !member.deprecated
+                if !item_ignored?(member) && !member.deprecated
                   register_interface_member(member)
                 end
                 member.overloads.each do |ovl|
-                  if ovl.protection == visibility && !ovl.ignored && !ovl.deprecated
+                  if ovl.protection == visibility && !item_ignored?(ovl) && !ovl.deprecated
                     register_interface_member(ovl)
                   end
                 end
@@ -197,21 +202,21 @@ module WXRuby3
                 register_interface_member(member)
               end
             elsif member.protection == visibility
-              if !member.ignored && !member.deprecated && !member.is_template?
+              if !item_ignored?(member) && !member.deprecated && !member.is_template?
                 preprocess_class_method(member, methods, requires_purevirt)
               end
               member.overloads.each do |ovl|
-                if ovl.protection == visibility && !ovl.ignored && !ovl.deprecated && !ovl.is_template?
+                if ovl.protection == visibility && !item_ignored?(ovl) && !ovl.deprecated && !ovl.is_template?
                   preprocess_class_method(ovl, methods, requires_purevirt)
                 end
               end
             end
           when Extractor::EnumDef
-            if member.protection == visibility && !member.ignored && !member.deprecated && member.items.any? {|e| !e.ignored }
+            if member.protection == visibility && !item_ignored?(member) && !member.deprecated && member.items.any? {|e| !item_ignored?(e) }
               register_interface_member(member)
             end
           when Extractor::MemberVarDef
-            if member.protection == visibility && !member.ignored && !member.deprecated
+            if member.protection == visibility && !item_ignored?(member) && !member.deprecated
               register_interface_member(member)
             end
           end
@@ -222,7 +227,7 @@ module WXRuby3
         STDERR.puts "** Preprocessing #{module_name} class #{class_spec_name}" if Director.trace?
         # preprocess any public inner classes
         classdef.innerclasses.each do |inner|
-          if inner.protection == 'public' && !inner.ignored && !inner.deprecated
+          if inner.protection == 'public' && !item_ignored?(inner) && !inner.deprecated
             register_interface_member(inner)
           end
         end
@@ -293,23 +298,23 @@ module WXRuby3
         interface_method_registry.has_class?(class_name)
       end
 
-      def get_class_interface(package, class_name)
+      def get_class_interface(package, class_name, doc_gen = false)
         dir = package.director_for_class(class_name)
         raise "Cannot determine director for class #{class_name}" unless dir
         dir.synchronize do
           dir.extract_interface(false) # make sure the Director has extracted data from XML
           # preprocess the items for this director
-          for_director(dir) {  preprocess }
+          for_director(dir) {  preprocess(doc_gen) }
         end
       end
 
-      def preprocess
+      def preprocess(doc_gen = false)
         STDERR.puts "** Preprocessing #{module_name}" if Director.trace?
         def_items.each do |item|
-          if Extractor::ClassDef === item && !item.ignored &&
+          if Extractor::ClassDef === item && !(doc_gen ? item.docs_ignored : item.ignored) &&
             (!item.is_template? || template_as_class?(item.name)) &&
             !is_folded_base?(item.name)
-            clsproc = ClassProcessor.new(director, item)
+            clsproc = ClassProcessor.new(director, item, doc_gen)
             unless has_class_interface(clsproc.class_spec_name)
               clsproc.preprocess
               interface_method_registry.add_class_registry(clsproc.class_spec_name, clsproc.class_registry)
@@ -332,15 +337,15 @@ module WXRuby3
         !!(class_interface_methods(class_name)[mtdef.signature] || {})[:ignore]
       end
 
-      def check_interface_methods(director)
+      def check_interface_methods(director, doc_gen: false)
         for_director(director) do
           # preprocess definitions if not yet done
-          preprocess
+          preprocess(doc_gen)
           # check the preprocessed definitions
           errors = []
           warnings = []
           def_items.each do |item|
-            if Extractor::ClassDef === item && !item.ignored &&
+            if Extractor::ClassDef === item && !(doc_gen ? item.docs_ignored : item.ignored) &&
               (!item.is_template? || template_as_class?(item.name)) &&
               !is_folded_base?(item.name)
               intf_class_name = if item.is_template? || template_as_class?(item.name)
@@ -356,7 +361,7 @@ module WXRuby3
               mtdlist = ::Set.new # remember handled signatures
               base_list(item).each do |base_name|
                 # make sure the base class has been preprocessed
-                get_class_interface(package, base_name) unless has_class_interface(base_name)
+                get_class_interface(package, base_name, doc_gen) unless has_class_interface(base_name)
                 # iterate the base class's method registrations
                 class_interface_methods(base_name).each_pair do |mtdsig, mtdreg|
                   # only check on methods we have not handled yet
@@ -385,7 +390,7 @@ module WXRuby3
               end
             end
           end
-          unless warnings.empty?
+          unless warnings.empty? || doc_gen
             warnings.each { |warn| STDERR.puts warn }
           end
           unless errors.empty?

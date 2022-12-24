@@ -8,6 +8,7 @@
 #--------------------------------------------------------------------
 
 require_relative './base'
+require_relative './analyzer'
 
 module WXRuby3
 
@@ -437,6 +438,9 @@ module WXRuby3
     end
 
     def run
+      # run an analysis comparing inherited generated methods with this class's own generated methods
+      InterfaceAnalyzer.check_interface_methods(@director, doc_gen: true)
+
       @xml_trans = DocGenerator::XMLTransformer.new(@director)
       Stream.transaction do
         fdoc = CodeStream.new(File.join(package.ruby_doc_path, underscore(name)+'.rb'))
@@ -582,32 +586,46 @@ module WXRuby3
       def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || template_as_class?(item.name)
           @xml_trans.for_class(item) do
-            clsnm = rb_wx_name(item.name)
+            intf_class_name = if (item.is_template? && template_as_class?(item.name))
+                                template_class_name(item.name)
+                              else
+                                item.name
+                              end
+            clsnm = rb_wx_name(intf_class_name)
             xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
             basecls = base_class(item, doc: true)
             fdoc.doc.puts get_class_doc(item)
             fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
             fdoc.puts
+
+            # collect possible aliases
+            alias_methods = item.aliases
+            folded_bases(item.name).each do |basename|
+              alias_methods = def_item(basename).aliases.merge(alias_methods)
+            end
+
             fdoc.indent do
-              # generate documentation for any enums /and/or inner classes
-              item.items.each do |member|
-                unless member.docs_ignored
-                  case member
-                  when Extractor::EnumDef
-                    member.items.each do |e|
-                      const_name = rb_wx_name(e.name)
-                      if xref_table.has_key?(const_name)
-                        gen_constant_doc(fdoc, const_name, xref_table[const_name], get_class_constant_doc(e, clsnm))
-                      end
-                    end if xref_table
-                  end
+              cls_members = InterfaceAnalyzer.class_interface_members_public(intf_class_name)
+              # generate documentation for any enums
+              cls_members.each do |member|
+                case member
+                when Extractor::EnumDef
+                  member.items.each do |e|
+                    const_name = rb_wx_name(e.name)
+                    if xref_table.has_key?(const_name)
+                      gen_constant_doc(fdoc, const_name, xref_table[const_name], get_class_constant_doc(e, clsnm))
+                    end
+                  end if xref_table
                 end
               end
               # generate method documentation
-              item.methods.select { |m| !m.is_dtor }.each do |mtd|
+              cls_members.select { |cm| Extractor::MethodDef === cm && !cm.is_dtor }.each do |mtd|
                 decl, *doc = get_method_doc(mtd)
                 doc.each { |s| fdoc.doc.puts s }
                 fdoc.puts decl
+                if alias_methods.has_key?(mtd.name)
+                  fdoc.puts "alias_method :#{alias_methods[mtd.name]}, :#{mtd.rb_decl_name}"
+                end
                 fdoc.puts
               end
             end
