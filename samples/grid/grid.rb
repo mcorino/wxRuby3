@@ -16,7 +16,7 @@ class GridFrame < Wx::Frame
 
     super(parent, id, title, pos, size, style)
     sizer = Wx::BoxSizer.new(Wx::VERTICAL)
-    create_status_bar()
+    create_status_bar
     set_status_text(Wx::VERSION_STRING)
 
     # panel = Wx::Panel.new(self)
@@ -37,47 +37,47 @@ class GridFrame < Wx::Frame
     sizer.add(@grid, 1, Wx::ALL|Wx::GROW, 4)
     set_sizer(sizer)
 
-    evt_grid_cell_left_click() do |evt|
+    evt_grid_cell_left_click do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} is clicked")
       evt.skip
     end 
 
-    evt_grid_cell_right_click() do |evt|
+    evt_grid_cell_right_click do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} is right clicked")
       evt.skip
     end 
 
-    evt_grid_cell_left_dclick() do |evt|
+    evt_grid_cell_left_dclick do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} is double clicked")
       evt.skip
     end 
 
-    evt_grid_cell_right_dclick() do |evt|
+    evt_grid_cell_right_dclick do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} is right double clicked")
       evt.skip
     end 
 
-    evt_grid_label_left_click() do |evt|
+    evt_grid_label_left_click do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} label is clicked")
       evt.skip
     end 
 
-    evt_grid_label_right_click() do |evt|
+    evt_grid_label_right_click do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} label is right clicked")
       evt.skip
     end 
 
-    evt_grid_label_left_dclick() do |evt|
+    evt_grid_label_left_dclick do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} labelis double clicked")
       evt.skip
     end 
 
-    evt_grid_label_right_dclick() do |evt|
+    evt_grid_label_right_dclick do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} label is right double clicked")
       evt.skip
     end 
 
-    evt_grid_select_cell() do |evt|
+    evt_grid_select_cell do |evt|
       set_status_text("#{evt.get_row} x #{evt.get_col} cell is selected")
       evt.skip
     end
@@ -191,8 +191,8 @@ class GridApp < Wx::App
                          Wx::Size.new(630,400))
 
     set_top_window(frame)
-    frame.show()
+    frame.show
   end
 end
 
-GridApp.new.run()
+GridApp.new.run

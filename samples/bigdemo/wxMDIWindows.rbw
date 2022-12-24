@@ -15,7 +15,7 @@ class TestPanel < Wx::Panel
         super(parent, -1)
         
         b1 = Wx::Button.new(self, -1, "MDI demo")
-        evt_button(b1.get_id()) {|event| show_mdi_demo(event)}
+        evt_button(b1.get_id) {|event| show_mdi_demo(event)}
         
         box = Wx::BoxSizer.new(Wx::VERTICAL)
         box.add(20,30)
@@ -26,8 +26,8 @@ class TestPanel < Wx::Panel
     def show_mdi_demo(event)
         mdi_demo_file = File.join( File.dirname(__FILE__), "MDIDemo.rbw")
         load mdi_demo_file
-        frame = Demo::MyParentFrame.new()
-        frame.show()
+        frame = Demo::MyParentFrame.new
+        frame.show
     end
 end
 

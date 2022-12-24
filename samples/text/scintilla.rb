@@ -19,17 +19,17 @@ class MyFrame < Frame
   def initialize(title,pos,size,style=DEFAULT_FRAME_STYLE)
     super(nil,-1,title,pos,size,style)
 
-    menuFile = Menu.new()
+    menuFile = Menu.new
     menuFile.append(Minimal_Quit, "E&xit\tAlt-X", "Quit this program")
 
-    menuView = Menu.new()
+    menuView = Menu.new
     menuView.append(Toggle_Whitespace, "Show &Whitespace\tF6", "Show Whitespace", ITEM_CHECK)
     menuView.append(Toggle_EOL, "Show &End of Line\tF7", "Show End of Line characters", ITEM_CHECK)
 
-    menuHelp = Menu.new()
+    menuHelp = Menu.new
     menuHelp.append(Minimal_About, "&About...\tF1", "Show about dialog")
 
-    menuBar = MenuBar.new()
+    menuBar = MenuBar.new
     menuBar.append(menuFile, "&File")
     menuBar.append(menuView, "&View")
     menuBar.append(menuHelp, "&Help")
@@ -163,7 +163,7 @@ class RbApp < App
 end
 
 a = RbApp.new
-a.run()
+a.run
 puts("back from run...") if Wx::RB_DEBUG
 GC.start
 puts("survived gc") if Wx::RB_DEBUG

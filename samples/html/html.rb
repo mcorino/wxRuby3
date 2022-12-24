@@ -211,8 +211,8 @@ class HtmlFrame < Wx::Frame
     # create a simple message dialog with OK button
     about_dlg = Wx::MessageDialog.new( self, msg, 'About WxRuby HTML',
                                        Wx::OK|Wx::ICON_INFORMATION )
-    about_dlg.show_modal()
-	about_dlg.destroy()
+    about_dlg.show_modal
+	about_dlg.destroy
   end
 
   def on_html_link_clicked(event)
@@ -256,7 +256,7 @@ class HtmlApp < Wx::App
                              Wx::Size.new(450, 340))
     set_app_name('HtmlDemo')
     # required
-    frame.show()
+    frame.show
   end
 end
 

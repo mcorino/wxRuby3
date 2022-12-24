@@ -278,7 +278,7 @@ class WxRubyDemo < Wx::Frame
     @mainmenu.append(menu, "&Help")
     set_menu_bar(@mainmenu)
 
-    @finddata = Wx::FindReplaceData.new()
+    @finddata = Wx::FindReplaceData.new
 
     @treeMap = {}
     @tree = Wx::TreeCtrl.new(splitter)
@@ -343,7 +343,7 @@ class WxRubyDemo < Wx::Frame
     @nb.set_selection(0)
     @tree.select_item(root)
 
-    show_tip()
+    show_tip
   end
 
   def write_text(text)
@@ -352,7 +352,7 @@ class WxRubyDemo < Wx::Frame
 
   def on_idle(event)
     if @otherWin != nil
-      @otherWin.raise()
+      @otherWin.raise
       @window = @otherWin
       @otherWin = nil
     end
@@ -360,23 +360,23 @@ class WxRubyDemo < Wx::Frame
 
   def on_close(event)
     @tbicon.remove_icon
-    destroy()
-    exit()
+    destroy
+    exit
   end
 
   def on_item_expanded(event)
-    item = event.get_item()
+    item = event.get_item
     Wx::log_message("on_item_expanded: %s" % @tree.get_item_text(item))
   end
 
   def on_item_collapsed(event)
-    item = event.get_item()
+    item = event.get_item
     Wx::log_message("on_item_collapsed: %s" % @tree.get_item_text(item))
   end
 
   def on_tree_sel_changed(event)
 
-    item = event.get_item()
+    item = event.get_item
 
     if item.ok?
       itemText = @tree.get_item_text(item)
@@ -387,18 +387,18 @@ class WxRubyDemo < Wx::Frame
   def on_tree_left_down(event)
     pt = Wx::Point.new(event.get_x, event.get_y)
     item = @tree.hit_test(pt)
-    if item == @tree.get_selection()
+    if item == @tree.get_selection
       set_overview(@tree.get_item_text(item) + " Overview", @curOverview)
       Wx::log_message(@tree.get_item_text(item) + " Overview")
 
     end
 
-    event.skip()
+    event.skip
   end
 
   def run_demo(itemText)
-    if @nb.get_page_count() == 3
-      if @nb.get_selection() == 2
+    if @nb.get_page_count == 3
+      if @nb.get_selection == 2
         @nb.set_selection(0)
       end
       if @window != nil
@@ -410,32 +410,32 @@ class WxRubyDemo < Wx::Frame
     if itemText == "wxRuby Overview"
       get_demo_file(__FILE__)
       set_overview("wxRuby Overview", OVR_TEXT)
-      @nb.refresh()
+      @nb.refresh
       @window = nil
     else
       demo_file = File.join(File.dirname(__FILE__), itemText + '.rbw')
       if File.exist?(demo_file)
         Wx::log_message("Running Demo: " + itemText + ".rbw")
         get_demo_file(demo_file)
-        # I use load() here because it allows the user to modify
+        # I use load here because it allows the user to modify
         # the underlying file for each sample, so that each time
         # They run it any changes made will be reflected without
         # having to restart the demo.
         begin
           load demo_file
           set_overview(itemText + " Overview", Demo::overview)
-          @tree.refresh()
-          @nb.refresh()
+          @tree.refresh
+          @nb.refresh
           @window = Demo.run(self, @nb, self)
           if @window.class.ancestors.include?(Wx::Window)
             # Check to see if the demo returned a Wx::Window, Wx::Panel or a new class inheriting from them
             # if so, create a new tab in the notebook for them
             @nb.add_page(@window, "Demo")
             @nb.set_selection(2)
-            @nb.refresh()
+            @nb.refresh
           end
         rescue Exception => problem
-          dlg = Wx::MessageDialog.new(self, "A problem occurred with the %s demo:\n%s\n%s" % [itemText, problem, problem.backtrace().join("\n").to_s()],
+          dlg = Wx::MessageDialog.new(self, "A problem occurred with the %s demo:\n%s\n%s" % [itemText, problem, problem.backtrace.join("\n").to_s()],
                                       "Error!!!", Wx::OK | Wx::ICON_ERROR)
           dlg.show_modal()
           dlg.destroy()

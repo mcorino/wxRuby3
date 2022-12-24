@@ -28,9 +28,9 @@ class UnicodeDemoTextCtrl < Wx::TextCtrl
 
   # run through a few useful methods of textctrl and report the results
   # as a string
-  def report()
+  def report
     report = ''
-    sel = get_string_selection()
+    sel = get_string_selection
     report << 'Selected string byte length: ' << sel.bytesize.to_s << "\n"
     report << 'Selected string character length: ' << sel.size.to_s << "\n"
     report << 'Selected string:: ' << sel.inspect << "\n"
@@ -103,7 +103,7 @@ class IConvFrame < Wx::Frame
     ctrl_sizer.add(choice, 0, Wx::ALL, 2)
 
     sizer.add(ctrl_sizer, 0, Wx::ALL, 2)
-    construct_menus()
+    construct_menus
     panel.set_sizer_and_fit( sizer )
   end
 
@@ -112,7 +112,7 @@ class IConvFrame < Wx::Frame
   def on_import_file(encoding)
     fd = Wx::FileDialog.new( nil, 'Import file', "", "", 
                              "*.*", Wx::OPEN|Wx::FILE_MUST_EXIST  )
-    return unless fd.show_modal() == Wx::ID_OK
+    return unless fd.show_modal == Wx::ID_OK
     File.open( fd.get_path ) do | file |
       import_file( file, encoding )
     end
@@ -120,7 +120,7 @@ class IConvFrame < Wx::Frame
     message = "The file %s does not seem to be in %s encoding " %
               [ fd.get_filename, encoding ]
     Wx::MessageDialog.new(self, message, 'Wrong encoding',
-                          Wx::OK|Wx::ICON_EXCLAMATION).show_modal()
+                          Wx::OK|Wx::ICON_EXCLAMATION).show_modal
   end
 
   # Read +io+, which should be text file encoding in +source_encoding+,
@@ -128,11 +128,11 @@ class IConvFrame < Wx::Frame
   def import_file(io, source_encoding = 'UTF-8')
     case source_encoding
     when /UTF-?8/
-      @textctrl.set_value( io.read() )
+      @textctrl.set_value( io.read )
     else
       output = ''
       Iconv.open('UTF-8', source_encoding) do | converter |
-        output << converter.iconv( io.read() )
+        output << converter.iconv( io.read )
         output << converter.iconv(nil)
       end
       @textctrl.set_value( output )
@@ -144,7 +144,7 @@ class IConvFrame < Wx::Frame
   def on_export_file(encoding)
     fd = Wx::FileDialog.new( nil, 'Export file', "", "",
                              "*.*", Wx::SAVE|Wx::OVERWRITE_PROMPT )
-    return unless fd.show_modal() == Wx::ID_OK
+    return unless fd.show_modal == Wx::ID_OK
     File.open( fd.get_path, 'w' ) do | file |
       export_file( file, encoding )
     end
@@ -152,7 +152,7 @@ class IConvFrame < Wx::Frame
     message = "The text content containts characters that " <<
               "cannot be encoded using %s" % encoding
     Wx::MessageDialog.new(self, message, 'Invalid encoding',
-                          Wx::OK|Wx::ICON_EXCLAMATION).show_modal()
+                          Wx::OK|Wx::ICON_EXCLAMATION).show_modal
   end
 
   # Write the content of the textctrl to the file or io +io+, encoding
@@ -169,20 +169,20 @@ class IConvFrame < Wx::Frame
     end
   end
 
-  def construct_menus()
-    menu_bar = Wx::MenuBar.new()
+  def construct_menus
+    menu_bar = Wx::MenuBar.new
 
-    menu_file = Wx::Menu.new()
+    menu_file = Wx::Menu.new
     menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
-    evt_menu(Wx::ID_EXIT) { on_quit() }
+    evt_menu(Wx::ID_EXIT) { on_quit }
     menu_bar.append(menu_file, "&File")
     if self.class.const_defined?(:ICONV_LOADED)
       construct_import_export_menus(menu_bar)
     end
 
-    menu_help = Wx::Menu.new()
+    menu_help = Wx::Menu.new
     menu_help.append(Wx::ID_ABOUT, "&About...\tF1", "Show about dialog")
-    evt_menu(Wx::ID_ABOUT) { on_about() }
+    evt_menu(Wx::ID_ABOUT) { on_about }
     menu_bar.append(menu_help, "&Help")
 
     set_menu_bar(menu_bar)
@@ -190,7 +190,7 @@ class IConvFrame < Wx::Frame
 
   def construct_import_export_menus(menu_bar)
     id_counter = 0
-    menu_import = Wx::Menu.new()
+    menu_import = Wx::Menu.new
 
     ENCODINGS.each do | desc, enc |
       id_counter += 1
@@ -201,7 +201,7 @@ class IConvFrame < Wx::Frame
     end
     menu_bar.append(menu_import, '&Import')
 
-    menu_export = Wx::Menu.new()
+    menu_export = Wx::Menu.new
     ENCODINGS.each do | desc, enc |
       id_counter += 1
       menu_export.append(id_counter, "Export (#{desc})",
@@ -213,14 +213,14 @@ class IConvFrame < Wx::Frame
   end
 
   def on_click(e)
-    @log.set_value( @textctrl.report() )
+    @log.set_value( @textctrl.report )
   end
 
-  def on_quit()
+  def on_quit
     close(true)
   end
 
-  def on_about()
+  def on_about
     msg =  sprintf("This is the About dialog of the Unicode sample.\n" \
                     "Welcome to %s", Wx::VERSION_STRING)
     Wx::message_box(msg, "About Minimal", Wx::OK|Wx::ICON_INFORMATION, self)
@@ -228,7 +228,7 @@ class IConvFrame < Wx::Frame
 end
 
 class IConvApp < Wx::App
-  def on_init()
+  def on_init
     frame = IConvFrame.new("Unicode demonstration - ",
                            Wx::Point.new(50, 50),
                            Wx::Size.new(450, 450) )
@@ -237,4 +237,4 @@ class IConvApp < Wx::App
   end
 end
 
-IConvApp.new().run()
+IConvApp.new.run

@@ -27,7 +27,7 @@ class TestCheckBox < Wx::Panel
     end
     
     def on_check_box(event)
-        @log.write_text("evt_checkbox: " + event.is_checked().to_s)
+        @log.write_text("evt_checkbox: " + event.is_checked.to_s)
     end
 end
 

@@ -27,7 +27,7 @@ class TestToolBar < Wx::Frame
         
         tb = create_tool_bar(Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT | Wx::TB_TEXT)
         
-        create_status_bar()
+        create_status_bar
         tb.add_tool(10, "New", xpm_bitmap('new.xpm'), "Long help for New")
         evt_tool(10) {|event| on_tool_click(event)}
         evt_tool_rclicked(10) {|event| on_tool_rclick(event)}
@@ -36,7 +36,7 @@ class TestToolBar < Wx::Frame
         evt_tool(20) {|event| on_tool_click(event)}
         evt_tool_rclicked(20) {|event| on_tool_rclick(event)}
         
-        tb.add_separator()
+        tb.add_separator
         
         tb.add_tool(30, "Copy", xpm_bitmap('copy.xpm'), "Long help for Copy")
         evt_tool(30) {|event| on_tool_click(event)}
@@ -46,7 +46,7 @@ class TestToolBar < Wx::Frame
         evt_tool(40) {|event| on_tool_click(event)}
         evt_tool_rclicked(40) {|event| on_tool_rclick(event)}
         
-        tb.add_separator()
+        tb.add_separator
         
         tb.add_check_tool(50, "", xpm_bitmap('tog1.xpm'),
                           Wx::NULL_BITMAP, "Toggle this")
@@ -56,7 +56,7 @@ class TestToolBar < Wx::Frame
         evt_tool_rclicked(-1) {|event| on_tool_rclick(event)}
         evt_timer(5000) {|event| on_clear_sb(event)}
         
-        tb.add_separator()
+        tb.add_separator
         cbID = 5000
         choices = ["", "This", "is a", "wxComboBox"] 
         
@@ -65,49 +65,49 @@ class TestToolBar < Wx::Frame
         evt_combobox(cbID) {|event| on_combo(event)}
         tb.add_control(Wx::TextCtrl.new(tb, -1, "ToolBar controls!!", Wx::DEFAULT_POSITION, Wx::Size.new(150,-1)))
         
-        tb.realize()
+        tb.realize
     end
     
     def on_tool_click(event)
-        @log.write_text("tool " + event.get_id().to_s() + " clicked")
-        tb = get_tool_bar()
+        @log.write_text("tool " + event.get_id.to_s + " clicked")
+        tb = get_tool_bar
         tb.enable_tool(10, tb.get_tool_enabled(10) ? false : true)
     end
     
     def on_tool_rclick(event)
-        @log.write_text("tool " + event.get_id().to_s() + " right-clicked")
+        @log.write_text("tool " + event.get_id.to_s + " right-clicked")
     end
     
     def on_combo(event)
-        @log.write_text("combobox item selected " + event.get_string())
+        @log.write_text("combobox item selected " + event.get_string)
     end
     
     def on_tool_enter(event)
-        @log.write_text("on_tool_enter: " + event.get_id().to_s + ", " + event.get_int().to_s())
+        @log.write_text("on_tool_enter: " + event.get_id.to_s + ", " + event.get_int.to_s)
         if @timer == nil
             @timer = Wx::Timer.new(self, 5000)
         end
         if @timer != nil
-            @timer.stop()
+            @timer.stop
         end
         @timer.start(2000)
-        @timer.stop()
+        @timer.stop
         @timer.start(2000)
-        event.skip()
+        event.skip
     end
     
     def on_clear_sb(event) # called for the timer event handler
         set_status_text("")
-        @timer.stop()
+        @timer.stop
         @timer = nil
     end
     
     def on_close_window(event)
         if @timer != nil
-            @timer.stop()
+            @timer.stop
             @timer = nil
         end     
-        destroy()
+        destroy
     end
 end
 
@@ -115,7 +115,7 @@ module Demo
     def Demo.run(frame,nb,log)
         win = TestToolBar.new(frame, log)
         frame.otherWin = win
-        win.show()
+        win.show
     end
     
     def Demo.overview

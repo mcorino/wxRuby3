@@ -28,7 +28,7 @@ class DragPanel < Wx::Panel
 
     @drag_img.begin_drag(Wx::Point.new(16, 16), self)
     @drag_img.move(event.get_position)
-    @drag_img.show()
+    @drag_img.show
     event.skip
   end
 

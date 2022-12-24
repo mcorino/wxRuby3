@@ -15,7 +15,7 @@ class MyFrame < Wx::Frame
         @log = log
         center_on_screen(Wx::BOTH)
         
-        create_status_bar()
+        create_status_bar
         set_status_text("This is the statusbar")
         
         text = "A bunch of bogus menus have been created for this frame.  You can play around with them to see how they behave and then check the source for this sample to see how to implement them."
@@ -23,24 +23,24 @@ class MyFrame < Wx::Frame
                                 Wx::DEFAULT_SIZE, Wx::TE_READONLY | Wx::TE_MULTILINE)
         
         # Prepare the menu bar
-        menuBar = Wx::MenuBar.new()
+        menuBar = Wx::MenuBar.new
         
         # 1st menu from the left
-        menu1 = Wx::Menu.new()
+        menu1 = Wx::Menu.new
         menu1.append(101, "&Mercury", "This the text in the Statusbar")
         menu1.append(102, "&Venus", "")
         menu1.append(103, "&Earth", "You may select Earth too")
-        menu1.append_separator()
+        menu1.append_separator
         menu1.append(104, "&Close", "Close this frame")
         # Add menu to the menu bar
         menuBar.append(menu1, "&Planets")
 
         # 2nd menu from left
-        menu2 = Wx::Menu.new()
+        menu2 = Wx::Menu.new
         menu2.append(201, "Hydrogen")
         menu2.append(202, "Helium")
         # a submenu in the 2nd menu
-        submenu = Wx::Menu.new()
+        submenu = Wx::Menu.new
         submenu.append(2031,"Lanthanium")
         submenu.append(2032,"Cerium")
         submenu.append(2033,"Praseodymium")
@@ -49,22 +49,22 @@ class MyFrame < Wx::Frame
         # append 2nd menu
         menuBar.append(menu2, "&Elements")
 
-        menu3 = Wx::Menu.new()
+        menu3 = Wx::Menu.new
         menu3.append_item(Wx::MenuItem.new(menu3, 301, "IRB", "a Python shell using tcl/tk as GUI", Wx::ITEM_RADIO))
         menu3.append_item(Wx::MenuItem.new(menu3, 302, "PyCrust", "a Python shell using wxPython as GUI", Wx::ITEM_RADIO))
         menu3.append_item(Wx::MenuItem.new(menu3, 303, "psi", "a simple Python shell using wxPython as GUI", Wx::ITEM_RADIO))
-        menu3.append_separator()
+        menu3.append_separator
         menu3.append_item(Wx::MenuItem.new(menu3, 304, "project1", "", Wx::ITEM_NORMAL))
         menu3.append_item(Wx::MenuItem.new(menu3, 305, "project2", "", Wx::ITEM_NORMAL))
         menuBar.append(menu3, "&Shells")
 
-        menu4 = Wx::Menu.new()
+        menu4 = Wx::Menu.new
         menu4.append_item(Wx::MenuItem.new(menu4, 401, "letters", "abcde...", Wx::ITEM_CHECK))
         menu4.append_item(Wx::MenuItem.new(menu4, 402, "digits", "123...", Wx::ITEM_CHECK))
         menu4.append_item(Wx::MenuItem.new(menu4, 403, "letters and digits", "abcd... + 123...", Wx::ITEM_CHECK))
         menuBar.append(menu4, "Chec&k")
 
-        menu5 = Wx::Menu.new()
+        menu5 = Wx::Menu.new
         # Show how to put an icon in the menu
         item = Wx::MenuItem.new(menu5, 500, "&Smile!\tCtrl+S", 
                                 "This one has an icon")
@@ -78,11 +78,11 @@ class MyFrame < Wx::Frame
         menu5.append_item(item)
 
         menu5.append(501, "Interesting thing\tCtrl+A", "Note the shortcut!")
-        menu5.append_separator()
+        menu5.append_separator
         menu5.append(502, "Hello\tShift+H")
-        menu5.append_separator()
+        menu5.append_separator
         menu5.append(503, "remove the submenu")
-        menu6 = Wx::Menu.new()
+        menu6 = Wx::Menu.new
         menu6.append(601, "Submenu Item")
         item = Wx::MenuItem.new(menu5, 504, "submenu", "", Wx::ITEM_NORMAL, menu6)
         menu5.append_item(item)
@@ -130,7 +130,7 @@ class MyFrame < Wx::Frame
     # Methods
     
     def on_menu_highlight(event)
-        event.skip()
+        event.skip
     end
     
     def menu_101(event)
@@ -146,7 +146,7 @@ class MyFrame < Wx::Frame
     end
     
     def close_window(event)
-        event.skip()
+        event.skip
     end
     
     def menu_201(event)
@@ -170,7 +170,7 @@ class MyFrame < Wx::Frame
     end
     
     def menu_301_to_303(event)
-        id = event.get_id()
+        id = event.get_id
         @log.write_text("Event id: %d" % id)
     end
     
@@ -198,7 +198,7 @@ class MyFrame < Wx::Frame
         @log.write_text("Hello from Robert Carlin!")
     end
     
-    # These methods haven't been implemented yet....Waiting for Wx::MenuBar.get_menu_bar() to be implemented
+    # These methods haven't been implemented yet....Waiting for Wx::MenuBar.get_menu_bar to be implemented
     def test_remove(event)
         
     end
@@ -212,7 +212,7 @@ class MyFrame < Wx::Frame
     end
 
     def test_update_ui(event)
-        event.skip()
+        event.skip
     end
 end
 
@@ -220,7 +220,7 @@ module Demo
     def Demo.run(frame, nb, log)
         win = MyFrame.new(frame, -1, log)
         frame.otherWin = win
-        win.show()
+        win.show
     end
 
     def Demo.overview

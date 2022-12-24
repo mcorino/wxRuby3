@@ -10,7 +10,7 @@ require 'wx'
 
 
 class
-    def initialize()
+    def initialize
 
     end
 end

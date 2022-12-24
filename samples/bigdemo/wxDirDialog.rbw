@@ -12,8 +12,8 @@ require 'wx'
 module Demo
     def Demo.run(frame, nb, log)
         dlg = Wx::DirDialog.new(frame, "Choose a directory:")
-        if dlg.show_modal() == Wx::ID_OK
-            log.write_text("You selected: " + dlg.get_path())
+        if dlg.show_modal == Wx::ID_OK
+            log.write_text("You selected: " + dlg.get_path)
         end
     end
     

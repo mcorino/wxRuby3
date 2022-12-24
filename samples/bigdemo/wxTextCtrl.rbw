@@ -13,17 +13,17 @@ class TestPanel < Wx::Panel
     
     def on_set_focus(event)
         @log.write_text("on_set_focus")
-        event.skip()
+        event.skip
     end
     
     def on_kill_focus(event)
         @log.write_text("on_kill_focus")
-        event.skip()
+        event.skip
     end
     
     def on_window_destroy(event)
         @log.write_text("on_window_destroy")
-        event.skip()
+        event.skip
     end
     
     def initialize(parent, log)
@@ -34,7 +34,7 @@ class TestPanel < Wx::Panel
         t1 = Wx::TextCtrl.new(self, -1, "Test it out and see", Wx::DEFAULT_POSITION, Wx::Size.new(125,-1))
         t1.set_insertion_point(0)
         @tc1 = t1
-        evt_text(t1.get_id()) {|event| on_evt_text(event)}
+        evt_text(t1.get_id) {|event| on_evt_text(event)}
         t1.evt_char {|event| on_evt_char(event)}
         t1.evt_set_focus {|event| on_set_focus(event)}
         t1.evt_kill_focus {|event| on_kill_focus(event)}
@@ -42,20 +42,20 @@ class TestPanel < Wx::Panel
         
         l2 = Wx::StaticText.new(self, -1, "Password")
         t2 = Wx::TextCtrl.new(self, -1, "", Wx::DEFAULT_POSITION, Wx::Size.new(125,-1), Wx::TE_PASSWORD)
-        evt_text(t2.get_id()) {|event| on_evt_text(event)}
+        evt_text(t2.get_id) {|event| on_evt_text(event)}
         
         l3 = Wx::StaticText.new(self, -1, "Multi-line")
         t3 = Wx::TextCtrl.new(self, -1, "Here is a looooooooooooooong line of text set in the control.\n\n" +
                             "The quick brown fox jumped over the lazy dog...", Wx::DEFAULT_POSITION, Wx::Size.new(200,100),
                             Wx::TE_MULTILINE)
         t3.set_insertion_point(0)
-        evt_text(t3.get_id()) {|event| on_evt_text(event)}
+        evt_text(t3.get_id) {|event| on_evt_text(event)}
         b = Wx::Button.new(self, -1, "Test replace")
-        evt_button(b.get_id()) {|event| on_test_replace(event)}
+        evt_button(b.get_id) {|event| on_test_replace(event)}
         b2 = Wx::Button.new(self, -1, "Test get_selection")
-        evt_button(b2.get_id()) {|event| on_test_get_selection(event)}
+        evt_button(b2.get_id) {|event| on_test_get_selection(event)}
         b3 = Wx::Button.new(self, -1, "Test write_text")
-        evt_button(b3.get_id()) {|event| on_test_write_text(event)}
+        evt_button(b3.get_id) {|event| on_test_write_text(event)}
         @tc = t3
         
         l4 = Wx::StaticText.new(self, -1, "Rich Text")
@@ -63,7 +63,7 @@ class TestPanel < Wx::Panel
                                 Wx::DEFAULT_POSITION, Wx::Size.new(200,100), Wx::TE_MULTILINE | Wx::TE_RICH)
         t4.set_insertion_point(0)
         t4.set_style(44,47, Wx::TextAttr.new(Wx::Colour.new("RED"), Wx::Colour.new("YELLOW")))
-        points = t4.get_font().get_point_size() # get the current size
+        points = t4.get_font.get_point_size # get the current size
         f = Wx::Font.new(points + 3, Wx::FONTFAMILY_ROMAN, Wx::FONTSTYLE_ITALIC, Wx::FONTWEIGHT_BOLD, true)
         t4.set_style(63, 77, Wx::TextAttr.new(Wx::Colour.new("BLUE"), Wx::NULL_COLOUR, f))
         
@@ -101,12 +101,12 @@ class TestPanel < Wx::Panel
     end
     
     def on_evt_text(event)
-        @log.write_text("evt_text: " + event.get_string())
+        @log.write_text("evt_text: " + event.get_string)
     end
     
     def on_evt_char(event)
-        @log.write_text("evt_char: " + event.get_key_code().to_s)
-        event.skip()
+        @log.write_text("evt_char: " + event.get_key_code.to_s)
+        event.skip
     end
     
     def on_test_replace(event)

@@ -18,16 +18,16 @@ class TestPanel < Wx::Panel
         Wx::StaticText.new(self, -1, "This example uses the wxSpinButton control.", Wx::Point.new(45,15))
         
         @text = Wx::TextCtrl.new(self, -1, "1", Wx::Point.new(30,50), Wx::Size.new(60,-1))
-        h = @text.get_size().get_height()
+        h = @text.get_size.get_height
         @spin = Wx::SpinButton.new(self, 20, Wx::Point.new(92,50), Wx::Size.new(h,h), Wx::SP_VERTICAL)
         @spin.set_range(1, 100)
         @spin.set_value(1)
         
-        evt_spin(@spin.get_id()) {|event| on_spin(event)}
+        evt_spin(@spin.get_id) {|event| on_spin(event)}
     end
     
     def on_spin(event)
-        @text.set_value(event.get_position().to_s())
+        @text.set_value(event.get_position.to_s)
     end
 end
 

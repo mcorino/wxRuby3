@@ -52,7 +52,7 @@ class MinimalFrame < Wx::Frame
   # End the application; it should finish automatically when the last
   # window is closed.
   def on_quit
-    close()
+    close
   end
 
   # show an 'About' dialog - WxRuby's about_box function will show a

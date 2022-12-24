@@ -54,7 +54,7 @@ module Demo
     win = TestDialog.new(frame, -1, "This is a wxDialog")
     win.center_on_screen(Wx::BOTH)
     # Show the dialog and await the user's response
-    val = win.show_modal()
+    val = win.show_modal
     if val == Wx::ID_OK
       log.write_text("You pressed OK")
     else

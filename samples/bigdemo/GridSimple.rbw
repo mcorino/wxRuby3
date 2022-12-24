@@ -48,8 +48,8 @@ class SimpleGrid < Wx::Grid
     end
     
     def on_cell_left_click(event)
-        @log.write_text("on_cell_left_click: (%d,%d)" % [evt.get_row(), evt.get_col()])
-        evt.skip()
+        @log.write_text("on_cell_left_click: (%d,%d)" % [evt.get_row, evt.get_col])
+        evt.skip
     end
     
     def on_idle(event)
@@ -57,7 +57,7 @@ class SimpleGrid < Wx::Grid
             set_grid_cursor(@moveTo[0], @moveTo[1])
             @moveTo = nil
         end
-        event.skip()
+        event.skip
     end
 end
 

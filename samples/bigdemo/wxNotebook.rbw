@@ -21,7 +21,7 @@ class NBPanel < Wx::Panel
     end
     
     def on_size(event)
-        win.set_size(event.get_size())
+        win.set_size(event.get_size)
     end
 end
 
@@ -43,7 +43,7 @@ class TestNB < Wx::Notebook
         # first make the image list:
         il = Wx::ImageList.new(16,16)
         ic_file = File.join(File.dirname(__FILE__),'icons','wxwin16x16.xpm')
-        il.add_icon( Wx::Icon.new(ic_file) )
+        il.add( Wx::Icon.new(ic_file) )
 
         set_image_list(il)
         
@@ -89,8 +89,8 @@ class TestNB < Wx::Notebook
         add_page(win, "INDIAN RED")
         
         
-        evt_notebook_page_changed(self.get_id()) {|event| on_page_changed(event)}
-        evt_notebook_page_changing(self.get_id()) {|event| on_page_changing(event)}
+        evt_notebook_page_changed(self.get_id) {|event| on_page_changed(event)}
+        evt_notebook_page_changing(self.get_id) {|event| on_page_changing(event)}
     end
     
     def make_color_panel(color)
@@ -101,19 +101,19 @@ class TestNB < Wx::Notebook
     end
     
     def on_page_changed(event)
-        old = event.get_old_selection()
-        new = event.get_selection()
-        sel = get_selection()
-        @log.write_text("on_page_changed, old:" + old.to_s() + ", new:" + new.to_s() + ", sel:" + sel.to_s())
-        event.skip()
+        old = event.get_old_selection
+        new = event.get_selection
+        sel = get_selection
+        @log.write_text("on_page_changed, old:" + old.to_s + ", new:" + new.to_s + ", sel:" + sel.to_s)
+        event.skip
     end
     
     def on_page_changing(event)
-        old = event.get_old_selection()
-        new = event.get_selection()
-        sel = get_selection()
-        @log.write_text("on_page_changing, old:" + old.to_s() + ", new:" + new.to_s() + ", sel:" + sel.to_s())
-        event.skip()
+        old = event.get_old_selection
+        new = event.get_selection
+        sel = get_selection
+        @log.write_text("on_page_changing, old:" + old.to_s + ", new:" + new.to_s + ", sel:" + sel.to_s)
+        event.skip
     end
 end
 

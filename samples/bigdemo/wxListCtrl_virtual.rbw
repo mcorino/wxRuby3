@@ -34,33 +34,33 @@ class TestVirtualList < Wx::ListCtrl
         # Important - call this 
         self.item_count = 10_000
         
-        @attr1 = Wx::ItemAttr.new()
+        @attr1 = Wx::ItemAttr.new
         @attr1.set_background_colour(Wx::Colour.new("YELLOW"))
         
-        @attr2 = Wx::ItemAttr.new()
+        @attr2 = Wx::ItemAttr.new
         @attr2.set_background_colour(Wx::Colour.new("LIGHT BLUE"))
         
-        evt_list_item_selected(get_id()) {|event| on_item_selected(event)}
-        evt_list_item_activated(get_id()) {|event| on_item_activated(event)}
-        evt_list_item_deselected(get_id()) {|event| on_item_deselected(event)}
+        evt_list_item_selected(get_id) {|event| on_item_selected(event)}
+        evt_list_item_activated(get_id) {|event| on_item_activated(event)}
+        evt_list_item_deselected(get_id) {|event| on_item_deselected(event)}
     end
     
     def on_item_selected(event)
-        @currentItem = event.get_index()
-        @item = event.get_item()
+        @currentItem = event.get_index
+        @item = event.get_item
         get_column(1,@item)
         
         @log.write_text('on_item_selected: "%s", "%s", "%s", "%s"' % [@currentItem, get_item_text(@currentItem), 
-                            @item.get_text(), get_column(2,@item) ? @item.get_text() : nil])
+                            @item.get_text, get_column(2,@item) ? @item.get_text : nil])
     end
     
     def on_item_activated(event)
-        @currentItem = event.get_index()
-        @log.write_text("on_item_activated: %s\nTopItem: %s" % [get_item_text(@currentItem), get_top_item()])
+        @currentItem = event.get_index
+        @log.write_text("on_item_activated: %s\nTopItem: %s" % [get_item_text(@currentItem), get_top_item])
     end
     
     def on_item_deselected(event)
-        @log.write_text("on_item_deselected: %s" % event.get_index())
+        @log.write_text("on_item_deselected: %s" % event.get_index)
     end
     
     # These three following methods are callbacks for implementing the

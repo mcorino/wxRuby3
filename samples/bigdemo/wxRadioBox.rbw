@@ -41,15 +41,15 @@ class TestRadioButtons < Wx::Panel
         
         set_sizer(sizer)
         sizer.fit(self)
-        sizer.layout()
+        sizer.layout
     end
     
     def on_evt_radiobox(event)
-        @log.write_text("evt_radiobox: " + event.get_int().to_s())
+        @log.write_text("evt_radiobox: " + event.get_int.to_s)
     end
     
     def on_evt_radio_button(event)
-        @log.write_text("evt_radiobutton: " + event.get_id().to_s())
+        @log.write_text("evt_radiobutton: " + event.get_id.to_s)
     end
 end
 

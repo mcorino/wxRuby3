@@ -22,7 +22,7 @@ class MyParentFrame < Wx::MDIParentFrame
         menu.append_separator
         menu.append(5001, "E&xit")
         
-        menubar = Wx::MenuBar.new()
+        menubar = Wx::MenuBar.new
         menubar.append(menu, "&File")
         set_menu_bar(menubar)
         
@@ -36,7 +36,7 @@ class MyParentFrame < Wx::MDIParentFrame
     end
     
     def on_exit(event)
-        close()
+        close
     end
     
     def on_new_window(event)

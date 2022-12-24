@@ -103,7 +103,7 @@ class MyCanvas < Wx::ScrolledWindow
         dc.set_brush(Wx::TRANSPARENT_BRUSH)
         dc.set_pen(Wx::Pen.new(Wx::Colour.new(0xFF, 0x20, 0xFF), 1, Wx::PENSTYLE_SOLID))
         dc.draw_rectangle(450, 50, 100, 100)
-        old_pen = dc.get_pen()
+        old_pen = dc.get_pen
         new_pen = Wx::Pen.new(Wx::BLACK, 5, Wx::PENSTYLE_SOLID)
         dc.set_pen(new_pen)
         dc.draw_rectangle(470, 70, 60, 60)
@@ -117,7 +117,7 @@ class MyCanvas < Wx::ScrolledWindow
         dc.set_pen(Wx::Pen.new(Wx::Colour.new('MEDIUM FOREST GREEN'), 4, Wx::PENSTYLE_SOLID))
         @lines.each do |line|
             line.each do |coords|
-                coords.flatten!()
+                coords.flatten!
                 dc.draw_line(coords[0], coords[1], coords[2], coords[3])
             end
         end
@@ -134,28 +134,28 @@ class MyCanvas < Wx::ScrolledWindow
     end
     
     def on_left_button_event_down(event)
-        if event.left_is_down() and !@drawing
-            set_focus()
+        if event.left_is_down and !@drawing
+            set_focus
             set_XY(event)
             @event_x_old =  event.get_x # added this to save the current absolute...
             @event_y_old = event.get_y  # ... mouse position
             @curLine = []
-            capture_mouse()
+            capture_mouse
             @drawing = true
         end
     end
     
     def on_left_button_event_up(event)
-        if !event.left_is_down() and @drawing
+        if !event.left_is_down and @drawing
             @lines.push(@curLine)
             @curLine = []
-            release_mouse()
+            release_mouse
             @drawing = false
         end
     end
     
     def on_left_button_event_motion(event)
-        if event.left_is_down() and @drawing
+        if event.left_is_down and @drawing
 #             if $BUFFERED
 #                 # If doing buffered drawing, create the buffered DC, giving it
 #                 # it a real DC to blit to when done.
@@ -170,7 +170,7 @@ class MyCanvas < Wx::ScrolledWindow
             save_coords = [@x, @y] + convert_event_coords(event)             # translate the absolute coords to save them in the array
             coords = [@event_x_old, @event_y_old, event.get_x, event.get_y]  # the absolute coords to use for the first draw
             @curLine.push(save_coords)                                       # use the translated coords here
-            coords.flatten!()
+            coords.flatten!
             dc.draw_line(coords[0], coords[1], coords[2], coords[3])         # and the absolute coords here
             set_XY(event)
             @event_x_old = event.get_x                                       # saving the new ...

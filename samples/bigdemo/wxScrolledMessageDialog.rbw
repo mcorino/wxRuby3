@@ -39,9 +39,9 @@ end
 module Demo
     def Demo.run(frame, nb, log)
         f = open(__FILE__, "r")
-        msg = f.read()
+        msg = f.read
         dlg = ScrolledMessageDialog.new(frame, msg, "message test")
-        dlg.show_modal()
+        dlg.show_modal
     end
 
     def Demo.overview

@@ -28,7 +28,7 @@ class ChoiceDlg < Dialog
     dlgSizer.add(choiceSizer, 1, GROW)
     set_sizer(dlgSizer)
     set_auto_layout(true)
-    layout()
+    layout
 
     evt_choice(ID_CHOICE) { |event| onChoice(event) }
     evt_close { onClose }
@@ -49,7 +49,7 @@ class ChoiceDlg < Dialog
   end
 
   def onClose
-    destroy()
+    destroy
   end
 end
 

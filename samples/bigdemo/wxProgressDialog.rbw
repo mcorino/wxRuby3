@@ -27,7 +27,7 @@ module Demo
                 keepGoing = dlg.update(count)
             end
         end
-        dlg.destroy()
+        dlg.destroy
         return nil
     end
     

@@ -35,7 +35,7 @@ class TestPanel < Wx::Panel
   end
   
   def on_evt_listbox(event)
-    @log.write_text("evt_listbox: " + event.get_string())
+    @log.write_text("evt_listbox: " + event.get_string)
   end
   
   def on_evt_listbox_dclick(event)

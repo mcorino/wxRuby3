@@ -23,25 +23,25 @@ class CustomStatusBar < Wx::StatusBar
         self.set_status_text("A Custom StatusBar...", 0)
         
         @cb = Wx::CheckBox.new(self, 1001, "toggle clock")
-        evt_checkbox(@cb.get_id()) {|event| on_toggle_clock(event)}
+        evt_checkbox(@cb.get_id) {|event| on_toggle_clock(event)}
         @cb.set_value(true)
         
         # set the initial position of the checkbox
-        self.reposition()
+        self.reposition
         
         # start our timer
         @timer = Wx::Timer.new(self, 5000)
-        # note that you cannot call @timer.get_id() - this method is not supported, therefore an explicit ID is required 
+        # note that you cannot call @timer.get_id - this method is not supported, therefore an explicit ID is required 
         # in order to capture the event for your event handler
         evt_timer(5000) {|event| notify(event)}
         # The second parameter is supposed to default to false (meaning it should fire off events continuously), but for
         # some reason if I don't explicitly pass in false, it fires only once.  If someone figures this out, please let 
         # me know :)  What makes it even more confusing is that when I toggle the clock off using the checkbox, and then
         # restart it, there is no need to pass in false for the second parameter - it is assumed to be false there
-        # To further complicate the situation, it appears that if I call stop(), call start(1000), it takes the parameter
+        # To further complicate the situation, it appears that if I call stop, call start(1000), it takes the parameter
         # to default as false, meaning fire the event continuously?  Perhaps this is a Windows only issue?
         @timer.start(1000)
-        @timer.stop()
+        @timer.stop
         @timer.start(1000)
     end
     
@@ -55,15 +55,15 @@ class CustomStatusBar < Wx::StatusBar
     
     # the checkbox was clicked
     def on_toggle_clock(event)
-        if @cb.get_value()
+        if @cb.get_value
             @timer.start(1000)
         else
-            @timer.stop()
+            @timer.stop
         end
     end
     
     def on_size(event)
-        self.reposition() # for normal size events
+        self.reposition # for normal size events
         
         # Set a flag so the idle time handler will also do the repositioning.
         # It is done this way to get around a buglet where GetFieldRect is not
@@ -74,12 +74,12 @@ class CustomStatusBar < Wx::StatusBar
     
     def on_idle(event)
         if @sizeChanged
-            self.reposition()
+            self.reposition
         end
-        event.request_more()
+        event.request_more
     end
     
-    def reposition()
+    def reposition
         rect = get_field_rect(1)
         @cb.move(Wx::Point.new(rect.x + 2, rect.y + 2))
         @cb.set_size(Wx::Size.new(rect.width - 4, rect.height - 4))
@@ -100,8 +100,8 @@ class TestCustomStatusBar < Wx::Frame
     end
     
     def on_close_window(event)
-        @sb.timer.stop()
-        destroy()
+        @sb.timer.stop
+        destroy
     end
 end
 
@@ -109,7 +109,7 @@ module Demo
     def Demo.run(frame,nb,log)
         win = TestCustomStatusBar.new(frame, log)
         frame.otherWin = win
-        win.show()
+        win.show
         return nil
     end
     

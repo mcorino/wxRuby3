@@ -26,9 +26,9 @@ class RunFrame < Wx::Frame
 
     create_status_bar
     
-    menu_file = Wx::Menu.new()
+    menu_file = Wx::Menu.new
     menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
-    menu_bar = Wx::MenuBar.new()
+    menu_bar = Wx::MenuBar.new
     menu_bar.append(menu_file, "&File")
     evt_menu(Wx::ID_EXIT) { close }
 
@@ -45,7 +45,7 @@ end
 class MinimalApp < Wx::App
   def initialize(sample)
     @sample = sample
-    super()
+    super
   end
 
   def on_init

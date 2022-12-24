@@ -30,15 +30,15 @@ class TestPanel < Wx::Panel
     @log.write_text( "on_cal_selected: " + event.date.strftime("%F") )
   end
   
-  # missing get_current_month() method
+  # missing get_current_month method
   def on_change_month(event)
-    #~ cur_month = @cal.get_date().get_current_month() + 1
+    #~ cur_month = @cal.get_date.get_current_month + 1
     #~ @holidays.each do |date|
     #~ if date[0] == cur_month
     #~ @cal.set_holiday(date[1])
     #~ end
     #~ end
-    event.skip()
+    event.skip
   end
 end
 

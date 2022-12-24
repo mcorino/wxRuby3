@@ -18,11 +18,11 @@ class MinimalFrame < Wx::Frame
     super(nil, -1, title, pos, size, style)
 
 
-    menuFile = Wx::Menu.new()
-    helpMenu = Wx::Menu.new()
+    menuFile = Wx::Menu.new
+    helpMenu = Wx::Menu.new
     helpMenu.append(Wx::ID_ABOUT, "&About...\tF1", "Show about dialog")
     menuFile.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
-    menuBar = Wx::MenuBar.new()
+    menuBar = Wx::MenuBar.new
     menuBar.append(menuFile, "&File")
     menuBar.append(helpMenu, "&Help")
     set_menu_bar(menuBar)
@@ -77,8 +77,8 @@ class RbApp < Wx::App
                                 Wx::Point.new(100, 100), 
                                 Wx::Size.new(300, 180))
     evt_activate_app { | e | on_activate_app(e) }
-    @frame_1.show()
-    @frame_2.show()
+    @frame_1.show
+    @frame_2.show
 
   end
 

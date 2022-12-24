@@ -18,7 +18,7 @@ class TestPanel < Wx::Panel
         evt_button(10) {|event| on_click(event)}
         b.set_background_colour(Wx::BLUE)
         b.set_foreground_colour(Wx::WHITE)
-        b.set_default()
+        b.set_default
         
         b = Wx::Button.new(self, 20, "HELLO AGAIN!", Wx::Point.new(20,60), Wx::Size.new(120,45))
         evt_button(20) {|event| on_click(event)}
@@ -38,7 +38,7 @@ class TestPanel < Wx::Panel
     end
     
     def on_click(event)
-        @log.write_text("Click! %d" % event.get_id())
+        @log.write_text("Click! %d" % event.get_id)
     end
 
 

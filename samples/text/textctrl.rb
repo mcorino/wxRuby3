@@ -20,13 +20,13 @@ class InformativeTextCtrl < Wx::TextCtrl
 
   # run through a few useful methods of textctrl and report the results
   # as a string
-  def report()
+  def report
     report = ''
-    report << 'Insertion Point: ' << get_insertion_point.to_s() << "\n"
+    report << 'Insertion Point: ' << get_insertion_point.to_s << "\n"
     report << 'First Line Text: ' << get_line_text(0) << "\n"
-    report << 'Final Position: ' << get_last_position().to_s() << "\n"
-    report << 'Selection: ' << get_selection().inspect() << "\n"
-    report << 'String Selection: ' << get_string_selection().inspect << "\n"
+    report << 'Final Position: ' << get_last_position.to_s << "\n"
+    report << 'Selection: ' << get_selection.inspect << "\n"
+    report << 'String Selection: ' << get_string_selection.inspect << "\n"
     report << 'Position to X, Y: ' << 
                position_to_xy( get_insertion_point ).inspect
     return report
@@ -49,7 +49,7 @@ class TextCtrlFrame < Wx::Frame
     sizer = Wx::BoxSizer.new(Wx::VERTICAL)
 
     @textctrl = InformativeTextCtrl.new(panel)
-    populate_textctrl()
+    populate_textctrl
     sizer.add(@textctrl, 2, Wx::GROW|Wx::ALL, 2)
 
     button = Wx::Button.new(panel, :label => 'Get Info')
@@ -61,7 +61,7 @@ class TextCtrlFrame < Wx::Frame
     panel.sizer = sizer
   end
 
-  def populate_textctrl()
+  def populate_textctrl
     @textctrl << "This is some plain text\n"
     @textctrl << "Text with green letters and yellow background\n"
     @textctrl << "This is some more plain text"
@@ -71,15 +71,15 @@ class TextCtrlFrame < Wx::Frame
     @textctrl.set_style(24, 69, attr)
   end
 
-  def construct_menus()
-    menu_bar = Wx::MenuBar.new()
+  def construct_menus
+    menu_bar = Wx::MenuBar.new
 
-    menu_file = Wx::Menu.new()
+    menu_file = Wx::Menu.new
     menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
     menu_bar.append(menu_file, "&File")
     evt_menu Wx::ID_EXIT, :on_quit
 
-    menu_help = Wx::Menu.new()
+    menu_help = Wx::Menu.new
     menu_help.append(Wx::ID_ABOUT, "&About...\tF1", "Show about dialog")
     evt_menu Wx::ID_ABOUT, :on_about
     menu_bar.append(menu_help, "&Help")
@@ -108,4 +108,3 @@ Wx::App.run do
                              :size => [ 450, 340 ] )
   frame.show
 end
-

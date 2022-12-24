@@ -251,7 +251,7 @@ class RichTextFrame < Wx::Frame
 #    data.enable_effects(false)
 
     dlg = Wx::FontDialog.new(self, data)
-    if dlg.show_modal() == Wx::ID_OK
+    if dlg.show_modal == Wx::ID_OK
       data = dlg.font_data
       @editor.font = data.chosen_font
     end
@@ -260,7 +260,7 @@ class RichTextFrame < Wx::Frame
   def open_file
     dlg = Wx::FileDialog.new(self, "Open file", @cur_dir, @cur_file, @file_open_wildcard, Wx::FD_OPEN)
     dlg.filter_index = @cur_filter_index
-    if dlg.show_modal() == Wx::ID_OK
+    if dlg.show_modal == Wx::ID_OK
       @editor.load_file(dlg.path, Wx::RICHTEXT_TYPE_ANY)
       update_from_file dlg
     end
@@ -269,7 +269,7 @@ class RichTextFrame < Wx::Frame
   def save_file
     dlg = Wx::FileDialog.new(self, "Save file as...", @cur_dir, @cur_file, @file_save_wildcard, Wx::FD_SAVE)
     dlg.filter_index = @cur_filter_index
-    if dlg.show_modal() == Wx::ID_OK
+    if dlg.show_modal == Wx::ID_OK
       @editor.save_file(dlg.path, Wx::RICHTEXT_TYPE_ANY)
       update_from_file dlg
     end

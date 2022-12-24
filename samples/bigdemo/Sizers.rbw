@@ -470,7 +470,7 @@ class TestFrame < Wx::Frame
         
         method = Object.method(sizerFunc)
         @sizer = method.call(self)
-        create_status_bar()
+        create_status_bar
         set_status_text("Resize this frame to see how the sizers respond...")
         @sizer.fit(self)
         
@@ -480,7 +480,7 @@ class TestFrame < Wx::Frame
     
     def on_close_window(event)
         make_modal(false)
-        destroy()
+        destroy
     end
     
     def on_button(event)
@@ -507,19 +507,19 @@ class TestSelectionPanel < Wx::Panel
 	end
     
     def on_select(event)
-        pos = @list.get_selection()
+        pos = @list.get_selection
         @text.set_value($theTests[pos][2])
     end
     
     def on_d_click(event)
-        pos = @list.get_selection()
+        pos = @list.get_selection
         title = $theTests[pos][0]
         func = $theTests[pos][1]
         
         if func
             win = TestFrame.new(self, title, func)
             win.centre_on_parent(Wx::BOTH)
-            win.show()
+            win.show
             win.make_modal(true)
         end
     end

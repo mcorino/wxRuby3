@@ -15,10 +15,10 @@ class TestPanel < Wx::Panel
         @log = log
         
         b = Wx::Button.new(self, -1, "Show Find Dialog", Wx::Point.new(25, 50))
-        evt_button(b.get_id()) {|event| on_show_find(event)}
+        evt_button(b.get_id) {|event| on_show_find(event)}
         
         b = Wx::Button.new(self, -1, "Show Find && Replace Dialog", Wx::Point.new(25, 90))
-        evt_button(b.get_id()) {|event| on_show_find_replace(event)}
+        evt_button(b.get_id) {|event| on_show_find_replace(event)}
         
         evt_find(-1) {|event| on_find(event)}
         evt_find_next(-1) {|event| on_find(event)}
@@ -28,14 +28,14 @@ class TestPanel < Wx::Panel
     end
     
     def on_show_find(evt)
-        data = Wx::FindReplaceData.new()
+        data = Wx::FindReplaceData.new
         dlg = Wx::FindReplaceDialog.new(self, data, "Find")
         #dlg.data = data # save a reference to it
         dlg.show(true)
     end
     
     def on_show_find_replace(evt)
-        data = Wx::FindReplaceData.new()
+        data = Wx::FindReplaceData.new
         dlg = Wx::FindReplaceDialog.new(self, data, "Find & Replace", Wx::FR_REPLACEDIALOG)
         #dlg.data = data # save a reference to it
         dlg.show(true)
@@ -45,16 +45,16 @@ class TestPanel < Wx::Panel
         map = {Wx::EVT_COMMAND_FIND => "FIND", Wx::EVT_COMMAND_FIND_NEXT => "FIND_NEXT", Wx::EVT_COMMAND_FIND_REPLACE => "REPLACE",
                 Wx::EVT_COMMAND_FIND_REPLACE_ALL => "REPLACE_ALL"}
         map.default = "**Unknown Event Type**"
-        et = evt.get_event_type()
+        et = evt.get_event_type
         evtType = map[et]
         
         if et == Wx::EVT_COMMAND_FIND_REPLACE or et == Wx::EVT_COMMAND_FIND_REPLACE_ALL
-            replaceTxt = "Replace text: " + evt.get_replace_string()
+            replaceTxt = "Replace text: " + evt.get_replace_string
         else
             replaceTxt = ""
         end
         
-        @log.write_text(evtType.to_s + " -- Find text: " + evt.get_find_string() + " " + replaceTxt + " Flags: " + evt.get_flags.to_s)
+        @log.write_text(evtType.to_s + " -- Find text: " + evt.get_find_string + " " + replaceTxt + " Flags: " + evt.get_flags.to_s)
         
     end
     

@@ -71,12 +71,12 @@ class TestPanel < Wx::Panel
         @panel = panel
         
         @group1_ctrls.each_value do |ctrl| 
-            evt_radiobutton(ctrl[0].get_id()) {|event| on_group1_select(event)}
+            evt_radiobutton(ctrl[0].get_id) {|event| on_group1_select(event)}
             ctrl[0].set_value(0)
             ctrl[1].enable(false)
         end
         #@group2_ctrls.each_value do |ctrl| 
-        #    evt_radiobutton(ctrl[0].get_id()) {|event| on_group2_select(event)}
+        #    evt_radiobutton(ctrl[0].get_id) {|event| on_group2_select(event)}
         #    ctrl[0].set_value(0)
         #    ctrl[1].enable(false)
         #end
@@ -84,9 +84,9 @@ class TestPanel < Wx::Panel
     
     def on_group1_select(event)
         @group1_ctrls.each_value do |ctrl|
-            if ctrl[0].get_value() == true
+            if ctrl[0].get_value == true
                 ctrl[1].enable(true)
-                @log.write_text("Group 1 " + ctrl[0].get_label() + " selected")
+                @log.write_text("Group 1 " + ctrl[0].get_label + " selected")
             else
                 ctrl[1].enable(false)
             end
@@ -95,9 +95,9 @@ class TestPanel < Wx::Panel
     
     def on_group2_select(event)
         @group2_ctrls.each_value do |ctrl|
-            if ctrl[0].get_value() == true
+            if ctrl[0].get_value == true
                 ctrl[1].enable(true)
-                @log.write_text("Group 2 " + ctrl[0].get_label() + " selected")
+                @log.write_text("Group 2 " + ctrl[0].get_label + " selected")
             else
                 ctrl[1].enable(false)
             end

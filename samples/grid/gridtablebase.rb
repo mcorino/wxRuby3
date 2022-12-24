@@ -21,7 +21,7 @@ require 'wx'
 class MyGridTable < Wx::Grids::GridTableBase
   attr_reader :cols, :rows
   def initialize(rows, cols)
-    super()
+    super
     @rows = rows
     @cols = cols
     @number_col = 1
@@ -109,7 +109,7 @@ class MyGridTable < Wx::Grids::GridTableBase
 end
 
 class GridFrame < Wx::Frame
-  def initialize()
+  def initialize
     super(nil, :title => 'GridTableBase demo', :size => [600, 300])
     main_sizer = Wx::VBoxSizer.new
     # Create a grid and associate an instance of the GridTable as the

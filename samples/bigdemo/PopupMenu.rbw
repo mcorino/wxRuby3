@@ -19,7 +19,7 @@ class TestPanel < Wx::Panel
         box = Wx::BoxSizer.new(Wx::VERTICAL)
         
         # Make and layout controls
-        fs = get_font().get_point_size()
+        fs = get_font.get_point_size
         bf = Wx::Font.new(fs + 4, Wx::SWISS, Wx::NORMAL, Wx::BOLD)
         nf = Wx::Font.new(fs + 2, Wx::SWISS, Wx::NORMAL, Wx::NORMAL)
         
@@ -52,7 +52,7 @@ class TestPanel < Wx::Panel
             @popupID6,
             @popupID7,
             @popupID8,
-            @popupID9 = (5000..5008).to_a()
+            @popupID9 = (5000..5008).to_a
             evt_menu(@popupID1) {|event| on_popup_one(event)}
             evt_menu(@popupID2) {|event| on_popup_two(event)}
             evt_menu(@popupID3) {|event| on_popup_three(event)}
@@ -66,7 +66,7 @@ class TestPanel < Wx::Panel
         end
         
         # make a menu
-        menu = Wx::Menu.new()
+        menu = Wx::Menu.new
         # Show how to put an icon in the menu
         item = Wx::MenuItem.new(menu, @popupID1, "One")
         # set_bitmap is only available on GTK and Windows
@@ -82,14 +82,14 @@ class TestPanel < Wx::Panel
         menu.append(@popupID5, "Five")
         menu.append(@popupID6, "Six")
         # make a submenu
-        sm = Wx::Menu.new()
+        sm = Wx::Menu.new
         sm.append(@popupID8, "sub item 1")
         sm.append(@popupID9, "sub item 2")
         mItem = Wx::MenuItem.new(menu, @popupID7, "Test Submenu", "", Wx::ITEM_NORMAL, sm)
         menu.append_item(mItem)
         
-        popup_menu(menu, Wx::Point.new(event.get_x(), event.get_y()))
-        #menu.destroy()
+        popup_menu(menu, Wx::Point.new(event.get_x, event.get_y))
+        #menu.destroy
     end
     
     def on_popup_one(event)

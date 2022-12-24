@@ -9,7 +9,7 @@ require 'wx'
 
 class GfxInfo
   attr_accessor :font, :w, :h, :x, :y, :x_axis, :y_axis, :txt, :rotation
-  def initialize()
+  def initialize
     @font = nil
     @w = 0
     @h = 0
@@ -102,15 +102,15 @@ class GraphicsWindow < Wx::Window
   
   def create_resources(gdc)
     # Create our Resource Class for holding the Text to be displayed
-    @rtxt = GfxInfo.new()
-    @gtxt = GfxInfo.new()
-    @btxt = GfxInfo.new()
+    @rtxt = GfxInfo.new
+    @gtxt = GfxInfo.new
+    @btxt = GfxInfo.new
     # Store our fonts, and strings into the classes
     @rtxt[:font] = gdc.create_font(@font,Wx::RED); @rtxt[:txt] = "This is a red string"
     @gtxt[:font] = gdc.create_font(@font,Wx::GREEN); @gtxt[:txt] = "This is a green string"
     @btxt[:font] = gdc.create_font(@font,Wx::BLUE); @btxt[:txt] = "This is a blue string"
     # Create the GraphicsContext resources.  For some reason, unable to utilize
-    # GraphicsContext#create(wxWindow) to create these resources in initialize().
+    # GraphicsContext#create(wxWindow) to create these resources in initialize.
     @rbrush = gdc.create_brush(RED_BRUSH)
     @gbrush = gdc.create_brush(GREEN_BRUSH)
     @bbrush = gdc.create_brush(BLUE_BRUSH)
@@ -121,7 +121,7 @@ class GraphicsWindow < Wx::Window
   
   def get_extents(gdc)
     # Since we need a GDC and the text to get the extents, we do this in a
-    # separate method, though we should be able to do it with create_resources()
+    # separate method, though we should be able to do it with create_resources
     width,height,*garbage = gdc.get_text_extent(@rtxt[:txt])
     @rtxt[:w] = width.to_i; @rtxt[:h] = height.to_i
     width,height,*garbage = gdc.get_text_extent(@gtxt[:txt])
@@ -130,10 +130,10 @@ class GraphicsWindow < Wx::Window
     @btxt[:w] = width.to_i; @btxt[:h] = height.to_i
   end
   
-  def setup_positions()
+  def setup_positions
     # Setup our initial positions for drawing.
     @rtxt[:x] = @rtxt[:y] = 0
-    size = self.get_client_size()
+    size = self.get_client_size
     pos_x = (size.width / 2) #- (@gtxt[:w] / 2)
     pos_y = (size.height / 2) #- (@gtxt[:h] / 2)
     @gtxt[:x] = pos_x
@@ -142,7 +142,7 @@ class GraphicsWindow < Wx::Window
     @btxt[:y] = (size.height - @btxt[:h])
   end
   
-  def animate()
+  def animate
     # This routine manily animates the Text, which is also is handled by the
     # GfxInfo class as well.  Mainly in #rotate and #move.
     rect = self.get_client_size
@@ -150,7 +150,7 @@ class GraphicsWindow < Wx::Window
     @gtxt.rotate(-0.01) unless @gtxt.nil?
     @btxt.move(rect.width,rect.height,5) unless @btxt.nil?
     # We're now ready to draw our stuff to the window
-    refresh()
+    refresh
   end
   
   def on_paint
@@ -165,7 +165,7 @@ class GraphicsWindow < Wx::Window
       unless @rtxt[:w] != 0
         gdc.set_font(@rtxt[:font])
         get_extents(gdc)
-        setup_positions()
+        setup_positions
       end
       @rtxt.draw(gdc)
       @gtxt.draw(gdc)
@@ -197,7 +197,7 @@ class GraphicsWindow < Wx::Window
 end
 
 class GraphicsFrame < Wx::Frame
-  def initialize()
+  def initialize
     super(nil, title: "Graphics Context example", size: [500,400])
 
     @win = GraphicsWindow.new(self)
@@ -227,7 +227,7 @@ class GraphicsFrame < Wx::Frame
     @win.corner.size = [ rect.width - 4, rect.height - 4 ]
   end
 
-  def fps_display()
+  def fps_display
     get_status_bar.set_status_text("Frames per sec: #{@win.fps}", 0)
     @win.fps = 0
   end

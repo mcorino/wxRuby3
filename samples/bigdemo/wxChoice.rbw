@@ -24,7 +24,7 @@ class TestChoice < Wx::Panel
     end
     
     def on_evt_choice(event)
-        @log.write_text("evt_choice: " + event.get_string())
+        @log.write_text("evt_choice: " + event.get_string)
         @ch.append("A new item")
     end
 end

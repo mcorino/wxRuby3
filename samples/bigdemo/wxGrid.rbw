@@ -27,7 +27,7 @@ class ButtonPanel < Wx::Panel
         
         box = Wx::BoxSizer.new(Wx::VERTICAL)
         box.add(20,30)
-        keys = $buttonDefs.keys().sort()
+        keys = $buttonDefs.keys.sort
         keys.each do |key| 
             text = $buttonDefs[key][1]
             btn = Wx::Button.new(self, key, text)
@@ -38,12 +38,12 @@ class ButtonPanel < Wx::Panel
     end
     
     def on_button(event)
-        modName = $buttonDefs[event.get_id()][0]
+        modName = $buttonDefs[event.get_id][0]
         mod_file = File.join(File.dirname(__FILE__), modName + ".rbw")
         load mod_file
         
         frame = GridDemo::TestFrame.new(nil, @log)
-        frame.show()
+        frame.show
     end
 end
 

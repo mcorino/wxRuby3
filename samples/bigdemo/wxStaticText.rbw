@@ -27,7 +27,7 @@ class TestPanel < Wx::Panel
         text = Wx::StaticText.new(self, -1, str, Wx::Point.new(20, 100))
         font = Wx::Font.new(18, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
         text.set_font(font)
-        #text.set_size(text.get_best_size())
+        #text.set_size(text.get_best_size)
 
         Wx::StaticText.new(self, -1, "Multi-line Wx::StaticText\nline 2\nline 3\n\nafter empty line", Wx::Point.new(20,150))
         Wx::StaticText.new(self, -1, "Align right multi-line\nline 2\nline 3\n\nafter empty line", Wx::Point.new(220,150), 

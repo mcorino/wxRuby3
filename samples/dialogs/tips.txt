@@ -15,4 +15,4 @@ Translatable strings must strictly begin with _(", not _( " or wxGetTranslation(
 If you are using gettext translatable strings, don't forget to escape to replace any " characters within the tip with a \" instead
 _("This is a translatable tip with the quoted words \"Escape me\" properly escaped.")
 If you have very specialized needs, you can derive your own wxTipProvider and use that instead.
-If you want to modify the tip content at runtime for purposes other than translation (for example, variable expansion), one easy option is to use a custom tip provider derived from wxFileTipProvider. Your custom tip provider would contain a single virtual function to override: PreprocessTip().
+If you want to modify the tip content at runtime for purposes other than translation (for example, variable expansion), one easy option is to use a custom tip provider derived from wxFileTipProvider. Your custom tip provider would contain a single virtual function to override: PreprocessTip.

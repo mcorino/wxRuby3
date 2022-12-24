@@ -14,18 +14,18 @@ class MySplitter < Wx::SplitterWindow
         super(parent, id)
         @log = log
         
-        evt_splitter_sash_pos_changed(self.get_id()) {|event| on_sash_changed(event)}
-        evt_splitter_sash_pos_changing(self.get_id()) {|event| on_sash_changing(event)}
+        evt_splitter_sash_pos_changed(self.get_id) {|event| on_sash_changed(event)}
+        evt_splitter_sash_pos_changing(self.get_id) {|event| on_sash_changing(event)}
     end
     
     def on_sash_changed(event)
-        @log.write_text("sash changed to: " + event.get_sash_position().to_s())
+        @log.write_text("sash changed to: " + event.get_sash_position.to_s)
         # uncomment this to not allow the change
         #evt.set_sash_position(-1)
     end
     
     def on_sash_changing(event)
-        @log.write_text("sash changing to: " + event.get_sash_position().to_s())
+        @log.write_text("sash changing to: " + event.get_sash_position.to_s)
         # uncomment this to not allow the change
         #evt.set_sash_position(-1)
 
