@@ -18,6 +18,8 @@ module WXRuby3
           spec.items << 'wxBitmapBundle'
           spec.gc_as_object 'wxBitmapBundle'
           spec.ignore 'wxBitmapBundle::FromSVG(char *,const wxSize &)'
+          # not useful in Ruby
+          spec.ignore 'wxBitmapBundle::wxBitmapBundle(const char * const *)'
           # disable the wxBitmapBundle typemap for the copy constructor
           spec.map_disable 'const wxBitmapBundle&'
           # add typemap for bitmap vectors
