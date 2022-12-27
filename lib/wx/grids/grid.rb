@@ -66,6 +66,7 @@ class Wx::Grids::Grid
     @__grid_table = table
   end
   alias :set_table :assign_table
+  alias :table= :assign_table
 
   # Store the renderers / editors associated with types, if used
   alias :__register_data_type :register_data_type
