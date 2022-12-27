@@ -398,6 +398,57 @@ module WXRuby3
             __CODE
         end
 
+        # typemap to provide backward compatibility for BitmapBundle
+        if Config.instance.wx_version > '3.1.5'
+          map 'const wxBitmapBundle&' do
+            add_header_code <<~__CODE
+              inline bool wx_IsBitmap(VALUE obj)
+              {
+                VALUE bitmapKlass = rb_const_get(wxRuby_Core(), rb_intern("Bitmap"));
+                return rb_obj_is_kind_of(obj, bitmapKlass);
+              }
+              inline bool wx_IsBitmapBundle(VALUE obj)
+              {
+                VALUE bundleKlass = rb_const_get(wxRuby_Core(), rb_intern("BitmapBundle"));
+                return rb_obj_is_kind_of(obj, bundleKlass);
+              }
+              __CODE
+            map_in from: 'Wx::Bitmap,Wx::BitmapBundle', temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
+              $1 = &tmpBundle;
+              if ($input != Qnil)
+              {
+                bool is_bundle = false;
+                if (TYPE($input) == T_DATA 
+                      &&
+                      ((is_bundle = wx_IsBitmapBundle($input)) ||wx_IsBitmap($input))
+                   ) 
+                {
+                  void *ptr;
+                  Data_Get_Struct($input, void, ptr);
+                  if (ptr)
+                  {
+                    if (is_bundle)
+                      tmpBundle = *static_cast<wxBitmapBundle*> (ptr);
+                    else
+                      tmpBundle = wxBitmapBundle(*static_cast<wxBitmap*> (ptr)); 
+                  }
+                  else
+                  {
+                    rb_raise(rb_eArgError, "Object already deleted $1_basetype parameter $argnum");
+                  }
+                }
+                else
+                {
+                  rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter $argnum");
+                }
+              }
+              __CODE
+            map_typecheck precedence: 1, code: <<~__CODE
+            $1 = ($input != Qnil && TYPE($input) == T_DATA && (wx_IsBitmapBundle($input) || wx_IsBitmap($input)));
+            __CODE
+          end
+        end
+
       end # define
 
     end # Common
