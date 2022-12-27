@@ -10,7 +10,7 @@ module WXRuby3
     # represents a basic parameter definition
     class ParameterBase
       PTR_RE = /\A(\*|&)\s*([_a-zA-Z]\w*)?\Z/
-      CONST_RE = /(\Aconst|\Wconst)\W/
+      CONST_RE = /(\A|\W)const(\W|\Z)/
       MULTI_WORD_TYPES = %w[char short int long]
       def initialize(param)
         @array = false
@@ -33,7 +33,7 @@ module WXRuby3
           end
           @ctype = list.join(' ') # put type string back together
           # strip all 'const' modifiers
-          tmp = @ctype.gsub(CONST_RE) { |s| "#{s.start_with?('c') ? '' : s[0]}#{s[-1]}" }
+          tmp = @ctype.gsub(CONST_RE) { |s| "#{$1}#{$2 ? $2.strip : $2}" }
           # check if there is still an identifier left
           if /\w+/ =~ tmp
             # is this really a name or part of multiword type?
