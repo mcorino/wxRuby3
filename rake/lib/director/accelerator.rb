@@ -21,26 +21,24 @@ module WXRuby3
         spec.ignore 'wxAcceleratorEntry::operator!='
         spec.add_header_code <<~__HEREDOC
           // Allow integer keycodes to be specified with a single-ASCII-character
-          // Ruby string. Slightly different approaches are needed for Ruby 1.8 and
-          // Ruby 1.9. 
-          int wxRuby_RubyStringOrIntToKeyCode(VALUE rb_key) {
-            if ( TYPE(rb_key) == T_FIXNUM ) {
+          // Ruby string.
+          int wxRuby_RubyStringOrIntToKeyCode(VALUE rb_key) 
+          {
+            if ( TYPE(rb_key) == T_FIXNUM ) 
+            {
               return NUM2INT(rb_key);
             }
-            else if ( TYPE(rb_key) == T_STRING ) {
-          #ifdef HAVE_RUBY_ENCODING_H
+            else if ( TYPE(rb_key) == T_STRING ) 
+            {
               return NUM2INT( rb_funcall(rb_key, rb_intern("ord"), 0) );
-          #else
-              return NUM2INT( rb_funcall(rb_key, rb_intern("[]"), 1, INT2NUM(0)) );
-          #endif
             }
-            else {
+            else 
+            {
               rb_raise(rb_eTypeError, 
                        "Specify key code for AcceleratorEntry with a String or Fixnum");
             }
-              
           }
-        __HEREDOC
+          __HEREDOC
         spec.map 'int keyCode' => 'Integer' do
           map_in code: '$1 = wxRuby_RubyStringOrIntToKeyCode($input);'
           map_typecheck precedence: 'INT32', code: <<~__CODE
@@ -67,11 +65,11 @@ module WXRuby3
               arr = new wxAcceleratorEntry[ RARRAY_LEN($input) ];
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
-              SWIG_ConvertPtr(rb_ary_entry($input,i), (void **) &wx_acc_ent, 
+                SWIG_ConvertPtr(rb_ary_entry($input,i), (void **) &wx_acc_ent, 
                                 SWIGTYPE_p_wxAcceleratorEntry, 1);
-              if (wx_acc_ent == NULL) 
-              rb_raise(rb_eTypeError, "Reference to null wxAcceleratorEntry");
-              arr[i] = *wx_acc_ent;
+                if (wx_acc_ent == NULL) 
+                  rb_raise(rb_eTypeError, "Reference to null wxAcceleratorEntry");
+                arr[i] = *wx_acc_ent;
               }
               $1 = RARRAY_LEN($input);
               $2 = arr;
