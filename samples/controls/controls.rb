@@ -390,8 +390,8 @@ class MyPanel < Panel
                               bmp1,
                               Point.new(30, 70))
 
-    bmpBtn.set_bitmap_current(Wx.bitmap_to_bundle(bmp2))
-    bmpBtn.set_bitmap_pressed(Wx.bitmap_to_bundle(bmp3))
+    bmpBtn.set_bitmap_current(bmp2)
+    bmpBtn.set_bitmap_pressed(bmp3)
 
     ToggleButton.new(panel, ID_BUTTON_LABEL,
                       "&Toggle label", Point.new(250, 20))

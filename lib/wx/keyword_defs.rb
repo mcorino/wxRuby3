@@ -112,7 +112,7 @@ end
 Wx::define_keyword_ctors('Wizard') do
   wx_ctor_params :id
   wx_ctor_params :title
-  wx_ctor_params :bitmap => ->(arg) { Wx.bitmap_to_bundle(arg) }
+  wx_ctor_params :bitmap
   wx_ctor_params :pos # NB - no size argument for this class
   wx_ctor_params :style => Wx::DEFAULT_DIALOG_STYLE
 end
@@ -225,7 +225,7 @@ end
 Wx::define_keyword_ctors('WizardPageSimple') do
   wx_ctor_params :prev => nil
   wx_ctor_params :next => nil
-  wx_ctor_params :bitmap => ->(arg) { Wx.bitmap_to_bundle(arg) }
+  wx_ctor_params :bitmap
 end
 
 ### DIALOGS
@@ -343,7 +343,7 @@ end
 # Push button control, displaying a bitmap
 Wx::define_keyword_ctors('BitmapButton') do
   wx_ctor_params :id
-  wx_ctor_params :bitmap => ->(arg) { Wx.bitmap_to_bundle(arg) }
+  wx_ctor_params :bitmap
   wx_ctor_params :pos, :size, :style => Wx::BU_AUTODRAW
   wx_ctor_params :validator, :name => 'button'
 end
@@ -458,7 +458,7 @@ end
 Wx::define_keyword_ctors('StaticBitmap') do
   wx_ctor_params :id
   # autoconvert Bitmaps to BitmapBundles for downward compatibility
-  wx_ctor_params :label => ->(arg) { Wx.bitmap_to_bundle(arg) }
+  wx_ctor_params :label
   wx_ctor_params :pos, :size, :style, :name => Wx::StaticBitmapNameStr
 end
 
