@@ -116,7 +116,7 @@ module WXRuby3
           ID wxRbCallback::c_call_id = 0;
           bool wxRbCallback::c_init_done = false;
 
-        __HEREDOC
+          __HEREDOC
         spec.add_extend_code 'wxEvtHandler', <<~__HEREDOC
           // This provides the public Ruby 'connect' method
           VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
@@ -136,35 +136,35 @@ module WXRuby3
                    int lastId = wxID_ANY, 
                    VALUE evtSpecifier = Qnil)
           {
-          wxEventType event_type;
-        
-          if ( TYPE(evtSpecifier) == T_FIXNUM ) // simply an Integer id
-            event_type = NUM2INT(evtSpecifier);
-          else if ( TYPE(evtSpecifier) == T_NIL ) // Not defined = any type
-            event_type = wxEVT_NULL;
-          else if ( TYPE(evtSpecifier) == T_SYMBOL ) // Symbol handler method
+            wxEventType event_type;
+          
+            if ( TYPE(evtSpecifier) == T_FIXNUM ) // simply an Integer id
+              event_type = NUM2INT(evtSpecifier);
+            else if ( TYPE(evtSpecifier) == T_NIL ) // Not defined = any type
+              event_type = wxEVT_NULL;
+            else if ( TYPE(evtSpecifier) == T_SYMBOL ) // Symbol handler method
             {
-            VALUE rb_evt_type = rb_funcall(wxRuby_GetSwigClassWxEvtHandler().klass, 
-                             rb_intern("event_type_for_name"),
-                             1, evtSpecifier);
-            if ( rb_evt_type != Qnil )
-              event_type = NUM2INT( rb_evt_type );
-            else
+              VALUE rb_evt_type = rb_funcall(wxRuby_GetSwigClassWxEvtHandler().klass, 
+                               rb_intern("event_type_for_name"),
+                               1, evtSpecifier);
+              if ( rb_evt_type != Qnil )
+                event_type = NUM2INT( rb_evt_type );
+              else
               {
                 VALUE msg = rb_inspect(evtSpecifier);
                 rb_raise(rb_eTypeError, "Unknown event handler %s", 
                               StringValuePtr(msg));
               }
             }
-          else 
-            rb_raise(rb_eTypeError, "Invalid specifier for event type");
+            else 
+              rb_raise(rb_eTypeError, "Invalid specifier for event type");
         
-          // TODO - enable switching off all handlers by type only - this
-          // version doesn't work if the first arg is wxID_ANY
-          if ( self->Disconnect(firstId, lastId, event_type))
-            return Qtrue;
-          else
-            return Qfalse;
+            // TODO - enable switching off all handlers by type only - this
+            // version doesn't work if the first arg is wxID_ANY
+            if ( self->Disconnect(firstId, lastId, event_type))
+              return Qtrue;
+            else
+              return Qfalse;
           }
           __HEREDOC
         spec.add_wrapper_code <<~__HEREDOC
