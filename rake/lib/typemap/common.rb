@@ -402,50 +402,58 @@ module WXRuby3
         if Config.instance.wx_version > '3.1.5'
           map 'const wxBitmapBundle&' do
             add_header_code <<~__CODE
-              inline bool wx_IsBitmap(VALUE obj)
+              inline bool wx_IsClass(VALUE obj, const char* class_name)
               {
-                VALUE bitmapKlass = rb_const_get(wxRuby_Core(), rb_intern("Bitmap"));
-                return rb_obj_is_kind_of(obj, bitmapKlass);
-              }
-              inline bool wx_IsBitmapBundle(VALUE obj)
-              {
-                VALUE bundleKlass = rb_const_get(wxRuby_Core(), rb_intern("BitmapBundle"));
-                return rb_obj_is_kind_of(obj, bundleKlass);
+                VALUE klass = rb_const_get(wxRuby_Core(), rb_intern(class_name));
+                return rb_obj_is_kind_of(obj, klass);
               }
               __CODE
-            map_in from: 'Wx::Bitmap,Wx::BitmapBundle', temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
+            map_in from: 'Wx::BitmapBundle,Wx::Bitmap,Wx::Icon,Wx::Image',
+                   temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
               $1 = &tmpBundle;
               if ($input != Qnil)
               {
-                bool is_bundle = false;
-                if (TYPE($input) == T_DATA 
-                      &&
-                      ((is_bundle = wx_IsBitmapBundle($input)) ||wx_IsBitmap($input))
-                   ) 
+                if (TYPE($input) == T_DATA) 
                 {
                   void *ptr;
                   Data_Get_Struct($input, void, ptr);
                   if (ptr)
                   {
-                    if (is_bundle)
+                    if (wx_IsClass($input, "BitmapBundle"))
                       tmpBundle = *static_cast<wxBitmapBundle*> (ptr);
-                    else
+                    else if (wx_IsClass($input, "Bitmap"))
                       tmpBundle = wxBitmapBundle(*static_cast<wxBitmap*> (ptr)); 
+                    else if (wx_IsClass($input, "Icon"))
+                      tmpBundle = wxBitmapBundle(*static_cast<wxIcon*> (ptr)); 
+                    else if (wx_IsClass($input, "Image"))
+                      tmpBundle = wxBitmapBundle(*static_cast<wxImage*> (ptr));
+ 
                   }
                   else
                   {
-                    rb_raise(rb_eArgError, "Object already deleted $1_basetype parameter $argnum");
+                    rb_raise(rb_eArgError, "Object already deleted for $1_basetype parameter $argnum");
                   }
                 }
-                else
+                // did we get a bitmap of some kind?
+                if (!tmpBundle.IsOk ())
                 {
                   rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter $argnum");
                 }
               }
+              else
+              {
+                rb_raise(rb_eArgError, "Expected bitmap (bundle) for $1_basetype parameter $argnum");
+              }
               __CODE
             map_typecheck precedence: 1, code: <<~__CODE
-            $1 = ($input != Qnil && TYPE($input) == T_DATA && (wx_IsBitmapBundle($input) || wx_IsBitmap($input)));
-            __CODE
+              $1 = ($input != Qnil && 
+                      TYPE($input) == T_DATA && 
+                      (wx_IsClass($input, "BitmapBundle") || 
+                       wx_IsClass($input, "Bitmap") || 
+                       wx_IsClass($input, "Icon") || 
+                       wx_IsClass($input, "Image"))
+                   );
+              __CODE
           end
         end
 
