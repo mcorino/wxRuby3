@@ -21,7 +21,7 @@ require 'wx'
 class MyGridTable < Wx::Grids::GridTableBase
   attr_reader :cols, :rows
   def initialize(rows, cols)
-    super
+    super()
     @rows = rows
     @cols = cols
     @number_col = 1

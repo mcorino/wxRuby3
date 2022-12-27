@@ -45,7 +45,7 @@ end
 class MinimalApp < Wx::App
   def initialize(sample)
     @sample = sample
-    super
+    super()
   end
 
   def on_init

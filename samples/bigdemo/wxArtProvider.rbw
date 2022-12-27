@@ -70,7 +70,7 @@ ArtIDs = [ "Wx::ART_ADD_BOOKMARK",
 
 class MyArtProvider < Wx::ArtProvider
     def initialize(log)
-       super
+       super()
        @log = log
     end
 
