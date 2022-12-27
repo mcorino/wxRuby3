@@ -771,6 +771,90 @@ module WXRuby3
       end
     end
 
+    # This typemap disables (clears) any previous type mapping for the given argument pattern.
+    # For SWIG it generates the '%clear' declaration.
+    # For doc generation it simply shortcuts input and output mappings on any argument or return
+    # type matching the pattern and 'maps' to the actual argument/return type.
+    # No argument output or argument/return ignoring.
+    class DisabledMap
+      def initialize(pattern)
+        @pattern = ParameterSet.new(pattern)
+      end
+
+      def patterns
+        [@pattern]
+      end
+
+      def resolve(_)
+        self
+      end
+
+      def matches?(pattern)
+        @pattern == pattern
+      end
+
+      def mapped_arg_input(arg_pattern)
+        nil
+      end
+
+      def mapped_arg_output(arg_pattern)
+        nil
+      end
+
+      def map_input(parameters, param_offset)
+        # does the pattern match the first parameter?
+        if @pattern.param_masks.first == parameters.first
+          # just 'map' the parameter to itself
+          param = parameters.shift # loose the 'mapped' parameter
+          return [RubyArg[Typemap.wx_type_to_rb(param.type), param_offset], nil]
+        end
+        nil
+      end
+
+      def map_output(type)
+        if matches?(type)
+          return Typemap.wx_type_to_rb(type)
+        end
+        nil
+      end
+
+      def maps_input?
+        true
+      end
+
+      def maps_output?
+        true
+      end
+
+      def ignores_input?
+        false
+      end
+
+      def maps_input_as_output?
+        false
+      end
+
+      def ignores_output?
+        false
+      end
+
+      def ignored_output
+        []
+      end
+
+      def to_swig
+        "%clear #{@pattern};"
+      end
+
+      def to_s
+        "cleared typemap #{@pattern}"
+      end
+
+      def inspect
+        to_s
+      end
+    end
+
     class Collection
       module EnumHelpers
         def find(*patterns)
@@ -929,6 +1013,10 @@ module WXRuby3
           src_pattern = ParameterSet.new(src_mapping)
           type_maps << AppliedMap.new(src_pattern, *[tgt_mappings].flatten)
         end
+      end
+
+      def map_disable(pattern)
+        type_maps << DisabledMap.new(pattern)
       end
 
     end

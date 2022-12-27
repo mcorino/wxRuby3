@@ -18,6 +18,8 @@ module WXRuby3
           spec.items << 'wxBitmapBundle'
           spec.gc_as_object 'wxBitmapBundle'
           spec.ignore 'wxBitmapBundle::FromSVG(char *,const wxSize &)'
+          # disable the wxBitmapBundle typemap for the copy constructor
+          spec.map_disable 'const wxBitmapBundle&'
         end
         spec.no_proxy 'wxBitmap'
         # // Handler functions are not needed in wxRuby - all standard handlers
