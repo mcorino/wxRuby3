@@ -112,20 +112,29 @@ module WXRuby3
           out = CodeStream.new(target)
           File.foreach(target) do |line|
             case line
-            when /(rb_define_method|rb_intern|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
+              # defined method names
+            when /(rb_define_method|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
               name = $2
               unless name == '"THE_APP"'
                 line[name] = '"%s"' % rb_method_name(name[1..-2])
               end
+              # director called method names
+            when /rb_funcall\(swig_get_self.*rb_intern.*("[_a-zA-Z0-9]*")/
+              name = $1
+              line[name] = '"%s"' % rb_method_name(name[1..-2])
+              # defined alias methods (original method name)
             when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*")/
               name = $1
               line[name] = '"%s"' % rb_method_name(name[1..-2])
+              # defined class names
             when /rb_define_class_under.*("[_a-zA-Z0-9]*")/
               name = $1
               line[name] = '"%s"' % rb_class_name(name[1..-2])
+              # defined constant names
             when /rb_define_const\s*\([^,]+,\s*("[_a-zA-Z0-9]*")/
               name = $1
               line[name] = '"%s"' % rb_wx_name(name[1..-2])
+              # defined class/global methods
             when /rb_define_singleton_method.*("[_a-zA-Z0-9]*")/
               name = $1
               no_wx_name = name[1..-2].sub(/\Awx_?/i, '')
