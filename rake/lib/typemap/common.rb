@@ -413,12 +413,14 @@ module WXRuby3
               $1 = &tmpBundle;
               if ($input != Qnil)
               {
+                bool ok = false;
                 if (TYPE($input) == T_DATA) 
                 {
                   void *ptr;
                   Data_Get_Struct($input, void, ptr);
                   if (ptr)
                   {
+                    ok = true;
                     if (wx_IsClass($input, "BitmapBundle"))
                       tmpBundle = *static_cast<wxBitmapBundle*> (ptr);
                     else if (wx_IsClass($input, "Bitmap"))
@@ -427,7 +429,8 @@ module WXRuby3
                       tmpBundle = wxBitmapBundle(*static_cast<wxIcon*> (ptr)); 
                     else if (wx_IsClass($input, "Image"))
                       tmpBundle = wxBitmapBundle(*static_cast<wxImage*> (ptr));
- 
+                    else
+                      ok = false;
                   }
                   else
                   {
@@ -435,7 +438,7 @@ module WXRuby3
                   }
                 }
                 // did we get a bitmap of some kind?
-                if (!tmpBundle.IsOk ())
+                if (!ok)
                 {
                   rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter $argnum");
                 }
