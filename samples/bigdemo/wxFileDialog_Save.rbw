@@ -14,7 +14,7 @@ $wildcard = "Ruby Source (*.rb)|*.rb|RubyW Source (*.rbw)|*.rbw|SPAM files (*.sp
 module Demo
     def Demo.run(frame, nb, log)
         log.write_text("CWD: " + Dir.getwd)
-        dlg = Wx::FileDialog.new(frame, "Save file as...", Dir.getwd, "", $wildcard, Wx::SAVE)
+        dlg = Wx::FileDialog.new(frame, "Save file as...", Dir.getwd, "", $wildcard, Wx::FD_SAVE)
         dlg.set_filter_index(2)
         if dlg.show_modal == Wx::ID_OK
             path = dlg.get_path
