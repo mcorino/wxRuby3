@@ -31,10 +31,7 @@ module WXRuby3
             swig/classes/include/wxWindow.h
             swig/classes/include/wxPanel.h
             ]
-          spec.no_proxy %w[
-            wxScrolledWindow::OnDraw
-            wxScrolledWindow::SendAutoScrollEvents
-            ]
+          spec.no_proxy 'wxScrolledWindow::SendAutoScrollEvents'
           spec.do_not_generate(:typedefs, :functions)
         when 'wxScrolledCanvas'
           spec.use_template_as_class('wxScrolled', 'wxScrolledCanvas')
@@ -46,12 +43,10 @@ module WXRuby3
             swig/classes/include/wxEvtHandler.h
             swig/classes/include/wxWindow.h
             ]
-          spec.no_proxy %w[
-            wxScrolledCanvas::OnDraw
-            wxScrolledCanvas::SendAutoScrollEvents
-            ]
+          spec.no_proxy 'wxScrolledCanvas::SendAutoScrollEvents'
           spec.do_not_generate(:typedefs, :functions, :enums) # enums are generated with wxScrolledWindow
         end
+        spec.ignore 'wxScrolled::OnDraw'
         spec.ignore 'wxScrolled::GetViewStart(int *,int *)'
         spec.map_apply 'int * OUTPUT' => 'int *'
       end
