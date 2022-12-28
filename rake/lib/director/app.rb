@@ -197,7 +197,10 @@ module WXRuby3
                          HINSTANCE WXUNUSED(hPrevInstance),
                          wxCmdLineArgType WXUNUSED(pCmdLine),
                          int nCmdShow);
-              wxEntry(GetModuleHandle(NULL),(HINSTANCE)0,(wxCmdLineArgType)"",(int)true);
+              wxEntry(GetModuleHandle("#{spec.package.libname}.#{RbConfig::CONFIG['DLEXT']}"),
+                      (HINSTANCE)0,
+                      (wxCmdLineArgType)"",
+                      (int)true);
           #else
               int argc = 0;
               char** argv = 0;
