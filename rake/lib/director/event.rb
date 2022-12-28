@@ -155,6 +155,8 @@ module WXRuby3
               return SwigClassWxEvent.klass;
             }
             __HEREDOC
+          # make sure this event constant definition exists
+          spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
         else
           spec.add_header_code <<~__HEREDOC
             // Custom subclass implementation. Provides a constructor, destructor and
