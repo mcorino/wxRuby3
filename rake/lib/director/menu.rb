@@ -39,6 +39,8 @@ module WXRuby3
         spec.rename_for_ruby(
           'AppendItem' =>
             'wxRubyMenu::Append(wxMenuItem *item)')
+        # ignore non-const version as that has no benefits in Ruby
+        spec.ignore 'wxMenu::GetMenuItems()'
         # Fix for GetMenuItems - converts list of MenuItems to Array
         spec.map 'wxMenuItemList&' => 'Array<Wx::MenuItem>' do
           map_out code: <<~__CODE
