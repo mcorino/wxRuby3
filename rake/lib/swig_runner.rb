@@ -35,21 +35,29 @@ module WXRuby3
         !!@swig_state
       end
 
+      def swig_version
+        @swig_version
+      end
+
+      def swig_major
+        (@swig_version || '').split('.').first.to_i
+      end
+
       def check_swig
         begin
-          version = `#{SWIG_CMD} -version`[/\d+\.\d+\.\d+/]
+          @swig_version = `#{SWIG_CMD} -version`[/\d+\.\d+\.\d+/]
         rescue Exception
           raise "Could not run SWIG (#{SWIG_CMD})"
         end
 
         # Very old versions put --version on STDERR, not STDOUT
-        unless version
+        unless @swig_version
           raise "Could not get version info from SWIG; " +
                   "is a very old version installed?.\n"
         end
 
-        if version < SWIG_MINIMUM_VERSION
-          raise "SWIG version #{version} is installed, " +
+        if @swig_version < SWIG_MINIMUM_VERSION
+          raise "SWIG version #{@swig_version} is installed, " +
                   "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
           #  elsif version > SWIG_MAXIMUM_VERSION
           #    raise "SWIG version #{version} is installed, " +
@@ -61,7 +69,9 @@ module WXRuby3
 
       def run_swig(source, target)
         check_swig unless swig_state
-        sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.verbose_flag} -Iswig/custom " +
+        inc_paths = '-Iswig/custom'
+        inc_paths << ' -Iswig/custom/swig3' if swig_major < 4
+        sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.verbose_flag} #{inc_paths} " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
              "-o #{target} #{source}"
