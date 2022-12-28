@@ -123,7 +123,7 @@ module Wx
                        parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD) end
 
   # @return [Array<Integer>] Selected choices
-  def self.get_selected_choices(message, caption, n, choices,
+  def self.get_selected_choices(message, caption, choices,
                                 parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD,
                                 centre = true, width = Wx::CHOICE_WIDTH, height = Wx::CHOICE_HEIGHT) end
 
