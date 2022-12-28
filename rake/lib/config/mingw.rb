@@ -28,6 +28,8 @@ module WXRuby3
         base.include Config::UnixLike
         base.class_eval do
 
+          attr_reader :rescomp
+
           alias :base_ldflags :ldflags
           def ldflags(target)
             "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
@@ -100,6 +102,9 @@ module WXRuby3
           libdirs << win_path(File.join(ENV['MSYSTEM_PREFIX'], 'bin'))
           @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']};#{libdirs.join(';')}"
         end
+
+        @rescomp = wx_config('--rescomp').gsub(/--include-dir\s+(\S+)/) { |s| "--include-dir #{win_path($1)}" }
+        @rescomp << " --include-dir #{File.join(Config.wxruby_root, 'art')}"
 
         # # Where the directory containing setup.h with the wxWidgets compile
         # # options can be found; name depends on whether unicode and whether

@@ -105,6 +105,13 @@ if $config.has_wxwidgets_xml?
        "#{$config.cpp_out_flag}#{t.name} #{t.source}"
   end
 
+  if $config.windows?
+    # compile an object file from the standard wxRuby resource file
+    file File.join($config.obj_dir, 'wx_rc.o') => File.join($config.swig_dir, 'wx.rc') do |t|
+      sh "#{$config.rescomp} -i#{t.source} -o#{t.name}"
+    end
+  end
+
   desc "Install the WxRuby library to Ruby's lib directories"
   task :install => [ :default, *ALL_RUBY_LIB_FILES, *all_install_targets ] do | t |
     dest_dir = RbConfig::CONFIG['sitelibdir']
