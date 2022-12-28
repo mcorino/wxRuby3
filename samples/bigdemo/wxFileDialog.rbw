@@ -14,7 +14,7 @@ $wildcard = "Ruby Source (*.rb)|*.rb|RubyW Source (*.rbw)|*.rbw|All files (*.*)|
 module Demo
     def Demo.run(frame, nb, log)
         log.write_text("CWD: " + Dir.getwd + "\n")
-        dlg = Wx::FileDialog.new(frame, "Choose a file", Dir.getwd, "", $wildcard, Wx::OPEN | Wx::MULTIPLE)
+        dlg = Wx::FileDialog.new(frame, "Choose a file", Dir.getwd, "", $wildcard, Wx::FD_OPEN | Wx::FD_MULTIPLE)
         if dlg.show_modal == Wx::ID_OK
             paths = dlg.get_paths
             log.write_text("You selected %d files" % + paths.length)
