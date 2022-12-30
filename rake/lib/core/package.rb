@@ -98,7 +98,7 @@ module WXRuby3
       end
 
       def director_for_class(class_name)
-        dir = included_directors.detect { |dir| dir.spec.items.include?(class_name) }
+        dir = included_directors.detect { |dir| dir.spec.module_name == class_name || dir.spec.items.include?(class_name) }
         dir = parent.director_for_class(class_name) if dir.nil? && parent
         dir
       end
