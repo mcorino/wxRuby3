@@ -49,6 +49,7 @@ module WXRuby3
         @gc_type = nil
         @ignores = ::Hash.new
         @regards = ::Hash.new
+        @readonly = ::Set.new
         @disabled_proxies = false
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
@@ -74,8 +75,8 @@ module WXRuby3
         @type_maps = Typemap::Collection.new
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases,
-                  :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly,
+                  :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements, :type_maps
@@ -268,6 +269,10 @@ module WXRuby3
       def regard(*names, regard_doc: true)
         names.flatten.each {|n| @regards[n] = regard_doc}
         self
+      end
+
+      def make_readonly(*names)
+        @readonly.merge names.flatten
       end
 
       def no_proxy(*names)

@@ -152,6 +152,7 @@ module WXRuby3
 
       def initialize(element = nil)
         @name = '' # name of the item
+        @rb_name = nil
         @ignored = false # skip this item
         @docs_ignored = false # skip this item when generating docs
         @brief_doc = nil # either an empty string or text contents of a single para Element
@@ -167,7 +168,7 @@ module WXRuby3
         extract(element) if element
       end
 
-      attr_accessor :name, :ignored, :docs_ignored, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
+      attr_accessor :name, :rb_name, :ignored, :docs_ignored, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
 
       def extra_attributes
         @extra_attributes ||= {}

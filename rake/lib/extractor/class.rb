@@ -112,16 +112,6 @@ module WXRuby3
         !template_params.empty?
       end
 
-      def rename_class(newName)
-        @rb_name = newName
-        items.each do |item|
-          if item.respond_to?(:class_name)
-              item.class_name = newName
-              item.overloads.each { |overload| overload.class_name = newName }
-          end
-        end
-      end
-
       def get_hierarchy(element)
         this = nil
         index = {}

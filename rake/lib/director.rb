@@ -241,6 +241,38 @@ module WXRuby3
       end
     end
 
+    def handle_item_readonly(defmod, fullname)
+      # find the item
+      item = defmod.find_item(fullname)
+      if item
+        if Extractor::VariableDef === item
+          item.no_setter = true
+        else
+          STDERR.puts "ERROR: Invalid item [#{item}]. Only variables can be made readonly."
+        end
+      else
+        STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to make readonly."
+      end
+    end
+
+    def handle_item_rename(defmod, fullname, rb_name)
+      # find the item
+      unless (item = defmod.find_item(fullname))
+        # if we can't find the item based on exact naming check if the class for
+        # this class member (in case it is) has folded base that might match
+        # get class and method signature
+        clsnm, mtdsig = fullname.split('::').pop(2)
+        unless mtdsig.nil? || (foldedbases = spec.folded_bases[clsnm] || []).empty?
+          foldedbases.detect { |base| item = defmod.find_item("#{base}::#{mtdsig}") }
+        end
+      end
+      if item
+        item.rb_name = rb_name
+      else
+        STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to rename." if Director.trace?
+      end
+    end
+
     def handle_item_only_for(defmod, fullname, platform_id)
       # find the item
       item = defmod.find_item(fullname)
@@ -266,6 +298,14 @@ module WXRuby3
       # handle regards
       spec.regards.each_pair do |fullname, regarddoc|
         handle_item_ignore(defmod, fullname, false, !regarddoc)
+      end
+      # handle readonly settings
+      spec.readonly.each do |name|
+        handle_item_readonly(defmod, name)
+      end
+      # handle renames for ruby (for doc purposes)
+      spec.renames.each_pair do |rb_name, names|
+        names.each { |fullname| handle_item_rename(defmod, fullname, rb_name) }
       end
       # handle only_for settings
       spec.only_for.each_pair do |platform_id, names|

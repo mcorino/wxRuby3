@@ -18,15 +18,14 @@ module WXRuby3
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
           'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)',
           'wxDC::DrawSpline(const wxPointList *)',
-          'wxDC::GetSize(wxCoord *,wxCoord *) const',
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const'
         ]
         spec.no_proxy 'wxDC'
         spec.rename_for_ruby({
-          'GetDimensions' => 'wxDC::GetSize(wxCoord * width , wxCoord * height)',
-          'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *width , wxCoord *height) const',
-          'GetTextSize' => 'wxDC::GetTextExtent(const wxString& string) const',
-          'GetMultiLineTextSize' => 'wxDC::GetMultiLineTextExtent(const wxString& string) const'
+          'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *)',
+          'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *, wxCoord *) const',
+          'GetTextSize' => 'wxDC::GetTextExtent(const wxString &) const',
+          'GetMultiLineTextSize' => 'wxDC::GetMultiLineTextExtent(const wxString &) const'
         })
         spec.add_extend_code 'wxDC', <<~__HEREDOC
           // Needs to return input parameter with list of lengths

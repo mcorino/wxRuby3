@@ -10,7 +10,7 @@ module WXRuby3
     class ImageList < Director
 
       def setup
-        spec.rename_for_ruby('AddIcon' => 'wxImageList::Add(const wxIcon& icon)')
+        spec.rename_for_ruby('AddIcon' => 'wxImageList::Add(const wxIcon &)')
         super
       end
     end # class ImageList

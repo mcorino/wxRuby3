@@ -30,7 +30,12 @@ module WXRuby3
           wxAuiPaneInfo::floating_size
           wxAuiPaneInfo::dock_proportion
           wxAuiPaneInfo::rect
-                    ]
+          ]
+        spec.make_readonly %w[
+          wxAuiPaneInfo::rect
+          wxAuiPaneInfo::frame
+          wxAuiPaneInfo::state
+          ]
         spec.ignore %w[
           wxAuiPaneInfo::Name
           wxAuiPaneInfo::Caption

@@ -69,7 +69,7 @@ module WXRuby3
       end
 
       def rb_decl_name
-        "self.#{rb_method_name(name)}"
+        "self.#{rb_method_name(rb_name || name)}"
       end
 
       def rb_doc(xml_trans, type_maps)
@@ -325,7 +325,7 @@ module WXRuby3
         if is_ctor
           'initialize'
         else
-          "#{is_static ? 'self.' : ''}#{rb_method_name(name)}"
+          "#{is_static ? 'self.' : ''}#{rb_method_name(rb_name || name)}"
         end
       end
 

@@ -14,14 +14,13 @@ module WXRuby3
         @type = nil
         @definition = ''
         @args_string = ''
-        @rb_int = false
         @no_setter = false
         @value = nil;
         update_attributes(**kwargs)
         extract(element) if element
       end
 
-      attr_accessor :type, :definition, :args_string, :rb_int, :no_setter, :value
+      attr_accessor :type, :definition, :args_string, :no_setter, :value
 
       def extract(element)
         super
@@ -55,6 +54,9 @@ module WXRuby3
     #---------------------------------------------------------------------------
 
     class MemberVarDef < VariableDef
+
+      include Util::StringUtil
+
       # Represents a variable declaration in a class.
       def initialize(element = nil, **kwargs)
         super()
@@ -76,6 +78,42 @@ module WXRuby3
           raise ExtractorError.new("Invalid protection [#{@protection}")
         end
         ignore # ignore all member variables by default (trust on availability of accessor methods)
+      end
+
+      private def rb_return_type(type_maps)
+        mapped_type = type_maps.map_output(type)
+        (mapped_type.empty? || mapped_type == 'void') ? nil : mapped_type
+      end
+
+      # collect Ruby doc for member var
+      # SWIG generates an attribute reader and writer for these
+      def rb_doc(xml_trans, type_maps)
+        # get brief doc
+        var_doc = xml_trans.to_doc(@brief_doc)
+        # add detailed doc text without params doc
+        var_doc << xml_trans.to_doc(@detailed_doc)
+        doc = []
+        # first document the reader
+        doc << [var_doc.dup]
+        doc.last << "@return [#{rb_return_type(type_maps)}]"
+        doc << "def #{is_static ? 'self.' : ''}#{rb_method_name(rb_name || name)}; end"
+        # next document the writer (if any)
+        unless no_setter
+          doc << [var_doc.dup]
+          parms = [ParamDef.new(nil,
+                                name: 'val',
+                                type: type.dup,
+                                array: false)]
+          mapped_args, _ = type_maps.map_input(parms)
+          if mapped_args.empty? # something went wrong!
+            doc.last << "@param val [#{Typemap.wx_type_to_rb(type)}]"
+          else
+            doc.last << "@param val [#{mapped_args.first.type}]"
+          end
+          doc.last << "@return [void]"
+          doc << "def #{is_static ? 'self.' : ''}#{rb_method_name(rb_name || name)}=(val); end"
+        end
+        doc
       end
     end # class MemberVarDef
 

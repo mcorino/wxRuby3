@@ -618,20 +618,32 @@ module WXRuby3
               end
               # generate method documentation
               mtd_done = ::Set.new
-              cls_members.select { |cm| Extractor::MethodDef === cm && !cm.is_dtor }.each do |mtd|
-                # overloads are flattened out by the Analyzer (with the head of the overloads list coming first)
-                # but for doc gen we only need the head item so keep track and skip the rest
-                unless mtd_done.include?(mtd.name)
-                  decl, *doc = get_method_doc(mtd)
-                  doc.each { |s| fdoc.doc.puts s }
-                  fdoc.puts decl
-                  if alias_methods.has_key?(mtd.name)
-                    fdoc.puts "alias_method :#{alias_methods[mtd.name]}, :#{mtd.rb_decl_name}"
+              cls_members.each do |cm|
+                case cm
+                when Extractor::MethodDef
+                  # overloads are flattened out by the Analyzer (with the head of the overloads list coming first)
+                  # but for doc gen we only need the head item so keep track and skip the rest
+                  unless cm.is_dtor || mtd_done.include?(cm.name)
+                    decl, *doc = get_method_doc(cm)
+                    doc.each { |s| fdoc.doc.puts s }
+                    fdoc.puts decl
+                    if alias_methods.has_key?(cm.name)
+                      fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{cm.rb_decl_name}"
+                    end
+                    fdoc.puts
+                    mtd_done << cm.name
+                  end
+                when Extractor::MemberVarDef
+                  rd_doc, rd_decl, wr_doc, wr_decl = cm.rb_doc(@xml_trans, type_maps)
+                  rd_doc.each { |s| fdoc.doc.puts s }
+                  fdoc.puts rd_decl
+                  if wr_doc
+                    wr_doc.each { |s| fdoc.doc.puts s }
+                    fdoc.puts wr_decl
                   end
                   fdoc.puts
-                  mtd_done << mtd.name
                 end
-              end
+            end
             end
             fdoc.puts "end # #{clsnm}"
             fdoc.puts

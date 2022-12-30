@@ -20,8 +20,8 @@ module WXRuby3
           'wxImage::GetImageCount(wxInputStream &,wxBitmapType)'
           ]
         spec.rename_for_ruby(
-          'LoadStream' => ['wxImage::LoadFile(wxInputStream &,long,int)', 'wxImage::LoadFile(wxInputStream &,const wxString &,int)'],
-          'Write' => ['wxImage::SaveFile(wxOutputStream &,int) const', 'wxImage::SaveFile(wxOutputStream &,const wxString &) const'],
+          'LoadStream' => ['wxImage::LoadFile(wxInputStream &, wxBitmapType, int)', 'wxImage::LoadFile(wxInputStream &,const wxString &, int)'],
+          'Write' => ['wxImage::SaveFile(wxOutputStream &, wxBitmapType) const', 'wxImage::SaveFile(wxOutputStream &,const wxString &) const'],
           # Renaming to avoid method overloading and thus conflicts at Ruby level
           # 'GetAlphaData' => 'wxImage::GetAlpha() const',
           'SetAlphaData' => 'wxImage::SetAlpha(unsigned char *,bool)',

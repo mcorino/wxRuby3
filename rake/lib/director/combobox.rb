@@ -27,8 +27,8 @@ module WXRuby3
           wxTextEntry::IsEmpty
           wxComboBox::IsEmpty])
         spec.rename_for_ruby(
-          'SetTextSelectionRange' => 'wxComboBox::SetSelection(long from, long to)',
-          'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *from, long *to) const')
+          'SetTextSelectionRange' => 'wxComboBox::SetSelection(long, long)',
+          'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *, long *) const')
         spec.map_apply 'long * OUTPUT' => [ 'long *from', 'long *to' ]
       end
 

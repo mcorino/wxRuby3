@@ -25,7 +25,7 @@ module WXRuby3
         // add right method to enable/disable items
         bool EnableItem(unsigned int n, bool enable=true)
         {
-          return $self->Enable(enable);
+          return $self->Enable(n, enable);
         }
         __HEREDOC
         # rename common method

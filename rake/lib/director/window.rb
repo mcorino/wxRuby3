@@ -105,7 +105,7 @@ module WXRuby3
           ]
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
-          spec.rename_for_ruby('SetDimensions' => 'wxWindow::SetSize(int  x , int  y , int  width , int  height , int sizeFlags = wxSIZE_AUTO)')
+          spec.rename_for_ruby('SetDimensions' => 'wxWindow::SetSize(int, int, int, int, int)')
           spec.swig_import %w{
             swig/classes/include/wxObject.h
             swig/classes/include/wxEvtHandler.h
