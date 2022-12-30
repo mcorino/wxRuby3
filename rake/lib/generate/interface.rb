@@ -107,7 +107,7 @@ module WXRuby3
       unless renames.empty?
         fout.puts
         renames.each_pair do |to, from|
-          from.each { |org| fout.puts "%rename(#{to}) #{org};" }
+          from.each { |org| fout.puts "%rename(\"#{to}\") #{org};" }
         end
       end
       fout.puts
