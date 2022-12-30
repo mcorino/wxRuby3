@@ -36,7 +36,6 @@ module WXRuby3
           wxAuiPaneInfo::Caption
           wxAuiPaneInfo::Icon
           wxAuiPaneInfo::Window
-          wxAuiPaneInfo::State
           wxAuiPaneInfo::Direction
           wxAuiPaneInfo::Layer
           wxAuiPaneInfo::Row
