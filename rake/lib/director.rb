@@ -26,6 +26,21 @@ module WXRuby3
     include MonitorMixin
     include Util::StringUtil
 
+    class AnyOf
+      def initialize(*features)
+        @features = features
+      end
+      attr_reader :features
+
+      def hash
+        @features.hash
+      end
+
+      def eql?(other)
+        self.class === other && @features.eql?(other.features)
+      end
+    end
+
     class << self
       def Package(pkgid, *required_features, &block)
         block.call(self[pkgid].requires(*required_features))
@@ -38,6 +53,10 @@ module WXRuby3
                                                      director: director,
                                                      processors: processors,
                                                      requirements: requirements))
+      end
+
+      def AnyOf(*features)
+        Director::AnyOf.new(*features)
       end
 
       def verbose?

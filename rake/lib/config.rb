@@ -403,21 +403,29 @@ module WXRuby3
           @features ||= _retrieve_features(Config.instance.wx_setup_h)
         end
 
-        def features_set?(*feature_ids)
-          feature_ids.all? {|fid| features[fid] }
+        private def any_feature_set?(*featureset)
+          featureset.any? do |feature|
+            if ::Array === feature
+              features_set?(*feature)
+            else
+              !!features[feature.to_s]
+            end
+          end
+        end
+
+        def features_set?(*featureset)
+          featureset.all? do |feature|
+            if Director::AnyOf === feature
+              any_feature_set?(*feature.features)
+            else
+              !!features[feature.to_s]
+            end
+          end
         end
 
         def excluded_module?(module_spec)
           explicit_excluded_modules.include?(module_spec.module_name) || !features_set?(*module_spec.requirements)
         end
-
-        # def excluded_modules
-        #   unless @excluded_modules
-        #     @excluded_modules = _calculate_excluded_modules
-        #   end
-        #
-        #   @excluded_modules
-        # end
 
         def exclude_module(module_name)
           explicit_excluded_modules << module_name

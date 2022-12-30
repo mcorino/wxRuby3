@@ -70,7 +70,7 @@ module WXRuby3
         @extend_code = ::Hash.new
         @nogen_sections = ::Set.new
         @post_processors = processors || [:rename, :fixmodule]
-        @requirements = requirements
+        @requirements = [requirements].flatten
         @type_maps = Typemap::Collection.new
       end
 
