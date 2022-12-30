@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    linux.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 buildtools configuration
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 buildtools configuration
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require_relative './unixish'
 

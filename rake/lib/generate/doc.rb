@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    doc.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 wxWidgets interface generation templates
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 wxWidgets interface generation templates
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'set'
 

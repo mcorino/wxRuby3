@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    enum_chain.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 extensions for Enumerator::Chain
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 extensions for Enumerator::Chain
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 unless ::Enumerator.const_defined?(:Chain)
 

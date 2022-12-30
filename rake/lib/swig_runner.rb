@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    swig_runner.rb
-# @author  Martin Corino
-#
-# @brief   wxRuby3 SWIG code generation runner
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# wxRuby3 SWIG code generation runner
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'fileutils'
 

@@ -1,11 +1,7 @@
-#--------------------------------------------------------------------
-# @file    string.rb
-# @author  Martin Corino
-#
-# @brief   String utilities mixin
-#
-# @copyright Copyright (c) M.J.N. Corino, The Netherlands
-#--------------------------------------------------------------------
+###
+# String utilities mixin
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 module WXRuby3
 
