@@ -9,16 +9,16 @@ module WXRuby3
 
   class Director
 
-    class ColourPickerCtrl < Window
+    class FontPickerCtrl < Window
 
       def setup
         super
         spec.items << 'wxPickerBase'
-        spec.fold_bases('wxColourPickerCtrl' => 'wxPickerBase')
+        spec.fold_bases('wxFontPickerCtrl' => 'wxPickerBase')
         spec.ignore 'wxPickerBase::CreateBase', 'wxPickerBase::UpdatePickerFromTextCtrl', 'wxPickerBase::UpdateTextCtrlFromPicker'
-        spec.do_not_generate(:variables, :defines, :enums, :functions) # with ColourPickerEvent
+        spec.do_not_generate(:variables, :defines, :enums, :functions) # with FontPickerEvent
       end
-    end # class ColourPickerCtrl
+    end # class FontPickerCtrl
 
   end # class Director
 
