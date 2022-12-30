@@ -32,7 +32,7 @@ module WXRuby3
           spec.items.replace %w[wxBookCtrlBase wxWithImages bookctrl.h]
           spec.ignore 'wxBookCtrl' # useless define in bookctrl.h doc
           spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
-          spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
+          spec.override_inheritance_chain('wxBookCtrlBase', %w[wxControl wxWindow wxEvtHandler wxObject])
           spec.ignore('wxWithImages::@.NO_IMAGE', 'wxWithImages::SetImageList')
           spec.rename_for_ruby('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
@@ -49,7 +49,7 @@ module WXRuby3
       end
       
       def setup_book_ctrl_class(clsnm)
-        spec.ignore_bases('wxBookCtrlBase' => 'wxWithImages')
+        spec.override_inheritance_chain(clsnm, %w[wxBookCtrlBase wxControl wxWindow wxEvtHandler wxObject])
         # This version in Wx doesn't automatically delete
         # spec.ignore "#{clsnm}::SetImageList"
         # Use the version that deletes the ImageList when the Toolbook is destroyed

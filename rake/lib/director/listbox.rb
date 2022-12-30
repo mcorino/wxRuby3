@@ -20,8 +20,12 @@ module WXRuby3
       def setup
         super
         setup_ctrl_with_items('wxListBox')
-        spec.ignore_bases('wxListBox' => %w[wxItemContainer])
-        spec.override_base('wxListBox', 'wxControlWithItems')
+        spec.override_inheritance_chain('wxListBox',
+                                        %w[wxControlWithItems
+                                           wxControl
+                                           wxWindow
+                                           wxEvtHandler
+                                           wxObject])
         spec.ignore('wxListBox::InsertItems(unsigned int,const wxString *,unsigned int)')
       end
 

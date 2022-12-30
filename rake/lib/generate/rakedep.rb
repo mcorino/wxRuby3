@@ -28,9 +28,10 @@ module WXRuby3
       base_deps = []
       def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored && !is_folded_base?(item.name)
-          base_list(item).reverse.each do |base|
-            unless def_item(base)
-              base_deps << File.join(Config.instance.interface_dir, "#{base}.h")
+          base_module_list(item).reverse.each do |base_mod|
+            unless module_name == base_mod || def_item(base_mod)
+              base_dep = File.join(Config.instance.interface_dir, "#{base_mod}.h")
+              base_deps << base_dep unless base_deps.include?(base_dep)
             end
           end
         end

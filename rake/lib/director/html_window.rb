@@ -19,15 +19,7 @@ module WXRuby3
         super
         spec.items << 'wxHtmlFilter'
         spec.gc_as_window 'wxHtmlWindow'
-        spec.ignore_bases('wxHtmlWindow' => %w[wxScrolledWindow wxHtmlWindowInterface])
-        spec.override_base('wxHtmlWindow', 'wxScrolledWindow')
-        spec.swig_import %w[
-            swig/classes/include/wxObject.h
-            swig/classes/include/wxEvtHandler.h
-            swig/classes/include/wxWindow.h
-            swig/classes/include/wxPanel.h
-            swig/classes/include/wxScrolledWindow.h
-            ]
+        spec.override_inheritance_chain('wxHtmlWindow', %w[wxScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
         # add members from wxHtmlWindowInterface
         # (we do it like this because we do not want pure virtual declarations which is
         # what we would get if we used fold_bases)
@@ -44,6 +36,7 @@ module WXRuby3
         spec.suppress_warning(473, "wxHtmlWindow::GetHTMLWindow")
         # deprecated; use event handler instead
         spec.ignore 'wxHtmlWindow::OnLinkClicked'
+        spec.no_proxy 'wxHtmlWindow::SendAutoScrollEvents'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
         # type mapping for LoadFile, SetFonts and OnOpeningURL
         spec.map 'const wxFileName &filename' => 'String' do

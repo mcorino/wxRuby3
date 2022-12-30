@@ -312,7 +312,7 @@ module WXRuby3
       helper = DirectorSpecsHelper::Simple.new(self)
       mreg = {}
       helper.def_items.each do |item|
-        if Extractor::ClassDef === item && !item.ignored
+        if Extractor::ClassDef === item && !item.ignored && !helper.is_folded_base?(item.name)
           mreg[item.name] = helper.base_class(item)
           Spec.class_index[item.name] = helper
         end

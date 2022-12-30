@@ -22,14 +22,8 @@ module WXRuby3
         spec.items.replace %w[wxGrid]
         super
         spec.gc_as_window
-        spec.ignore_bases('wxGrid' => ['wxScrolledCanvas'])
-        spec.override_base('wxGrid', 'wxScrolledCanvas')
-        spec.swig_import %w[
-            swig/classes/include/wxObject.h
-            swig/classes/include/wxEvtHandler.h
-            swig/classes/include/wxWindow.h
-            swig/classes/include/wxScrolledCanvas.h
-            ]
+        spec.override_inheritance_chain('wxGrid', %w[wxScrolledCanvas wxWindow wxEvtHandler wxObject])
+        spec.no_proxy 'wxGrid::SendAutoScrollEvents'
         # All of the methods have alternate versions that accept row, col pair
         # of integers, so these are redundant
         spec.ignore 'wxGrid::CellToRect(const wxGridCellCoords &)'

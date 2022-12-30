@@ -161,20 +161,28 @@ module WXRuby3
     end
 
     def gen_swig_interface_code(fout)
+      generated_imports = ::Set.new
+
       unless swig_imports[:prepend].empty?
         fout.puts
         swig_imports[:prepend].each do |inc|
           fout .puts %Q{%import "#{inc}"}
+          generated_imports << inc
         end
       end
 
+      spacer = false
       def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored && !is_folded_base?(item.name)
-          fout.puts
-          base_list(item).reverse.each do |base|
-            unless def_item(base)
-              import_fnm = File.join(WXRuby3::Config.instance.interface_dir, "#{base}.h")
-              fout.puts %Q{%import "#{import_fnm}"} unless swig_imports.include?(import_fnm)
+          base_module_list(item).reverse.each do |base_mod|
+            unless module_name == base_mod || def_item(base_mod)
+              import_fnm = File.join(WXRuby3::Config.instance.interface_dir, "#{base_mod}.h")
+              unless generated_imports.include?(import_fnm)
+                fout.puts unless spacer
+                spacer = true
+                fout.puts %Q{%import "#{import_fnm}"}
+                generated_imports << import_fnm
+              end
             end
           end
         end
@@ -183,7 +191,10 @@ module WXRuby3
       unless swig_imports[:append].empty?
         fout.puts
         swig_imports[:append].each do |inc|
-          fout .puts %Q{%import "#{inc}"}
+          unless generated_imports.include?(inc)
+            fout.puts %Q{%import "#{inc}"}
+            generated_imports << inc
+          end
         end
       end
 

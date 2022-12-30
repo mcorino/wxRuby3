@@ -18,8 +18,12 @@ module WXRuby3
       def setup
         super
         setup_ctrl_with_items('wxChoice')
-        spec.ignore_bases('wxChoice' => %w[wxItemContainer])
-        spec.override_base('wxChoice', 'wxControlWithItems')
+        spec.override_inheritance_chain('wxChoice',
+                                        %w[wxControlWithItems
+                                           wxControl
+                                           wxWindow
+                                           wxEvtHandler
+                                           wxObject])
         # redundant with good typemaps
         spec.ignore('wxChoice::wxChoice(wxWindow *,wxWindowID,const wxPoint &,const wxSize &,int,const wxString[],long,const wxValidator &,const wxString &)')
         spec.ignore('wxChoice::Create(wxWindow *,wxWindowID,const wxPoint &,const wxSize &,int,const wxString[],long,const wxValidator &,const wxString &)')

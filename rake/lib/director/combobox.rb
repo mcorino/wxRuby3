@@ -20,8 +20,12 @@ module WXRuby3
         spec.items << 'wxTextEntry'
         setup_ctrl_with_items('wxComboBox')
         spec.fold_bases('wxComboBox' => %w[wxTextEntry])
-        spec.ignore_bases('wxComboBox' => %w[wxTextEntry wxItemContainer])
-        spec.override_base('wxComboBox', 'wxControlWithItems')
+        spec.override_inheritance_chain('wxComboBox',
+                                        %w[wxControlWithItems
+                                           wxControl
+                                           wxWindow
+                                           wxEvtHandler
+                                           wxObject])
         spec.ignore(%w[
           wxTextEntry::Clear
           wxTextEntry::IsEmpty

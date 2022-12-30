@@ -22,7 +22,7 @@ module WXRuby3
           spec.items << 'wxClientDataContainer'
           spec.fold_bases('wxGridCellAttr' => ['wxClientDataContainer'])
         end
-        spec.ignore_bases('wxGridCellAttr' => ['wxRefCounter'])
+        spec.override_inheritance_chain('wxGridCellAttr', [])
         spec.gc_as_refcounted('wxGridCellAttr')
         spec.ignore %w[wxGridCellAttr::IncRef wxGridCellAttr::DecRef]
         # wxWidgets takes over managing the ref count

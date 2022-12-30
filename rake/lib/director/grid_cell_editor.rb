@@ -25,15 +25,11 @@ module WXRuby3
             spec.items << 'wxClientDataContainer'
             spec.fold_bases('wxGridCellEditor' => ['wxClientDataContainer'])
           end
-          spec.ignore_bases('wxGridCellEditor' => ['wxRefCounter'])
+          spec.override_inheritance_chain('wxGridCellEditor', [])
           spec.regard('wxGridCellEditor::~wxGridCellEditor')
         elsif spec.module_name == 'wxGridCellActivatableEditor'
           spec.post_processors << :fix_gridcelleditor
-          if Config.instance.wx_version >= '3.1.7'
-            spec.ignore_bases('wxGridCellEditor' => ['wxSharedClientDataContainer', 'wxRefCounter'])
-          else
-            spec.ignore_bases('wxGridCellEditor' => ['wxClientDataContainer', 'wxRefCounter'])
-          end
+          spec.override_inheritance_chain('wxGridCellActivatableEditor', %w[wxGridCellEditor])
           spec.no_proxy %w[
             wxGridCellActivatableEditor::BeginEdit
             wxGridCellActivatableEditor::Create
@@ -52,10 +48,13 @@ module WXRuby3
             ]
         else
           spec.post_processors << :fix_gridcelleditor
-          if Config.instance.wx_version >= '3.1.7'
-            spec.ignore_bases('wxGridCellEditor' => ['wxSharedClientDataContainer', 'wxRefCounter'])
+          case spec.module_name
+          when 'wxGridCellEnumEditor'
+            spec.override_inheritance_chain(spec.module_name, %w[wxGridCellChoiceEditor wxGridCellEditor])
+          when 'wxGridCellAutoWrapStringEditor', 'wxGridCellFloatEditor', 'wxGridCellNumberEditor'
+            spec.override_inheritance_chain(spec.module_name, %w[wxGridCellTextEditor wxGridCellEditor])
           else
-            spec.ignore_bases('wxGridCellEditor' => ['wxClientDataContainer', 'wxRefCounter'])
+            spec.override_inheritance_chain(spec.module_name, %w[wxGridCellEditor])
           end
           # due to the flawed wxWidgets XML docs we need to explicitly add these here
           # otherwise the derived editors won't be allocable due to pure virtuals

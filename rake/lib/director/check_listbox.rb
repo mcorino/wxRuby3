@@ -7,27 +7,27 @@
 # @copyright Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
-require_relative './window'
+require_relative './ctrl_with_items'
 
 module WXRuby3
 
   class Director
 
-    class CheckListBox < Window
+    class CheckListBox < ControlWithItems
 
       include Typemap::ArrayIntSelections
 
       def setup
         super
-        spec.ignore_bases('wxCheckListBox' => %w[wxListBox])
-        spec.override_base('wxCheckListBox', 'wxListBox')
+        setup_ctrl_with_items('wxCheckListBox')
+        spec.override_inheritance_chain('wxCheckListBox',
+                                        %w[wxListBox
+                                           wxControlWithItems
+                                           wxControl
+                                           wxWindow
+                                           wxEvtHandler
+                                           wxObject])
         spec.ignore('wxCheckListBox::Create(wxWindow *,wxWindowID, const wxPoint &,const wxSize &,int,const wxString[],long,const wxValidator &,const wxString &)')
-        spec.swig_import('swig/classes/include/wxObject.h',
-                         'swig/classes/include/wxEvtHandler.h',
-                         'swig/classes/include/wxWindow.h',
-                         'swig/classes/include/wxControl.h',
-                         'swig/classes/include/wxControlWithItems.h',
-                         'swig/classes/include/wxListBox.h')
       end
 
     end # class ListBox

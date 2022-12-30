@@ -11,12 +11,79 @@ module WXRuby3
 
   module Extractor
 
+    class SuperDef
+      def self.[](name, *supers, mod: nil)
+        self.new(name, *supers, mod: mod)
+      end
+
+      def self.create_super_def(spec)
+        case spec
+        when SuperDef
+          spec
+        when ::Hash
+          name, mod = spec.first
+          SuperDef[name, mod: mod]
+        else
+          SuperDef[spec.to_s]
+        end
+      end
+
+      def self.build_inheritance_chain(*supers)
+        return SuperDef[nil] if supers.empty?
+        base = create_super_def(supers.shift)
+        base.add_super(build_inheritance_chain(*supers)) unless supers.empty?
+        base
+      end
+
+      def self.build_hierarchy(*supers)
+        supers.inject({}) do |h, p|
+          sd = create_super_def(p)
+          h[sd.name] = sd
+          h
+        end
+      end
+
+      def initialize(name, *supers, mod: nil)
+        @name = name
+        @module = mod
+        @supers = SuperDef.build_hierarchy(*supers)
+      end
+
+      attr_reader :name, :supers
+
+      def module
+        @module ? @module : @name
+      end
+
+      def add_super(spr, *supers, mod: nil)
+        if SuperDef === spr
+          @supers[spr.name] = spr
+        else
+          @supers[spr.to_s] = SuperDef.new(spr.to_s, *supers, mod: mod)
+        end
+      end
+
+      def get_super(name)
+        @supers[name]
+      end
+
+      def to_s
+        "{#{name}#{@module ? "@#{@module}" : ''} < #{@supers.values.join(', ')}}"
+      end
+
+      def inspect
+        to_s
+      end
+    end
+
     # The information about a class that is needed to generate wrappers for it.
     class ClassDef < BaseDef
 
       include Util::StringUtil
 
       NAME_TAG = 'compoundname'
+
+      IGNORED_BASES = ['wxTrackable']
 
       def initialize(element = nil, kind = 'class', **kwargs)
         super()
@@ -60,30 +127,32 @@ module WXRuby3
       end
 
       def get_hierarchy(element)
-        clshier = {}
+        this = nil
         index = {}
         # collect
         graph = element.at_xpath('inheritancegraph')
         if graph
           graph.xpath('node'). each do |node|
-            node_id = node['id']
             node_name = node.at_xpath('label').text
-            node_bases = node.xpath('childnode').inject({}) { |hash, cn|  hash[cn['refid']] = nil; hash }
-            index[node_id] = [node_name, node_bases]
-            clshier = node_bases if @name == node_name
+            unless IGNORED_BASES.include?(node_name)
+              node_supers = node.xpath('childnode').collect { |cn|  cn['refid'] }
+              sd = SuperDef[node_name]
+              index[node['id']] = [sd, node_supers]
+              this = sd if @name == node_name
+            end
           end
           # resolve
-          index.each_value do |(nm, nb)|
-            nb.replace(nb.inject({}) {|h,(bid,_)| h[index[bid].first] = index[bid].last; h })
+          index.each_value do |(sd, ns)|
+            ns.each { |sid| sd.add_super(index[sid].first) if index.has_key?(sid) }
           end
         end
-        clshier
+        this ? this.supers : {}
       end
 
       def find_base(bases, name)
         return bases[name] if bases.has_key?(name)
-        bases.each_value do |childbases|
-          if (base = find_base(childbases, name))
+        bases.each_value do |base|
+          if (base = find_base(base.supers, name))
             return base
           end
         end

@@ -38,11 +38,10 @@ module WXRuby3
                   modname[0].upcase << modname[1,modname.size-1]
                 end
         @class_renames = ::Hash.new
-        @base_overrides = ::Hash.new
+        @inheritance_overrides = ::Hash.new
         @templates_as_class = ::Hash.new
         @interface_extensions = ::Hash.new
         @folded_bases = ::Hash.new
-        @ignored_bases = ::Hash.new
         @abstracts = ::Hash.new
         @items = [modname]
         @director = director
@@ -75,7 +74,7 @@ module WXRuby3
         @type_maps = Typemap::Collection.new
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignored_bases,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases,
                   :ignores, :regards, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
@@ -111,14 +110,16 @@ module WXRuby3
         @class_renames.invert[name] || @templates_as_class.invert[name] || name
       end
 
-      def override_base(cls, base, doc_override: true)
-        @base_overrides[cls] = [base, doc_override ? base : nil]
-        self
+      def override_inheritance_chain(clsnm, *supers, doc_override: true)
+        @inheritance_overrides[clsnm] = [
+          Extractor::SuperDef.build_inheritance_chain(*supers.flatten),
+          doc_override
+        ]
       end
 
-      def base_override(cls, doc: false)
-        base, doc_base = @base_overrides[cls]
-        doc ? doc_base : base
+      def inheritance_override(clsnm, doc: false)
+        supers, doc_override = @inheritance_overrides[clsnm]
+        (!doc || doc_override) ? supers : nil
       end
 
       def extend_interface(cls, *declarations, visibility: 'public')
@@ -145,19 +146,6 @@ module WXRuby3
 
       def is_folded_base?(cnm)
         @folded_bases.values.any? { |nms| nms.include?(cnm) }
-      end
-
-      def ignore_bases(*specs)
-        specs.each do |foldspec|
-          if ::Hash === foldspec
-            foldspec.each_pair do |classnm, subclasses|
-              @ignored_bases[classnm] = [subclasses].flatten
-            end
-          else
-            raise "Invalid class ignore specs [#{specs.inspect}]"
-          end
-        end
-        self
       end
 
       def gc_never(*names)
@@ -397,6 +385,14 @@ module WXRuby3
 
       def do_not_generate(*sections)
         @nogen_sections.merge sections.flatten
+      end
+
+      def to_s
+        "<#{module_name}: package=#{package.name}>"
+      end
+
+      def inspect
+        to_s
       end
 
     end

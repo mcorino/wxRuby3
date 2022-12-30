@@ -26,7 +26,7 @@ module WXRuby3
           ]
         spec.gc_as_object 'wxRichTextAttr'
         spec.gc_never 'wxRichTextBuffer'
-        spec.ignore_bases('wxRichTextBuffer' => %w[wxRichTextParagraphLayoutBox])
+        spec.override_inheritance_chain('wxRichTextBuffer', %w[wxObject])
         spec.ignore %w[
           wxRichTextBuffer::GetBatchedCommand
           wxRichTextBuffer::GetCommandProcessor

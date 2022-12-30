@@ -17,9 +17,6 @@ module WXRuby3
 
       def setup
         super
-        spec.ignore_bases('wxGridEditorCreatedEvent' => %w[wxCommandEvent]) # needed to suppress imports
-        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h', append_to_base_imports: true) # provide base definitions
-        spec.override_base('wxGridEditorCreatedEvent', 'wxCommandEvent') # re-establish correct base
       end
     end # class GridEditorCreatedEvent
 

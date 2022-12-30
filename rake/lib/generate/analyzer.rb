@@ -52,7 +52,7 @@ module WXRuby3
         @registry[:members][:protected]
       end
 
-      def methods
+      def method_table
         @registry[:methods]
       end
     end
@@ -86,7 +86,7 @@ module WXRuby3
           class_registry.protected_members << member
         end
         if Extractor::MethodDef === member && !member.is_ctor && !member.is_dtor && !member.is_static
-          class_registry.methods[member.signature] = {
+          class_registry.method_table[member.signature] = {
             method: member,
             virtual: member.is_virtual,
             purevirt: req_pure_virt && member.is_pure_virtual,
@@ -143,7 +143,7 @@ module WXRuby3
         member = member.tr("\n", '')
         if /[^\(\)]+\([^\)]*\)[^\(\)]*/ =~ member
           mtdef = parse_method_decl(member)
-          class_registry.methods[mtdef.signature] = {
+          class_registry.method_table[mtdef.signature] = {
             method: mtdef,
             virtual: mtdef.is_virtual,
             purevirt: req_pure_virt && mtdef.is_pure_virtual,
@@ -291,7 +291,7 @@ module WXRuby3
       end
 
       def class_interface_methods(class_name)
-        class_interface_registry(class_name).methods
+        class_interface_registry(class_name).method_table
       end
 
       def has_class_interface(class_name)
@@ -360,6 +360,8 @@ module WXRuby3
               # check all directly inherited generated methods
               mtdlist = ::Set.new # remember handled signatures
               base_list(item).each do |base_name|
+                # get 'real' base name (i.e. take renames into account)
+                base_name = ifspec.classdef_name(base_name)
                 # make sure the base class has been preprocessed
                 get_class_interface(package, base_name, doc_gen) unless has_class_interface(base_name)
                 # iterate the base class's method registrations

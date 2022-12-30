@@ -17,12 +17,12 @@ module WXRuby3
 
       def setup
         super
-        spec.ignore_bases('wxBookCtrlEvent' => %w[wxNotifyEvent wxCommandEvent]) # needed to suppress imports
-        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h', append_to_base_imports: true) # provide base definitions
-        case spec.module_name
-        when 'wxBookCtrlEvent'
-          spec.override_base('wxBookCtrlEvent', 'wxNotifyEvent') # re-establish correct base
-        end
+        #spec.ignore_bases('wxBookCtrlEvent' => %w[wxNotifyEvent wxCommandEvent]) # needed to suppress imports
+        #spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h', append_to_base_imports: true) # provide base definitions
+        # case spec.module_name
+        # when 'wxBookCtrlEvent'
+        #   spec.override_base('wxBookCtrlEvent', 'wxNotifyEvent') # re-establish correct base
+        # end
       end
     end # class Object
 

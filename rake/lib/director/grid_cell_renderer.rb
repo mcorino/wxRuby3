@@ -24,13 +24,16 @@ module WXRuby3
             spec.items << 'wxClientDataContainer'
             spec.fold_bases('wxGridCellRenderer' => ['wxClientDataContainer'])
           end
-          spec.ignore_bases('wxGridCellRenderer' => ['wxRefCounter'])
+          spec.override_inheritance_chain('wxGridCellRenderer', [])
           spec.regard('wxGridCellRenderer::~wxGridCellRenderer')
         else
-          if Config.instance.wx_version >= '3.1.7'
-            spec.ignore_bases('wxGridCellRenderer' => ['wxSharedClientDataContainer', 'wxRefCounter'])
+          case spec.module_name
+          when 'wxGridCellStringRenderer'
+            spec.override_inheritance_chain('wxGridCellStringRenderer', %w[wxGridCellRenderer])
+          when 'wxGridCellDateTimeRenderer'
+            spec.override_inheritance_chain('wxGridCellDateTimeRenderer', %w[wxGridCellDateRenderer wxGridCellStringRenderer wxGridCellRenderer])
           else
-            spec.ignore_bases('wxGridCellRenderer' => ['wxClientDataContainer', 'wxRefCounter'])
+            spec.override_inheritance_chain(spec.module_name, %w[wxGridCellStringRenderer wxGridCellRenderer])
           end
           # due to the flawed wxWidgets XML docs we need to explicitly add these here
           # otherwise the derived renderers won't be allocable due to pure virtuals

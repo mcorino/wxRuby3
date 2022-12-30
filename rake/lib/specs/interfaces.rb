@@ -19,6 +19,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxMouseState')
     Director.Spec(pkg, 'wxEvent')
     Director.Spec(pkg, 'wxEvtHandler')
+    Director.Spec(pkg, 'wxEvents')
     Director.Spec(pkg, 'wxApp')
     Director.Spec(pkg, 'wxDC')
     Director.Spec(pkg, 'wxWindowDC')

@@ -595,7 +595,7 @@ module WXRuby3
                               end
             clsnm = rb_wx_name(intf_class_name)
             xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
-            basecls = base_class(item, doc: true)
+            basecls = ifspec.classdef_name(base_class(item, doc: true))
             fdoc.doc.puts get_class_doc(item)
             fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
             fdoc.puts

@@ -17,7 +17,7 @@ module WXRuby3
       def setup
         spec.items << 'wxItemContainerImmutable'
         spec.fold_bases('wxRadioBox' => 'wxItemContainerImmutable')
-        spec.ignore_bases('wxRadioBox' => 'wxItemContainerImmutable')
+        spec.override_inheritance_chain('wxRadioBox', %w[wxControl wxWindow wxEvtHandler wxObject])
         # ignore overload hiding common Window method
         spec.ignore('wxRadioBox::Enable')
         spec.add_extend_code 'wxRadioBox', <<~__HEREDOC

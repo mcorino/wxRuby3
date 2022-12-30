@@ -19,10 +19,7 @@ module WXRuby3
 
       def setup
         super
-        spec.ignore_bases('wxDateEvent' => %w[wxCommandEvent]) # needed to suppress imports
-        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h') # provide base definitions
         if spec.module_name == 'wxDateEvent'
-          spec.override_base('wxDateEvent', 'wxCommandEvent') # re-establish correct base
           # add DateTime conversion helpers
           spec.add_header_code <<~__HEREDOC
             #define __WXRB_DATETIME_HELPERS__
@@ -140,6 +137,7 @@ module WXRuby3
             }
             __HEREDOC
         elsif spec.module_name == 'wxCalendarEvent'
+          spec.override_inheritance_chain('wxCalendarEvent', {'wxDateEvent' => 'wxEvents'}, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject', doc_override: false)
           # inconsistent definitions
           spec.add_swig_code %Q{%constant wxEventType wxEVT_CALENDAR = wxEVT_CALENDAR_DOUBLECLICKED;}
         end

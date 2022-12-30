@@ -17,7 +17,7 @@ module WXRuby3
 
       def setup
         super
-        spec.ignore_bases('wxStyledTextCtrl' => 'wxTextEntry')
+        spec.override_inheritance_chain('wxStyledTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.map 'int *OUTPUT' => 'Integer' do
           map_in ignore: true, temp: 'int a', code: '$1 = &a;'
           map_argout code: <<~__CODE

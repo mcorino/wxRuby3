@@ -17,9 +17,6 @@ module WXRuby3
 
       def setup
         super
-        spec.ignore_bases(spec.module_name => %w[wxCommandEvent]) # needed to suppress imports
-        spec.swig_import('swig/classes/include/wxObject.h', 'swig/classes/include/wxEvent.h', append_to_base_imports: true) # provide base definitions
-        spec.override_base(spec.module_name, 'wxCommandEvent') # re-establish correct base
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class HtmlEvent

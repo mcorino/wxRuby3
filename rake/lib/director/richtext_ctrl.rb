@@ -22,7 +22,7 @@ module WXRuby3
 
       def setup
         super
-        spec.ignore_bases('wxRichTextCtrl' => %w[wxTextCtrlIface wxScrollHelper])
+        spec.override_inheritance_chain('wxRichTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.include 'wx/dc.h'
         spec.ignore [
           'wxRichTextCtrl::GetSelection(long *,long *) const',

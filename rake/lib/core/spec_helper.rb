@@ -72,28 +72,29 @@ module WXRuby3
       ifspec.class_name(class_def.name)
     end
 
-    def get_base_class(cls, hierarchy, foldedbases, ignoredbases)
-      hierarchy = hierarchy.select { |basenm, _| !ignoredbases.include?(basenm) }
-      raise "Cannot determin base class for #{cls} from multiple inheritance hierarchy : #{hierarchy}" if hierarchy.size>1
+    def get_base_class(cls, hierarchy, foldedbases)
+      raise "Cannot determine base class for #{cls} from multiple inheritance hierarchy : #{hierarchy}" if hierarchy.size>1
       return nil if hierarchy.empty?
-      basenm, bases = hierarchy.first
+      basenm, base = hierarchy.first
       return basenm unless foldedbases.include?(basenm)
-      get_base_class(basenm, bases, folded_bases(basenm), ignored_bases(basenm))
+      get_base_class(basenm, base.supers, folded_bases(basenm))
     end
     private :get_base_class
 
     def base_class(classdef_or_name, doc: false)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
-      ifspec.base_override(class_def.name, doc: doc) ||
-        get_base_class(class_def.name, class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name))
+      if (base = ifspec.inheritance_override(class_def.name, doc: doc))
+        base.name
+      else
+        get_base_class(class_def.name, class_def.hierarchy, folded_bases(class_def.name))
+      end
     end
 
-    def get_base_list(hierarchy, foldedbases, ignoredbases, list = ::Set.new)
-      hierarchy = hierarchy.select { |basenm, _| !ignoredbases.include?(basenm) }
-      hierarchy.each do |basenm, bases|
-        list << basenm unless foldedbases.include?(basenm)
-        get_base_list(bases, folded_bases(basenm), ignored_bases(basenm), list)
+    private def get_base_list(hierarchy, foldedbases, list = ::Set.new)
+      hierarchy.each_value do |super_def|
+        list << super_def.name unless foldedbases.include?(super_def.name)
+        get_base_list(super_def.supers, folded_bases(super_def.name), list)
       end
       list
     end
@@ -101,7 +102,25 @@ module WXRuby3
     def base_list(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
-      get_base_list(class_def.hierarchy, folded_bases(class_def.name), ignored_bases(class_def.name)).to_a
+      base = ifspec.inheritance_override(class_def.name)
+      hierarchy = (base && (base.name ? {base.name => base} : {})) || class_def.hierarchy
+      get_base_list(hierarchy, folded_bases(class_def.name)).to_a
+    end
+
+    private def get_base_module_list(hierarchy, foldedbases, list = ::Set.new)
+      hierarchy.each_value do |super_def|
+        list << super_def.module unless foldedbases.include?(super_def.name)
+        get_base_module_list(super_def.supers, folded_bases(super_def.name), list)
+      end
+      list
+    end
+
+    def base_module_list(classdef_or_name)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      base = ifspec.inheritance_override(class_def.name)
+      hierarchy = (base && (base.name ? {base.name => base} : {})) || class_def.hierarchy
+      get_base_module_list(hierarchy, folded_bases(class_def.name)).to_a
     end
 
     def is_folded_base?(cnm)
@@ -110,10 +129,6 @@ module WXRuby3
 
     def folded_bases(cnm)
       ifspec.folded_bases[cnm] || []
-    end
-
-    def ignored_bases(cnm)
-      (ifspec.ignored_bases[cnm] || []) + Director::Spec::IGNORED_BASES
     end
 
     def interface_extensions(classdef_or_name, visibility='public')

@@ -15,22 +15,7 @@ module WXRuby3
 
       def setup
         if spec.module_name == 'wxEvent'
-          spec.items.concat(%w[
-            wxCommandEvent wxIdleEvent wxNotifyEvent wxScrollEvent wxScrollWinEvent wxMouseEvent wxMouseState
-            wxSetCursorEvent wxGestureEvent wxPanGestureEvent wxZoomGestureEvent wxRotateGestureEvent
-            wxTwoFingerTapEvent wxLongPressEvent wxPressAndTapEvent wxKeyEvent wxKeyboardState
-            wxSizeEvent wxMoveEvent wxPaintEvent wxEraseEvent wxFocusEvent wxActivateEvent
-            wxInitDialogEvent wxMenuEvent wxCloseEvent wxShowEvent wxIconizeEvent wxMaximizeEvent
-            wxFullScreenEvent wxJoystickEvent wxDropFilesEvent wxUpdateUIEvent wxSysColourChangedEvent
-            wxMouseCaptureChangedEvent wxMouseCaptureLostEvent wxDisplayChangedEvent wxDPIChangedEvent
-            wxPaletteChangedEvent wxQueryNewPaletteEvent wxNavigationKeyEvent wxWindowCreateEvent
-            wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent
-            ])
-          spec.fold_bases('wxMouseEvent' => 'wxMouseState', 'wxKeyEvent' => 'wxKeyboardState')
-          spec.ignore_bases('wxMouseEvent' => 'wxMouseState', 'wxKeyEvent' => 'wxKeyboardState')
-          spec.make_abstract('wxPaintEvent')
-          spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
-          spec.set_only_for 'WXWIN_COMPATIBILITY_2_8', 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
+          spec.items << 'wxCommandEvent'
           spec.add_swig_code <<~__HEREDOC
             // To allow instance variables to be attached to custom subclasses of
             // Wx::Event written in Ruby in a GC-safe, thread-safe way, wrap a
@@ -103,7 +88,6 @@ module WXRuby3
             wxCommandEvent::GetExtraLong
           }
           spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')
-          # spec.override_base('wxCommandEvent', 'wxRubyEvent')
           spec.extend_interface('wxCommandEvent', 'virtual wxCommandEvent* Clone() const')
           spec.no_proxy 'wxRubyCommandEvent::Clone'
           spec.add_header_code <<~__HEREDOC
@@ -146,63 +130,24 @@ module WXRuby3
               }
             };
             __HEREDOC
-          spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
-          spec.ignore 'wxMouseState::GetPosition(int *,int *)'
-          spec.ignore 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
-          spec.ignore 'wxQueueEvent'
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetDefaultEventClass () {
               return SwigClassWxEvent.klass;
             }
             __HEREDOC
+          spec.ignore 'wxQueueEvent'
+          spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
           # make sure this event constant definition exists
           spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
         else
+          # to correctly translate customized inheritance to actual class names
+          spec.rename_class('wxEvent', 'wxRubyEvent')
+          spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')
           spec.add_header_code <<~__HEREDOC
-            // Custom subclass implementation. Provides a constructor, destructor and
-            // clone functions to allow proper linking to a Ruby object.
-            // Defined in Event.cpp
-            class WXRUBY_EXPORT wxRubyEvent : public wxEvent
-            {
-              public:
-              wxRubyEvent(wxEventType commandType = wxEVT_NULL, 
-                          int id = 0,
-                          int prop_level = wxEVENT_PROPAGATE_NONE); 
-            
-              // When the C++ side event is destroyed, unlink from the Ruby object
-              // and remove that object from the tracking hash so it can be
-              // collected by GC.
-              virtual ~wxRubyEvent();
-            
-              // Will be called when add_pending_event is used to queue an event
-              // (often when using Threads), because a clone is queued. So copy the
-              // Wx C++ event, create a shallow (dup) of the Ruby event object, and
-              // add to the tracking hash so that it is GC-protected
-              virtual wxEvent* Clone() const;
-            };
-
-            // Cf wxEvent - has to be written as a C+++ subclass to ensure correct
-            // GC/thread protection of Ruby instance variables when user-written
-            // event classes are queued.
-            // Defined in Event.cpp
-            class WXRUBY_EXPORT wxRubyCommandEvent : public wxCommandEvent
-            {
-            public:
-              wxRubyCommandEvent(wxEventType commandType = wxEVT_NULL, 
-                                 int id = 0);
-            
-              // When the C++ side event is destroyed, unlink from the Ruby object
-              // and remove that object from the tracking hash so it can be
-              // collected by GC.
-              virtual ~wxRubyCommandEvent();
-            
-              // Will be called when add_pending_event is used to queue an event
-              // (often when using Threads), because a clone is queued. So copy the
-              // Wx C++ event, create a shallow (dup) of the Ruby event object, and
-              // add to the tracking hash so that it is GC-protected
-              virtual wxCommandEvent* Clone() const;
-            };
-          __HEREDOC
+            // Make sure C++ compiler knows we mean wxEvent and wxCommandEvent here
+            #define wxRubyEvent wxEvent
+            #define wxRubyCommandEvent wxCommandEvent
+            __HEREDOC
         end
         super
       end
@@ -214,10 +159,18 @@ module WXRuby3
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item
               if def_item.hierarchy.has_key?('wxEvent')
-                spec.override_base(citem, 'wxRubyEvent', doc_override: false)
+                spec.override_inheritance_chain(citem, {'wxRubyEvent' => 'wxEvent'}, 'wxObject')
+                #spec.override_base(citem, 'wxRubyEvent', doc_override: false)
               elsif def_item.hierarchy.has_key?('wxCommandEvent')
-                spec.override_base(citem, 'wxRubyCommandEvent', doc_override: false)
+                spec.override_inheritance_chain(citem, {'wxRubyCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
+                #spec.override_base(citem, 'wxRubyCommandEvent', doc_override: false)
+              elsif def_item.hierarchy.has_key?('wxGestureEvent')
+                spec.override_inheritance_chain(citem, {'wxGestureEvent' => 'wxEvents'}, 'wxEvent', 'wxObject')
+              elsif def_item.hierarchy.has_key?('wxNotifyEvent')
+                spec.override_inheritance_chain(citem, {'wxNotifyEvent' => 'wxEvents'}, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
               end
+              spec.make_abstract(citem) if citem != 'wxCommandEvent'
+              #spec.no_proxy "#{citem}::Clone" if citem != 'wxCommandEvent'
             end
           end
         end

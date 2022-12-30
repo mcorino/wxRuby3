@@ -21,7 +21,7 @@ module WXRuby3
         spec.post_processors << :fixtreectrl
         spec.items.replace %w[wxTreeCtrl wxWithImages treebase.h]
         spec.fold_bases('wxTreeCtrl' => 'wxWithImages')
-        spec.ignore_bases('wxTreeCtrl' => 'wxWithImages')
+        spec.override_inheritance_chain('wxTreeCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore('wxWithImages::@.NO_IMAGE')
         spec.ignore('operator!=', 'operator==')
         spec.include 'wx/dirctrl.h'

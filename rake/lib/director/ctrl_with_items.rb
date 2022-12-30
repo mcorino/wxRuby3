@@ -20,7 +20,11 @@ module WXRuby3
         if spec.module_name == 'wxControlWithItems'
           spec.items.replace %w[wxControlWithItems wxItemContainer wxItemContainerImmutable]
           spec.fold_bases('wxControlWithItems' => %w[wxItemContainer wxItemContainerImmutable])
-          spec.ignore_bases('wxControlWithItems' => %w[wxItemContainer])
+          spec.override_inheritance_chain('wxControlWithItems',
+                                          %w[wxControl
+                                             wxWindow
+                                             wxEvtHandler
+                                             wxObject])
           spec.ignore([
             'wxItemContainer::Insert(const std::vector< wxString > &)',
             'wxItemContainer::GetClientObject',
@@ -59,7 +63,7 @@ module WXRuby3
           extern swig_class cWxControlWithItems;
           WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr);
           __HEREDOC
-        spec.swig_import('swig/classes/include/wxControlWithItems.h', append_to_base_imports: true)
+        spec.no_proxy "#{clsnm}::GetStringSelection"
       end
     end # class ControlWithItems
 

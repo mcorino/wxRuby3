@@ -19,7 +19,7 @@ module WXRuby3
         super
         spec.items << 'wxTextEntry'
         spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
-        spec.ignore_bases('wxTextCtrl' => 'wxTextEntry')
+        spec.override_inheritance_chain('wxTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
         if Config.instance.wx_version > '3.1.5'
           spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
