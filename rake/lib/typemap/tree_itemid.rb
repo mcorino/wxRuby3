@@ -18,6 +18,13 @@ module WXRuby3
       define do
 
         map 'wxTreeItemId&' => 'Wx::TreeItemId' do
+
+          add_header_code <<~__CODE
+            // implemented in TreeEvent.cpp
+            extern VALUE _wxRuby_Wrap_wxTreeItemId(const wxTreeItemId& id);
+            extern wxTreeItemId _wxRuby_Unwrap_wxTreeItemId(VALUE id);
+            __CODE
+
           map_in temp: 'wxTreeItemId tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);
             $1 = &tmpId;
