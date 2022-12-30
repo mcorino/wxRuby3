@@ -211,4 +211,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlEasyPrinting')
   }
 
+  Director.Package('Wx::Aui', 'wxUSE_AUI') { |pkg|
+    Director.Spec(pkg, 'wxAuiPaneInfo')
+  }
+
 end # module WXRuby3
