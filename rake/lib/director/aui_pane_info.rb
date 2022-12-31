@@ -33,24 +33,29 @@ module WXRuby3
           ]
         spec.make_readonly %w[
           wxAuiPaneInfo::rect
+          wxAuiPaneInfo::icon
+          wxAuiPaneInfo::window
           wxAuiPaneInfo::frame
           wxAuiPaneInfo::state
+          wxAuiPaneInfo::best_size
+          wxAuiPaneInfo::min_size
+          wxAuiPaneInfo::max_size
+          wxAuiPaneInfo::floating_pos
+          wxAuiPaneInfo::floating_size
           ]
         spec.ignore %w[
           wxAuiPaneInfo::Name
           wxAuiPaneInfo::Caption
-          wxAuiPaneInfo::Icon
-          wxAuiPaneInfo::Window
           wxAuiPaneInfo::Direction
           wxAuiPaneInfo::Layer
           wxAuiPaneInfo::Row
           wxAuiPaneInfo::Position
-          wxAuiPaneInfo::BestSize
-          wxAuiPaneInfo::MinSize
-          wxAuiPaneInfo::MaxSize
-          wxAuiPaneInfo::FloatingPosition
-          wxAuiPaneInfo::FloatingSize
           ]
+        spec.ignore 'wxAuiPaneInfo::BestSize(int,int)',
+                    'wxAuiPaneInfo::MinSize(int,int)',
+                    'wxAuiPaneInfo::MaxSize(int,int)',
+                    'wxAuiPaneInfo::FloatingPosition(int,int)',
+                    'wxAuiPaneInfo::FloatingSize(int,int)'
         spec.rename_for_ruby(
           'direction' => 'wxAuiPaneInfo::dock_direction',
           'layer' => 'wxAuiPaneInfo::dock_layer',
@@ -75,7 +80,14 @@ module WXRuby3
           'resizable=' => 'wxAuiPaneInfo::Resizable',
           'right_dockable=' => 'wxAuiPaneInfo::RightDockable',
           'show=' => 'wxAuiPaneInfo::Show',
-          'top_dockable=' => 'wxAuiPaneInfo::TopDockable'
+          'top_dockable=' => 'wxAuiPaneInfo::TopDockable',
+          'window=' => 'wxAuiPaneInfo::Window',
+          'icon=' => 'wxAuiPaneInfo::Icon',
+          'best_size=' => 'wxAuiPaneInfo::BestSize',
+          'min_size=' => 'wxAuiPaneInfo::MinSize',
+          'max_size=' => 'wxAuiPaneInfo::MaxSize',
+          'floating_position=' => 'wxAuiPaneInfo::FloatingPosition',
+          'floating_size=' => 'wxAuiPaneInfo::FloatingSize'
         )
         super
       end
