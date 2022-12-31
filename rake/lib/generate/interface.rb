@@ -305,7 +305,9 @@ module WXRuby3
       when Extractor::MemberVarDef
         gen_only_for(fout, member) do
           fout.puts "  // from #{member.definition}"
+          fout.puts '  %immutable;' if member.no_setter
           fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
+          fout.puts '  %mutable;' if member.no_setter
         end
       when ::String
         fout.indent do
@@ -369,7 +371,9 @@ module WXRuby3
           if member.protection == 'public' && !member.ignored && !member.deprecated
             gen_only_for(fout, member) do
               fout.puts "  // from #{member.definition}"
+              fout.puts '  %immutable;' if member.no_setter
               fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
+              fout.puts '  %mutable;' if member.no_setter
             end
           end
         end
