@@ -321,15 +321,16 @@ module WXRuby3
             # SWIG cannot handle aliasing overloads
             if (mtd_ovls = mtd.all.select { |ovl| !ovl.ignored }).size == 1
               mtd = mtd_ovls.shift
+              nparam = mtd.parameter_count
               nreqparam = mtd.required_param_count
               mtd_name = mtd.rb_name || mtd.name
-              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name) || (/\ASet[A-Z]/ =~ mtd_name && nreqparam==1))
+              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name) || (/\ASet[A-Z]/ =~ mtd_name && nparam==1))
                 if /\AGet[A-Z]/ =~ mtd_name && nreqparam==0
                   # since getters have no decoration ('=' or '?') a C++ method with the same
                   # name could exist already; check this and exclude if so
                   alias_name = mtd_name.sub(/\AGet/, '')
                   rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
-                elsif !(rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name) || (/\Aset_\w+/ =~ mtd_name && nreqparam==1))
+                elsif !(rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name) || (/\Aset_\w+/ =~ mtd_name && nparam==1))
                   if /\Aget_\w+/ =~ mtd_name && nreqparam==0
                     # since getters have no decoration ('=' or '?') a C++ method with the same
                     # name could exist already; check this and exclude if so
