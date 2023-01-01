@@ -36,14 +36,14 @@ module WXRuby3
           wxAuiNotebook::SetPageText
           wxAuiNotebook::SetSelection
           wxAuiNotebook::ChangeSelection
-          wxAuiNotebook::AddPage
           wxAuiNotebook::DeleteAllPages
           wxAuiNotebook::DeletePage
-          wxAuiNotebook::InsertPage
           wxAuiNotebook::RemovePage
           wxAuiNotebook::GetPageCount
           wxAuiNotebook::SetFont
           ]
+        spec.ignore('wxAuiNotebook::AddPage(wxWindow*,const wxString&, bool, int')
+        spec.ignore('wxAuiNotebook::InsertPage(size_t, wxWindow*,const wxString&, bool, int')
       end
     end # class AuiNotebook
 
