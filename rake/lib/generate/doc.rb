@@ -558,9 +558,24 @@ module WXRuby3
     def gen_functions_doc(fdoc)
       def_items.select {|itm| !itm.docs_ignored }.each do |item|
         if Extractor::FunctionDef === item && !item.docs_ignored
-          decl, *doc = get_function_doc(item)
-          doc.each { |s| fdoc.doc.puts s }
-          fdoc.puts decl
+          get_method_doc(item).each_pair do |name, docs|
+            if docs.size>1 # method with overloads?
+              docs.each do |params, ovl_doc|
+                fdoc.doc.puts "@overload #{name}(#{params})"
+                fdoc.doc.indent { fdoc.doc.puts ovl_doc }
+              end
+              fdoc.puts "def #{name}(*args) end"
+            else
+              params, doc = docs.shift
+              fdoc.doc.puts doc
+              if params.empty?
+                fdoc.puts "def #{name}; end"
+              else
+                fdoc.puts "def #{name}(#{params}) end"
+              end
+            end
+            fdoc.puts
+          end
         end
       end
     end
@@ -624,13 +639,27 @@ module WXRuby3
                   # overloads are flattened out by the Analyzer (with the head of the overloads list coming first)
                   # but for doc gen we only need the head item so keep track and skip the rest
                   unless cm.is_dtor || mtd_done.include?(cm.name)
-                    decl, *doc = get_method_doc(cm)
-                    doc.each { |s| fdoc.doc.puts s }
-                    fdoc.puts decl
-                    if alias_methods.has_key?(cm.name)
-                      fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{cm.rb_decl_name}"
+                    get_method_doc(cm).each_pair do |name, docs|
+                      if docs.size>1 # method with overloads?
+                        docs.each do |params, ovl_doc|
+                          fdoc.doc.puts "@overload #{name}(#{params})"
+                          fdoc.doc.indent { fdoc.doc.puts ovl_doc }
+                        end
+                        fdoc.puts "def #{name}(*args) end"
+                      else
+                        params, doc = docs.shift
+                        fdoc.doc.puts doc
+                        if params.empty?
+                          fdoc.puts "def #{name}; end"
+                        else
+                          fdoc.puts "def #{name}(#{params}) end"
+                        end
+                        if alias_methods.has_key?(cm.name)
+                          fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{name}"
+                        end
+                      end
+                      fdoc.puts
                     end
-                    fdoc.puts
                     mtd_done << cm.name
                   end
                 when Extractor::MemberVarDef

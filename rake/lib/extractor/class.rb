@@ -317,21 +317,20 @@ module WXRuby3
           # exclude ctor/dtor and static and methods
           rc = false
           unless mtd.is_ctor || mtd.is_dtor || mtd.is_static
-            # only consider methods without or max 1 non-ignored overloaded methods as
-            # SWIG cannot handle aliasing overloads
-            if (mtd_ovls = mtd.all.select { |ovl| !ovl.ignored }).size == 1
+            mtd_ovls = mtd.all.select { |ovl| !ovl.ignored } # only consider non-ignored
+            # only consider methods without overloads or where all overloads have not been renamed
+            # (SWIG %rename does not work well with %alias in these cases)
+            if mtd_ovls.size==1 || !mtd_ovls.select { |ovl| !ovl.rb_name }.empty?
               mtd = mtd_ovls.shift
-              nparam = mtd.parameter_count
-              nreqparam = mtd.required_param_count
               mtd_name = mtd.rb_name || mtd.name
-              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name) || (/\ASet[A-Z]/ =~ mtd_name && nparam==1))
-                if /\AGet[A-Z]/ =~ mtd_name && nreqparam==0
+              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name) || ((/\ASet[A-Z]/ =~ mtd_name) && mtd_ovls.all? { |ovl| ovl.parameter_count==1 || ovl.required_param_count==1 }))
+                if /\AGet[A-Z]/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.required_param_count==0 }
                   # since getters have no decoration ('=' or '?') a C++ method with the same
                   # name could exist already; check this and exclude if so
                   alias_name = mtd_name.sub(/\AGet/, '')
                   rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
-                elsif !(rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name) || (/\Aset_\w+/ =~ mtd_name && nparam==1))
-                  if /\Aget_\w+/ =~ mtd_name && nreqparam==0
+                elsif !(rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name) || (/\Aset_\w+/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.parameter_count==1 || ovl.required_param_count==1 }))
+                  if /\Aget_\w+/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.required_param_count==0 }
                     # since getters have no decoration ('=' or '?') a C++ method with the same
                     # name could exist already; check this and exclude if so
                     alias_name = mtd_name.sub(/\Aget_/, '')

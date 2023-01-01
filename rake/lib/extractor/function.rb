@@ -74,21 +74,18 @@ module WXRuby3
 
       def rb_doc(xml_trans, type_maps)
         ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
-        paramlist = nil
-        doc = ovls.collect { |mo| paramlist, docstr = mo.rb_doc_decl(xml_trans, type_maps, ovls.size>1); docstr }
-        unless ovls.empty?
-          if ovls.size>1
-            doc.unshift "def #{rb_decl_name}(*args) end"
-          elsif paramlist.empty?
-            doc.unshift "def #{rb_decl_name}; end"
+        ovl_docs = ovls.collect { |mo| mo.rb_doc_decl(xml_trans, type_maps) }
+        ovl_docs.inject({}) do |docs, (name, params, doc)|
+          if docs.has_key?(name)
+            docs[name] << [params, doc]
           else
-            doc.unshift "def #{rb_decl_name}(#{paramlist}) end"
+            docs[name] = [[params, doc]]
           end
+          docs
         end
-        doc
       end
 
-      def rb_doc_decl(xml_trans, type_maps, has_ovl=false)
+      def rb_doc_decl(xml_trans, type_maps)
         # get parameterlist docs (if any)
         params_doc = @detailed_doc.at_xpath('para/parameterlist[@kind="param"]')
         # unlink params_doc if any
@@ -139,30 +136,22 @@ module WXRuby3
         end if params_doc
         # collect full function docs
         paramlist = params.collect {|p| p[:default] ? "#{p[:name]}=#{p[:default]}" : p[:name]}.join(', ').strip
-        doclns = []
-        if has_ovl
-          doclns << "@overload #{rb_decl_name}(#{paramlist})"
-          doclns.concat doc.split("\n").collect { |ln| '  '+ln }
-        else
-          doclns << doc
-        end
+        doclns = doc.split("\n")
         params.each do |p|
-          s = has_ovl ? '  ' : ''
-          doclns << (s << '@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
+          doclns << ('@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
-        s = has_ovl ? '  ' : ''
         result = [rb_return_type(type_maps)]
         result.concat(mapped_ret_args.collect { |mra| mra.type }) if mapped_ret_args
         result.compact! # remove nil values (possible ignored output)
         case result.size
         when 0
-          doclns << "#{s}@return [void]"
+          doclns << "@return [void]"
         when 1
-          doclns << "#{s}@return [#{result.first}]"
+          doclns << "@return [#{result.first}]"
         else
-          doclns << "#{s}@return [Array<(#{result.join(',')})>]"
+          doclns << "@return [Array<(#{result.join(',')})>]"
         end
-        [paramlist, doclns.join("\n")]
+        [rb_decl_name, paramlist, doclns]
       end
 
       def rb_return_type(type_maps)
