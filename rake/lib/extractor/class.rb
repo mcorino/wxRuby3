@@ -314,34 +314,49 @@ module WXRuby3
 
       def aliases
         methods.select do |mtd|
-          # exclude ctor/dtor, static and ignored methods
+          # exclude ctor/dtor and static and methods
           rc = false
-          if !(mtd.is_ctor || mtd.is_dtor) && !mtd.is_static && !mtd.ignored
-            nreqparam = mtd.required_param_count
-            unless (rc = /\A(Is|Has|Can)[A-Z]/ =~ mtd.name || (/\ASet[A-Z]/ =~ mtd.name && nreqparam==1))
-              if /\AGet[A-Z]/ =~ mtd.name && nreqparam==0
-                # since getters have no decoration ('=' or '?') a C++ method with the same
-                # name could exist already; check this and exclude if so
-                alias_name = mtd.name.sub(/\AGet/, '')
-                rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
+          unless mtd.is_ctor || mtd.is_dtor || mtd.is_static
+            # only consider methods without or max 1 non-ignored overloaded methods as
+            # SWIG cannot handle aliasing overloads
+            if (mtd_ovls = mtd.all.select { |ovl| !ovl.ignored }).size == 1
+              mtd = mtd_ovls.shift
+              nreqparam = mtd.required_param_count
+              mtd_name = mtd.rb_name || mtd.name
+              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name) || (/\ASet[A-Z]/ =~ mtd_name && nreqparam==1))
+                if /\AGet[A-Z]/ =~ mtd_name && nreqparam==0
+                  # since getters have no decoration ('=' or '?') a C++ method with the same
+                  # name could exist already; check this and exclude if so
+                  alias_name = mtd_name.sub(/\AGet/, '')
+                  rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
+                elsif !(rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name) || (/\Aset_\w+/ =~ mtd_name && nreqparam==1))
+                  if /\Aget_\w+/ =~ mtd_name && nreqparam==0
+                    # since getters have no decoration ('=' or '?') a C++ method with the same
+                    # name could exist already; check this and exclude if so
+                    alias_name = mtd_name.sub(/\Aget_/, '')
+                    rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
+                  end
+                end
               end
-            end
-            if rc
-              # check there is not a static method with the same name; SWIG alias handling chokes on that
-              rc = !methods.any? { |m| !m.ignored && m.is_static && m.name == mtd.name}
+              if rc
+                # check there is not a static method with the same name; SWIG alias handling chokes on that
+                rc = !methods.any? { |m| !m.ignored && m.is_static && m.name == mtd_name}
+              end
             end
           end
           rc
         end.collect do |mtd|
-          case mtd.name
-          when /\AGet/
-            [mtd.name, rb_method_name(mtd.name.sub(/\AGet/, ''))]
-          when /\ASet/
-            [mtd.name, rb_method_name(mtd.name.sub(/\ASet/, ''))+'=']
-          when /\AIs/
-            [mtd.name, rb_method_name(mtd.name.sub(/\AIs/, ''))+'?']
-          else # when /\A(Has|Can)/
-            [mtd.name, rb_method_name(mtd.name)+'?']
+          mtd = mtd.all.select { |ovl| !ovl.ignored }.shift
+          mtd_name = mtd.rb_name || mtd.name
+          case mtd_name
+          when /\A(Get|get_)/
+            [mtd.name, rb_method_name(mtd_name.sub(/\A$1/, ''))]
+          when /\A(Set|set_)/
+            [mtd.name, rb_method_name(mtd_name.sub(/\A$1/, ''))+'=']
+          when /\A(Is|is_)/
+            [mtd.name, rb_method_name(mtd_name.sub(/\A$1/, ''))+'?']
+          else # when /\A(Has|Can|has_|can_)/
+            [mtd.name, rb_method_name(mtd_name)+'?']
           end
         end.to_h
       end
