@@ -133,7 +133,7 @@ module WXRuby3
             }
             __HEREDOC
         elsif spec.module_name == 'wxCalendarEvent'
-          spec.override_inheritance_chain('wxCalendarEvent', {'wxDateEvent' => 'wxEvents'}, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject', doc_override: false)
+          spec.override_inheritance_chain('wxCalendarEvent', 'wxDateEvent', {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject', doc_override: false)
           # inconsistent definitions
           spec.add_swig_code %Q{%constant wxEventType wxEVT_CALENDAR = wxEVT_CALENDAR_DOUBLECLICKED;}
         end
