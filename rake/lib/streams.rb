@@ -56,6 +56,48 @@ module WXRuby3
       _rollback
     end
 
+    module OutputMethods
+      def <<(txt)
+        lns = txt.split("\n", -1)
+        last_ln = lns.pop
+        lns.each {|ln| puts(ln) }
+        indented_put(last_ln)
+        self
+      end
+
+      def puts(txt='')
+        if ::Array === txt
+          txt.each { |ln| puts(ln) }
+        elsif (lns = txt.split("\n", -1)).size>1
+          lns.each { |ln| puts(ln) }
+        else
+          indented_put(txt).puts
+          @indent_next = true
+        end
+        self
+      end
+
+      def iputs(txt='', lvl_inc=1)
+        indent(lvl_inc) do
+          puts(txt)
+        end
+        self
+      end
+
+      def indent(lvl_inc=1, &block)
+        prev_level = @indent_level
+        begin
+          @indent_level += lvl_inc
+          @indent_next = true
+          block.call
+        ensure
+          @indent_level = prev_level
+        end
+      end
+    end
+
+    include OutputMethods
+
     def initialize(path, indent: 2)
       if path
         @path = path
@@ -116,47 +158,11 @@ module WXRuby3
       end
     end
 
-    def <<(txt)
-      do_indent << txt
-      self
-    end
-
-    def puts(txt='')
-      if ::Array === txt
-        txt.each { |ln| do_indent.puts(ln) }
-      else
-        do_indent.puts(txt)
-      end
-      @indent_next = true
-      self
-    end
-
-    def iputs(txt='', lvl_inc=1)
-      indent(lvl_inc) do
-        if ::Array === txt
-            txt.each { |ln| puts(ln) }
-        else
-          puts(txt)
-        end
-      end
-      self
-    end
-
-    def indent(lvl_inc=1, &block)
-      prev_level = @indent_level
-      begin
-        @indent_level += lvl_inc
-        @indent_next = true
-        block.call
-      ensure
-        @indent_level = prev_level
-      end
-    end
-
     private
 
-    def do_indent
+    def indented_put(s)
       @fout << (' ' * ((@indent_level) * @indent)) if @indent_next
+      @fout << s
       @indent_next = false
       @fout
     end
@@ -166,30 +172,23 @@ module WXRuby3
   class CodeStream < Stream
 
     class Doc
+
+      include Stream::OutputMethods
+
       def initialize(stream)
         @stream = stream
+        @indent_level = 0
+        @indent_next = true
       end
 
-      def <<(txt)
-        lns = txt.split("\n")
-        last = lns.pop
-        lns.each {|ln| (@stream << '# ').puts(ln) }
-        @stream << '# ' << last
-        self
-      end
+      private
 
-      def puts(txt='')
-        if ::Array === txt
-          txt.each { |ln| self << ln; @stream.puts }
-        else
-          self << txt; @stream.puts
-        end
-      end
-
-      def iputs(txt='', lvl_inc=1)
-        @stream.indent(lvl_inc) do
-          puts(txt)
-        end
+      def indented_put(s)
+        @stream << '# ' if @indent_next
+        @stream << (' ' * ((@indent_level) * @stream.instance_variable_get('@indent'))) if @indent_next
+        @stream << s
+        @indent_next = false
+        @stream
       end
     end
 

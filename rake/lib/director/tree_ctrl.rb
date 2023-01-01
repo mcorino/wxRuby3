@@ -375,7 +375,7 @@ module WXRuby3
 
       Stream.transaction do
         out = CodeStream.new(target)
-        File.foreach(target) do |line|
+        File.foreach(target, chomp: true) do |line|
 
           # Ugly: special fixes for TreeCtrl - these macros and extra funcs
           # are needed to allow user-defined sorting to work

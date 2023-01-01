@@ -233,7 +233,7 @@ module WXRuby3
       helpers_added = false
       Stream.transaction do
         fout = CodeStream.new(target)
-        File.foreach(target) do |line|
+        File.foreach(target, chomp: true) do |line|
 
           if skip_lines
             if /\A}\s*\Z/ =~ line

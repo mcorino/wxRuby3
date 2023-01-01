@@ -116,7 +116,7 @@ module WXRuby3
         puts "Processor.rename: #{target}"
         Stream.transaction do
           out = CodeStream.new(target)
-          File.foreach(target) do |line|
+          File.foreach(target, chomp: true) do |line|
             case line
               # defined method names
             when /(rb_define_method|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
@@ -175,7 +175,7 @@ module WXRuby3
 
         Stream.transaction do
           out = CodeStream.new(target)
-          File.foreach(target) do |line|
+          File.foreach(target, chomp: true) do |line|
 
             if !found_init
 
