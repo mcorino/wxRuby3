@@ -41,6 +41,7 @@ module WXRuby3
           }
           __HEREDOC
         spec.suppress_warning(473, 'wxAuiManager::CreateFloatingFrame')
+        spec.do_not_generate(:variables, :defines, :enums, :functions) # with AuiManagerEvent
       end
     end # class AuiManager
 
