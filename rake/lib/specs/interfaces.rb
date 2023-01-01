@@ -214,6 +214,9 @@ module WXRuby3
   Director.Package('Wx::Aui', 'wxUSE_AUI') { |pkg|
     Director.Spec(pkg, 'wxAuiPaneInfo')
     Director.Spec(pkg, 'wxAuiManagerEvent')
+    Director.Spec(pkg, 'wxAuiDockArt')
+    Director.Spec(pkg, 'wxAuiFloatingFrame')
+    Director.Spec(pkg, 'wxAuiManager')
   }
 
 end # module WXRuby3
