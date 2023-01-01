@@ -22,7 +22,7 @@ module WXRuby3
         ]
         spec.no_proxy 'wxDC'
         spec.rename_for_ruby({
-          'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *)',
+          'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *) const',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *, wxCoord *) const',
           'GetTextSize' => 'wxDC::GetTextExtent(const wxString &) const',
           'GetMultiLineTextSize' => 'wxDC::GetMultiLineTextExtent(const wxString &) const'
