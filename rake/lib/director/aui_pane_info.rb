@@ -85,7 +85,7 @@ module WXRuby3
           'set_resizable' => 'wxAuiPaneInfo::Resizable',
           'set_right_dockable' => 'wxAuiPaneInfo::RightDockable',
           'set_top_dockable' => 'wxAuiPaneInfo::TopDockable',
-          'set_window='=> 'wxAuiPaneInfo::Window',
+          'set_window'=> 'wxAuiPaneInfo::Window',
           'set_icon' => 'wxAuiPaneInfo::Icon',
           'set_best_size' => 'wxAuiPaneInfo::BestSize',
           'set_min_size' => 'wxAuiPaneInfo::MinSize',
