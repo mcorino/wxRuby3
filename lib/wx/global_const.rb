@@ -1,6 +1,7 @@
 # Global constant compatibility helper for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
+
 module WxGlobalConstants
 
   def self.included(mod)

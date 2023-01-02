@@ -1,4 +1,7 @@
-# Various non-GUI helper functions
+# Various non-GUI helper functions for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+
+
 module Wx
 
   # A named parameter in a Wx named-arg parameter list

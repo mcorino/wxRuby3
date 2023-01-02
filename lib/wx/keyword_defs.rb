@@ -1,27 +1,31 @@
-# = WxSugar - Keyword Constructors Classes
-# 
-# This extension defines the keyword parameters for +new+ methods for
-# widgets, windows and frames. It's for use with *Keyword Constructors*
-# and is no use on its own - except if you are looking for a bug or want
-# to add a  missing class.
-#
-# For each class, the parameters *must* be declared in the order that
-# they are supplied to wxRuby. A parameter is specified by a symbol
-# name, and, optionally, a default argument which will of whatever type
-# the wxRuby core library accepts. Because hashes are unordered in Ruby
-# 1.8, if a default argument is specified, this must be the last in a
-# list of parameters.
-# To support complex (context dependent) defaults and/or autoconversion
-# of arguments for backwards the specified default can also be a lambda
-# or  a proc accepting a single argument. This argument will be the
-# value of the specified parameter (or nil) and the lambda or proc
-# should return the constructed or converted argument value to be used.
-# 
-# Some common parameters to constructors such as size, position, title,
-# id and so forth always have a standard default argumnet, which is
-# defined in keyword_ctors. In these cases, it is not necessary to
-# supply the default argument in the definition.
+# Wx core package loader for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+
+
 module Wx
+  # = WxSugar - Keyword Constructors Classes
+  #
+  # This extension defines the keyword parameters for +new+ methods for
+  # widgets, windows and frames. It's for use with *Keyword Constructors*
+  # and is no use on its own - except if you are looking for a bug or want
+  # to add a  missing class.
+  #
+  # For each class, the parameters *must* be declared in the order that
+  # they are supplied to wxRuby. A parameter is specified by a symbol
+  # name, and, optionally, a default argument which will of whatever type
+  # the wxRuby core library accepts. Because hashes are unordered in Ruby
+  # 1.8, if a default argument is specified, this must be the last in a
+  # list of parameters.
+  # To support complex (context dependent) defaults and/or autoconversion
+  # of arguments for backwards the specified default can also be a lambda
+  # or  a proc accepting a single argument. This argument will be the
+  # value of the specified parameter (or nil) and the lambda or proc
+  # should return the constructed or converted argument value to be used.
+  #
+  # Some common parameters to constructors such as size, position, title,
+  # id and so forth always have a standard default argumnet, which is
+  # defined in keyword_ctors. In these cases, it is not necessary to
+  # supply the default argument in the definition.
   @defined_kw_classes = {}
 
   # accepts a string unadorned name of a WxWidgets class, and block, which 
@@ -44,10 +48,10 @@ module Wx
       STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx::RB_DEBUG
       return nil
     end if ::String === klass
-    # if the klass inherited from a class already including Wx::KeywordConstructor
-    # it already will have a @param_spec array copied from the base
-    # we need to clear it here because we're going to define a new param_spec for
-    # this specific derivative
+    # If the klass inherited from a class which already included Wx::KeywordConstructor
+    # it will have a @param_spec array copied from the base already.
+    # We need to clear it here because we're going to define a new param_spec for
+    # this specific derivative.
     if klass < Wx::KeywordConstructor
       klass.param_spec.clear
     end

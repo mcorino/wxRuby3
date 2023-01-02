@@ -1,6 +1,7 @@
 # Wx core package loader for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
+
 require 'wxruby_core'
 
 # Load the version information (should be bundled with all released versions)
@@ -9,6 +10,7 @@ begin
 rescue LoadError
   Wx::WXRUBY_VERSION = '0.0.0'
 end
+
 # Convenience string for WxWidgets version info
 Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
                                        Wx::WXWIDGETS_MINOR_VERSION,
@@ -17,7 +19,7 @@ Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
 # Helper functions
 require 'wx/helpers'
 
-# global constant compatibility helper
+# Global constant compatibility helper
 require 'wx/global_const'
 
 # Load in all the class extension methods written in ruby
