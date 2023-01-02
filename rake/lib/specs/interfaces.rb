@@ -219,6 +219,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxAuiManager')
     Director.Spec(pkg, 'wxAuiNotebookEvent')
     Director.Spec(pkg, 'wxAuiNotebook')
+    Director.Spec(pkg, 'wxAuiToolBarItem')
+    Director.Spec(pkg, 'wxAuiToolBarArt')
+    Director.Spec(pkg, 'wxAuiToolBarEvent')
+    Director.Spec(pkg, 'wxAuiToolBar')
   }
 
 end # module WXRuby3
