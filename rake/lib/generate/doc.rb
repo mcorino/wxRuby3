@@ -141,13 +141,7 @@ module WXRuby3
             event_list(true)
             'Event handler methods:'
           else
-            if event_list? && /(EVT_[_A-Z]+)\((.*,)\s+\w+\):(.*)/ =~ text
-              "#{$1.downcase}(#{$2} meth = nil, &block):#{$3}"
-            elsif event_list? && /(EVT_[_A-Z]+)(\*)?\(\w+\):(.*)/ =~ text
-              "#{$1.downcase}#{$2}(meth = nil, &block):#{$3}"
-            else
-              text
-            end
+            text
           end
         else
           text
@@ -155,8 +149,12 @@ module WXRuby3
       end
 
       def computeroutput_to_doc(node)
-        no_ref do
-          "<code>#{node_to_doc(node)}</code>"
+        if event_section?
+          node_to_doc(node)
+        else
+          no_ref do
+            "<code>#{node_to_doc(node)}</code>"
+          end
         end
       end
 
@@ -375,9 +373,27 @@ module WXRuby3
             when /The following event handler macros redirect.*(\{.*})/
               event_ref = $1
               "The following event-handler methods redirect the events to member method or handler blocks for #{event_ref} events."
-            # when /Event handler methods for events emitted by this class:/
-            #   event_section(false) # event emitter block ended
-            #   para
+            when /\AEVT_[A-Z]+/
+              if event_list? && /\A(EVT_[_A-Z]+)\((.*,)\s+\w+\):(.*)/ =~ para
+                evthnd_name = $1.downcase
+                arglist = "#{$2} meth = nil, &block"
+                docstr = $3.lstrip
+                package.event_docs[evthnd_name] = [arglist, docstr.dup] # register for eventlist doc gen
+                "{Wx::EvtHandler\##{evthnd_name}}(#{arglist}): #{docstr}"
+              elsif event_list? && /\A(EVT_[_A-Z]+)(\*)?\(\w+\):(.*)/ =~ para
+                wildcard = ($2 == '*')
+                evthnd_name = $1.downcase
+                arglist = "meth = nil, &block"
+                docstr = $3.lstrip
+                package.event_docs[wildcard ? /\A#{evthnd_name}/ : evthnd_name] = [arglist, docstr.dup] # register for eventlist doc gen
+                if wildcard
+                  "{Wx::EvtHandler}#{evthnd_name}*(#{arglist}): #{docstr}"
+                else
+                  "{Wx::EvtHandler\##{evthnd_name}}(#{arglist}): #{docstr}"
+                end
+              else
+                para
+              end
             else
               para
             end
