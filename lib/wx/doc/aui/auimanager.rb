@@ -5,4 +5,5 @@ class Wx::Aui::AuiManager
   # @yieldparam [Wx::Aui::AuiPaneInfo] pane the Aui pane info yielded
   def each_pane; end
 
+  alias_method :all_panes, :get_all_panes
 end
