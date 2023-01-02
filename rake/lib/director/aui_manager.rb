@@ -16,7 +16,7 @@ module WXRuby3
         # Any set AuiDockArt ruby object must be protected from GC once set,
         # even if it is no longer referenced anywhere else.
         spec.add_header_code <<~__HEREDOC
-          static void mark_wxAuiManager(void *ptr)
+          static void GC_mark_wxAuiManager(void *ptr)
           {
             wxAuiManager* mgr = (wxAuiManager*)ptr;
             wxAuiDockArt* art_prov = mgr->GetArtProvider();
@@ -24,8 +24,9 @@ module WXRuby3
             rb_gc_mark( rb_art_prov );
           }
           __HEREDOC
-        spec.add_swig_code '%markfunc wxAuiManager "mark_wxAuiManager";'
-        spec.ignore 'wxAuiManager::GetAllPanes' # use custom alternative provided below
+        spec.add_swig_code '%markfunc wxAuiManager "GC_mark_wxAuiManager";'
+        # provide pure Ruby implementation based on use custom alternative provided below
+        spec.ignore('wxAuiManager::GetAllPanes', ignore_doc: false)
         spec.add_extend_code 'wxAuiManager', <<~__HEREDOC
           VALUE each_pane() 
           {

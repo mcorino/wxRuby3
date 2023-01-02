@@ -3,4 +3,5 @@
 
 #require_relative './ext'
 require_relative './events/evt_list'
+require_relative './auimanager'
 require_relative './auinotebook'

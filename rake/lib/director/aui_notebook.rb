@@ -15,13 +15,28 @@ module WXRuby3
         super
         setup_book_ctrl_class(spec.module_name)
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with AuiNotebookEvent
-        # wxWidgets provides a whole class for writing custom styles for the
-        # tabs in AuiNotebooks. Rather than add the whole API and having to provide
-        # customized GC handling, only provide access to allow switching between the two
-        # styles that come with wxWidgets.
-        spec.ignore(%w[wxAuiNotebook::GetArtProvider wxAuiNotebook::SetArtProvider])
+        # Any set AuiTabArt ruby object must be protected from GC once set,
+        # even if it is no longer referenced anywhere else.
+        spec.add_header_code <<~__HEREDOC
+          static void GC_mark_wxAuiNotebook(void *ptr)
+          {
+            if ( GC_IsWindowDeleted(ptr) )
+            {
+              return;
+            }
+            // Do standard marking routines as for all wxWindows
+            GC_mark_wxWindow(ptr);
+
+            wxAuiNotebook* nbk = (wxAuiNotebook*)ptr;
+            wxAuiTabArt* art_prov = nbk->GetArtProvider();
+            VALUE rb_art_prov = SWIG_RubyInstanceFor( (void *)art_prov );
+            rb_gc_mark( rb_art_prov );
+          }
+        __HEREDOC
+        spec.add_swig_code '%markfunc wxAuiNotebook "GC_mark_wxAuiNotebook";'
+        # add some convenience methods
         spec.add_extend_code 'wxAuiNotebook', <<~__HEREDOC
-          void use_glossy_art()
+          void use_default_art()
           { $self->SetArtProvider(new wxAuiDefaultTabArt); }
         
           void use_simple_art()

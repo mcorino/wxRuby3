@@ -13,7 +13,9 @@ module WXRuby3
         super
         spec.items << 'wxAuiDefaultToolBarArt'
         spec.gc_as_object
+        spec.extend_interface('wxAuiToolBarArt', 'virtual ~wxAuiToolBarArt ()')
         spec.suppress_warning(473, 'wxAuiToolBarArt::Clone', 'wxAuiDefaultToolBarArt::Clone')
+        spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
     end # class AuiToolBarArt
 

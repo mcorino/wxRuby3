@@ -12,6 +12,7 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object
+        spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
     end # class AuiToolBarItem
 

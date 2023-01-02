@@ -218,6 +218,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxAuiFloatingFrame')
     Director.Spec(pkg, 'wxAuiManager')
     Director.Spec(pkg, 'wxAuiNotebookEvent')
+    Director.Spec(pkg, 'wxAuiTabArt')
     Director.Spec(pkg, 'wxAuiNotebook')
     Director.Spec(pkg, 'wxAuiToolBarItem')
     Director.Spec(pkg, 'wxAuiToolBarArt')
