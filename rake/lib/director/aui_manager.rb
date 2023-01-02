@@ -26,7 +26,7 @@ module WXRuby3
           __HEREDOC
         spec.add_swig_code '%markfunc wxAuiManager "GC_mark_wxAuiManager";'
         # provide pure Ruby implementation based on use custom alternative provided below
-        spec.ignore('wxAuiManager::GetAllPanes', ignore_doc: false)
+        spec.ignore('wxAuiManager::GetAllPanes')
         spec.add_extend_code 'wxAuiManager', <<~__HEREDOC
           VALUE each_pane() 
           {
