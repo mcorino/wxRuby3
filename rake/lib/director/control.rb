@@ -3,6 +3,8 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require_relative './window'
+
 module WXRuby3
 
   class Director
