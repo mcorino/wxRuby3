@@ -154,6 +154,12 @@ module WXRuby3
     Director.Spec(pkg, 'wxGenericDirCtrl')
     Director.Spec(pkg, 'wxMDIClientWindow', director: Director::Window, requirements: %w[wxUSE_MDI])
     Director.Spec(pkg, 'wxMDIFrame', requirements: %w[wxUSE_MDI])
+    Director.Spec(pkg, 'wxPrinterDC', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxPostScriptDC', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxPrintData', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxPrintDialog', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxPrintAbortDialog', director: Director::Dialog, requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxPreviewFrame', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
@@ -210,7 +216,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
     Director.Spec(pkg, 'wxHtmlHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHtmlCell')
-    Director.Spec(pkg, 'wxHtmlEasyPrinting')
+    Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
   }
 
   Director.Package('Wx::Aui', 'wxUSE_AUI') { |pkg|
