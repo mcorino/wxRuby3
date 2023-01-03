@@ -25,6 +25,7 @@
 // These are implemented in swig/wx.i, so they are shared among all classes
 %{
 WXRUBY_EXPORT void GcNullFreeFunc(void *);
+WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr);
 WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
 WXRUBY_EXPORT void GC_mark_wxWindow(void *);
 WXRUBY_EXPORT void GC_mark_wxFrame(void *);
@@ -63,9 +64,11 @@ GC_NEVER(kls);
 %feature("markfunc") kls "GC_mark_wxFrame";
 %enddef
 
-// Strategy for dialogs - these are destroyed automatically
+// Strategy for dialogs - these are NOT destroyed automatically
 %define GC_MANAGE_AS_DIALOG(kls)
-GC_NEVER(kls);
+//GC_NEVER(kls);
+%trackobjects;
+%feature("freefunc") kls "GcDialogFreeFunc";
 // Mark any associated sizer
 %feature("markfunc") kls "GC_mark_wxWindow";
 %enddef

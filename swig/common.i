@@ -130,6 +130,7 @@ WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
 WXRUBY_EXPORT VALUE wxRuby_GetDefaultEventClass ();
 
 WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
+WXRUBY_EXPORT VALUE wxRuby_GetDialogClass();
 %}
 
 %include "typedefs.i"

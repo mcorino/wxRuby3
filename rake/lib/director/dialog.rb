@@ -22,6 +22,11 @@ module WXRuby3
           spec.ignore('wxDialog::GetContentWindow',
                       'wxDialog::GetToolBar') # seemingly removed from MSW
           spec.swig_import('swig/classes/include/wxDefs.h')
+          spec.add_wrapper_code <<~__HEREDOC
+            extern VALUE wxRuby_GetDialogClass() {
+              return SwigClassWxDialog.klass;
+            }
+          __HEREDOC
         when 'wxMessageDialog'
         when 'wxFontDialog'
         when 'wxFileDialog'

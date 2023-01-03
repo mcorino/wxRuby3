@@ -131,12 +131,15 @@ module WXRuby3
             static void markIterate(void* ptr, VALUE rb_obj)
             {
               // Check if it's a valid object (sometimes SWIG doesn't return what we're
-              // expecting), a descendant of Wx::Window, and if it has not yet been
+              // expecting), a descendant of Wx::Window (but not a Dialog), and if it has not yet been
               // deleted by WxWidgets; if so, mark it.
               if ( TYPE(rb_obj) == T_DATA )
               {
                 if ( rb_obj_is_kind_of(rb_obj, wxRuby_GetWindowClass()) )
-                  rb_gc_mark(rb_obj);
+                {
+                  if ( !rb_obj_is_kind_of(rb_obj, wxRuby_GetDialogClass()) )
+                    rb_gc_mark(rb_obj);
+                }
                 else if (rb_obj_is_kind_of(rb_obj, wxRuby_GetDefaultEventClass()) )
                   rb_gc_mark(rb_obj);
               }

@@ -22,6 +22,27 @@ WXRUBY_EXPORT void GcNullFreeFunc(void *ptr)
   SWIG_RubyRemoveTracking(ptr);
 }
 
+// Code to be run when a ruby Dialog object is swept by GC - this
+// unlinks the C++ object from the ruby VALUE and calls the Destroy
+// method.
+WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr)
+{
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GcDialogFreeFunc : " << ptr << std::endl;
+#endif
+  SWIG_RubyRemoveTracking(ptr);
+  if (ptr)
+  {
+#ifdef __WXRB_DEBUG__
+    std::wcout << "> GcDialogFreeFunc : destroying " << ptr << std::endl;
+#endif
+    // if the wxApp has already ended we can't clean this up anymore
+    // just leave it for the system cleanup in that case
+    if ( rb_gv_get("__wx_app_ended__" ) != Qtrue )
+      ((wxDialog*)ptr)->Destroy();
+  }
+}
+
 // Code to be run when the ruby object is swept by GC - this only
 // unlinks the C++ object from the ruby VALUE and decrements the
 // reference counter.
