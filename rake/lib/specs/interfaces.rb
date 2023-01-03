@@ -226,6 +226,9 @@ module WXRuby3
     Director.Spec(pkg, 'wxAuiToolBarArt')
     Director.Spec(pkg, 'wxAuiToolBarEvent')
     Director.Spec(pkg, 'wxAuiToolBar')
+    Director.Spec(pkg, 'wxAuiMDIClientWindow')
+    Director.Spec(pkg, 'wxAuiMDIParentFrame')
+    Director.Spec(pkg, 'wxAuiMDIChildFrame')
   }
 
 end # module WXRuby3

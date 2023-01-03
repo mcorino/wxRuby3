@@ -17,7 +17,14 @@ module WXRuby3
         case spec.module_name
         when 'wxFrame'
           spec.no_proxy %w[
-            wxFrame::CreateStatusBar wxFrame::CreateToolBar wxFrame::GetMenuBar wxFrame::GetStatusBar wxFrame::GetToolBar]
+            wxFrame::CreateStatusBar
+            wxFrame::CreateToolBar
+            wxFrame::SetMenuBar
+            wxFrame::GetMenuBar
+            wxFrame::SetStatusBar
+            wxFrame::GetStatusBar
+            wxFrame::SetToolBar
+            wxFrame::GetToolBar]
           spec.ignore %w[
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
           spec.set_only_for(%w[__WXMSW__ wxUSE_TASKBARBUTTON], 'wxFrame::MSWGetTaskBarButton')
@@ -46,12 +53,18 @@ module WXRuby3
                                 'wxFrame::GetMenuBar',
                                 'wxFrame::GetStatusBar',
                                 'wxFrame::GetToolBar')
-        when 'wxMiniFrame'
-          spec.no_proxy %w[
-            wxMiniFrame::CreateStatusBar wxMiniFrame::CreateToolBar wxMiniFrame::GetMenuBar wxMiniFrame::GetStatusBar wxMiniFrame::GetToolBar]
-        when 'wxMDIFrame'
+        else # 'wxMiniFrame', 'wxMDIFrame', 'wxAuiMDIParentFrame'
           spec.items.each do |cls|
-            spec.no_proxy %W[#{cls}::CreateStatusBar #{cls}::CreateToolBar #{cls}::GetMenuBar #{cls}::GetStatusBar #{cls}::GetToolBar]
+            spec.no_proxy %W[
+              #{cls}::CreateStatusBar
+              #{cls}::CreateToolBar
+              #{cls}::SetMenuBar
+              #{cls}::GetMenuBar
+              #{cls}::SetStatusBar
+              #{cls}::GetStatusBar
+              #{cls}::SetToolBar
+              #{cls}::GetToolBar
+              ]
           end
         end
       end
