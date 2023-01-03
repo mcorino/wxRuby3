@@ -104,11 +104,12 @@ module WXRuby3
       end
 
       def no_ref(&block)
+        was_no_ref = @no_ref
         @no_ref = true
         begin
           return block.call
         ensure
-          @no_ref = false
+          @no_ref = was_no_ref
         end
       end
 
@@ -116,18 +117,36 @@ module WXRuby3
         !!@no_ref
       end
 
+      def no_idents(&block)
+        was_no_idents = @no_idents
+        @no_idents = true
+        begin
+          return block.call
+        ensure
+          @no_idents = was_no_idents
+        end
+      end
+
+      def no_idents?
+        !!@no_idents
+      end
+
+      def _ident_to_ref(idstr)
+        idstr.sub(/(.*)(\(.*\))?/) { |_| "{#{$1}}#{$2}" }
+      end
+
       def text_to_doc(node)
         text = node.text
         unless no_ref?
-          # autocreate references for any ids explicitly declared such
+          # auto create references for any ids explicitly declared such
           text.gsub!(/\W?(wx\w+(::\w+)?(\(.*\))?)/) do |s|
             if $1 == 'wxWidgets'
               s
             else
               if s==$1
-                "{#{_ident_str_to_doc($1)}}"
+                _ident_to_ref(_ident_str_to_doc($1))
               else
-                "#{s[0]}{#{_ident_str_to_doc($1)}}"
+                "#{s[0]}#{_ident_to_ref(_ident_str_to_doc($1))}"
               end
             end
           end
@@ -150,6 +169,8 @@ module WXRuby3
 
       def computeroutput_to_doc(node)
         if event_section?
+          node_to_doc(node)
+        elsif /\A[\w:\.]+\Z/ =~ node.text # only a single word/identifier?
           node_to_doc(node)
         else
           no_ref do
@@ -175,7 +196,7 @@ module WXRuby3
       end
 
       def programlisting_to_doc(node)
-        no_ref do
+        no_idents do
           "\n\n  #{node_to_doc(node).split("\n").join("\n  ")}\n"
         end
       end
@@ -235,6 +256,7 @@ module WXRuby3
       private :_is_static_method?
 
       def _ident_str_to_doc(s, ref_scope = nil)
+        return s if no_idents?
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
@@ -303,7 +325,7 @@ module WXRuby3
             args.empty? ? "#{constnm}\#initialize" : "#{constnm}\#initialize(#{args})"
           else
             sep = _is_static_method?(nm_str, mtd) ? '.' : '#'
-            args.empty? ? "#{constnm}#{sep}#{rb_method_name(mtd)}" : "#{constnm}#{sep}#{rb_method_name(mtd)}(#{args}})"
+            args.empty? ? "#{constnm}#{sep}#{rb_method_name(mtd)}" : "#{constnm}#{sep}#{rb_method_name(mtd)}(#{args})"
           end
         end
       end
@@ -311,6 +333,7 @@ module WXRuby3
 
       # transform all cross references
       def ref_to_doc(node)
+        return node.text if no_idents?
         if @classdef
           ref = @classdef.crossref_table[node['refid']]
         end
@@ -319,7 +342,7 @@ module WXRuby3
         if no_ref?
           _ident_str_to_doc(node.text, ref[:scope])
         else
-          "{#{_ident_str_to_doc(node.text, ref[:scope])}}"
+          _ident_to_ref(_ident_str_to_doc(node.text, ref[:scope]))
         end
       end
 
