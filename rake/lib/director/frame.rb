@@ -49,6 +49,10 @@ module WXRuby3
         when 'wxMiniFrame'
           spec.no_proxy %w[
             wxMiniFrame::CreateStatusBar wxMiniFrame::CreateToolBar wxMiniFrame::GetMenuBar wxMiniFrame::GetStatusBar wxMiniFrame::GetToolBar]
+        when 'wxMDIFrame'
+          spec.items.each do |cls|
+            spec.no_proxy %W[#{cls}::CreateStatusBar #{cls}::CreateToolBar #{cls}::GetMenuBar #{cls}::GetStatusBar #{cls}::GetToolBar]
+          end
         end
       end
     end # class Frame

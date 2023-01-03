@@ -152,6 +152,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxUtils')
     Director.Spec(pkg, 'wxDirFilterListCtrl')
     Director.Spec(pkg, 'wxGenericDirCtrl')
+    Director.Spec(pkg, 'wxMDIClientWindow', director: Director::Window, requirements: %w[wxUSE_MDI])
+    Director.Spec(pkg, 'wxMDIFrame', requirements: %w[wxUSE_MDI])
   }
 
   Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
