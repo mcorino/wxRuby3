@@ -59,7 +59,7 @@ module WXRuby3
       unless new_objects.empty?
         fout.puts
         new_objects.each do |decl|
-          fout.puts "%newobject { #{decl} };"
+          fout.puts "%newobject #{decl};"
         end
       end
       unless includes.empty? && header_code.empty?
