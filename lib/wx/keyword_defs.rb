@@ -315,11 +315,6 @@ Wx::define_keyword_ctors('PageSetupDialog') do
   wx_ctor_params :data
 end
 
-# wxPrintDialog 	Standard print dialog
-Wx::define_keyword_ctors('PrintDialog') do
-  wx_ctor_params :data
-end
-
 # Simple message box dialog
 Wx::define_keyword_ctors('MessageDialog') do
   wx_ctor_params :message => ''
