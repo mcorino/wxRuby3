@@ -55,4 +55,15 @@ class Wx::Size
       Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
     end
   end
+
+  # The following method returns a reference to self in C++
+  # which is mapped to a Ruby value referencing BUT NOT owning the
+  # C++ data. This may lead to memory leaks if the Ruby value owning
+  # the data is GC-ed before the non-owning value is.
+  # Overriding the methods here and returning actual 'self' to fix this.
+  wx_scale = self.instance_method(:scale)
+  define_method(:scale) do | *args |
+    wx_scale.bind(self).call(*args)
+    self
+  end
 end
