@@ -26,6 +26,9 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &) const',
           'wxRect::Union(const wxRect &) const'
         ]
+        spec.map 'wxRect&' => 'Wx::Rect', 'wxSize&' => 'Wx::Size' do
+          map_out code: '$result = self; wxUnusedVar(result);'
+        end
         spec.regard %w[
           wxPoint::x wxPoint::y
           wxRealPoint::x wxRealPoint::y
