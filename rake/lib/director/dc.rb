@@ -41,6 +41,7 @@ module WXRuby3
             return rb_result;
           }
           __HEREDOC
+        spec.swig_import 'swig/classes/include/wxGDICommon.h'
         super
       end
     end # class DC
