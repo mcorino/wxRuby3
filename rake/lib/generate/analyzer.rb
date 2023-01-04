@@ -117,7 +117,7 @@ module WXRuby3
           end
           mtdef = Extractor::MethodDef.new(nil, class_spec_name, **kwargs)
           arglist.split(',').each do |arg|
-            if /\A(const\s+)?(\w+)\s*(const\s+)?(\s*[\*\&])?\s*(\w+)\s*(\[\s*\])?(\s*=\s*(\S+))?\Z/ =~ arg.strip
+            if /\A(const\s+)?(\w+)\s*(const\s+)?(\s*[\*\&])?\s*(\w+)\s*(\[\s*\])?(\s*=\s*(\S+|".*"\s*))?\Z/ =~ arg.strip
               mtdef.items << Extractor::ParamDef.new(nil,
                                                      name: $4.to_s,
                                                      type: "#{$1}#{$2}#{$3}",
