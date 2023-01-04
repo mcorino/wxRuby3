@@ -66,7 +66,6 @@ GC_NEVER(kls);
 
 // Strategy for dialogs - these are NOT destroyed automatically
 %define GC_MANAGE_AS_DIALOG(kls)
-//GC_NEVER(kls);
 %trackobjects;
 %feature("freefunc") kls "GcDialogFreeFunc";
 // Mark any associated sizer

@@ -22,63 +22,17 @@ WXRUBY_EXPORT void GcNullFreeFunc(void *ptr)
   SWIG_RubyRemoveTracking(ptr);
 }
 
-// Code to be run when a ruby Dialog object is swept by GC - this
-// unlinks the C++ object from the ruby VALUE and calls the Destroy
-// method.
-WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr)
-{
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GcDialogFreeFunc : " << ptr << std::endl;
-#endif
-  SWIG_RubyRemoveTracking(ptr);
-  if (ptr)
-  {
-#ifdef __WXRB_DEBUG__
-    std::wcout << "> GcDialogFreeFunc : destroying " << ptr << std::endl;
-#endif
-    // if the wxApp has already ended we can't clean this up anymore
-    // just leave it for the system cleanup in that case
-    if ( rb_gv_get("__wx_app_ended__" ) != Qtrue )
-      ((wxDialog*)ptr)->Destroy();
-  }
-}
-
-// Code to be run when the ruby object is swept by GC - this only
-// unlinks the C++ object from the ruby VALUE and decrements the
-// reference counter.
-WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
-{
-  SWIG_RubyRemoveTracking(ptr);
-  if (ptr)
-    ((wxRefCounter*)ptr)->DecRef();
-}
-
-// This does not work
-// // Code to be run when the ruby object is swept by GC - this checks
-// // for orphaned sizers and deletes those, only unlinking others
-// // as these will be managed by WxWidgets.
-// void GcSizerFreeFunc(void *ptr)
-// {
-//   wxSizer* arg1 = (wxSizer*)ptr;
-//   // unlink in all cases
-//   SWIG_RubyRemoveTracking(ptr);
-//   if (!arg1->GetContainingWindow ())
-//   {
-//     delete arg1; // delete orphaned sizers
-//   }
-// }
-
 // Tests if the window has been signalled as destroyed by a
 // WindowDestroyEvent handled by wxRubyApp
 WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)
 {
   // If objects have been 'unlinked' then DATA_PTR = 0
   if ( ! ptr )
-	return true;
+	  return true;
   if ( rb_gv_get("__wx_app_ended__" ) == Qtrue )
-	return true;
+	  return true;
   else
-	return false;
+	  return false;
 }
 
 // See swig/classes/EvtHandler.i
@@ -108,6 +62,49 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
   SWIG_RubyUnlinkObjects(ptr);
   SWIG_RubyRemoveTracking(ptr);
 }
+
+// Code to be run when a ruby Dialog object is swept by GC - this
+// unlinks the C++ object from the ruby VALUE and calls the Destroy
+// method.
+WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr)
+{
+#ifdef __WXRB_TRACE__
+  std::wcout << "> GcDialogFreeFunc : " << ptr << std::endl;
+#endif
+  if ( !GC_IsWindowDeleted(ptr) )
+  {
+#ifdef __WXRB_DEBUG__
+    std::wcout << "> GcDialogFreeFunc : destroying " << ptr << std::endl;
+#endif
+    GC_SetWindowDeleted(ptr);
+    delete ((wxDialog*)ptr); //->Destroy();
+  }
+}
+
+// Code to be run when the ruby object is swept by GC - this only
+// unlinks the C++ object from the ruby VALUE and decrements the
+// reference counter.
+WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
+{
+  SWIG_RubyRemoveTracking(ptr);
+  if (ptr)
+    ((wxRefCounter*)ptr)->DecRef();
+}
+
+// This does not work
+// // Code to be run when the ruby object is swept by GC - this checks
+// // for orphaned sizers and deletes those, only unlinking others
+// // as these will be managed by WxWidgets.
+// void GcSizerFreeFunc(void *ptr)
+// {
+//   wxSizer* arg1 = (wxSizer*)ptr;
+//   // unlink in all cases
+//   SWIG_RubyRemoveTracking(ptr);
+//   if (!arg1->GetContainingWindow ())
+//   {
+//     delete arg1; // delete orphaned sizers
+//   }
+// }
 
 // Carries out marking of Sizer objects belonging to a Wx::Window. Note
 // that this isn't done as a standard mark routine because ONLY sizers
