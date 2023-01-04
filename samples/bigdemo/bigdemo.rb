@@ -401,7 +401,7 @@ class WxRubyDemo < Wx::Frame
       if @nb.get_selection == 2
         @nb.set_selection(0)
       end
-      if @window != nil
+      unless @window.nil?
         @window = nil
       end
       @nb.delete_page(2)
@@ -427,7 +427,7 @@ class WxRubyDemo < Wx::Frame
           @tree.refresh
           @nb.refresh
           @window = Demo.run(self, @nb, self)
-          if @window.class.ancestors.include?(Wx::Window)
+          if Wx::Window === @window
             # Check to see if the demo returned a Wx::Window, Wx::Panel or a new class inheriting from them
             # if so, create a new tab in the notebook for them
             @nb.add_page(@window, "Demo")
@@ -437,8 +437,8 @@ class WxRubyDemo < Wx::Frame
         rescue Exception => problem
           dlg = Wx::MessageDialog.new(self, "A problem occurred with the %s demo:\n%s\n%s" % [itemText, problem, problem.backtrace.join("\n").to_s()],
                                       "Error!!!", Wx::OK | Wx::ICON_ERROR)
-          dlg.show_modal()
-          dlg.destroy()
+          dlg.show_modal
+          dlg.destroy
         end
       else
         @ovr.set_value("")
