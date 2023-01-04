@@ -174,6 +174,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxRichTextFileHandler')
     Director.Spec(pkg, 'wxRichTextXMLHandler', director: Director::RichTextFileHandler)
     Director.Spec(pkg, 'wxRichTextHTMLHandler', director: Director::RichTextFileHandler)
+    Director.Spec(pkg, 'wxRichTextHeaderFooterData', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxRichTextPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
   }
 
   Director.Package('Wx::Stc', 'wxUSE_STC') { |pkg|
