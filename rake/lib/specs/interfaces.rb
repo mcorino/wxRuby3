@@ -224,6 +224,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHtmlCell')
     Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
   }
 
   Director.Package('Wx::Aui', 'wxUSE_AUI') { |pkg|
