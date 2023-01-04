@@ -110,12 +110,12 @@ INFOLIST
         if @release_build
           @ruby_cppflags.sub!(/-g/, '')
         elsif @debug_build
-          @extra_cppflags << ' -g'
+          @extra_cflags << ' -g'
           @ruby_cppflags.sub!(/-Os/, '')
         end
 
         # Support for Mac OS X 10.5, assuming compile on 10.6
-        @extra_cppflags = '-x objective-c++ -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5'
+        @extra_cflags = '-x objective-c++ -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5'
         @extra_ldflags = '-dynamic -bundle -flat_namespace -undefined suppress -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5'
       end
       private :init_platform

@@ -207,6 +207,7 @@ module WXRuby3
             @ruby_ldflags = "#{RbConfig::CONFIG['LDFLAGS']} #{RbConfig::CONFIG['DLDFLAGS']} #{RbConfig::CONFIG['ARCHFLAG']}"
             @ruby_libs  = "#{RbConfig::CONFIG['LIBS']} #{RbConfig::CONFIG['DLDLIBS']} #{RbConfig::CONFIG['LIBRUBYARG_SHARED']}"
             @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
+            @extra_cflags = ''
             @extra_ldflags = ''
             @extra_objs = ''
             @extra_libs = ''
@@ -268,8 +269,8 @@ module WXRuby3
             # SIXTH: Putting it all together
 
             # Flags to be passed to the C++ compiler
-            @cppflags = [ @wx_cppflags, @ruby_cppflags,
-                          @extra_cppflags, @ruby_includes ].join(' ')
+            @cxxflags = [@wx_cppflags, @ruby_cppflags, @extra_cflags,
+                         @extra_cppflags, @ruby_includes ].join(' ')
 
             # Flags to be passed to the linker
             @ldflags  = [ @ruby_ldflags, @extra_ldflags ].join(' ')
@@ -280,9 +281,9 @@ module WXRuby3
 
           attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules
           attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build, :no_deprecate
-          attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cppflags, :extra_ldflags,
+          attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
-                      :cppflags, :libs, :cpp, :ld, :verbose_flag
+                      :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,

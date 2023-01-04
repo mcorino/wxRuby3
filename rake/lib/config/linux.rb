@@ -31,8 +31,8 @@ module WXRuby3
       def init_platform
         init_unix_platform
 
-        @extra_cppflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
-        @extra_cppflags << ' -Wno-deprecated-declarations' unless @no_deprecated
+        @extra_cflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
+        @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
         # create a .so binary
         @extra_ldflags = '-shared'

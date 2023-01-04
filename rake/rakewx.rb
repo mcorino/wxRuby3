@@ -101,7 +101,7 @@ if $config.has_wxwidgets_xml?
   end
 
   rule ".#{$config.obj_ext}" => cpp_src do | t |
-    sh "#{$config.cpp} -c #{$config.verbose_flag} #{$config.cppflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
+    sh "#{$config.cpp} -c #{$config.verbose_flag} #{$config.cxxflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
        "#{$config.cpp_out_flag}#{t.name} #{t.source}"
   end
 

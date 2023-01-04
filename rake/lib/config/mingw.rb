@@ -69,8 +69,8 @@ module WXRuby3
         @wx_cppflags.gsub!(/^-I(\S+)|\s-I(\S+)/) { |s| " -I#{win_path($1 || $2)}" }
         @wx_libs.gsub!(/^-L(\S+)|\s-L(\S+)/) { |s| " -L#{win_path($1 || $2)}" }
 
-        @extra_cppflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
-        @extra_cppflags << ' -Wno-deprecated-declarations' unless @no_deprecated
+        @extra_cflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
+        @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
         # create a .dll binary
         @extra_ldflags = '-shared'
