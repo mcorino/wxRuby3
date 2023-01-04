@@ -159,6 +159,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPrintData', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxPrintDialog', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxPrintAbortDialog', director: Director::Dialog, requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxPageSetupDialog', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxPreviewFrame', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxPrinter', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
   }

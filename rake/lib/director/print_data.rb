@@ -9,8 +9,11 @@ module WXRuby3
 
     class PrintData < Director
 
+      include Typemap::PrintData
+
       def setup
         super
+        spec.disable_proxies # fixed and final data structures
         spec.items << 'wxPrintDialogData' << 'wxPageSetupDialogData'
         spec.ignore 'wxPrintDialogData::SetSetupDialog' # deprecated since 2.5.4
       end

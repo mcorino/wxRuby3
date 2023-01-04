@@ -9,6 +9,8 @@ module WXRuby3
 
     class Printer < Director
 
+      include Typemap::PrintData
+
       def setup
         super
         spec.items << 'wxPrintout' << 'wxPrintPreview'
@@ -42,7 +44,9 @@ module WXRuby3
                               'wxPrintPreview::GetPrintout',
                               'wxPrintPreview::GetPrintoutForPrinting')
         # for various Printout getters
-        spec.map_apply 'int *' => 'int * OUTPUT'
+        spec.add_swig_code '%feature("new", "0") wxPrintout::GetDC;'
+        spec.map_apply 'int * OUTPUT' => 'int *'
+        spec.do_not_generate(:variables, :defines, :enums, :functions) # with PrintAbortDialog
       end
     end # class Printer
 

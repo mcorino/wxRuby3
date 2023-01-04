@@ -9,6 +9,8 @@ module WXRuby3
 
     class PrintDialog < Director
 
+      include Typemap::PrintData
+
       def setup
         super
         spec.no_proxy 'wxPrintDialog::GetPrintDC' # do not think this is really useful

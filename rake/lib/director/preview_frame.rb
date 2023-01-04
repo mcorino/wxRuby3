@@ -16,17 +16,14 @@ module WXRuby3
         spec.rename_for_ruby('init' => 'wxPreviewFrame::Initialize')
         # We do not wrap the (undocumented) wxPrintPreviewBase so map this to wxPrintPreview what
         # in all cases will be the actual base being used.
+        spec.ignore 'wxPreviewFrame::wxPreviewFrame(wxPrintPreviewBase *, wxWindow *,const wxString &,const wxPoint &,const wxSize &,long,const wxString &)'
+        spec.extend_interface('wxPreviewFrame',
+            'wxPreviewFrame(wxPrintPreview *preview, wxWindow *parent, const wxString &title="Print Preview", const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE, const wxString &name=wxFrameNameStr)')
+        # non-functional map for doc gen
         spec.map 'wxPrintPreviewBase *' => 'Wx::PrintPreview' do
-          # Once a PrintPreview is associated with a PreviewFrame, it is deleted
-          # automatically by wxWidgets - so must avoid calling its destructor
-          # from Ruby when it is GC'd by disowning the input.
-          map_in code: <<~__CODE
-            int res$argnum = SWIG_ConvertPtr($input, SWIG_as_voidptrptr(&$1), SWIGTYPE_p_wxPrintPreviewBase, SWIG_POINTER_DISOWN |  0 );
-            if (!SWIG_IsOK(res$argnum)) {
-              SWIG_exception_fail(SWIG_ArgError(res$argnum), Ruby_Format_TypeError( "", "wxPrintPreview *","wxPreviewFrame", $argnum, $input));
-            }
-            __CODE
+          map_in code: ''
         end
+        spec.disown 'wxPrintPreview *preview' # leave ownership to PreviewFrame
         # Not really useful in Ruby as there no accessors to set a custom
         # canvas or control bar.
         # In case one would need a customized preview pane one would probably be
