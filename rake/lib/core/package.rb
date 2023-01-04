@@ -100,6 +100,7 @@ module WXRuby3
 
       def director_for_class(class_name)
         dir = included_directors.detect { |dir| dir.spec.module_name == class_name || dir.spec.items.include?(class_name) }
+        subpackages.each_value.detect { |spkg| dir = spkg.director_for_class(class_name) } if dir.nil?
         dir = parent.director_for_class(class_name) if dir.nil? && parent
         dir
       end
