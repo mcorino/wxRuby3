@@ -28,6 +28,7 @@ module WXRuby3
         spec.map 'const wxRect&' => 'Wx::Rect' do
           map_out code: 'vresult = SWIG_NewPointerObj(SWIG_as_voidptr(new wxRect(*result)), SWIGTYPE_p_wxRect, SWIG_POINTER_OWN |  0 );'
         end
+        spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
     end # class RichTextPrinting
 
