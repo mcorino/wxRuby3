@@ -26,7 +26,7 @@ class TestDialog < Wx::Dialog
     text = Wx::TextCtrl.new(self, :value => "", :size => [80,-1])
     #text.set_help_text("Here's some help text for field #1")
     box.add(text, 1, Wx::ALIGN_CENTER|Wx::ALL, 5)
-    sizer.add(box, 0, Wx::GROW|Wx::ALIGN_CENTER_VERTICAL|Wx::ALL, 5)
+    sizer.add(box, 0, Wx::GROW|Wx::ALL, 5)
     
     box = Wx::BoxSizer.new(Wx::HORIZONTAL)
     
@@ -37,13 +37,13 @@ class TestDialog < Wx::Dialog
     text = Wx::TextCtrl.new(self, :value => "", :size => [80,-1])
     #text.set_help_text("Here's some help text for field #2")
     box.add(text, 1, Wx::ALIGN_CENTER|Wx::ALL, 5)
-    sizer.add(box, 0, Wx::GROW|Wx::ALIGN_CENTER_VERTICAL|Wx::ALL, 5)
+    sizer.add(box, 0, Wx::GROW||Wx::ALL, 5)
     
     # This convenience method creates a sizer containing the chosen
     # buttons (in this case, OK and Cancel). The buttons will be given
     # the correct layout and labels for the platform.
     button_sizer = create_button_sizer(Wx::OK|Wx::CANCEL)
-    sizer.add(button_sizer, 0, Wx::ALIGN_CENTER_VERTICAL|Wx::ALL, 5)
+    sizer.add(button_sizer, 0, Wx::ALL, 5)
     self.sizer = sizer
     sizer.fit(self)
   end
