@@ -13,6 +13,7 @@ module WXRuby3
 
       def setup
         super
+        spec.gc_as_temporary
         spec.disable_proxies # fixed and final data structures
         spec.items << 'wxPrintDialogData' << 'wxPageSetupDialogData'
         spec.ignore 'wxPrintDialogData::SetSetupDialog' # deprecated since 2.5.4
