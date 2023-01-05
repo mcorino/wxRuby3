@@ -62,7 +62,7 @@ class Wx::EvtHandler
   # created, which accepts +arity+ arguments.
   def self.register_class( klass, konstant = nil,
                            meth = nil, arity = nil)
-    konstant ||= Wx::Event.new_event_type
+    konstant ||= Wx::Event.new_user_event_type
     unless klass < Wx::Event
       Kernel.raise TypeError, "Event class should be a subclass of Wx::Event"
     end

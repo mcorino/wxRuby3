@@ -69,10 +69,14 @@ module WXRuby3
           spec.add_extend_code 'wxRubyEvent', <<~__HEREDOC
             // This class method provides a guaranteed-unique event id that can be
             // used for custom event types.
-            static VALUE new_event_type()
+            static VALUE new_user_event_type()
             {
-              int event_type_id = (int)wxNewEventType();
-              return INT2NUM(event_type_id );
+              // make sure to get an id offset from the user events base so we can use that to
+              // to check for user defined events  
+              static int s_lastUsedUserEventType = wxEVT_USER_FIRST;
+
+              int event_type_id = ++s_lastUsedUserEventType;
+              return INT2NUM(event_type_id);
             }
             __HEREDOC
           spec.add_swig_code <<~__HEREDOC
@@ -165,8 +169,7 @@ module WXRuby3
               elsif def_item.hierarchy.has_key?('wxNotifyEvent')
                 spec.override_inheritance_chain(citem, {'wxNotifyEvent' => 'wxEvents'}, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
               end
-              spec.make_abstract(citem) if citem != 'wxCommandEvent'
-              #spec.no_proxy "#{citem}::Clone" if citem != 'wxCommandEvent'
+              spec.make_abstract(citem) if citem == 'wxPaintEvent' # doc flaw
             end
           end
         end
