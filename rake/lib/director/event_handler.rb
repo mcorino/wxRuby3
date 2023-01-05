@@ -144,6 +144,55 @@ module WXRuby3
           bool wxRbCallback::c_init_done = false;
 
           __HEREDOC
+        spec.add_header_code <<~__HEREDOC
+          #include <memory> // for std::unique_ptr<>
+
+          class RbAsyncProcCallEvent : public wxAsyncMethodCallEvent
+          {
+          public:
+            RbAsyncProcCallEvent(wxObject* evtObj, VALUE call) 
+              : wxAsyncMethodCallEvent(evtObj)
+              , m_rb_call(call)
+            {}
+
+            RbAsyncProcCallEvent(const RbAsyncProcCallEvent& other)
+              : wxAsyncMethodCallEvent(other)
+              , m_rb_call(other.m_rb_call)
+            {}
+
+            virtual ~RbAsyncProcCallEvent()
+            {
+              wxRuby_RemoveTracking((void*)this);
+            }
+
+            virtual wxEvent *Clone() const wxOVERRIDE
+            {
+                return new RbAsyncProcCallEvent(*this);
+            }
+        
+            virtual void Execute() wxOVERRIDE
+            {
+                if (TYPE(m_rb_call) == T_ARRAY)
+                {
+                  VALUE proc = rb_ary_entry(m_rb_call, 0);
+                  int argc = RARRAY_LEN(m_rb_call)-1;
+                  std::unique_ptr<VALUE> safe_args (new VALUE[argc]);
+                  for (int i=0; i<argc ;i++)
+                  {
+                    safe_args.get()[i] = rb_ary_entry(m_rb_call, i+1);
+                  }
+                  rb_funcall2(proc, rb_intern("call"), argc, safe_args.get());
+                }
+                else
+                {
+                  rb_funcall(m_rb_call, rb_intern("call"), 0, 0);
+                }
+            }
+        
+          private:
+            VALUE m_rb_call;
+          };
+          __HEREDOC
         spec.add_extend_code 'wxEvtHandler', <<~__HEREDOC
           // This provides the public Ruby 'connect' method
           VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
@@ -154,7 +203,7 @@ module WXRuby3
             wxObjectEventFunction function = 
                 (wxObjectEventFunction )&wxRbCallback::EventThunker;
             self->Connect(firstId, lastId, eventType, function, userData);
-          return Qtrue;
+            return Qtrue;
           }
         
           // Implementation of disconnect, accepting either an EVT_XXX constant
@@ -192,6 +241,24 @@ module WXRuby3
               return Qtrue;
             else
               return Qfalse;
+          }
+
+          void call_after(VALUE call)
+          {
+            // valid call object?
+            VALUE proc;
+            if (TYPE(call) == T_ARRAY && 
+                  (rb_obj_is_kind_of(proc = rb_ary_entry(call, 0), rb_cProc)
+                   ||
+                   rb_obj_is_kind_of(proc, rb_cMethod)))
+            {
+              // create C++ event
+              RbAsyncProcCallEvent * evt = new RbAsyncProcCallEvent(self, call);
+              // track it and the call object
+              wxRuby_AddTracking( (void*)evt, call);
+              // queue it
+              self->QueueEvent(evt);
+            }
           }
           __HEREDOC
         spec.add_wrapper_code <<~__HEREDOC

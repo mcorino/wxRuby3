@@ -24,4 +24,11 @@ class Wx::EvtHandler
   # Convenience evt handler to listen to all scrollwin events.
   # @yieldparam [Wx::ScrollWinEvent] event event to handle
   def evt_scrollwin(&block) end
+
+  # Schedule a call for asynchronous execution (at idle time).
+  # @param meth [Symbol,String,Method,Proc] (name of) method or proc to call
+  # @param args [Array<Object>] optional arguments to pass to the call
+  # @return [void]
+  # @yield [*args] optional arguments
+  def call_after(meth = nil, *args, &block) end
 end

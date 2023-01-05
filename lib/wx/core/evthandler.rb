@@ -161,6 +161,20 @@ class Wx::EvtHandler
   end
   private :acquire_id, :acquire_handler
 
+  wx_call_after = instance_method(:call_after)
+  define_method(:call_after) do |meth = nil, *args, &block|
+    async_proc = if block and not meth
+                   block
+                 elsif meth and not block
+                   case meth
+                   when Symbol, String then self.method(meth)
+                   when Proc then meth
+                   when Method then meth
+                   end
+                 end
+    wx_call_after.bind(self).call(args.unshift(async_proc))
+  end
+
   # Process a command, supplying the window identifier, command event identifier, and member function or proc.
   def evt_command(id, evt_id, meth = nil, &block)
     handler = acquire_handler(meth, block)
