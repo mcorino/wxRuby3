@@ -66,8 +66,7 @@ class ProgressFrame < Wx::Frame
         STEPS.times do | i |
           sleep rand(100) / 50.0
           # Update the main GUI asynchronously
-          evt = ProgressUpdateEvent.new(i+1, gauge_ix)
-          frame.event_handler.queue_event(evt)
+          frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, gauge_ix))
         end
       end
       @gauges << gauge
