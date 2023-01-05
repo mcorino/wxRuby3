@@ -65,8 +65,12 @@ class ProgressFrame < Wx::Frame
         # The long-running task
         STEPS.times do | i |
           sleep rand(100) / 50.0
-          # Update the main GUI asynchronously
-          frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, gauge_ix))
+          # Update the main GUI asynchronously (more ways than 1)
+          if (gauge_ix % 2) == 0
+            frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, gauge_ix))
+          else
+            frame.call_after(:update_gauge, gauge_ix, i+1)
+          end
         end
       end
       @gauges << gauge
@@ -76,15 +80,18 @@ class ProgressFrame < Wx::Frame
     sizer.fit(panel)
   end
 
+  def update_gauge(gauge_ix, value)
+    @gauges[gauge_ix].value = value
+  end
+
   def on_progress_update(evt)
-    @gauges[evt.gauge].value = evt.value
+    update_gauge(evt.gauge, evt.value)
   end
 end
 
 # This app class creates a frame, and, importantly, a timer to allow
+# the threads some computing time
 class GaugeApp < Wx::App
-  # Get a guaranteed-unique id
-  THREAD_TIMER_ID = Wx::ID_HIGHEST + 1
   def on_init
     # Create a global application timer that passes control to other
     # ruby threads. The timer will run every 1/40 second (25ms). Higher
