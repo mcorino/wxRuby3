@@ -3,6 +3,7 @@
 
 
 require 'wx/core'
+require 'wx/print' if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)
 
 require 'wxruby_html'
 
