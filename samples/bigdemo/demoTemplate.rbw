@@ -9,7 +9,7 @@ require 'wx'
 
 
 
-class
+class XXX
     def initialize
 
     end
