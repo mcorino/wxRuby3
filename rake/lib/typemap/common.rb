@@ -9,6 +9,33 @@ module WXRuby3
 
   module Typemap
 
+    # initialize common basic mappings for std type typedefs
+    register_std_typedef('wxLongLong_t', 'long long')
+    register_std_typedef('wxULongLong_t', 'unsigned long long')
+    register_std_typedef('wxInt8', 'signed char')
+    register_std_typedef('wxUint8', 'unsigned char')
+    register_std_typedef('wxByte', 'unsigned char')
+    register_std_typedef('wxInt16', 'signed short')
+    register_std_typedef('wxUint16', 'unsigned short')
+    register_std_typedef('wxWord', 'unsigned short')
+    register_std_typedef('wxChar16', 'unsigned short')
+    register_std_typedef('wxInt32', 'int')
+    register_std_typedef('wxUint32', 'unsigned int')
+    register_std_typedef('wxDword', 'unsigned int')
+    register_std_typedef('wxChar32', 'unsigned int')
+    register_std_typedef('wxInt64', 'long long')
+    register_std_typedef('wxUint64', 'unsigned long long')
+    register_std_typedef('wxInt64', 'long long')
+    register_std_typedef('wxIntPtr', 'ssize_t')
+    register_std_typedef('wxUIntPtr', 'size_t')
+    register_std_typedef('wxPrintQuality', 'int')
+    register_std_typedef('wxCoord', 'int')
+    register_std_typedef('wxFloat32', 'float')
+    register_std_typedef('wxFloat64', 'double')
+    register_std_typedef('wxDouble', 'double')
+    register_std_typedef('wxWindowID', 'int')
+    register_std_typedef('wxEventType', 'int')
+
     module Common
 
       include Typemap::Module

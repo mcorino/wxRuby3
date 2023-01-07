@@ -20,6 +20,43 @@ module WXRuby3
       end
     end
 
+    STD_INT_TYPES = [
+      'char', 'unsigned char', 'wchar_t',
+      'short', 'unsigned short',
+      'int', 'unsigned int',
+      'long', 'unsigned long',
+      'long int', 'unsigned long int',
+      'long long', 'unsigned long long',
+      'ssize_t', 'size_t'
+      ]
+    STD_FLOAT_TYPES = %w[float double]
+    STD_STR_TYPES = ['char*', 'unsigned char*', 'wchar_t*']
+    STD_BOOL_TYPES = %w[bool]
+
+    class << self
+      def map_std_type(std_type)
+        if STD_INT_TYPES.include?(std_type)
+          'Integer'
+        elsif STD_FLOAT_TYPES.include?(std_type)
+          'Float'
+        elsif STD_STR_TYPES.include?(std_type)
+          'String'
+        elsif STD_BOOL_TYPES.include?(std_type)
+          'true,false'
+        else
+          nil
+        end
+      end
+
+      def std_type_maps
+        @std_type_maps ||= {}
+      end
+
+      def register_std_typedef(wx_type, std_type)
+        std_type_maps[wx_type] = map_std_type(std_type) || wx_type
+      end
+    end
+
     def self.rb_void_type(ctype)
       "VOID_#{ctype.tr(' ', '_').upcase}"
     end
@@ -28,7 +65,8 @@ module WXRuby3
       c_type = typestr.gsub(/const\s+/, '')
       c_type.gsub!(/\s+(\*|&)/, '\1')
       c_type.strip!
-      c_type.tr('*&', '').sub(/\Awx/, 'Wx::')
+      c_type.tr!('*&', '')
+      (std_type_maps[c_type] || c_type).sub(/\Awx/, 'Wx::')
     end
 
     class Map
@@ -326,7 +364,7 @@ module WXRuby3
         end
       end
 
-      def initialize(*mappings, as: nil, &block)
+      def initialize(*mappings, as: nil, swig: true, &block)
         @types = {}
         @patterns = mappings.collect do |mapping|
           if ::Hash === mapping
@@ -340,6 +378,7 @@ module WXRuby3
           end
         end.flatten
         @patterns.each { |pset| @types[pset] = as unless @types.has_key?(pset) } if as
+        @swig = swig
         @in = nil
         @default = nil
         @typecheck = nil
@@ -356,6 +395,10 @@ module WXRuby3
       end
 
       attr_reader :patterns, :types
+
+      def swig?
+        @swig
+      end
 
       def add_header_code(*code)
         @header_code.concat(code.flatten)
@@ -504,24 +547,28 @@ module WXRuby3
       end
 
       def to_swig
-        s = []
-        unless @header_code.empty?
-          s << "%{\n"
-          s.concat @header_code
-          s << "\n%}"
+        if swig?
+          s = []
+          unless @header_code.empty?
+            s << "%{\n"
+            s.concat @header_code
+            s << "\n%}"
+          end
+          maps = [@in,
+                  @default,
+                  @typecheck,
+                  @check,
+                  @argout,
+                  @out,
+                  @freearg,
+                  @directorin,
+                  @directorargout,
+                  @varout]
+          maps << @directorout unless ignores_output?
+          s.concat maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
+        else
+          []
         end
-        maps = [@in,
-                @default,
-                @typecheck,
-                @check,
-                @argout,
-                @out,
-                @freearg,
-                @directorin,
-                @directorargout,
-                @varout]
-        maps << @directorout unless ignores_output?
-        s.concat maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
       end
 
       def to_s
@@ -976,16 +1023,10 @@ module WXRuby3
 
     # set up standard SWIG defined type maps
     STANDARD = {
-      [ 'char', 'unsigned char', 'wchar_t',
-        'short', 'unsigned short',
-        'int', 'unsigned int',
-        'long', 'unsigned long',
-        'long int', 'unsigned long int',
-        'long long', 'unsigned long long',
-        'ssize_t', 'size_t' ] => 'Integer',
-      ['char*', 'unsigned char*', 'wchar_t*'] => 'String',
-      %w[double float] => 'Float',
-      %w[bool] => 'true,false'
+      STD_INT_TYPES => 'Integer',
+      STD_STR_TYPES => 'String',
+      STD_FLOAT_TYPES => 'Float',
+      STD_BOOL_TYPES => 'true,false'
     }.inject(Typemap::Collection.new) do |list, (ctypes, rbtype)|
       unless rbtype == 'String'
         list << SystemMap.new(*ctypes.collect { |t| ["#{t} * OUTPUT", "#{t} & OUTPUT"]}.flatten,
@@ -1001,10 +1042,13 @@ module WXRuby3
       # creates a type mapping set
       def map(*mappings, &block)
         as = nil
-        if ::Hash === mappings.last && (as = mappings.last[:as])
-          mappings.pop
+        swig = true
+        if ::Hash === mappings.last && (mappings.last.has_key?(:as) || mappings.last.has_key?(:swig))
+          kwargs = mappings.pop
+          as = kwargs[:as]
+          swig = !!kwargs[:swig] if kwargs.has_key?(:swig)
         end
-        type_maps << Map.new(*mappings, as: as, &block)
+        type_maps << Map.new(*mappings, as: as, swig: swig, &block)
       end
 
       # creates type mapping applications sets for different parameter sets

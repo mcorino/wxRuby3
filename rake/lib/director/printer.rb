@@ -33,10 +33,9 @@ module WXRuby3
         spec.ignore('wxPrintPreview::GetCanvas', ignore_doc: false)
         spec.extend_interface('wxPrintPreview',
                               'virtual wxScrolledWindow* GetCanvas() const')
-        # this map does nothing for the implementation since we changed the declaration above
-        # but it will update the docs
-        spec.map 'wxPreviewCanvas *' => 'wxScrolledWindow' do
-          map_out code: ''
+        # docs only mapping
+        spec.map 'wxPreviewCanvas *' => 'wxScrolledWindow', swig: false do
+          map_out
         end
         spec.suppress_warning(473,
                               'wxPrintPreview::GetCanvas',

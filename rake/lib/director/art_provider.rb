@@ -21,6 +21,10 @@ module WXRuby3
           typedef wxString wxArtID;
           typedef wxString wxArtClient;
           __HEREDOC
+        spec.map *%w[wxArtID wxArtClient], as: 'String', swig: false do
+          map_in
+          map_out
+        end
         spec.map_apply 'SWIGTYPE *DISOWN' => 'wxArtProvider* provider'
         spec.add_header_code <<~__HEREDOC
           extern swig_class SwigClassWxSize;

@@ -66,6 +66,10 @@ module WXRuby3
           // objects
           %feature("nodirector") wxHelpProvider::RemoveHelp;
           __HEREDOC
+        spec.map 'wxWindowBase' => 'Wx::Window', swig: false do
+          map_in
+          map_out
+        end
         # this is just the SWIG interface description so we do not need
         # to mention the inheritance relation here as it is not important
         # for the Ruby implementation

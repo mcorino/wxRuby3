@@ -20,8 +20,8 @@ module WXRuby3
         spec.extend_interface('wxPreviewFrame',
             'wxPreviewFrame(wxPrintPreview *preview, wxWindow *parent, const wxString &title="Print Preview", const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE, const wxString &name=wxFrameNameStr)')
         # non-functional map for doc gen
-        spec.map 'wxPrintPreviewBase *' => 'Wx::PrintPreview' do
-          map_in code: ''
+        spec.map 'wxPrintPreviewBase *' => 'Wx::PrintPreview', swig: false do
+          map_in
         end
         spec.disown 'wxPrintPreview *preview' # leave ownership to PreviewFrame
         # Not really useful in Ruby as there no accessors to set a custom
