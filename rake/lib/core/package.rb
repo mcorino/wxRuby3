@@ -266,6 +266,12 @@ module WXRuby3
           fsrc.puts "VALUE #{module_variable} = 0;"
           fsrc.puts "WXRB_IMPORT_FLAG VALUE wxRuby_Core();" unless is_core?
           fsrc.puts
+          fsrc.puts '#define VALUEFUNC(f) ((VALUE (*)(ANYARGS)) f)'
+          fsrc.puts
+          if is_core?
+            fsrc << ENUM_CLASS_CODE
+            fsrc.puts
+          end
           fsrc.puts decls.join("\n")
           fsrc.puts
           fsrc.puts '#ifdef __cplusplus'
@@ -282,6 +288,20 @@ module WXRuby3
               fsrc.puts %Q{#{module_variable} = rb_define_module("Wx");}
               # create instance variable for main module with array to record package submodules in
               fsrc.puts %Q{rb_ivar_set(#{module_variable}, rb_intern("@__pkgmods__"), rb_ary_new());}
+              fsrc.puts
+              fsrc << <<~__HERDOC
+                // define Enum class
+                cWxEnum = rb_define_class_under(mWxCore, "Enum", rb_cNumeric);
+                rb_define_method(cWxEnum, "initialize", VALUEFUNC(wx_Enum_initialize), -1);
+                rb_define_method(cWxEnum, "coerce", VALUEFUNC(wx_Enum_coerce), -1);
+                rb_define_method(cWxEnum, "integer?", VALUEFUNC(wx_Enum_is_integer), -1);
+                rb_define_method(cWxEnum, "real?", VALUEFUNC(wx_Enum_is_real), -1);
+                rb_define_method(cWxEnum, "method_missing", VALUEFUNC(wx_Enum_method_missing), -1);
+                rb_define_method(cWxEnum, "eql?", VALUEFUNC(wx_Enum_is_equal), -1);
+                rb_define_method(cWxEnum, "<=>", VALUEFUNC(wx_Enum_compare), -1);
+                rb_define_method(cWxEnum, "inspect", VALUEFUNC(wx_Enum_inspect), -1);
+                setup_Enum_singleton_class();
+                __HERDOC
               fsrc.puts
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
@@ -477,6 +497,197 @@ module WXRuby3
         # generate event handler docs
         generate_event_list_docs
       end
+
+      ENUM_CLASS_CODE = <<~__HEREDOC
+        VALUE cWxEnum;
+        
+        static const char * __iv_cEnum_value = "@value";
+        
+        static VALUE wx_Enum_initialize(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 1) || (argc > 1))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc); return Qnil;
+          }
+          rb_iv_set(self, __iv_cEnum_value, rb_funcall(argv[0], rb_intern("to_i"), 0, 0));
+          return self;
+        }
+        
+        static VALUE wx_Enum_coerce(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 1) || (argc > 1))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc); return Qnil;
+          }
+          if (!rb_obj_is_kind_of(argv[0], rb_cNumeric))
+          {
+            VALUE str = rb_inspect(argv[0]);
+            rb_raise(rb_eTypeError,
+                     "Unable to coerce %s to be compatible with Enum",
+                     StringValuePtr(str));
+            return Qnil;
+          }
+          VALUE result = rb_ary_new();
+          rb_ary_push(result, rb_iv_get(self, __iv_cEnum_value));
+          rb_ary_push(result, rb_funcall(argv[0], rb_intern("to_i"), 0, 0));
+          return result;
+        }
+        
+        static VALUE wx_Enum_is_integer(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 0) || (argc > 0))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc); return Qnil;
+          }
+          return Qtrue;
+        }
+        
+        static VALUE wx_Enum_is_real(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 0) || (argc > 0))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc); return Qnil;
+          }
+          return Qfalse;
+        }
+        
+        static VALUE wx_Enum_method_missing(int argc, VALUE *argv, VALUE self)
+        {
+          if (argc < 1)
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc); return Qnil;
+          }
+          VALUE value = rb_iv_get(self, __iv_cEnum_value);
+          return rb_funcall2(value, rb_to_id(argv[0]), argc-1, (argv+1));
+        }
+        
+        static VALUE wx_Enum_is_equal(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 1) || (argc > 1))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc); return Qnil;
+          }
+          if (CLASS_OF(self) == CLASS_OF(argv[0]) &&
+                NUM2INT(rb_iv_get(self, __iv_cEnum_value)) == NUM2INT(rb_iv_get(argv[0], __iv_cEnum_value)))
+            return Qtrue;
+          else
+            return Qfalse;
+        }
+        
+        static VALUE wx_Enum_compare(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 1) || (argc > 1))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc); return Qnil;
+          }
+          if (rb_obj_is_kind_of(argv[0], cWxEnum))
+          {
+            return rb_funcall(rb_iv_get(self, __iv_cEnum_value), rb_intern("<=>"), 1, rb_iv_get(argv[0], __iv_cEnum_value), 0);
+          }
+          else if (rb_obj_is_kind_of(argv[0], rb_cNumeric))
+          {
+            return rb_funcall(rb_iv_get(self, __iv_cEnum_value), rb_intern("<=>"), 1, argv[0], 0);
+          }
+          VALUE str = rb_inspect(argv[0]);
+          rb_raise(rb_eArgError,
+                   "Failed to compare Enum with %s",
+                   StringValuePtr(str));
+          return Qnil;
+        }
+        
+        static VALUE wx_Enum_inspect(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 0) || (argc > 0))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc); return Qnil;
+          }
+          VALUE str = rb_str_new2("Enum<");
+          rb_funcall(str,
+                     rb_intern("<<"),
+                     1,
+                     rb_funcall(rb_iv_get(self, __iv_cEnum_value),
+                                rb_intern("to_s"),
+                                0,
+                                0),
+                     0);
+          rb_str_cat2(str, ">");
+          return str;
+        }
+        
+        static VALUE cEnum_Singleton;
+        static const char * __iv_Enum_sc_enums = "@enums";
+        
+        static VALUE wx_Enum_sc_get_enum_class(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 1) || (argc > 1))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc); return Qnil;
+          }
+          return rb_hash_aref(rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums), rb_to_symbol(argv[0]));
+        }
+        
+        static VALUE wx_Enum_sc_create_enum_class(int argc, VALUE *argv, VALUE self)
+        {
+          if ((argc < 2) || (argc > 2))
+          {
+            rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)", argc); return Qnil;
+          }
+          VALUE enum_name = rb_to_symbol(argv[0]);
+          if (TYPE(argv[1]) != T_HASH)
+          {
+            VALUE str = rb_inspect(argv[1]);
+            rb_raise(rb_eArgError,
+                     "Invalid enum_values; expected Hash but got %s.",
+                     StringValuePtr(str));
+            return Qnil;
+          }
+          ID id_new = rb_intern("new");
+          ID id_to_i = rb_intern("to_i");
+          ID id_const_set = rb_intern("const_set");
+          VALUE enum_klass = rb_funcall(rb_cClass, id_new, 1, cWxEnum, 0);
+          VALUE enum_values = rb_funcall(argv[1], rb_intern("keys"), 0, 0);
+          for (int i=0; i<RARRAY_LEN(enum_values) ;++i)
+          {
+            VALUE enum_value_name = rb_ary_entry(enum_values, i);
+            VALUE enum_value_num = rb_funcall(rb_hash_aref(argv[1], enum_value_name), id_to_i, 0, 0);
+            VALUE enum_value = rb_funcall(enum_klass, id_new, 1, enum_value_num, 0);
+            rb_funcall(enum_klass, id_const_set, 2, enum_value_name, enum_value, 0);
+          }
+          rb_hash_aset(rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums), enum_name, enum_klass);
+          return enum_klass;
+        }
+        
+        static void setup_Enum_singleton_class()
+        {
+          cEnum_Singleton = rb_funcall(cWxEnum, rb_intern("singleton_class"), 0, 0);
+          rb_iv_set(cEnum_Singleton, __iv_Enum_sc_enums, rb_hash_new());
+          rb_define_method(cEnum_Singleton, "create", VALUEFUNC(wx_Enum_sc_create_enum_class), -1);
+          rb_define_singleton_method(cWxEnum, "[]", VALUEFUNC(wx_Enum_sc_get_enum_class), -1);
+        }
+        
+        WXRB_EXPORT_FLAG VALUE wxRuby_GetEnumClass(const char* enum_class_name_cstr)
+        {
+          VALUE enum_hash = rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums);
+          return rb_hash_aref(enum_hash, rb_str_new2(enum_class_name_cstr));
+        }
+        
+        WXRB_EXPORT_FLAG VALUE wxRuby_CreateEnumClass(const char* enum_class_name_cstr)
+        {
+          VALUE enum_klass = rb_funcall(rb_cClass, rb_intern("new"), 1, cWxEnum, 0);
+          rb_hash_aset(rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums),
+                       ID2SYM(rb_intern(enum_class_name_cstr)),
+                       enum_klass);
+          return enum_klass;
+        }
+        
+        WXRB_EXPORT_FLAG VALUE wxRuby_AddEnumValue(VALUE enum_klass, const char* enum_value_name_cstr, VALUE enum_value_num)
+        {
+          VALUE enum_value_name = ID2SYM(rb_intern(enum_value_name_cstr));
+          VALUE enum_value = rb_funcall(enum_klass, rb_intern("new"), 1, enum_value_num, 0);
+          rb_funcall(enum_klass, rb_intern("const_set"), 2, enum_value_name, enum_value, 0);
+          return enum_value;
+        }
+      __HEREDOC
 
     end # class Package
 

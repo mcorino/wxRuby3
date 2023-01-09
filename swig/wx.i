@@ -232,11 +232,11 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 %include "mark_free_impl.i"
 
 %init %{
-    // Set up all image formats
-    wxInitAllImageHandlers();
+  // Set up all image formats
+  wxInitAllImageHandlers();
 
-    // Load handlers on the global resources object
-    wxXmlResource::Get()->InitAllHandlers();
+  // Load handlers on the global resources object
+  wxXmlResource::Get()->InitAllHandlers();
 
 	// This is needed so HtmlHelp can load docs from a zip file
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);

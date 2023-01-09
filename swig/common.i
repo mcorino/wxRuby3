@@ -131,6 +131,11 @@ WXRUBY_EXPORT VALUE wxRuby_GetDefaultEventClass ();
 
 WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
 WXRUBY_EXPORT VALUE wxRuby_GetDialogClass();
+
+// Enum helpers
+WXRUBY_EXPORT VALUE wxRuby_GetEnumClass(const char* enum_class_name_cstr);
+WXRUBY_EXPORT VALUE wxRuby_CreateEnumClass(const char* enum_class_name_cstr);
+WXRUBY_EXPORT VALUE wxRuby_AddEnumValue(VALUE enum_klass, const char* enum_value_name_cstr, VALUE enum_value_num);
 %}
 
 %include "typedefs.i"
