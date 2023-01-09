@@ -601,7 +601,8 @@ module WXRuby3
           {
             rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc); return Qnil;
           }
-          VALUE str = rb_str_new2("Enum<");
+          VALUE str = rb_str_new2(rb_class2name(CLASS_OF(self)));
+          rb_str_cat2(str, "<");
           rb_funcall(str,
                      rb_intern("<<"),
                      1,
