@@ -6,6 +6,15 @@ require_relative './ext'
 # Controller class which creates and manages all windows.
 class Wx::App
 
+  # convenience method to retrieve global Wx::App instance
+  def self.the_app
+    if Wx::const_defined?(:THE_APP) and not $__wx_app_ended__
+      Wx::THE_APP
+    else
+      nil
+    end
+  end
+
   # Ruby init callback.
   # Initializes delayed load constants and than calls the user defined 'on_init'
   def on_ruby_init
