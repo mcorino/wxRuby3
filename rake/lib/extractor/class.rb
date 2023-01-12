@@ -323,13 +323,13 @@ module WXRuby3
             if mtd_ovls.size==1 || !mtd_ovls.select { |ovl| !ovl.rb_name }.empty?
               mtd = mtd_ovls.shift
               mtd_name = mtd.rb_name || mtd.name
-              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name) || ((/\ASet[A-Z]/ =~ mtd_name) && mtd_ovls.all? { |ovl| ovl.parameter_count==1 || ovl.required_param_count==1 }))
+              unless (rc = (/\A(Is|Has|Can|Set)[A-Z]/ =~ mtd_name))
                 if /\AGet[A-Z]/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.required_param_count==0 }
                   # since getters have no decoration ('=' or '?') a C++ method with the same
                   # name could exist already; check this and exclude if so
                   alias_name = mtd_name.sub(/\AGet/, '')
                   rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
-                elsif !(rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name) || (/\Aset_\w+/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.parameter_count==1 || ovl.required_param_count==1 }))
+                elsif !(rc = (/\A(is|has|can|set)_\w+\Z/ =~ mtd_name))
                   if /\Aget_\w+/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.required_param_count==0 }
                     # since getters have no decoration ('=' or '?') a C++ method with the same
                     # name could exist already; check this and exclude if so
