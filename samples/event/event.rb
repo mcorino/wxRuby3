@@ -91,6 +91,11 @@ class TargetControl < Wx::Window
       end
     end
   end
+
+  def wx_try_before(event)
+    super
+  end
+  alias :try_before :wx_try_before
 end
 
 # Container frame for the target control

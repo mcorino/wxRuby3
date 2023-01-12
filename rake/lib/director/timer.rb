@@ -3,11 +3,13 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require_relative './event_handler'
+
 module WXRuby3
 
   class Director
 
-    class Timer < Director
+    class Timer < EvtHandler
 
       def setup
         super

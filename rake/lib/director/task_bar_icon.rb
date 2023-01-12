@@ -3,16 +3,18 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require_relative './event_handler'
+
 module WXRuby3
 
   class Director
 
-    class TaskBarIcon < Director
+    class TaskBarIcon < EvtHandler
 
       def setup
         super
         spec.gc_never
-        # this one is protected so ignored by defaylt but we want it here
+        # this one is protected so ignored by default but we want it here
         # (we do not want GetPopupMenu available for override in Ruby)
         spec.regard %w[wxTaskBarIcon::CreatePopupMenu]
         # This is used for CreatePopupMenu, a virtual method which is

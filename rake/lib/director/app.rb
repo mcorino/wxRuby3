@@ -3,11 +3,13 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require_relative './event_handler'
+
 module WXRuby3
 
   class Director
 
-    class App < Director
+    class App < EvtHandler
 
       def setup
         spec.items << 'wxAppConsole'
@@ -66,6 +68,7 @@ module WXRuby3
         spec.no_proxy %w{
           wxRubyApp::GetDisplayMode
           wxRubyApp::GetTopWindow
+          wxRubyApp::ProcessEvent
         }
         spec.include %w{
           wx/init.h
