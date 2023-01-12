@@ -39,6 +39,8 @@ module WXRuby3
                           int id = 0,
                           int prop_level = wxEVENT_PROPAGATE_NONE) : 
                 wxEvent(id, commandType) {  m_propagationLevel = prop_level; }
+              wxRubyEvent(const wxRubyEvent& ev) :
+                wxEvent(ev) { }
             
               // When the C++ side event is destroyed, unlink from the Ruby object
               // and remove that object from the tracking hash so it can be
@@ -53,9 +55,7 @@ module WXRuby3
               // Wx C++ event, create a shallow (dup) of the Ruby event object, and
               // add to the tracking hash so that it is GC-protected
               virtual wxEvent* Clone() const {
-                wxRubyEvent* wx_ev = new wxRubyEvent( GetEventType(),
-                                                      GetId(),
-                                                      m_propagationLevel );
+                wxRubyEvent* wx_ev = new wxRubyEvent( *this );
             
                 VALUE r_obj = SWIG_RubyInstanceFor((void *)this);
                 VALUE r_obj_dup = rb_obj_clone(r_obj);
@@ -104,6 +104,8 @@ module WXRuby3
               wxRubyCommandEvent(wxEventType commandType = wxEVT_NULL, 
                                  int id = 0) : 
                 wxCommandEvent(commandType, id) { }
+              wxRubyCommandEvent(const wxRubyCommandEvent& cev) :
+                wxCommandEvent(cev) { }
             
               // When the C++ side event is destroyed, unlink from the Ruby object
               // and remove that object from the tracking hash so it can be
@@ -118,8 +120,7 @@ module WXRuby3
               // Wx C++ event, create a shallow (dup) of the Ruby event object, and
               // add to the tracking hash so that it is GC-protected
               virtual wxCommandEvent* Clone() const {
-                wxRubyCommandEvent* wx_ev = new wxRubyCommandEvent(GetEventType(), 
-                                                                   GetId());
+                wxRubyCommandEvent* wx_ev = new wxRubyCommandEvent(*this);
             
                 VALUE r_obj = SWIG_RubyInstanceFor((void *)this);
                 VALUE r_obj_dup = rb_obj_clone(r_obj);
