@@ -45,6 +45,7 @@ module WXRuby3
       def rb_method_name(name)
         rbnm = underscore(name)
         rbnm.sub!(/\Awx_/, '')
+        rbnm.sub!(/\A_wx_/, 'wx_')
         rbnm.sub!(/\Aoperator/, '')
         rbnm << '_' if RBKW.include?(rbnm)
         rbnm
