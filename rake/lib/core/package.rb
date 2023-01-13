@@ -688,6 +688,36 @@ module WXRuby3
           rb_funcall(enum_klass, rb_intern("const_set"), 2, enum_value_name, enum_value, 0);
           return enum_value;
         }
+        
+        WXRB_EXPORT_FLAG int wxRuby_GetEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val)
+        {
+          if (rb_obj_is_kind_of(rb_enum_val, cWxEnum))
+          {
+            char *enum_class_rbname = rb_class2name(CLASS_OF(rb_enum_val));
+            const char* enum_class_name = enum_wx_class_name_cstr;
+            if (strncmp(enum_wx_class_name_cstr, "wx", 2) == 0)
+              enum_class_name += 2;
+            if (strcmp(enum_class_name, enum_class_rbname) == 0) 
+            {
+              return NUM2INT(rb_iv_get(rb_enum_val, __iv_cEnum_value));
+            }
+            else
+            {
+              rb_raise(rb_eArgError,
+                       "Invalid enum class. Expected %s got %s.",
+                       enum_class_name,
+                       enum_class_rbname);
+            }
+          }
+          else
+          {
+            VALUE str = rb_inspect(argv[1]);
+            rb_raise(rb_eArgError,
+                     "Invalid enum value. Got %s.",
+                     StringValuePtr(str));
+          }
+          return 0;
+        }
       __HEREDOC
 
     end # class Package
