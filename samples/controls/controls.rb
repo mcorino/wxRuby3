@@ -534,10 +534,10 @@ class MyPanel < Panel
     x = size.get_width
     y = size.get_height
     if @m_notebook
-      @m_notebook.set_dimensions( 2, 2, x-4, y*2/3-4 )
+      @m_notebook.set_size( 2, 2, x-4, y*2/3-4 )
     end
     if @m_text
-      @m_text.set_dimensions( 2, y*2/3+2, x-4, y/3-4 )
+      @m_text.set_size( 2, y*2/3+2, x-4, y/3-4 )
     end
   end
 
