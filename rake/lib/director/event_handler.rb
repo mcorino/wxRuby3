@@ -312,7 +312,7 @@ module WXRuby3
     # The original wxWidget implementations are available in Ruby as 'wx_try_before' and
     # 'wx_try_after' and can be called from the 'overrides'.
     # Additionally the inserted code first off checks if the event handler is actually (still)
-    # handling events by calling GetEvtHandlerEnabled() since in wxRuby it is in rare occasions
+    # able to handle events by calling wxRuby_FindTracking() since in wxRuby it is in rare occasions
     # possible the event handler instance gets garbage collected AFTER the event processing
     # path has started in which case the C++ and Ruby object are unlinked and any attempts to
     # access the (originally) associated Ruby object will have bad results (this is especially
@@ -336,7 +336,7 @@ module WXRuby3
             if director_method_line == 4 && line.strip.empty?   # are we at the right spot?
               code = <<~__CODE     # insert the code update
                 // added by wxRuby3 Processor.update_evthandler
-                if (!this->GetEvtHandlerEnabled())
+                if (wxRuby_FindTracking(this) == Qnil)
                   return false;
                 if (!rb_respond_to(swig_get_self(), rb_intern("try_#{director_method_id.downcase}")))
                   return this->#{director_wx_class}::Try#{director_method_id}(event);
