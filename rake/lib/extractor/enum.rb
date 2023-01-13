@@ -9,9 +9,8 @@ module WXRuby3
 
     # A named or anonymous enumeration.
     class EnumDef < BaseDef
-      def initialize(element = nil, inClass = [], **kwargs)
+      def initialize(element = nil, **kwargs)
         super()
-        @in_class = inClass
         if element
           prot = element['prot']
           if prot
@@ -28,7 +27,7 @@ module WXRuby3
         update_attributes(**kwargs)
       end
 
-      attr_accessor :is_anonymous, :in_class, :protection
+      attr_accessor :is_anonymous, :protection
 
       def extract(element)
         super

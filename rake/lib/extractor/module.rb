@@ -83,10 +83,8 @@ module WXRuby3
           self.items << item unless item.check_for_overload(self.items)
 
         when 'enum'
-          in_class = []
-          self.items.each { |el| in_class << el if el.is_a?(ClassDef) }
           Extractor.extracting_msg(kind, element)
-          item = EnumDef.new(element, in_class, gendoc: @gendoc)
+          item = EnumDef.new(element, gendoc: @gendoc)
           self.items << item
 
         when 'variable'
