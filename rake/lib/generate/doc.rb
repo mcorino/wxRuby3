@@ -23,8 +23,10 @@ module WXRuby3
           def handle_module(mod, table)
             mod.constants.each do |c|
               a_const = mod.const_get(c)
-              if a_const.class == ::Module || a_const.class == ::Class  # Package submodule or Class (possibly Enum)
-                handle_module(mod.const_get(c), table[c.to_s] = {}) 
+              if ::Module === a_const || ::Class === a_const  # Package submodule or Class (possibly Enum)
+                handle_module(a_const, table[c.to_s] = {})
+              elsif Wx::Enum === a_const
+                table[c.to_s] = { type: a_const.class.name.split('::').last, value: "\#{a_const.class}.new(\#{a_const.to_i})" } 
               elsif !(::Hash === a_const || ::Array === a_const) 
                 table[c.to_s] = { type: a_const.class.name.split('::').last, value: a_const } unless c == :THE_APP
               end
@@ -509,12 +511,16 @@ module WXRuby3
     end
 
     def gen_constant_value(val)
-      if ::String === val && /\A#<(.*)>\Z/ =~ val
-        valstr = $1
-        if /\Awx/ =~ valstr
-          valstr.sub(/\Awx/, '')
+      if ::String === val && /\A(#<(.*)>|[\w:]+\.new\(.*\))\Z/ =~ val
+        if $2
+          valstr = $2
+          if /\Awx/ =~ valstr
+            valstr.sub(/\Awx/, '')
+          else
+            'nil'
+          end
         else
-          'nil'
+          $1
         end
       else
         val.inspect
@@ -536,7 +542,7 @@ module WXRuby3
 
     def gen_enum_doc(fdoc, enumname, enumdef, enum_table)
       fdoc.doc.puts get_enum_doc(enumdef)
-      fdoc.puts "module #{enumname}"
+      fdoc.puts "class #{enumname} < Wx::Enum"
       fdoc.puts
       fdoc.indent do
         enumdef.items.each do |e|
@@ -563,7 +569,7 @@ module WXRuby3
           end
         when Extractor::EnumDef
           unless no_gen?(:enums)
-            if item.is_anonymous
+            unless item.is_type
               item.items.each do |e|
                 const_name = rb_constant_name(e.name)
                 if xref_table.has_key?(const_name)
@@ -630,10 +636,6 @@ module WXRuby3
       mtd.rb_doc(@xml_trans, type_maps)
     end
 
-    def get_class_constant_doc(const, _clsnm)
-      @xml_trans.to_doc(const.brief_doc)
-    end
-
     def gen_class_doc(fdoc)
       def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || template_as_class?(item.name)
@@ -662,14 +664,21 @@ module WXRuby3
               cls_members.each do |member|
                 case member
                 when Extractor::EnumDef
-                  member.items.each do |e|
-                    const_name = rb_wx_name(e.name)
-                    if xref_table.has_key?(const_name)
-                      gen_constant_doc(fdoc, const_name, xref_table[const_name], get_class_constant_doc(e, clsnm))
+                  unless member.is_type
+                    member.items.each do |e|
+                      const_name = rb_constant_name(e.name)
+                      if xref_table.has_key?(const_name)
+                        gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(e))
+                      end
                     end
-                  end if xref_table
+                  else
+                    enum_name = rb_wx_name(member.name)
+                    if xref_table.has_key?(enum_name)
+                      gen_enum_doc(fdoc, enum_name, member, xref_table[enum_name] || {})
+                    end
+                  end
                 end
-              end
+              end if xref_table
               # generate method documentation
               mtd_done = ::Set.new
               cls_members.each do |cm|
