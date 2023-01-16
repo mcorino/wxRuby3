@@ -35,6 +35,8 @@ module WXRuby3
             }
           }
           __HEREDOC
+        spec.make_enum_untyped 'wxAcceleratorEntryFlags'
+        spec.add_swig_code 'enum wxAcceleratorEntryFlags;'
         spec.map 'int keyCode' => 'Integer' do
           map_in code: '$1 = wxRuby_RubyStringOrIntToKeyCode($input);'
           map_typecheck precedence: 'INT32', code: <<~__CODE

@@ -29,6 +29,10 @@ module WXRuby3
         spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
         spec.ignore 'wxMouseState::GetPosition(int *,int *)'
         spec.ignore 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
+        spec.make_enum_untyped %w[wxKeyCategoryFlags wxNavigationKeyEvent::wxNavigationKeyEventFlags]
+        spec.add_swig_code <<~__HEREDOC
+            enum wxKeyCategoryFlags;
+        __HEREDOC
         spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
 

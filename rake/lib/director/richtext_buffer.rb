@@ -29,6 +29,13 @@ module WXRuby3
           ]
         spec.disown 'wxRichTextFileHandler* handler'
         spec.ignore(%w[wxRICHTEXT_ALL wxRICHTEXT_NONE wxRICHTEXT_NO_SELECTION])
+        spec.make_enum_untyped %w[wxRichTextHitTestFlags wxTextAttrValueFlags wxTextAttrBorderFlags wxTextAttrBorderStyle]
+        spec.add_swig_code <<~__HEREDOC
+          enum wxRichTextHitTestFlags;
+          enum wxTextAttrValueFlags;
+          enum wxTextAttrBorderFlags;
+          enum wxTextAttrBorderStyle;
+          __HEREDOC
         spec.do_not_generate(:functions)
         super
       end

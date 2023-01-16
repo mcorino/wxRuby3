@@ -26,11 +26,9 @@ module WXRuby3
           ]
         spec.do_not_generate :functions
         spec.add_swig_code <<~__HEREDOC
-          enum wxFontFamily;
-          enum wxFontWeight;
-          enum wxFontStyle;
-          enum wxFontEncoding;
+          enum wxFontFlag;
           __HEREDOC
+        spec.make_enum_untyped 'wxFontFlag'
       end
 
       protected def generator

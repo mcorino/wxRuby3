@@ -126,6 +126,8 @@ module WXRuby3
           __HEREDOC
         end
           spec.swig_import 'swig/classes/include/wxDefs.h'
+        spec.make_enum_untyped 'wxEllipsizeFlags'
+        spec.add_swig_code 'enum wxEllipsizeFlags;'
         super
       end
 
