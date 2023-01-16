@@ -116,7 +116,7 @@ class TestPanel < Wx::Panel
         sizer = Wx::BoxSizer.new(Wx::VERTICAL)
 
         title = Wx::StaticText.new(self, -1, "ArtProvider")
-        title.set_font(Wx::Font.new(18, Wx::SWISS, Wx::NORMAL, Wx::BOLD))
+        title.set_font(Wx::Font.new(18, Wx::FontFamily::FONTFAMILY_SWISS, Wx::FontStyle::FONTSTYLE_NORMAL, Wx::FontWeight::FONTWEIGHT_BOLD))
         sizer.add(title, 0, Wx::ALIGN_CENTRE|Wx::ALL, 5)
 
         line = Wx::StaticLine.new(self, -1, Wx::DEFAULT_POSITION, Wx::Size.new(20,-1), Wx::LI_HORIZONTAL)
