@@ -38,7 +38,9 @@ module WXRuby3
               if ( TYPE(rb_help_str) == T_STRING )
                 result = wxString( StringValuePtr(rb_help_str), wxConvUTF8);
               else
-                rb_raise(rb_eTypeError, "HelpProvider#get_help must return a String");
+              {
+                rb_warn("HelpProvider#get_help must return a String");
+              }
               
               return result;
             }

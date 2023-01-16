@@ -219,37 +219,23 @@ WXRB_EXPORT_FLAG VALUE wxRuby_AddEnumValue(VALUE enum_klass, const char* enum_va
 
 WXRB_EXPORT_FLAG VALUE wxRuby_GetEnumValueObject(const char* enum_wx_class_name_cstr, int enum_val)
 {
-  if (!enum_wx_class_name_cstr)
+  if (enum_wx_class_name_cstr)
   {
-    rb_raise(rb_eArgError,
-             "Missing enum class name.");
+    const char *enum_class_name = enum_wx_class_name_cstr;
+    if (strncmp(enum_class_name, "wx", 2) == 0)
+      enum_class_name += 2;
+    VALUE enum_hash = rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums);
+    VALUE enum_klass = rb_hash_aref(enum_hash, ID2SYM(rb_intern(enum_class_name)));
+    VALUE enum_singleton_klass = rb_funcall(enum_klass, rb_intern("singleton_class"), 0, 0);
+    VALUE enum_values_hash = rb_iv_get(enum_singleton_klass, __iv_enum_klass_values);
+    return rb_hash_aref(enum_values_hash, INT2NUM(enum_val));
   }
-  const char *enum_class_name = enum_wx_class_name_cstr;
-  if (strncmp(enum_class_name, "wx", 2) == 0)
-    enum_class_name += 2;
-  VALUE enum_hash = rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums);
-  VALUE enum_klass = rb_hash_aref(enum_hash, ID2SYM(rb_intern(enum_class_name)));
-  VALUE enum_singleton_klass = rb_funcall(enum_klass, rb_intern("singleton_class"), 0, 0);
-  VALUE enum_values_hash = rb_iv_get(enum_singleton_klass, __iv_enum_klass_values);
-  VALUE enum_value = rb_hash_aref(enum_values_hash, INT2NUM(enum_val));
-  if (enum_value == Qnil)
-  {
-    rb_raise(rb_eArgError,
-             "Invalid enum value %d for enum class %s.",
-             enum_val,
-             enum_class_name);
-  }
-  return enum_value;
+  return Qnil;
 }
 
-WXRB_EXPORT_FLAG int wxRuby_GetEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val)
+WXRB_EXPORT_FLAG bool wxRuby_GetEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val, int &c_eval)
 {
-  if (!enum_wx_class_name_cstr)
-  {
-    rb_raise(rb_eArgError,
-             "Missing enum class name.");
-  }
-  if (rb_obj_is_kind_of(rb_enum_val, cWxEnum))
+  if (enum_wx_class_name_cstr && rb_obj_is_kind_of(rb_enum_val, cWxEnum))
   {
     VALUE enum_singleton_klass = rb_funcall(CLASS_OF(rb_enum_val), rb_intern("singleton_class"), 0, 0);
     VALUE rb_enum_class_name = rb_iv_get(enum_singleton_klass, __iv_enum_klass_name);
@@ -258,34 +244,16 @@ WXRB_EXPORT_FLAG int wxRuby_GetEnumValue(const char* enum_wx_class_name_cstr, VA
       enum_class_name += 2;
     if (strcmp(enum_class_name, StringValuePtr(rb_enum_class_name)) == 0)
     {
-      return NUM2INT(rb_iv_get(rb_enum_val, __iv_cEnum_value));
-    }
-    else
-    {
-      rb_raise(rb_eArgError,
-               "Invalid enum class. Expected %s got %s.",
-               enum_class_name,
-               StringValuePtr(rb_enum_class_name));
+      c_eval = NUM2INT(rb_iv_get(rb_enum_val, __iv_cEnum_value));
+      return true;
     }
   }
-  else
-  {
-    VALUE str = rb_inspect(rb_enum_val);
-    rb_raise(rb_eArgError,
-             "Invalid enum value. Got %s.",
-             StringValuePtr(str));
-  }
-  return 0;
+  return false;
 }
 
 WXRB_EXPORT_FLAG bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val)
 {
-  if (!enum_wx_class_name_cstr)
-  {
-    rb_raise(rb_eArgError,
-             "Missing enum class name.");
-  }
-  if (rb_obj_is_kind_of(rb_enum_val, cWxEnum))
+  if (enum_wx_class_name_cstr && rb_obj_is_kind_of(rb_enum_val, cWxEnum))
   {
     VALUE enum_singleton_klass = rb_funcall(CLASS_OF(rb_enum_val), rb_intern("singleton_class"), 0, 0);
     VALUE rb_enum_class_name = rb_iv_get(enum_singleton_klass, __iv_enum_klass_name);

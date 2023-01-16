@@ -320,9 +320,19 @@ module WXRuby3
       def gen_enum_typemap(type)
         enum_scope = Extractor::EnumDef.enum_scope(type)
         type_list = enum_scope.empty? ? [type] : [type, "#{enum_scope}::#{type}"]
-        director.spec.map *type_list, as: rb_wx_name(type) do
+        rb_enum_name = rb_wx_name(type)
+        director.spec.map *type_list, as: rb_enum_name do
           map_in code: <<~__CODE
-            $1 = static_cast<$1_type>(wxRuby_GetEnumValue("#{type}", $input));
+            int eval;
+            if (!wxRuby_GetEnumValue("#{type}", $input, eval))
+            {
+              VALUE str = rb_inspect($input);
+              rb_raise(rb_eArgError,
+                       "Invalid enum class. Expected %s got %s.",
+                       "#{rb_enum_name}",
+                       StringValuePtr(str));
+            }
+            $1 = static_cast<$1_type>(eval);
             __CODE
           map_out code: <<~__CODE
             $result = wxRuby_GetEnumValueObject("#{type}", static_cast<int>($1));
@@ -332,9 +342,20 @@ module WXRuby3
             __CODE
           map_directorin code: <<~__CODE
             $input = wxRuby_GetEnumValueObject("#{type}", static_cast<int>($1));
+            if ($input == Qnil)
+            {
+              Swig::DirectorTypeMismatchException::raise(rb_eArgError, 
+                                                         "Invalid enum value for enum class #{rb_enum_name}.");
+            }
           __CODE
           map_directorout code: <<~__CODE
-            $result = static_cast<$1_type>(wxRuby_GetEnumValue("#{type}", $input));
+            int eval;
+            if (!wxRuby_GetEnumValue("#{type}", $input, eval))
+            {
+              Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
+                                                         "Invalid enum. Expected #{rb_enum_name}.");
+            }
+            $result = static_cast<$1_type>(eval);
           __CODE
         end
       end

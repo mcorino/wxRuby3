@@ -39,7 +39,7 @@ module WXRuby3
             void* ptr = 0;
             int res$argnum = SWIG_ConvertPtr($result, &ptr, SWIGTYPE_p_wxRect,  0 );
             if (!SWIG_IsOK(res$argnum)) {
-              rb_raise(rb_eTypeError, "Expected Wx::Rect result");
+              Swig::DirectorTypeMismatchException::raise(rb_eTypeError, "Expected Wx::Rect result");
             }
             *$1 = *reinterpret_cast<wxRect*> (ptr);
             __CODE

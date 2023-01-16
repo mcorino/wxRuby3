@@ -146,9 +146,11 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
   // If the class is loadable from XML, but not yet supported in wxRuby,
   // raise an error because class-specific methods won't be accessible
   if ( r_class == Qnil )
-    rb_raise(rb_eNotImpError,
-             "Error wrapping object; class `%s' is not supported in wxRuby",
-             (const char *)class_name.mb_str() );
+  {
+    rb_warn("Error wrapping object; class `%s' is not (yet) supported in wxRuby",
+            (const char *)class_name.mb_str() );
+    return Qnil;
+  }
 
   // Otherwise, retrieve the swig type info for this class and wrap it
   // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
@@ -176,9 +178,9 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 {
   // Get the mapping of event types to classes
   if ( ! Evt_Type_Map )
-    {
-      Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
-    }
+  {
+    Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
+  }
 
 #if __WXRB_TRACE__ == 2
   std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
@@ -191,10 +193,10 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 
   // Check we have a valid class; warn and map to default Wx::Event if not
   if ( NIL_P(rb_event_class) )
-    {
-      rb_event_class = wxRuby_GetDefaultEventClass ();
-      rb_warning("Unmapped event type %i", wx_event->GetEventType());
-    }
+  {
+    rb_event_class = wxRuby_GetDefaultEventClass ();
+    rb_warning("Unmapped event type %i", wx_event->GetEventType());
+  }
 
   // Now, see if we have a tracked instance of this object already
   // wrapped - this would be the case if it had been created on the Ruby
@@ -206,12 +208,12 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   // quickly; therefore, we need to verify that the found Ruby object is
   // really the right thing, and not some stale reference.
   if ( rb_event != Qnil )
-    {
-      if ( rb_obj_is_kind_of(rb_event, rb_event_class )  )
-        return rb_event; // OK
-      else
-        SWIG_RubyRemoveTracking((void *)wx_event); // Remove stale ref
-    }
+  {
+    if ( rb_obj_is_kind_of(rb_event, rb_event_class )  )
+      return rb_event; // OK
+    else
+      SWIG_RubyRemoveTracking((void *)wx_event); // Remove stale ref
+  }
 
   // No existing Ruby instance found, so a transitory event object; wrap
   // without mark or free functions as Wx will deals with deletion
