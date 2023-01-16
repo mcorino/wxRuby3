@@ -12,6 +12,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxFontInfo'
+        spec.gc_as_temporary 'wxFontInfo'
         spec.ignore %w[
           wxFont::SetNativeFontInfo wxFont::GetNativeFontInfo wxFont::operator!=
           ]
@@ -24,6 +25,9 @@ module WXRuby3
           wxSWISS_FONT
           wxTheFontList
           ]
+        spec.map 'wxFontInfo &' => 'Wx::FontInfo' do
+          map_out code: '$result = self; wxUnusedVar($1);'
+        end
         spec.do_not_generate :functions
         spec.add_swig_code <<~__HEREDOC
           enum wxFontFlag;

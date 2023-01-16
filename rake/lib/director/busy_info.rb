@@ -13,6 +13,7 @@ module WXRuby3
         super
         spec.items << 'wxBusyInfoFlags'
         spec.disable_proxies
+        spec.gc_as_temporary 'wxBusyInfoFlags'
         # again C++ type guards do not work with Ruby
         # need to Rubify this
         spec.make_abstract 'wxBusyInfo'
@@ -59,6 +60,9 @@ module WXRuby3
             return Qnil;
           }
           __HEREDOC
+        spec.map 'wxBusyInfoFlags &' => 'Wx::BusyInfoFlags' do
+          map_out code: '$result = self; wxUnusedVar($1);'
+        end
       end
     end # class BusyInfo
 

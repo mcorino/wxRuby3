@@ -12,6 +12,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxPenInfo'
+        spec.gc_as_temporary 'wxPenInfo'
         spec.disable_proxies
         spec.add_header_code <<~__HEREDOC
           // special free func is needed to clean up Dashes array if it has been
@@ -70,6 +71,9 @@ module WXRuby3
               delete old_dashes;
           }
           __HEREDOC
+        spec.map 'wxPenInfo &' => 'Wx::PenInfo' do
+          map_out code: '$result = self; wxUnusedVar($1);'
+        end
         # these are defined and loaded in RubyStockObjects.i
         spec.do_not_generate :variables
       end
