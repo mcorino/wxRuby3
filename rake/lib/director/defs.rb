@@ -37,7 +37,8 @@ module WXRuby3
             wxAlignment
             wxKeyCode
             wxKeyModifier
-            wxUpdateUI]
+            wxUpdateUI
+            wxSizerFlagBits]
         super
       end
 

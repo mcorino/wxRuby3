@@ -14,6 +14,8 @@ module WXRuby3
         spec.disown 'wxSizer* sizer'
         case spec.module_name
         when 'wxSizer'
+          spec.items << 'wxSizerFlags'
+          spec.gc_as_temporary('wxSizerFlags')
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::SetVirtualSizeHints]
           spec.ignore 'wxSizer::Remove(wxWindow *)' # long time deprecated
@@ -30,6 +32,9 @@ module WXRuby3
                 node = node->GetNext();
               }
               __CODE
+          end
+          spec.map 'wxSizerFlags&' => 'Wx::SizerFlags' do
+            map_out code: '$result = self; wxUnusedVar($1);'
           end
           # get rid of unwanted SWIG warning
           spec.suppress_warning(517, 'wxSizer')
