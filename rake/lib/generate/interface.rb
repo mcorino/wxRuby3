@@ -466,8 +466,8 @@ module WXRuby3
         # ----------------------------------------------------------------------------
 
         __HEREDOC
-      package.all_modules.each do |mod|
-        frbext.puts "module #{mod}"
+      package.all_modules.each_with_index do |mod, index|
+        frbext.iputs "module #{mod}", index
       end
       frbext.puts
       frbext
@@ -513,7 +513,8 @@ module WXRuby3
         end
       end
       if frbext
-        package.all_modules.each { |mod| frbext.puts 'end' }
+        max_indent = package.all_modules.size-1
+        package.all_modules.each_with_index { |mod_, index| frbext.iputs 'end', max_indent-index }
       end
       fout.puts '' unless defines.empty?
     end

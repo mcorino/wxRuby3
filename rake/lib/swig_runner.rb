@@ -104,11 +104,18 @@ module WXRuby3
         include Util::StringUtil
 
         def collect_enumerators(spec)
-          spec.def_items.select do |item|
-            Extractor::EnumDef === item && !(item.name.empty? || item.is_anonymous)
-          end.inject({}) do |hash, enum|
-            enum.items.inject(hash) { |hsh, e| hsh[rb_wx_name(e.name)] = rb_wx_name(enum.name); hsh }
+          enumerators = {}
+          spec.def_items.each do |item|
+            case item
+            when Extractor::EnumDef
+              item.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(item.name) } if item.is_type
+            when Extractor::ClassDef
+              item.items.select { |itm| Extractor::EnumDef === itm }.each do |enum|
+                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(enum.name) } if enum.is_type
+              end
+            end
           end
+          enumerators
         end
       end
 
@@ -308,41 +315,49 @@ module WXRuby3
               end
 
               # check for known enumerator constants
-              if !fix_enum # not fixing one yet
-                # have we reached the first of a known enum
-                if (md = /rb_define_const\s*\(([^,]+),\s*"([_a-zA-Z0-9]*)"/.match(line))
+              if (md = /rb_define_const\s*\(([^,]+),\s*"([_a-zA-Z0-9]*)"(.*)/.match(line)) # constant definition?
+                if !fix_enum # not fixing one yet
+                  # have we reached the first of a known enum?
                   if enum_table.has_key?(md[2])
                     fix_enum = true
                     enum_name = enum_table[md[2]]
                     line = [
                       '',
-                      # create new enum submodule
-                      "  VALUE mWx#{enum_name} = rb_define_module_under(#{md[1]}, \"#{enum_name}\"); // Inserted by fixmodule.rb",
-                      # create enumerator const under new submodule
-                      line.sub(/rb_define_const\s*\([^,]+,/, "rb_define_const(mWx#{enum_name},")
-                    ].join("\n")
-                  end
-                end
-              elsif (md = /rb_define_const\s*\(([^,]+),\s*"([_a-zA-Z0-9]*)"/.match(line))
-                # still an enumerator?
-                if enum_table.has_key?(md[2])
-                  # of the same enum?
-                  if enum_table[md[2]] == enum_name
-                    # create enumerator const under new submodule
-                    line.sub!(/rb_define_const\s*\([^,]+,/, "rb_define_const(mWx#{enum_name},")
-                  else # we found the start of another enum
-                    enum_name = enum_table[md[2]]
-                    line = [
-                      '',
-                      # create new enum submodule
-                      "  VALUE mWx#{enum_name} = rb_define_module_under(#{md[1]}, \"#{enum_name}\"); // Inserted by fixmodule.rb",
-                      line.sub(/rb_define_const\s*\([^,]+,/, "rb_define_const(mWx#{enum_name},") # create enumerator const under new submodule
+                      # create new enum class
+                      "  VALUE cWx#{enum_name} = wxRuby_CreateEnumClass(\"#{enum_name}\"); // Inserted by fixmodule.rb",
+                      # add enum class constant to current module
+                      "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_name}); // Inserted by fixmodule.rb",
+                      # create enumerator value const under new enum class
+                      "  wxRuby_AddEnumValue(cWx#{enum_name}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
                     ].join("\n")
                   end
                 else
-                  enum_name = nil
-                  fix_enum = false
+                  # still an enumerator?
+                  if enum_table.has_key?(md[2])
+                    # of the same enum?
+                    if enum_table[md[2]] == enum_name
+                      # create enumerator value const under new enum class
+                      line = "  wxRuby_AddEnumValue(cWx#{enum_name}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                    else # we found the start of another enum
+                      enum_name = enum_table[md[2]]
+                      line = [
+                        '',
+                        # create new enum class
+                        "  VALUE cWx#{enum_name} = wxRuby_CreateEnumClass(\"#{enum_name}\"); // Inserted by fixmodule.rb",
+                        # add enum class constant to current module
+                        "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_name}); // Inserted by fixmodule.rb",
+                        # create enumerator value const under new enum class
+                        "  wxRuby_AddEnumValue(cWx#{enum_name}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                      ].join("\n")
+                    end
+                  else # end of enum def
+                    enum_name = nil
+                    fix_enum = false
+                  end
                 end
+              elsif fix_enum
+                enum_name = nil
+                fix_enum = false
               end
             end
 

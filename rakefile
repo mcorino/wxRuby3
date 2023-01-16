@@ -67,7 +67,7 @@ if $config.has_wxwidgets_xml?
   end
 
   desc "Create the binary Ruby library file"
-  task :default => all_default_targets
+  task :default => [enum_list, *all_default_targets]
 
   desc "Compile object files from SWIG-generated sources"
   task :compile => all_compile_targets

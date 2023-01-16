@@ -25,8 +25,19 @@ module WXRuby3
           wxINT64_MAX
           wxUINT64_MAX
           wxVaCopy
-          wxDataFormatId
         }
+        # not used as an enum but only (mostly) to pass integer values
+        spec.make_enum_untyped %w[
+            wxGeometryCentre
+            wxSizerFlagBits
+            wxStretch
+            wxStandardID
+            wxOrientation
+            wxDirection
+            wxAlignment
+            wxKeyCode
+            wxKeyModifier
+            wxUpdateUI]
         super
       end
 

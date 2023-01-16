@@ -168,7 +168,7 @@ Wx::define_keyword_ctors('ToolBarTool') do
   # By default we want Wx to generate an id for us, thus it doesn't
   # respect the wxWidgets default constructor value which is
   # ID_SEPARATOR
-  wx_ctor_params :id => Wx::StandardID::ID_ANY
+  wx_ctor_params :id => Wx::ID_ANY
   wx_ctor_params :label => ''
   wx_ctor_params :bitmap
   wx_ctor_params :disabled_bitmap => Wx::NULL_BITMAP
@@ -276,7 +276,7 @@ Wx::define_keyword_ctors('MultiChoiceDialog') do
   wx_ctor_params :caption => ''
   wx_ctor_params :choices => []
   wx_ctor_params :style => Wx::DEFAULT_DIALOG_STYLE|Wx::RESIZE_BORDER|
-                           Wx::OK|Wx::CANCEL|Wx::GeometryCentre::CENTRE
+                           Wx::OK|Wx::CANCEL|Wx::CENTRE
   wx_ctor_params :pos
 end
 
@@ -287,7 +287,7 @@ Wx::define_keyword_ctors('SingleChoiceDialog') do
   wx_ctor_params :choices => []
   wx_ctor_params :data => nil
   wx_ctor_params :style => Wx::DEFAULT_DIALOG_STYLE|Wx::RESIZE_BORDER|
-                           Wx::OK|Wx::CANCEL|Wx::GeometryCentre::CENTRE
+                           Wx::OK|Wx::CANCEL|Wx::CENTRE
   wx_ctor_params :pos
 end
 
@@ -296,7 +296,7 @@ Wx::define_keyword_ctors('TextEntryDialog') do
   wx_ctor_params :message => ''
   wx_ctor_params :caption => 'Please enter text'
   wx_ctor_params :default_value => ''
-  wx_ctor_params :style => Wx::OK|Wx::CANCEL|Wx::GeometryCentre::CENTRE
+  wx_ctor_params :style => Wx::OK|Wx::CANCEL|Wx::CENTRE
   wx_ctor_params :pos
 end
 

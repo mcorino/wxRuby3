@@ -51,7 +51,7 @@ module Wx
         kwa 
       end
       
-      def describe_constructor()
+      def describe_constructor
         param_spec.inject("") do | desc, param |
           if Proc === param.default_or_proc
             desc << ":#{param.name} => (#{param.default_or_proc.call(nil).class.name})\n"
@@ -85,7 +85,7 @@ module Wx
             msg = "Error initializing #{self.inspect}\n"+
                   " : #{err.message} \n" +
                   "Provided are #{real_args} \n" +
-                  "Correct parameters for #{self.class.name}.new are:\n" + 
+                  "Correct parameters for #{self.class.name}.new are:\n" +
                    self.class.describe_constructor()
 
             new_err = err.class.new(msg)
@@ -100,8 +100,8 @@ module Wx
               self.instance_eval(&block)
             elsif block.arity == 1
               block.call(self)
-            else 
-              Kernel.raise ArgumentError, 
+            else
+              Kernel.raise ArgumentError,
                            "Block to initialize accepts zero or one arg"
             end
           end

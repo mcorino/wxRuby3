@@ -23,21 +23,20 @@ class TestPanel < Wx::Panel
     
     evt_calendar cal, :on_cal_selected
     # Set up control to display a set of holidays:
-    evt_calendar_month cal, :on_change_month
+    evt_calendar_page_changed cal, :on_change_page
     @holidays = [ [1,1], [10,31], [12,25] ] #(these don't move around)
   end
   def on_cal_selected(event)
     @log.write_text( "on_cal_selected: " + event.date.strftime("%F") )
   end
   
-  # missing get_current_month method
-  def on_change_month(event)
-    #~ cur_month = @cal.get_date.get_current_month + 1
-    #~ @holidays.each do |date|
-    #~ if date[0] == cur_month
-    #~ @cal.set_holiday(date[1])
-    #~ end
-    #~ end
+  def on_change_page(event)
+    cur_month = @cal.date.month
+    @holidays.each do |date|
+      if date[0] == cur_month
+        @cal.set_holiday(date[1])
+      end
+    end
     event.skip
   end
 end

@@ -2,7 +2,7 @@
 # doesn't work correctly in the SWIG binding
 class Wx::DataFormat
   def ==(other)
-    if self.get_type > Wx::DATA_FORMAT_ID_INVALID
+    if self.get_type > Wx::DataFormatId::DF_INVALID
       self.get_type == other.get_type
     else
       self.id == other.id
@@ -12,15 +12,15 @@ end
 
 # Provide pre-cooked data formats for the standard types
 module Wx
-  DF_TEXT        = DataFormat.new( DATA_FORMAT_ID_TEXT )
-  DF_BITMAP      = DataFormat.new( DATA_FORMAT_ID_BITMAP )
+  DF_TEXT        = DataFormat.new( Wx::DataFormatId::DF_TEXT )
+  DF_BITMAP      = DataFormat.new( Wx::DataFormatId::DF_BITMAP )
   if Wx::PLATFORM != 'WXGTK'
-    DF_METAFILE    = DataFormat.new( DATA_FORMAT_ID_METAFILE )
+    DF_METAFILE    = DataFormat.new( Wx::DataFormatId::DF_METAFILE )
   end
   if Wx::PLATFORM == 'WXMSW'
-    DF_DIB         = DataFormat.new( DATA_FORMAT_ID_DIB )
+    DF_DIB         = DataFormat.new( Wx::DataFormatId::DF_DIB )
   end
-  DF_FILENAME    = DataFormat.new( DATA_FORMAT_ID_FILENAME )
-  DF_UNICODETEXT = DataFormat.new( DATA_FORMAT_ID_UNICODETEXT )
+  DF_FILENAME    = DataFormat.new( Wx::DataFormatId::DF_FILENAME )
+  DF_UNICODETEXT = DataFormat.new( Wx::DataFormatId::DF_UNICODETEXT )
   # DF_HTML is only supported on Windows + MSVC, so don't offer it
 end

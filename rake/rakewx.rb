@@ -11,7 +11,7 @@ if $config.has_wxwidgets_xml?
 
     pkg.included_directors.each do |dir|
       # file tasks for each module's rake file
-      file dir.rake_file  => %w[rakefile rake/rakewx.rb]+dir.source_files do |_|
+      file dir.rake_file  => [WXRuby3::Director.enum_cache_control_path]+%w[rakefile rake/rakewx.rb]+dir.source_files do |_|
         dir.create_rakefile
       end
 
@@ -67,6 +67,14 @@ if $config.has_wxwidgets_xml?
     end
   end
 
+  def enum_list
+    unless WXRuby3::Director.validate_enum_cache
+      rm_f(WXRuby3::Director.enum_cache_path, verbose: false)
+      rm_f(WXRuby3::Director.enum_cache_control_path, verbose: false)
+    end
+    WXRuby3::Director.enum_cache_control_path
+  end
+
   def all_swig_targets
     WXRuby3::Director.all_packages.collect {|p| "swig_#{p.name.downcase}".to_sym }
   end
@@ -93,6 +101,11 @@ if $config.has_wxwidgets_xml?
 
   def all_uninstall_targets
     WXRuby3::Director.all_packages.collect {|p| "uninstall_#{p.name.downcase}".to_sym }
+  end
+
+  file WXRuby3::Director.enum_cache_control_path do |t_|
+    WXRuby3::Director.all_packages.each { |p| p.extract(genint: false) }
+    touch(WXRuby3::Director.enum_cache_control_path)
   end
 
   # Compile an object file from a generated c++ source
@@ -130,7 +143,7 @@ if $config.has_wxwidgets_xml?
   end
 
   desc "Generate C++ source and header files using SWIG"
-  task :swig   => [ $config.classes_path ] + all_swig_targets
+  task :swig   => [ $config.classes_path, enum_list ] + all_swig_targets
 
   desc "Force generate C++ source and header files using SWIG"
   task :reswig => [ :clean_src, :swig ]

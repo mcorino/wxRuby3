@@ -41,7 +41,7 @@ module WXRuby3
 
     class ClassRegistry
       def initialize
-        @registry = {members: {public: [], protected: []}, methods: {}}
+        @registry = {members: {public: [], protected: []}, methods: {}, extension_methods: {}}
       end
 
       def public_members
@@ -54,6 +54,14 @@ module WXRuby3
 
       def method_table
         @registry[:methods]
+      end
+
+      def extension_methods
+        @registry[:extension_methods]
+      end
+
+      def extension_method(ext_member)
+        extension_methods[ext_member.tr("\n", '')]
       end
     end
 
@@ -150,6 +158,7 @@ module WXRuby3
             proxy: has_method_proxy?(class_spec_name, mtdef),
             extension: true
           }
+          class_registry.extension_methods[member] = mtdef
         end
       end
 
@@ -308,16 +317,118 @@ module WXRuby3
         end
       end
 
-      def preprocess(doc_gen = false)
+      def gen_enum_typemap(type)
+        enum_scope = Extractor::EnumDef.enum_scope(type)
+        type_list = enum_scope.empty? ? [type] : [type, "#{enum_scope}::#{type}"]
+        director.spec.map *type_list, as: rb_wx_name(type) do
+          map_in code: <<~__CODE
+            $1 = static_cast<$1_type>(wxRuby_GetEnumValue("#{type}", $input));
+            __CODE
+          map_out code: <<~__CODE
+            $result = wxRuby_GetEnumValueObject("#{type}", static_cast<int>($1));
+            __CODE
+          map_typecheck precedence: 1, code: <<~__CODE
+            $1 = wxRuby_IsEnumValue("#{type}", $input);
+            __CODE
+          map_directorin code: <<~__CODE
+            $input = wxRuby_GetEnumValueObject("#{type}", static_cast<int>($1));
+          __CODE
+          map_directorout code: <<~__CODE
+            $result = static_cast<$1_type>(wxRuby_GetEnumValue("#{type}", $input));
+          __CODE
+        end
+      end
+
+      def gen_function_enum_typemaps(fndef, enum_maps)
+        if !(Extractor::MethodDef === fndef && fndef.is_ctor) &&
+              Extractor::EnumDef.enum?(fndef.type) &&
+              !enum_maps.include?(fndef.type)
+          gen_enum_typemap(fndef.type)
+          enum_maps << fndef.type
+        end
+        fndef.parameters.each do |param|
+          if Extractor::EnumDef.enum?(param.type) && !enum_maps.include?(param.type)
+            gen_enum_typemap(param.type)
+            enum_maps << fndef.type
+          end
+        end
+      end
+
+      def  gen_inner_class_enum_typemaps(clsdef, enum_maps)
+        clsdef.items.each do |item|
+          case item
+          when Extractor::MethodDef
+            unless item.is_dtor
+              item.all do |ovl|
+                gen_function_enum_typemaps(ovl, enum_maps) unless ovl.ignored || ovl.deprecated || ovl.is_template?
+              end
+            end
+          end
+        end
+      end
+
+      def gen_class_member_typemaps(cls_spec_name, member, enum_maps)
+        case member
+        when Extractor::ClassDef
+          gen_inner_class_enum_typemaps(member, enum_maps)
+        when Extractor::MethodDef
+          unless member.is_dtor || class_interface_method_ignored?(cls_spec_name, member)
+            gen_function_enum_typemaps(member, enum_maps)
+          end
+        when ::String
+          mtdef = class_interface_registry(cls_spec_name).extension_method(member)
+          gen_function_enum_typemaps(mtdef, enum_maps) if mtdef
+        end
+      end
+
+      def gen_class_enum_typemaps(cls_spec_name, enum_maps)
+        class_interface_members_public(cls_spec_name).each do |member|
+          gen_class_member_typemaps(cls_spec_name, member, enum_maps)
+        end
+        class_interface_members_protected(cls_spec_name).each do |member|
+          gen_class_member_typemaps(cls_spec_name, member, enum_maps)
+        end
+      end
+
+      def gen_base_class_virtual_typemaps(cls_spec_name, member, enum_maps)
+        case member
+        when Extractor::MethodDef
+          unless member.is_ctor || member.is_dtor || class_interface_method_ignored?(cls_spec_name, member)
+            gen_function_enum_typemaps(member, enum_maps) if member.is_virtual
+          end
+        when ::String
+          mtdef = class_interface_registry(cls_spec_name).extension_method(member)
+          gen_function_enum_typemaps(mtdef, enum_maps) if mtdef && mtdef.is_virtual
+        end
+      end
+
+      def gen_base_class_enum_typemaps(cls_spec_name, enum_maps)
+        class_interface_members_public(cls_spec_name).each do |member|
+          gen_base_class_virtual_typemaps(cls_spec_name, member, enum_maps)
+        end
+        class_interface_members_protected(cls_spec_name).each do |member|
+          gen_base_class_virtual_typemaps(cls_spec_name, member, enum_maps)
+        end
+      end
+
+      def preprocess(enum_maps, doc_gen = false)
         STDERR.puts "** Preprocessing #{module_name}" if Director.trace?
         def_items.each do |item|
-          if Extractor::ClassDef === item && !(doc_gen ? item.docs_ignored : item.ignored) &&
-            (!item.is_template? || template_as_class?(item.name)) &&
-            !is_folded_base?(item.name)
-            clsproc = ClassProcessor.new(director, item, doc_gen)
-            unless has_class_interface(clsproc.class_spec_name)
-              clsproc.preprocess
-              interface_method_registry.add_class_registry(clsproc.class_spec_name, clsproc.class_registry)
+          case item
+          when Extractor::ClassDef
+            if !(doc_gen ? item.docs_ignored : item.ignored) &&
+                  (!item.is_template? || template_as_class?(item.name)) &&
+                  !is_folded_base?(item.name)
+              clsproc = ClassProcessor.new(director, item, doc_gen)
+              unless has_class_interface(clsproc.class_spec_name)
+                clsproc.preprocess
+                interface_method_registry.add_class_registry(clsproc.class_spec_name, clsproc.class_registry)
+              end
+              gen_class_enum_typemaps(clsproc.class_spec_name, enum_maps)
+            end
+          when Extractor::FunctionDef
+            item.all.each do |ovl|
+              gen_function_enum_typemaps(ovl, enum_maps) unless ovl.ignored || ovl.is_template? || ovl.deprecated
             end
           end
         end
@@ -339,8 +450,9 @@ module WXRuby3
 
       def check_interface_methods(director, doc_gen: false)
         for_director(director) do
+          enum_maps = ::Set.new
           # preprocess definitions if not yet done
-          preprocess(doc_gen)
+          preprocess(enum_maps, doc_gen)
           # check the preprocessed definitions
           errors = []
           warnings = []
@@ -364,6 +476,8 @@ module WXRuby3
                 base_name = ifspec.classdef_name(base_name)
                 # make sure the base class has been preprocessed
                 get_class_interface(package, base_name, doc_gen) unless has_class_interface(base_name)
+                # generate any required enum typemaps for inherited virtuals
+                gen_base_class_enum_typemaps(base_name, enum_maps)
                 # iterate the base class's method registrations
                 class_interface_methods(base_name).each_pair do |mtdsig, mtdreg|
                   # only check on methods we have not handled yet

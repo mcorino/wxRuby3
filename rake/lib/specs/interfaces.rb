@@ -96,7 +96,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxScrolledCanvas', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxFindReplaceData', requirements: %w[wxUSE_FINDREPLDLG])
     Director.Spec(pkg, 'wxFindReplaceDialog', director: Director::Dialog, requirements: %w[wxUSE_FINDREPLDLG])
-    Director.Spec(pkg, 'wxFindDialogEvent', director: Director::Event, requirements: %w[wxUSE_FINDREPLDLG])
+    Director.Spec(pkg, 'wxFindDialogEvent', requirements: %w[wxUSE_FINDREPLDLG])
     Director.Spec(pkg, 'wxToolbook', director: Director::BookCtrls, requirements: Director.AnyOf(%w[wxUSE_AUI wxUSE_NOTEBOOK wxUSE_LISTBOOK wxUSE_CHOICEBOOK wxUSE_TOOLBOOK wxUSE_TREEBOOK]))
     Director.Spec(pkg, 'wxColourData', requirements: %w[wxUSE_COLOURDLG])
     Director.Spec(pkg, 'wxColourDialog', director: Director::Dialog, requirements: %w[wxUSE_COLOURDLG])

@@ -56,7 +56,7 @@ class MinimalApp < Wx::App
     # a window will be returned if the demo does not create
     # its own top-level window
     if win.class.ancestors.include?(Wx::Window)
-      frame.set_size(640, 480)
+      frame.set_size([640, 480])
       win.set_focus
     else
       return true
@@ -82,7 +82,7 @@ if __FILE__ == $0
     begin
       load ARGV[0]
       run(ARGV[0])
-    rescue(LoadError)
+    rescue LoadError
       puts "Unable to load '#{ARGV[0]}'"
     end
   else

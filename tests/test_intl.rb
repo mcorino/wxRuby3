@@ -13,7 +13,7 @@ end
 class TestInternationalisation < Test::Unit::TestCase
   def test_encodings
     default = Wx::Font.get_default_encoding
-    assert_kind_of(Integer, default)
+    assert_kind_of(Wx::FontEncoding, default)
     assert_kind_of(String, Wx::Font.get_default_encoding_name)
     assert_match(/\A[-A-Z0-9]+\z/, Wx::Font.get_default_encoding_name)
 
@@ -66,7 +66,7 @@ class TestInternationalisation < Test::Unit::TestCase
     assert(Wx::Locale.is_available(sys_lang), 'System language is available')
     assert_kind_of(String, Wx::Locale.get_system_language_name)
 
-    assert_kind_of(Integer, Wx::Locale.get_system_encoding)
+    assert_kind_of(Wx::FontEncoding, Wx::Locale.get_system_encoding)
     assert_kind_of(String, Wx::Locale.get_system_encoding_name)
     assert_match(/\A[-A-Z0-9]+\z/, Wx::Locale.get_system_encoding_name)
   end

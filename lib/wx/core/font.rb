@@ -13,7 +13,7 @@ class Wx::Font
     # (eg Wx::FONTENCODING_UTF8).
     def set_default_encoding_name(enc)
       if flag_int = ENCODING_NAMES.index(enc.upcase)
-        set_default_encoding(flag_int)
+        set_default_encoding(Wx::FontEncoding.new(flag_int))
       else
         raise ArgumentError, "Unknown font encoding name '#{enc}'"
       end

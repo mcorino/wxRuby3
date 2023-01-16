@@ -271,7 +271,7 @@ module WXRuby3
               self.items << member
             when 'enum'
               Extractor.extracting_msg(_kind, node)
-              member = EnumDef.new(node, gendoc: self.gendoc)
+              member = EnumDef.new(node, scope: self.name, gendoc: self.gendoc)
               self.items << member
             when 'typedef'
               Extractor.extracting_msg(_kind, node)

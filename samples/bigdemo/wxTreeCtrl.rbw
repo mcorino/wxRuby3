@@ -143,7 +143,7 @@ class TestTreeCtrlPanel < Wx::Panel
     
     def on_size(event)
         size = get_client_size
-        @tree.set_dimensions(0,0,size.width, size.height)
+        @tree.set_size(0,0,size.width, size.height)
     end
     
     def on_item_expanded(event)

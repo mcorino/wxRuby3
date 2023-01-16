@@ -42,6 +42,7 @@ module WXRuby3
     end
 
     class << self
+
       def Package(pkgid, *required_features, &block)
         block.call(self[pkgid].requires(*required_features))
       end
@@ -108,7 +109,12 @@ module WXRuby3
       end
 
       def all_packages
-        ::Enumerator::Chain.new(*packages.collect { |_, pkg| pkg.all_packages })
+        active_pkgs = packages.values.select { |pkg| Config::WxRubyFeatureInfo.features_set?(*pkg.required_features) }
+        ::Enumerator::Chain.new(*active_pkgs.collect { |pkg| pkg.all_packages })
+      end
+
+      def all_director_names
+        all_packages.collect { |pkg| pkg.included_directors.collect { |dir| dir.spec.module_name } }.flatten
       end
 
       def common_dependencies
@@ -141,6 +147,49 @@ module WXRuby3
             Director.handle_subclassing(subsub)
           end
         end
+      end
+
+      def enum_cache_path
+        File.join(Config.instance.common_path, 'enums.json')
+      end
+
+      def enum_cache_control_path
+        File.join(Config.instance.common_path, 'enums.json.done')
+      end
+
+      ENUM_CACHE_MTX = ::Mutex.new
+
+      def update_enum_cache(dir)
+        ENUM_CACHE_MTX.synchronize do
+          @enum_cache['directors'] << dir.spec.module_name unless @enum_cache['directors'].include?(dir.spec.module_name)
+          Stream.transaction do
+            f = Stream.new(enum_cache_path)
+            f << JSON.pretty_generate(@enum_cache)
+          end
+        end
+      end
+
+      def check_enum_cache
+        ENUM_CACHE_MTX.synchronize do
+          unless @enum_cache
+            if File.exist?(enum_cache_path)
+              @enum_cache = JSON.load(File.read(enum_cache_path))
+            end
+            unless @enum_cache
+              @enum_cache = { "directors" => [], "enums" => {} }
+            end
+            Extractor::EnumDef.enums(@enum_cache['enums'])
+          end
+        end
+      end
+
+      def validate_enum_cache
+        if File.exist?(enum_cache_path)
+          enum_cache = JSON.load(File.read(enum_cache_path))
+          dir_names = all_director_names
+          return enum_cache['directors'].size == dir_names.size && all_director_names.all? { |nm| enum_cache['directors'].include?(nm) }
+        end
+        false
       end
     end
 
@@ -175,9 +224,13 @@ module WXRuby3
     def extract_interface(genint = true, gendoc: false)
       self.synchronize do
         unless @defmod
+          Director.check_enum_cache # check and possibly init/load enum cache
+
           STDERR.puts "* extracting #{spec.module_name}" if Director.trace?
 
           @defmod = process(gendoc: gendoc)
+
+          Director.update_enum_cache(self) # update enum list cache
 
           register
         end
@@ -288,6 +341,20 @@ module WXRuby3
       end
     end
 
+    def handle_untyped_enum(defmod, name)
+      # find the enum
+      item = defmod.find_item(name)
+      if item
+        if Extractor::EnumDef === item
+          item.make_untyped
+        else
+          raise "Cannot '#{name}' for module '#{spec.module_name}' is not an enum but #{item.class}"
+        end
+      else
+        raise "Cannot find enum '#{name}' for module '#{spec.module_name}' to make untyped"
+      end
+    end
+
     def process(gendoc: false)
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, gendoc: gendoc)
@@ -313,6 +380,8 @@ module WXRuby3
           handle_item_only_for(defmod, fullname, platform_id)
         end
       end
+      # handle untyped enums
+      spec.untyped_enums.each { |name| handle_untyped_enum(defmod, name) }
       # handle class specified includes
       defmod.classes.each do |cls|
         unless cls.ignored

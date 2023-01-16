@@ -4,7 +4,7 @@ require 'wx'
 class TestingFrame < Wx::Frame
     def initialize
         super(nil, -1, '')
-        evt_paint {on_paint}
+        evt_paint { on_paint }
     end
 
     def on_paint

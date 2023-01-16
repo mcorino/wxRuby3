@@ -136,7 +136,9 @@ WXRUBY_EXPORT VALUE wxRuby_GetDialogClass();
 WXRUBY_EXPORT VALUE wxRuby_GetEnumClass(const char* enum_class_name_cstr);
 WXRUBY_EXPORT VALUE wxRuby_CreateEnumClass(const char* enum_class_name_cstr);
 WXRUBY_EXPORT VALUE wxRuby_AddEnumValue(VALUE enum_klass, const char* enum_value_name_cstr, VALUE enum_value_num);
+WXRUBY_EXPORT VALUE wxRuby_GetEnumValueObject(const char* enum_wx_class_name_cstr, int enum_val);
 WXRUBY_EXPORT int wxRuby_GetEnumValue(const char* enum_class_name_cstr, VALUE rb_enum_val);
+WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val);
 %}
 
 %include "typedefs.i"

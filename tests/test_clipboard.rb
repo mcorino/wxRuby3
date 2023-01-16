@@ -74,11 +74,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
 
     d_obj.add( Wx::BitmapDataObject.new )
     if Wx::PLATFORM == 'WXMSW'
-      assert_equal( 1, d_txt.get_format_count(0) )
-      assert_equal( 2, d_obj.get_format_count(0) )
+      assert_equal( 1, d_txt.get_format_count(Wx::DataObject::Direction::Get) )
+      assert_equal( 2, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     else
-      assert_equal( 2, d_txt.get_format_count(0) )
-      assert_equal( 3, d_obj.get_format_count(0) )
+      assert_equal( 2, d_txt.get_format_count(Wx::DataObject::Direction::Get) )
+      assert_equal( 3, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     end
 
     d_bmp = Wx::BitmapDataObject.new(bmp)
@@ -125,7 +125,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.fetch d_obj_2
     end
 
-    assert_equal d_obj_2.received_format, d_txt.get_preferred_format(Wx::DataObject::Set)
+    assert_equal d_obj_2.received_format, d_txt.get_preferred_format(Wx::DataObject::Direction::Set)
     if Wx::PLATFORM == 'WXMSW'
       d_txt = d_obj_2.get_object(Wx::DF_UNICODETEXT)
     else
@@ -149,7 +149,7 @@ class TestDataObject < Test::Unit::TestCase
     end
 
     def get_as_text
-      if @my_data.nil? || @my_data.empty? || @format == Wx::DATA_FORMAT_ID_TEXT
+      if @my_data.nil? || @my_data.empty? || @format == Wx::DataFormatId::DF_TEXT
         @my_data
       else
         @my_data.gsub(/<[^>]+>/, '') # not f(ul|oo)lproof, I know
@@ -157,7 +157,7 @@ class TestDataObject < Test::Unit::TestCase
     end
 
     def get_formatted
-      if @my_data.nil? || @my_data.empty? || @format != Wx::DATA_FORMAT_ID_TEXT
+      if @my_data.nil? || @my_data.empty? || @format != Wx::DataFormatId::DF_TEXT
         @my_data
       else
         "<b>#{@my_data}</b>"
@@ -175,7 +175,7 @@ class TestDataObject < Test::Unit::TestCase
     # Do setting the data
     def set_data(format, the_data)
       case format.get_type
-      when MY_CUSTOM_FORMAT.get_type, Wx::DATA_FORMAT_ID_TEXT
+      when MY_CUSTOM_FORMAT.get_type, Wx::DataFormatId::DF_TEXT
         @my_data = the_data
         @format = format.get_type
         true
@@ -186,7 +186,7 @@ class TestDataObject < Test::Unit::TestCase
 
     def get_data_size(format)
       case format.get_type
-      when Wx::DATA_FORMAT_ID_TEXT
+      when Wx::DataFormatId::DF_TEXT
         get_as_text.to_s.size
       when MY_CUSTOM_FORMAT.get_type
         get_formatted.to_s.size
@@ -198,7 +198,7 @@ class TestDataObject < Test::Unit::TestCase
     # Do getting the data
     def get_data_here(format)
       case format.get_type
-      when Wx::DATA_FORMAT_ID_TEXT
+      when Wx::DataFormatId::DF_TEXT
         get_as_text
       when MY_CUSTOM_FORMAT.get_type
         get_formatted

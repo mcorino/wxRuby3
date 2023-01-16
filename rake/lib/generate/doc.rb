@@ -23,7 +23,7 @@ module WXRuby3
           def handle_module(mod, table)
             mod.constants.each do |c|
               a_const = mod.const_get(c)
-              if a_const.class == ::Module || a_const.class == ::Class  # Enum or Package submodule or Class
+              if a_const.class == ::Module || a_const.class == ::Class  # Package submodule or Class (possibly Enum)
                 handle_module(mod.const_get(c), table[c.to_s] = {}) 
               elsif !(::Hash === a_const || ::Array === a_const) 
                 table[c.to_s] = { type: a_const.class.name.split('::').last, value: a_const } unless c == :THE_APP
