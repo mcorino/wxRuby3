@@ -25,6 +25,11 @@ module WXRuby3
           wxSWISS_FONT
           wxTheFontList
           ]
+        # for methods altering the font and returning reference to self
+        spec.map 'wxFont &' => 'Wx::Font' do
+          map_out code: '$result = self; wxUnusedVar($1);'
+        end
+        # for methods setting up the fontinfo and returning reference to self
         spec.map 'wxFontInfo &' => 'Wx::FontInfo' do
           map_out code: '$result = self; wxUnusedVar($1);'
         end
