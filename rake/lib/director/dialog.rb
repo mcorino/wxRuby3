@@ -67,6 +67,7 @@ module WXRuby3
           spec.do_not_generate(:variables, :enums)
         when 'wxColourDialog'
         when 'wxTextEntryDialog'
+          spec.items << 'wxPasswordEntryDialog'
         when 'wxSingleChoiceDialog'
           # unnneeded and unwanted for Ruby
           spec.ignore 'wxSingleChoiceDialog::wxSingleChoiceDialog(wxWindow *,const wxString &,const wxString &,int,const wxString *,void **,long,const wxPoint &)'
