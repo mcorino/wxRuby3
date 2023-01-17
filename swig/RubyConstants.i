@@ -1249,7 +1249,6 @@ extern VALUE mWxCore;
 
 
 // 'Null' objects
-%constant wxAnimation const NULL_ANIMATION = wxNullAnimation;
 %constant wxCursor const    NULL_CURSOR = wxNullCursor;
 %constant wxPen const       NULL_PEN = wxNullPen;
 %constant wxBrush const     NULL_BRUSH = wxNullBrush;
