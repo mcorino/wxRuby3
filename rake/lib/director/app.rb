@@ -299,10 +299,22 @@ module WXRuby3
               // can skip any GC marking later
               rb_gv_set("__wx_app_ended__", Qtrue);
       
-              wxLog *oldlog = wxLog::SetActiveTarget(new wxLogStderr);
+              // if a Ruby implemented logger has been installed clean that up
+              // before we exit, otherwise let wxWidgets handle things
+              wxLog *oldlog = wxLog::GetActiveTarget();
+              if (wxRuby_FindTracking(oldlog) != Qnil)
+              {
+                oldlog = wxLog::SetActiveTarget(new wxLogStderr);
+              }
+              else
+              {
+                oldlog = 0;
+              }
               SetTopWindow(0);
               if ( oldlog )
               {
+                SWIG_RubyUnlinkObjects(oldlog);
+                SWIG_RubyRemoveTracking(oldlog);
                 delete oldlog;
               }
             }
