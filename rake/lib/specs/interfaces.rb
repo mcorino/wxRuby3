@@ -159,6 +159,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxAnimationCtrl', requirements: %w[wxUSE_ANIMATIONCTRL])
     Director.Spec(pkg, 'wxMediaEvent', director: Director::Event, requirements: %w[wxUSE_MEDIACTRL])
     Director.Spec(pkg, 'wxMediaCtrl', requirements: %w[wxUSE_MEDIACTRL])
+    Director.Spec(pkg, 'wxXmlNode', requirements: %w[wxUSE_XML])
+    Director.Spec(pkg, 'wxXmlResource', requirements: %w[wxUSE_XRC])
   }
 
   Director.Package('Wx::Print', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
