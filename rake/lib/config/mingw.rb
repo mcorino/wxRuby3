@@ -38,6 +38,14 @@ module WXRuby3
             args.join(' ')
           end
 
+          # override accessor to guarantee win path
+          def wx_setup_h
+            if @wx_setup_h.index('/')
+              @wx_setup_h = win_path(@wx_setup_h)
+            end
+            @wx_setup_h
+          end
+
           private
 
           def sh(cmd)
@@ -65,7 +73,6 @@ module WXRuby3
         init_unix_platform
 
         # need to convert these to windows paths
-        @wx_setup_h = win_path(@wx_setup_h)
         @wx_cppflags.gsub!(/^-I(\S+)|\s-I(\S+)/) { |s| " -I#{win_path($1 || $2)}" }
         @wx_libs.gsub!(/^-L(\S+)|\s-L(\S+)/) { |s| " -L#{win_path($1 || $2)}" }
 
