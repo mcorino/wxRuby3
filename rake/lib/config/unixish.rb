@@ -3,6 +3,8 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require 'set'
+
 module WXRuby3
 
   module Config
@@ -113,11 +115,13 @@ module WXRuby3
 
         @cpp         = wx_config("--cxx")
         @ld          = wx_config("--ld")
+        wx_libset = ::Set.new
+        wx_libset.merge wx_config("--libs all").split(' ')
+        # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
         if features_set?('wxUSE_MEDIACTRL')
-          @wx_libs     = wx_config("--libs all,media")
-        else
-          @wx_libs     = wx_config("--libs all")
+          wx_libset.merge wx_config("--libs media").split(' ')
         end
+        @wx_libs = wx_libset.join(' ')
 
         # remove all warning flags provided by Ruby config
         @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
