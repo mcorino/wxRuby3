@@ -9,7 +9,7 @@ require 'wx'
 
 # Basic Frame Class. This creates the dialog window
 class SimpleFrame < Wx::Frame 
-  def initialize()
+  def initialize
     super nil, :title => "Sample", :pos => [50, 50], :size => [300, 300]
 
     txt = "Choose 'Open Dialog' from the menu to see a dialog made with XRC"
