@@ -70,7 +70,7 @@ module WXRuby3
       def each_package(&block)
         block.call(self)
         subpackages.each_value do |pkg|
-          pkg.each_package(&block) if Config::WxRubyFeatureInfo.features_set?(*pkg.required_features)
+          pkg.each_package(&block) if Config.instance.features_set?(*pkg.required_features)
         end
       end
 
@@ -78,7 +78,7 @@ module WXRuby3
         if subpackages.empty?
           ::Enumerator.new {|y| y << self }
         else
-          active_pkgs = subpackages.values.select { |pkg| Config::WxRubyFeatureInfo.features_set?(*pkg.required_features) }
+          active_pkgs = subpackages.values.select { |pkg| Config.instance.features_set?(*pkg.required_features) }
           ::Enumerator::Chain.new(::Enumerator.new {|y| y << self }, *active_pkgs.collect {|pkg| pkg.all_packages })
         end
       end
@@ -96,7 +96,7 @@ module WXRuby3
       end
 
       def included_directors
-        directors.select { |dir| !Config::WxRubyFeatureInfo.excluded_module?(dir.spec) }
+        directors.select { |dir| !Config.instance.excluded_module?(dir.spec) }
       end
 
       def director_for_class(class_name)
@@ -306,7 +306,7 @@ module WXRuby3
               fsrc.puts
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
-              Config::WxRubyFeatureInfo.features.each do |feature, val|
+              Config.instance.features.each do |feature, val|
                 const_name = rb_wx_name(feature).gsub(/\A__|__\Z/, '')
                 fsrc.puts %Q{rb_define_const(mWxSetup, "#{const_name}", Q#{val});}
               end

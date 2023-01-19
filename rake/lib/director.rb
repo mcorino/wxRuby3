@@ -26,20 +26,7 @@ module WXRuby3
     include MonitorMixin
     include Util::StringUtil
 
-    class AnyOf
-      def initialize(*features)
-        @features = features
-      end
-      attr_reader :features
-
-      def hash
-        @features.hash
-      end
-
-      def eql?(other)
-        self.class === other && @features.eql?(other.features)
-      end
-    end
+    AnyOf = Config::AnyOf
 
     class << self
 
@@ -104,12 +91,12 @@ module WXRuby3
 
       def each_package(&block)
         packages.each_value do |pkg|
-          pkg.each_package(&block) if Config::WxRubyFeatureInfo.features_set?(*pkg.required_features)
+          pkg.each_package(&block) if Config.instance.features_set?(*pkg.required_features)
         end
       end
 
       def all_packages
-        active_pkgs = packages.values.select { |pkg| Config::WxRubyFeatureInfo.features_set?(*pkg.required_features) }
+        active_pkgs = packages.values.select { |pkg| Config.instance.features_set?(*pkg.required_features) }
         ::Enumerator::Chain.new(*active_pkgs.collect { |pkg| pkg.all_packages })
       end
 

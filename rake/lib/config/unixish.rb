@@ -106,9 +106,18 @@ module WXRuby3
         # Now actually run the program to fill in some variables
         @wx_version  = wx_config("--version")
         @wx_cppflags = wx_config("--cppflags")
+
+        # Find out where the wxWidgets setup.h file being used is located
+        setup_inc_dir = @wx_cppflags[/^-I(\S+)/][2..-1]
+        @wx_setup_h  = File.join(setup_inc_dir, 'wx', 'setup.h')
+
         @cpp         = wx_config("--cxx")
         @ld          = wx_config("--ld")
-        @wx_libs     = wx_config("--libs all")
+        if features_set?('wxUSE_MEDIACTRL')
+          @wx_libs     = wx_config("--libs all,media")
+        else
+          @wx_libs     = wx_config("--libs all")
+        end
 
         # remove all warning flags provided by Ruby config
         @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
@@ -117,120 +126,6 @@ module WXRuby3
         # maintain minimum compatibility with ABI 3.0.0
         @wx_abi_version = [ @wx_version, "3.0.0" ].min
         @wx_cppflags << " -DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
-
-        # Find out where the wxWidgets setup.h file being used is located; this
-        # will be used later in rakeconfigure.rb
-        setup_inc_dir = @wx_cppflags[/^-I(\S+)/][2..-1]
-        @wx_setup_h  = File.join(setup_inc_dir, 'wx', 'setup.h')
-
-        # # Check for some optional components in wxWidgets: STC (Scintilla) and
-        # # OpenGL; don't try and compile those classes if not present. Tests
-        # # whether the library file exists.
-        #
-        # # Hold the actual --lib argument to be used for the final flags
-        # libs_str = "--libs std"
-        #
-        # # Test for RichTextCtrl
-        # if @dynamic_build
-        #   if macosx?
-        #     richtext_lib = @wx_libs[/\S+wx_mac\S+_richtext\S+/]
-        #     if richtext_lib.nil? or ( richtext_lib !~ /^-l/ and not File.exists?(richtext_lib) )
-        #       WxRubyFeatureInfo.exclude_module('RichTextCtrl')
-        #       WxRubyFeatureInfo.exclude_module('RichTextEvent')
-        #       WxRubyFeatureInfo.exclude_module('RichTextBuffer')
-        #     else
-        #       libs_str << ',richtext'
-        #     end
-        #   else
-        #     richtext_lib = @wx_libs[/\S+wx_gtk\S+_richtext\S+/]
-        #     if richtext_lib.nil?
-        #       WxRubyFeatureInfo.exclude_module('RichTextCtrl')
-        #       WxRubyFeatureInfo.exclude_module('RichTextEvent')
-        #       WxRubyFeatureInfo.exclude_module('RichTextBuffer')
-        #     else
-        #       libs_str << ',richtext'
-        #     end
-        #   end
-        # else
-        #   richtext_lib = @wx_libs[/\S+libwx\S+_richtext\S+/]
-        #   if richtext_lib.nil? or not File.exists?(richtext_lib)
-        #     WxRubyFeatureInfo.exclude_module('RichTextCtrl')
-        #     WxRubyFeatureInfo.exclude_module('RichTextEvent')
-        #     WxRubyFeatureInfo.exclude_module('RichTextBuffer')
-        #   else
-        #     libs_str << ',richtext'
-        #   end
-        # end
-        #
-        # # Test for StyledTextCtrl (Scintilla)
-        # if @dynamic_build
-        #   if macosx?
-        #     stc_lib = @wx_libs[/\S+wx_mac\S+_stc\S+/]
-        #     if stc_lib.nil? or ( stc_lib !~ /^-l/ and not File.exists?(stc_lib) )
-        #       WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
-        #       WxRubyFeatureInfo.exclude_module('StyledTextEvent')
-        #     else
-        #       libs_str << ',stc'
-        #     end
-        #   else
-        #     stc_lib = @wx_libs[/\S+wx_gtk\S+_stc\S+/]
-        #     if stc_lib.nil?
-        #       WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
-        #       WxRubyFeatureInfo.exclude_module('StyledTextEvent')
-        #     else
-        #       libs_str << ',stc'
-        #     end
-        #   end
-        # else
-        #   stc_lib = @wx_libs[/\S+libwx\S+_stc\S+/]
-        #   if stc_lib.nil? or not File.exists?(stc_lib)
-        #     WxRubyFeatureInfo.exclude_module('StyledTextCtrl')
-        #     WxRubyFeatureInfo.exclude_module('StyledTextEvent')
-        #   else
-        #     libs_str << ',stc'
-        #   end
-        # end
-        #
-        #
-        # # Test for OpenGL
-        # if @dynamic_build
-        #   if macosx?
-        #     gl_lib = @wx_libs[/\S+wx_mac\S+_gl\S+/]
-        #     if gl_lib.nil? or ( gl_lib !~ /^-l/ and not File.exists?(gl_lib) )
-        #       WxRubyFeatureInfo.exclude_module('GLCanvas')
-        #     else
-        #       libs_str << ',gl'
-        #     end
-        #   else
-        #     gl_lib = @wx_libs[/\S+wx_gtk\S+_gl\S+/]
-        #     if gl_lib.nil?
-        #       WxRubyFeatureInfo.exclude_module('GLCanvas')
-        #     else
-        #       libs_str << ',gl'
-        #     end
-        #   end
-        # else
-        #   gl_lib = @wx_libs[/\S+libwx\S+_gl\S+/]
-        #   if gl_lib.nil? or not File.exists?(gl_lib)
-        #     WxRubyFeatureInfo.exclude_module('GLCanvas')
-        #   else
-        #     libs_str << ',gl'
-        #   end
-        # end
-        #
-        # # Bit ugly - if MEdiaCtrl is included, need to test if
-        # # 1) we have a dynamic build (esp Linux, non-monolithic)
-        # # 2) we have a non-monolithic static build (identified by linkdeps)
-        # # PRobably not 100% correct but deals with the common cases..
-        # if not WxRubyFeatureInfo.excluded_class?(@wx_setup_h, 'MediaCtrl')
-        #   if @dynamic_build or
-        #      wx_config('--linkdeps std') != wx_config('--linkdeps std,media') # 2)
-        #     libs_str << ',media'
-        #   end
-        # end
-        #
-        # # Set the final list of libs to be used
-        # @wx_libs = wx_config(libs_str)
       end
     end
 

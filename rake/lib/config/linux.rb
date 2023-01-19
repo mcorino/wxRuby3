@@ -38,7 +38,7 @@ module WXRuby3
         @extra_ldflags = '-shared'
 
         # This class is not available on WXGTK
-        WxRubyFeatureInfo.exclude_module('PrinterDC')
+        exclude_module('PrinterDC')
 
         # Extra libraries that are required on Linux
         @extra_libs = ""

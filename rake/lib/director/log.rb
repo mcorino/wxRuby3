@@ -15,7 +15,7 @@ module WXRuby3
         spec.no_proxy(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow])
         spec.ignore 'wxLogBuffer::Flush'
         spec.ignore 'wxLogGui::Flush'
-        if Config::WxRubyFeatureInfo.features_set?(%w[wxUSE_STD_IOSTREAM])
+        if Config.instance.features_set?(%w[wxUSE_STD_IOSTREAM])
           spec.ignore 'wxLogStream'
         end
         spec.ignore 'wxLog::SetThreadActiveTarget'

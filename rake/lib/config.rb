@@ -80,6 +80,21 @@ module WXRuby3
       end
     end
 
+    class AnyOf
+      def initialize(*features)
+        @features = features
+      end
+      attr_reader :features
+
+      def hash
+        @features.hash
+      end
+
+      def eql?(other)
+        self.class === other && @features.eql?(other.features)
+      end
+    end
+
     class << self
 
       def wxruby_root
@@ -219,7 +234,7 @@ module WXRuby3
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.
             if ENV['WXRUBY_EXCLUDED']
-              ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| WxRubyFeatureInfo.exclude_module(classname) }
+              ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| exclude_module(classname) }
             end
 
             @exec_env = {}
@@ -327,10 +342,6 @@ module WXRuby3
             @ldflags
           end
 
-          def feature_info
-            WxRubyFeatureInfo
-          end
-
           def has_wxwidgets_xml?
             File.directory?(@wx_xml_path)
           end
@@ -371,6 +382,61 @@ module WXRuby3
               Rake.sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
             end
           end
+
+          # Testing the relevant wxWidgets setup.h file to see what
+          # features are supported.
+
+          # The wxWidgets setup.h file contains a series of definitions like
+          # #define wxUSE_FOO 1. The location of the file should be set
+          # by the platform-specific rakefile. Parse it into a ruby hash:
+          def features
+            @features ||= _retrieve_features(wx_setup_h)
+          end
+
+          private def any_feature_set?(*featureset)
+            featureset.any? do |feature|
+              if ::Array === feature
+                features_set?(*feature)
+              else
+                !!features[feature.to_s]
+              end
+            end
+          end
+
+          def features_set?(*featureset)
+            featureset.all? do |feature|
+              if AnyOf === feature
+                any_feature_set?(*feature.features)
+              else
+                !!features[feature.to_s]
+              end
+            end
+          end
+
+          def excluded_module?(module_spec)
+            explicit_excluded_modules.include?(module_spec.module_name) || !features_set?(*module_spec.requirements)
+          end
+
+          def exclude_module(module_name)
+            explicit_excluded_modules << module_name
+          end
+
+          private
+
+          def explicit_excluded_modules
+            @explicit_excluded_modules ||= []
+          end
+
+          def _retrieve_features(wxwidgets_setup_h)
+            features = {}
+
+            File.read(wxwidgets_setup_h).scan(/^#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
+              features[$1] = $2.to_i.zero? ? false : true
+            end
+
+            features
+          end
+
         end
         klass.new
       end
@@ -383,69 +449,6 @@ module WXRuby3
         @instance
       end
     end
-
-    module WxRubyFeatureInfo
-
-      class << self
-
-        # Testing the relevant wxWidgets setup.h file to see what
-        # features are supported. Note that the presence of OpenGL (for
-        # GLCanvas) and Scintilla (for StyledTextCtrl) is tested for in the
-        # platform-specific rakefiles.
-
-        # The wxWidgets setup.h file contains a series of definitions like
-        # #define wxUSE_FOO 1. The location of the file should be set
-        # by the platform-specific rakefile. Parse it into a ruby hash:
-        def features
-          @features ||= _retrieve_features(Config.instance.wx_setup_h)
-        end
-
-        private def any_feature_set?(*featureset)
-          featureset.any? do |feature|
-            if ::Array === feature
-              features_set?(*feature)
-            else
-              !!features[feature.to_s]
-            end
-          end
-        end
-
-        def features_set?(*featureset)
-          featureset.all? do |feature|
-            if Director::AnyOf === feature
-              any_feature_set?(*feature.features)
-            else
-              !!features[feature.to_s]
-            end
-          end
-        end
-
-        def excluded_module?(module_spec)
-          explicit_excluded_modules.include?(module_spec.module_name) || !features_set?(*module_spec.requirements)
-        end
-
-        def exclude_module(module_name)
-          explicit_excluded_modules << module_name
-        end
-
-        private
-
-        def explicit_excluded_modules
-          @explicit_excluded_modules ||= []
-        end
-
-        def _retrieve_features(wxwidgets_setup_h)
-          features = {}
-
-          File.read(wxwidgets_setup_h).scan(/^#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
-            features[$1] = $2.to_i.zero? ? false : true
-          end
-
-          features
-        end
-      end # class << self
-
-    end # module WxRubyFeatureInfo
 
   end
 
