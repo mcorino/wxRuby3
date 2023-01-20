@@ -7,7 +7,7 @@
 # in the standard rake program
 
 def force_mkdir(dir)
-  if (!File.exists?(dir))
+  if (!File.exist?(dir))
     Dir.mkdir(dir)
   end
 end
@@ -19,7 +19,7 @@ def force_rmdir(dir)
 end
 
 def force_delete(f)
-  if (f != '.' && f != '..' && File.exists?(f))
+  if (f != '.' && f != '..' && File.exist?(f))
     rm(f)
   end
 end

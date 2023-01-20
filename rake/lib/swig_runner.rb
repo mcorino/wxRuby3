@@ -88,13 +88,13 @@ module WXRuby3
         run_post_processors(target, spec, *spec.post_processors)
         final_tgt = File.join(config.src_path, File.basename(target))
         final_tgt_h = File.join(config.src_path, File.basename(target_h))
-        (FileUtils.rm_f(final_tgt) if File.exists?(final_tgt)) rescue nil
-        (FileUtils.rm_f(final_tgt_h) if File.exists?(final_tgt_h)) rescue nil
+        (FileUtils.rm_f(final_tgt) if File.exist?(final_tgt)) rescue nil
+        (FileUtils.rm_f(final_tgt_h) if File.exist?(final_tgt_h)) rescue nil
         FileUtils.mv(target, final_tgt)
         FileUtils.mv(target_h, final_tgt_h)
       ensure
-        FileUtils.rm_f(target) if File.exists?(target)
-        FileUtils.rm_f(target_h) if File.exists?(target_h)
+        FileUtils.rm_f(target) if File.exist?(target)
+        FileUtils.rm_f(target_h) if File.exist?(target_h)
       end
     end
 

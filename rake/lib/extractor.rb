@@ -35,15 +35,15 @@ module WXRuby3
         subdir = name.index('/') ? File.dirname(name) : ''
         name = File.basename(name).sub('.h', '_8h')
         pathname = File.join(xml_dir, name + '.xml')
-        if File.exists?(pathname)
+        if File.exist?(pathname)
           [pathname, name + '.xml']
         else
           pathname = File.join(xml_dir, 'interface_2wx_2' + name + '.xml')
-          if File.exists?(pathname) || subdir.empty?
+          if File.exist?(pathname) || subdir.empty?
             [pathname, 'interface_2wx_2' + name + '.xml']
           else
             pathname = File.join(xml_dir, subdir + '_2' + name + '.xml')
-            if File.exists?(pathname)
+            if File.exist?(pathname)
               [pathname, subdir + '_2' + name + '.xml']
             else
               pathname = File.join(xml_dir, 'interface_2wx_2' + subdir + '_2' + name + '.xml')
@@ -67,15 +67,15 @@ module WXRuby3
           attempts = []
           pathname = class_to_doxy_name(class_or_filename, attempts)
 
-          unless File.exists?(pathname)
+          unless File.exist?(pathname)
             pathname = class_to_doxy_name(class_or_filename, attempts, 'struct')
-            unless File.exists?(pathname)
+            unless File.exist?(pathname)
                 pathname, _ = include_to_doxy_name(class_or_filename)
                 attempts << pathname
-                unless File.exists?(pathname)
+                unless File.exist?(pathname)
                   pathname = File.join(xml_dir, class_or_filename)
                   attempts << pathname
-                  unless File.exists?(pathname)
+                  unless File.exist?(pathname)
                       msg = "Unable to find xml file for ITEM: %s" % class_or_filename
                       puts(msg)
                       puts("Tried: %s" % (attempts.join("\n       ")))
@@ -103,7 +103,7 @@ module WXRuby3
             if item.respond_to?(:includes)
               item.includes.each do |inc|
                 pathname, name = include_to_doxy_name(inc)
-                class_or_filename_list << name if File.exists?(pathname) &&
+                class_or_filename_list << name if File.exist?(pathname) &&
                                                   !filesparsed.include?(pathname) &&
                                                   (!name.index('interface') || name.index(xmlname)) &&
                                                   !class_or_filename_list.index(name)

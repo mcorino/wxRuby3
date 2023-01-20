@@ -47,7 +47,7 @@ end
 # How to create class
 desc 'Create a HTML class reference page from a textile source'
 rule '.html' => [ txtl_src ] do | t |
-  if not File.exists?( DOC_OUTPUT_DIR )
+  if not File.exist?( DOC_OUTPUT_DIR )
     File.mkdir(DOC_OUTPUT_DIR)
   end
   puts "Rendering #{t.name}"
@@ -64,7 +64,7 @@ task :html_class_docs => all_class_docs
 # for this task (doc/textile/index.txtl) is hand-written, not generated
 # from Textile sources.
 file 'doc/html/index.html' => [ 'doc/textile/index.txtl' ] do | t | 
-  if not File.exists?( DOC_OUTPUT_DIR )
+  if not File.exist?( DOC_OUTPUT_DIR )
     Dir.mkdir( DOC_OUTPUT_DIR )
   end
   puts "Rendering #{t.name}"

@@ -12,7 +12,7 @@ if ENV['WXRUBY_VERSION']
     version_file.puts "end"
   end
 # Try loading the existing version file
-elsif File.exists?(VERSION_FILE)
+elsif File.exist?(VERSION_FILE)
   require VERSION_FILE
   WXRUBY_VERSION = Wx::WXRUBY_VERSION
 # Leave version undefined

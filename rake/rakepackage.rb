@@ -105,7 +105,7 @@ task :osx_all_gems do
   gem_task = Rake::Task['gem']
   gem_task.application.handle_options()
   
-  if File.exists?(default_full_gem_name)==false
+  if File.exist?(default_full_gem_name)==false
     puts ""
     puts "The universal gem (#{default_full_gem_name}) must exist before running this task. Creating..."
     gem_task.execute
@@ -115,7 +115,7 @@ task :osx_all_gems do
   tmp_dir = "tmp_osx_lib"
   
   #save the current universal build
-  if File.exists?(tmp_dir)==false
+  if File.exist?(tmp_dir)==false
     sh "mkdir #{tmp_dir}"
   end
   sh "mv #{default_full_gem_name} #{tmp_dir}/"

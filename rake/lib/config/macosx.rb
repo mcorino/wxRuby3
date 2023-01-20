@@ -23,7 +23,7 @@ module WXRuby3
 
       def build_framework()
         base = "#{@dest_dir}/wxruby.framework"
-        if (File.exists?(base))
+        if (File.exist?(base))
           `rm -fr #{base}`
         end
         #
