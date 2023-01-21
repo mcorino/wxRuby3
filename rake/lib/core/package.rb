@@ -161,55 +161,51 @@ module WXRuby3
         decls = []
         init_fn = []
 
-        # next initialize all modules without classes
-        included_directors.each do |dir|
+        # select included directors
+        inc_dirs = included_directors.to_a
+
+        # next initialize all modules without classes (keeping only those with classes)
+        inc_dirs.select! do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
           if modreg.nil? || modreg.empty?
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
+            false
+          else
+            true
           end
         end
 
-        # next initialize all modules with empty class dependencies
-        included_directors.each do |dir|
+        # next initialize all modules with classes without base dependencies (keeping only those with)
+        cls_set = ::Set.new
+        inc_dirs.select! do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if modreg && !modreg.empty? && modreg.values.all? {|dep| dep.nil? || dep.empty? }
+          if modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || base.empty? }
+            cls_set.merge modreg.keys # remember classes
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
+            false
+          else
+            true
           end
         end
 
-        # next initialize all modules with class dependencies ordered according to dependency
-        # collect all modules with actual dependencies
-        dep_mods = included_directors.select do |dir|
-          modreg = Spec.module_registry[dir.spec.module_name]
-          modreg && !modreg.empty? && modreg.values.any? {|dep| !(dep.nil? || dep.empty?) }
-        end.collect {|dir| [dir.spec.module_name, Spec.module_registry[dir.spec.module_name]] }
-        # now sort these according to dependencies
-        dep_mods.sort! do |mreg1, mreg2|
-          m1 = mreg1.first
-          m2 = mreg2.first
-          order = 0
-          mreg2.last.each_pair do |_cls, base|
-            if Spec.class_index[base] && Spec.class_index[base].module_name == m1
-              order = -1
-              break
-            end
-          end
-          if order == 0
-            mreg1.last.each_pair do |_cls, base|
-              if Spec.class_index[base] && Spec.class_index[base].module_name == m2
-                order = 1
-                break
-              end
-            end
-          end
-          order
+        # next initialize all modules with classes depending on classes in any modules already selected
+        # until there are no more modules left or none that are left depend on any selected ones
+        while dir_inx = inc_dirs.find_index { |dir| (modreg = Spec.module_registry[dir.spec.module_name]) && !modreg.empty? && modreg.values.any? { |base| cls_set.include?(base) } }
+          dir = inc_dirs[dir_inx]
+          cls_set.merge Spec.module_registry[dir.spec.module_name].keys # remember classes
+          init = "Init_#{dir.spec.module_name}()"
+          decls << "extern \"C\" void #{init};"
+          init_fn << "  #{init};"
+          inc_dirs.delete_at(dir_inx) # remove selected director
         end
-        dep_mods.each do |modreg|
-          init = "Init_#{modreg.first}()"
+
+        # now initialize any modules left
+        inc_dirs.each do |dir|
+          init = "Init_#{dir.spec.module_name}()"
           decls << "extern \"C\" void #{init};"
           init_fn << "  #{init};"
         end
