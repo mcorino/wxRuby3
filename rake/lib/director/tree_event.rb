@@ -19,6 +19,7 @@ module WXRuby3
         spec.add_init_code <<~__HEREDOC
           // define TreeItemId wrapper class
           mWxTreeItemId = rb_define_class_under(mWxCore, "TreeItemId", rb_cObject);
+          rb_undef_alloc_func(mWxTreeItemId);
           rb_define_method(mWxTreeItemId, "is_ok", VALUEFUNC(_wxRuby_wxTreeItemId_IsOk), 0);
           rb_define_method(mWxTreeItemId, "ok?", VALUEFUNC(_wxRuby_wxTreeItemId_IsOk), 0);
           __HEREDOC
