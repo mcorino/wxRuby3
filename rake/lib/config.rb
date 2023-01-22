@@ -201,10 +201,6 @@ module WXRuby3
 
             @no_deprecate = !!ENV['WXNO_DEPRECATE']
 
-            # Non-unicode (ANSI) build is not tested or supported, but retained in
-            # case anyone is using it
-            @unicode_build = ENV['WXRUBY_NO_UNICODE'] ? false : true
-
             @ruby_cppflags = RbConfig::CONFIG["CFLAGS"]
 
             # Ruby 1.9.0 changes location of some header files
@@ -262,12 +258,6 @@ module WXRuby3
               puts "Enabling RELEASE build"
             elsif @debug_build
               puts "Enabling DEBUG build"
-            end
-
-            if @unicode_build
-              puts "Enabling UNICODE build"
-            else
-              puts "Enabling ANSI build; NOT RECOMMENDED"
             end
 
             @verbose_flag = ''
