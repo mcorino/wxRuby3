@@ -36,6 +36,12 @@ module WXRuby3
           enum wxTextAttrBorderFlags;
           enum wxTextAttrBorderStyle;
           __HEREDOC
+        # special typemap for const wxChar wxRichTextLineBreakChar;
+        spec.add_swig_code <<~__HEREDOC
+          %typemap(constcode,noblock=1) const wxChar {
+            %set_constant("$symname", rb_str_new2((const char *)wxString($value).utf8_str()));
+          }
+          __HEREDOC
         spec.do_not_generate(:functions)
         super
       end

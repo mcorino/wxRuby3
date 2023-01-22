@@ -11,6 +11,11 @@ typedef unsigned long long wxULongLong_t;
 // include common typedefs extracted from defs.h
 %include "classes/common/typedefs.i"
 
+typedef wchar_t wxChar;
+typedef wchar_t wxSChar;
+typedef wchar_t wxUChar;
+typedef wchar_t wxStringCharType;
+
 // additional common typedefs
 typedef int wxWindowID;
 

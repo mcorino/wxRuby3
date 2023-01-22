@@ -94,11 +94,6 @@ module WXRuby3
 
         # String <> wxChar* type mappings
 
-        # %typemap(in) const wxChar const * (wxString temp) {
-        #   temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
-        #   $1 = const_cast<wxChar*> (static_cast<wxChar const *> (temp.c_str()));
-        # }
-
         map 'const wxChar *' => 'String' do
           map_in temp: 'wxString temp', code: <<~__CODE
             temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
@@ -108,6 +103,52 @@ module WXRuby3
           map_directorin code: "$input = rb_str_new2((const char *)wxString($1).utf8_str());"
           map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
           map_varout code: '$result = rb_str_new2((const char *)wxString($1).utf8_str());'
+        end
+
+        # String <> wxChar type mappings
+        map 'wxChar' => 'String' do
+          map_in temp: 'wxString temp', code: <<~__CODE
+            if ($input == Qnil || TYPE($input) != T_STRING || RSTRING_LEN($input) < 1)
+            {
+              $1 = 0;
+            }
+            else
+            {
+              temp = wxString(StringValuePtr($input), wxConvUTF8);
+              $1 = temp[0];
+            }
+            __CODE
+          map_out code: <<~__CODE
+            if ($1 == 0)
+            {
+              $result = Qnil;
+            }
+            else
+            {
+              $result = rb_str_new2((const char *)wxString($1).utf8_str());
+            }
+            __CODE
+          map_directorin code: <<~__CODE
+            if ($1 == 0)
+            {
+              $input = Qnil;
+            }
+            else
+            {
+              $input = rb_str_new2((const char *)wxString($1).utf8_str());
+            }
+          __CODE
+          map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
+          map_varout code: <<~__CODE
+            if ($1 == 0)
+            {
+              $result = Qnil;
+            }
+            else
+            {
+              $result = rb_str_new2((const char *)wxString($1).utf8_str());
+            }
+          __CODE
         end
 
         # Object <> void* type mappings
