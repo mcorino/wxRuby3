@@ -29,7 +29,7 @@ module WXRuby3
                         "#{itm}::IsMaximzed",
                         "#{itm}::IsAlwaysMaximzed",
                         "#{itm}::IsModal",
-                        "#{itm}::IsTopLevel",
+                        #"#{itm}::IsTopLevel",
                         "#{itm}::IsVisible",
                         "#{itm}::Maximize",
                         "#{itm}::Navigate",
@@ -66,7 +66,7 @@ module WXRuby3
           # for upcalls
           spec.extend_interface('wxTopLevelWindow',
                                 'virtual bool Destroy() override',
-                                'virtual bool IsTopLevel() override',
+                                #'virtual bool IsTopLevel() override',
                                 'virtual void SetLayoutDirection(wxLayoutDirection dir) override',
                                 'virtual bool Show(bool show = true) override',
                                 'virtual void Raise() override',

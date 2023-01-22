@@ -68,7 +68,8 @@ module WXRuby3
                         "#{itm}::GetDefaultAttributes",
                         "#{itm}::GetWindowStyleFlag",
                         "#{itm}::GetDropTarget",
-                        "#{itm}::GetValidator") unless /\.h\Z/ =~ itm
+                        "#{itm}::GetValidator",
+                        "#{itm}::IsTopLevel") unless /\.h\Z/ =~ itm
         end
 
         case spec.module_name
