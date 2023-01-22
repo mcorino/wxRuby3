@@ -1252,7 +1252,7 @@ extern VALUE mWxCore;
 %constant wxCursor const    NULL_CURSOR = wxNullCursor;
 %constant wxPen const       NULL_PEN = wxNullPen;
 %constant wxBrush const     NULL_BRUSH = wxNullBrush;
-%constant wxPalette const   NULL_PALETTE = wxNullPalette;
+//%constant wxPalette const   NULL_PALETTE = wxNullPalette;
 
 //    // Pen styles
 ///*
