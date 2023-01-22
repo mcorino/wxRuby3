@@ -18,6 +18,10 @@ module WXRuby3
           spec.gc_as_temporary('wxSizerFlags')
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::SetVirtualSizeHints]
+          # cannot use these with wxRuby
+          spec.ignore 'wxSizer::Add(wxSizerItem *)',
+                      'wxSizer::Insert(size_t, wxSizerItem *)',
+                      'wxSizer::Prepend(wxSizerItem *)'
           spec.ignore 'wxSizer::Remove(wxWindow *)' # long time deprecated
           # Typemap for GetChildren - convert to array of Sizer items
           spec.map 'wxSizerItemList&' => 'Array<Wx::SizerItem>' do
@@ -38,6 +42,11 @@ module WXRuby3
           end
           # get rid of unwanted SWIG warning
           spec.suppress_warning(517, 'wxSizer')
+        when 'wxGridBagSizer'
+          spec.items << 'wxGBSpan' << 'wxGBPosition'
+          spec.gc_as_temporary 'wxGBSpan', 'wxGBPosition'
+          # cannot use this with wxRuby
+          spec.ignore 'wxGridBagSizer::Add(wxGBSizerItem *)'
         end
         # no real use for allowing these to be overloaded but a whole lot of grieve
         # if we do allow it

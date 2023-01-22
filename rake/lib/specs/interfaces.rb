@@ -118,6 +118,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxListEvent', director: Director::Event, requirements: %w[wxUSE_LISTCTRL])
     Director.Spec(pkg, 'wxGridSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxFlexGridSizer', director: Director::Sizer)
+    Director.Spec(pkg, 'wxGBSizerItem', director: Director::SizerItem)
     Director.Spec(pkg, 'wxGridBagSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxSplitterEvent', requirements: %w[wxUSE_SPLITTER])
     Director.Spec(pkg, 'wxSplitterWindow', requirements: %w[wxUSE_SPLITTER])
