@@ -104,8 +104,6 @@ module WXRuby3
           libdirs = [File.join(exec_pfx, 'bin')]
           libdirs << win_path(File.join(ENV['MSYSTEM_PREFIX'], 'bin'))
           @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']};#{libdirs.join(';')}"
-          mingw_bin = File.join(File.dirname(win_path(File.join(ENV['MSYSTEM_PREFIX']))), 'mingw64', 'bin')
-          @exec_env['PATH'] = "#{ENV['PATH']};#{mingw_bin}"
         end
 
         @rescomp = wx_config('--rescomp').gsub(/--include-dir\s+(\S+)/) { |s| "--include-dir #{win_path($1)}" }
