@@ -11,11 +11,12 @@ module WXRuby3
 
       def setup
         super
-        spec.items.concat %w[wxGraphicsPen wxGraphicsBrush wxGraphicsPath wxGraphicsFont wxGraphicsMatrix]
+        spec.items.concat %w[wxGraphicsPen wxGraphicsBrush wxGraphicsPath wxGraphicsFont wxGraphicsMatrix wxGraphicsBitmap]
         spec.disable_proxies
         spec.ignore 'wxGraphicsObject::GetRenderer'
         spec.ignore 'wxGraphicsMatrix::Concat(const wxGraphicsMatrix &)'
         spec.ignore 'wxGraphicsMatrix::IsEqual(const wxGraphicsMatrix &)'
+        spec.ignore 'wxGraphicsBitmap::GetNativeBitmap'
         # Deal with GraphicsMatrix#get method
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
@@ -39,6 +40,7 @@ module WXRuby3
           spec.add_swig_code '%feature("freefunc") wxGraphicsPath "GC_free_GraphicsObject";'
           spec.add_swig_code '%feature("freefunc") wxGraphicsFont "GC_free_GraphicsObject";'
           spec.add_swig_code '%feature("freefunc") wxGraphicsMatrix "GC_free_GraphicsObject";'
+          spec.add_swig_code '%feature("freefunc") wxGraphicsBitmap "GC_free_GraphicsObject";'
         end
       end
     end # class GraphicsObject
