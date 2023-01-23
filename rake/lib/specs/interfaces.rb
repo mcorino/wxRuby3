@@ -38,6 +38,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxMask')
     Director.Spec(pkg, 'wxBitmap')
     Director.Spec(pkg, 'wxIcon')
+    Director.Spec(pkg, 'wxValidator')
+    Director.Spec(pkg, 'wxTextValidator')
     Director.Spec(pkg, 'wxAccelerator')
     Director.Spec(pkg, 'wxMenuItem')
     Director.Spec(pkg, 'wxMenuBar')

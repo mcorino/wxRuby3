@@ -1245,7 +1245,7 @@ extern VALUE mWxCore;
 //   Start SWIG fixes for constants
 //** ---------------------------------------------------------------------------- **
 
-%constant const wxValidator DEFAULT_VALIDATOR = wxDefaultValidator;
+//%constant const wxValidator DEFAULT_VALIDATOR = wxDefaultValidator;
 
 
 // 'Null' objects
