@@ -68,7 +68,6 @@ module WXRuby3
         spec.no_proxy %w{
           wxRubyApp::GetDisplayMode
           wxRubyApp::GetTopWindow
-          wxRubyApp::ProcessEvent
         }
         spec.include %w{
           wx/init.h

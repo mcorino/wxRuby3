@@ -288,7 +288,7 @@ module WXRuby3
         else
           spec.items.each do |itm|
             # Avoid adding unneeded directors
-            spec.no_proxy("#{itm}::ProcessEvent") unless /\.h\Z/ =~ itm
+            spec.no_proxy("#{spec.class_name(itm)}::ProcessEvent") unless /\.h\Z/ =~ itm
             # to optimize we need these to change name in Ruby
             spec.rename_for_ruby '_wx_try_before' => 'wxEvtHandler::TryBefore',
                                  '_wx_try_after' => 'wxEvtHandler::TryAfter'
