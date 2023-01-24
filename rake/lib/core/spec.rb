@@ -38,7 +38,6 @@ module WXRuby3
                   modname[0].upcase << modname[1,modname.size-1]
                 end
         @class_implementations = ::Hash.new
-        @class_renames = ::Hash.new
         @inheritance_overrides = ::Hash.new
         @templates_as_class = ::Hash.new
         @interface_extensions = ::Hash.new
@@ -110,17 +109,12 @@ module WXRuby3
         @templates_as_class[tpl]
       end
 
-      def rename_class(from, to)
-        @class_renames[from] = to
-        self
-      end
-
       def class_name(name)
-        @class_renames[name] || @templates_as_class[name] || name
+        @templates_as_class[name] || name
       end
 
       def classdef_name(name)
-        @class_renames.invert[name] || @templates_as_class.invert[name] || name
+        @templates_as_class.invert[name] || name
       end
 
       def override_inheritance_chain(clsnm, *supers, doc_override: true)
