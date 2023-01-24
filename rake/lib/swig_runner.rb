@@ -55,9 +55,6 @@ module WXRuby3
         if @swig_version < SWIG_MINIMUM_VERSION
           raise "SWIG version #{@swig_version} is installed, " +
                   "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
-          #  elsif version > SWIG_MAXIMUM_VERSION
-          #    raise "SWIG version #{version} is installed, " +
-          #          "maximum version permitted is #{SWIG_MAXIMUM_VERSION}"
         end
 
         @swig_state = true
@@ -73,57 +70,98 @@ module WXRuby3
              "-o #{target} #{source}"
       end
 
-      def run_post_processors(target, spec, *processors)
-        processors.each { |pp| Processor.__send__(pp, target, spec) }
-      end
-
     end
 
     def self.process(director)
-      spec = DirectorSpecsHelper::Simple.new(director)
-      target = File.join(config.src_path, '.generate', File.basename(spec.interface_file, '.i') + '.cpp')
-      target_h = target.sub(/\.cpp\Z/, '.h')
+      target = File.join(config.src_path, '.generate', File.basename(director.spec.interface_file, '.i'))
+      target_src = target+'.cpp'
+      target_h = target+'.h'
       begin
-        run_swig(spec.interface_file, target)
-        run_post_processors(target, spec, *spec.post_processors)
-        final_tgt = File.join(config.src_path, File.basename(target))
+        # run SWIG to generate the C++ wrapper code
+        run_swig(director.spec.interface_file, target_src)
+        # run the post processors to update the generated C++ code
+        director.spec.post_processors.each { |pp| Processor.run(pp, director, target) }
+        # relocate the finalized C++ code
+        final_tgt_src = File.join(config.src_path, File.basename(target_src))
         final_tgt_h = File.join(config.src_path, File.basename(target_h))
-        (FileUtils.rm_f(final_tgt) if File.exist?(final_tgt)) rescue nil
+        (FileUtils.rm_f(final_tgt_src) if File.exist?(final_tgt_src)) rescue nil
         (FileUtils.rm_f(final_tgt_h) if File.exist?(final_tgt_h)) rescue nil
-        FileUtils.mv(target, final_tgt)
+        FileUtils.mv(target_src, final_tgt_src)
         FileUtils.mv(target_h, final_tgt_h)
       ensure
-        FileUtils.rm_f(target) if File.exist?(target)
+        FileUtils.rm_f(target_src) if File.exist?(target_src)
         FileUtils.rm_f(target_h) if File.exist?(target_h)
       end
     end
 
-    module Processor
+    class Processor
 
-      class << self
-        include Util::StringUtil
+      include DirectorSpecsHelper
 
-        def collect_enumerators(spec)
-          enumerators = {}
-          spec.def_items.each do |item|
-            case item
-            when Extractor::EnumDef
-              item.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(item.name) } if item.is_type
-            when Extractor::ClassDef
-              item.items.select { |itm| Extractor::EnumDef === itm }.each do |enum|
-                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(enum.name) } if enum.is_type
-              end
+      def initialize(director, target)
+        @director = director
+        @target = target
+      end
+
+      attr_reader :director
+
+      protected
+
+      def target_src
+        @target + '.cpp'
+      end
+
+      def target_hdr
+        @target + '.h'
+      end
+
+      def update_file(path, at_begin: nil, at_end: nil, &block)
+        Stream.transaction do
+          out = CodeStream.new(path)
+          if at_begin
+            if ::Proc === at_begin
+              at_begin.call(out)
+            else
+              out.puts at_begin.to_s
             end
           end
-          enumerators
+          File.foreach(path, chomp: true) { |line| block.call(out, line) }
+          if at_end
+            if ::Proc === at_end
+              at_end.call(out)
+            else
+              out.puts at_end.to_s
+            end
+          end
         end
       end
 
-      def self.rename(target, _)
-        puts "Processor.rename: #{target}"
-        Stream.transaction do
-          out = CodeStream.new(target)
-          File.foreach(target, chomp: true) do |line|
+      def update_source(at_begin: nil, at_end: nil, &block)
+        update_file(target_src, at_begin: at_begin, at_end: at_end, &block)
+      end
+
+      def update_header(at_begin: nil, at_end: nil, &block)
+        update_file(target_hdr, at_begin: at_begin, at_end: at_end, &block)
+      end
+
+      public
+
+      def run
+        raise NotImplementedError
+      end
+
+      class << self
+        include Util::StringUtil
+      end
+
+      def self.run(pid, director, target)
+        puts "Processor.#{pid}: #{target}"
+        const_get(camelize(pid.to_s)).new(director, target).run
+      end
+
+      class Rename < Processor
+        def run
+          update_source do |out, line|
             case line
               # defined method names
             when /(rb_define_method|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
@@ -160,32 +198,41 @@ module WXRuby3
             out.puts(line)
           end
         end
-      end
+      end # class Rename
 
-      # MAIN_MODULE = 'Wxruby3'
+      class Fixmodule < Processor
 
-      def self.fixmodule(target, spec)
-        puts "Processor.fixmodule: #{target}"
+        private def collect_enumerators
+          enumerators = {}
+          def_items.each do |item|
+            case item
+            when Extractor::EnumDef
+              item.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(item.name) } if item.is_type
+            when Extractor::ClassDef
+              item.items.select { |itm| Extractor::EnumDef === itm }.each do |enum|
+                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(enum.name) } if enum.is_type
+              end
+            end
+          end
+          enumerators
+        end
 
-        enum_table = collect_enumerators(spec)
+        def run
+          enum_table = collect_enumerators
 
-        core_name = spec.name
-        core_name = 'ruby3' if /\Awx\Z/i =~ core_name
+          core_name = name
+          core_name = 'ruby3' if /\Awx\Z/i =~ core_name
 
-        skip_entire_method = false
-        brace_level = 0
+          skip_entire_method = false
+          brace_level = 0
 
-        fix_enum = false
-        enum_name = nil
+          fix_enum = false
+          enum_name = nil
 
-        found_init = false
+          found_init = false
 
-        Stream.transaction do
-          out = CodeStream.new(target)
-          File.foreach(target, chomp: true) do |line|
-
+          update_source do |out, line|
             if !found_init
-
               # all following fixes are applicable only before we reached the
               # Init_ function
 
@@ -224,7 +271,7 @@ module WXRuby3
               # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
               # wrappers
               if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx#{core_name}";/
-                line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{spec.package.fullname}::#{core_name}")
+                line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{package.fullname}::#{core_name}")
               end
 
               # remove the UnknownExceptionHandler::handler method
@@ -261,17 +308,17 @@ module WXRuby3
               # Instead of defining a new module, set the container module equal
               # to the package module.
               if line['rb_define_module("Wx']
-                line = "  mWx#{core_name} = #{spec.package.module_variable}; // fixmodule.rb"
+                line = "  mWx#{core_name} = #{package.module_variable}; // fixmodule.rb"
                 found_define_module = true
-              # elsif line['rb_define_module("Defs']
-              #   line = "  m#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
-              #   found_define_module = true
+                # elsif line['rb_define_module("Defs']
+                #   line = "  m#{core_name} = m#{MAIN_MODULE}; // fixmodule.rb"
+                #   found_define_module = true
               end
 
               # As a class is initialised, store a global mapping from it to the
               # correct SWIGTYPE; see wx.i
               if line =~ /SWIG_TypeClientData\((SWIGTYPE_p_\w+),\s+
-                  \(void\s\*\)\s+&(\w+)\)/x
+                \(void\s\*\)\s+&(\w+)\)/x
 
                 line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
               end
@@ -364,9 +411,10 @@ module WXRuby3
             out.puts(line)
           end
         end
-      end
 
-    end # module Processor
+      end # class Fixmodule
+
+    end # class Processor
 
   end # module SwigRunner
 

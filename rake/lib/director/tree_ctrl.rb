@@ -367,44 +367,47 @@ module WXRuby3
 
   end # class Director
 
-  module SwigRunner::Processor
+  module SwigRunner
+    class Processor
 
-    # special post-processor for TreeCtrl
-    def self.fixtreectrl(target, spec)
-      puts "Processor.fixtreectrl: #{target}"
+      # special post-processor for TreeCtrl
+      class Fixtreectrl < Processor
 
-      Stream.transaction do
-        out = CodeStream.new(target)
-        File.foreach(target, chomp: true) do |line|
+        def run
+          director_found = false
+          update_source do |out, line|
+            # Ugly: special fixes for TreeCtrl - these macros and extra funcs
+            # are needed to allow user-defined sorting to work
+            # default ctor needed for Swig::Director
+            if line["Director(VALUE self) : swig_self(self), swig_disown_flag(false)"]
+              line = "    Director() { } // added by fixmodule.rb \n" + line
+            end
+            if line["SwigDirector_wxTreeCtrl::SwigDirector_wxTreeCtrl(VALUE self)"]
+              line = "IMPLEMENT_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl,  wxTreeCtrl);\n" + line
+              director_found = true
+            end
 
-          # Ugly: special fixes for TreeCtrl - these macros and extra funcs
-          # are needed to allow user-defined sorting to work
-          # default ctor needed for Swig::Director
-          if line["Director(VALUE self) : swig_self(self), swig_disown_flag(false)"]
-            line = "    Director() { } // added by fixmodule.rb \n" + line
+            out.puts(line)
           end
-          if line["SwigDirector_wxTreeCtrl::SwigDirector_wxTreeCtrl(VALUE self)"]
-            line = "IMPLEMENT_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl,  wxTreeCtrl);\n" + line
+          if director_found
             # We also need to tweak the header file
-            treectrl_h_file = target.sub(/cpp\Z/, "h")
-            contents = File.read(treectrl_h_file)
-            contents.sub!(/\};/, <<~__HEREDOC
+            update_header do |out, line|
+              if line.strip == 'public:'
+                line << "\nSwigDirector_wxTreeCtrl() {};"
+              elsif line.strip == '};'
+                line = <<~__HEREDOC
                   private:
                   DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
                   };
-            __HEREDOC
-            )
-            contents.sub!(/public:/, "public:\nSwigDirector_wxTreeCtrl() {};")
-
-            h_out = CodeStream.new(treectrl_h_file)
-            h_out << contents
+                  __HEREDOC
+              end
+              out.puts(line)
+            end
           end
-
-          out.puts(line)
         end
-      end
-    end
+      end # class Fixtreectrl
 
+    end
   end
 
 end # module WXRuby3

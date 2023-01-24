@@ -38,6 +38,17 @@ module WXRuby3
         s
       end
 
+      def camelize(s)
+        camelize!(s.dup)
+      end
+
+      def camelize!(s)
+        s.gsub!(/[^a-zA-Z0-9_]/, '_')
+        s.sub!(/^[a-z\d]*/) { |ms| ms.capitalize }
+        s.gsub!(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{$2.capitalize}" }
+        s
+      end
+
       def rb_class_name(name)
         name.sub(/\Awx_?/i, '')
       end

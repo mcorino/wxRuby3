@@ -299,69 +299,68 @@ module WXRuby3
 
   end # class Director
 
-  module SwigRunner::Processor
+  module SwigRunner
+    class Processor
 
-    # Special post-processor for EvtHandler and derivatives.
-    # This provides both an optimization and extra safe guarding for the
-    # event processing path in wxRuby.
-    # The processor inserts code in the 'TryXXX' methods of the director class which check
-    # for existence of any Ruby implementation of these methods ('try_before' or 'try_after')
-    # in the absence of which a direct call to the wxWidget implementation is made. If there
-    # does exist a Ruby ('override') implementation the method continues and calls the Ruby
-    # method implementation.
-    # The original wxWidget implementations are available in Ruby as 'wx_try_before' and
-    # 'wx_try_after' and can be called from the 'overrides'.
-    # Additionally the inserted code first off checks if the event handler is actually (still)
-    # able to handle events by calling wxRuby_FindTracking() since in wxRuby it is in rare occasions
-    # possible the event handler instance gets garbage collected AFTER the event processing
-    # path has started in which case the C++ and Ruby object are unlinked and any attempts to
-    # access the (originally) associated Ruby object will have bad results (this is especially
-    # true for dialogs which are not cleaned up by wxWidgets but rather garbage collected by Ruby).
-    def self.update_evthandler(target, spec)
-      puts "Processor.update_evthandler: #{target}"
+      # Special post-processor for EvtHandler and derivatives.
+      # This provides both an optimization and extra safe guarding for the
+      # event processing path in wxRuby.
+      # The processor inserts code in the 'TryXXX' methods of the director class which check
+      # for existence of any Ruby implementation of these methods ('try_before' or 'try_after')
+      # in the absence of which a direct call to the wxWidget implementation is made. If there
+      # does exist a Ruby ('override') implementation the method continues and calls the Ruby
+      # method implementation.
+      # The original wxWidget implementations are available in Ruby as 'wx_try_before' and
+      # 'wx_try_after' and can be called from the 'overrides'.
+      # Additionally the inserted code first off checks if the event handler is actually (still)
+      # able to handle events by calling wxRuby_FindTracking() since in wxRuby it is in rare occasions
+      # possible the event handler instance gets garbage collected AFTER the event processing
+      # path has started in which case the C++ and Ruby object are unlinked and any attempts to
+      # access the (originally) associated Ruby object will have bad results (this is especially
+      # true for dialogs which are not cleaned up by wxWidgets but rather garbage collected by Ruby).
+      class UpdateEvthandler < Processor
 
-      at_director_method = false
-      director_method_id = nil
-      director_wx_class = nil
-      director_method_line = 0
+        def run
+          at_director_method = false
+          director_method_id = nil
+          director_wx_class = nil
+          director_method_line = 0
 
-      prev_line = nil
+          prev_line = nil
 
-      Stream.transaction do
-        out = CodeStream.new(target)
-        File.foreach(target, chomp: true) do |line|
-
-          if at_director_method
-            director_method_line += 1   # update line counter
-            if director_method_line == 4 && line.strip.empty?   # are we at the right spot?
-              code = <<~__CODE     # insert the code update
+          update_source(at_end: ->(out){ out.puts prev_line if prev_line }) do |out, line|
+            if at_director_method
+              director_method_line += 1   # update line counter
+              if director_method_line == 4 && line.strip.empty?   # are we at the right spot?
+                code = <<~__CODE     # insert the code update
                 // added by wxRuby3 Processor.update_evthandler
                 if (wxRuby_FindTracking(this) == Qnil)
                   return false;
                 if (!rb_respond_to(swig_get_self(), rb_intern("try_#{director_method_id.downcase}")))
                   return this->#{director_wx_class}::Try#{director_method_id}(event);
                 __CODE
-              line << "\n  " << code.split("\n").join("\n  ")
-            elsif /rb_funcall\(.*\"(wx_try_(before|after))\".*\)/ =~ line
-              curname = $1
-              newname = "try_#{$2}"
-              line[%Q{"#{curname}"}] = %Q{"#{newname}"}
-              at_director_method = false  # end of update
+                line << "\n  " << code.split("\n").join("\n  ")
+              elsif /rb_funcall\(.*\"(wx_try_(before|after))\".*\)/ =~ line
+                curname = $1
+                newname = "try_#{$2}"
+                line[%Q{"#{curname}"}] = %Q{"#{newname}"}
+                at_director_method = false  # end of update
+              end
+            elsif /bool\s+SwigDirector_(\w+)::Try(Before|After)\(.*\)\s+{/ =~ line
+              director_wx_class = $1 == 'App' ? 'wxRubyApp' : $1
+              director_method_id = $2     # After or Before method?
+              at_director_method = true   # we're at a director method to be updated
+              director_method_line = 0    # keep track of the method lines
             end
-          elsif /bool\s+SwigDirector_(\w+)::Try(Before|After)\(.*\)\s+{/ =~ line
-            director_wx_class = $1 == 'App' ? 'wxRubyApp' : $1
-            director_method_id = $2     # After or Before method?
-            at_director_method = true   # we're at a director method to be updated
-            director_method_line = 0    # keep track of the method lines
+
+            out.puts(prev_line) if prev_line
+            prev_line = line
           end
-
-          out.puts(prev_line) if prev_line
-          prev_line = line
         end
-        out.puts prev_line if prev_line
-      end
-    end
 
+      end # class UpdateEvthandler
+
+    end
   end
 
 end # module WXRuby3
