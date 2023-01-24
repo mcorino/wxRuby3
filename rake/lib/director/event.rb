@@ -12,23 +12,22 @@ module WXRuby3
       def setup
         if spec.module_name == 'wxEvent'
           spec.items << 'wxCommandEvent'
-          spec.add_swig_code <<~__HEREDOC
-            // To allow instance variables to be attached to custom subclasses of
-            // Wx::Event written in Ruby in a GC-safe, thread-safe way, wrap a
-            // custom C++ subclass of wxEvent as Ruby's Wx::Event.
-            // 
-            // Note that this subclass only applies to Event objects created on the
-            // Ruby side - for the large majority of normal event handling, objects
-            // are created C++ side then given a shallow, transient wrapper for
-            // their use in Ruby - see wxRuby_WrapWxEventInRuby in swig/wx.i.
-            %rename(wxEvent) wxRubyEvent;
-            __HEREDOC
-          spec.rename_class('wxEvent', 'wxRubyEvent')
-          spec.extend_interface('wxEvent', 'wxRubyEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
+          # To allow instance variables to be attached to custom subclasses of
+          # Wx::Event written in Ruby in a GC-safe, thread-safe way, wrap a
+          # custom C++ subclass of wxEvent as Ruby's Wx::Event.
+          #
+          # Note that this subclass only applies to Event objects created on the
+          # Ruby side - for the large majority of normal event handling, objects
+          # are created C++ side then given a shallow, transient wrapper for
+          # their use in Ruby - see wxRuby_WrapWxEventInRuby in swig/wx.i.
+          #
+          # make Ruby director and wrappers use custom implementation
+          spec.use_class_implementation('wxEvent', 'wxRubyEvent')
+          spec.extend_interface('wxEvent', 'wxEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
           spec.extend_interface('wxEvent', 'virtual wxEvent* Clone() const')
           spec.ignore %w[wxEvent::Clone wxEvent::GetEventUserData]
           spec.ignore 'wxEvent::wxEvent(int,wxEventType)'
-          spec.no_proxy 'wxRubyEvent::Clone'
+          spec.no_proxy 'wxEvent::Clone'
           spec.add_header_code <<~__HEREDOC
             // Custom subclass implementation. Provide a constructor, destructor and
             // clone functions to allow proper linking to a Ruby object.
@@ -66,7 +65,7 @@ module WXRuby3
               }
             };
             __HEREDOC
-          spec.add_extend_code 'wxRubyEvent', <<~__HEREDOC
+          spec.add_extend_code 'wxEvent', <<~__HEREDOC
             // This class method provides a guaranteed-unique event id that can be
             // used for custom event types.
             static VALUE new_user_event_type()
@@ -79,17 +78,15 @@ module WXRuby3
               return INT2NUM(event_type_id);
             }
             __HEREDOC
-          spec.add_swig_code <<~__HEREDOC
-            %rename(wxCommandEvent) wxRubyCommandEvent;
-            __HEREDOC
+          # make Ruby director and wrappers use custom implementation
+          spec.use_class_implementation('wxCommandEvent', 'wxRubyCommandEvent')
           spec.ignore %w{
             wxCommandEvent::GetClientObject
             wxCommandEvent::SetClientObject
             wxCommandEvent::GetExtraLong
           }
-          spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')
           spec.extend_interface('wxCommandEvent', 'virtual wxCommandEvent* Clone() const')
-          spec.no_proxy 'wxRubyCommandEvent::Clone'
+          spec.no_proxy 'wxCommandEvent::Clone'
           spec.add_header_code <<~__HEREDOC
             // Cf wxEvent - has to be written as a C+++ subclass to ensure correct
             // GC/thread protection of Ruby instance variables when user-written
@@ -140,15 +137,6 @@ module WXRuby3
           spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
           # make sure this event constant definition exists
           spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
-        else
-          # to correctly translate customized inheritance to actual class names
-          spec.rename_class('wxEvent', 'wxRubyEvent')
-          spec.rename_class('wxCommandEvent', 'wxRubyCommandEvent')
-          spec.add_header_code <<~__HEREDOC
-            // Make sure C++ compiler knows we mean wxEvent and wxCommandEvent here
-            #define wxRubyEvent wxEvent
-            #define wxRubyCommandEvent wxCommandEvent
-            __HEREDOC
         end
         super
       end
@@ -160,10 +148,9 @@ module WXRuby3
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item
               if def_item.hierarchy.has_key?('wxEvent')
-                spec.override_inheritance_chain(citem, {'wxRubyEvent' => 'wxEvent'}, 'wxObject')
-                #spec.override_base(citem, 'wxRubyEvent', doc_override: false)
+                spec.override_inheritance_chain(citem, {'wxEvent' => 'wxEvent'}, 'wxObject')
               elsif def_item.hierarchy.has_key?('wxCommandEvent')
-                spec.override_inheritance_chain(citem, {'wxRubyCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
+                spec.override_inheritance_chain(citem, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
                 #spec.override_base(citem, 'wxRubyCommandEvent', doc_override: false)
               elsif def_item.hierarchy.has_key?('wxGestureEvent')
                 spec.override_inheritance_chain(citem, {'wxGestureEvent' => 'wxEvents'}, 'wxEvent', 'wxObject')
