@@ -120,7 +120,7 @@ class TestPanel < Wx::Panel
         sizer.add(title, 0, Wx::ALIGN_CENTRE|Wx::ALL, 5)
 
         line = Wx::StaticLine.new(self, -1, Wx::DEFAULT_POSITION, Wx::Size.new(20,-1), Wx::LI_HORIZONTAL)
-        sizer.add(line, 0, Wx::GROW|Wx::ALIGN_CENTER_VERTICAL|Wx::ALL, 5)
+        sizer.add(line, 0, Wx::GROW|Wx::ALL, 5)
 
         fgs = Wx::FlexGridSizer.new(0, 3, 10, 10)
 
