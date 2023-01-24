@@ -29,10 +29,10 @@ WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)
   // If objects have been 'unlinked' then DATA_PTR = 0
   if ( ! ptr )
 	  return true;
-  if ( rb_gv_get("__wx_app_ended__" ) == Qtrue )
-	  return true;
-  else
+  if ( wxRuby_IsAppRunning () )
 	  return false;
+  else
+	  return true;
 }
 
 // See swig/classes/EvtHandler.i

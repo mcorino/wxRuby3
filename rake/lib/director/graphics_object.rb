@@ -31,7 +31,7 @@ module WXRuby3
             void GC_free_GraphicsObject(wxGraphicsObject *go) 
             {
               SWIG_RubyRemoveTracking(go);
-              if ( rb_gv_get("__wx_app_ended__" ) != Qtrue )
+              if ( wxRuby_IsAppRunning() )
                 delete go;
             }
           __HEREDOC

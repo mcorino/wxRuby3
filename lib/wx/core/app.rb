@@ -8,7 +8,7 @@ class Wx::App
 
   # convenience method to retrieve global Wx::App instance
   def self.the_app
-    if Wx::const_defined?(:THE_APP) and not $__wx_app_ended__
+    if Wx::const_defined?(:THE_APP) and Wx::THE_APP.is_running
       Wx::THE_APP
     else
       nil
