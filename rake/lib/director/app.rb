@@ -61,6 +61,7 @@ module WXRuby3
         end
         spec.extend_interface('wxApp', 'int main_loop ()')
         spec.extend_interface('wxApp', 'void _wxRuby_Cleanup()')
+        spec.extend_interface('wxApp', 'bool IsRunning() const')
         spec.ignore [
           'wxEntry(int &,wxChar **)',
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
@@ -93,10 +94,13 @@ module WXRuby3
           
           class wxRubyApp : public wxApp
           {
-          
+          private:
+            static wxRubyApp* instance_;
+
+            bool is_running_ = false;
           public:
-          
-          
+            static wxRubyApp* GetInstance () { return instance_; }
+
             virtual ~wxRubyApp()
             {
           #ifdef __WXTRACE__
@@ -104,7 +108,8 @@ module WXRuby3
           #endif
               // unlink
               VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
-              if (the_app != Qnil) {
+              if (the_app != Qnil) 
+              {
                 DATA_PTR(the_app) = 0;
               }
             }
@@ -124,6 +129,8 @@ module WXRuby3
               std::wcout << "=> OnWindowDestroy [" << wx_obj << "]" << std::endl;
           #endif
             }
+
+            bool IsRunning() const { return this->is_running_; }
           
             // When ruby's garbage collection runs, if the app is still active, it
             // cycles through all currently known SWIG objects and calls this
@@ -169,7 +176,7 @@ module WXRuby3
               // the C++ one; this implies that all Windows have already been destroyed
               // so there is no point trying to mark them, and doing so may cause
               // errors.
-              if ( rb_gv_get("__wx_app_ended__" ) == Qtrue )
+              if ( !wxRubyApp::GetInstance() || !wxRubyApp::GetInstance()->IsRunning() )
               {
           #ifdef __WXRB_DEBUG__
                 std::wcout << "=== App has ended, skipping mark phase" << std::endl;
@@ -217,6 +224,8 @@ module WXRuby3
               wxEntry(argc, argv);
           #endif
           
+              rb_const_remove(#{spec.package.module_variable}, rb_intern("THE_APP"));
+
           #ifdef __WXRB_DEBUG__
               std::wcout << "returned from wxEntry..." << std::endl;
           #endif
@@ -238,8 +247,9 @@ module WXRuby3
           #endif
               // set standard App name
               this->SetAppName(wxString("wxruby"));
-              // Signal that we're started
-              rb_gv_set("__wx_app_ended__", Qfalse);
+              // Signal that we've started              
+              wxRubyApp::instance_ = this; // there should ALWAYS EVER be only 1 app instance running/created
+              this->is_running_ = true;
               // Set up the GDI objects
               Init_wxRubyStockObjects();
               // Get the ruby representation of the App object, and call the
@@ -252,7 +262,8 @@ module WXRuby3
               // which will make wxWidgets exit.
               if ( result == Qfalse || result == Qnil )
               {
-                rb_gv_set("__wx_app_ended__", Qtrue); // Don't do any more GC
+                wxRubyApp::instance_ = 0;
+                this->is_running_ = false;
                 return false;
               }
               else
@@ -296,7 +307,8 @@ module WXRuby3
           #endif
               // Note in a global variable that the App has ended, so that we
               // can skip any GC marking later
-              rb_gv_set("__wx_app_ended__", Qtrue);
+              wxRubyApp::instance_ = 0;
+              this->is_running_ = false;
       
               // if a Ruby implemented logger has been installed clean that up
               // before we exit, otherwise let wxWidgets handle things
@@ -318,6 +330,12 @@ module WXRuby3
               }
             }
           };
+          wxRubyApp* wxRubyApp::instance_ = 0;
+
+          WXRUBY_EXPORT bool wxRuby_IsAppRunning()
+          {
+            return wxRubyApp::GetInstance() != 0 && wxRubyApp::GetInstance()->IsRunning();  
+          }
           __HEREDOC
         super
       end

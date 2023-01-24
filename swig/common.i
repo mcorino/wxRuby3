@@ -109,6 +109,8 @@ struct wxrb_flag
 #error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
 #endif
 
+WXRUBY_EXPORT bool wxRuby_IsAppRunning();
+
 WXRUBY_EXPORT VALUE wxRuby_GetTopLevelWindowClass(); // used for wxWindow typemap in typemap.i
 WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr);
 
