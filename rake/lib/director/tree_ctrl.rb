@@ -394,7 +394,7 @@ module WXRuby3
             update_header do |line|
               if line.strip == 'public:'
                 line << "\nSwigDirector_wxTreeCtrl() {};"
-              elsif line.strip == '};'
+              elsif /\A};/ =~ line
                 line = <<~__HEREDOC
                   private:
                   DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
