@@ -59,33 +59,41 @@ module WXRuby3
         unless Config.instance.wx_abi_version >= '3.2.1' || Config.instance.wx_version < '3.2.1'
           spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
         end
-        spec.extend_interface('wxApp', 'int main_loop ()')
-        spec.extend_interface('wxApp', 'void _wxRuby_Cleanup()')
-        spec.extend_interface('wxApp', 'bool IsRunning() const')
+        spec.add_extend_code 'wxApp', <<~__HEREDOC
+          int main_loop()
+          {
+            return dynamic_cast<wxRubyApp*>(self)->main_loop();
+          }
+          void _wxRuby_Cleanup()
+          {
+            dynamic_cast<wxRubyApp*>(self)->_wxRuby_Cleanup();
+          }
+          bool IsRunning() const
+          {
+            return dynamic_cast<const wxRubyApp*>(self)->IsRunning();
+          }
+          __HEREDOC
         spec.ignore [
           'wxEntry(int &,wxChar **)',
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
         ]
         spec.no_proxy %w{
-          wxRubyApp::GetDisplayMode
-          wxRubyApp::GetTopWindow
+          wxApp::GetDisplayMode
+          wxApp::GetTopWindow
         }
         spec.include %w{
           wx/init.h
           wx/display.h
         }
         spec.gc_never
-        spec.rename_class('wxApp', 'wxRubyApp')
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxApp', 'wxRubyApp')
         spec.add_swig_code <<~__HEREDOC
-          // The App class in wxRuby is actually a custom-written subclass, but it
-          // is presented to the user as Wx::App
-          %rename(App) wxRubyApp;
-          
           // Leave GC type at GC_NEVER but add a custom marker.
           // Prevents the App being destroyed prematurely when Ruby exits down with
           // an exception. Otherwise GC destroys the C++ object, which can still
           // be needed for final WxWidgets events.
-          %markfunc wxRubyApp "wxRubyApp::mark_wxRubyApp";
+          %markfunc wxApp "wxRubyApp::mark_wxRubyApp";
           __HEREDOC
         spec.add_header_code <<~__HEREDOC
           extern void GC_SetWindowDeleted(void*);

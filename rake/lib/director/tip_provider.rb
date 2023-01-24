@@ -22,12 +22,17 @@ module WXRuby3
             void SetCurrentTip(size_t currentTip) { m_currentTip = currentTip; }
           };
           __HEREDOC
-        # make wxRubyTipProvider known in Ruby as wxTipProvider
-        spec.add_swig_code '%rename(wxTipProvider) wxRubyTipProvider;'
-        # but generate from interface wxRubyTipProvider
-        spec.rename_class('wxTipProvider', 'wxRubyTipProvider')
-        # add setter to class def
-        spec.extend_interface('wxTipProvider', 'void SetCurrentTip(size_t currentTip)')
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxTipProvider', 'wxRubyTipProvider')
+        # add setter to class wrapper
+        spec.add_extend_code 'wxTipProvider', <<~__HEREDOC
+          void SetCurrentTip(size_t currentTip)
+          {
+            wxRubyTipProvider* rtp = dynamic_cast<wxRubyTipProvider*> (self);
+            if (rtp) rtp->SetCurrentTip(currentTip);
+          }
+          __HEREDOC
+        spec.add_swig_code '%alias wxTipProvider::SetCurrentTip "current_tip=";'
         # make Ruby object responsible for returned C++ tip provider
         spec.new_object 'wxCreateFileTipProvider'
         super

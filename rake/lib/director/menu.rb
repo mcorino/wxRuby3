@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         spec.gc_never
         spec.ignore 'wxMenu::wxMenu(long)'
-        spec.no_proxy 'wxRubyMenu'  # do not support derived wxMenu classes
+        spec.no_proxy 'wxMenu'  # do not support derived wxMenu classes
         spec.add_header_code <<~__HEREDOC
           // Custom subclass implementation. 
           // Provides proper support for Ruby GC in destructor.
@@ -28,13 +28,11 @@ module WXRuby3
             }
           };
         __HEREDOC
-        # make wxRubyMenu known in Ruby as wxMenu
-        spec.add_swig_code '%rename(wxMenu) wxRubyMenu;'
-        # but generate from interface wxRubyMenu
-        spec.rename_class('wxMenu', 'wxRubyMenu')
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxMenu', 'wxRubyMenu')
         spec.rename_for_ruby(
           'AppendItem' =>
-            'wxRubyMenu::Append(wxMenuItem *item)')
+            'wxMenu::Append(wxMenuItem *item)')
         # ignore non-const version as that has no benefits in Ruby
         spec.ignore 'wxMenu::GetMenuItems()'
         # Fix for GetMenuItems - converts list of MenuItems to Array
@@ -79,7 +77,7 @@ module WXRuby3
           __HEREDOC
         # fix SWIG's problems with const& return value
         spec.ignore('wxMenu::GetTitle', ignore_doc: false) # keep doc
-        spec.add_extend_code 'wxRubyMenu', <<~__HEREDOC
+        spec.add_extend_code 'wxMenu', <<~__HEREDOC
           wxString* GetTitle() const {
             wxString const& title = $self->GetTitle();
             return &const_cast<wxString&> (title);

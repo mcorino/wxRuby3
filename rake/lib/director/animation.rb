@@ -15,13 +15,13 @@ module WXRuby3
         super
         spec.items << 'wxAnimationDecoder'
         spec.gc_as_refcounted 'wxAnimationDecoder'
-        spec.rename_for_ruby('wxAnimationDecoder' => 'wxRubyAnimationDecoder')
-        spec.rename_class('wxAnimationDecoder', 'wxRubyAnimationDecoder')
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxAnimationDecoder', 'wxRubyAnimationDecoder')
         spec.regard 'wxAnimationDecoder::DoCanRead'
         spec.override_inheritance_chain('wxAnimationDecoder', [])
         spec.new_object 'wxAnimationDecoder::Clone'
-        spec.suppress_warning(473, 'wxRubyAnimationDecoder::Clone')
-        spec.extend_interface('wxAnimationDecoder', 'virtual ~wxRubyAnimationDecoder ();')
+        spec.suppress_warning(473, 'wxAnimationDecoder::Clone')
+        spec.extend_interface('wxAnimationDecoder', 'virtual ~wxAnimationDecoder ();')
         spec.add_header_code <<~__HEREDOC
           class wxRubyAnimationDecoder : public wxAnimationDecoder
           {

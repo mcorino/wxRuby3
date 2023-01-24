@@ -151,7 +151,6 @@ module WXRuby3
                 spec.override_inheritance_chain(citem, {'wxEvent' => 'wxEvent'}, 'wxObject')
               elsif def_item.hierarchy.has_key?('wxCommandEvent')
                 spec.override_inheritance_chain(citem, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
-                #spec.override_base(citem, 'wxRubyCommandEvent', doc_override: false)
               elsif def_item.hierarchy.has_key?('wxGestureEvent')
                 spec.override_inheritance_chain(citem, {'wxGestureEvent' => 'wxEvents'}, 'wxEvent', 'wxObject')
               elsif def_item.hierarchy.has_key?('wxNotifyEvent')

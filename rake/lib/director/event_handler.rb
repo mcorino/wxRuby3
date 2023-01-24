@@ -347,7 +347,7 @@ module WXRuby3
                 at_director_method = false  # end of update
               end
             elsif /bool\s+SwigDirector_(\w+)::Try(Before|After)\(.*\)\s+{/ =~ line
-              director_wx_class = $1 == 'App' ? 'wxRubyApp' : $1
+              director_wx_class = $1 == 'App' ? 'wxApp' : $1
               director_method_id = $2     # After or Before method?
               at_director_method = true   # we're at a director method to be updated
               director_method_line = 0    # keep track of the method lines

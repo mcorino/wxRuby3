@@ -268,23 +268,6 @@ module WXRuby3
               # all following fixes are applicable only before we reached the
               # Init_ function
 
-              # Fix for TipProvider
-              if core_name == 'TipProvider'
-                if line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyTipProvider/]
-                  line = "// Altered by fixmodule.rb\n" +
-                    line.sub(/"_p_wxRubyTipProvider"/,
-                             '"_p_wxTipProvider"')
-                end
-              end
-              # Fix for Menu
-              if core_name == 'Menu'
-                if line[/\A\s*static\s+swig_type_info\s+_swigt__p_wxRubyMenu/]
-                  line = "// Altered by fixmodule.rb\n" +
-                    line.sub(/"_p_wxRubyMenu"/,
-                             '"_p_wxMenu"')
-                end
-              end
-
               # comment out swig_up because it is defined global in every module
               if (line.index("bool Swig::Director::swig_up"))
                 line = "//" + line
@@ -366,30 +349,6 @@ module WXRuby3
                     "  // Inserted by fixmodule.rb\n" +
                     line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
                              "SWIGTYPE_p_wx\\1Event")
-                end
-              end
-              # Fix for TipProvider - because it is implemented with a custom Ruby
-              # subclass, need to make this subclass SWIG info available under
-              # the normal name "SWIGTYPE_p_wxTipProvider" as it's referenced in
-              # other places.
-              if core_name == 'TipProvider'
-                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyTipProvider/]
-                  line = line +
-                    "  // Inserted by fixmodule.rb\n" +
-                    line.sub(/SWIGTYPE_p_wxRubyTipProvider/,
-                             "SWIGTYPE_p_wxTipProvider")
-                end
-              end
-              # Fix for Menu - because it is implemented with a custom Ruby
-              # subclass, need to make this subclass SWIG info available under
-              # the normal name "SWIGTYPE_p_wxMenu" as it's referenced in
-              # other places.
-              if core_name == 'Menu'
-                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRubyMenu/]
-                  line = line +
-                    "  // Inserted by fixmodule.rb\n" +
-                    line.sub(/SWIGTYPE_p_wxRubyMenu/,
-                             "SWIGTYPE_p_wxMenu")
                 end
               end
 
