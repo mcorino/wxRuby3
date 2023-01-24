@@ -13,13 +13,6 @@ module WXRuby3
 
       def setup
         super
-        # to correctly translate customized inheritance to actual class names
-        spec.rename_class('wxValidator', 'wxRubyValidator')
-        spec.add_header_code <<~__HEREDOC
-            // Make sure C++ compiler knows we mean wxValidator here
-            #define wxRubyValidator wxValidator
-        __HEREDOC
-        spec.override_inheritance_chain('wxTextValidator', {'wxRubyValidator' => 'wxValidator'}, 'wxEvtHandler', 'wxObject')
         spec.no_proxy 'wxTextValidator::Clone'
         spec.new_object 'wxTextValidator::Clone'
         # handle clone mapping

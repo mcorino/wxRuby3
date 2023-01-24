@@ -62,6 +62,10 @@ module WXRuby3
       ifspec.template_class_name(tpl)
     end
 
+    def class_implementation(cls)
+      ifspec.class_implementation(cls)
+    end
+
     def classdef_for_name(name)
       defmod.find(ifspec.classdef_name(name))
     end

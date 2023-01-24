@@ -446,6 +446,65 @@ module WXRuby3
 
       end # class Fixmodule
 
+      # replaces SWIG generated class names used as Director base (if any) and for Ruby 'new' (initialize) function
+      class FixClassImplementation < Processor
+        def run
+          # get the generated (class) items for which an alternate implementation has been registered
+          class_list = def_items.select { |itm| Extractor::ClassDef === itm && itm.name != class_implementation(itm.name) }
+          # create re match list for class names
+          cls_re_txt = class_list.collect { |clsdef| clsdef.name }.join('|')
+          # updating any matching alloc functions in generated SWIG sourcecode
+          # create regexp for 'initialize' wrappers (due to overloads this could be more than one per class)
+          new_re = /_wrap_new_(#{cls_re_txt})\w*\(.*\)/
+          # check if any of the selected classes have a Director proxy enabled
+          if proxies_enabled = class_list.any? { |clsdef| has_proxy?(clsdef) }
+            # create re match list for classes with director proxy enabled
+            dir_cls_re_txt = class_list.select { |clsdef| has_proxy?(clsdef) }.collect { |cd| cd.name }.join('|')
+            # create regexp for Director constructors (may not exist if no proxies are enabled)
+            dir_ctor_re = /SwigDirector_\w+::SwigDirector_\w+\(.*\)\s*:\s*(#{dir_cls_re_txt})\(.*\)\s*,\s*Swig::Director.*{/
+          end
+          found_new = false
+          cpp_class = nil
+          cpp_new_re = nil
+          update_source do |line|
+            if found_new # inside 'initialize' wrapper?
+              if cpp_new_re =~ line # at C++ allocation of class instance?
+                # replace with the registered implementation class
+                line.sub!(/new\s+#{cpp_class}\(/, "new #{class_implementation(cpp_class)}(")
+                found_new = false # only 1 line will match per wrapper function so stop matching
+              elsif /\A}/ =~ line # end of wrapper function?
+                # stop matching (in case of overloads there will be one matching wrapper function
+                # that does no actual allocation but just acts as a front for the overload wrappers)
+                found_new = false
+              end
+            elsif new_re =~ line # are we at an 'initialize' wrapper?
+              found_new = true
+              cpp_class = $1
+              cpp_new_re = /new\s+#{cpp_class}\(.*\)/ # regexp for C++ new expression for this specific class
+            elsif proxies_enabled && dir_ctor_re =~ line # at director ctor?
+              # replace base class name by implementation name
+              cpp_class = $1
+              line.sub!(/:\s*#{cpp_class}\(/, ": #{class_implementation(cpp_class)}(")
+            end
+            line
+          end
+          # check if any of the selected classes have a Director proxy enabled
+          if proxies_enabled
+            # if so, we also need to update the header code (Director class declaration)
+            # create regexp for 'initialize' wrappers (due to overloads this could be more than one per class)
+            dir_re = /class\s+SwigDirector_\w+\s*:\s*public\s+(#{dir_cls_re_txt})\s*,\s*public\s+Swig::Director\s*{/
+            update_header do |line|
+              if dir_re =~ line # at Director class declaration?
+                # replace base class name by implementation name
+                cpp_class = $1
+                line.sub!(/public\s+#{cpp_class}/, "public #{class_implementation(cpp_class)}")
+              end
+              line
+            end
+          end
+        end
+      end
+
     end # class Processor
 
   end # module SwigRunner

@@ -12,12 +12,9 @@ module WXRuby3
     class Validator < EvtHandler
 
       def setup
-        # make SWIG consider the wxRuby version
-        spec.rename_class('wxValidator', 'wxRubyValidator')
-        # but make sure to provide it as 'Validator' in Ruby
-        spec.rename_for_ruby('wxValidator' => 'wxRubyValidator')
-        # call super AFTER the renames
         super
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxValidator', 'wxRubyValidator')
         # provide custom wxRuby derivative of validator
         spec.add_header_code <<~__HEREDOC
           class wxRubyValidator : public wxValidator

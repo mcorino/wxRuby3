@@ -37,6 +37,7 @@ module WXRuby3
                 else
                   modname[0].upcase << modname[1,modname.size-1]
                 end
+        @class_implementations = ::Hash.new
         @class_renames = ::Hash.new
         @inheritance_overrides = ::Hash.new
         @templates_as_class = ::Hash.new
@@ -85,6 +86,16 @@ module WXRuby3
 
       def interface_file
         @interface_file || File.join(Config.instance.classes_path, @name + '.i')
+      end
+
+      def use_class_implementation(cls, impl)
+        @class_implementations[cls] = impl
+        @post_processors << :fix_class_implementation unless @post_processors.include?(:fix_class_implementation)
+        self
+      end
+
+      def class_implementation(cls)
+        @class_implementations[cls] || cls
       end
 
       def use_template_as_class(tpl, cls)
