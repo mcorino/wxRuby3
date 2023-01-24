@@ -97,7 +97,7 @@ class MyArtProvider < Wx::ArtProvider
         end
       end
       if bmp
-        @log.write_text("MyArtProvider: providing #{artid}:#{client} at #{size.x}x#{size.y}")
+        @log.write_text("MyArtProvider: providing #{artid}:#{client} at #{size.width}x#{size.height}")
       end
       bmp
     end
