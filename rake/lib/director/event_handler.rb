@@ -328,7 +328,7 @@ module WXRuby3
 
           prev_line = nil
 
-          update_source(at_end: ->(out){ out.puts prev_line if prev_line }) do |out, line|
+          update_source(at_end: ->(){ prev_line }) do |line|
             if at_director_method
               director_method_line += 1   # update line counter
               if director_method_line == 4 && line.strip.empty?   # are we at the right spot?
@@ -353,8 +353,9 @@ module WXRuby3
               director_method_line = 0    # keep track of the method lines
             end
 
-            out.puts(prev_line) if prev_line
+            result = prev_line
             prev_line = line
+            result
           end
         end
 

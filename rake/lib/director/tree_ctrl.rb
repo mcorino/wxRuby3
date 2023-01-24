@@ -375,7 +375,7 @@ module WXRuby3
 
         def run
           director_found = false
-          update_source do |out, line|
+          update_source do |line|
             # Ugly: special fixes for TreeCtrl - these macros and extra funcs
             # are needed to allow user-defined sorting to work
             # default ctor needed for Swig::Director
@@ -387,11 +387,11 @@ module WXRuby3
               director_found = true
             end
 
-            out.puts(line)
+            line
           end
           if director_found
             # We also need to tweak the header file
-            update_header do |out, line|
+            update_header do |line|
               if line.strip == 'public:'
                 line << "\nSwigDirector_wxTreeCtrl() {};"
               elsif line.strip == '};'
@@ -401,7 +401,7 @@ module WXRuby3
                   };
                   __HEREDOC
               end
-              out.puts(line)
+              line
             end
           end
         end

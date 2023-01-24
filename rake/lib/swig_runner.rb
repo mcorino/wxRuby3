@@ -73,24 +73,70 @@ module WXRuby3
     end
 
     def self.process(director)
-      target = File.join(config.src_path, '.generate', File.basename(director.spec.interface_file, '.i'))
-      target_src = target+'.cpp'
-      target_h = target+'.h'
-      begin
-        # run SWIG to generate the C++ wrapper code
-        run_swig(director.spec.interface_file, target_src)
-        # run the post processors to update the generated C++ code
-        director.spec.post_processors.each { |pp| Processor.run(pp, director, target) }
+      target = Target.new(director.spec.interface_file)
+      # run SWIG to generate the C++ wrapper code
+      run_swig(director.spec.interface_file, target.source_path)
+      # run the post processors to update the generated C++ code
+      director.spec.post_processors.each { |pp| Processor.run(pp, director, target) }
+      # commit the post processed code
+      target.commit
+    end
+
+    class Target
+      def initialize(interface_path)
+        @target = File.join(config.src_path, '.generate', File.basename(interface_path, '.i'))
+        @source_path = @target+'.cpp'
+        @header_path = @target+'.h'
+        # remove any stale files
+        FileUtils.rm_f(@source_path) if File.exist?(@source_path)
+        FileUtils.rm_f(@header_path) if File.exist?(@header_path)
+        @source = nil
+        @header = nil
+      end
+
+      attr_reader :source_path, :header_path
+
+      private def config
+        Config.instance
+      end
+
+      def source
+        unless @source
+          @source = File.readlines(source_path, chomp: true)
+        end
+        @source
+      end
+
+      def header
+        unless @header
+          @header = File.readlines(header_path, chomp: true)
+        end
+        @header
+      end
+
+      def commit
+        # update the generated C++ code with the post processed code
+        Stream.transaction do
+          if @source
+            out = CodeStream.new(source_path)
+            out.puts(@source)
+          end
+          if @header
+            out = CodeStream.new(header_path)
+            out.puts(@header)
+          end
+        end
         # relocate the finalized C++ code
-        final_tgt_src = File.join(config.src_path, File.basename(target_src))
-        final_tgt_h = File.join(config.src_path, File.basename(target_h))
+        final_tgt_src = File.join(config.src_path, File.basename(source_path))
+        final_tgt_h = File.join(config.src_path, File.basename(header_path))
         (FileUtils.rm_f(final_tgt_src) if File.exist?(final_tgt_src)) rescue nil
         (FileUtils.rm_f(final_tgt_h) if File.exist?(final_tgt_h)) rescue nil
-        FileUtils.mv(target_src, final_tgt_src)
-        FileUtils.mv(target_h, final_tgt_h)
-      ensure
-        FileUtils.rm_f(target_src) if File.exist?(target_src)
-        FileUtils.rm_f(target_h) if File.exist?(target_h)
+        FileUtils.mv(header_path, final_tgt_h)
+        FileUtils.mv(source_path, final_tgt_src)
+      end
+
+      def to_s
+        @target
       end
     end
 
@@ -107,41 +153,27 @@ module WXRuby3
 
       protected
 
-      def target_src
-        @target + '.cpp'
+      def collect_result(o)
+        [o].flatten.compact.collect { |s| s.split("\n") }
       end
 
-      def target_hdr
-        @target + '.h'
-      end
-
-      def update_file(path, at_begin: nil, at_end: nil, &block)
-        Stream.transaction do
-          out = CodeStream.new(path)
-          if at_begin
-            if ::Proc === at_begin
-              at_begin.call(out)
-            else
-              out.puts at_begin.to_s
-            end
-          end
-          File.foreach(path, chomp: true) { |line| block.call(out, line) }
-          if at_end
-            if ::Proc === at_end
-              at_end.call(out)
-            else
-              out.puts at_end.to_s
-            end
-          end
-        end
+      def update_lines(lines, at_begin: nil, at_end: nil, &block)
+        result = []
+        result << collect_result(::Proc === at_begin ? at_begin.call : at_begin.to_s) if at_begin
+        lines.each { |line| result << collect_result(block.call(line)) }
+        result << collect_result(::Proc === at_end ? at_end.call : at_end.to_s) if at_end
+        result.flatten! # flatten final results
+        result
       end
 
       def update_source(at_begin: nil, at_end: nil, &block)
-        update_file(target_src, at_begin: at_begin, at_end: at_end, &block)
+        result = update_lines(@target.source, at_begin: at_begin, at_end: at_end, &block)
+        @target.source.replace(result)
       end
 
       def update_header(at_begin: nil, at_end: nil, &block)
-        update_file(target_hdr, at_begin: at_begin, at_end: at_end, &block)
+        result = update_lines(@target.header, at_begin: at_begin, at_end: at_end, &block)
+        @target.header.replace(result)
       end
 
       public
@@ -161,7 +193,7 @@ module WXRuby3
 
       class Rename < Processor
         def run
-          update_source do |out, line|
+          update_source do |line|
             case line
               # defined method names
             when /(rb_define_method|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
@@ -195,7 +227,7 @@ module WXRuby3
                 line[name] = '"%s"' % rb_method_name(name[1..-2])
               end
             end
-            out.puts(line)
+            line
           end
         end
       end # class Rename
@@ -231,7 +263,7 @@ module WXRuby3
 
           found_init = false
 
-          update_source do |out, line|
+          update_source do |line|
             if !found_init
               # all following fixes are applicable only before we reached the
               # Init_ function
@@ -408,7 +440,7 @@ module WXRuby3
               end
             end
 
-            out.puts(line)
+            line
           end
         end
 

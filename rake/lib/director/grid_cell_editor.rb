@@ -234,16 +234,17 @@ module WXRuby3
           skip_lines = false
           helpers_added = false
 
-          update_source do |fout, line|
+          update_source do |line|
             if skip_lines
               if /\A}\s*\Z/ =~ line
                 skip_lines = false
+              else
+                line = nil
               end
             elsif line["wxGridActivationResult SwigDirector_#{module_name}::TryActivate("]
               skip_lines = true
               # append new method implementation
-              fout.puts line
-              fout.puts <<~__METHOD__
+              line << <<~__METHOD__
                 VALUE obj0 = Qnil ;
                 VALUE obj1 = Qnil ;
                 VALUE obj2 = Qnil ;
@@ -259,13 +260,12 @@ module WXRuby3
                 __METHOD__
             elsif !helpers_added && line["SwigDirector_#{module_name}::SwigDirector_#{module_name}(VALUE self"]
               # insert helper methods
-              fout.puts Director::GridCellEditor::WRAPPER_HELPERS
+              line = [Director::GridCellEditor::WRAPPER_HELPERS, line]
               helpers_added = true
             elsif line["_wrap_#{module_name}_TryActivate(int argc, VALUE *argv, VALUE self) {"]
               skip_lines = true
               # append new method implementation
-              fout.puts line
-              fout.puts <<~__METHOD__
+              line << <<~__METHOD__
                   #{module_name} *arg1 = (#{module_name} *) 0 ;
                   int arg2 ;
                   int arg3 ;
@@ -329,7 +329,7 @@ module WXRuby3
               __METHOD__
             end
 
-            fout.puts line unless skip_lines
+            line
           end
         end
 
