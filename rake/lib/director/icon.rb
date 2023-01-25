@@ -10,6 +10,7 @@ module WXRuby3
     class Icon < Director
 
       def setup
+        spec.items << 'wxIconBundle'
         spec.disable_proxies
         # disable as there is no way to distinguish char*/[] from wxString in Ruby
         # and anyway there is no real benefit compared to loading XPM by filename
@@ -18,6 +19,7 @@ module WXRuby3
         spec.ignore('wxIcon::ConvertToDisabled')
         unless Config.platform == :mingw
           spec.override_inheritance_chain('wxIcon', %w[wxBitmap wxGDIObject wxObject])
+          spec.ignore 'wxIconBundle::wxIconBundle(const wxString &, WXHINSTANCE)'
         end
         super
       end
