@@ -44,7 +44,7 @@ module WXRuby3
               $1 = size;
               $2 = arr;
               __CODE
-            map_freearg code: 'delete $2;'
+            map_freearg code: 'delete[]($2);'
           end
           # handled; can be suppressed
           spec.suppress_warning(473,

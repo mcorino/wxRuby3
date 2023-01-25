@@ -24,7 +24,7 @@ module WXRuby3
             for ( size_t i = 0; i < 7; i++ )
               ($1)[i] = NUM2INT(rb_ary_entry($input, i));
           __CODE
-          map_freearg code: 'if ($1) delete($1);'
+          map_freearg code: 'if ($1) delete[]($1);'
         end
         spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
