@@ -95,10 +95,10 @@ class TestDataObjectComposite < Test::Unit::TestCase
     end
 
     if Wx::PLATFORM == 'WXMSW'
-      assert_equal d_obj.received_format, Wx::DF_DIB
+      assert_equal d_obj.received_format.get_type, Wx::DF_DIB.get_type
       d_bmp = d_obj.get_object(Wx::DF_DIB)
     else
-      assert_equal d_obj.received_format, Wx::DF_BITMAP
+      assert_equal d_obj.received_format.get_type, Wx::DF_BITMAP.get_type
       d_bmp = d_obj.get_object(Wx::DF_BITMAP)
     end
     bmp_out = d_bmp.bitmap
@@ -125,7 +125,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.fetch d_obj_2
     end
 
-    assert_equal d_obj_2.received_format, d_txt.get_preferred_format(Wx::DataObject::Direction::Set)
+    assert_equal d_obj_2.received_format.get_type, d_txt.get_preferred_format(Wx::DataObject::Direction::Set).get_type
     if Wx::PLATFORM == 'WXMSW'
       d_txt = d_obj_2.get_object(Wx::DF_UNICODETEXT)
     else
