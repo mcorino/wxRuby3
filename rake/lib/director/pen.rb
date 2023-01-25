@@ -75,7 +75,9 @@ module WXRuby3
           map_out code: '$result = self; wxUnusedVar($1);'
         end
         # these are defined and loaded in RubyStockObjects.i
-        spec.do_not_generate :variables
+        spec.ignore %w[
+          wxRED_PEN wxBLUE_PEN wxCYAN_PEN wxGREEN_PEN wxYELLOW_PEN wxBLACK_PEN wxWHITE_PEN
+          wxTRANSPARENT_PEN wxBLACK_DASHED_PEN wxGREY_PEN wxMEDIUM_GREY_PEN wxLIGHT_GREY_PEN wxThePenList]
       end
     end # class Pen
 

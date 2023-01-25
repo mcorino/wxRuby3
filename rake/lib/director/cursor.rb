@@ -11,7 +11,8 @@ module WXRuby3
 
       def setup
         spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[])'
-        spec.do_not_generate(%i[variables enums defines])
+        # ignore stock object (see RubyStockObjects.i)
+        spec.ignore %w[wxSTANDARD_CURSOR wxHOURGLASS_CURSOR wxCROSS_CURSOR]
         super
       end
     end # class Cursor

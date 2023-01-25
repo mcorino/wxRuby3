@@ -231,6 +231,18 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 }
 %}
 
+#ifdef __WXRB_DEBUG__
+%constant const bool wxRB_DEBUG = true;
+#else
+%constant const bool wxRB_DEBUG = false;
+#endif
+
+#ifdef __WXRB_TRACE__
+%constant const bool wxRB_TRACE = true;
+#else
+%constant const bool wxRB_TRACE = false;
+#endif
+
 %include "mark_free_impl.i"
 
 %init %{

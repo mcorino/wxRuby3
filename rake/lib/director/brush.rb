@@ -12,7 +12,10 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
-        spec.do_not_generate :variables
+        # these are defined and loaded in RubyStockObjects.i
+        spec.ignore %w[
+          wxBLUE_BRUSH wxGREEN_BRUSH wxYELLOW_BRUSH wxWHITE_BRUSH wxBLACK_BRUSH wxGREY_BRUSH
+          wxMEDIUM_GREY_BRUSH wxLIGHT_GREY_BRUSH wxTRANSPARENT_BRUSH wxCYAN_BRUSH wxRED_BRUSH wxTheBrushList]
       end
     end # class Brush
 
