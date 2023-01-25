@@ -31,11 +31,11 @@ module WXRuby3
             }
             __CODE
         end
-        # For SetStatusWidths
-        spec.map 'int n, int *widths' do
+        # For SetStatusWidths, SetStatusStyles
+        spec.map 'int n, const int *widths_field', 'int n, const int *styles' do
           map_in from: {type: 'Array<Integer>', index: 1},
                  temp: 'int *arr', code: <<~__CODE
-            if (($input == Qnil) || (TYPE($input) != T_ARRAY))
+            if (($input == Qnil) || (TYPE($input) != T_ARRAY) || (RARRAY_LEN($input) == 0))
             {
               $1 = 0;
               $2 = NULL;
@@ -55,6 +55,31 @@ module WXRuby3
             if ($2 != NULL)
               delete [] $2;
             __CODE
+        end
+        # SetFieldsCount
+        spec.map 'int number, const int *widths' do
+          map_in from: {type: 'Array<Integer>', index: 1},
+                 temp: 'int *arr', code: <<~__CODE
+            if (($input == Qnil) || (TYPE($input) != T_ARRAY) || (RARRAY_LEN($input) == 0))
+            {
+              $1 = 1;
+              $2 = NULL;
+            }
+            else
+            {
+              arr = new int[ RARRAY_LEN($input) ];
+              for (int i = 0; i < RARRAY_LEN($input); i++)
+              {
+                  arr[i] = NUM2INT(rb_ary_entry($input,i));
+              }
+              $1 = RARRAY_LEN($input);
+              $2 = arr;
+            }
+          __CODE
+          map_freearg code: <<~__CODE
+            if ($2 != NULL)
+              delete [] $2;
+          __CODE
         end
       end
     end # class StatusBar
