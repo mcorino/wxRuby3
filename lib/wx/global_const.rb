@@ -14,15 +14,16 @@ module WxGlobalConstants
           if cv < Wx::Enum
             # the only thing of interest in Enum classes are the enum values
             const_val = cv[sym]
-          else
+          elsif cv.name.start_with?('Wx::') # only search Wx namespace
             # prevent const_missing being triggered here since that may lead to unexpected results
             const_val = cv.const_get(sym) if cv.constants.include?(sym)
             const_val = search_nested(cv, sym) unless const_val
-
           end
         when ::Module
-          const_val = cv.const_get(sym) rescue nil
-        end
+          if cv.name.start_with?('Wx::') # only search Wx namespace
+            const_val = cv.const_get(sym) rescue nil
+          end
+        end unless mod == cv # watch out for infinite recursion
         break if const_val
       end
       const_val
