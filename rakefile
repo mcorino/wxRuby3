@@ -126,6 +126,12 @@ if $config.has_wxwidgets_xml?
     tests = args.extras - [':nodep']
     $config.test *tests
   end
+
+  desc 'Run IRB for wxRuby'
+  task :irb do |t,args|
+    Rake::Task[:default].invoke unless args.extras.include? ':nodep'
+    $config.irb
+  end
 else
   desc "Bootstrap the wxRuby3 build environment"
   task :bootstrap do

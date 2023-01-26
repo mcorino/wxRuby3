@@ -62,6 +62,11 @@ module WXRuby3
       end
     end
 
+    def irb(**options)
+      irbcmd = File.join(File.dirname(FileUtils::RUBY), 'irb')
+      Rake.sh(Config.instance.exec_env, *[FileUtils::RUBY, '-I', "#{File.join(Config.wxruby_root, 'lib')}", '-x', irbcmd], **options)
+    end
+
     attr_reader :configuration
 
     def memcheck(*args, **options)
