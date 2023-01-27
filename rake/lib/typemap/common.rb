@@ -156,7 +156,11 @@ module WXRuby3
         map 'void*' => 'Object' do
           map_in code: '$1 = (void*)($input);'
           map_out code: '$result = (VALUE)($1);'
-          map_typecheck precedence: 'POINTER', code: '$1 = TRUE;'
+          # void* should only be considered after everything else does not match
+          # since for Ruby the precedence for bool is set to 10000 make it 20000
+          # (have to be careful when bool is matched alongside void* though since
+          #  the check considers values the Ruby way for bool, i.e. anything matches a bool)
+          map_typecheck precedence: 20000, code: '$1 = TRUE;'
         end
 
         # Typemaps for wxSize and wxPoint as input parameters; for brevity,
