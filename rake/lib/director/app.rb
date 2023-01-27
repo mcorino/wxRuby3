@@ -99,6 +99,7 @@ module WXRuby3
           extern void GC_SetWindowDeleted(void*);
           extern "C" void Init_wxRubyStockObjects();
           extern void wxRuby_MarkProtectedEvtHandlerProcs();
+          extern void wxRuby_markRbValueVariants();
           
           class wxRubyApp : public wxApp
           {
@@ -195,6 +196,9 @@ module WXRuby3
               // Mark evt handler procs associated with live windows - see
               // classes/EvtHandler.i
               wxRuby_MarkProtectedEvtHandlerProcs();
+
+              // Mark Ruby VALUE-s associated with live Variants 
+              wxRuby_markRbValueVariants();
           
               // To do the main marking, primarily of Windows, iterate over SWIG's
               // list of tracked objects

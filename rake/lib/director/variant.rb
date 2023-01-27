@@ -17,6 +17,49 @@ module WXRuby3
         # so we do not need tracking or special free function
         spec.gc_as_temporary 'wxVariant'
         spec.disable_proxies
+        spec.ignore 'wxVariant::Convert' # troublesome overloads in Ruby
+        # need type checks to prevent clashing with Time
+        spec.map 'const wxVariant&' do
+          map_typecheck precedence: 1, code: <<~__CODE
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Variant")));
+            __CODE
+        end
+        spec.map 'wxObject*' do
+          map_typecheck precedence: 2, code: <<~__CODE
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Object")));
+          __CODE
+        end
+        if Config.instance.features_set?('wxUSE_LONGLONG')
+          # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
+          spec.map 'wxLongLong' => 'Integer' do
+            map_in code: <<~__CODE
+              wxLongLong_t ll = rb_big2ll($input);
+              $1 = ll;
+              __CODE
+            map_out code: <<~__CODE
+              $result = LL2NUM($1.GetValue());
+              __CODE
+            # only map to wxLongLong if size of long is less than 64bit and a bignum given otherwise leave it to long mapping
+            map_typecheck precedence: 10, code: '$1 = (sizeof(long) < 8) && (TYPE($input) == T_BIGNUM);'
+          end
+          # wxULongLong mapping to be considered after considering wxLongLong and 'long' (see typecheck precedence)
+          spec.map 'wxULongLong' => 'Integer' do
+            map_in code: <<~__CODE
+              wxULongLong_t ull = TYPE($input) == T_FIXNUM ? NUM2ULL($input) : rb_big2ull($input);
+              $1 = ull;
+            __CODE
+            map_out code: <<~__CODE
+              $result = ULL2NUM($1.GetValue());
+            __CODE
+            # only map to wxULongLong if integer specified
+            map_typecheck precedence: 69, code: '$1 = (TYPE($input) == T_FIXNUM || TYPE($input) == T_BIGNUM);'
+          end
+        else
+          spec.ignore 'wxVariant::wxVariant(wxLongLong, const wxString &)',
+                      'wxVariant::wxVariant(wxULongLong, const wxString &)',
+                      'wxVariant::operator ==(wxLongLong)',
+                      'wxVariant::operator ==(wxULongLong)'
+        end
         # wxRuby does not support wxAny
         spec.ignore 'wxVariant::wxVariant(const wxAny&)',
                     'wxVariant::GetAny'
@@ -45,6 +88,7 @@ module WXRuby3
           }
           __HEREDOC
         spec.rename_for_ruby 'GetObject' => 'wxVariant::GetVoidPtr'
+        spec.rename_for_ruby 'GetWxObject' => 'wxVariant::GetWxObjectPtr'
         # override typecheck for bool to differentiate from void*
         spec.map 'bool' do
           # strict bool checking here
@@ -90,8 +134,8 @@ module WXRuby3
             __CODE
           map_typecheck precedence: 'OBJECT_ARRAY',
                         code: <<~__CODE
-            $1 = ((TYPE($input) == T_ARRAY) && 
-                  ((RARRAY_LEN($input) == 0) || rb_obj_is_kind_of(rb_ary_entry($input, 0), rb_const_get(mWxCore, rb_intern("Variant")))));
+                          $1 = ((TYPE($input) == T_ARRAY) && 
+                                ((RARRAY_LEN($input) == 0) || rb_obj_is_kind_of(rb_ary_entry($input, 0), rb_const_get(mWxCore, rb_intern("Variant")))));
             __CODE
         end
         # do not expose wxVariantData (not really useful in Ruby)
@@ -101,11 +145,28 @@ module WXRuby3
         # instead provide a custom wxVariantData implementation for Ruby VALUE
         # and some interface extensions to use that from Ruby
         spec.add_header_code <<~__HEREDOC
+          class WXRBValueVariantData;
+          // Mapping of WXRBValueVariantData* to Ruby VALUE
+          WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
+                                      WXRBVariantDataToRbValueHash);
+          WXRBVariantDataToRbValueHash Variant_Value_Map;
+
+          extern void wxRuby_markRbValueVariants()
+          {
+            WXRBVariantDataToRbValueHash::iterator it;
+            for( it = Variant_Value_Map.begin(); it != Variant_Value_Map.end(); ++it )
+            {
+              VALUE obj = it->second;
+              rb_gc_mark(obj);
+            }
+          }
+
           class WXRUBY_EXPORT WXRBValueVariantData : public wxVariantData
           {
           public:
               WXRBValueVariantData() : m_value(Qnil) { }
-              WXRBValueVariantData(VALUE rbval) : m_value(rbval) {}
+              WXRBValueVariantData(VALUE rbval) : m_value(rbval) { Variant_Value_Map[this] = rbval; }
+              virtual ~WXRBValueVariantData() { Variant_Value_Map.erase(this); }
           
               VALUE GetValue() { return m_value; }
 
