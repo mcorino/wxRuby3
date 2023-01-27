@@ -74,7 +74,8 @@ module WXRuby3
               VALUE h   = INT2NUM(wxdt->GetHour());
               VALUE min = INT2NUM(wxdt->GetMinute());
               VALUE s   = INT2NUM(wxdt->GetSecond());
-              return rb_funcall(rb_cTime, __wxrb_local(), 6, y, mon, d, h, min, s);
+              VALUE us  = INT2NUM(wxdt->GetMillisecond()*1000);
+              return rb_funcall(rb_cTime, __wxrb_local(), 7, y, mon, d, h, min, s, us);
             }
 
             WXRB_EXPORT_FLAG VALUE wxRuby_wxDateTimeToRuby(const wxDateTime& dt)
@@ -121,14 +122,17 @@ module WXRuby3
                     int rHour   = NUM2INT(rb_funcall(ruby_value, rb_intern("hour"), 0));
                     int rMinute = NUM2INT(rb_funcall(ruby_value, rb_intern("min"), 0));
                     int rSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("sec"), 0));
+                    int uSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("usec"), 0));
+                    int mSecond = lround(uSecond / 1000.0);
                 
                     wxDateTime::Month mon        = (wxDateTime::Month)(rMonth-1);
                     wxDateTime::wxDateTime_t d   = (wxDateTime::wxDateTime_t)rDay;
                     wxDateTime::wxDateTime_t h   = (wxDateTime::wxDateTime_t)rHour;
                     wxDateTime::wxDateTime_t min = (wxDateTime::wxDateTime_t)rMinute;
                     wxDateTime::wxDateTime_t s   = (wxDateTime::wxDateTime_t)rSecond;
+                    wxDateTime::wxDateTime_t ms   = (wxDateTime::wxDateTime_t)mSecond;
                     
-                    return new wxDateTime(d, mon, y, h, min, s, 0);
+                    return new wxDateTime(d, mon, y, h, min, s, ms);
                 }
             }
             __HEREDOC
