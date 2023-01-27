@@ -168,6 +168,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxMediaCtrl', requirements: %w[wxUSE_MEDIACTRL])
     Director.Spec(pkg, 'wxXmlNode', requirements: %w[wxUSE_XML])
     Director.Spec(pkg, 'wxXmlResource', requirements: %w[wxUSE_XRC])
+    Director.Spec(pkg, 'wxVariant', requirements: %w[wxUSE_VARIANT])
   }
 
   Director.Package('Wx::Print', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
@@ -260,4 +261,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxAuiMDIChildFrame')
   }
 
+  Director.Package('Wx::PG', 'wxUSE_PROPGRID') { |pkg|
+    Director.Spec(pkg, 'wxPGEditor')
+    Director.Spec(pkg, 'wxPGCell')
+  }
 end # module WXRuby3
