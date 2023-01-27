@@ -57,28 +57,33 @@ module WXRuby3
             __CODE
         end
         # SetFieldsCount
-        spec.map 'int number, const int *widths' do
-          map_in from: {type: 'Array<Integer>', index: 1},
-                 temp: 'int *arr', code: <<~__CODE
-            if (($input == Qnil) || (TYPE($input) != T_ARRAY) || (RARRAY_LEN($input) == 0))
+        spec.map 'const int *widths' => 'Array<Integer>' do
+          map_in temp: 'int *arr', code: <<~__CODE
+            if ($input == Qnil || (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 0))
             {
-              $1 = 1;
-              $2 = NULL;
+              $1 = NULL;
             }
-            else
+            else if (TYPE($input) == T_ARRAY)
             {
+              if (RARRAY_LEN($input) != arg2)
+              {
+                rb_raise(rb_eArgError, "the number of widths does not match the number of fields");
+              }
               arr = new int[ RARRAY_LEN($input) ];
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
                   arr[i] = NUM2INT(rb_ary_entry($input,i));
               }
-              $1 = RARRAY_LEN($input);
-              $2 = arr;
+              $1 = arr;
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "expected integer array for $argnum");
             }
           __CODE
           map_freearg code: <<~__CODE
-            if ($2 != NULL)
-              delete [] $2;
+            if ($1 != NULL)
+              delete [] $1;
           __CODE
         end
       end
