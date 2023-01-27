@@ -13,7 +13,7 @@ class CustomStatusBar < Wx::StatusBar
     attr_reader :timer
     def initialize(parent, log)
         super(parent, -1)
-        set_fields_count(3)
+        set_fields_count(3, [-2,-2,-3])
         @log = log
         @sizeChanged = false
         
