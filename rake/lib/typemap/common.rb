@@ -270,6 +270,13 @@ module WXRuby3
               rb_ary_push($result, WXSTR_TO_RSTR($1->Item(i)));
             }
             __CODE
+          map_directorin code: <<~__CODE
+            $input = rb_ary_new();
+            for (size_t i = 0; i < $1.GetCount(); i++)
+            {
+              rb_ary_push($input, WXSTR_TO_RSTR($1.Item(i)));
+            }
+          __CODE
           map_typecheck precedence: 'STRING_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
@@ -282,26 +289,23 @@ module WXRuby3
                 rb_ary_push($result, WXSTR_TO_RSTR($1.Item(i)));
               }
           __CODE
+          map_directorout code: <<~__CODE
+            if (TYPE($input) != T_ARRAY)
+            {
+              for (int i = 0; i < RARRAY_LEN($input); i++)
+              {
+                VALUE str = rb_ary_entry($input, i);
+                wxString item(StringValuePtr(str), wxConvUTF8);
+                $result.Add(item);
+              }
+            }
+          __CODE
         end
 
         # Array<Integer> <> wxArrayInt/wxArrayInt& type mappings
 
+        # return by value
         map 'wxArrayInt' => 'Array<Integer>' do
-          map_in temp: 'wxArrayInt tmp', code: <<~__CODE
-            if (($input == Qnil) || (TYPE($input) != T_ARRAY))
-            {
-              $1 = &tmp;
-            }
-            else
-            {
-              for (int i = 0; i < RARRAY_LEN($input); i++)
-              {
-                int item = NUM2INT(rb_ary_entry($input,i));
-                tmp.Add(item);
-              }
-              $1 = &tmp;
-            }
-            __CODE
           map_out code: <<~__CODE
             $result = rb_ary_new();
             for (size_t i = 0; i < $1.GetCount(); i++)
@@ -309,9 +313,20 @@ module WXRuby3
               rb_ary_push($result,INT2NUM( $1.Item(i) ) );
             }
             __CODE
+          map_directorout code: <<~__CODE
+            if (TYPE($input) != T_ARRAY)
+            {
+              for (int i = 0; i < RARRAY_LEN($input); i++)
+              {
+                int item = NUM2INT(rb_ary_entry($input,i));
+                $result.Add(item);
+              }
+            }
+            __CODE
           map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
+        # input reference
         map 'wxArrayInt&' => 'Array<Integer>' do
           map_in temp: 'wxArrayInt tmp', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
@@ -328,13 +343,13 @@ module WXRuby3
               $1 = &tmp;
             }
             __CODE
-          map_out code: <<~__CODE
-            $result = rb_ary_new();
-            for (size_t i = 0; i < $1->GetCount(); i++)
+          map_directorin code: <<~__CODE
+            $input = rb_ary_new();
+            for (size_t i = 0; i < $1.GetCount(); i++)
             {
-              rb_ary_push($result,INT2NUM( $1->Item(i) ) );
+              rb_ary_push($input,INT2NUM( $1.Item(i) ) );
             }
-            __CODE
+          __CODE
           map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
