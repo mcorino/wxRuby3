@@ -197,8 +197,10 @@ module WXRuby3
               // classes/EvtHandler.i
               wxRuby_MarkProtectedEvtHandlerProcs();
 
+          #if wxUSE_VARIANT
               // Mark Ruby VALUE-s associated with live Variants 
               wxRuby_markRbValueVariants();
+          #endif
           
               // To do the main marking, primarily of Windows, iterate over SWIG's
               // list of tracked objects

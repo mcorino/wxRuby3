@@ -87,9 +87,8 @@ module WXRuby3
             return (*self)[idx];
           }
           __HEREDOC
-        spec.rename_for_ruby 'GetObject' => 'wxVariant::GetVoidPtr'
         spec.rename_for_ruby 'GetWxObject' => 'wxVariant::GetWxObjectPtr'
-        # override typecheck for bool to differentiate from void*
+        # override typecheck for bool to make it strict
         spec.map 'bool' do
           # strict bool checking here
           map_typecheck precedence: 10000, code: <<~__CODE
@@ -138,11 +137,28 @@ module WXRuby3
                                 ((RARRAY_LEN($input) == 0) || rb_obj_is_kind_of(rb_ary_entry($input, 0), rb_const_get(mWxCore, rb_intern("Variant")))));
             __CODE
         end
-        # do not expose wxVariantData (not really useful in Ruby)
-        spec.ignore 'wxVariant::wxVariant(wxVariantData *, const wxString &)',
-                    'wxVariant::GetData',
-                    'wxVariant::SetData'
-        # instead provide a custom wxVariantData implementation for Ruby VALUE
+        # ignore void* support
+        spec.ignore 'wxVariant::wxVariant(void*, const wxString &)',
+                    'wxVariant::GetVoidPtr'
+        # do not expose (not really useful in Ruby) but map to any Ruby Object-s not matching any other types
+        spec.map 'wxVariantData*' => 'Object' do
+          map_in code: '$1 = new WXRBValueVariantData($input);'
+          map_out code: <<~__CODE
+            if ($1->GetType() == WXRBValueVariantData::type_name_)
+            { 
+              $result = ((WXRBValueVariantData*)$1)->GetValue();
+            }
+            else
+            {
+              $result = Qnil;
+            }
+            __CODE
+          # set precedence to be considered as very last option (like void*)
+          map_typecheck precedence: 20000, code: '$1 = TRUE;'
+        end
+        spec.rename_for_ruby 'GetObject' => 'wxVariant::GetData'
+        spec.ignore 'wxVariant::SetData'
+        # provide a custom wxVariantData implementation for Ruby VALUE
         # and some interface extensions to use that from Ruby
         spec.add_header_code <<~__HEREDOC
           class WXRBValueVariantData;
@@ -164,6 +180,8 @@ module WXRuby3
           class WXRUBY_EXPORT WXRBValueVariantData : public wxVariantData
           {
           public:
+              static wxString type_name_;
+
               WXRBValueVariantData() : m_value(Qnil) { }
               WXRBValueVariantData(VALUE rbval) : m_value(rbval) { Variant_Value_Map[this] = rbval; }
               virtual ~WXRBValueVariantData() { Variant_Value_Map.erase(this); }
@@ -180,7 +198,7 @@ module WXRuby3
           
               virtual wxString GetType() const wxOVERRIDE
               {
-                return wxS("WXRB_VALUE"); 
+                return type_name_; 
               }
 
               virtual wxVariantData* Clone() const wxOVERRIDE 
@@ -202,10 +220,11 @@ module WXRuby3
           protected:
               VALUE m_value;
           };
+          wxString WXRBValueVariantData::type_name_ = wxS("WXRB_VALUE");
 
           WXRUBY_EXPORT VALUE& operator << (VALUE &value, const wxVariant &variant)
           {
-            wxASSERT( variant.GetType() == wxS("WXRB_VALUE"));
+            wxASSERT( variant.GetType() == WXRBValueVariantData::type_name_);
             WXRBValueVariantData *data = (WXRBValueVariantData*) variant.GetData();
             value = data->GetValue();
             return value;
@@ -218,12 +237,6 @@ module WXRuby3
             return variant;
           }
           __HEREDOC
-        # spec.add_extend_code 'wxVariant', <<~__HEREDOC
-        #   wxVariant(VALUE rbval, const wxString &name=wxEmptyString)
-        #   {
-        #
-        #   }
-        #   __HEREDOC
       end
     end # class Variant
 

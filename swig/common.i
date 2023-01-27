@@ -104,6 +104,9 @@ struct wxrb_flag
 
 #include <wx/wx.h>
 #include <wx/dcbuffer.h>
+#if wxUSE_VARIANT
+#include <wx/variant.h>
+#endif
 
 #if ! wxCHECK_VERSION(3,1,5)
 #error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
@@ -141,6 +144,12 @@ WXRUBY_EXPORT VALUE wxRuby_AddEnumValue(VALUE enum_klass, const char* enum_value
 WXRUBY_EXPORT VALUE wxRuby_GetEnumValueObject(const char* enum_wx_class_name_cstr, int enum_val);
 WXRUBY_EXPORT bool wxRuby_GetEnumValue(const char* enum_class_name_cstr, VALUE rb_enum_val, int &c_eval);
 WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val);
+
+#if wxUSE_VARIANT
+// Variant support
+WXRUBY_EXPORT VALUE& operator << (VALUE &value, const wxVariant &variant);
+WXRUBY_EXPORT wxVariant& operator << (wxVariant &variant, const VALUE &value);
+#endif
 %}
 
 %include "typedefs.i"
