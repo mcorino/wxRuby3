@@ -40,9 +40,7 @@ module WXRuby3
 
           map_freearg code: 'if (dtalloc$argnum) delete $1;'
 
-          # Need to have this to over-ride the default which does not work
-          map_typecheck code: '$1 = (TYPE($input) != T_NONE);'
-
+          map_typecheck precedence: 'SWIGOBJECT', code: '$1 = rb_obj_is_kind_of($input, rb_cTime);'
         end
 
         map 'wxDateTime' => 'Time' do
