@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.items.concat %w[wxPGCheckBoxEditor wxPGChoiceEditor wxPGChoiceAndButtonEditor wxPGComboBoxEditor
-                             wxPGTextCtrlEditor wxPGSpinCtrlEditor wxPGTextCtrlAndButtonEditor]
+                             wxPGTextCtrlEditor wxPGSpinCtrlEditor wxPGTextCtrlAndButtonEditor wxPGEditorDialogAdapter]
         spec.includes << 'wx/propgrid/propgriddefs.h'
         # custom class to work around lack of default ctor of wxPGWindowList
         spec.add_header_code <<~__HEREDOC
