@@ -33,14 +33,15 @@ module WXRuby3
           VALUE each_pane() 
           {
             wxAuiPaneInfoArray panes = self->GetAllPanes();
+            VALUE rc = Qnil;
             for (size_t i = 0; i < panes.GetCount(); i++)
             {
               wxAuiPaneInfo &pi_ref = self->GetPane( panes.Item(i).name );
               wxAuiPaneInfo *pi = (wxAuiPaneInfo*)&pi_ref;
               VALUE r_pi = SWIG_NewPointerObj(pi, SWIGTYPE_p_wxAuiPaneInfo, 0);
-              rb_yield(r_pi);
+              rc = rb_yield(r_pi);
             }	
-            return Qnil;
+            return rc;
           }
           __HEREDOC
         spec.suppress_warning(473, 'wxAuiManager::CreateFloatingFrame')
