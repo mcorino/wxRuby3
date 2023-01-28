@@ -38,7 +38,6 @@ module WXRuby3
                         "#{itm}::IsRetained",
                         "#{itm}::IsShown",
                         "#{itm}::IsShownOnScreen",
-                        "#{itm}::MakeModal",
                         "#{itm}::ReleaseMouse",
                         "#{itm}::RemoveChild",
                         "#{itm}::ScrollLines",
