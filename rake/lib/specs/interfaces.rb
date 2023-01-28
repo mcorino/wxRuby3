@@ -141,6 +141,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxSashLayoutWindow', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxQueryLayoutInfoEvent', director: Director::SashLayoutEvent)
     Director.Spec(pkg, 'wxCalculateLayoutEvent', director: Director::SashLayoutEvent)
+    Director.Spec(pkg, 'wxEditableListBox')
     Director.Spec(pkg, 'wxWizardEvent', director: Director::Event, requirements: %w[wxUSE_WIZARDDLG])
     Director.Spec(pkg, 'wxWizardPage', requirements: %w[wxUSE_WIZARDDLG])
     Director.Spec(pkg, 'wxWizardPageSimple', director: Director::WizardPage, requirements: %w[wxUSE_WIZARDDLG])
@@ -265,5 +266,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPGEditor')
     Director.Spec(pkg, 'wxPGCell')
     Director.Spec(pkg, 'wxPGProperty')
+    Director.Spec(pkg, 'wxPGArrayEditorDialog')
+    Director.Spec(pkg, 'wxPGProperties')
   }
 end # module WXRuby3

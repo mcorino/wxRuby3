@@ -12,10 +12,14 @@ module WXRuby3
       def setup
         super
         if spec.module_name == 'wxPGProperty'
-          spec.items << 'wxPGChoices' << 'wxPGPaintData' << 'wxPGCellRenderer' << 'wxPGDefaultRenderer'
+          spec.items << 'wxPGChoices' << 'wxPGPaintData' << 'wxPGCellRenderer' << 'wxPGDefaultRenderer' << 'propgriddefs.h'
           spec.gc_as_refcounted 'wxPGCellRenderer', 'wxPGDefaultRenderer'
           spec.override_inheritance_chain('wxPGCellRenderer')
           spec.override_inheritance_chain('wxPGDefaultRenderer', 'wxPGCellRenderer')
+          spec.regard 'wxPGPaintData::m_parent',
+                      'wxPGPaintData::m_choiceItem',
+                      'wxPGPaintData::m_drawnWidth',
+                      'wxPGPaintData::m_drawnHeight'
           spec.rename_for_ruby 'parent' => 'wxPGPaintData::m_parent',
                                'choice_item' => 'wxPGPaintData::m_choiceItem',
                                'drawn_width' => 'wxPGPaintData::m_drawnWidth',
@@ -92,14 +96,28 @@ module WXRuby3
                 rb_gc_mark((VALUE)((wxPGProperty*)ptr)->GetClientData());
             }
             __HEREDOC
+          spec.ignore 'wxPGProperty::m_clientData' # not needed for wxRuby
+          # take protected members into account
+          spec.regard 'wxPGProperty::wxPGProperty',
+                      'wxPGProperty::ClearCells',
+                      'wxPGProperty::EnsureCells',
+                      'wxPGProperty::GetPropertyByNameWH',
+                      'wxPGProperty::Empty',
+                      'wxPGProperty::IsChildSelected'
           spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
-          spec.make_enum_untyped 'wxPGPropertyFlags'
+          spec.make_enum_untyped 'wxPGPropertyFlags',
+                                 'wxPG_GETPROPERTYVALUES_FLAGS',
+                                 'wxPG_MISC_ARG_FLAGS',
+                                 'wxPG_SETVALUE_FLAGS'
+          spec.ignore %w[wxPG_LABEL wxPG_NULL_BITMAP wxPG_COLOUR_BLACK wxPG_DEFAULT_IMAGE_SIZE]
           # define in Ruby
           spec.ignore %w[wxNullProperty wxPGChoicesEmptyData], ignore_doc: false
         else
           spec.add_header_code 'extern void GC_mark_wxPGProperty(void* ptr);'
           spec.items.each do |itm|
             spec.add_swig_code %Q{%markfunc #{itm} "GC_mark_wxPGProperty";}
+            spec.new_object %Q{#{itm}::GetEditorDialog}
+            spec.suppress_warning(473, "#{itm}::GetEditorDialog")
           end
         end
         spec.add_header_code 'typedef wxPGProperty::FlagType FlagType;'
