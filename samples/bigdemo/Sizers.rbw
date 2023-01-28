@@ -479,7 +479,6 @@ class TestFrame < Wx::Frame
     end
     
     def on_close_window(event)
-        make_modal(false)
         destroy
     end
     
@@ -520,7 +519,6 @@ class TestSelectionPanel < Wx::Panel
             win = TestFrame.new(self, title, func)
             win.centre_on_parent(Wx::BOTH)
             win.show
-            win.make_modal(true)
         end
     end
 end   
