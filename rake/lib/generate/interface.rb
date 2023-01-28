@@ -486,9 +486,9 @@ module WXRuby3
           elsif item.value.start_with?('"')
             fout.puts
             fout.puts "%constant char*  #{item.name} = #{item.value};"
-          elsif item.value =~ /wxString\((".*")\)/
+          elsif item.value =~ /(wxString|wxS)\((".*")\)/
             fout.puts
-            fout.puts "%constant char*  #{item.name} = #{$1};"
+            fout.puts "%constant char*  #{item.name} = #{$2};"
           elsif item.value =~ /wx(Size|Point)(\(.*\))/
             frbext = init_rb_ext_file unless frbext
             frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = Wx::#{$1}.new#{$2}" }

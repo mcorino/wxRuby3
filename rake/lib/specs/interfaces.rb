@@ -264,5 +264,6 @@ module WXRuby3
   Director.Package('Wx::PG', 'wxUSE_PROPGRID') { |pkg|
     Director.Spec(pkg, 'wxPGEditor')
     Director.Spec(pkg, 'wxPGCell')
+    Director.Spec(pkg, 'wxPGProperty')
   }
 end # module WXRuby3
