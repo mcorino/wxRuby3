@@ -37,6 +37,7 @@ module WXRuby3
               return (*self)[idx];
             }
           __HEREDOC
+          spec.disown 'wxPGProperty *prop', 'wxPGProperty *childProperty'
           # obsolete
           spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
           # not of use in Ruby
