@@ -328,20 +328,6 @@ module WXRuby3
       end
     end
 
-    def handle_untyped_enum(defmod, name)
-      # find the enum
-      item = defmod.find_item(name)
-      if item
-        if Extractor::EnumDef === item
-          item.make_untyped
-        else
-          raise "Cannot '#{name}' for module '#{spec.module_name}' is not an enum but #{item.class}"
-        end
-      else
-        raise "Cannot find enum '#{name}' for module '#{spec.module_name}' to make untyped"
-      end
-    end
-
     def process(gendoc: false)
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, gendoc: gendoc)
@@ -367,8 +353,6 @@ module WXRuby3
           handle_item_only_for(defmod, fullname, platform_id)
         end
       end
-      # handle untyped enums
-      spec.untyped_enums.each { |name| handle_untyped_enum(defmod, name) }
       # handle class specified includes
       defmod.classes.each do |cls|
         unless cls.ignored

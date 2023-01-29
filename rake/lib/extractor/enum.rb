@@ -20,10 +20,6 @@ module WXRuby3
           enums[enum.name] = enum.scope || '' # assumes all wxWidgets enums (even scoped) are uniquely named
         end
 
-        def unregister(enum)
-          enums.delete(enum.name)
-        end
-
         def enum?(name)
           enums.has_key?(name)
         end
@@ -65,13 +61,8 @@ module WXRuby3
         end
       end
 
-      def make_untyped
-        @no_type = true
-        EnumDef.unregister(self)
-      end
-
       def is_type
-        !(@no_type || @is_anonymous)
+        !@is_anonymous
       end
     end # class EnumDef
 
