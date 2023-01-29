@@ -268,5 +268,6 @@ module WXRuby3
     Director.Spec(pkg, 'wxPGProperty')
     Director.Spec(pkg, 'wxPGArrayEditorDialog')
     Director.Spec(pkg, 'wxPGProperties')
+    Director.Spec(pkg, 'wxPropertyGridEvent')
   }
 end # module WXRuby3
