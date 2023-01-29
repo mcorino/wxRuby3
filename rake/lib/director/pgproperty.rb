@@ -106,10 +106,6 @@ module WXRuby3
                       'wxPGProperty::Empty',
                       'wxPGProperty::IsChildSelected'
           spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
-          spec.make_enum_untyped 'wxPGPropertyFlags',
-                                 'wxPG_GETPROPERTYVALUES_FLAGS',
-                                 'wxPG_MISC_ARG_FLAGS',
-                                 'wxPG_SETVALUE_FLAGS'
           spec.ignore %w[wxPG_LABEL wxPG_NULL_BITMAP wxPG_COLOUR_BLACK wxPG_DEFAULT_IMAGE_SIZE]
           # define in Ruby
           spec.ignore %w[wxNullProperty wxPGChoicesEmptyData], ignore_doc: false
