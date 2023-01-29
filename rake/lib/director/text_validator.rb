@@ -23,8 +23,6 @@ module WXRuby3
         end
         # not provided in Ruby
         spec.ignore %w[wxTextValidator::TransferFromWindow wxTextValidator::TransferToWindow]
-        # bit flags
-        spec.make_enum_untyped 'wxTextValidatorStyle'
       end
     end # class TextValidator
 

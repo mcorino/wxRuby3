@@ -75,8 +75,6 @@ module WXRuby3
           extern VALUE mWxTextCtrl;
           rb_define_method(mWxTextCtrl, "<<", VALUEFUNC(op_append), 1);
           __HEREDOC
-        spec.make_enum_untyped 'wxTextAttrFlags', 'wxTextAttrBulletStyle'
-        spec.add_swig_code 'enum wxTextAttrFlags;', 'enum wxTextAttrBulletStyle;'
         spec.swig_import 'swig/classes/include/wxTextAttr.h'
       end
     end # class TextCtrl

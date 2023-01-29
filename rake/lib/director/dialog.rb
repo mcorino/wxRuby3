@@ -59,8 +59,6 @@ module WXRuby3
               return wxRuby_WrapWxObjectInRuby( (wxObject*)book) ;
             }
             __HEREDOC
-          spec.make_enum_untyped 'wxPropertySheetDialogFlags'
-          spec.add_swig_code 'enum wxPropertySheetDialogFlags;'
         when 'wxFindReplaceDialog'
           spec.ignore 'wxFindReplaceDialog::wxFindReplaceDialog()'
           spec.map_apply 'SWIGTYPE *DISOWN' => 'wxFindReplaceData* data'

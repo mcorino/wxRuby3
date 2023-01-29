@@ -128,6 +128,15 @@ static VALUE wx_Enum_inspect(int argc, VALUE *argv, VALUE self)
   return str;
 }
 
+static VALUE wx_Enum_to_int(int argc, VALUE *argv, VALUE self)
+{
+  if ((argc < 0) || (argc > 0))
+  {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc); return Qnil;
+  }
+  return rb_iv_get(self, __iv_cEnum_value);
+}
+
 static VALUE wx_Enum_sc_get_enum_class(int argc, VALUE *argv, VALUE self)
 {
   if ((argc < 1) || (argc > 1))
@@ -168,12 +177,28 @@ static VALUE wx_Enum_sc_create_enum_class(int argc, VALUE *argv, VALUE self)
   return enum_klass;
 }
 
-static void setup_Enum_singleton_class()
+static void wx_setup_Enum_singleton_class()
 {
   cEnum_Singleton = rb_funcall(cWxEnum, rb_intern("singleton_class"), 0, 0);
   rb_iv_set(cEnum_Singleton, __iv_Enum_sc_enums, rb_hash_new());
   rb_define_method(cEnum_Singleton, "create", VALUEFUNC(wx_Enum_sc_create_enum_class), -1);
   rb_define_singleton_method(cWxEnum, "[]", VALUEFUNC(wx_Enum_sc_get_enum_class), -1);
+}
+
+static void wx_define_Enum_class()
+{
+  cWxEnum = rb_define_class_under(mWxCore, "Enum", rb_cNumeric);
+  rb_define_method(cWxEnum, "initialize", VALUEFUNC(wx_Enum_initialize), -1);
+  rb_define_method(cWxEnum, "coerce", VALUEFUNC(wx_Enum_coerce), -1);
+  rb_define_method(cWxEnum, "integer?", VALUEFUNC(wx_Enum_is_integer), -1);
+  rb_define_method(cWxEnum, "real?", VALUEFUNC(wx_Enum_is_real), -1);
+  rb_define_method(cWxEnum, "method_missing", VALUEFUNC(wx_Enum_method_missing), -1);
+  rb_define_method(cWxEnum, "eql?", VALUEFUNC(wx_Enum_is_equal), -1);
+  rb_define_method(cWxEnum, "<=>", VALUEFUNC(wx_Enum_compare), -1);
+  rb_define_method(cWxEnum, "inspect", VALUEFUNC(wx_Enum_inspect), -1);
+  rb_define_method(cWxEnum, "to_int", VALUEFUNC(wx_Enum_to_int), -1);
+  rb_define_alias(cWxEnum, "to_i", "to_int");
+  wx_setup_Enum_singleton_class();
 }
 
 WXRB_EXPORT_FLAG VALUE wxRuby_GetEnumClass(const char* enum_class_name_cstr)
@@ -249,6 +274,11 @@ WXRB_EXPORT_FLAG bool wxRuby_GetEnumValue(const char* enum_wx_class_name_cstr, V
     }
   }
   return false;
+}
+
+WXRB_EXPORT_FLAG bool wxRuby_IsAnEnum(VALUE rb_val)
+{
+  return rb_obj_is_kind_of(rb_val, cWxEnum);
 }
 
 WXRB_EXPORT_FLAG bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val)
