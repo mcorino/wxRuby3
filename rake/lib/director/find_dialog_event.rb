@@ -12,7 +12,6 @@ module WXRuby3
     class FindDialogEvent < Director::Event
 
       def setup
-        spec.make_enum_untyped('wxFindReplaceDialogStyles', 'wxFindReplaceFlags')
         super
       end
 

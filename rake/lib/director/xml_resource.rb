@@ -41,7 +41,6 @@ module WXRuby3
             }
           __CODE
         end
-        spec.make_enum_untyped 'wxXmlResourceFlags'
         # ignore this but not it's docs; will add special wrapper implementation (see below)
         spec.ignore 'wxXmlResource::AddSubclassFactory', ignore_doc: false
         spec.add_header_code 'static VALUE WxRuby_XmlSubclassFactory_klass;'

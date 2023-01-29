@@ -30,11 +30,11 @@ Dir.glob(class_files) do | class_file |
   require 'wx/core/' + File.basename(class_file)
 end
 
+::Wx.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+
 # Load in syntax sweeteners
 require 'wx/keyword_ctors'
 require 'wx/keyword_defs'
-
-::Wx.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
 
 # If a program is ended by ruby's exit, it can bypass doing the proper
 # Wx clean-up routines called by Wx::App#on_exit. This can under some

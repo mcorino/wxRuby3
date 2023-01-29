@@ -15,8 +15,6 @@ module WXRuby3
         super
         spec.override_inheritance_chain('wxAuiToolBarEvent',
                                         {'wxNotifyEvent' => 'wxEvents'}, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
-        spec.make_enum_untyped 'wxAuiToolBarStyle'
-        spec.add_swig_code 'enum wxAuiToolBarStyle;'
       end
     end # class AuiToolBarEvent
 

@@ -13,8 +13,6 @@ module WXRuby3
         super
         spec.make_abstract 'wxFSFile'
         spec.ignore %w[wxFSFile::DetachStream wxFSFile::GetStream]
-        spec.make_enum_untyped 'wxFileSystemOpenFlags'
-        spec.add_swig_code 'enum wxFileSystemOpenFlags;'
       end
 
     end # class FSFile

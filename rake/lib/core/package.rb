@@ -288,16 +288,7 @@ module WXRuby3
               fsrc.puts
               fsrc << <<~__HERDOC
                 // define Enum class
-                cWxEnum = rb_define_class_under(mWxCore, "Enum", rb_cNumeric);
-                rb_define_method(cWxEnum, "initialize", VALUEFUNC(wx_Enum_initialize), -1);
-                rb_define_method(cWxEnum, "coerce", VALUEFUNC(wx_Enum_coerce), -1);
-                rb_define_method(cWxEnum, "integer?", VALUEFUNC(wx_Enum_is_integer), -1);
-                rb_define_method(cWxEnum, "real?", VALUEFUNC(wx_Enum_is_real), -1);
-                rb_define_method(cWxEnum, "method_missing", VALUEFUNC(wx_Enum_method_missing), -1);
-                rb_define_method(cWxEnum, "eql?", VALUEFUNC(wx_Enum_is_equal), -1);
-                rb_define_method(cWxEnum, "<=>", VALUEFUNC(wx_Enum_compare), -1);
-                rb_define_method(cWxEnum, "inspect", VALUEFUNC(wx_Enum_inspect), -1);
-                setup_Enum_singleton_class();
+                wx_define_Enum_class();
                 __HERDOC
               fsrc.puts
               # generate constant definitions for feature defines from setup.h

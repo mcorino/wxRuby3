@@ -148,7 +148,7 @@ class Wx::EvtHandler
   # parameter or by calling the wx_id method of a passed Window.
   def acquire_id(window_or_id)
     case window_or_id
-    when ::Integer
+    when ::Integer, Wx::Enum
       window_or_id
     when Wx::Window, Wx::MenuItem, Wx::ToolBarTool, Wx::Timer
       window_or_id.wx_id

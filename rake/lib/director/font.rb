@@ -34,10 +34,6 @@ module WXRuby3
           map_out code: '$result = self; wxUnusedVar($1);'
         end
         spec.do_not_generate :functions
-        spec.add_swig_code <<~__HEREDOC
-          enum wxFontFlag;
-          __HEREDOC
-        spec.make_enum_untyped 'wxFontFlag'
       end
 
       protected def generator

@@ -82,8 +82,6 @@ module WXRuby3
                               'wxGrid::GetDefaultEditorForType',
                               'wxGrid::GetDefaultRendererForCell',
                               'wxGrid::GetDefaultRendererForType')
-        spec.make_enum_untyped 'wxGridRenderStyle'
-        spec.add_swig_code 'enum wxGridRenderStyle;'
       end
     end # class GridCtrl
 
