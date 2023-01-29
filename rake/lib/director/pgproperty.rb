@@ -84,7 +84,8 @@ module WXRuby3
           spec.new_object 'wxPGProperty::GetEditorDialog'
           spec.suppress_warning(473, 'wxPGProperty::GetEditorDialog')
           # these return objects that will be owned (and need to be lifecycle managed) by any
-          # any overrrides
+          # overrrides (where PGCellRenderer is reference counted and so in a Ruby override could
+          # simply be left to standard GC)
           spec.suppress_warning(473,
                                 'wxPGProperty::DoGetEditorClass',
                                 'wxPGProperty::DoGetValidator',
