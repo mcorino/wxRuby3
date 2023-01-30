@@ -15,9 +15,6 @@ class InformativeTextCtrl < Wx::TextCtrl
     super(parent, :value => text, :style => STYLE)
   end
 
-  # more ruby-ish
-  alias :<< :append_text
-
   # run through a few useful methods of textctrl and report the results
   # as a string
   def report
@@ -62,9 +59,10 @@ class TextCtrlFrame < Wx::Frame
   end
 
   def populate_textctrl
-    @textctrl << "This is some plain text\n"
-    @textctrl << "Text with green letters and yellow background\n"
-    @textctrl << "This is some more plain text"
+    @textctrl <<
+      "This is some plain text\n" <<
+      "Text with green letters and yellow background\n" <<
+      "This is some more plain text"
     # create a new rich text style
     attr = Wx::TextAttr.new(Wx::GREEN, Wx::Colour.new(255, 255, 0) )
     # apply the style from character 26 to character 76
