@@ -156,6 +156,22 @@ module WXRuby3
         File.join(Config.instance.src_dir, "#{libname}_init.cpp")
       end
 
+      def is_dir_with_fulfilled_deps?(dir, cls_set)
+        if (modreg = Spec.module_registry[dir.spec.module_name]) && !modreg.empty?
+          if modreg.values.all? { |base| cls_set.include?(base) }
+            return modreg.keys.all? do |cls|
+              cls_helper = Spec.class_index[cls]
+              mixins = cls_helper.included_mixins
+              mixins.has_key?(cls) &&
+                mixins.all? do |modname|
+                  !modname.start_with?(cls_helper.package.fullname) || cls_set.include?("wx#{modname.split('::').last}")
+                end
+            end
+          end
+        end
+        false
+      end
+
       def generate_initializer_src
         # collect code
         decls = []
@@ -177,11 +193,11 @@ module WXRuby3
           end
         end
 
-        # next initialize all modules with classes without base dependencies (keeping only those with)
+        # next initialize all modules with classes without base dependencies outside the own module (keeping only those with)
         cls_set = ::Set.new
         inc_dirs.select! do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || base.empty? }
+          if modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || base.empty? || modreg.has_key?(base) }
             cls_set.merge modreg.keys # remember classes
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
@@ -192,9 +208,9 @@ module WXRuby3
           end
         end
 
-        # next initialize all modules with classes depending on classes in any modules already selected
-        # until there are no more modules left or none that are left depend on any selected ones
-        while dir_inx = inc_dirs.find_index { |dir| (modreg = Spec.module_registry[dir.spec.module_name]) && !modreg.empty? && modreg.values.any? { |base| cls_set.include?(base) } }
+        # next initialize all modules with classes depending (bases AND mixins) on classes in any modules already
+        # selected until there are no more modules left or none that are left depend on any selected ones
+        while dir_inx = inc_dirs.find_index { |dir| is_dir_with_fulfilled_deps?(dir, cls_set) }
           dir = inc_dirs[dir_inx]
           cls_set.merge Spec.module_registry[dir.spec.module_name].keys # remember classes
           init = "Init_#{dir.spec.module_name}()"
