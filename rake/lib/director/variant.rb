@@ -40,7 +40,7 @@ module WXRuby3
               $result = LL2NUM($1.GetValue());
               __CODE
             # only map to wxLongLong if size of long is less than 64bit and a bignum given otherwise leave it to long mapping
-            map_typecheck precedence: 10, code: '$1 = (sizeof(long) < 8) && (TYPE($input) == T_BIGNUM);'
+            map_typecheck precedence: 10, code: '$1 = (sizeof(long) < 8) && (TYPE($input) == T_BIGNUM) && (rb_big_sign($input) != 0);'
           end
           # wxULongLong mapping to be considered after considering wxLongLong and 'long' (see typecheck precedence)
           spec.map 'wxULongLong' => 'Integer' do
