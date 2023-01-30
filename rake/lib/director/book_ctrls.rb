@@ -17,21 +17,15 @@ module WXRuby3
         # avoids double-free segfaults on exit on GTK
         spec.map_apply 'SWIGTYPE *DISOWN' => 'wxWindow* page'
 
-        # Avoid premature deletion of ImageList providing icons for notebook
-        # tabs; wxRuby takes ownership when the ImageList is assigned,
-        # wxWidgets will delete the ImageList with the Toolbook.
-        spec.map_apply 'SWIGTYPE *DISOWN' => 'wxImageList*'
-
         case spec.module_name
         when 'wxBookCtrlBase'
           spec.make_abstract 'wxBookCtrlBase'
-          spec.items.replace %w[wxBookCtrlBase wxWithImages bookctrl.h]
+          spec.items.replace %w[wxBookCtrlBase bookctrl.h]
           spec.ignore 'wxBookCtrl' # useless define in bookctrl.h doc
-          spec.fold_bases('wxBookCtrlBase' => 'wxWithImages')
           spec.override_inheritance_chain('wxBookCtrlBase', %w[wxControl wxWindow wxEvtHandler wxObject])
-          spec.ignore('wxWithImages::@.NO_IMAGE', 'wxWithImages::SetImageList')
-          spec.rename_for_ruby('SetImageList' => 'wxBookCtrlBase::AssignImageList')
           spec.no_proxy('wxBookCtrlBase')
+          # mixin WithImages
+          spec.include_mixin 'wxBookCtrlBase', 'Wx::WithImages'
         when 'wxNotebook'
           spec.ignore("wxNotebook::OnSelChange")
           # this reimplemented window base method need to be properly wrapped but
@@ -49,7 +43,7 @@ module WXRuby3
         # This version in Wx doesn't automatically delete
         # spec.ignore "#{clsnm}::SetImageList"
         # Use the version that deletes the ImageList when the Toolbook is destroyed
-        spec.rename_for_ruby('SetImageList' => "#{clsnm}::AssignImageList")
+        # spec.rename_for_ruby('SetImageList' => "#{clsnm}::AssignImageList")
         # These are virtual in C++ but don't need directors as fully
         # implemented in the individual child classes
         spec.no_proxy(%W[

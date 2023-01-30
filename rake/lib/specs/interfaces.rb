@@ -64,6 +64,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxComboBox')
     Director.Spec(pkg, 'wxRadioBox')
     Director.Spec(pkg, 'wxPanel')
+    Director.Spec(pkg, 'wxWithImages')
     Director.Spec(pkg, 'wxBookCtrlEvent', director: Director::Event, requirements: Director.AnyOf(*%w[wxUSE_AUI wxUSE_NOTEBOOK wxUSE_LISTBOOK wxUSE_CHOICEBOOK wxUSE_TOOLBOOK wxUSE_TREEBOOK]))
     Director.Spec(pkg, 'wxBookCtrlBase', director: Director::BookCtrls, requirements: Director.AnyOf(*%w[wxUSE_AUI wxUSE_NOTEBOOK wxUSE_LISTBOOK wxUSE_CHOICEBOOK wxUSE_TOOLBOOK wxUSE_TREEBOOK]))
     Director.Spec(pkg, 'wxNotebook', director: Director::BookCtrls, requirements: Director.AnyOf(*%w[wxUSE_AUI wxUSE_NOTEBOOK wxUSE_LISTBOOK wxUSE_CHOICEBOOK wxUSE_TOOLBOOK wxUSE_TREEBOOK]))

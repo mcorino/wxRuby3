@@ -74,7 +74,7 @@ TreeTest_TogButtons,
   TreeTest_SelectLast,
   TreeTest_Select,
   TreeTest_Unselect,
-  TreeTest_SelectChildren = (Wx::ID_HIGHEST..Wx::ID_HIGHEST + 61).to_a
+  TreeTest_SelectChildren = (Wx::ID_HIGHEST.to_i..Wx::ID_HIGHEST.to_i + 61).to_a
 
 TreeCtrlIcon_File,
   TreeCtrlIcon_FileSelected,
@@ -379,6 +379,7 @@ class MyTreeCtrl < Wx::TreeCtrl
 
     item
   end
+  alias :last_tree_item :get_last_tree_item
 
   def get_items_recursively(parent_id, cookie)
     if cookie == -1
@@ -1072,7 +1073,7 @@ class MyFrame < Wx::Frame
 
     # set our text control as the log target
     logWindow = Wx::LogTextCtrl.new(@textctrl)
-    Wx::Log::active_target = logWindow
+    Wx::Log::set_active_target(logWindow)
 
     # @splitter.split_horizontally(@treectrl, @textctrl, 500)
 

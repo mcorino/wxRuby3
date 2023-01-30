@@ -15,16 +15,15 @@ module WXRuby3
 
       def setup
         spec.post_processors << :fixtreectrl
-        spec.items.replace %w[wxTreeCtrl wxWithImages treebase.h]
-        spec.fold_bases('wxTreeCtrl' => 'wxWithImages')
+        spec.items.replace %w[wxTreeCtrl treebase.h]
         spec.override_inheritance_chain('wxTreeCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
-        spec.ignore('wxWithImages::@.NO_IMAGE')
+        # mixin WithImages
+        spec.include_mixin 'wxTreeCtrl', 'Wx::WithImages'
         spec.ignore('operator!=', 'operator==')
         spec.include 'wx/dirctrl.h'
         # These only differ from SetXXXList in the way memory ownership is
         # transferred. So only support the version that won't leak on wxRuby.
         spec.ignore %w[
-          wxWithImages::AssignImageList
           wxTreeCtrl::AssignButtonsImageList
           wxTreeCtrl::AssignStateImageList
           wxTreeCtrl::GetFirstChild
@@ -87,8 +86,6 @@ module WXRuby3
                               'virtual bool SetFont( const wxFont &font )',
                               'virtual void SetWindowStyleFlag(long styles)',
                               'virtual void OnInternalIdle()')
-        # TODO - needs type mapping for wxVector < wxBitmapBundle >
-        spec.ignore 'wxWithImages::SetImages'
         # see below
         spec.ignore 'wxTreeCtrl::InsertItem(const wxTreeItemId &,size_t,const wxString &,int,int,wxTreeItemData *)'
         # Dealt with below
