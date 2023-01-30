@@ -43,6 +43,8 @@ module WXRuby3
         @interface_extensions = ::Hash.new
         @folded_bases = ::Hash.new
         @abstracts = ::Hash.new
+        @mixins = ::Set.new
+        @included_mixins = ::Hash.new
         @items = [modname]
         @director = director
         @director ||= (Director.const_defined?(@name) ? Director.const_get(@name) : Director)
@@ -76,7 +78,7 @@ module WXRuby3
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly,
-                  :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
+                  :mixins, :included_mixins, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements, :type_maps
@@ -255,6 +257,15 @@ module WXRuby3
 
       def make_concrete(cls)
         @abstracts[cls] = false
+        @mixins.delete(cls)
+        self
+      end
+
+      def make_mixin(cls)
+        @mixins << cls
+        make_abstract(cls)
+        no_proxy(cls)
+        post_processors << :fix_interface_mixin
         self
       end
 
@@ -264,6 +275,15 @@ module WXRuby3
 
       def concrete?(cls)
         @abstracts.has_key?(cls) && !@abstracts[cls]
+      end
+
+      def mixin?(cls)
+        @mixins.include?(cls)
+      end
+
+      def include_mixin(cls, *module_names)
+        (@included_mixins[cls] ||= ::Set.new).merge module_names.flatten
+        self
       end
 
       def ignore(*names, ignore_doc: true)

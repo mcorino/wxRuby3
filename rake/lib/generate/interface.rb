@@ -44,6 +44,72 @@ module WXRuby3
       end
     end
 
+    def gen_mixin_code(fout, name)
+      rb_name = rb_wx_name(name)
+      fout.puts
+      fout << <<~__HEREDOC
+          typedef #{name}* (*wx_#{underscore(rb_name)}_convert_fn)(void*);
+          // Mapping of swig_class* to wx_#{underscore(rb_name)}_convert_fn
+          WX_DECLARE_VOIDPTR_HASH_MAP(wx_#{underscore(rb_name)}_convert_fn,
+                                      WXRB#{rb_name}MixinConvertHash);
+          static WXRB#{rb_name}MixinConvertHash #{rb_name}_Mixin_Cast_Map;
+
+          WXRB_EXPORT_FLAG void wxRuby_Register_#{rb_name}_Include(swig_class* cls_info, 
+                                                                   wx_#{underscore(rb_name)}_convert_fn converter)
+          {
+            #{rb_name}_Mixin_Cast_Map[cls_info] = converter;
+          }
+          
+          static #{name}* wxRuby_ConvertTo#{rb_name}(VALUE obj)
+          {
+            if (NIL_P(obj)) return 0;
+            
+            if (TYPE(obj) != T_DATA)
+            {
+              VALUE msg = rb_inspect(obj);
+              rb_raise(rb_eArgError, 
+                       "Expected a #{rb_name} but got %s", 
+                       StringValuePtr(msg));
+            }
+
+            WXRB#{rb_name}MixinConvertHash::iterator it;
+            for( it = #{rb_name}_Mixin_Cast_Map.begin(); it != #{rb_name}_Mixin_Cast_Map.end(); ++it )
+            {
+              swig_class* cls_info = static_cast<swig_class*> (it->first);
+              if (rb_obj_is_kind_of(obj, cls_info->klass))
+              {
+                void *ptr = 0;
+                /* Grab the pointer */
+                Data_Get_Struct(obj, void, ptr);
+                wx_#{underscore(rb_name)}_convert_fn fn_cvt = it->second;
+                return (*fn_cvt)(ptr);
+              }
+            }
+            
+            VALUE msg = rb_inspect(obj);
+            rb_raise(rb_eTypeError, 
+                     "Unable to convert %s to #{rb_name}", 
+                     StringValuePtr(msg));
+          }
+      __HEREDOC
+    end
+
+    def gen_mixin_convert_code(fout, cls, mod)
+      rb_mod_name = mod.split('::').last
+      decl_flag = (mod.start_with?(package.fullname) ? 'WXRB_EXPORT_FLAG' : 'WXRB_IMPORT_FLAG') # same package (dll) or import?
+      fout.puts
+      fout << <<~__HEREDOC
+          // Mixin converter for wx#{rb_mod_name} included in #{cls} 
+          typedef wx#{rb_mod_name}* (*wx_#{underscore(rb_mod_name)}_convert_fn)(void*); 
+          #{decl_flag} void wxRuby_Register_PropertyGridInterface_Include(swig_class* cls_info, 
+                                                                              wx_#{underscore(rb_mod_name)}_convert_fn converter);
+          static wx#{rb_mod_name}* wxRuby_ConvertTo_#{rb_mod_name}(void* ptr)
+          {
+            return ((wx#{rb_mod_name}*) static_cast<#{cls}*> (ptr));
+          }
+      __HEREDOC
+    end
+
     def gen_swig_begin_code(fout)
       unless disowns.empty?
         fout.puts
@@ -62,7 +128,7 @@ module WXRuby3
           fout.puts "%newobject #{decl};"
         end
       end
-      unless includes.empty? && header_code.empty?
+      unless includes.empty? && header_code.empty? && mixins.empty? && included_mixins.empty?
         fout.puts
         fout.puts "%header %{"
         includes.each do |inc|
@@ -71,6 +137,12 @@ module WXRuby3
         unless header_code.empty?
           fout.puts
           fout.puts header_code
+        end
+        unless mixins.empty?
+          mixins.each { |name| gen_mixin_code(fout, name) }
+        end
+        unless included_mixins.empty?
+          included_mixins.each_pair {|cls, mods| mods.each { |mod| gen_mixin_convert_code(fout, cls, mod) } }
         end
         fout.puts "%}"
       end
@@ -127,6 +199,12 @@ module WXRuby3
         fout.puts
         fout.puts swig_code
       end
+      unless included_mixins.empty?
+        fout.puts
+        included_mixins.each_pair do |cls, module_names|
+          module_names.each { |m| fout.puts %Q{%mixin #{cls} "#{m}";} }
+        end
+      end
     end
 
     def gen_swig_wrapper_code(fout)
@@ -139,10 +217,22 @@ module WXRuby3
     end
 
     def gen_swig_init_code(fout)
-      if init_code && !init_code.empty?
+      unless init_code.empty? && included_mixins.empty?
         fout.puts
         fout.puts "%init %{"
-        fout.puts init_code
+        unless init_code.empty?
+          fout.puts
+          fout.puts init_code
+        end
+        unless included_mixins.empty?
+          fout.puts
+          included_mixins.each_pair do |cls, module_names|
+            module_names.each do |modname|
+              m = modname.split('::').last
+              fout.puts %Q{wxRuby_Register_#{m}_Include(&SwigClassWx#{rb_wx_name(cls)}, wxRuby_ConvertTo_#{m});}
+            end
+          end
+        end
         fout.puts "%}"
       end
     end

@@ -18,17 +18,8 @@ module WXRuby3
         spec.add_header_code 'typedef wxScrolled<wxControl> wxScrolledControl;'
         spec.no_proxy 'wxPropertyGrid::SendAutoScrollEvents'
         spec.add_swig_code 'typedef const wxPGPropArgCls& wxPGPropArg;'
-        # mixin
-        spec.add_header_code <<~__HEREDOC
-          typedef wxPropertyGridInterface* (*wx_convert_fn)(void*); 
-          WXRB_EXPORT_FLAG void wxRuby_Register_PropertyGridInterface_Include(swig_class* cls_info, wx_convert_fn converter);
-          static wxPropertyGridInterface* wxRuby_ConvertTo_PropertyGridInterface(void* ptr)
-          {
-            return ((wxPropertyGridInterface*) static_cast<wxPropertyGrid*> (ptr));
-          }
-          __HEREDOC
-        spec.add_swig_code '%mixin wxPropertyGrid "Wx::PG::PropertyGridInterface";'
-        spec.add_init_code 'wxRuby_Register_PropertyGridInterface_Include(&SwigClassWxPropertyGrid, wxRuby_ConvertTo_PropertyGridInterface);'
+        # mixin PropertyGridInterface
+        spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
       end
     end # class PropertyGrid
 

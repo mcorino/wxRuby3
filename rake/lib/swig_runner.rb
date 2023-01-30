@@ -182,6 +182,14 @@ module WXRuby3
         raise NotImplementedError
       end
 
+      def to_s
+        "#{self.class.name}<#{@director.module_name}@#{@director.package.name}>"
+      end
+
+      def inspect
+        to_s
+      end
+
       class << self
         include Util::StringUtil
       end
@@ -460,6 +468,50 @@ module WXRuby3
               end
               line
             end
+          end
+        end
+      end
+
+      class FixInterfaceMixin < Processor
+        def run
+          # get the generated (class) items which have been defined to be mixins
+          class_list = def_items.select { |itm| Extractor::ClassDef === itm && is_mixin?(itm) }
+          # create re match list for class names
+          cls_re_txt = class_list.collect { |clsdef| rb_wx_name(clsdef.name) }.join('|')
+          skip_method = false
+          skip_conversion = false
+          update_source do |line|
+            if skip_method
+              skip_method = false if /\A}\s*\Z/ =~ line # end of function?
+              line = nil # remove line in output
+            elsif skip_conversion
+              if /\A(\s*arg1\s*=\s*)reinterpret_cast<\s*wx(#{cls_re_txt})/ =~ line
+                skip_conversion = false
+                line = "#{$1}wxRuby_ConvertTo#{$2}(self);"
+              else
+                line = nil
+              end
+            else
+              # transform conversion of 'self' in wrapper functions
+              if /\A(\s*)res1\s*=\s*SWIG_ConvertPtr\(self,\s*&argp1,SWIGTYPE_p_wx(#{cls_re_txt})/ =~ line
+                skip_conversion = true
+                line = "#{$1}wxUnusedVar(res1); wxUnusedVar(argp1);"
+                # remove unwanted function definitions
+              elsif /\Afree_wx(#{cls_re_txt})/ =~ line
+                line = "free_wx#{$1}() {}"
+                skip_method = true
+                # replace the class creation by a module creation
+              elsif /\A(\s*SwigClassWx(#{cls_re_txt}).klass\s*=\s*)rb_define_class_under\(\s*(\w+)\s*,\s*\"(\w+)\"/ =~ line
+                line = %Q{#{$1}rb_define_module_under(#{$3}, "#{$4}");}
+                # remove the alloc undef line
+              elsif /\A\s*rb_undef_alloc_func\s*\(SwigClassWx(#{cls_re_txt}).klass/ =~ line
+                line = nil
+                # as well as the lifecycle method setups
+              elsif /\A\s*SwigClassWx(#{cls_re_txt})\.(mark|destroy|trackObjects)\s*=/ =~ line
+                line = nil
+              end
+            end
+            line
           end
         end
       end

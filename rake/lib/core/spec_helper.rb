@@ -147,6 +147,20 @@ module WXRuby3
       ifspec.abstract?(class_def.name) || (class_def.abstract && !ifspec.concrete?(class_def.name))
     end
 
+    def mixins
+      ifspec.mixins
+    end
+
+    def is_mixin?(classdef_or_name)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      ifspec.mixin?(class_def.name)
+    end
+
+    def included_mixins
+      ifspec.included_mixins
+    end
+
     def has_virtuals?(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
