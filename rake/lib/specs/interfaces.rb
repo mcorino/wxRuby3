@@ -99,6 +99,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPropertySheetDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxScrolledWindow', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxScrolledCanvas', director: Director::ScrolledT)
+    Director.Spec(pkg, 'wxScrolledControl', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxFindReplaceData', requirements: %w[wxUSE_FINDREPLDLG])
     Director.Spec(pkg, 'wxFindReplaceDialog', director: Director::Dialog, requirements: %w[wxUSE_FINDREPLDLG])
     Director.Spec(pkg, 'wxFindDialogEvent', requirements: %w[wxUSE_FINDREPLDLG])
@@ -269,5 +270,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxPGArrayEditorDialog')
     Director.Spec(pkg, 'wxPGProperties')
     Director.Spec(pkg, 'wxPropertyGridEvent')
+    Director.Spec(pkg, 'wxPGValidationInfo')
+    Director.Spec(pkg, 'wxPropertyGridInterface')
+    Director.Spec(pkg, 'wxPropertyGrid')
   }
 end # module WXRuby3
