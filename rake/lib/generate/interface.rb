@@ -101,7 +101,7 @@ module WXRuby3
       fout << <<~__HEREDOC
           // Mixin converter for wx#{rb_mod_name} included in #{cls} 
           typedef wx#{rb_mod_name}* (*wx_#{underscore(rb_mod_name)}_convert_fn)(void*); 
-          #{decl_flag} void wxRuby_Register_PropertyGridInterface_Include(swig_class* cls_info, 
+          #{decl_flag} void wxRuby_Register_#{rb_mod_name}_Include(swig_class* cls_info, 
                                                                               wx_#{underscore(rb_mod_name)}_convert_fn converter);
           static wx#{rb_mod_name}* wxRuby_ConvertTo_#{rb_mod_name}(void* ptr)
           {
