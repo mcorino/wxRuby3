@@ -165,7 +165,7 @@ module WXRuby3
           // Mapping of WXRBValueVariantData* to Ruby VALUE
           WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
                                       WXRBVariantDataToRbValueHash);
-          WXRBVariantDataToRbValueHash Variant_Value_Map;
+          static WXRBVariantDataToRbValueHash Variant_Value_Map;
 
           extern void wxRuby_markRbValueVariants()
           {
