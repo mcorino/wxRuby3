@@ -13,9 +13,6 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxPickerBase'
-        spec.fold_bases('wxFilePickerCtrl' => 'wxPickerBase')
-        spec.ignore 'wxPickerBase::CreateBase', 'wxPickerBase::UpdatePickerFromTextCtrl', 'wxPickerBase::UpdateTextCtrlFromPicker'
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with FileDirPickerEvent
       end
     end # class FilePickerCtrl

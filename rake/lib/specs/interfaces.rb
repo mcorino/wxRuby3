@@ -92,6 +92,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxFont')
     Director.Spec(pkg, 'wxFontData', requirements: %w[wxUSE_FONTDLG])
     Director.Spec(pkg, 'wxFontDialog', director: Director::Dialog, requirements: %w[wxUSE_FONTDLG])
+    Director.Spec(pkg, 'wxPickerBase')
     Director.Spec(pkg, 'wxFontPickerEvent', director: Director::Event, requirements: %w[wxUSE_FONTDLG wxUSE_FONTPICKERCTRL])
     Director.Spec(pkg, 'wxFontPickerCtrl', requirements: %w[wxUSE_FONTDLG wxUSE_FONTPICKERCTRL])
     Director.Spec(pkg, 'wxLocale')

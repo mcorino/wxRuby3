@@ -9,13 +9,13 @@ module WXRuby3
 
   class Director
 
-    class DirPickerCtrl < Window
+    class PickerBase < Window
 
       def setup
         super
-        spec.do_not_generate(:variables, :defines, :enums, :functions) # with FileDirPickerEvent
+        spec.ignore 'wxPickerBase::CreateBase'
       end
-    end # class DirPickerCtrl
+    end # class PickerBase
 
   end # class Director
 

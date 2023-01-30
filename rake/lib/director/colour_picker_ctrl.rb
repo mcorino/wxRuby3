@@ -13,9 +13,6 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxPickerBase'
-        spec.fold_bases('wxColourPickerCtrl' => 'wxPickerBase')
-        spec.ignore 'wxPickerBase::CreateBase', 'wxPickerBase::UpdatePickerFromTextCtrl', 'wxPickerBase::UpdateTextCtrlFromPicker'
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with ColourPickerEvent
       end
     end # class ColourPickerCtrl
