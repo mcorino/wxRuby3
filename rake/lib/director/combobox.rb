@@ -13,9 +13,9 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxTextEntry'
         setup_ctrl_with_items('wxComboBox')
-        spec.fold_bases('wxComboBox' => %w[wxTextEntry])
+        # mixin TextEntry
+        spec.include_mixin 'wxComboBox', 'Wx::TextEntry'
         spec.override_inheritance_chain('wxComboBox',
                                         %w[wxControlWithItems
                                            wxControl
@@ -23,8 +23,6 @@ module WXRuby3
                                            wxEvtHandler
                                            wxObject])
         spec.ignore(%w[
-          wxTextEntry::Clear
-          wxTextEntry::IsEmpty
           wxComboBox::IsEmpty])
         spec.rename_for_ruby(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long, long)',

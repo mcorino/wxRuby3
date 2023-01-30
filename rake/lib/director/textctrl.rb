@@ -13,8 +13,8 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxTextEntry'
-        spec.fold_bases('wxTextCtrl' => 'wxTextEntry')
+        # mixin TextEntry
+        spec.include_mixin 'wxTextCtrl', 'Wx::TextEntry'
         spec.override_inheritance_chain('wxTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
         if Config.instance.wx_version > '3.1.5'
@@ -56,24 +56,18 @@ module WXRuby3
           __CODE
         end
         spec.ignore 'wxTextCtrl::operator<<'
-        spec.add_header_code <<~__HEREDOC
-          // Allow << to work with a TextCtrl
-          VALUE op_append(VALUE self,VALUE value)
+        # Allow << to work with a TextCtrl
+        # We'll make sure to return 'self' in Ruby override
+        spec.add_extend_code 'wxTextCtrl', <<~__HEREDOC
+          void __lshift__(VALUE value)
           {
-            wxTextCtrl *ptr;
-            Data_Get_Struct(self, wxTextCtrl, ptr);
             if(TYPE(value)==T_STRING)
-              *ptr << wxString(StringValuePtr(value), wxConvUTF8);
+              *self << wxString(StringValuePtr(value), wxConvUTF8);
             else if(TYPE(value)==T_FIXNUM)
-              *ptr << NUM2INT(value);
+              *self << NUM2INT(value);
             else if(TYPE(value)==T_FLOAT)
-              *ptr << (double)(RFLOAT_VALUE(value));
-            return self;
+              *self << (double)(RFLOAT_VALUE(value));
           }
-          __HEREDOC
-        spec.add_init_code <<~__HEREDOC
-          extern VALUE mWxTextCtrl;
-          rb_define_method(mWxTextCtrl, "<<", VALUEFUNC(op_append), 1);
           __HEREDOC
         spec.swig_import 'swig/classes/include/wxTextAttr.h'
       end
