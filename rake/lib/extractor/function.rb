@@ -354,7 +354,7 @@ module WXRuby3
             elsif element.at_xpath('defname')
               @name = element.at_xpath('defname').text
             end
-            if element.at_xpath('array')
+            if element.at_xpath('array') && element.at_xpath('array').text.index('[')
               @array = true
             end
             if element.at_xpath('defval')
