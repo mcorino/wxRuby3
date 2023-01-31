@@ -180,7 +180,7 @@ module WXRuby3
 
         if is_derived_from?('wxEvent')
           @event = true
-          if detailed_doc.text.index('Event macros:')
+          if /Event macros(\s+for\s+events\s+emitted\s+by\s+this\s+class)?:/ =~ detailed_doc.text
             detailed_doc.xpath('.//listitem').each do |li|
               if li.text =~ /(EVT_\w+)\((.*)\)/
                 evt_handler = $1
