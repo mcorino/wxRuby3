@@ -60,7 +60,7 @@ module WXRuby3
             #{rb_name}_Mixin_Cast_Map[cls_info] = converter;
           }
           
-          static #{name}* wxRuby_ConvertTo#{rb_name}(VALUE obj)
+          WXRB_EXPORT_FLAG #{name}* wxRuby_ConvertTo#{rb_name}(VALUE obj)
           {
             if (NIL_P(obj)) return 0;
             
