@@ -163,8 +163,9 @@ module WXRuby3
                                   begin
                                     base.nil? ||
                                       cls_set.include?(base) ||
-                                      self != Spec.class_index[base].package ||
-                                      modreg.has_key?(base)
+                                      modreg.has_key?(base) ||
+                                      Spec.class_index[base].nil? ||
+                                      self != Spec.class_index[base].package
                                   rescue
                                     raise "**** Cannot find #{base}@#{dir.spec.module_name}@#{self.fullname}"
                                   end
