@@ -23,26 +23,26 @@ module Wx::PG
 
     wx_set_sorter = instance_method :set_sorter
     define_method :set_sorter do |meth, &block|
-      if block and not meth
-        return block
-      elsif meth and not block
-        h_meth = case meth
-                 when Symbol, String then self.method(meth)
-                 when Proc then meth
-                 when Method then meth
+      h_sorter = if block and not meth
+                   block
+                 elsif meth and not block
+                   case meth
+                   when Symbol, String then self.method(meth)
+                   when Proc then meth
+                   when Method then meth
+                   end
+                 else
+                   Kernel.raise ArgumentError,
+                                "Specify PropertyGrid sorter with a method, name, proc OR block"
+                   caller
                  end
-        # check arity == 3
-        if h_meth.arity == 3
-          Kernel.raise ArgumentError,
-                       "PropertyGrid sorter is required to accept 3 arguments"
-          caller
-        end
-        h_meth
-      else
+      # check arity == 3
+      if h_sorter.arity == 3
         Kernel.raise ArgumentError,
-                     "Specify PropertyGrid sorter with a method, name, proc OR block"
+                     "PropertyGrid sorter is required to accept 3 arguments"
         caller
       end
+      wx_set_sorter.bind(self).call(h_sorter)
     end
     alias :sorter= :set_sorter
 
