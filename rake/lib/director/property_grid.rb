@@ -17,6 +17,40 @@ module WXRuby3
         spec.override_inheritance_chain('wxPropertyGrid', %w[wxScrolledControl wxControl wxWindow wxEvtHandler wxObject])
         spec.add_header_code 'typedef wxScrolled<wxControl> wxScrolledControl;'
         spec.no_proxy 'wxPropertyGrid::SendAutoScrollEvents'
+        spec.no_proxy 'wxPropertyGrid::RefreshProperty'
+        # not usable in wxRuby
+        spec.ignore 'wxPropertyGrid::SetSortFunction',
+                    'wxPropertyGrid::GetSortFunction'
+        # replace by custom extension
+        spec.add_header_code <<~__HEREDOC
+          static int wxRuby_PropertyGridSortFunction(wxPropertyGrid* pg, wxPGProperty* pp1, wxPGProperty* pp2)
+          {
+            VALUE rb_pg = SWIG_RubyInstanceFor(pg);
+            VALUE rb_pp1 = SWIG_NewPointerObj(SWIG_as_voidptr(pp1), SWIGTYPE_p_wxPGProperty, 0);
+            VALUE rb_pp2 = SWIG_NewPointerObj(SWIG_as_voidptr(pp2), SWIGTYPE_p_wxPGProperty, 0);
+            VALUE rb_sorter = rb_iv_get(rb_pg, "@__sorter");
+            if (NIL_P(rb_sorter))
+            {
+              VALUE msg = rb_inspect(rb_pg);
+              rb_raise(rb_eRuntimeError, "Nil @__sorter for %s",
+                                         StringValuePtr(msg));
+            }
+            return INT2NUM(rb_funcall(rb_sorter, rb_intern("call"), 3, rb_pg, rb_pp1, rb_pp2));
+          }
+          __HEREDOC
+        spec.add_extend_code 'wxPropertyGrid', <<~__HEREDOC
+          void SetSorter(VALUE proc)
+          {
+            VALUE rb_self = SWIG_RubyInstanceFor(self);
+            rb_iv_set(rb_self, "@__sorter", proc);
+            self->SetSortFunction(wxRuby_PropertyGridSortFunction);
+          }
+          VALUE GetSorter()
+          {
+            VALUE rb_self = SWIG_RubyInstanceFor(self);
+            return rb_iv_get(rb_self, "@__sorter");
+          }
+          __HEREDOC
         spec.add_swig_code 'typedef const wxPGPropArgCls& wxPGPropArg;'
         # mixin PropertyGridInterface
         spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
