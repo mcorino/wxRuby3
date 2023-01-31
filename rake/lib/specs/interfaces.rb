@@ -270,6 +270,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPGEditor')
     Director.Spec(pkg, 'wxPGCell')
     Director.Spec(pkg, 'wxPGProperty')
+    Director.Spec(pkg, 'wxNumericPropertyValidator')
     Director.Spec(pkg, 'wxPGArrayEditorDialog')
     Director.Spec(pkg, 'wxPGProperties')
     Director.Spec(pkg, 'wxPropertyGridEvent')
