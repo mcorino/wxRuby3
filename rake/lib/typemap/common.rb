@@ -441,7 +441,7 @@ module WXRuby3
         map 'wxValidator*' => 'Wx::Validator' do
           map_out code: <<~__CODE
             $result = wxRuby_WrapWxObjectInRuby($1);
-            RDATA($result)->dfree = SWIG_RubyRemoveTracking;
+            if (!NIL_P($result)) RDATA($result)->dfree = SWIG_RubyRemoveTracking;
             __CODE
         end
 
