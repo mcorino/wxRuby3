@@ -6,6 +6,8 @@ module Wx::PG
   NullProperty = nil
   PGChoicesEmptyData = nil
 
+  PG_LABEL = Wx::PG::PG_LABEL_STRING
+
   class PGProperty
 
     wx_each_attribute = instance_method :each_attribute
