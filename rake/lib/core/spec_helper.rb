@@ -66,8 +66,12 @@ module WXRuby3
       ifspec.class_implementation(cls)
     end
 
+    def classdef_name(name)
+      ifspec.classdef_name(name)
+    end
+
     def classdef_for_name(name)
-      defmod.find(ifspec.classdef_name(name))
+      defmod.find(classdef_name(name))
     end
 
     def class_name(classdef_or_name)

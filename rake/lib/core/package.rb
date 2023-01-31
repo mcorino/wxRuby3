@@ -158,13 +158,33 @@ module WXRuby3
 
       def is_dir_with_fulfilled_deps?(dir, cls_set)
         if (modreg = Spec.module_registry[dir.spec.module_name]) && !modreg.empty?
-          if modreg.values.all? { |base| cls_set.include?(base) }
+          # check if all base classes are defined previously or part of the same director or outside the current package
+          if modreg.values.all? do |base|
+                                  begin
+                                    base.nil? ||
+                                      cls_set.include?(base) ||
+                                      self != Spec.class_index[base].package ||
+                                      modreg.has_key?(base)
+                                  rescue
+                                    raise "**** Cannot find #{base}@#{dir.spec.module_name}@#{self.fullname}"
+                                  end
+                                end
+            # furthermore mixins included by classes from this director (if any)
+            # need to be defined previously (possibly outside the current package) or in the same director
             return modreg.keys.all? do |cls|
               cls_helper = Spec.class_index[cls]
               mixins = cls_helper.included_mixins
-              mixins.has_key?(cls) &&
-                mixins.all? do |modname|
-                  !modname.start_with?(cls_helper.package.fullname) || cls_set.include?("wx#{modname.split('::').last}")
+              # any included mixins for this class?
+              !mixins.has_key?(cls) ||
+                # if so, are all initialized?
+                mixins[cls].all? do |modname|
+                  # same package?
+                  if modname.start_with?(cls_helper.package.fullname)
+                    wx_name = "wx#{modname.split('::').last}"
+                    cls_set.include?(wx_name) || modreg.has_key?(wx_name) || !Spec.class_index[wx_name]
+                  else
+                    true # outside (we assume initialized before current)
+                  end
                 end
             end
           end
@@ -197,7 +217,7 @@ module WXRuby3
         cls_set = ::Set.new
         inc_dirs.select! do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || base.empty? || modreg.has_key?(base) }
+          if modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || modreg.has_key?(base) }
             cls_set.merge modreg.keys # remember classes
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
@@ -212,7 +232,8 @@ module WXRuby3
         # selected until there are no more modules left or none that are left depend on any selected ones
         while dir_inx = inc_dirs.find_index { |dir| is_dir_with_fulfilled_deps?(dir, cls_set) }
           dir = inc_dirs[dir_inx]
-          cls_set.merge Spec.module_registry[dir.spec.module_name].keys # remember classes
+          modreg = Spec.module_registry[dir.spec.module_name]
+          cls_set.merge modreg.keys # remember classes
           init = "Init_#{dir.spec.module_name}()"
           decls << "extern \"C\" void #{init};"
           init_fn << "  #{init};"

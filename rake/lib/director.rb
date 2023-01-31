@@ -412,8 +412,9 @@ module WXRuby3
       mreg = {}
       helper.def_items.each do |item|
         if Extractor::ClassDef === item && !item.ignored && !helper.is_folded_base?(item.name)
-          mreg[item.name] = helper.base_class(item)
-          Spec.class_index[item.name] = helper
+          clsnm = helper.class_name(item)
+          mreg[clsnm] = helper.base_class(item)
+          Spec.class_index[clsnm] = helper
         end
         Spec.module_registry[helper.module_name] = mreg
       end
