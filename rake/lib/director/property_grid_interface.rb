@@ -37,7 +37,7 @@ module WXRuby3
                               'void SetPropertyValues(const wxVariantList &list, const wxPGPropArgCls& defaultCategory=WXRB_NULL_PROP_ARG)',
                               'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory=WXRB_NULL_PROP_ARG)'
         # don't expose property grid iterators; add a more Ruby-like extension
-        spec.ignore 'wxPropertyInterface::GetIterator'
+        spec.ignore 'wxPropertyGridInterface::GetIterator'
         # add basic property enumerator; will wrap this in pure Ruby still for improved argument handling
         spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
           VALUE each_property(int flags, VALUE start, bool recurse)
@@ -99,7 +99,7 @@ module WXRuby3
           }
         __HEREDOC
         # type mapping for 'wxArrayPGProperty *targetArr' (GetPropertiesWithFlag)
-        spec.map 'wxArrayPGProperty *targetArr' => 'Array<Wx::PGProperty>' do
+        spec.map 'wxArrayPGProperty *targetArr' => 'Array<Wx::PG::PGProperty>' do
           map_in ignore: true, temp: 'wxArrayPGProperty tmp', code: '$1 = &tmp;'
           map_argout code: <<~__CODE
             $result = rb_ary_new();
@@ -110,6 +110,12 @@ module WXRuby3
               rb_ary_push($result, rb_pp);
             }
             __CODE
+        end
+        # type mapping for wxPropertyGridPageState (for wxPropertyGridInterface::RefreshGrid)
+        # declare converter function implemented in PropertyGridPageState module
+        spec.add_header_code 'WXRB_EXPORT_FLAG wxPropertyGridPageState* wxRuby_ConvertToPropertyGridPageState(VALUE obj);'
+        spec.map 'wxPropertyGridPageState *state' => 'Wx::PG::PropertyGridPageState' do
+          map_in code: '$1 = wxRuby_ConvertToPropertyGridPageState($input);'
         end
         # not useful in wxRuby
         spec.ignore 'wxPGPropArgCls::GetPtr(wxPropertyGridInterface *) const',

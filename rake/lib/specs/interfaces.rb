@@ -274,6 +274,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPGProperties')
     Director.Spec(pkg, 'wxPropertyGridEvent')
     Director.Spec(pkg, 'wxPGValidationInfo')
+    Director.Spec(pkg, 'wxPropertyGridPageState')
     Director.Spec(pkg, 'wxPropertyGridInterface')
     Director.Spec(pkg, 'wxPropertyGrid')
   }
