@@ -146,9 +146,11 @@ module WXRuby3
               s
             else
               if s==$1
-                _ident_to_ref(_ident_str_to_doc($1))
+                doc_id, known_id = _ident_str_to_doc($1)
+                known_id ? _ident_to_ref(doc_id) : doc_id
               else
-                "#{s[0]}#{_ident_to_ref(_ident_str_to_doc($1))}"
+                doc_id, known_id = _ident_str_to_doc($1)
+                "#{s[0]}#{known_id ? _ident_to_ref(doc_id) : doc_id}"
               end
             end
           end
@@ -209,7 +211,7 @@ module WXRuby3
           ''
         when 'see'
           no_ref do
-            @see_list << node_to_doc(node)
+            @see_list.concat node_to_doc(node).split(',')
           end
           ''
         else
@@ -262,8 +264,8 @@ module WXRuby3
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
-        if nmlist.empty?
-          if /(\w+)\s*\(([^\)]*)\)/ =~ nm_str
+        if nmlist.empty?  # unscoped id?
+          if /(\w+)\s*\(([^\)]*)\)/ =~ nm_str   # method with arglist?
             fn = $1
             args = _arglist_to_doc($2)
             mtdsig = args.empty? ? "#{rb_method_name(fn)}" : "#{rb_method_name(fn)}(#{args})"
@@ -271,39 +273,40 @@ module WXRuby3
               sep = _is_static_method?(ref_scope, fn) ? '.' : '#'
               constnm = rb_wx_name(ref_scope)
               if DocGenerator.constants_xref_db.has_key?(constnm)
-                "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdsig}"
+                ["#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdsig}", true]
               else
                 "Wx::#{constnm}#{sep}#{mtdsig}"
               end
             else
-              mtdsig
+              [mtdsig, true]
             end
-          else
+          else # constant or method name only
             if DocGenerator.constants_xref_db.has_key?(constnm)
-              "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+              ["#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}", true]
             elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
-              "Wx::#{rb_constant_name(nm_str)}"
+              ["Wx::#{rb_constant_name(nm_str)}", true]
             elsif !_is_method?(nm_str, ref_scope)
-              "Wx::#{constnm}"
+              ["Wx::#{constnm}", true]
             else
               mtdnm = rb_method_name(nm_str)
               if ref_scope
                 sep = _is_static_method?(ref_scope, nm_str) ? '.' : '#'
                 constnm = rb_wx_name(ref_scope)
                 if DocGenerator.constants_xref_db.has_key?(constnm)
-                  "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdnm}"
+                  ["#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}#{sep}#{mtdnm}", true]
                 else
                   "Wx::#{constnm}#{sep}#{mtdnm}"
                 end
               else
-                mtdnm
+                [mtdnm, true]
               end
             end
           end
-        else
+        else # scoped id
           itmnm = nmlist.shift.to_s
           mtd = nil
           args =  nil
+          known = true
           if /(\w+)\s*\(([^\)]*)\)/ =~ itmnm
             mtd = $1
             args = _arglist_to_doc($2)
@@ -314,20 +317,21 @@ module WXRuby3
             cnm = rb_constant_name(nm_str)
             constnm = "#{DocGenerator.constants_xref_db[cnm]['mod']}::#{cnm}"
           elsif nm_str.start_with?('wx')
+            known = false
             constnm = "Wx::#{constnm}"
           end
           if mtd.nil?
             if DocGenerator.constants_xref_db.has_key?(rb_wx_name(itmnm)) || !_is_method?(itmnm, nm_str)
-              "#{constnm}::#{rb_wx_name(itmnm)}"
+              ["#{constnm}::#{rb_wx_name(itmnm)}", known]
             else
               sep = _is_static_method?(nm_str, itmnm) ? '.' : '#'
-              "#{constnm}#{sep}#{rb_method_name(itmnm)}"
+              ["#{constnm}#{sep}#{rb_method_name(itmnm)}", known]
             end
           elsif nm_str == mtd # ctor?
-            args.empty? ? "#{constnm}\#initialize" : "#{constnm}\#initialize(#{args})"
+            [args.empty? ? "#{constnm}\#initialize" : "#{constnm}\#initialize(#{args})", known]
           else
             sep = _is_static_method?(nm_str, mtd) ? '.' : '#'
-            args.empty? ? "#{constnm}#{sep}#{rb_method_name(mtd)}" : "#{constnm}#{sep}#{rb_method_name(mtd)}(#{args})"
+            [args.empty? ? "#{constnm}#{sep}#{rb_method_name(mtd)}" : "#{constnm}#{sep}#{rb_method_name(mtd)}(#{args})", known]
           end
         end
       end
@@ -342,9 +346,11 @@ module WXRuby3
         ref ||= {}
         return node.text if /\s/ =~ node.text # no crossref transforming if text contains whitespace; return plain text
         if no_ref?
-          _ident_str_to_doc(node.text, ref[:scope])
+          doc_id, _ = _ident_str_to_doc(node.text, ref[:scope])
+          doc_id
         else
-          _ident_to_ref(_ident_str_to_doc(node.text, ref[:scope]))
+          doc_id, id_known = _ident_str_to_doc(node.text, ref[:scope])
+          id_known ? _ident_to_ref(doc_id) : doc_id
         end
       end
 
@@ -647,10 +653,21 @@ module WXRuby3
                               end
             clsnm = rb_wx_name(intf_class_name)
             xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
-            basecls = ifspec.classdef_name(base_class(item, doc: true))
             fdoc.doc.puts get_class_doc(item)
-            fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
+            fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a class."
+            if is_mixin?(item)
+              fdoc.puts "module #{clsnm}"
+            else
+              basecls = ifspec.classdef_name(base_class(item, doc: true))
+              fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
+            end
             fdoc.puts
+
+            # mixin includes
+            if included_mixins.has_key?(item.name)
+              included_mixins[item.name].each { |mod| fdoc.iputs "include #{mod}" }
+              fdoc.puts
+            end
 
             # collect possible aliases
             alias_methods = item.aliases
