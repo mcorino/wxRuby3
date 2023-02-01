@@ -16,7 +16,7 @@ ID_PageOpen,
   ID_Back,
   ID_Forward,
   ID_Processor,
-  ID_DrawCustomBg = (Wx::ID_HIGHEST..Wx::ID_HIGHEST+7).to_a
+  ID_DrawCustomBg = (Wx::ID_HIGHEST.to_i..Wx::ID_HIGHEST.to_i+7).to_a
 
 
 class MyHtmlFilter < Wx::Html::HtmlFilter
