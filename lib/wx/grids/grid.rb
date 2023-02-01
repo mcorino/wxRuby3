@@ -57,7 +57,7 @@ class Wx::Grids::Grid
 
   # Set a grid table base to provide data
   alias :__assign_table :assign_table
-  def assign_table(table, sel_mode = Wx::Grids::Grid::GridSelectCells)
+  def assign_table(table, sel_mode = GridSelectionModes::GridSelectCells)
     # we do not allow assigning another table; wxWidgets itself does not allow that anymore either
     # in AssignTable (SetTable still allows but we do not use that).
     # GridTableBase provides enough options to adjust to grid changes that there is no need.
