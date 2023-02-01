@@ -19,6 +19,9 @@ Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
 # Helper functions
 require 'wx/helpers'
 
+# Accessor automagic
+require 'wx/accessors'
+
 # Global constant compatibility helper
 require 'wx/global_const'
 
@@ -29,6 +32,8 @@ class_files = File.join( File.dirname(__FILE__), 'core', '*.rb')
 Dir.glob(class_files) do | class_file |
   require 'wx/core/' + File.basename(class_file)
 end
+
+::Wx.include(WxRubyStyleAccessors)
 
 ::Wx.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
 

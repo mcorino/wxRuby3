@@ -8,4 +8,6 @@ require 'wxruby_aui'
 
 require_relative './aui/require'
 
+::Wx.include(WxRubyStyleAccessors)
+
 ::Wx::Aui.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

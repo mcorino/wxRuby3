@@ -9,4 +9,6 @@ require 'wxruby_html'
 
 require_relative './html/require'
 
+::Wx.include(WxRubyStyleAccessors)
+
 ::Wx::Html.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

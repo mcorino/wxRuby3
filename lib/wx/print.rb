@@ -8,4 +8,6 @@ require 'wxruby_print'
 
 require_relative './print/require'
 
+::Wx.include(WxRubyStyleAccessors)
+
 ::Wx::Print.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
