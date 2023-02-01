@@ -12,9 +12,9 @@ class Wx::Locale
     # constant; mainly here because it seems a bit strange in Ruby to
     # have global side-effects in a constructor
     def set_locale(locale)
-      if locale.kind_of?(Integer)
+      if ::Integer === locale || Wx::Enum === locale
         new(locale)
-      elsif locale.kind_of?(String) and lang_info = find_language_info(locale)
+      elsif ::String === locale and (lang_info = find_language_info(locale))
         new(lang_info.language)
       else
         raise ArgumentError, "Unknown language #{locale}"
