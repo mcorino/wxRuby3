@@ -69,6 +69,8 @@ module WXRuby3
                         "#{itm}::GetDropTarget",
                         "#{itm}::GetValidator",
                         "#{itm}::IsTopLevel") unless /\.h\Z/ =~ itm
+          # for extra safeguarding we need this to change name in Ruby
+          spec.rename_for_ruby '_wx_on_internal_idle' => "wxWindow::OnInternalIdle"  unless /\.h\Z/ =~ itm
         end
 
         case spec.module_name
@@ -105,6 +107,8 @@ module WXRuby3
             'wxWindow::SendIdleEvents',
             'wxWindow::ClientToScreen(int*,int*)' # no need; prefer the wxPoint version
           ]
+          # disregard docs for this
+          spec.regard 'wxWindow::OnInternalIdle', regard_doc: false
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.ignore('wxWindow::SetSize(int, int)') # not useful as the wxSize variant will also accept an array
@@ -186,9 +190,72 @@ module WXRuby3
                                 'virtual bool ShouldInheritColours() const override',
                                 'virtual void DoUpdateWindowUI(wxUpdateUIEvent& event) override')
         end
+        # update generated code for all windows
+        spec.post_processors << :update_window
       end
     end # class Window
 
   end # class Director
+
+  module SwigRunner
+    class Processor
+
+      # Special post-processor for Window and derivatives.
+      # This provides extra safe guarding for the event processing path in wxRuby.
+      # The processor inserts code in the 'OnInternalIdle' methods of the director class which check
+      # for existence of any Ruby implementation of this method ('on_internal_idle')
+      # in the absence of which a direct call to the wxWidget implementation is made. If there
+      # does exist a Ruby ('override') implementation the method continues and calls the Ruby
+      # method implementation.
+      # The original wxWidget implementation is available in Ruby as 'wx_on_internal_idle'
+      # and can be called from the 'overrides'.
+      # Additionally the inserted code first off checks if the window is actually (still)
+      # able to handle events by calling wxRuby_FindTracking() since in wxRuby it is in rare occasions
+      # possible the event handler instance gets garbage collected AFTER the event processing
+      # path has started in which case the C++ and Ruby object are unlinked and any attempts to
+      # access the (originally) associated Ruby object will have bad results (this is especially
+      # true for dialogs which are not cleaned up by wxWidgets but rather garbage collected by Ruby).
+      class UpdateWindow < Processor
+
+        def run
+          at_director_method = false
+          director_wx_class = nil
+          director_method_line = 0
+
+          prev_line = nil
+
+          update_source(at_end: ->(){ prev_line }) do |line|
+            if at_director_method
+              director_method_line += 1   # update line counter
+              if director_method_line == 2 && line.strip.empty?   # are we at the right spot?
+                code = <<~__CODE     # insert the code update
+                // added by wxRuby3 Processor.update_window
+                if (wxRuby_FindTracking(this) == Qnil)
+                  return;
+                if (!rb_respond_to(swig_get_self(), rb_intern("on_internal_idle")))
+                  this->#{director_wx_class}::OnInternalIdle();
+                else
+                __CODE
+                line << "\n  " << code.split("\n").join("\n  ")
+              elsif /rb_funcall\(.*\"wx_on_internal_idle\".*\)/ =~ line
+                line[%Q{"wx_on_internal_idle"}] = %Q{"on_internal_idle"}
+                at_director_method = false  # end of update
+              end
+            elsif /void\s+SwigDirector_(\w+)::OnInternalIdle\(.*\)\s+{/ =~ line
+              director_wx_class = $1
+              at_director_method = true   # we're at a director method to be updated
+              director_method_line = 0    # keep track of the method lines
+            end
+
+            result = prev_line
+            prev_line = line
+            result
+          end
+        end
+
+      end # class UpdateWindow
+
+    end
+  end
 
 end # module WXRuby3
