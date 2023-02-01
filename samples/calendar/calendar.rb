@@ -294,6 +294,7 @@ class MyFrame < Frame
     Wx::MessageDialog.new( self, "The selected date is #{str}", 
                            "Date chosen" ).show_modal
   end
+  alias :date= :set_date
   
 end
 
