@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxHtmlFilter'
+        spec.items << 'wxHtmlFilter' << 'htmlpars.h'
         spec.gc_as_window 'wxHtmlWindow'
         spec.override_inheritance_chain('wxHtmlWindow', %w[wxScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
         # add members from wxHtmlWindowInterface
