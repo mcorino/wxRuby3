@@ -312,7 +312,7 @@ class MyTreeCtrl < Wx::TreeCtrl
     if depth > 0
       has_children = depth > 1
 
-      for n in 0...num_children
+      (0...num_children).each do |n|
         # at depth 1 elements won't have any more children
         if has_children
           str = "Folder child #{n + 1}"
@@ -334,6 +334,11 @@ class MyTreeCtrl < Wx::TreeCtrl
         # and now we also set the expanded one (only for the folders)
         if has_children && Wx::get_app.show_images
           set_item_image(id, TreeCtrlIcon_FolderOpened, Wx::TreeItemIcon_Expanded)
+        end
+
+        # remember the last child for OnEnsureVisible()
+        if !has_children && n == num_children - 1
+          @last_item = id
         end
 
         add_items_recursively(id, num_children, depth - 1, n + 1)
