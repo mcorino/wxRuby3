@@ -88,13 +88,13 @@ class MySashFrame < Wx::Frame
 
   def on_v_sash_dragged(sash, e)
     # Call get_drag_rect to get the new size
-    size = Wx::Size.new(  e.get_drag_rect.width, self.get_size.y )
+    size = Wx::Size.new(  e.get_drag_rect.width, self.get_size.height )
     sash.set_default_size( size )
     Wx::LayoutAlgorithm.new.layout_frame(self, @m_panel)
   end
 
   def on_h_sash_dragged(sash, e)
-    size = Wx::Size.new( self.get_size.x, e.get_drag_rect.height )
+    size = Wx::Size.new( self.get_size.width, e.get_drag_rect.height )
     sash.set_default_size( size )
     Wx::LayoutAlgorithm.new.layout_frame(self, @m_panel)
   end
