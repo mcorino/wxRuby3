@@ -547,7 +547,7 @@ class MyFrame < Frame
                             "",
                             "myletter.doc",
                             "Text files (*.txt)|*.txt|Document files (*.doc)|*.doc",
-                            SAVE|OVERWRITE_PROMPT)
+                            FD_SAVE|FD_OVERWRITE_PROMPT)
 
     dialog.set_filter_index(1)
 
@@ -819,7 +819,7 @@ class MyApp < App
     # Create the main frame window
     frame = MyFrame.new(nil, "Windows dialogs example", 
                         Point.new(20, 20), Size.new(400, 300))
-
+    gc_stress
     # Make a menubar
     file_menu = Menu.new
 
