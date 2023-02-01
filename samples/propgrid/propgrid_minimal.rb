@@ -20,8 +20,8 @@ class MyFrame < Wx::Frame
     super(parent, Wx::ID_ANY, title: "PropertyGrid Test")
     menu = Wx::Menu.new
     menu.append(ID_ACTION, "Action");
-    menu_bar = Wx::MenuBar.new
-    menu_bar.append(menu, "Action");
+    self.menu_bar = Wx::MenuBar.new
+    self.menu_bar.append(menu, "Action");
 
     @pg = Wx::PG::PropertyGrid.new(self, Wx::ID_ANY, Wx::DEFAULT_POSITION, [400,400],
                                    Wx::PG::PG_SPLITTER_AUTO_CENTER | Wx::PG::PG_BOLD_MODIFIED)
