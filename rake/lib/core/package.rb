@@ -454,12 +454,12 @@ module WXRuby3
             when 1
               evh_args = 'id, meth = nil, &block' unless evh_args
               argnms = evh_args.split(',')
-              fdoc.doc.puts "@param [Integer] #{argnms.shift.strip} window/control id"
+              fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} window/control id"
             when 2
               evh_args = 'first_id, last_id, meth = nil, &block' unless evh_args
               argnms = evh_args.split(',')
-              fdoc.doc.puts "@param [Integer] #{argnms.shift.strip} first window/control id of range"
-              fdoc.doc.puts "@param [Integer] #{argnms.shift.strip} last window/control id of range"
+              fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} first window/control id of range"
+              fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} last window/control id of range"
             end
             fdoc.doc.puts "@param [String,Symbol,Method,Proc] meth (name of) method or handler proc"
             #fdoc.doc.puts "@param [Proc] block handler block"
