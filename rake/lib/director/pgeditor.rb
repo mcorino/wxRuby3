@@ -63,6 +63,20 @@ module WXRuby3
             }
             __CODE
         end
+        # since OnEvent is const we need a slightly different version of this type map
+        spec.map 'wxEvent &event' => 'Wx::Event' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_TRACE__
+            $input = wxRuby_WrapWxEventInRuby(const_cast<void*> (static_cast<const void*> (this)), &$1);
+            #else
+            $input = wxRuby_WrapWxEventInRuby(&$1);
+            #endif
+          __CODE
+
+          # Thin and trusting wrapping to bypass SWIG's normal mechanisms; we
+          # don't want SWIG changing ownership or typechecking these.
+          map_in code: '$1 = (wxEvent*)DATA_PTR($input);'
+        end
       end
 
     end # class PGEditor

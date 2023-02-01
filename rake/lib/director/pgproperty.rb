@@ -93,8 +93,15 @@ module WXRuby3
           spec.add_header_code <<~__HEREDOC
             extern void GC_mark_wxPGProperty(void* ptr)
             {
+            #ifdef __WXRB_TRACE__
+              std::wcout << "> GC_mark_wxPGProperty : " << ptr << std::endl;
+            #endif
               if (ptr)
-                rb_gc_mark((VALUE)((wxPGProperty*)ptr)->GetClientData());
+              {
+                VALUE object = (VALUE)((wxPGProperty*)ptr)->GetClientData();
+                if (object && !NIL_P(object))
+                  rb_gc_mark(object);
+              }
             }
             __HEREDOC
           spec.ignore 'wxPGProperty::m_clientData' # not needed for wxRuby

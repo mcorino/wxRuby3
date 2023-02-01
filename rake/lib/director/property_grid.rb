@@ -54,6 +54,50 @@ module WXRuby3
         spec.add_swig_code 'typedef const wxPGPropArgCls& wxPGPropArg;'
         # mixin PropertyGridInterface
         spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
+        # customize mark function
+        spec.add_header_code <<~__HEREDOC
+          static void GC_mark_wxPropertyGrid(void* ptr) 
+          {
+          #ifdef __WXRB_TRACE__
+            std::wcout << "> GC_mark_wxPropertyGrid : " << ptr << std::endl;
+          #endif
+            if ( GC_IsWindowDeleted(ptr) )
+            {
+              return;
+            }
+            // Do standard marking routines as for all wxWindows
+            GC_mark_wxWindow(ptr);
+            
+            wxPropertyGrid* wx_pg = (wxPropertyGrid*) ptr;
+
+            // mark all properties
+            wxPropertyGridIterator it =
+                wx_pg->GetIterator(wxPG_ITERATE_ALL, wxNullProperty);
+            // iterate all
+            for ( ; !it.AtEnd(); it.Next() )
+            {
+              wxPGProperty* p = it.GetProperty();
+              VALUE rb_p = SWIG_RubyInstanceFor(p);
+              if (NIL_P(rb_p))
+              {
+          #ifdef __WXRB_TRACE__
+                std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+          #endif
+                VALUE object = (VALUE) p->GetClientData();
+                if ( object && !NIL_P(object))
+                  rb_gc_mark(object);
+              }
+              else
+              {
+          #ifdef __WXRB_TRACE__
+                std::wcout << "*** marking property " << p << ":" << p->GetName() << std::endl;
+          #endif
+                rb_gc_mark(rb_p);
+              }
+            }
+          }
+          __HEREDOC
+        spec.add_swig_code '%markfunc wxPropertyGrid "GC_mark_wxPropertyGrid";'
       end
     end # class PropertyGrid
 
