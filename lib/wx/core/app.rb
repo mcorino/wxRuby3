@@ -77,15 +77,9 @@ class Wx::App
   # second. This should help ferret out bugs in memory management more
   # quickly.
   def gc_stress(interval = 1)
-    # Ruby 1.9 provides this built-in version, but doesn't like the 1.8
-    # version at all - results in frequent segfaults.
-    if RUBY_VERSION >= "1.9.0"
-      GC.stress
-    else # Ruby 1.8
-      t = Wx::Timer.new(self, 9999)
-      evt_timer(9999) { Thread.pass }
-      Thread.new { loop { sleep interval; GC.start } }
-      t.start(100)
-    end
+    t = Wx::Timer.new(self, 9999)
+    evt_timer(9999) { Thread.pass }
+    Thread.new { loop { sleep interval; GC.start } }
+    t.start(100)
   end
 end
