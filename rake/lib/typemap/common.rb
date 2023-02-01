@@ -498,7 +498,7 @@ module WXRuby3
             map_in from: 'Wx::BitmapBundle,Wx::Bitmap,Wx::Icon,Wx::Image',
                    temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
               $1 = &tmpBundle;
-              if ($input != Qnil)
+              if (!NIL_P($input))
               {
                 bool ok = false;
                 if (TYPE($input) == T_DATA) 
@@ -530,18 +530,14 @@ module WXRuby3
                   rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter $argnum");
                 }
               }
-              else
-              {
-                rb_raise(rb_eArgError, "Expected bitmap (bundle) for $1_basetype parameter $argnum");
-              }
               __CODE
-            map_typecheck precedence: 1, code: <<~__CODE
-              $1 = ($input != Qnil && 
-                      TYPE($input) == T_DATA && 
-                      (wx_IsClass($input, "BitmapBundle") || 
-                       wx_IsClass($input, "Bitmap") || 
-                       wx_IsClass($input, "Icon") || 
-                       wx_IsClass($input, "Image"))
+            map_typecheck precedence: 2000, code: <<~__CODE
+              $1 = (NIL_P($input) || 
+                      (TYPE($input) == T_DATA && 
+                       (wx_IsClass($input, "BitmapBundle") || 
+                        wx_IsClass($input, "Bitmap") || 
+                        wx_IsClass($input, "Icon") || 
+                        wx_IsClass($input, "Image")))
                    );
               __CODE
           end
