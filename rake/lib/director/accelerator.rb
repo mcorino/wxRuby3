@@ -20,13 +20,13 @@ module WXRuby3
           // Ruby string.
           int wxRuby_RubyStringOrIntToKeyCode(VALUE rb_key) 
           {
-            if ( TYPE(rb_key) == T_FIXNUM ) 
+            if (TYPE(rb_key) == T_FIXNUM || wxRuby_IsAnEnum(rb_key)) 
             {
               return NUM2INT(rb_key);
             }
-            else if ( TYPE(rb_key) == T_STRING ) 
+            else if (TYPE(rb_key) == T_STRING) 
             {
-              return NUM2INT( rb_funcall(rb_key, rb_intern("ord"), 0) );
+              return NUM2INT(rb_funcall(rb_key, rb_intern("ord"), 0));
             }
             else 
             {
@@ -38,8 +38,8 @@ module WXRuby3
         spec.map 'int keyCode' => 'Integer' do
           map_in code: '$1 = wxRuby_RubyStringOrIntToKeyCode($input);'
           map_typecheck precedence: 'INT32', code: <<~__CODE
-            $1 = ( ( TYPE($input) == T_FIXNUM ) || 
-                   ( TYPE($input) == T_STRING && RSTRING_LEN($input) == 1) );
+            $1 = ( (TYPE($input) == T_FIXNUM) || wxRuby_IsAnEnum($input) ||
+                   (TYPE($input) == T_STRING && RSTRING_LEN($input) == 1) );
             __CODE
         end
         spec.set_only_for('__WXMSW__', 'wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
