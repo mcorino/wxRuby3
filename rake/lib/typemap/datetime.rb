@@ -17,7 +17,7 @@ module WXRuby3
 
       define do
 
-        map 'wxDateTime&' => 'Time' do
+        map 'wxDateTime&' => 'Time,Date,DateTime' do
 
           add_header_code <<~__CODE
             #ifndef __WXRB_DATETIME_HELPERS__
@@ -40,10 +40,12 @@ module WXRuby3
 
           map_freearg code: 'if (dtalloc$argnum) delete $1;'
 
-          map_typecheck precedence: 'SWIGOBJECT', code: '$1 = rb_obj_is_kind_of($input, rb_cTime);'
+          map_typecheck precedence: 'SWIGOBJECT', code: <<~__CODE
+            $1 = rb_obj_is_kind_of($input, rb_cTime) || rb_respond_to($input, rb_intern ("to_time"));
+            __CODE
         end
 
-        map 'wxDateTime' => 'Time' do
+        map 'wxDateTime' => 'Time,Date,DateTime' do
 
           # Converts a return value of wxDateTime to a Ruby Time object
           map_out code: '$result = wxRuby_wxDateTimeToRuby($1);'
