@@ -37,7 +37,7 @@ WXRUBY_EXPORT void GC_mark_wxEvent(void *);
 // Objects that are tracked but managed by WxWidgets - this is currently
 // all Windows, including Frames and Dialogs
 %define GC_NEVER(kls)
-%trackobjects;
+%trackobjects kls;
 %feature("freefunc") kls "GcNullFreeFunc";
 %enddef
 
@@ -66,7 +66,7 @@ GC_NEVER(kls);
 
 // Strategy for dialogs - these are NOT destroyed automatically
 %define GC_MANAGE_AS_DIALOG(kls)
-%trackobjects;
+%trackobjects kls;
 %feature("freefunc") kls "GcDialogFreeFunc";
 // Mark any associated sizer
 %feature("markfunc") kls "GC_mark_wxWindow";
@@ -86,13 +86,13 @@ GC_NEVER(kls);
 %define GC_MANAGE_AS_EVENT(kls)
 %feature("markfunc") kls "GC_mark_wxEvent";
 %feature("nodirector") kls;
-%trackobjects;
+%trackobjects kls;
 %enddef
 
 // Other descendants of Wx::Object - eg Colour, Pen, Bitmap - that Wx
 // manages by reference counting
 %define GC_MANAGE_AS_OBJECT(kls)
-%trackobjects;
+%trackobjects kls;
 %enddef
 
 // Strategy for objects whose pointer / id identity does not matter,
@@ -113,7 +113,7 @@ GC_NEVER(kls);
 // so the freefunc should check for this condition and do the delete if
 // required to prevent a memory leak.
 %define GC_MANAGE_AS_SIZER(kls)
-%trackobjects;
+%trackobjects kls;
 %feature("freefunc") kls "GcNullFreeFunc";
 %enddef
 
@@ -121,7 +121,7 @@ GC_NEVER(kls);
 // *not* deleted. Destruction will be automatic if the reference count
 // reaches zero. Need to be disowned though in certain circumstances.
 %define GC_MANAGE_AS_REFCOUNTED(kls)
-%trackobjects;
+%trackobjects kls;
 %feature("freefunc") kls "GcRefCountedFreeFunc";
 %enddef
 
