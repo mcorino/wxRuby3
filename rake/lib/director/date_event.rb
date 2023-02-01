@@ -116,6 +116,10 @@ module WXRuby3
                 }
                 else
                 {
+                    if (!rb_obj_is_kind_of(ruby_value, rb_cTime))
+                    {
+                      ruby_value = rb_funcall(ruby_value, rb_intern("to_time"), 0);
+                    }
                     int y       = NUM2INT(rb_funcall(ruby_value, rb_intern("year"), 0));
                     int rMonth  = NUM2INT(rb_funcall(ruby_value, rb_intern("month"), 0));
                     int rDay    = NUM2INT(rb_funcall(ruby_value, rb_intern("mday"), 0));
