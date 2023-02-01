@@ -293,8 +293,8 @@ module WXRuby3
 
               # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
               # wrappers
-              if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx#{core_name}";/
-                line.sub!(/\"Wx#{core_name}::wx#{core_name}/, "\"#{package.fullname}::#{core_name}")
+              if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx(\w+)";/
+                line.sub!(/\"Wx#{core_name}::wx#{$1}/, "\"#{package.fullname}::#{$1}")
               end
 
               # remove the UnknownExceptionHandler::handler method
