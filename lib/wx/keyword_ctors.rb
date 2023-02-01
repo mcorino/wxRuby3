@@ -8,7 +8,7 @@ module Wx
 
       # Common Wx constructor argument keywords, with their default values.
       STANDARD_DEFAULTS = {
-        :id        => -1,
+        :id        => Wx::ID_ANY,
         :size      => Wx::DEFAULT_SIZE,
         :pos       => Wx::DEFAULT_POSITION,
         :style     => 0,
