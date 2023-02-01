@@ -11,10 +11,14 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'wxHtmlWidgetCell' << 'htmldefs.h'
+        spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'htmldefs.h'
+        # the classes here are internal and for reference only
+        # should never be derived from or instantiated in (Ruby) user code
+        spec.disable_proxies
+        spec.make_abstract 'wxHtmlCell'
         spec.make_abstract 'wxHtmlLinkInfo'
-        spec.gc_as_temporary 'wxHtmlLinkInfo'
-        spec.no_proxy 'wxHtmlCell'
+        spec.make_abstract 'wxHtmlContainerCell'
+        spec.gc_as_temporary 'wxHtmlLinkInfo' # no tracking
       end
     end # class HtmlCell
 
