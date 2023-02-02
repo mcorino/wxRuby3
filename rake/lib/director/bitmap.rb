@@ -57,6 +57,7 @@ module WXRuby3
           wxBitmap::InitStandardHandlers
           wxBitmap::InsertHandler
           wxBitmap::RemoveHandler
+          wxBitmap::NewFromPNGData
           ]
         # problematic and not really useful in Ruby
         spec.ignore('wxBitmap::wxBitmap(const char[],int,int,int)',
