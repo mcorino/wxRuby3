@@ -76,6 +76,7 @@ module WXRuby3
           spec.map 'char** clientData' do
             map_in ignore: true, code: '$1 = (char **)NULL;'
           end
+          spec.ignore 'wxSingleChoiceDialog::GetSelectionData'
           spec.do_not_generate(:functions)
         when 'wxMultiChoiceDialog'
           # unnneeded and unwanted for Ruby
