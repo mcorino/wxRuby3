@@ -155,7 +155,10 @@ module WXRuby3
 
         map 'void*' => 'Object' do
           map_in code: '$1 = (void*)($input);'
-          map_out code: '$result = (VALUE)($1);'
+          map_out code: <<~__CODE
+            if ($1) $result = (VALUE)($1);
+            else    $result = Qnil;
+            __CODE
           # void* should only be considered after everything else does not match
           # since for Ruby the precedence for bool is set to 10000 make it 20000
           # (have to be careful when bool is matched alongside void* though since

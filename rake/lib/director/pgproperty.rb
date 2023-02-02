@@ -52,23 +52,6 @@ module WXRuby3
           spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
           # not of use in Ruby
           spec.ignore(%w[wxPGProperty::GetClientObject wxPGProperty::SetClientObject])
-          # provide customized implementation
-          spec.ignore(%w[wxPGProperty::GetClientData wxPGProperty::SetClientData], ignore_doc: false) # keep docs
-          # Replace the old Wx definitions of these methods (which would segfault)
-          spec.add_extend_code 'wxPGProperty', <<~__HEREDOC
-              VALUE get_client_data() 
-              {
-                VALUE returnVal = (VALUE)self->GetClientData();
-                if (!returnVal)
-                  return Qnil;
-                return returnVal;
-              }
-            
-              void set_client_data(VALUE item_data) 
-              {
-                self->SetClientData((void *)item_data);
-              }
-            __HEREDOC
           # don't expose wxPGAttributeStorage; add a more Ruby-like extension
           spec.ignore 'wxPGProperty::GetAttributes'
           spec.add_extend_code 'wxPGProperty', <<~__HEREDOC
