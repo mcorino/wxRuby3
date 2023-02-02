@@ -1,5 +1,5 @@
 ###
-# wxRuby3 Common typemap definitions
+# wxRuby3 HtmlCell typemap definition
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
