@@ -18,7 +18,7 @@ module WXRuby3
         spec.ignore 'wxGraphicsMatrix::IsEqual(const wxGraphicsMatrix &)'
         spec.ignore 'wxGraphicsMatrix::GetNativeMatrix'
         spec.ignore 'wxGraphicsBitmap::GetNativeBitmap'
-        spec.ignore 'wxGraphicsPath::GetNativePath'
+        spec.ignore 'wxGraphicsPath::GetNativePath', 'wxGraphicsPath::UnGetNativePath'
         # Deal with GraphicsMatrix#get method
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
