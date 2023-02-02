@@ -18,7 +18,8 @@ module WXRuby3
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
           'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)',
           'wxDC::DrawSpline(const wxPointList *)',
-          'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const'
+          'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const',
+          'wxDC::GetHandle'
         ]
         spec.no_proxy 'wxDC'
         spec.rename_for_ruby({
