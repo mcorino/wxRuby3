@@ -30,6 +30,12 @@ module WXRuby3
         spec.new_object('wxGridCellAttr::Clone',
                         'wxGridCellAttr::GetEditor',
                         'wxGridCellAttr::GetRenderer')
+        # type mapping for wxGridCellEditor* return ref
+        spec.map 'wxGridCellEditor*' => 'Wx::Grids::GridCellEditor' do
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
+          map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
+          map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
+        end
       end
     end # class GridCellAttr
 

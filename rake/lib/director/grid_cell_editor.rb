@@ -23,6 +23,77 @@ module WXRuby3
           end
           spec.override_inheritance_chain('wxGridCellEditor', [])
           spec.regard('wxGridCellEditor::~wxGridCellEditor')
+          # add method for correctly wrapping PGEditor output references
+          spec.add_header_code <<~__CODE
+            extern VALUE mWxGrids; // declare external module reference
+            extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0)
+            {
+              // If no object was passed to be wrapped.
+              if ( ! wx_gce )
+                return Qnil;
+
+              const void *ptr = 0;
+              wxString class_name;
+              if ((ptr = dynamic_cast<const wxGridCellActivatableEditor*> (wx_gce)))
+              {
+                class_name = "GridCellActivatableEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellBoolEditor*> (wx_gce)))
+              {
+                class_name = "GridCellBoolEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellChoiceEditor*> (wx_gce)))
+              {
+                class_name = "GridCellChoiceEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellEnumEditor*> (wx_gce)))
+              {
+                class_name = "GridCellEnumEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellDateEditor*> (wx_gce)))
+              {
+                class_name = "GridCellDateEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellTextEditor*> (wx_gce)))
+              {
+                class_name = "GridCellTextEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellFloatEditor*> (wx_gce)))
+              {
+                class_name = "GridCellFloatEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellNumberEditor*> (wx_gce)))
+              {
+                class_name = "GridCellNumberEditor";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellAutoWrapStringEditor*> (wx_gce)))
+              {
+                class_name = "GridCellAutoWrapStringEditor";
+              }
+              VALUE r_class = Qnil;
+              if ( ptr && class_name.Len() > 2 )
+              {
+                wxCharBuffer wx_classname = class_name.mb_str();
+                VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
+                if (rb_const_defined(mWxGrids, r_class_name))
+                  r_class = rb_const_get(mWxGrids, r_class_name);
+              }
+
+              // If we cannot find the class output a warning and return nil
+              if ( r_class == Qnil )
+              {
+                rb_warn("Error wrapping object; class `%s' is not (yet) supported in wxRuby",
+                        (const char *)class_name.mb_str() );
+                return Qnil;
+              }
+
+              // Otherwise, retrieve the swig type info for this class and wrap it
+              // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
+              VALUE r_gce = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, own);
+              return r_gce;
+            }
+          __CODE
         elsif spec.module_name == 'wxGridCellActivatableEditor'
           spec.post_processors << :fix_gridcelleditor
           spec.override_inheritance_chain('wxGridCellActivatableEditor', %w[wxGridCellEditor])
@@ -65,6 +136,14 @@ module WXRuby3
         end
         # these require wxRuby to take ownership (ref counted)
         spec.new_object "#{spec.module_name}::Clone"
+        unless spec.module_name == 'wxGridCellEditor'
+          # type mapping for Clone return ref => claim ownership
+          spec.map 'wxGridCellEditor*' => 'Wx::Grids::GridCellEditor' do
+            add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
+            map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1, 1);'
+            map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1, 1);'
+          end
+        end
         # handled; can be suppressed
         spec.suppress_warning(473, "#{spec.module_name}::Clone")
       end
