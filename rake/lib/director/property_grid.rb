@@ -11,6 +11,8 @@ module WXRuby3
 
     class PropertyGrid < Window
 
+      include Typemap::PGProperty
+
       def setup
         super
         spec.gc_as_window 'wxPropertyGrid'

@@ -9,6 +9,8 @@ module WXRuby3
 
     class PropertyGridPageState < Director
 
+      include Typemap::PGProperty
+
       def setup
         super
         spec.items << 'wxPropertyGridHitTestResult'

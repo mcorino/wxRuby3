@@ -11,6 +11,8 @@ module WXRuby3
 
       include Typemap::DateTime
 
+      include Typemap::PGProperty
+
       def setup
         super
         spec.items << 'wxPGPropArgCls'

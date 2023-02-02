@@ -9,6 +9,8 @@ module WXRuby3
 
   class Director
 
+    include Typemap::PGProperty
+
     class PropertyGridEvent < Event
 
       def setup
