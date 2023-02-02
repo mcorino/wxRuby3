@@ -11,6 +11,8 @@ module WXRuby3
 
     class HtmlEvent < Event
 
+      include Typemap::HtmlCell
+
       def setup
         super
         spec.do_not_generate :variables, :enums, :defines, :functions

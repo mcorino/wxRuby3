@@ -9,6 +9,8 @@ module WXRuby3
 
     class HtmlCell < Director
 
+      include Typemap::HtmlCell
+
       def setup
         super
         spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'htmldefs.h'

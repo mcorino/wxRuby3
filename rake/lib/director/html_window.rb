@@ -11,6 +11,8 @@ module WXRuby3
 
     class HtmlWindow < Window
 
+      include Typemap::HtmlCell
+
       def setup
         super
         spec.items << 'wxHtmlFilter' << 'htmlpars.h'
