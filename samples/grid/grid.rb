@@ -78,7 +78,9 @@ class GridFrame < Wx::Frame
     end 
 
     evt_grid_select_cell do |evt|
-      set_status_text("#{evt.get_row} x #{evt.get_col} cell is selected")
+      editor = @grid.get_cell_editor(evt.get_row, evt.get_col)
+      ed_data = editor ? editor.client_object : nil
+      set_status_text("#{evt.get_row} x #{evt.get_col} cell is selected#{ed_data ? " (#{ed_data})" : ''}")
       evt.skip
     end
     
@@ -138,6 +140,10 @@ class GridFrame < Wx::Frame
     
     # And set grid cell contents as strings
     @grid.set_cell_value( 0, 0, "wxGrid is good" )
+    # this has absolutely no use but does test the grid client object data support
+    editor = Wx::Grids::GridCellTextEditor.new
+    editor.client_object = "A Ruby String"
+    @grid.set_cell_editor(0, 0, editor)
 
     # We can specify that some cells are read-only
     @grid.set_cell_value( 0, 2, "Read-only" )
