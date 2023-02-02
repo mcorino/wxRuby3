@@ -13,6 +13,8 @@ module WXRuby3
 
       include Typemap::PGProperty
 
+      include Typemap::PGCell
+
       def setup
         super
         if spec.module_name == 'wxPGProperty'
