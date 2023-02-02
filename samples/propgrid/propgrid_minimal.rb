@@ -12,6 +12,10 @@ class MyStringProperty < Wx::PG::StringProperty
 
 end
 
+class MyBoolProperty < Wx::PG::BoolProperty
+
+end
+
 class MyFrame < Wx::Frame
 
   ID_ACTION = Wx::ID_HIGHEST+1
@@ -27,7 +31,8 @@ class MyFrame < Wx::Frame
                                    Wx::PG::PG_SPLITTER_AUTO_CENTER | Wx::PG::PG_BOLD_MODIFIED)
 
     @pg.append(MyStringProperty.new("String Property", Wx::PG::PG_LABEL))
-    @pg.append(Wx::PG::IntProperty.new("Int Property", Wx::PG::PG_LABEL))
+    @pg.append(ip = Wx::PG::IntProperty.new("Int Property", Wx::PG::PG_LABEL))
+    ip.editor = 'SpinCtrl'
     @pg.append(Wx::PG::BoolProperty.new("Bool Property", Wx::PG::PG_LABEL))
 
     size = [400, 600]
