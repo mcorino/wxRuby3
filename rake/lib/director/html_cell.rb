@@ -21,6 +21,7 @@ module WXRuby3
         spec.make_abstract 'wxHtmlLinkInfo'
         spec.make_abstract 'wxHtmlContainerCell'
         spec.gc_as_temporary 'wxHtmlLinkInfo' # no tracking
+        spec.ignore 'wxHtmlCell::Find'
       end
     end # class HtmlCell
 
