@@ -654,7 +654,7 @@ module WXRuby3
             clsnm = rb_wx_name(intf_class_name)
             xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
             fdoc.doc.puts get_class_doc(item)
-            fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a class."
+            fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
             if is_mixin?(item)
               fdoc.puts "module #{clsnm}"
             else
