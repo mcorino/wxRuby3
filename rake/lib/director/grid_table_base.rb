@@ -15,7 +15,9 @@ module WXRuby3
           wxGridTableBase::CanHaveAttributes
           wxGridTableBase::GetAttrProvider
           wxGridTableBase::SetAttrProvider
-          wxGridTableBase::GetAttrPtr]
+          wxGridTableBase::GetAttrPtr
+          wxGridTableBase::GetValueAsCustom
+          wxGridTableBase::SetValueAsCustom]
         spec.map 'wxGridCellAttr::wxAttrKind' do
           map_directorin code: '$input = INT2NUM($1);'
         end

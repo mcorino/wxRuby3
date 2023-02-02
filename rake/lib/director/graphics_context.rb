@@ -15,6 +15,7 @@ module WXRuby3
         spec.ignore 'wxGraphicsContext::CreateFromNative',
                     'wxGraphicsContext::CreateFromNativeWindow',
                     'wxGraphicsContext::CreateFromNativeHDC',
+                    'wxGraphicsContext::GetNativeContext',
                     'wxGraphicsContext::Create(const wxEnhMetaFileDC &)'
         # type mappings
         # Typemap to fix GraphicsContext#get_text_extent
