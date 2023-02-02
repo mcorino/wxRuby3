@@ -9,6 +9,8 @@ module WXRuby3
 
     class PGProperty < Director
 
+      include Typemap::PGEditor
+
       include Typemap::PGProperty
 
       def setup

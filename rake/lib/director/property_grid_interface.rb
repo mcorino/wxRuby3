@@ -13,6 +13,8 @@ module WXRuby3
 
       include Typemap::PGProperty
 
+      include Typemap::PGEditor
+
       def setup
         super
         spec.items << 'wxPGPropArgCls'
