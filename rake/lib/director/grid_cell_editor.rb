@@ -141,7 +141,6 @@ module WXRuby3
           spec.map 'wxGridCellEditor*' => 'Wx::Grids::GridCellEditor' do
             add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
             map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1, 1);'
-            map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1, 1);'
           end
         end
         # handled; can be suppressed

@@ -36,6 +36,12 @@ module WXRuby3
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
         end
+        # type mapping for wxGridCellRenderer* return ref
+        spec.map 'wxGridCellRenderer*' => 'Wx::Grids::GridCellRenderer' do
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
+          map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
+          map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
+        end
       end
     end # class GridCellAttr
 
