@@ -167,7 +167,7 @@ module WXRuby3
                                       WXRBVariantDataToRbValueHash);
           static WXRBVariantDataToRbValueHash Variant_Value_Map;
 
-          extern void wxRuby_markRbValueVariants()
+          static void wxRuby_markRbValueVariants()
           {
             WXRBVariantDataToRbValueHash::iterator it;
             for( it = Variant_Value_Map.begin(); it != Variant_Value_Map.end(); ++it )
@@ -237,6 +237,7 @@ module WXRuby3
             return variant;
           }
           __HEREDOC
+        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbValueVariants);'
       end
     end # class Variant
 

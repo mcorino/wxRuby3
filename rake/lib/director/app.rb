@@ -99,7 +99,13 @@ module WXRuby3
           extern void GC_SetWindowDeleted(void*);
           extern "C" void Init_wxRubyStockObjects();
           extern void wxRuby_MarkProtectedEvtHandlerProcs();
-          extern void wxRuby_markRbValueVariants();
+
+          static wxVector<WXRBMarkFunction> WXRuby_Mark_List;
+
+          WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker)
+          {
+            WXRuby_Mark_List.push_back(marker);
+          }
           
           class wxRubyApp : public wxApp
           {
@@ -197,10 +203,12 @@ module WXRuby3
               // classes/EvtHandler.i
               wxRuby_MarkProtectedEvtHandlerProcs();
 
-          #if wxUSE_VARIANT
-              // Mark Ruby VALUE-s associated with live Variants 
-              wxRuby_markRbValueVariants();
-          #endif
+              // run registered markers
+              for (wxVector<WXRBMarkFunction>::iterator it = WXRuby_Mark_List.begin();
+                    it != WXRuby_Mark_List.end() ;++it)
+              {
+                (*it) ();
+              }
           
               // To do the main marking, primarily of Windows, iterate over SWIG's
               // list of tracked objects

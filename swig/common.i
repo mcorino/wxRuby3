@@ -114,6 +114,8 @@ struct wxrb_flag
 #endif
 
 WXRUBY_EXPORT bool wxRuby_IsAppRunning();
+typedef void (*WXRBMarkFunction)();
+WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker);
 
 WXRUBY_EXPORT VALUE wxRuby_GetTopLevelWindowClass(); // used for wxWindow typemap in typemap.i
 WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr);

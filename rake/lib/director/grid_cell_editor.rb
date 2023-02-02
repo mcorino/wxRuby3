@@ -9,6 +9,8 @@ module WXRuby3
 
     class GridCellEditor < Director
 
+      include Typemap::GridClientData
+
       def setup
         super
         spec.gc_as_refcounted
@@ -17,9 +19,13 @@ module WXRuby3
           if Config.instance.wx_version >= '3.1.7'
             spec.items << 'wxSharedClientDataContainer'
             spec.fold_bases('wxGridCellEditor' => ['wxSharedClientDataContainer'])
+            spec.ignore('wxSharedClientDataContainer::GetClientData',
+                        'wxSharedClientDataContainer::SetClientData')
           else
             spec.items << 'wxClientDataContainer'
             spec.fold_bases('wxGridCellEditor' => ['wxClientDataContainer'])
+            spec.ignore('wxClientDataContainer::GetClientData',
+                        'wxClientDataContainer::SetClientData')
           end
           spec.override_inheritance_chain('wxGridCellEditor', [])
           spec.regard('wxGridCellEditor::~wxGridCellEditor')
@@ -42,21 +48,17 @@ module WXRuby3
               {
                 class_name = "GridCellBoolEditor";
               }
-              else if ((ptr = dynamic_cast<const wxGridCellChoiceEditor*> (wx_gce)))
-              {
-                class_name = "GridCellChoiceEditor";
-              }
               else if ((ptr = dynamic_cast<const wxGridCellEnumEditor*> (wx_gce)))
               {
                 class_name = "GridCellEnumEditor";
               }
+              else if ((ptr = dynamic_cast<const wxGridCellChoiceEditor*> (wx_gce)))
+              {
+                class_name = "GridCellChoiceEditor";
+              }
               else if ((ptr = dynamic_cast<const wxGridCellDateEditor*> (wx_gce)))
               {
                 class_name = "GridCellDateEditor";
-              }
-              else if ((ptr = dynamic_cast<const wxGridCellTextEditor*> (wx_gce)))
-              {
-                class_name = "GridCellTextEditor";
               }
               else if ((ptr = dynamic_cast<const wxGridCellFloatEditor*> (wx_gce)))
               {
@@ -70,11 +72,15 @@ module WXRuby3
               {
                 class_name = "GridCellAutoWrapStringEditor";
               }
+              else if ((ptr = dynamic_cast<const wxGridCellTextEditor*> (wx_gce)))
+              {
+                class_name = "GridCellTextEditor";
+              }
               VALUE r_class = Qnil;
-              if ( ptr && class_name.Len() > 2 )
+              if ( ptr && class_name.Len() > 0 )
               {
                 wxCharBuffer wx_classname = class_name.mb_str();
-                VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
+                VALUE r_class_name = rb_intern(wx_classname.data ()); // wxRuby class name (minus 'wx')
                 if (rb_const_defined(mWxGrids, r_class_name))
                   r_class = rb_const_get(mWxGrids, r_class_name);
               }

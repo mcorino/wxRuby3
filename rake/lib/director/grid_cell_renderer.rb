@@ -9,6 +9,8 @@ module WXRuby3
 
     class GridCellRenderer < Director
 
+      include Typemap::GridClientData
+
       def setup
         super
         spec.gc_as_refcounted
@@ -16,9 +18,13 @@ module WXRuby3
           if Config.instance.wx_version >= '3.1.7'
             spec.items << 'wxSharedClientDataContainer'
             spec.fold_bases('wxGridCellRenderer' => ['wxSharedClientDataContainer'])
+            spec.ignore('wxSharedClientDataContainer::GetClientData',
+                        'wxSharedClientDataContainer::SetClientData')
           else
             spec.items << 'wxClientDataContainer'
             spec.fold_bases('wxGridCellRenderer' => ['wxClientDataContainer'])
+            spec.ignore('wxClientDataContainer::GetClientData',
+                        'wxClientDataContainer::SetClientData')
           end
           spec.override_inheritance_chain('wxGridCellRenderer', [])
           spec.regard('wxGridCellRenderer::~wxGridCellRenderer')
@@ -37,10 +43,6 @@ module WXRuby3
               {
                 class_name = "GridCellBoolRenderer";
               }
-              else if ((ptr = dynamic_cast<const wxGridCellStringRenderer*> (wx_gcr)))
-              {
-                class_name = "GridCellStringRenderer";
-              }
               else if ((ptr = dynamic_cast<const wxGridCellFloatRenderer*> (wx_gcr)))
               {
                 class_name = "GridCellFloatRenderer";
@@ -49,13 +51,13 @@ module WXRuby3
               {
                 class_name = "GridCellAutoWrapStringRenderer";
               }
-              else if ((ptr = dynamic_cast<const wxGridCellDateRenderer*> (wx_gcr)))
-              {
-                class_name = "GridCellDateRenderer";
-              }
               else if ((ptr = dynamic_cast<const wxGridCellDateTimeRenderer*> (wx_gcr)))
               {
                 class_name = "GridCellDateTimeRenderer";
+              }
+              else if ((ptr = dynamic_cast<const wxGridCellDateRenderer*> (wx_gcr)))
+              {
+                class_name = "GridCellDateRenderer";
               }
               else if ((ptr = dynamic_cast<const wxGridCellEnumRenderer*> (wx_gcr)))
               {
@@ -65,11 +67,15 @@ module WXRuby3
               {
                 class_name = "GridCellNumberRenderer";
               }
+              else if ((ptr = dynamic_cast<const wxGridCellStringRenderer*> (wx_gcr)))
+              {
+                class_name = "GridCellStringRenderer";
+              }
               VALUE r_class = Qnil;
-              if ( ptr && class_name.Len() > 2 )
+              if ( ptr && class_name.Len() > 0 )
               {
                 wxCharBuffer wx_classname = class_name.mb_str();
-                VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
+                VALUE r_class_name = rb_intern(wx_classname.data ()); // wxRuby class name (minus 'wx')
                 if (rb_const_defined(mWxGrids, r_class_name))
                   r_class = rb_const_get(mWxGrids, r_class_name);
               }

@@ -9,14 +9,20 @@ module WXRuby3
 
     class GridCellAttr < Director
 
+      include Typemap::GridClientData
+
       def setup
         super
         if Config.instance.wx_version >= '3.1.7'
           spec.items << 'wxSharedClientDataContainer'
           spec.fold_bases('wxGridCellAttr' => ['wxSharedClientDataContainer'])
+          spec.ignore('wxSharedClientDataContainer::GetClientData',
+                      'wxSharedClientDataContainer::SetClientData')
         else
           spec.items << 'wxClientDataContainer'
           spec.fold_bases('wxGridCellAttr' => ['wxClientDataContainer'])
+          spec.ignore('wxClientDataContainer::GetClientData',
+                      'wxClientDataContainer::SetClientData')
         end
         spec.override_inheritance_chain('wxGridCellAttr', [])
         spec.gc_as_refcounted('wxGridCellAttr')
@@ -24,8 +30,8 @@ module WXRuby3
         # wxWidgets takes over managing the ref count
         spec.disown('wxGridCellEditor* editor',
                     'wxGridCellRenderer* renderer')
-        spec.ignore('wxGridCellAttr::GetEditorPtr')
-        spec.ignore('wxGridCellAttr::GetRendererPtr')
+        spec.ignore('wxGridCellAttr::GetEditorPtr',
+                    'wxGridCellAttr::GetRendererPtr')
         # these require wxRuby to take ownership (ref counted)
         spec.new_object('wxGridCellAttr::Clone',
                         'wxGridCellAttr::GetEditor',

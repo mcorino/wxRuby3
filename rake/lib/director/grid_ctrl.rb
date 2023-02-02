@@ -94,6 +94,35 @@ module WXRuby3
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
         end
+        # add custom code to support Grid cell client Ruby data
+        spec.add_header_code <<~__HEREDOC
+          // Mapping of wxClientData* to Ruby VALUE
+          WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
+                                      WXRBGridClientDataToRbValueHash);
+          static WXRBGridClientDataToRbValueHash Grid_Value_Map;
+
+          extern void wxRuby_RegisterGridClientData(wxClientData* pcd, VALUE rbval)
+          {
+            Grid_Value_Map[pcd] = rbval;
+          }
+
+          extern void wxRuby_UnregisterGridClientData(wxClientData* pcd)
+          {
+            Grid_Value_Map.erase(pcd);
+          }
+
+          static void wxRuby_markGridClientValues()
+          {
+            WXRBGridClientDataToRbValueHash::iterator it;
+            for( it = Grid_Value_Map.begin(); it != Grid_Value_Map.end(); ++it )
+            {
+              VALUE obj = it->second;
+              rb_gc_mark(obj);
+            }
+          }
+
+          __HEREDOC
+        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markGridClientValues);'
       end
     end # class GridCtrl
 
