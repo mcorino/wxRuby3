@@ -309,14 +309,14 @@ module WXRuby3
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
         # add constants missing from documentation
-        spec.add_swig_code '%constant char* wxGRID_VALUE_STRING = wxGRID_VALUE_STRING',
-                           '%constant char* wxGRID_VALUE_BOOL = wxGRID_VALUE_BOOL',
-                           '%constant char* wxGRID_VALUE_NUMBER = wxGRID_VALUE_NUMBER',
-                           '%constant char* wxGRID_VALUE_FLOAT = wxGRID_VALUE_FLOAT',
-                           '%constant char* wxGRID_VALUE_CHOICE = wxGRID_VALUE_CHOICE',
-                           '%constant char* wxGRID_VALUE_DATE = wxGRID_VALUE_DATE',
-                           '%constant char* wxGRID_VALUE_TEXT = wxGRID_VALUE_STRING',
-                           '%constant char* wxGRID_VALUE_LONG = wxGRID_VALUE_NUMBER'
+        spec.add_swig_code '%constant char* wxGRID_VALUE_STRING = "string";',
+                           '%constant char* wxGRID_VALUE_BOOL = "bool";',
+                           '%constant char* wxGRID_VALUE_NUMBER = "long";',
+                           '%constant char* wxGRID_VALUE_FLOAT = "double";',
+                           '%constant char* wxGRID_VALUE_CHOICE = "choice";',
+                           '%constant char* wxGRID_VALUE_DATE = "date";',
+                           '%constant char* wxGRID_VALUE_TEXT = "string";',
+                           '%constant char* wxGRID_VALUE_LONG = "long";'
       end
     end # class GridCtrl
 
