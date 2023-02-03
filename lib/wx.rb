@@ -5,7 +5,7 @@ WX_GLOBAL_CONSTANTS=true
 
 require 'wx/core'
 require 'wx/print' if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)
-require 'wx/rich_text' if Wx.has_feature?(:USE_RICHTEXT)
+require 'wx/rtc' if Wx.has_feature?(:USE_RICHTEXT)
 require 'wx/stc' if Wx.has_feature?(:USE_STC)
 require 'wx/grid' if Wx.has_feature?(:USE_GRID)
 require 'wx/html' if Wx.has_feature?(:USE_HTML)

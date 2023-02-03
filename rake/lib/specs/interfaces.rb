@@ -187,7 +187,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPrinter')
   end
 
-  Director.Package('Wx::RichText', 'wxUSE_RICHTEXT') { |pkg|
+  Director.Package('Wx::RTC', 'wxUSE_RICHTEXT') { |pkg|
     Director.Spec(pkg, 'wxRichTextEvent')
     Director.Spec(pkg, 'wxRichTextBuffer')
     Director.Spec(pkg, 'wxRichTextCtrl')

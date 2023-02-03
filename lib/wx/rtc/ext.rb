@@ -1,7 +1,7 @@
-# Constant extension loader for Wx::RichText
+# Constant extension loader for Wx::RTC
 # Copyright (c) M.J.N. Corino, The Netherlands
 
-module Wx::RichText
+module Wx::RTC
   if !defined?(::WxGlobalConstants)
     def self.const_missing(sym)
       Wx.check_delayed_constant(self, sym)

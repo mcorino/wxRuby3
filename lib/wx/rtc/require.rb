@@ -1,4 +1,4 @@
-# Wx::RichText sub package for wxRuby3
+# Wx::RTC sub package for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
 require_relative './ext'
