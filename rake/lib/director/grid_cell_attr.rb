@@ -13,23 +13,11 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version >= '3.1.7'
-          spec.items << 'wxSharedClientDataContainer'
-          spec.fold_bases('wxGridCellAttr' => ['wxSharedClientDataContainer'])
-          spec.ignore('wxSharedClientDataContainer::GetClientData',
-                      'wxSharedClientDataContainer::SetClientData')
-        else
-          spec.items << 'wxClientDataContainer'
-          spec.fold_bases('wxGridCellAttr' => ['wxClientDataContainer'])
-          spec.ignore('wxClientDataContainer::GetClientData',
-                      'wxClientDataContainer::SetClientData')
-        end
+        # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
+        # for wxRuby; far easier to just use member variables in derived classes
         spec.override_inheritance_chain('wxGridCellAttr', [])
         spec.gc_as_refcounted('wxGridCellAttr')
         spec.ignore %w[wxGridCellAttr::IncRef wxGridCellAttr::DecRef]
-        # wxWidgets takes over managing the ref count
-        spec.disown('wxGridCellEditor* editor',
-                    'wxGridCellRenderer* renderer')
         spec.ignore('wxGridCellAttr::GetEditorPtr',
                     'wxGridCellAttr::GetRendererPtr')
         # these require wxRuby to take ownership (ref counted)
@@ -38,15 +26,19 @@ module WXRuby3
                         'wxGridCellAttr::GetRenderer')
         # type mapping for wxGridCellEditor* return ref
         spec.map 'wxGridCellEditor*' => 'Wx::Grids::GridCellEditor' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);',
+                          'extern void wxRuby_RegisterGridCellEditor(wxGridCellEditor* wx_edt, VALUE rb_edt);'
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
+          map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
         end
         # type mapping for wxGridCellRenderer* return ref
         spec.map 'wxGridCellRenderer*' => 'Wx::Grids::GridCellRenderer' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);',
+                          'extern void wxRuby_RegisterGridCellRenderer(wxGridCellRenderer* wx_rnd, VALUE rb_rnd);'
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
+          map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
       end
     end # class GridCellAttr

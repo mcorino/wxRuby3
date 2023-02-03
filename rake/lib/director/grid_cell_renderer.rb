@@ -15,17 +15,8 @@ module WXRuby3
         super
         spec.gc_as_refcounted
         if spec.module_name == 'wxGridCellRenderer'
-          if Config.instance.wx_version >= '3.1.7'
-            spec.items << 'wxSharedClientDataContainer'
-            spec.fold_bases('wxGridCellRenderer' => ['wxSharedClientDataContainer'])
-            spec.ignore('wxSharedClientDataContainer::GetClientData',
-                        'wxSharedClientDataContainer::SetClientData')
-          else
-            spec.items << 'wxClientDataContainer'
-            spec.fold_bases('wxGridCellRenderer' => ['wxClientDataContainer'])
-            spec.ignore('wxClientDataContainer::GetClientData',
-                        'wxClientDataContainer::SetClientData')
-          end
+          # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
+          # for wxRuby; far easier to just use member variables in derived classes
           spec.override_inheritance_chain('wxGridCellRenderer', [])
           spec.regard('wxGridCellRenderer::~wxGridCellRenderer')
           # add method for correctly wrapping PGEditor output references

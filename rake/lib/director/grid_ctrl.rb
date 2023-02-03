@@ -61,11 +61,32 @@ module WXRuby3
           __HEREDOC
         spec.ignore 'wxGrid::GetOrCreateCellAttrPtr'  # ignore this variant
         # wxWidgets takes over managing the ref count
-        spec.disown({'const wxGridCellAttr* attr' => false }, # tricky! apply regular arg conversion to const FIRST
-                    'wxGridCellAttr* attr',                   # next; apply DISOWN conversion for non-const
-                    'wxGridCellEditor* editor',
-                    'wxGridCellRenderer* renderer',
-                    'wxGridTableBase* table')
+        spec.disown('wxGridTableBase* table')
+        # customize mark function to handle safeguarding any customized Grid tables installed
+        spec.add_header_code <<~__HEREDOC
+          static void GC_mark_wxGridCtrl(void* ptr) 
+          {
+          #ifdef __WXRB_TRACE__
+            std::wcout << "> GC_mark_wxGridCtrl : " << ptr << std::endl;
+          #endif
+            if ( GC_IsWindowDeleted(ptr) )
+            {
+              return;
+            }
+            // Do standard marking routines as for all wxWindows
+            GC_mark_wxWindow(ptr);
+            
+            // check grid table base marking need 
+            wxGrid* wx_gc = (wxGrid*) ptr;
+            wxGridTableBase* wx_gtbl = wx_gc->GetTable();
+            VALUE rb_gtbl = SWIG_RubyInstanceFor(wx_gtbl);
+            if (!NIL_P(rb_gtbl))
+            {
+              rb_gc_mark(rb_gtbl);
+            }
+          }
+        __HEREDOC
+        spec.add_swig_code '%markfunc wxGrid "GC_mark_wxGridCtrl";'
         # these require wxRuby to take ownership (ref counted)
         spec.new_object('wxGrid::GetOrCreateCellAttr',
                         'wxGrid::GetCellEditor',
@@ -82,39 +103,145 @@ module WXRuby3
                               'wxGrid::GetDefaultEditorForType',
                               'wxGrid::GetDefaultRendererForCell',
                               'wxGrid::GetDefaultRendererForType')
-        # type mapping for wxGridCellEditor* return ref
-        spec.map 'wxGridCellEditor*' => 'Wx::Grids::GridCellEditor' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
-          map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
-          map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
-        end
-        # type mapping for wxGridCellRenderer* return ref
-        spec.map 'wxGridCellRenderer*' => 'Wx::Grids::GridCellRenderer' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
-          map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
-          map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
-        end
-        # add custom code to support Grid cell client Ruby data
+        # Add custom code to handle GC marking for Grid cell attributes, editors and renderers.
+        # Ruby created instances of these are registered in global tables whenever they are assigned to
+        # a Grid (for a cell, default or named type). The global tables will be scanned during the GC marking stage
+        # and any registered instances marked.
+        # We define specialized wxClientData derivatives for the three types of classes we need to
+        # manage GC for which are associated with an attribute/editor/renderer instance through SetClientObject()
+        # at the moment of registration (which is actually performed on creation of the client data object).
+        # Whenever an attribute/editor/renderer is deleted (bc it's ref count reached zero) it will also delete
+        # the associated client data object which will at that moment deregister the associated attribute/editor
+        # or renderer instance from the global table thus freeing it for GC collection.
         spec.add_header_code <<~__HEREDOC
-          // Mapping of wxClientData* to Ruby VALUE
+          #include <wx/clntdata.h>
+
+          // declare the global table for grid cell attributes
           WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
-                                      WXRBGridClientDataToRbValueHash);
-          static WXRBGridClientDataToRbValueHash Grid_Value_Map;
+                                      WXRBGridCellAttrValueHash);
+          static WXRBGridCellAttrValueHash Grid_Cell_Attr_Value_Map;
 
-          extern void wxRuby_RegisterGridClientData(wxClientData* pcd, VALUE rbval)
+          // specialized client data class
+          class WXRBGridCellAttrMonitor : public wxClientData
           {
-            Grid_Value_Map[pcd] = rbval;
+          public:
+            WXRBGridCellAttrMonitor() : wx_attr(0), rb_attr(Qnil) {}
+            WXRBGridCellAttrMonitor(wxGridCellAttr* a, VALUE v) : wx_attr(a), rb_attr(v) 
+            { Grid_Cell_Attr_Value_Map[wx_attr] = rb_attr; }
+            virtual ~WXRBGridCellAttrMonitor()
+            { if (wx_attr->GetRefCount() == 0) Grid_Cell_Attr_Value_Map.erase(wx_attr); }
+          private:
+            wxGridCellAttr* wx_attr;
+            VALUE           rb_attr;
+          };
+
+          // and it's associated registration/de-registration functions
+          extern void wxRuby_RegisterGridCellAttr(wxGridCellAttr* wx_attr, VALUE rb_attr)
+          {
+            if (wx_attr && !NIL_P(rb_attr))
+            {
+              // always disown; wxWidgets takes over ownership
+              RDATA(rb_attr)->dfree = 0;
+              if (Grid_Cell_Attr_Value_Map.find(wx_attr) != Grid_Cell_Attr_Value_Map.end())
+              {
+                wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
+              }
+            }
           }
 
-          extern void wxRuby_UnregisterGridClientData(wxClientData* pcd)
+          // define the grid cell attribute marker
+          static void wxRuby_markGridCellAttr()
           {
-            Grid_Value_Map.erase(pcd);
+            WXRBGridCellAttrValueHash::iterator it;
+            for( it = Grid_Cell_Attr_Value_Map.begin(); it != Grid_Cell_Attr_Value_Map.end(); ++it )
+            {
+              VALUE obj = it->second;
+              rb_gc_mark(obj);
+            }
           }
 
-          static void wxRuby_markGridClientValues()
+          // declare the global table for grid cell editors
+          WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
+                                      WXRBGridCellEditorValueHash);
+          static WXRBGridCellEditorValueHash Grid_Cell_Editor_Value_Map;
+
+          // specialized client data class
+          class WXRBGridCellEditorMonitor : public wxClientData
           {
-            WXRBGridClientDataToRbValueHash::iterator it;
-            for( it = Grid_Value_Map.begin(); it != Grid_Value_Map.end(); ++it )
+          public:
+            WXRBGridCellEditorMonitor() : wx_edt(0), rb_edt(Qnil) {}
+            WXRBGridCellEditorMonitor(wxGridCellEditor* a, VALUE v) : wx_edt(a), rb_edt(v) 
+            { Grid_Cell_Editor_Value_Map[wx_edt] = rb_edt; }
+            virtual ~WXRBGridCellEditorMonitor()
+            { if (wx_edt->GetRefCount() == 0) Grid_Cell_Editor_Value_Map.erase(wx_edt); }
+          private:
+            wxGridCellEditor* wx_edt;
+            VALUE             rb_edt;
+          };
+
+          // and it's associated registration/de-registration functions
+          extern void wxRuby_RegisterGridCellEditor(wxGridCellEditor* wx_edt, VALUE rb_edt)
+          {
+            if (wx_edt && !NIL_P(rb_edt))
+            {
+              // always disown; wxWidgets takes over ownership
+              RDATA(rb_edt)->dfree = 0;
+              if (Grid_Cell_Editor_Value_Map.find(wx_edt) != Grid_Cell_Editor_Value_Map.end())
+              {
+                wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
+              }
+            }
+          }
+
+          // define the grid cell editor marker
+          static void wxRuby_markGridCellEditor()
+          {
+            WXRBGridCellEditorValueHash::iterator it;
+            for( it = Grid_Cell_Editor_Value_Map.begin(); it != Grid_Cell_Editor_Value_Map.end(); ++it )
+            {
+              VALUE obj = it->second;
+              rb_gc_mark(obj);
+            }
+          }
+
+          // declare the global table for grid cell renderer
+          WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
+                                      WXRBGridCellRendererValueHash);
+          static WXRBGridCellRendererValueHash Grid_Cell_Renderer_Value_Map;
+
+          // specialized client data class
+          class WXRBGridCellRendererMonitor : public wxClientData
+          {
+          public:
+            WXRBGridCellRendererMonitor() : wx_rnd(0), rb_rnd(Qnil) {}
+            WXRBGridCellRendererMonitor(wxGridCellRenderer* a, VALUE v) : wx_rnd(a), rb_rnd(v) 
+            { Grid_Cell_Renderer_Value_Map[wx_rnd] = rb_rnd; }
+            virtual ~WXRBGridCellRendererMonitor()
+            { if (wx_rnd->GetRefCount() == 0) Grid_Cell_Renderer_Value_Map.erase(wx_rnd); }
+          private:
+            wxGridCellRenderer* wx_rnd;
+            VALUE               rb_rnd;
+          };
+
+          // and it's associated registration/de-registration functions
+          extern void wxRuby_RegisterGridCellRenderer(wxGridCellRenderer* wx_rnd, VALUE rb_rnd)
+          {
+            if (wx_rnd && !NIL_P(rb_rnd))
+            {
+              // always disown; wxWidgets takes over ownership
+              RDATA(rb_rnd)->dfree = 0;
+              if (Grid_Cell_Renderer_Value_Map.find(wx_rnd) != Grid_Cell_Renderer_Value_Map.end())
+              {
+                wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
+              }
+            }
+          }
+
+          // define the grid cell renderer marker
+          static void wxRuby_markGridCellRenderer()
+          {
+            WXRBGridCellRendererValueHash::iterator it;
+            for( it = Grid_Cell_Renderer_Value_Map.begin(); it != Grid_Cell_Renderer_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
               rb_gc_mark(obj);
@@ -122,7 +249,32 @@ module WXRuby3
           }
 
           __HEREDOC
-        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markGridClientValues);'
+        # register the markers at module initialization
+        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markGridCellAttr);',
+                           'wxRuby_AppendMarker(wxRuby_markGridCellEditor);',
+                           'wxRuby_AppendMarker(wxRuby_markGridCellRenderer);'
+        # add type mappings to handle registration
+        # first declare 'normal' type mapping for const pointer (for DrawCellHighlight)
+        spec.map 'const wxGridCellAttr *'  => 'Wx::Grids::GridCellAttr' do
+          map_check code: ''
+        end
+        # next handle registering mappings
+        spec.map 'wxGridCellAttr *' => 'Wx::Grids::GridCellAttr' do
+          # let defaults handle conversion and than use the check mapping to handle registration
+          map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'
+        end
+        spec.map 'wxGridCellEditor *' => 'Wx::Grids::GridCellEditor' do
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
+          map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
+          map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
+          map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
+        end
+        spec.map 'wxGridCellRenderer *' => 'Wx::Grids::GridCellRenderer' do
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
+          map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
+          map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
+          map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
+        end
       end
     end # class GridCtrl
 
