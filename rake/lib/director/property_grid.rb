@@ -20,8 +20,9 @@ module WXRuby3
         spec.gc_as_window 'wxPropertyGrid'
         spec.override_inheritance_chain('wxPropertyGrid', %w[wxScrolledControl wxControl wxWindow wxEvtHandler wxObject])
         spec.add_header_code 'typedef wxScrolled<wxControl> wxScrolledControl;'
-        spec.no_proxy 'wxPropertyGrid::SendAutoScrollEvents'
-        spec.no_proxy 'wxPropertyGrid::RefreshProperty'
+        spec.no_proxy 'wxPropertyGrid::SendAutoScrollEvents',
+                      'wxPropertyGrid::RefreshProperty',
+                      'wxPropertyGrid::GetStatusBar'
         # not usable in wxRuby
         spec.ignore 'wxPropertyGrid::SetSortFunction',
                     'wxPropertyGrid::GetSortFunction'
