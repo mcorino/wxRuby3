@@ -7,6 +7,12 @@ rescue LoadError
 end
 require 'wx'
 
+class MyTextCellEditor < Wx::Grids::GridCellTextEditor
+  def apply_edit(row, col, grid)
+    grid.set_cell_value(row, col, "'#{get_value}'" )
+  end
+end
+
 class GridFrame < Wx::Frame
 
   def initialize(parent, id = -1, title = "MyFrame", 
@@ -78,9 +84,7 @@ class GridFrame < Wx::Frame
     end 
 
     evt_grid_select_cell do |evt|
-      editor = @grid.get_cell_editor(evt.get_row, evt.get_col)
-      ed_data = editor ? editor.client_object : nil
-      set_status_text("#{evt.get_row} x #{evt.get_col} cell is selected#{ed_data ? " (#{ed_data})" : ''}")
+      set_status_text("#{evt.get_row} x #{evt.get_col} cell is selected")
       evt.skip
     end
     
@@ -140,14 +144,14 @@ class GridFrame < Wx::Frame
     
     # And set grid cell contents as strings
     @grid.set_cell_value( 0, 0, "wxGrid is good" )
-    # this has absolutely no use but does test the grid client object data support
-    editor = Wx::Grids::GridCellTextEditor.new
-    editor.client_object = "A Ruby String"
-    @grid.set_cell_editor(0, 0, editor)
 
     # We can specify that some cells are read-only
     @grid.set_cell_value( 0, 2, "Read-only" )
     @grid.set_read_only( 0, 2 )
+
+    cell_attr = Wx::Grids::GridCellAttr.new
+    cell_attr.editor = MyTextCellEditor.new
+    @grid.set_row_attr(1, cell_attr)
 
     # Colours can be specified for grid cell contents
     @grid.set_cell_value(1, 1, "white on red")
