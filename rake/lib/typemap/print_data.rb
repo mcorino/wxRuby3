@@ -21,7 +21,7 @@ module WXRuby3
       # for wxSize, wxPoint etc.
       define do
 
-        map 'wxPrintData &' => 'Wx::Print::PrintData' do
+        map 'wxPrintData &' => 'Wx::PRT::PrintData' do
 
           map_out code: <<~__CODE
             vresult = SWIG_NewPointerObj((new wxPrintData(*result)), SWIGTYPE_p_wxPrintData, SWIG_POINTER_OWN |  0 );
@@ -29,7 +29,7 @@ module WXRuby3
 
         end
 
-        map 'wxPrintDialogData &' => 'Wx::Print::PrintDialogData' do
+        map 'wxPrintDialogData &' => 'Wx::PRT::PrintDialogData' do
 
           map_out code: <<~__CODE
             vresult = SWIG_NewPointerObj((new wxPrintDialogData(*result)), SWIGTYPE_p_wxPrintDialogData, SWIG_POINTER_OWN |  0 );
@@ -38,7 +38,7 @@ module WXRuby3
         end
 
 
-        map 'wxPageSetupDialogData &' => 'Wx::Print::PageSetupDialogData' do
+        map 'wxPageSetupDialogData &' => 'Wx::PRT::PageSetupDialogData' do
 
           map_out code: <<~__CODE
             vresult = SWIG_NewPointerObj((new wxPageSetupDialogData(*result)), SWIGTYPE_p_wxPageSetupDialogData, SWIG_POINTER_OWN |  0 );

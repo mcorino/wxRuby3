@@ -13,7 +13,7 @@ FONTSIZE = 10
 # Does not handle page numbers or titles, and it assumes that no
 # lines are longer than what will fit within the page width.  Those
 # features are left as an exercise for the reader. ;-)
-class TextDocPrintout < Wx::Print::Printout
+class TextDocPrintout < Wx::PRT::Printout
 
   def initialize(text, title, margins)
     super(title)
@@ -217,7 +217,7 @@ class SamplePrintFrame < Wx::Frame
     text = @tc.value
     printout = TextDocPrintout.new(text, "title", @margins)
     useSetupDialog = true
-    if !printer.print(self, printout, useSetupDialog) && Wx::Printer.get_last_error == Wx::Print::PRINTER_ERROR
+    if !printer.print(self, printout, useSetupDialog) && Wx::Printer.get_last_error == Wx::PRT::PRINTER_ERROR
       Wx::message_box(
          "There was a problem printing.\n" +
          "Perhaps your current printer is not set correctly?",
