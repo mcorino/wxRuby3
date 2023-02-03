@@ -121,6 +121,14 @@ module WXRuby3
                                       WXRBGridCellAttrValueHash);
           static WXRBGridCellAttrValueHash Grid_Cell_Attr_Value_Map;
 
+          static void wxRuby_UnregisterGridCellAttr(wxGridCellAttr* wx_attr)
+          {
+          #ifdef __WXRB_TRACE__
+            std::wcout << "** wxRuby_UnregisterGridCellAttr : " << wx_attr << ":" << (void*)Grid_Cell_Attr_Value_Map[wx_attr] << std::endl;
+          #endif
+            Grid_Cell_Attr_Value_Map.erase(wx_attr);
+          }
+
           // specialized client data class
           class WXRBGridCellAttrMonitor : public wxClientData
           {
@@ -129,7 +137,7 @@ module WXRuby3
             WXRBGridCellAttrMonitor(wxGridCellAttr* a, VALUE v) : wx_attr(a), rb_attr(v) 
             { Grid_Cell_Attr_Value_Map[wx_attr] = rb_attr; }
             virtual ~WXRBGridCellAttrMonitor()
-            { if (wx_attr->GetRefCount() == 0) Grid_Cell_Attr_Value_Map.erase(wx_attr); }
+            { wxRuby_UnregisterGridCellAttr(wx_attr); }
           private:
             wxGridCellAttr* wx_attr;
             VALUE           rb_attr;
@@ -142,8 +150,11 @@ module WXRuby3
             {
               // always disown; wxWidgets takes over ownership
               RDATA(rb_attr)->dfree = 0;
-              if (Grid_Cell_Attr_Value_Map.find(wx_attr) != Grid_Cell_Attr_Value_Map.end())
+              if (Grid_Cell_Attr_Value_Map.find(wx_attr) == Grid_Cell_Attr_Value_Map.end())
               {
+          #ifdef __WXRB_TRACE__
+                std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
+          #endif
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
               }
             }
@@ -165,6 +176,14 @@ module WXRuby3
                                       WXRBGridCellEditorValueHash);
           static WXRBGridCellEditorValueHash Grid_Cell_Editor_Value_Map;
 
+          static void wxRuby_UnregisterGridCellEditor(wxGridCellEditor* wx_edt)
+          {
+          #ifdef __WXRB_TRACE__
+            std::wcout << "** wxRuby_UnregisterGridCellEditor : " << wx_edt << ":" << (void*)Grid_Cell_Editor_Value_Map[wx_edt] << std::endl;
+          #endif
+            Grid_Cell_Editor_Value_Map.erase(wx_edt);
+          }
+
           // specialized client data class
           class WXRBGridCellEditorMonitor : public wxClientData
           {
@@ -173,7 +192,7 @@ module WXRuby3
             WXRBGridCellEditorMonitor(wxGridCellEditor* a, VALUE v) : wx_edt(a), rb_edt(v) 
             { Grid_Cell_Editor_Value_Map[wx_edt] = rb_edt; }
             virtual ~WXRBGridCellEditorMonitor()
-            { if (wx_edt->GetRefCount() == 0) Grid_Cell_Editor_Value_Map.erase(wx_edt); }
+            { wxRuby_UnregisterGridCellEditor(wx_edt); }
           private:
             wxGridCellEditor* wx_edt;
             VALUE             rb_edt;
@@ -186,8 +205,11 @@ module WXRuby3
             {
               // always disown; wxWidgets takes over ownership
               RDATA(rb_edt)->dfree = 0;
-              if (Grid_Cell_Editor_Value_Map.find(wx_edt) != Grid_Cell_Editor_Value_Map.end())
+              if (Grid_Cell_Editor_Value_Map.find(wx_edt) == Grid_Cell_Editor_Value_Map.end())
               {
+          #ifdef __WXRB_TRACE__
+                std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
+          #endif
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
               }
             }
@@ -209,6 +231,14 @@ module WXRuby3
                                       WXRBGridCellRendererValueHash);
           static WXRBGridCellRendererValueHash Grid_Cell_Renderer_Value_Map;
 
+          static void wxRuby_UnregisterGridCellRenderer(wxGridCellRenderer* wx_rnd)
+          {
+          #ifdef __WXRB_TRACE__
+            std::wcout << "** wxRuby_UnregisterGridCellRenderer : " << wx_rnd << ":" << (void*)Grid_Cell_Renderer_Value_Map[wx_rnd] << std::endl;
+          #endif
+            Grid_Cell_Renderer_Value_Map.erase(wx_rnd);
+          }
+
           // specialized client data class
           class WXRBGridCellRendererMonitor : public wxClientData
           {
@@ -217,7 +247,7 @@ module WXRuby3
             WXRBGridCellRendererMonitor(wxGridCellRenderer* a, VALUE v) : wx_rnd(a), rb_rnd(v) 
             { Grid_Cell_Renderer_Value_Map[wx_rnd] = rb_rnd; }
             virtual ~WXRBGridCellRendererMonitor()
-            { if (wx_rnd->GetRefCount() == 0) Grid_Cell_Renderer_Value_Map.erase(wx_rnd); }
+            { wxRuby_UnregisterGridCellRenderer(wx_rnd); }
           private:
             wxGridCellRenderer* wx_rnd;
             VALUE               rb_rnd;
@@ -230,8 +260,11 @@ module WXRuby3
             {
               // always disown; wxWidgets takes over ownership
               RDATA(rb_rnd)->dfree = 0;
-              if (Grid_Cell_Renderer_Value_Map.find(wx_rnd) != Grid_Cell_Renderer_Value_Map.end())
+              if (Grid_Cell_Renderer_Value_Map.find(wx_rnd) == Grid_Cell_Renderer_Value_Map.end())
               {
+          #ifdef __WXRB_TRACE__
+                std::wcout << "** wxRuby_RegisterGridCellRenderer : " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
+          #endif
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
               }
             }
