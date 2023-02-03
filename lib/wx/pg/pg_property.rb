@@ -8,6 +8,8 @@ module Wx::PG
 
   PG_LABEL = Wx::PG::PG_LABEL_STRING
 
+  PG_DEFAULT_IMAGE_SIZE = Wx::DEFAULT_SIZE
+
   class PGProperty
 
     wx_each_attribute = instance_method :each_attribute
