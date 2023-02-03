@@ -199,7 +199,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxSymbolPickerDialog', director: Director::Dialog)
   }
 
-  Director.Package('Wx::Stc', 'wxUSE_STC') { |pkg|
+  Director.Package('Wx::STC', 'wxUSE_STC') { |pkg|
     Director.Spec(pkg, 'wxStyledTextEvent', director: Director::Event)
     Director.Spec(pkg, 'wxStyledTextCtrl')
   }

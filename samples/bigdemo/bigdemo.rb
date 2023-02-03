@@ -312,7 +312,7 @@ class WxRubyDemo < Wx::Frame
         Wx::TE_RICH | Wx::TE_NOHIDESEL)
     @nb.add_page(@ovr, "Overview")
 
-    if Wx.const_defined?(:Stc)
+    if Wx.const_defined?(:STC)
       panel, @txt = setup_editor(@nb)
       @nb.add_page(panel, "Demo Code")
     else
@@ -636,18 +636,18 @@ class WxRubyDemo < Wx::Frame
   end
 
   def setup_scintilla(parent)
-    sci = Wx::Stc::StyledTextCtrl.new(parent)
+    sci = Wx::STC::StyledTextCtrl.new(parent)
     font = Wx::Font.new(10, Wx::FONTFAMILY_TELETYPE, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
-    sci.style_set_font(Wx::Stc::STC_STYLE_DEFAULT, font);
-    sci.set_edge_mode(Wx::Stc::STC_EDGE_LINE)
-    line_num_margin = sci.text_width(Wx::Stc::STC_STYLE_LINENUMBER, "_99999")
+    sci.style_set_font(Wx::STC::STC_STYLE_DEFAULT, font);
+    sci.set_edge_mode(Wx::STC::STC_EDGE_LINE)
+    line_num_margin = sci.text_width(Wx::STC::STC_STYLE_LINENUMBER, "_99999")
     sci.set_margin_width(0, line_num_margin)
 
-    sci.style_set_foreground(Wx::Stc::STC_STYLE_DEFAULT, Wx::BLACK);
-    sci.style_set_background(Wx::Stc::STC_STYLE_DEFAULT, Wx::WHITE);
-    sci.style_set_foreground(Wx::Stc::STC_STYLE_LINENUMBER, Wx::LIGHT_GREY);
-    sci.style_set_background(Wx::Stc::STC_STYLE_LINENUMBER, Wx::WHITE);
-    sci.style_set_foreground(Wx::Stc::STC_STYLE_INDENTGUIDE, Wx::LIGHT_GREY);
+    sci.style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::BLACK);
+    sci.style_set_background(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE);
+    sci.style_set_foreground(Wx::STC::STC_STYLE_LINENUMBER, Wx::LIGHT_GREY);
+    sci.style_set_background(Wx::STC::STC_STYLE_LINENUMBER, Wx::WHITE);
+    sci.style_set_foreground(Wx::STC::STC_STYLE_INDENTGUIDE, Wx::LIGHT_GREY);
 
     sci.set_tab_width(2)
     sci.set_use_tabs(false)
@@ -656,7 +656,7 @@ class WxRubyDemo < Wx::Frame
     sci.set_indent(2)
     sci.set_edge_column(80)
 
-    sci.set_lexer(Wx::Stc::STC_LEX_RUBY)
+    sci.set_lexer(Wx::STC::STC_LEX_RUBY)
     sci.style_clear_all
     sci.style_set_foreground(2, Wx::RED)
     sci.style_set_foreground(3, Wx::GREEN)
@@ -671,17 +671,17 @@ class WxRubyDemo < Wx::Frame
     sci.set_property("fold.preprocessor", "1")
 
     sci.set_margin_width(1, 0)
-    sci.set_margin_type(1, Wx::Stc::STC_MARGIN_SYMBOL)
-    sci.set_margin_mask(1, Wx::Stc::STC_MASK_FOLDERS)
+    sci.set_margin_type(1, Wx::STC::STC_MARGIN_SYMBOL)
+    sci.set_margin_mask(1, Wx::STC::STC_MASK_FOLDERS)
     sci.set_margin_width(1, 20)
 
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDER, Wx::Stc::STC_MARK_PLUS)
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDEROPEN, Wx::Stc::STC_MARK_MINUS)
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDEREND, Wx::Stc::STC_MARK_EMPTY)
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDERMIDTAIL, Wx::Stc::STC_MARK_EMPTY)
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDEROPENMID, Wx::Stc::STC_MARK_EMPTY)
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDERSUB, Wx::Stc::STC_MARK_EMPTY)
-    sci.marker_define(Wx::Stc::STC_MARKNUM_FOLDERTAIL, Wx::Stc::STC_MARK_EMPTY)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDER, Wx::STC::STC_MARK_PLUS)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDEROPEN, Wx::STC::STC_MARK_MINUS)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDEREND, Wx::STC::STC_MARK_EMPTY)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDERMIDTAIL, Wx::STC::STC_MARK_EMPTY)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDEROPENMID, Wx::STC::STC_MARK_EMPTY)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDERSUB, Wx::STC::STC_MARK_EMPTY)
+    sci.marker_define(Wx::STC::STC_MARKNUM_FOLDERTAIL, Wx::STC::STC_MARK_EMPTY)
     sci.set_fold_flags(16)
 
     sci.set_margin_sensitive(1, 1)

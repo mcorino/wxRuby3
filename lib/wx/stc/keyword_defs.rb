@@ -1,5 +1,5 @@
 # = WxSugar - Keyword Constructors Classes
-# Wx::Stc sub package for wxRuby3
+# Wx::STC sub package for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
 Wx::define_keyword_ctors('StyledTextCtrl') do
