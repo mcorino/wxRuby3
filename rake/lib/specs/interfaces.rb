@@ -235,7 +235,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridCtrl')
   }
 
-  Director.Package('Wx::Html', 'wxUSE_HTML') { |pkg|
+  Director.Package('Wx::HTML', 'wxUSE_HTML') { |pkg|
     Director.Spec(pkg, 'wxHtmlWindow')
     Director.Spec(pkg, 'wxHtmlHelpData')
     Director.Spec(pkg, 'wxHtmlHelpWindow', director: Director::Window)

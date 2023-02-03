@@ -1,4 +1,4 @@
-# Wx::Html sub package loader for wxRuby3
+# Wx::HTML sub package loader for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
 
@@ -11,4 +11,4 @@ require_relative './html/require'
 
 ::Wx.include(WxRubyStyleAccessors)
 
-::Wx::Html.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx::HTML.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

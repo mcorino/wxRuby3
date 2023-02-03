@@ -1,5 +1,5 @@
 
-class Wx::Html::HtmlWindow
+class Wx::HTML::HtmlWindow
 
   # Need to override HtmlWindow.add_filter to provide cashing
   # for the added custom html filters to prevent premature GC

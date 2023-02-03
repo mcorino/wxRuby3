@@ -19,7 +19,7 @@ ID_PageOpen,
   ID_DrawCustomBg = (Wx::ID_HIGHEST.to_i..Wx::ID_HIGHEST.to_i+7).to_a
 
 
-class MyHtmlFilter < Wx::Html::HtmlFilter
+class MyHtmlFilter < Wx::HTML::HtmlFilter
   def can_read(fsfile)
     return /\.foobar\Z/ =~ fsfile.location
   end
@@ -34,7 +34,7 @@ class MyHtmlFilter < Wx::Html::HtmlFilter
   end
 end
 
-class MyHtmlWindow < Wx::Html::HtmlWindow
+class MyHtmlWindow < Wx::HTML::HtmlWindow
   BLUE_PEN = Wx::Pen.new
   attr_reader :html_src
   def initialize(*args)
@@ -246,7 +246,7 @@ end
 # instance is required
 class HtmlApp < Wx::App
   def on_init
-    Wx::Html::HtmlWindow.add_filter(MyHtmlFilter.new)
+    Wx::HTML::HtmlWindow.add_filter(MyHtmlFilter.new)
 
     set_vendor_name("wxRuby")
     set_app_name("Wx::HtmlTest")
