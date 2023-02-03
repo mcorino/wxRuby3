@@ -1,4 +1,4 @@
-# Wx::Aui sub package for wxRuby3
+# Wx::AUI sub package for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
 #require_relative './ext'

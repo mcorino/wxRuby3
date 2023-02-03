@@ -1,5 +1,5 @@
 # Advanced User Interface Notebook - draggable panes etc
-class Wx::Aui::AuiNotebook
+class Wx::AUI::AuiNotebook
   # Convenience method for iterating pages
   def each_page
     0.upto(get_page_count - 1) do | i |

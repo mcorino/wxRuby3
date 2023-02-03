@@ -248,7 +248,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
   }
 
-  Director.Package('Wx::Aui', 'wxUSE_AUI') { |pkg|
+  Director.Package('Wx::AUI', 'wxUSE_AUI') { |pkg|
     Director.Spec(pkg, 'wxAuiPaneInfo')
     Director.Spec(pkg, 'wxAuiManagerEvent')
     Director.Spec(pkg, 'wxAuiDockArt')
