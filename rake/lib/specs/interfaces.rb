@@ -204,7 +204,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxStyledTextCtrl')
   }
 
-  Director.Package('Wx::Grids', 'wxUSE_GRID') { |pkg|
+  Director.Package('Wx::GRID', 'wxUSE_GRID') { |pkg|
     Director.Spec(pkg, 'wxGridEvent', director: Director::Event)
     Director.Spec(pkg, 'wxGridSizeEvent', director: Director::Event)
     Director.Spec(pkg, 'wxGridEditorCreatedEvent', director: Director::Event)

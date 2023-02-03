@@ -18,7 +18,7 @@ require 'wx'
 # 
 # This approach is typically useful for dealing with very large sets of
 # data, as each cell's value is only requested as it becomes visible.v
-class MyGridTable < Wx::Grids::GridTableBase
+class MyGridTable < Wx::GRID::GridTableBase
   attr_reader :cols, :rows
   def initialize(rows, cols)
     super()
@@ -44,7 +44,7 @@ class MyGridTable < Wx::Grids::GridTableBase
   def append_rows(n)
     @rows += n
     if get_view
-      msg = Wx::Grids::GridTableMessage.new(self, Wx::Grids::GRIDTABLE_NOTIFY_ROWS_APPENDED, n)
+      msg = Wx::GRID::GridTableMessage.new(self, Wx::GRID::GRIDTABLE_NOTIFY_ROWS_APPENDED, n)
       get_view.process_table_message(msg)
     end
   end
@@ -52,7 +52,7 @@ class MyGridTable < Wx::Grids::GridTableBase
   def append_cols(n)
     @cols += n
     if get_view
-      msg = Wx::Grids::GridTableMessage.new(self, Wx::Grids::GRIDTABLE_NOTIFY_COLS_APPENDED, n)
+      msg = Wx::GRID::GridTableMessage.new(self, Wx::GRID::GRIDTABLE_NOTIFY_COLS_APPENDED, n)
       get_view.process_table_message(msg)
     end
   end
@@ -82,7 +82,7 @@ class MyGridTable < Wx::Grids::GridTableBase
   # It should also return the attributes that should apply to any given
   # cell; this example give alternate rows red text letters
   def get_attr(row, col, attr_kind)
-    attr = Wx::Grids::GridCellAttr.new
+    attr = Wx::GRID::GridCellAttr.new
     if (row % 2).zero?
       attr.text_colour = Wx::RED
     end
@@ -114,17 +114,17 @@ class GridFrame < Wx::Frame
     main_sizer = Wx::VBoxSizer.new
     # Create a grid and associate an instance of the GridTable as the
     # data provider for the grid
-    @grid = Wx::Grids::Grid.new(self)
+    @grid = Wx::GRID::Grid.new(self)
 
     # Define the renderers and editors used by the different data types
     # displayed in this Grid. The type of a given cell is determined by
     # calling the source's get_type_name method; see above.
     @grid.register_data_type( "STRING", 
-                              Wx::Grids::GridCellStringRenderer.new,
-                              Wx::Grids::GridCellTextEditor.new )
+                              Wx::GRID::GridCellStringRenderer.new,
+                              Wx::GRID::GridCellTextEditor.new )
     @grid.register_data_type( "NUMBER", 
-                              Wx::Grids::GridCellNumberRenderer.new,
-                              Wx::Grids::GridCellNumberEditor.new(0, 500) )
+                              Wx::GRID::GridCellNumberRenderer.new,
+                              Wx::GRID::GridCellNumberEditor.new(0, 500) )
 
     # Set the data source
     @grid.table = MyGridTable.new(10, 10)

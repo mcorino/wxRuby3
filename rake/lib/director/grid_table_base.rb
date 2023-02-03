@@ -24,7 +24,7 @@ module WXRuby3
         # wxWidgets takes over managing the ref count
         spec.disown('wxGridCellAttr* attr')
         # handle registering mapping
-        spec.map 'wxGridCellAttr *' => 'Wx::Grids::GridCellAttr' do
+        spec.map 'wxGridCellAttr *' => 'Wx::GRID::GridCellAttr' do
           add_header_code 'extern void wxRuby_RegisterGridCellAttr(wxGridCellAttr* wx_attr, VALUE rb_attr);'
           # let defaults handle conversion and than use the check mapping to handle registration
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'

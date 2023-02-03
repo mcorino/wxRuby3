@@ -288,21 +288,21 @@ module WXRuby3
                            'wxRuby_AppendMarker(wxRuby_markGridCellRenderer);'
         # add type mappings to handle registration
         # first declare 'normal' type mapping for const pointer (for DrawCellHighlight)
-        spec.map 'const wxGridCellAttr *'  => 'Wx::Grids::GridCellAttr' do
+        spec.map 'const wxGridCellAttr *'  => 'Wx::GRID::GridCellAttr' do
           map_check code: ''
         end
         # next handle registering mappings
-        spec.map 'wxGridCellAttr *' => 'Wx::Grids::GridCellAttr' do
+        spec.map 'wxGridCellAttr *' => 'Wx::GRID::GridCellAttr' do
           # let defaults handle conversion and than use the check mapping to handle registration
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'
         end
-        spec.map 'wxGridCellEditor *' => 'Wx::Grids::GridCellEditor' do
+        spec.map 'wxGridCellEditor *' => 'Wx::GRID::GridCellEditor' do
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
         end
-        spec.map 'wxGridCellRenderer *' => 'Wx::Grids::GridCellRenderer' do
+        spec.map 'wxGridCellRenderer *' => 'Wx::GRID::GridCellRenderer' do
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'

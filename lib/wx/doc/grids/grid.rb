@@ -1,5 +1,5 @@
 
-module Wx::Grids
+module Wx::GRID
 
   GRID_VALUE_STRING = 'string'
   GRID_VALUE_BOOL = 'bool'

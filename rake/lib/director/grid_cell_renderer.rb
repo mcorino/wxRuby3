@@ -21,7 +21,7 @@ module WXRuby3
           spec.regard('wxGridCellRenderer::~wxGridCellRenderer')
           # add method for correctly wrapping PGEditor output references
           spec.add_header_code <<~__CODE
-            extern VALUE mWxGrids; // declare external module reference
+            extern VALUE mWxGRID; // declare external module reference
             extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0)
             {
               // If no object was passed to be wrapped.
@@ -67,8 +67,8 @@ module WXRuby3
               {
                 wxCharBuffer wx_classname = class_name.mb_str();
                 VALUE r_class_name = rb_intern(wx_classname.data ()); // wxRuby class name (minus 'wx')
-                if (rb_const_defined(mWxGrids, r_class_name))
-                  r_class = rb_const_get(mWxGrids, r_class_name);
+                if (rb_const_defined(mWxGRID, r_class_name))
+                  r_class = rb_const_get(mWxGRID, r_class_name);
               }
 
               // If we cannot find the class output a warning and return nil
@@ -107,7 +107,7 @@ module WXRuby3
         spec.new_object "#{spec.module_name}::Clone"
         unless spec.module_name == 'wxGridCellRenderer'
           # type mapping for Clone return ref => claim ownership
-          spec.map 'wxGridCellRenderer*' => 'Wx::Grids::GridCellRenderer' do
+          spec.map 'wxGridCellRenderer*' => 'Wx::GRID::GridCellRenderer' do
             add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
             map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1, 1);'
           end
