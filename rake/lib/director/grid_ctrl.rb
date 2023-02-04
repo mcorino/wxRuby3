@@ -126,6 +126,10 @@ module WXRuby3
           #ifdef __WXRB_TRACE__
             std::wcout << "** wxRuby_UnregisterGridCellAttr : " << wx_attr << ":" << (void*)Grid_Cell_Attr_Value_Map[wx_attr] << std::endl;
           #endif
+            VALUE object = Grid_Cell_Attr_Value_Map[wx_attr];  
+            if (object && !NIL_P(object)) {
+              DATA_PTR(object) = 0; // unlink
+            }
             Grid_Cell_Attr_Value_Map.erase(wx_attr);
           }
 
@@ -193,6 +197,10 @@ module WXRuby3
           #ifdef __WXRB_TRACE__
             std::wcout << "** wxRuby_UnregisterGridCellEditor : " << wx_edt << ":" << (void*)Grid_Cell_Editor_Value_Map[wx_edt] << std::endl;
           #endif
+            VALUE object = Grid_Cell_Editor_Value_Map[wx_edt];  
+            if (object && !NIL_P(object)) {
+              DATA_PTR(object) = 0; // unlink
+            }
             Grid_Cell_Editor_Value_Map.erase(wx_edt);
           }
 
@@ -260,6 +268,10 @@ module WXRuby3
           #ifdef __WXRB_TRACE__
             std::wcout << "** wxRuby_UnregisterGridCellRenderer : " << wx_rnd << ":" << (void*)Grid_Cell_Renderer_Value_Map[wx_rnd] << std::endl;
           #endif
+            VALUE object = Grid_Cell_Renderer_Value_Map[wx_rnd];  
+            if (object && !NIL_P(object)) {
+              DATA_PTR(object) = 0; // unlink
+            }
             Grid_Cell_Renderer_Value_Map.erase(wx_rnd);
           }
 
