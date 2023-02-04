@@ -152,6 +152,9 @@ class GridFrame < Wx::Frame
     cell_attr = Wx::GRID::GridCellAttr.new
     cell_attr.editor = MyTextCellEditor.new
     @grid.set_row_attr(1, cell_attr)
+    cell_attr2 = Wx::GRID::GridCellAttr.new
+    cell_attr2.editor = cell_attr.editor(@grid, 1, 1)
+    @grid.set_row_attr(2, cell_attr2)
 
     # Colours can be specified for grid cell contents
     @grid.set_cell_value(1, 1, "white on red")
@@ -199,7 +202,7 @@ class GridApp < Wx::App
     frame = GridFrame.new(nil, -1, "Grid Sample",
                          Wx::Point.new(10, 100),
                          Wx::Size.new(630,400))
-
+    gc_stress
     set_top_window(frame)
     frame.show
   end
