@@ -116,7 +116,7 @@ module WXRuby3
 
               // check if this instance is already tracked; return tracked value if so 
               VALUE r_pp = SWIG_RubyInstanceFor(const_cast<wxPGProperty*> (wx_pp));
-              if (!NIL_P(r_pp)) return r_pp;              
+              if (r_pp && !NIL_P(r_pp)) return r_pp;              
 
               // Get the wx class and the ruby class we are converting into
               wxString class_name( wx_pp->GetClassInfo()->GetClassName() ); 
