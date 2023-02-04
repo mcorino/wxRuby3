@@ -26,6 +26,11 @@ module WXRuby3
         # not usable in wxRuby
         spec.ignore 'wxPropertyGrid::SetSortFunction',
                     'wxPropertyGrid::GetSortFunction'
+        spec.ignore 'wxPropertyGrid::RegisterEditorClass', ignore_doc: false # defined in pure Ruby
+        # special doc-only mapping to remove this arg from docs as wxRuby always passes false here
+        spec.map 'bool noDefCheck', swig: false do
+          map_in ignore: true
+        end
         # replace by custom extension
         spec.add_header_code <<~__HEREDOC
           static int wxRuby_PropertyGridSortFunction(wxPropertyGrid* pg, wxPGProperty* pp1, wxPGProperty* pp2)

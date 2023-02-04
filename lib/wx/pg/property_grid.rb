@@ -10,10 +10,14 @@ module Wx::PG
       end
       private :property_editors
 
-      wx_register_editor_class = self.instance_method(:register_editor_class)
-      define_method(:register_editor_class) do |editor_class, name|
-        editor = wx_register_editor_class.bind(self).call(editor_class, name)
+      wx_do_register_editor_class = self.instance_method(:do_register_editor_class)
+      define_method(:do_register_editor_class) do |editor_class, name|
+        editor = wx_do_register_editor_class.bind(self).call(editor_class, name)
         property_editors[name] = editor # keep safe from GC and for lookup
+      end
+
+      def register_editor_class(editor_class)
+        do_register_editor_class(class_name, '')
       end
 
       def get_editor_class(name)
