@@ -41,16 +41,28 @@ module WXRuby3
                               'void SetPropertyValues(const wxVariantList &list, const wxPGPropArgCls& defaultCategory=WXRB_NULL_PROP_ARG)',
                               'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory=WXRB_NULL_PROP_ARG)'
         # don't expose property grid iterators; add a more Ruby-like extension
-        spec.ignore 'wxPropertyGridInterface::GetIterator'
+        spec.ignore 'wxPropertyGridInterface::GetIterator', 'wxPropertyGridInterface::GetVIterator'
         # add basic property enumerator; will wrap this in pure Ruby still for improved argument handling
         spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
           VALUE each_property(int flags, VALUE start, bool recurse)
           {
-            wxPropertyGridIterator prop_it;
-            if (NIL_P(start) || TYPE(start) == T_DATA)
+            VALUE rc = Qnil;
+            if (NIL_P(start))
             {
-              wxPGProperty* pp = 0;
-              if (!NIL_P(start))
+              // use faster forward-only iterating over all containers
+              wxPGVIterator prop_it = self->GetVIterator(flags);
+              while (!prop_it.AtEnd())
+              {
+                wxPGProperty* pp = prop_it.GetProperty();
+                VALUE rb_prop = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+                rc = rb_yield(rb_prop);
+                prop_it.Next();
+              }
+            }
+            else
+            {
+              wxPropertyGridIterator prop_it;
+              if (TYPE(start) == T_DATA)
               {
                 void* ptr;
                 int res = SWIG_ConvertPtr(start, &ptr,SWIGTYPE_p_wxPGProperty, 0);
@@ -60,27 +72,26 @@ module WXRuby3
                   rb_raise(rb_eArgError, "Expected Integer or PGProperty for 2 but got %s",
                                          StringValuePtr(msg));
                 }
-                pp = static_cast<wxPGProperty*> (ptr);
+                wxPGProperty* pp = static_cast<wxPGProperty*> (ptr);
+                prop_it = self->GetIterator(flags, pp);
               }
-              prop_it = self->GetIterator(flags, pp);
-            }
-            else if (TYPE(start) == T_FIXNUM)
-            {
-              prop_it = self->GetIterator(flags, (int)NUM2INT(start));
-            }
-            else
-            {
-              VALUE msg = rb_inspect(start);
-              rb_raise(rb_eArgError, "Expected Integer or PGProperty for 2 but got %s",
-                                     StringValuePtr(msg));
-            }
-            VALUE rc = Qnil;
-            while (!prop_it.AtEnd())
-            {
-              wxPGProperty* pp = prop_it.GetProperty();
-              VALUE rb_prop = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
-              rc = rb_yield(rb_prop);
-              prop_it.Next(recurse);
+              else if (TYPE(start) == T_FIXNUM)
+              {
+                prop_it = self->GetIterator(flags, (int)NUM2INT(start));
+              }
+              else
+              {
+                VALUE msg = rb_inspect(start);
+                rb_raise(rb_eArgError, "Expected Integer or PGProperty for 2 but got %s",
+                                       StringValuePtr(msg));
+              }
+              while (!prop_it.AtEnd())
+              {
+                wxPGProperty* pp = prop_it.GetProperty();
+                VALUE rb_prop = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+                rc = rb_yield(rb_prop);
+                prop_it.Next(recurse);
+              }
             }
             return rc;
           }
