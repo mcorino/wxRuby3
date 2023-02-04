@@ -350,11 +350,11 @@ module WXRuby3
           mtd_name = mtd.rb_name || mtd.name
           case mtd_name
           when /\A(Get|get_)/
-            [mtd.name, rb_method_name(mtd_name.sub(/\A(Get|get_)/, ''))]
+            [mtd.name, rb_method_name(mtd_name.sub(/\A(Get|get_)/, ''), keep_wx_prefix: true)]
           when /\A(Set|set_)/
-            [mtd.name, rb_method_name(mtd_name.sub(/\A(Set|set_)/, ''))+'=']
+            [mtd.name, rb_method_name(mtd_name.sub(/\A(Set|set_)/, ''), keep_wx_prefix: true)+'=']
           when /\A(Is|is_)/
-            [mtd.name, rb_method_name(mtd_name.sub(/\A(Is|is_)/, ''))+'?']
+            [mtd.name, rb_method_name(mtd_name.sub(/\A(Is|is_)/, ''), keep_wx_prefix: true)+'?']
           else # when /\A(Has|Can|has_|can_)/
             [mtd.name, rb_method_name(mtd_name)+'?']
           end
