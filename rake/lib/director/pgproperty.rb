@@ -114,6 +114,10 @@ module WXRuby3
               if ( ! wx_pp )
                 return Qnil;
 
+              // check if this instance is already tracked; return tracked value if so 
+              VALUE r_pp = SWIG_RubyInstanceFor(const_cast<wxPGProperty*> (wx_pp));
+              if (!NIL_P(r_pp)) return r_pp;              
+
               // Get the wx class and the ruby class we are converting into
               wxString class_name( wx_pp->GetClassInfo()->GetClassName() ); 
               VALUE r_class = Qnil;
@@ -137,8 +141,7 @@ module WXRuby3
               // Otherwise, retrieve the swig type info for this class and wrap it
               // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              VALUE r_pp = SWIG_NewPointerObj(const_cast<wxPGProperty*> (wx_pp), swig_type, 0);
-              return r_pp;
+              return SWIG_NewPointerObj(const_cast<wxPGProperty*> (wx_pp), swig_type, 0);
             }
             __CODE
         else
