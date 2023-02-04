@@ -516,7 +516,7 @@ module WXRuby3
             return ''
           end
           if (tm_pset = @patterns.detect { |pset| pset == type })
-            return @out.to[tm_pset].type
+            return @out.to.has_key?(tm_pset) ? @out.to[tm_pset].type : ''
           end
         end
         nil
