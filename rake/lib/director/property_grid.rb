@@ -76,8 +76,8 @@ module WXRuby3
             wxPropertyGrid* wx_pg = (wxPropertyGrid*) ptr;
 
             // mark all properties
-            wxPropertyGridIterator it =
-                wx_pg->GetIterator(wxPG_ITERATE_ALL, wxNullProperty);
+            wxPGVIterator it =
+                wx_pg->GetVIterator(wxPG_ITERATE_ALL);
             // iterate all
             for ( ; !it.AtEnd(); it.Next() )
             {
