@@ -37,7 +37,14 @@ module WXRuby3
                              'colour' => 'wxColourPropertyValue::m_colour'
         spec.regard 'wxNumericProperty::wxNumericProperty' # TODO - provide access to protected member vars? (see wxPGArrayEditorDialog)
         spec.regard 'wxEditorDialogProperty::wxEditorDialogProperty',
-                    'wxEditorDialogProperty::DisplayEditorDialog'
+                    'wxEditorDialogProperty::DisplayEditorDialog',
+                    'wxArrayStringProperty::DisplayEditorDialog',
+                    'wxDirProperty::DisplayEditorDialog',
+                    'wxFileProperty::DisplayEditorDialog',
+                    'wxImageFileProperty::DisplayEditorDialog',
+                    'wxLongStringProperty::DisplayEditorDialog',
+                    'wxMultiChoiceProperty::DisplayEditorDialog',
+                    'wxFontProperty::DisplayEditorDialog'
         spec.new_object 'wxArrayStringProperty::CreateEditorDialog'
         spec.suppress_warning(473, 'wxArrayStringProperty::CreateEditorDialog')
         # not needed in wxRuby
