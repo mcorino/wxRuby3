@@ -473,8 +473,8 @@ module WXRuby3
         event_section(false)
         doc.strip!
         # reduce triple(or more) newlines to max 2
-        doc.gsub!(/\n\n\n+/, "\n\n")
         doc << "\n" # always end with a NL without following whitespace
+        doc.gsub!(/\n *\n *\n+/, "\n\n")
         # add crossref tags
         @see_list.each { |s| doc << "@see #{s}\n" }
         doc
@@ -633,7 +633,6 @@ module WXRuby3
 
     def get_class_doc(cls)
       doc = @xml_trans.to_doc(cls.brief_doc)
-      doc << "\n" if cls.detailed_doc
       doc << @xml_trans.to_doc(cls.detailed_doc) if cls.detailed_doc
       doc
     end
@@ -654,8 +653,8 @@ module WXRuby3
             clsnm = rb_wx_name(intf_class_name)
             xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
             fdoc.doc.puts get_class_doc(item)
-            fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
             if is_mixin?(item)
+              fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
               fdoc.puts "module #{clsnm}"
             else
               basecls = ifspec.classdef_name(base_class(item, doc: true))
