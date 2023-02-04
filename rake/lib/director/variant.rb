@@ -24,7 +24,9 @@ module WXRuby3
             $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Variant")));
             __CODE
         end
-        spec.map 'wxObject*' do
+        spec.map 'wxObject*' => 'Wx::Object' do
+          # wrap wxObject in correct wxRuby class instance
+          map_out code: '$result = wxRuby_WrapWxObjectInRuby($1);'
           map_typecheck precedence: 2, code: <<~__CODE
             $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Object")));
           __CODE
@@ -238,6 +240,33 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbValueVariants);'
+        # add custom extension methods 'assign' as replacement for operator=
+        spec.add_extend_code 'wxVariant', <<~__HEREDOC
+          void assign(const wxVariant& v)
+          { (*self) = v; }
+          void assign(wxVariantData* v)
+          { (*self) = v; }
+          void assign(const wxString& v)
+          { (*self) = v; }
+          void assign(long v)
+          { (*self) = v; }
+          void assign(bool v)
+          { (*self) = v; }
+          void assign(double v)
+          { (*self) = v; }
+          void assign(wxLongLong v)
+          { (*self) = v; }
+          void assign(wxULongLong v)
+          { (*self) = v; }
+          void assign(wxObject* v)
+          { (*self) = v; }
+          void assign(const wxVariantList& v)
+          { (*self) = v; }
+          void assign(const wxDateTime& v)
+          { (*self) = v; }
+          void assign(const wxArrayString& v)
+          { (*self) = v; }
+          __HEREDOC
       end
     end # class Variant
 

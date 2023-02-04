@@ -61,6 +61,32 @@ class TestVariant < Test::Unit::TestCase
     font = Wx::Font.new(10, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
     var = Wx::Variant.new(font)
     assert_equal(font, var.get_wx_object)
+    assert_equal(Wx::Font, var.wx_object.class)
+  end
+
+  def test_assign
+    var = Wx::Variant.new('text variant')
+    assert_equal('text variant', var.get_string)
+    var.assign(true)
+    assert_equal(true, var.get_bool)
+    var.assign(1234)
+    assert_equal(1234, var.get_long)
+    var.assign(1234.5678)
+    assert_equal(1234.5678, var.get_double)
+    var.assign(2**64-1)
+    assert_equal(2**64-1, var.get_u_long_long)
+    var.assign(1-(2**63))
+    assert_equal(1-(2**63), var.get_long_long)
+    tm = Time.now
+    var.assign(tm)
+    assert_equal(tm.round(3), var.get_date_time)
+    var.assign(%w[one two three four])
+    assert_equal(%w[one two three four], var.get_array_string)
+    vars = ['one', 2, true].collect { |o| Wx::Variant.new(o) }
+    var.assign(vars)
+    assert(var.all? { |v| v == vars.shift })
+    var << AClass.new([1,2,3,4])
+    assert_equal(AClass.new([1,2,3,4]), var.get_object)
   end
 
 end
