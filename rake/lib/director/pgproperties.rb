@@ -41,7 +41,6 @@ module WXRuby3
                     'wxArrayStringProperty::DisplayEditorDialog',
                     'wxDirProperty::DisplayEditorDialog',
                     'wxFileProperty::DisplayEditorDialog',
-                    'wxImageFileProperty::DisplayEditorDialog',
                     'wxLongStringProperty::DisplayEditorDialog',
                     'wxMultiChoiceProperty::DisplayEditorDialog',
                     'wxFontProperty::DisplayEditorDialog'
