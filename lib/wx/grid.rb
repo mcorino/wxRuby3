@@ -6,7 +6,7 @@ require 'wx/core'
 
 require 'wxruby_grid'
 
-require_relative './grids/require'
+require_relative './grid/require'
 
 ::Wx.include(WxRubyStyleAccessors)
 
