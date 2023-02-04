@@ -22,7 +22,7 @@ module WXRuby3
           wxFullScreenEvent wxJoystickEvent wxDropFilesEvent wxUpdateUIEvent wxSysColourChangedEvent
           wxMouseCaptureChangedEvent wxMouseCaptureLostEvent wxDisplayChangedEvent wxDPIChangedEvent
           wxPaletteChangedEvent wxQueryNewPaletteEvent wxNavigationKeyEvent wxWindowCreateEvent
-          wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent
+          wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent wxChildFocusEvent
           ])
         spec.fold_bases('wxMouseEvent' => 'wxMouseState', 'wxKeyEvent' => 'wxKeyboardState')
         spec.set_only_for 'WXWIN_COMPATIBILITY_2_8', 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
