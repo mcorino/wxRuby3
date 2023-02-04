@@ -23,11 +23,22 @@ module WXRuby3
           # add method for correctly wrapping PGEditor output references
           spec.add_header_code <<~__CODE
             extern VALUE mWxGRID; // declare external module reference
-            extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0)
+            extern VALUE wxRuby_GridCellEditorInstance(wxGridCellEditor* wx_edt);
+            extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce)
             {
               // If no object was passed to be wrapped.
               if ( ! wx_gce )
                 return Qnil;
+
+              // check for registered instance
+              VALUE rb_gce = wxRuby_GridCellEditorInstance(const_cast<wxGridCellEditor*> (wx_gce));
+              if (rb_gce && !NIL_P(rb_gce))
+              {
+                // wxWidgets will have increased the refcount but since this Ruby instance
+                // does not manage the refcounts anymore we decrease that here immediately
+                const_cast<wxGridCellEditor*> (wx_gce)->DecRef();
+                return rb_gce;
+              }
 
               const void *ptr = 0;
               wxString class_name;
@@ -85,10 +96,10 @@ module WXRuby3
               }
 
               // Otherwise, retrieve the swig type info for this class and wrap it
-              // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
+              // in Ruby. Make it owned to manage the ref count if GC claims the object. 
+              // wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              VALUE r_gce = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, own);
-              return r_gce;
+              return SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 1);
             }
           __CODE
         elsif spec.module_name == 'wxGridCellActivatableEditor'
@@ -131,13 +142,11 @@ module WXRuby3
             'void Reset()',
             'wxString GetValue() const'
         end
-        # these require wxRuby to take ownership (ref counted)
-        spec.new_object "#{spec.module_name}::Clone"
         unless spec.module_name == 'wxGridCellEditor'
-          # type mapping for Clone return ref => claim ownership
+          # type mapping for Clone return ref
           spec.map 'wxGridCellEditor*' => 'Wx::GRID::GridCellEditor' do
-            add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
-            map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1, 1);'
+            add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce);'
+            map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
           end
         end
         # handled; can be suppressed

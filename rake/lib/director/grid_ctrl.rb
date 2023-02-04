@@ -129,6 +129,11 @@ module WXRuby3
             Grid_Cell_Attr_Value_Map.erase(wx_attr);
           }
 
+          extern VALUE wxRuby_GridCellAttrInstance(wxGridCellAttr* wx_attr)
+          {
+            return Grid_Cell_Attr_Value_Map[wx_attr];
+          }
+
           // specialized client data class
           class WXRBGridCellAttrMonitor : public wxClientData
           {
@@ -148,7 +153,7 @@ module WXRuby3
           {
             if (wx_attr && !NIL_P(rb_attr))
             {
-              // always disown; wxWidgets takes over ownership
+              // always (keep) disown(ed); wxWidgets takes over ownership
               RDATA(rb_attr)->dfree = 0;
               if (Grid_Cell_Attr_Value_Map.find(wx_attr) == Grid_Cell_Attr_Value_Map.end())
               {
@@ -156,6 +161,13 @@ module WXRuby3
                 std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
           #endif
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
+              }
+              else
+              {
+                // we're passing an already registered instance (which does not manage refcounts anymore)
+                // to wxWidgets (again) so we'll have to increase the refcount in anticipation of an 
+                // additional DecRef() by wxWidgets at some point
+                wx_attr->IncRef();
               }
             }
           }
@@ -184,6 +196,11 @@ module WXRuby3
             Grid_Cell_Editor_Value_Map.erase(wx_edt);
           }
 
+          extern VALUE wxRuby_GridCellEditorInstance(wxGridCellEditor* wx_edt)
+          {
+            return Grid_Cell_Editor_Value_Map[wx_edt];
+          }
+
           // specialized client data class
           class WXRBGridCellEditorMonitor : public wxClientData
           {
@@ -198,12 +215,12 @@ module WXRuby3
             VALUE             rb_edt;
           };
 
-          // and it's associated registration/de-registration functions
+          // and it's associated registration function
           extern void wxRuby_RegisterGridCellEditor(wxGridCellEditor* wx_edt, VALUE rb_edt)
           {
             if (wx_edt && !NIL_P(rb_edt))
             {
-              // always disown; wxWidgets takes over ownership
+              // always (keep) disown(ed); wxWidgets takes over ownership
               RDATA(rb_edt)->dfree = 0;
               if (Grid_Cell_Editor_Value_Map.find(wx_edt) == Grid_Cell_Editor_Value_Map.end())
               {
@@ -211,6 +228,13 @@ module WXRuby3
                 std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
           #endif
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
+              }
+              else
+              {
+                // we're passing an already registered instance (which does not manage refcounts anymore)
+                // to wxWidgets (again) so we'll have to increase the refcount in anticipation of an 
+                // additional DecRef() by wxWidgets at some point
+                wx_edt->IncRef();
               }
             }
           }
@@ -239,6 +263,11 @@ module WXRuby3
             Grid_Cell_Renderer_Value_Map.erase(wx_rnd);
           }
 
+          extern VALUE wxRuby_GridCellRendererInstance(wxGridCellRenderer* wx_rnd)
+          {
+            return Grid_Cell_Renderer_Value_Map[wx_rnd];
+          }
+
           // specialized client data class
           class WXRBGridCellRendererMonitor : public wxClientData
           {
@@ -258,7 +287,7 @@ module WXRuby3
           {
             if (wx_rnd && !NIL_P(rb_rnd))
             {
-              // always disown; wxWidgets takes over ownership
+              // always (keep) disowned(ed); wxWidgets takes over ownership
               RDATA(rb_rnd)->dfree = 0;
               if (Grid_Cell_Renderer_Value_Map.find(wx_rnd) == Grid_Cell_Renderer_Value_Map.end())
               {
@@ -266,6 +295,13 @@ module WXRuby3
                 std::wcout << "** wxRuby_RegisterGridCellRenderer : " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
           #endif
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
+              }
+              else
+              {
+                // we're passing an already registered instance (which does not manage refcounts anymore)
+                // to wxWidgets (again) so we'll have to increase the refcount in anticipation of an 
+                // additional DecRef() by wxWidgets at some point
+                wx_rnd->IncRef();
               }
             }
           }
@@ -293,19 +329,29 @@ module WXRuby3
         end
         # next handle registering mappings
         spec.map 'wxGridCellAttr *' => 'Wx::GRID::GridCellAttr' do
-          # let defaults handle conversion and than use the check mapping to handle registration
+          map_out code: <<~__CODE
+            $result = wxRuby_GridCellAttrInstance($1); // check for already registered instance
+            if ($result && !NIL_P($result))
+            {
+              $1->DecRef();
+            }
+            else
+            {
+              // created by wxWidgets itself; no registration necessary (yet)
+              // make owned instance which will take care of the refcount when GC claimed
+              $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 1);
+            }
+            __CODE
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'
         end
         spec.map 'wxGridCellEditor *' => 'Wx::GRID::GridCellEditor' do
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
-          map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
         end
         spec.map 'wxGridCellRenderer *' => 'Wx::GRID::GridCellRenderer' do
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
-          map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
         # add constants missing from documentation

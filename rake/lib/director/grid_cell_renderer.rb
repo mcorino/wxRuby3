@@ -22,11 +22,22 @@ module WXRuby3
           # add method for correctly wrapping PGEditor output references
           spec.add_header_code <<~__CODE
             extern VALUE mWxGRID; // declare external module reference
-            extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0)
+            extern VALUE wxRuby_GridCellRendererInstance(wxGridCellRenderer* wx_rnd);
+            extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr)
             {
               // If no object was passed to be wrapped.
               if ( ! wx_gcr )
                 return Qnil;
+
+              // check for registered instance
+              VALUE rb_gcr = wxRuby_GridCellRendererInstance(const_cast<wxGridCellRenderer*> (wx_gcr));
+              if (rb_gcr && !NIL_P(rb_gcr))
+              {
+                // wxWidgets will have increased the refcount but since this Ruby instance
+                // does not manage the refcounts anymore we decrease that here immediately
+                const_cast<wxGridCellRenderer*> (wx_gcr)->DecRef();
+                return rb_gcr;
+              }
 
               const void *ptr = 0;
               wxString class_name;
@@ -80,10 +91,10 @@ module WXRuby3
               }
 
               // Otherwise, retrieve the swig type info for this class and wrap it
-              // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
+              // in Ruby. Make it owned to manage the ref count if GC claims the object.
+              // wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              VALUE r_gcr = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, own);
-              return r_gcr;
+              return SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 1);
             }
           __CODE
         else
@@ -103,13 +114,11 @@ module WXRuby3
               'virtual wxSize GetBestSize(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, int row, int col)'
           spec.force_proxy spec.module_name
         end
-        # these require wxRuby to take ownership (ref counted)
-        spec.new_object "#{spec.module_name}::Clone"
         unless spec.module_name == 'wxGridCellRenderer'
-          # type mapping for Clone return ref => claim ownership
+          # type mapping for Clone return ref
           spec.map 'wxGridCellRenderer*' => 'Wx::GRID::GridCellRenderer' do
-            add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
-            map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1, 1);'
+            add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr);'
+            map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
           end
         end
         # handled; can be suppressed

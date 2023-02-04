@@ -26,18 +26,16 @@ module WXRuby3
                         'wxGridCellAttr::GetRenderer')
         # type mapping for wxGridCellEditor* return ref
         spec.map 'wxGridCellEditor*' => 'Wx::GRID::GridCellEditor' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);',
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce);',
                           'extern void wxRuby_RegisterGridCellEditor(wxGridCellEditor* wx_edt, VALUE rb_edt);'
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
-          map_directorin code: '$input = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
         end
         # type mapping for wxGridCellRenderer* return ref
         spec.map 'wxGridCellRenderer*' => 'Wx::GRID::GridCellRenderer' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);',
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr);',
                           'extern void wxRuby_RegisterGridCellRenderer(wxGridCellRenderer* wx_rnd, VALUE rb_rnd);'
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
-          map_directorin code: '$input = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
       end
