@@ -46,6 +46,48 @@ module WXRuby3
                     'wxFontProperty::DisplayEditorDialog'
         spec.new_object 'wxArrayStringProperty::CreateEditorDialog'
         spec.suppress_warning(473, 'wxArrayStringProperty::CreateEditorDialog')
+        # for wxArrayStringProperty::OnCustomStringEdit
+        spec.map 'wxWindow *parent, wxString &value' do
+          map_in from: {type: 'Wx::Window', index: 0},
+                 temp: 'wxString tmp',
+                 code: <<~__CODE
+            void* argp$argnum = NULL;
+            if ( TYPE($input) == T_DATA )
+            {
+              if (SWIG_IsOK(SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, $argnum-1)) && argp$argnum)
+              {
+                $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
+              }
+              else
+              {
+                rb_raise(rb_eTypeError, "Expected Wx::Window instance.");
+              }
+            }
+            $2 = &tmp;
+            __CODE
+          # ignore C defined return value entirely (also affects directorout)
+          map_out ignore: 'bool'
+          map_argout as: {type: 'String', index: 1}, code: '$result = WXSTR_TO_RSTR(tmp$argnum);'
+          # convert the window and ignore the string ref for now
+          map_directorin code: '$input = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxWindow, 0);'
+          map_directorargout code: <<~__CODE
+            if (RTEST($result))
+            {
+              if (TYPE($result) == T_STRING)
+              {
+                value = RSTR_TO_WXSTR($result);
+                c_result = true;
+              }
+              else
+              {
+                Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
+                                                           "on_custom_string_edit should return a string, or nil");
+              }
+            }
+            else
+              c_result = false;
+          __CODE
+        end
         # not needed in wxRuby
         spec.ignore 'wxFlagsProperty::wxFlagsProperty(const wxString &, const wxString &, const wxChar *const *, const long *, long)'
         spec.do_not_generate :variables, :defines, :enums, :functions
