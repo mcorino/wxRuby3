@@ -146,7 +146,7 @@ module WXRuby3
         spec.map 'wxVariantData*' => 'Object' do
           map_in code: '$1 = new WXRBValueVariantData($input);'
           map_out code: <<~__CODE
-            if ($1->GetType() == WXRBValueVariantData::type_name_)
+            if ($1 && $1->GetType() == WXRBValueVariantData::type_name_)
             { 
               $result = ((WXRBValueVariantData*)$1)->GetValue();
             }
