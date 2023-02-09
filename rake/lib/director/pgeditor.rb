@@ -79,43 +79,98 @@ module WXRuby3
         end
         # add method for correctly wrapping PGEditor output references
         spec.add_header_code <<~__CODE
-            extern VALUE mWxPG; // declare external module reference
-            extern VALUE wxRuby_WrapWxPGEditorInRuby(const wxPGEditor *wx_pe)
+          extern VALUE mWxPG; // declare external module reference
+          extern VALUE wxRuby_WrapWxPGEditorInRuby(const wxPGEditor *wx_pe)
+          {
+            // If no object was passed to be wrapped.
+            if ( ! wx_pe )
+              return Qnil;
+
+            // check if this instance is already tracked; return tracked value if so 
+            VALUE r_pe = SWIG_RubyInstanceFor(const_cast<wxPGEditor*> (wx_pe));
+            if (r_pe && !NIL_P(r_pe)) return r_pe;              
+
+            // Get the wx class and the ruby class we are converting into
+            wxString class_name( wx_pe->GetClassInfo()->GetClassName() ); 
+            VALUE r_class = Qnil;
+            if ( class_name.Len() > 2 )
             {
-              // If no object was passed to be wrapped.
-              if ( ! wx_pe )
-                return Qnil;
-
-              // check if this instance is already tracked; return tracked value if so 
-              VALUE r_pe = SWIG_RubyInstanceFor(const_cast<wxPGEditor*> (wx_pe));
-              if (r_pe && !NIL_P(r_pe)) return r_pe;              
-
-              // Get the wx class and the ruby class we are converting into
-              wxString class_name( wx_pe->GetClassInfo()->GetClassName() ); 
-              VALUE r_class = Qnil;
-              if ( class_name.Len() > 2 )
-              {
-                wxCharBuffer wx_classname = class_name.mb_str();
-                VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
-                if (rb_const_defined(mWxPG, r_class_name))
-                  r_class = rb_const_get(mWxPG, r_class_name);
-              }
-
-              // If we cannot find the class output a warning and return nil
-              if ( r_class == Qnil )
-              {
-                rb_warn("Error wrapping object; class `%s' is not (yet) supported in wxRuby",
-                        (const char *)class_name.mb_str() );
-                return Qnil;
-              }
-
-
-              // Otherwise, retrieve the swig type info for this class and wrap it
-              // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
-              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              return SWIG_NewPointerObj(const_cast<wxPGEditor*> (wx_pe), swig_type, 0);
+              wxCharBuffer wx_classname = class_name.mb_str();
+              VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
+              if (rb_const_defined(mWxPG, r_class_name))
+                r_class = rb_const_get(mWxPG, r_class_name);
             }
-        __CODE
+
+            // If we cannot find the class output a warning and return nil
+            if ( r_class == Qnil )
+            {
+              rb_warn("Error wrapping object; class `%s' is not (yet) supported in wxRuby",
+                      (const char *)class_name.mb_str() );
+              return Qnil;
+            }
+
+
+            // Otherwise, retrieve the swig type info for this class and wrap it
+            // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
+            swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
+            return SWIG_NewPointerObj(const_cast<wxPGEditor*> (wx_pe), swig_type, 0);
+          }
+          __CODE
+        # add extension code to retrieve the internal standard editors
+        # can't use the global variables directly to create constants as these will
+        # only be initialized after the app has started so we add a module method
+        # to retrieve the variables and use that to initialize the constants using
+        # delayed init
+        spec.include 'wx/propgrid/propgridiface.h'
+        spec.add_extend_code 'wxPGEditor', <<~__HEREDOC
+          static wxPGEditor* get_standard_editor_class(const wxString& editor_name)
+          {
+            // will trigger registration of all property editors
+            wxPropertyGridInterface::RegisterAdditionalEditors();
+            if (editor_name == wxS("TextCtrl"))
+            {
+              return wxPGEditor_TextCtrl;
+            }
+            if (editor_name == wxS("TextCtrlAndButton"))
+            {
+              return wxPGEditor_TextCtrlAndButton;
+            }
+            if (editor_name == wxS("Choice"))
+            {
+              return wxPGEditor_Choice;
+            }
+            if (editor_name == wxS("ComboBox"))
+            {
+              return wxPGEditor_ComboBox;
+            }
+            if (editor_name == wxS("CheckBox"))
+            {
+              return wxPGEditor_CheckBox;
+            }
+            if (editor_name == wxS("ChoiceAndButton"))
+            {
+              return wxPGEditor_ChoiceAndButton;
+            }
+            if (editor_name == wxS("SpinCtrl"))
+            {
+              return wxPGEditor_SpinCtrl;
+            }
+            if (editor_name == wxS("DatePickerCtrl"))
+            {
+              return wxPGEditor_DatePickerCtrl;
+            }
+            return 0;
+          }
+          __HEREDOC
+        # ignore the variables themselves
+        spec.ignore 'wxPGEditor_TextCtrl',
+                    'wxPGEditor_Choice',
+                    'wxPGEditor_ComboBox',
+                    'wxPGEditor_TextCtrlAndButton',
+                    'wxPGEditor_CheckBox',
+                    'wxPGEditor_ChoiceAndButton',
+                    'wxPGEditor_SpinCtrl',
+                    'wxPGEditor_DatePickerCtrl'
       end
 
     end # class PGEditor
