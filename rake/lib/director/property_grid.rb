@@ -108,6 +108,9 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPropertyGrid "GC_mark_wxPropertyGrid";'
+        # missing from XML docs
+        spec.extend_interface 'wxPropertyGrid',
+                              'wxPoint GetGoodEditorDialogPosition(wxPGProperty* p, const wxSize& sz)'
       end
     end # class PropertyGrid
 
