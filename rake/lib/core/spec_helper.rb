@@ -281,12 +281,6 @@ module WXRuby3
         else
           return false
         end
-        # if !(Extractor::MethodDef === member) ||
-        #       !has_proxy?(class_def) ||
-        #       member.is_ctor || member.is_dtor ||
-        #       has_method_proxy?(class_def, member)
-        #   return false
-        # end
       end
       true
     end
@@ -307,12 +301,6 @@ module WXRuby3
         when Extractor::MemberVarDef
           return has_proxy?(class_def)
         end
-        # if (Extractor::MethodDef === member) &&
-        #     has_proxy?(class_def) ||
-        #     !member.is_ctor && !member.is_dtor &&
-        #     !has_method_proxy?(class_def, member)
-        #   return true
-        # end
       end
       false
     end
