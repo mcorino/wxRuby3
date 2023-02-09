@@ -472,7 +472,9 @@ module WXRuby3
         end
       end
 
+      # Updates SWIG generated wrapper code for Mixin modules.
       class FixInterfaceMixin < Processor
+
         def run
           # get the generated (class) items which have been defined to be mixins
           class_list = def_items.select { |itm| Extractor::ClassDef === itm && is_mixin?(itm) }
@@ -509,6 +511,159 @@ module WXRuby3
                 # as well as the lifecycle method setups
               elsif /\A\s*SwigClassWx(#{cls_re_txt})\.(mark|destroy|trackObjects)\s*=/ =~ line
                 line = nil
+              end
+            end
+            line
+          end
+        end
+      end
+
+      # Provides public access overrides in director proxies for non-virtual protected members
+      # and updates wrapper methods to call public accessors in case of derived classes
+      class FixProtectedAccess < Processor
+
+        # collect the definitions of protected members that need public overrides for each class in the module
+        def collect_methods
+          cls_list = def_classes.select { |c| !c.ignored && (!c.is_template? || template_as_class?(c.name)) && !is_folded_base?(c.name) }
+          cls_list.inject({}) do |hash, clsdef|
+            intf_class_name = if (clsdef.is_template? && template_as_class?(clsdef.name))
+                                template_class_name(clsdef.name)
+                              else
+                                clsdef.name
+                              end
+            mtds = InterfaceAnalyzer.class_interface_members_public(intf_class_name).collect do |member|
+              member = if ::String === member
+                         InterfaceAnalyzer.class_interface_extension_methods(intf_class_name)[member.tr("\n", '')]
+                       elsif Extractor::MethodDef === member || Extractor::MemberVarDef
+                         member
+                       else
+                         nil
+                       end
+              if member && needs_public_override?(clsdef, member)
+                member
+              else
+                nil
+              end
+            end.compact
+            hash[rb_wx_name(class_name(clsdef))] = mtds unless mtds.empty?
+            hash
+          end
+        end
+
+        def run
+          member_map = collect_methods rescue $!
+          return if member_map.empty?
+
+          # create re match list for class names
+          cls_re_txt = member_map.keys.join('|')
+          cls_re = /class\s*SwigDirector_wx(#{cls_re_txt})\s*:/
+          at_director = false
+          class_nm = nil
+
+          # update the SWIG generated director proxy class with the public overrides (inlines)
+          update_header do |line|
+            if at_director
+              # find end of class declaration
+              if /\A};/ =~ line
+                at_director = false
+                # prepend inline public accessors for protected members
+                decls = member_map[class_nm].collect do |mdef|
+                  if Extractor::MethodDef === mdef
+                    [
+                      "    #{mdef.type} #{mdef.name}_Public#{mdef.args_string} {",
+                      "        #{mdef.type == 'void' ? '' : 'return '}#{mdef.name}(#{mdef.parameters.collect {|p| p.name }.join(',')});",
+                      '    }'
+                    ]
+                  else
+                    [
+                      "    #{mdef.type} & #{mdef.name}_Public() {",
+                      "        return #{mdef.name};",
+                      '    }'
+                    ]
+                  end
+                end.flatten
+                line = (decls << line)
+              end
+            # find start of director class
+            elsif cls_re =~ line
+              at_director = true
+              class_nm = $1
+            end
+            line
+          end
+
+          wrapper_re = /_wrap_wx(#{cls_re_txt})_(\w+)\(.*\)\s*{/
+          mtd_call_re = nil
+          at_wrapper = false
+          at_setter = false
+          matched_wrapper = false
+          mtd_nm = nil
+          mdef = nil
+
+          # update the SWIG generated wrapper code to use the public overrrides and declare the wrapper methods
+          # as protected
+          update_source do |line|
+            if at_wrapper
+              if /\A}/ =~ line
+                at_wrapper = false
+                matched_wrapper = false
+              elsif matched_wrapper && mtd_call_re =~ line
+                prefix = $1
+                line = [
+                  "#{prefix}fpa_dir = dynamic_cast<Swig::Director *>(arg1);",
+                  "#{prefix}fpa_upcall = (fpa_dir && (fpa_dir->swig_get_self() == self));",
+                  "#{prefix}if (fpa_upcall)"
+                ]
+                if Extractor::MethodDef === mdef
+                  dir_instance = if mdef.is_const
+                                   "dynamic_cast<const SwigDirector_wx#{class_nm}*> ((const Swig::Director*)fpa_dir)"
+                                 else
+                                   "dynamic_cast<SwigDirector_wx#{class_nm}*> (fpa_dir)"
+                                 end
+                  if mdef.type == 'void'
+                    line << "#{prefix}    #{dir_instance}->#{mtd_nm}_Public#{$2};"
+                  else
+                    line << "#{prefix}    result = (#{mdef.type})#{dir_instance}->#{mtd_nm}_Public#{$2};"
+                  end
+                elsif at_setter
+                  assignment = $2
+                  dir_instance = "dynamic_cast<SwigDirector_wx#{class_nm}*> (fpa_dir)"
+                  line << "#{prefix}    #{dir_instance}->#{mdef.name}_Public()#{assignment};"
+                  at_setter = false
+                else
+                  dir_instance = "dynamic_cast<SwigDirector_wx#{class_nm}*> (fpa_dir)"
+                  line << "#{prefix}    result = #{dir_instance}->#{mdef.name}_Public();"
+                end
+                line.concat [
+                              "#{prefix}else",
+                              "#{prefix}    rb_raise(rb_eRuntimeError, \"Invalid access attempt for protected method.\");"
+                            ]
+                matched_wrapper = false
+              end
+            # find start of a wrapper method
+            elsif wrapper_re =~ line
+              class_nm = $1
+              mtd_nm = $2
+              at_wrapper = true
+              if (mdef = member_map[class_nm].detect { |m| Extractor::MethodDef === m && (m.rb_name || m.name) == mtd_nm })
+                matched_wrapper = true
+                mtd_call_re = /(\s*)\S.*arg1\)?->#{mtd_nm}(\(.*\));/
+                line = [line, '  bool fpa_upcall = false;', '  Swig::Director *fpa_dir = 0;']
+              elsif (mdef = member_map[class_nm].detect { |m| Extractor::MemberVarDef === m && "#{m.rb_name || m.name}_get" == mtd_nm })
+                matched_wrapper = true
+                mtd_call_re = /(\s*)\S.*arg1\)?->#{mdef.name}\)?;/
+                line = [line, '  bool fpa_upcall = false;', '  Swig::Director *fpa_dir = 0;']
+              elsif (mdef = member_map[class_nm].detect { |m| Extractor::MemberVarDef === m && "#{m.rb_name || m.name}_set" == mtd_nm })
+                matched_wrapper = true
+                at_setter = true;
+                mtd_call_re = /(\s*)\S.*arg1\)?->#{mdef.name}(\s*=\s*.*);/
+                line = [line, '  bool fpa_upcall = false;', '  Swig::Director *fpa_dir = 0;']
+              end
+            elsif /rb_define_method\(SwigClassWx(#{cls_re_txt}).klass\s*,\s*"(\w+)(=)?"\s*,\s*VALUEFUNC/ =~ line
+              class_nm = $1
+              mtdnm = $2
+              if member_map[class_nm].any? { |m| mtdnm == rb_method_name(m.rb_name || m.name) }
+                line.sub!('rb_define_method', 'rb_define_protected_method')
               end
             end
             line

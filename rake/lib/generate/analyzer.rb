@@ -88,12 +88,16 @@ module WXRuby3
       end
 
       def register_interface_member(member, req_pure_virt=false)
-        if member.protection == 'public'
-          class_registry.public_members << member
-        else
-          class_registry.protected_members << member
-        end
-        if Extractor::MethodDef === member && !member.is_ctor && !member.is_dtor && !member.is_static
+        reg = if declare_public?(@classdef, member)
+                class_registry.public_members << member
+                true
+              elsif Extractor::MethodDef === member # no need to register anything but methods protected
+                class_registry.protected_members << member
+                true
+              else
+                false
+              end
+        if reg && Extractor::MethodDef === member && !member.is_ctor && !member.is_dtor && !member.is_static
           class_registry.method_table[member.signature] = {
             method: member,
             virtual: member.is_virtual,
@@ -113,7 +117,7 @@ module WXRuby3
             name: $3.strip,
             is_const: $5 && $5.strip == 'const',
             is_override: $6 && $6.strip == 'override',
-            args_string: "(#{arglist})"
+            args_string: "(#{arglist})#{$5}"
           }
           swig_clsnm = class_name(class_spec_name)
           if type == '~' && swig_clsnm == kwargs[:name]
@@ -143,14 +147,14 @@ module WXRuby3
       end
 
       def register_custom_interface_member(visibility, member, req_pure_virt)
-        if visibility == 'public'
-          class_registry.public_members << member
-        else
-          class_registry.protected_members << member
-        end
-        member = member.tr("\n", '')
-        if /[^\(\)]+\([^\)]*\)[^\(\)]*/ =~ member
+        member_decl = member.tr("\n", '')
+        if /[^\(\)]+\([^\)]*\)[^\(\)]*/ =~ member_decl
           mtdef = parse_method_decl(member)
+          if declare_public?(@classdef, mtdef)
+            class_registry.public_members << member
+          else
+            class_registry.protected_members << member
+          end
           class_registry.method_table[mtdef.signature] = {
             method: mtdef,
             virtual: mtdef.is_virtual,
@@ -158,7 +162,9 @@ module WXRuby3
             proxy: has_method_proxy?(class_spec_name, mtdef),
             extension: true
           }
-          class_registry.extension_methods[member] = mtdef
+          class_registry.extension_methods[member_decl] = mtdef
+        elsif visibility == 'public'
+          class_registry.public_members << member
         end
       end
 
@@ -463,6 +469,10 @@ module WXRuby3
 
       def class_interface_members_protected(class_name)
         class_interface_registry(class_name).protected_members
+      end
+
+      def class_interface_extension_methods(class_name)
+        class_interface_registry(class_name).extension_methods
       end
 
       def class_interface_method_ignored?(class_name, mtdef)

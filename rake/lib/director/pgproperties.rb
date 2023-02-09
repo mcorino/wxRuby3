@@ -35,7 +35,29 @@ module WXRuby3
                     'wxColourPropertyValue::m_colour'
         spec.rename_for_ruby 'type'=> 'wxColourPropertyValue::m_type',
                              'colour' => 'wxColourPropertyValue::m_colour'
-        spec.regard 'wxNumericProperty::wxNumericProperty' # TODO - provide access to protected member vars? (see wxPGArrayEditorDialog)
+        spec.regard 'wxNumericProperty::wxNumericProperty'
+        spec.regard 'wxNumericProperty::m_minVal',
+                    'wxNumericProperty::m_maxVal',
+                    'wxNumericProperty::m_spinMotion',
+                    'wxNumericProperty::m_spinStep',
+                    'wxNumericProperty::m_spinWrap',
+                    'wxEditorDialogProperty::m_dlgTitle',
+                    'wxEditorDialogProperty::m_dlgStyle',
+                    'wxEnumProperty::GetIndex',
+                    'wxEnumProperty::SetIndex',
+                    'wxEnumProperty::ValueFromString_',
+                    'wxEnumProperty::ValueFromInt_',
+                    'wxFileProperty::m_wildcard',
+                    'wxFileProperty::m_basePath',
+                    'wxFileProperty::m_initialPath',
+                    'wxFileProperty::m_indFilter'
+        spec.rename_for_ruby 'min_val' => 'wxNumericProperty::m_minVal',
+                             'max_val' => 'wxNumericProperty::m_maxVal',
+                             'spin_motion' => 'wxNumericProperty::m_spinMotion',
+                             'spin_step' => 'wxNumericProperty::m_spinStep',
+                             'spin_wrap' => 'wxNumericProperty::m_spinWrap',
+                             'dlg_title' => 'wxEditorDialogProperty::m_dlgTitle',
+                             'dlg_style' => 'wxEditorDialogProperty::m_dlgStyle'
         spec.regard 'wxEditorDialogProperty::wxEditorDialogProperty',
                     'wxEditorDialogProperty::DisplayEditorDialog',
                     'wxArrayStringProperty::DisplayEditorDialog',

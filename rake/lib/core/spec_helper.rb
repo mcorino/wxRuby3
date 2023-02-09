@@ -263,6 +263,60 @@ module WXRuby3
       false # method will not have proxy as there will not be a proxy (director) class
     end
 
+    def declare_public?(classdef_or_name, member)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      unless member.protection == 'public'
+        # in case the class can be subclassed (i.e. gets a proxy defined) we need to declare
+        # non-virtual protected members (not ctor/dtor) as public in order for SWIG to generate
+        # wrappers
+        # we will need to postprocess the generated results to add public accessors in the proxy
+        # and properly define the wrapper methods as protected
+        case member
+        when Extractor::MethodDef
+          # only when not ctor/dtor and class is proxied and method is not proxied
+          return !(member.is_ctor || member.is_dtor || !has_proxy?(class_def) || has_method_proxy?(class_def, member))
+        when Extractor::MemberVarDef
+          return has_proxy?(class_def)
+        else
+          return false
+        end
+        # if !(Extractor::MethodDef === member) ||
+        #       !has_proxy?(class_def) ||
+        #       member.is_ctor || member.is_dtor ||
+        #       has_method_proxy?(class_def, member)
+        #   return false
+        # end
+      end
+      true
+    end
+
+    def needs_public_override?(classdef_or_name, member)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      if member.protection == 'protected'
+        # in case the class can be subclassed (i.e. gets a proxy defined) we need to declare
+        # non-virtual protected methods (not ctor/dtor) as public in order for SWIG to generate
+        # wrappers
+        # we will need to postprocess the generated results to add public accessors in the proxy
+        # and properly define the methods as protected
+        case member
+        when Extractor::MethodDef
+          # only when not ctor/dtor and class is proxied and method is not proxied
+          return !(member.is_ctor || member.is_dtor || !has_proxy?(class_def) || has_method_proxy?(class_def, member))
+        when Extractor::MemberVarDef
+          return has_proxy?(class_def)
+        end
+        # if (Extractor::MethodDef === member) &&
+        #     has_proxy?(class_def) ||
+        #     !member.is_ctor && !member.is_dtor &&
+        #     !has_method_proxy?(class_def, member)
+        #   return true
+        # end
+      end
+      false
+    end
+
     def disowns
       ifspec.disowns
     end
