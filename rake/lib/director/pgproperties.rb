@@ -36,6 +36,8 @@ module WXRuby3
         spec.rename_for_ruby 'type'=> 'wxColourPropertyValue::m_type',
                              'colour' => 'wxColourPropertyValue::m_colour'
         spec.regard 'wxNumericProperty::wxNumericProperty'
+        spec.regard 'wxMultiChoiceProperty::GenerateValueAsString',
+                    'wxMultiChoiceProperty::GetValueAsIndices'
         spec.regard 'wxNumericProperty::m_minVal',
                     'wxNumericProperty::m_maxVal',
                     'wxNumericProperty::m_spinMotion',
@@ -50,14 +52,59 @@ module WXRuby3
                     'wxFileProperty::m_wildcard',
                     'wxFileProperty::m_basePath',
                     'wxFileProperty::m_initialPath',
-                    'wxFileProperty::m_indFilter'
+                    'wxFileProperty::m_indFilter',
+                    'wxArrayStringProperty::m_display',
+                    'wxArrayStringProperty::m_delimiter',
+                    'wxArrayStringProperty::m_customBtnText',
+                    'wxMultiChoiceProperty::m_display',
+                    'wxMultiChoiceProperty::m_userStringMode',
+                    'wxFloatProperty::m_precision',
+                    'wxUIntProperty::m_base',
+                    'wxUIntProperty::m_realBase',
+                    'wxUIntProperty::m_prefix',
+                    'wxDateProperty::m_format',
+                    'wxDateProperty::m_dpStyle'
         spec.rename_for_ruby 'min_val' => 'wxNumericProperty::m_minVal',
                              'max_val' => 'wxNumericProperty::m_maxVal',
                              'spin_motion' => 'wxNumericProperty::m_spinMotion',
                              'spin_step' => 'wxNumericProperty::m_spinStep',
                              'spin_wrap' => 'wxNumericProperty::m_spinWrap',
                              'dlg_title' => 'wxEditorDialogProperty::m_dlgTitle',
-                             'dlg_style' => 'wxEditorDialogProperty::m_dlgStyle'
+                             'dlg_style' => 'wxEditorDialogProperty::m_dlgStyle',
+                             'display' => %w[wxArrayStringProperty::m_display wxMultiChoiceProperty::m_display],
+                             'delimiter' => 'wxArrayStringProperty::m_delimiter',
+                             'custom_btn_text' => 'wxArrayStringProperty::m_customBtnText',
+                             'user_string_mode' => 'wxMultiChoiceProperty::m_userStringMode',
+                             'precision' => 'wxFloatProperty::m_precision',
+                             'base' => 'wxUIntProperty::m_base',
+                             'real_base' => 'wxUIntProperty::m_realBase',
+                             'prefix' => 'wxUIntProperty::m_prefix',
+                             'format' => 'wxDateProperty::m_format',
+                             'dp_style' => 'wxDateProperty::m_dpStyle'
+        # make sure the derived Numeric property classes provide the protected accessors too
+        %w[wxIntProperty wxFloatProperty wxUIntProperty].each do |kls|
+          spec.extend_interface kls,
+                                'wxVariant m_minVal',
+                                'wxVariant m_maxVal',
+                                'bool m_spinMotion',
+                                'wxVariant m_spinStep',
+                                'bool m_spinWrap',
+                                visibility: 'protected'
+          spec.rename_for_ruby 'min_val' => "#{kls}::m_minVal",
+                               'max_val' => "#{kls}::m_maxVal",
+                               'spin_motion' => "#{kls}::m_spinMotion",
+                               'spin_step' => "#{kls}::m_spinStep",
+                               'spin_wrap' => "#{kls}::m_spinWrap"
+        end
+        # make sure the derived Enum property classes provide the protected accessors too
+        %w[wxCursorProperty wxEditEnumProperty wxSystemColourProperty wxColourProperty].each do |kls|
+          spec.extend_interface kls,
+                                'int GetIndex() const',
+                                'void SetIndex(int index)',
+                                'bool ValueFromString_ (wxVariant &value, const wxString &text, int argFlags) const',
+                                'bool ValueFromInt_ (wxVariant &value, int intVal, int argFlags) const',
+                                visibility: 'protected'
+        end
         spec.regard 'wxEditorDialogProperty::wxEditorDialogProperty',
                     'wxEditorDialogProperty::DisplayEditorDialog',
                     'wxArrayStringProperty::DisplayEditorDialog',
