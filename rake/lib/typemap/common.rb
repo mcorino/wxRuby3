@@ -86,6 +86,7 @@ module WXRuby3
         end
 
         map 'wxString' => 'String' do
+          map_in code: '$1 = RSTR_TO_WXSTR($input);'
           map_out code: '$result = WXSTR_TO_RSTR($1);'
           map_directorout code: '$result = RSTR_TO_WXSTR($input);'
           map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
@@ -309,6 +310,16 @@ module WXRuby3
 
         # return by value
         map 'wxArrayInt' => 'Array<Integer>' do
+          map_in code: <<~__CODE
+            if (($input != Qnil) && (TYPE($input) == T_ARRAY))
+            {
+              for (int i = 0; i < RARRAY_LEN($input); i++)
+              {
+                int item = NUM2INT(rb_ary_entry($input,i));
+                $1.Add(item);
+              }
+            }
+          __CODE
           map_out code: <<~__CODE
             $result = rb_ary_new();
             for (size_t i = 0; i < $1.GetCount(); i++)
