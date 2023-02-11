@@ -97,5 +97,5 @@ class Wx::Variant
   def font?; !null? && is_type('wxFont'); end
   def colour?; !null? && is_type('wxColour'); end
   def colour_property_value?; !null? && is_type('wxColourPropertyValue'); end
-  def object?; !null && is_type('WXRB_VALUE'); end
+  def object?; !null? && is_type('WXRB_VALUE'); end
 end
