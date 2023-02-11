@@ -269,7 +269,7 @@ module WXRuby3
           args.tr!(' ', '')
         end
         _find_items.each do |item|
-          if item.name == head && (args.nil? || FunctionDef === item) # TODO: exclude ignored items?
+          if item.name == head && (args.nil? || FunctionDef === item)
             unless tail
               if args
                 if (overload = item.find_overload(args, const))
