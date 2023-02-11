@@ -29,6 +29,9 @@ module WXRuby3
           __HEREDOC
         when 'wxMessageDialog'
         when 'wxFontDialog'
+          # ignore the non-const version
+          spec.ignore 'wxFontDialog::GetFontData'
+          spec.regard 'wxFontDialog::GetFontData() const'
         when 'wxFileDialog'
           # override the wxArrayString& typemap for GetFilenames and GetPaths
           spec.map 'wxArrayString&' => 'Array<String>' do
