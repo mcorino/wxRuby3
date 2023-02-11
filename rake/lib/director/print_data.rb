@@ -17,6 +17,8 @@ module WXRuby3
         spec.disable_proxies # fixed and final data structures
         spec.items << 'wxPrintDialogData' << 'wxPageSetupDialogData'
         spec.ignore 'wxPrintDialogData::SetSetupDialog' # deprecated since 2.5.4
+        spec.ignore 'wxPageSetupDialogData::GetPrintData'
+        spec.regard 'wxPageSetupDialogData::GetPrintData() const'
         spec.swig_import 'swig/classes/include/wxDefs.h'
       end
     end # class PrintData
