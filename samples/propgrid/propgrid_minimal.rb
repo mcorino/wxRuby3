@@ -8,6 +8,8 @@ rescue LoadError
 end
 require 'wx'
 
+require_relative './sample_props'
+
 class MyStringProperty < Wx::PG::StringProperty
 
 end
@@ -34,6 +36,14 @@ class MyFrame < Wx::Frame
     @pg.append(ip = Wx::PG::IntProperty.new("Int Property", Wx::PG::PG_LABEL))
     ip.editor = 'SpinCtrl'
     @pg.append(Wx::PG::BoolProperty.new("Bool Property", Wx::PG::PG_LABEL))
+    @pg.append(WxSizeProperty.new("Size Property", Wx::PG::PG_LABEL, self.size))
+    @pg.append(WxArrayDoubleProperty.new('Double[] Property', Wx::PG::PG_LABEL, [1.23, 3.14]))
+    @pg.append(WxFontDataProperty.new('FontData Property', Wx::PG::PG_LABEL))
+    @pg.append(WxDirsProperty.new('Directory list Property', Wx::PG::PG_LABEL))
+    @pg.set_property_attribute(Wx::PG::PGPropArgCls.new('Double[] Property'), Wx::PG::PG_FLOAT_PRECISION, Wx::Variant.new(4))
+    @pg.set_property_help_string(Wx::PG::PGPropArgCls.new('Double[] Property'),
+                               'This demonstrates wxArrayDoubleProperty class defined in this sample app. '+
+                               'It is an example of a custom list editor property.')
 
     size = [400, 600]
 
