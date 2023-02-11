@@ -45,6 +45,29 @@ module Wx::PG
     end
     alias :value_in_event= :set_value_in_event
 
+    wx_value_data_setter = instance_method :value_data=
+    define_method :value_data= do |val|
+      val = Wx::Variant.new(val) unless Wx::Variant === val
+      wx_value_data_setter.bind(self).call(val)
+    end
+    protected :value_data=
   end
 
+  [ Wx::PG::BoolProperty, Wx::PG::DateProperty, Wx::PG::FlagsProperty, Wx::PG::StringProperty, Wx::PG::PropertyCategory,
+    Wx::PG::EditorDialogProperty, Wx::PG::ArrayStringProperty, Wx::PG::DirProperty, Wx::PG::FileProperty,
+    Wx::PG::ImageFileProperty, Wx::PG::FontProperty, Wx::PG::LongStringProperty, Wx::PG::MultiChoiceProperty,
+    Wx::PG::NumericProperty, Wx::PG::IntProperty, Wx::PG::FloatProperty, Wx::PG::UIntProperty,
+    Wx::PG::EnumProperty, Wx::PG::CursorProperty, Wx::PG::EditEnumProperty, Wx::PG::SystemColourProperty, Wx::PG::ColourProperty
+  ].each do |prop_klass|
+    varname = prop_klass.name.split('::').last.downcase
+    prop_klass.class_eval <<~__CODE
+      wx_#{varname}_data_setter = instance_method :value_data=
+      define_method :value_data= do |val|
+        val = Wx::Variant.new(val) unless Wx::Variant === val
+        wx_#{varname}_data_setter.bind(self).call(val)
+      end
+      protected :value_data=
+      __CODE
+  end
+  
 end

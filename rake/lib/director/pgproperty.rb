@@ -101,6 +101,12 @@ module WXRuby3
                       'wxPGProperty::GetPropertyByNameWH',
                       'wxPGProperty::Empty',
                       'wxPGProperty::IsChildSelected'
+          # add protected member var missing from XML docs
+          # needed to have any use of overriding methods like #on_set_value
+          spec.extend_interface 'wxPGProperty',
+                                'wxVariant m_value',
+                                visibility: 'protected'
+          spec.rename_for_ruby 'value_data' => 'wxPGProperty::m_value'
           spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
           spec.ignore %w[wxPG_LABEL wxPG_NULL_BITMAP wxPG_COLOUR_BLACK wxPG_DEFAULT_IMAGE_SIZE]
           # define in Ruby
@@ -147,9 +153,21 @@ module WXRuby3
         else
           spec.add_header_code 'extern void GC_mark_wxPGProperty(void* ptr);'
           spec.items.each do |itm|
-            spec.add_swig_code %Q{%markfunc #{itm} "GC_mark_wxPGProperty";}
-            spec.new_object %Q{#{itm}::GetEditorDialog}
-            spec.suppress_warning(473, "#{itm}::GetEditorDialog")
+            unless itm == 'wxColourPropertyValue'
+              # add protected member methods and var to complement base class
+              spec.extend_interface itm,
+                                    'void ClearCells(FlagType ignoreWithFlags, bool recursively)',
+                                    'void EnsureCells(unsigned int column)',
+                                    'wxPGProperty * GetPropertyByNameWH(const wxString &name, unsigned int hintIndex) const',
+                                    'void Empty()',
+                                    'bool IsChildSelected(bool recursive=false) const',
+                                    'wxVariant m_value',
+                                    visibility: 'protected'
+              spec.rename_for_ruby 'value_data' => "#{itm}::m_value"
+              spec.add_swig_code %Q{%markfunc #{itm} "GC_mark_wxPGProperty";}
+              spec.new_object %Q{#{itm}::GetEditorDialog}
+              spec.suppress_warning(473, "#{itm}::GetEditorDialog")
+            end
           end
         end
         spec.add_header_code 'typedef wxPGProperty::FlagType FlagType;'
