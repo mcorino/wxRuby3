@@ -107,7 +107,7 @@ module WXRuby3
         end
       end
 
-      def parse_method_decl(decl)
+      def parse_method_decl(decl, visibility)
         if /\A\s*(virtual\s|static\s)?\s*(.*\W)?(\w+)\s*\(([^\)]*)\)(\s+const)?(\soverride)?/ =~ decl
           type = $2.to_s.strip
           arglist = $4.strip
@@ -117,7 +117,8 @@ module WXRuby3
             name: $3.strip,
             is_const: $5 && $5.strip == 'const',
             is_override: $6 && $6.strip == 'override',
-            args_string: "(#{arglist})#{$5}"
+            args_string: "(#{arglist})#{$5}",
+            protection: visibility
           }
           swig_clsnm = class_name(class_spec_name)
           if type == '~' && swig_clsnm == kwargs[:name]
@@ -129,12 +130,12 @@ module WXRuby3
           end
           mtdef = Extractor::MethodDef.new(nil, class_spec_name, **kwargs)
           arglist.split(',').each do |arg|
-            if /\A(const\s+)?(\w+)\s*(const\s+)?(\s*[\*\&])?\s*(\w+)\s*(\[\s*\])?(\s*=\s*(\S+|".*"\s*))?\Z/ =~ arg.strip
+            if /\A(.*[\s\*\&])(\w+)\s*(\[\s*\])?(\s*=\s*(\S+|".*"\s*))?\Z/ =~ arg.strip
               mtdef.items << Extractor::ParamDef.new(nil,
-                                                     name: $4.to_s,
-                                                     type: "#{$1}#{$2}#{$3}",
-                                                     array: !$5.to_s.empty?,
-                                                     default: $7)
+                                                     name: $2.to_s,
+                                                     type: $1.to_s.strip,
+                                                     array: !$3.to_s.empty?,
+                                                     default: $5)
             else
               raise "Unable to parse argument #{arg} of custom declaration [#{decl}] for class #{class_spec_name}"
             end
@@ -143,13 +144,33 @@ module WXRuby3
         else
           raise "Unable to parse custom declaration [#{decl}] for class #{class_spec_name}"
         end
-        nil
+      end
+
+      def parse_member_var_decl(decl, visibility)
+        if /\s*(\S.*)\s+(\w+)/ =~ decl
+          type = $1.to_s.strip
+          name = $2.strip
+          kwargs = {
+            name: name,
+            type: type,
+            protection: visibility,
+            definition: 'interface extension'
+          }
+          # check for renames
+          mvarnm = "#{class_name(class_spec_name)}::#{name}"
+          if (rb_name = renames.keys.detect { |rbnm| renames[rbnm].any? { |m| mvarnm == m }})
+            kwargs[:rb_name] = rb_name
+          end
+          return Extractor::MemberVarDef.new(**kwargs)
+        else
+          raise "Unable to parse custom declaration [#{decl}] for class #{class_spec_name}"
+        end
       end
 
       def register_custom_interface_member(visibility, member, req_pure_virt)
         member_decl = member.tr("\n", '')
         if /[^\(\)]+\([^\)]*\)[^\(\)]*/ =~ member_decl
-          mtdef = parse_method_decl(member)
+          mtdef = parse_method_decl(member_decl, visibility)
           if declare_public?(@classdef, mtdef)
             class_registry.public_members << member
           else
@@ -163,8 +184,19 @@ module WXRuby3
             extension: true
           }
           class_registry.extension_methods[member_decl] = mtdef
-        elsif visibility == 'public'
-          class_registry.public_members << member
+        elsif /enum\s*(\w+)?\s*\{.*\}/ =~ member_decl
+          if visibility == 'public'
+            class_registry.public_members << member
+          else
+            raise "Protected enum extensions not supported: #{member_decl}"
+          end
+        else
+          mvardef = parse_member_var_decl(member_decl, visibility)
+          if declare_public?(@classdef, mvardef)
+            class_registry.public_members << mvardef
+          else
+            class_registry.protected_members << mvardef
+          end
         end
       end
 
