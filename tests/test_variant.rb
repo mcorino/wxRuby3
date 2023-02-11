@@ -20,15 +20,19 @@ class TestVariant < Test::Unit::TestCase
     assert_equal(true, var.get_bool)
     var = Wx::Variant.new(1234)
     assert_equal(1234, var.get_long)
+    assert_equal(1234, var.to_i)
     var = Wx::Variant.new(1234.5678)
     assert_equal(1234.5678, var.get_double)
     var = Wx::Variant.new(2**64-1)
     assert_equal(2**64-1, var.get_u_long_long)
+    assert_equal(2**64-1, var.to_i)
     var = Wx::Variant.new(1-(2**63))
     assert_equal(1-(2**63), var.get_long_long)
+    assert_equal(1-(2**63), var.to_i)
     tm = Time.now
     var = Wx::Variant.new(tm)
     assert_equal(tm.round(3), var.get_date_time)
+    assert_equal(tm.round(3).to_i, var.to_i)
     var = Wx::Variant.new(%w[one two three four])
     assert_equal(%w[one two three four], var.get_array_string)
     vars = ['one', 2, true].collect { |o| Wx::Variant.new(o) }
@@ -102,6 +106,43 @@ class TestVariant < Test::Unit::TestCase
     var << AClass.new([1,2,3,4])
     assert_equal(AClass.new([1,2,3,4]), var.get_object)
   end
+
+  def test_to_s
+    var = Wx::Variant.new('text variant')
+    assert_equal('text variant', var.to_s)
+    var = Wx::Variant.new(true)
+    assert_equal(true.to_s, var.to_s)
+    var = Wx::Variant.new(1234)
+    assert_equal((1234).to_s, var.to_s)
+    var = Wx::Variant.new(1234.5678)
+    assert_equal((1234.5678).to_s, var.to_s)
+    var = Wx::Variant.new(2**64-1)
+    assert_equal((2**64-1).to_s, var.to_s)
+    var = Wx::Variant.new(1-(2**63))
+    assert_equal((1-(2**63)).to_s, var.to_s)
+    tm = Time.now
+    var = Wx::Variant.new(tm)
+    assert_equal(tm.round(3).to_s, var.to_s)
+    var = Wx::Variant.new(%w[one two three four])
+    assert_equal(%w[one two three four].to_s, var.to_s)
+    vars = ['one', 2, true].collect { |o| Wx::Variant.new(o) }
+    var = Wx::Variant.new(vars)
+    assert_equal(['one', 2, true].to_s, var.to_s)
+  end
+
+  def test_to_f
+    var = Wx::Variant.new(1234)
+    assert_equal((1234).to_f, var.to_f)
+    var = Wx::Variant.new(1234.5678)
+    assert_equal((1234.5678).to_f, var.to_f)
+    var = Wx::Variant.new(2**64-1)
+    assert_equal((2**64-1).to_f, var.to_f)
+    var = Wx::Variant.new(1-(2**63))
+    assert_equal((1-(2**63)).to_f, var.to_f)
+    tm = Time.now
+    var = Wx::Variant.new(tm)
+    assert_equal(tm.round(3).to_f, var.to_f)
+ end
 
 end
 
