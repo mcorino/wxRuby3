@@ -60,8 +60,22 @@ class TestVariant < Test::Unit::TestCase
   def test_wx_objects
     font = Wx::Font.new(10, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORMAL)
     var = Wx::Variant.new(font)
-    assert_equal(font, var.get_wx_object)
-    assert_equal(Wx::Font, var.wx_object.class)
+    GC.start
+    assert_equal(font, var.font)
+    assert_equal(Wx::Font, var.font.class)
+    img = Wx::Image.new
+    var = Wx::Variant.new(img)
+    GC.start
+    assert_equal(img, var.object)
+    assert_equal(Wx::Image, var.object.class)
+    col = Wx::Colour.new('RED')
+    var = Wx::Variant.new(col)
+    GC.start
+    assert_equal(col, var.colour)
+    col = Wx::Colour.new(246, 22, 22)
+    var = Wx::Variant.new(col)
+    GC.start
+    assert_equal(col, var.colour)
   end
 
   def test_assign
