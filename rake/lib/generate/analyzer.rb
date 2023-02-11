@@ -147,7 +147,7 @@ module WXRuby3
       end
 
       def parse_member_var_decl(decl, visibility)
-        if /\s*(\S.*)\s+(\w+)/ =~ decl
+        if /\s*(\S.*\W)(\w+)/ =~ decl
           type = $1.to_s.strip
           name = $2.strip
           kwargs = {
