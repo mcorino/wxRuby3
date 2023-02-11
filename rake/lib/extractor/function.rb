@@ -194,7 +194,7 @@ module WXRuby3
           sig = o.signature
           puts(sig) if printSig
           sig.tr!(' ', '')
-          if sig.index(matchText) && !o.ignored
+          if sig.index(matchText)
             unless isConst
               return o
             else
