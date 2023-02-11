@@ -17,6 +17,47 @@ module WXRuby3
         # so we do not need tracking or special free function
         spec.gc_as_temporary 'wxVariant'
         spec.disable_proxies
+        # add custom wxVariant extensions so to be
+        # able to handle all PGProperty specific value types
+        spec.add_header_code <<~__HEREDOC
+          #include <wx/font.h>
+          #include <wx/propgrid/advprops.h>
+        __HEREDOC
+        spec.add_extend_code 'wxVariant', <<~__HEREDOC
+          wxVariant(const wxFont& val, const wxString &name=wxEmptyString)
+          {
+            wxVariant var(0L, name);
+            var << val;
+            return new wxVariant(var);
+          }
+          wxVariant(const wxColour& val, const wxString &name=wxEmptyString)
+          {
+            wxVariant var(0L, name);
+            var << val;
+            return new wxVariant(var);
+          }
+          wxVariant(const wxColourPropertyValue& val, const wxString &name=wxEmptyString)
+          {
+            wxVariant var(0L, name);
+            var << val;
+            return new wxVariant(var);
+          }
+          wxFont GetFont() 
+          {
+            wxFont font; font << *self; return font;
+          }
+          wxColour GetColour() 
+          {
+            wxColour clr; clr << *self; return clr;
+          }
+          wxColourPropertyValue GetColourPropertyValue()
+          {
+            wxColourPropertyValue cpv; cpv << *self; return cpv;
+          }
+          __HEREDOC
+        # ignore all operator== variants but the operator==(const wxVariant&) version
+        spec.ignore 'wxVariant::operator==', ignore_doc: false
+        spec.regard 'wxVariant::operator==(const wxVariant &) const' # this should work as ignores are processed before regards
         spec.ignore 'wxVariant::Convert' # troublesome overloads in Ruby
         # need type checks to prevent clashing with Time
         spec.map 'const wxVariant&' do
@@ -24,11 +65,20 @@ module WXRuby3
             $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Variant")));
             __CODE
         end
-        spec.map 'wxObject*' => 'Wx::Object' do
-          # wrap wxObject in correct wxRuby class instance
-          map_out code: '$result = wxRuby_WrapWxObjectInRuby($1);'
+        spec.map 'const wxFont&' do
           map_typecheck precedence: 2, code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Object")));
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Font")));
+          __CODE
+        end
+        spec.map 'const wxColour&' do
+          map_typecheck precedence: 3, code: <<~__CODE
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Colour")));
+          __CODE
+        end
+        spec.map 'const wxColourPropertyValue&' do
+          map_typecheck precedence: 4, code: <<~__CODE
+            VALUE mWxPG = rb_const_get(mWxCore, rb_intern("PG"));
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxPG, rb_intern("ColourPropertyValue")));
           __CODE
         end
         if Config.instance.features_set?('wxUSE_LONGLONG')
@@ -58,18 +108,17 @@ module WXRuby3
           end
         else
           spec.ignore 'wxVariant::wxVariant(wxLongLong, const wxString &)',
-                      'wxVariant::wxVariant(wxULongLong, const wxString &)',
-                      'wxVariant::operator ==(wxLongLong)',
-                      'wxVariant::operator ==(wxULongLong)'
+                      'wxVariant::wxVariant(wxULongLong, const wxString &)'
         end
-        # wxRuby does not support wxAny
+        # wxRuby does not support wxAny or generic wxObject
         spec.ignore 'wxVariant::wxVariant(const wxAny&)',
-                    'wxVariant::GetAny'
+                    'wxVariant::GetAny',
+                    'wxVariant::wxVariant(wxObject*, const wxString&)',
+                    'wxVariant::GetWxObjectPtr',
+                    'wxVariant::IsValueKindOf'
         # ignore shadowing methods
         spec.ignore 'wxVariant::wxVariant(const wxChar *, const wxString &)',
-                    'wxVariant::wxVariant(wxChar, const wxString &)',
-                    'wxVariant::operator==(const wxChar *)',
-                    'wxVariant::operator==(wxChar)'
+                    'wxVariant::wxVariant(wxChar, const wxString &)'
         # not really handy in Ruby; replace by pure Ruby #each
         spec.ignore 'wxVariant::GetList'
         # replace with custom extensions
@@ -175,8 +224,29 @@ module WXRuby3
             for( it = Variant_Value_Map.begin(); it != Variant_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
+          #ifdef __WXRB_TRACE__
+              void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0);
+              std::wcout << "**** wxRuby_markRbValueVariants : " << it->first << "|" << (void*)c_ptr << std::endl;
+          #endif 
               rb_gc_mark(obj);
             }
+          }
+
+          static void wxRuby_RegisterValueVariantData(void* ptr, VALUE rbval)
+          {
+          #ifdef __WXRB_TRACE__
+            void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0);
+            std::wcout << "**** wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr << std::endl; 
+          #endif 
+            Variant_Value_Map[ptr] = rbval;
+          }
+
+          static void wxRuby_UnregisterValueVariantData(void* ptr)
+          {
+          #ifdef __WXRB_TRACE__
+            std::wcout << "**** wxRuby_UnregisterValueVariantData : " << ptr << std::endl; 
+          #endif 
+            Variant_Value_Map.erase(ptr);
           }
 
           class WXRUBY_EXPORT WXRBValueVariantData : public wxVariantData
@@ -185,8 +255,8 @@ module WXRuby3
               static wxString type_name_;
 
               WXRBValueVariantData() : m_value(Qnil) { }
-              WXRBValueVariantData(VALUE rbval) : m_value(rbval) { Variant_Value_Map[this] = rbval; }
-              virtual ~WXRBValueVariantData() { Variant_Value_Map.erase(this); }
+              WXRBValueVariantData(VALUE rbval) : m_value(rbval) { wxRuby_RegisterValueVariantData(this, rbval); }
+              virtual ~WXRBValueVariantData() { wxRuby_UnregisterValueVariantData(this); }
           
               VALUE GetValue() { return m_value; }
 
@@ -244,8 +314,14 @@ module WXRuby3
         spec.add_extend_code 'wxVariant', <<~__HEREDOC
           void assign(const wxVariant& v)
           { (*self) = v; }
+          void assign(const wxFont& v)
+          { (*self) << v; }
+          void assign(const wxColour& v)
+          { (*self) << v; }
+          void assign(const wxColourPropertyValue& v)
+          { (*self) << v; }
           void assign(wxVariantData* v)
-          { (*self) = v; }
+          { self->SetData(v); }
           void assign(const wxString& v)
           { (*self) = v; }
           void assign(long v)
@@ -257,8 +333,6 @@ module WXRuby3
           void assign(wxLongLong v)
           { (*self) = v; }
           void assign(wxULongLong v)
-          { (*self) = v; }
-          void assign(wxObject* v)
           { (*self) = v; }
           void assign(const wxVariantList& v)
           { (*self) = v; }
