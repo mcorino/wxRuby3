@@ -544,6 +544,20 @@ module WXRuby3
                    );
               __CODE
           end
+
+          # output typemaps for common reference counted objects like wxColour, wxFont,
+          # making sure to ALWAYS create managed copies
+          %w[wxColour wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
+            map "const #{klass}&", "const #{klass}*" do
+              map_out code: <<~__CODE
+                $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);
+                __CODE
+            end
+          end
+          # special case bc SWIG causes trouble in Window.cpp
+          map 'const wxRegion&', 'const wxRegion*' do
+            map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'
+          end
         end
 
       end # define
