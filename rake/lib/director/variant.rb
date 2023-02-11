@@ -340,6 +340,51 @@ module WXRuby3
           { (*self) = v; }
           void assign(const wxArrayString& v)
           { (*self) = v; }
+
+          VALUE to_i()
+          {
+            if (self->IsNull()) return INT2NUM(0);
+            wxString ts = self->GetType();
+            ID to_i_id = rb_intern("to_i");
+            if (ts == wxS("long")) return SWIG_From_long(self->GetLong());
+            if (ts == wxS("longlong")) return LL2NUM(self->GetLongLong().GetValue());             
+            if (ts == wxS("ulonglong")) return ULL2NUM(self->GetULongLong().GetValue());
+            if (ts == wxS("double")) return rb_funcall(SWIG_From_double(self->GetDouble()), to_i_id, 0);
+            if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_i_id, 0);
+            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts);
+            return Qnil;
+          }
+
+          VALUE to_f()
+          {
+            if (self->IsNull()) return SWIG_From_double(0.0);
+            wxString ts = self->GetType();
+            ID to_f_id = rb_intern("to_f");
+            if (ts == wxS("long")) return rb_funcall(SWIG_From_long(self->GetLong()), to_f_id, 0);
+            if (ts == wxS("longlong")) return rb_funcall(LL2NUM(self->GetLongLong().GetValue()), to_f_id, 0);             
+            if (ts == wxS("ulonglong")) return rb_funcall(ULL2NUM(self->GetULongLong().GetValue()), to_f_id, 0);
+            if (ts == wxS("double")) return SWIG_From_double(self->GetDouble());
+            if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_f_id, 0);
+            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts);
+            return Qnil;
+          }
+
+          VALUE to_s()
+          {
+            if (self->IsNull()) return rb_str_new2("");
+            wxString ts = self->GetType();
+            ID to_s_id = rb_intern("to_s");
+            if (ts == wxS("string")) return WXSTR_TO_RSTR(self->GetString());
+            if (ts == wxS("bool")) return rb_funcall(SWIG_From_bool(self->GetBool()), to_s_id, 0);
+            if (ts == wxS("long")) return rb_funcall(SWIG_From_long(self->GetLong()), to_s_id, 0);
+            if (ts == wxS("longlong")) return rb_funcall(LL2NUM(self->GetLongLong().GetValue()), to_s_id, 0);             
+            if (ts == wxS("ulonglong")) return rb_funcall(ULL2NUM(self->GetULongLong().GetValue()), to_s_id, 0);
+            if (ts == wxS("double")) return rb_funcall(SWIG_From_double(self->GetDouble()), to_s_id, 0);
+            if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_s_id, 0);
+            if (ts == WXRBValueVariantData::type_name_) return rb_funcall(((WXRBValueVariantData*)self->GetData())->GetValue(), to_s_id, 0);
+            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to String", (const char*)ts);
+            return Qnil;
+          }
           __HEREDOC
       end
     end # class Variant

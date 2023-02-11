@@ -33,32 +33,69 @@ class Wx::Variant
   def has_value_of?(klass, elem_klass = nil)
     case
     when klass == ::TrueClass ||  klass == ::FalseClass
-      is_type('bool')
+      bool?
     when klass == ::String
-      is_type('string')
+      string?
     when klass == ::Time || klass == ::Date || klass == ::DateTime
-      is_type('datetime')
+      date_time?
     when klass == ::Float
-      is_type('double')
+      double?
     when klass >= ::Numeric
-      is_type('long') || is_type('longlong') || is_type('ulonglong')
+      long? || long_long? || u_long_long?
     when klass == ::Array
       if elem_klass == ::String
-        is_type('arrstring')
+        array_string?
       elsif elem_klass == Wx::Variant
-        is_type('list')
+        list?
       else
-        is_type('WXRB_VALUE') && ::Array === self.object
+        object? && ::Array === self.object
       end
     when klass == Wx::Font
-      is_type('wxFont')
+      font?
     when klass == Wx::PG::ColourPropertyValue
-      is_type('wxColourPropertyValue')
+      colour_property_value?
     when klass == Wx::Colour
-      is_type('wxColour')
+      colour?
     else
-      is_type('WXRB_VALUE') && klass === self.object
+      object? && klass === self.object
     end
   end
   alias :value_of? :has_value_of?
+
+  # extend to_s to arraylist and list (easier in pure Ruby)
+
+  wx_to_s = instance_method :to_s
+  define_method :to_s do
+    unless null?
+      case type
+      when 'list'
+        return "[#{each.collect { |v| v.string? ? %Q{"#{v.to_s}"} : v.to_s }.join(', ')}]"
+      when 'arrstring'
+        return array_string.to_s
+      when 'wxFont'
+        return font.to_s
+      when 'wxColour'
+        return colour.to_s
+      when 'wxColourPropertyValue'
+        return colour_property_value.to_s
+      end
+    end
+    wx_to_s.bind(self).call
+  end
+
+  # extend with more Ruby-like type checks
+
+  def string?; !null? && is_type('string'); end
+  def bool?; !null? && is_type('bool'); end
+  def long?; !null? && is_type('long'); end
+  def long_long?; !null? && is_type('longlong'); end
+  def u_long_long?; !null? && is_type('ulonglong'); end
+  def date_time?; !null? && is_type('datetime'); end
+  def double?; !null? && is_type('double'); end
+  def list?; !null? && is_type('list'); end
+  def array_string?; !null? && is_type('arrstring'); end
+  def font?; !null? && is_type('wxFont'); end
+  def colour?; !null? && is_type('wxColour'); end
+  def colour_property_value?; !null? && is_type('wxColourPropertyValue'); end
+  def object?; !null && is_type('WXRB_VALUE'); end
 end
