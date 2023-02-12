@@ -156,7 +156,7 @@ module WXRuby3
         @ignored = false # skip this item
         @docs_ignored = false # skip this item when generating docs
         @brief_doc = nil # either an empty string or text contents of a single para Element
-        @detailed_doc = [] # collection of para Elements
+        @detailed_doc = nil # collection of para Elements
         @deprecated = false # is this item deprecated
         @only_for = nil
 

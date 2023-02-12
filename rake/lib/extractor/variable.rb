@@ -88,10 +88,11 @@ module WXRuby3
       # collect Ruby doc for member var
       # SWIG generates an attribute reader and writer for these
       def rb_doc(xml_trans, type_maps)
+        var_doc = ''
         # get brief doc
-        var_doc = xml_trans.to_doc(@brief_doc)
+        var_doc = xml_trans.to_doc(@brief_doc) if @brief_doc
         # add detailed doc text without params doc
-        var_doc << xml_trans.to_doc(@detailed_doc)
+        var_doc << xml_trans.to_doc(@detailed_doc) if @detailed_doc
         doc = []
         # first document the reader
         doc << [var_doc.dup]
