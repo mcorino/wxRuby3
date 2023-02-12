@@ -126,11 +126,17 @@ module WXRuby3
             }
             __CODE
         end
-        # type mapping for wxPropertyGridPageState (for wxPropertyGridInterface::RefreshGrid)
-        # declare converter function implemented in PropertyGridPageState module
-        spec.add_header_code 'WXRB_EXPORT_FLAG wxPropertyGridPageState* wxRuby_ConvertToPropertyGridPageState(VALUE obj);'
-        spec.map 'wxPropertyGridPageState *state' => 'Wx::PG::PropertyGridPageState' do
-          map_in code: '$1 = wxRuby_ConvertToPropertyGridPageState($input);'
+        # add customized version of RefreshGrid which does not expose wxPropertyGridPageState
+        spec.include 'wx/propgrid/manager.h'
+        spec.ignore 'wxPropertyGridInterface::RefreshGrid', ignore_doc: false
+        spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
+          void RefreshGrid(wxPropertyGridPage* state = NULL)
+          {
+            self->RefreshGrid(state);
+          }
+          __HEREDOC
+        spec.map 'wxPropertyGridPageState *state' => 'Wx::PG::PropertyGridPage', swig: false do
+          map_in
         end
         # not useful in wxRuby
         spec.ignore 'wxPGPropArgCls::GetPtr(wxPropertyGridInterface *) const',
