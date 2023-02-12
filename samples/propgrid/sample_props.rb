@@ -27,7 +27,7 @@ class WxFontDataProperty < Wx::PG::FontProperty
   end
 
   def on_set_value
-    if self.value_data.value_of?(Wx::FontData)
+    if self.value_data.object?(Wx::FontData)
       # Set m_value to wxFont so that wxFontProperty methods will work
       # correctly.
       @value_wxFontData = self.value_data
@@ -39,7 +39,7 @@ class WxFontDataProperty < Wx::PG::FontProperty
 
       self.value_data = font
     else
-      if self.value_data.value_of?(Wx::Font)
+      if self.value_data.font?
         font = self.value_data.font
         fontData = Wx::FontData.new
         fontData.set_chosen_font(font)
@@ -95,7 +95,7 @@ class WxFontDataProperty < Wx::PG::FontProperty
   protected
 
   def display_editor_dialog(pg, value)
-    raise "Function called for incompatible property" unless value.value_of?(Wx::FontData)
+    raise "Function called for incompatible property" unless value.object?(Wx::FontData)
 
     fontData = value.object
     fontData.initial_font = fontData.chosen_font
@@ -344,7 +344,7 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
   end
 
   protected def display_editor_dialog(pg, value)
-    unless value.value_of?(::Array) && value.object.all? { |e| ::Float === e }
+    unless value.object?(::Array) && value.object.all? { |e| ::Float === e }
       raise 'Function called for incompatible property'
     end
 
@@ -421,7 +421,7 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
   end
 
   def validate_value(value, validationInfo)
-    unless value.value_of?(::Array) && value.object.all? { |e| ::Float === e }
+    unless value.object?(::Array) && value.object.all? { |e| ::Float === e }
       validationInfo.set_failure_message('At least one element is not a valid floating-point number.')
       false
     else

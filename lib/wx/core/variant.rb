@@ -51,32 +51,6 @@ class Wx::Variant
 
   # extend with more Ruby-like type checking
 
-  def has_value_of?(klass)
-    case
-    when klass == ::TrueClass ||  klass == ::FalseClass
-      bool?
-    when klass == ::String
-      string?
-    when klass == ::Time || klass == ::Date || klass == ::DateTime
-      date_time?
-    when klass == ::Float
-      double?
-    when klass >= ::Numeric
-      long? || long_long? || u_long_long?
-    when klass == ::Array
-      array_string? || list? || (object? && klass === self.object)
-    when klass == Wx::Font
-      font?
-    when klass == Wx::PG::ColourPropertyValue
-      colour_property_value?
-    when klass == Wx::Colour
-      colour?
-    else
-      object? && klass === self.object
-    end
-  end
-  alias :value_of? :has_value_of?
-
   def string?; !null? && is_type('string'); end
   def bool?; !null? && is_type('bool'); end
   def long?; !null? && is_type('long'); end
@@ -89,5 +63,5 @@ class Wx::Variant
   def font?; !null? && is_type('wxFont'); end
   def colour?; !null? && is_type('wxColour'); end
   def colour_property_value?; !null? && is_type('wxColourPropertyValue'); end
-  def object?; !null? && is_type('WXRB_VALUE'); end
+  def object?(klass=Object) !null? && is_type('WXRB_VALUE') && klass === object; end
 end
