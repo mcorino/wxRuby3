@@ -108,6 +108,15 @@ static VALUE wx_Enum_compare(int argc, VALUE *argv, VALUE self)
   return Qnil;
 }
 
+static VALUE wx_Enum_succ(int argc, VALUE *argv, VALUE self)
+{
+  if ((argc < 0) || (argc > 0))
+  {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc); return Qnil;
+  }
+  return rb_funcall(rb_iv_get(self, __iv_cEnum_value), rb_intern("succ"), 0);
+}
+
 static VALUE wx_Enum_inspect(int argc, VALUE *argv, VALUE self)
 {
   if ((argc < 0) || (argc > 0))
@@ -195,6 +204,7 @@ static void wx_define_Enum_class()
   rb_define_method(cWxEnum, "method_missing", VALUEFUNC(wx_Enum_method_missing), -1);
   rb_define_method(cWxEnum, "eql?", VALUEFUNC(wx_Enum_is_equal), -1);
   rb_define_method(cWxEnum, "<=>", VALUEFUNC(wx_Enum_compare), -1);
+  rb_define_method(cWxEnum, "succ", VALUEFUNC(wx_Enum_succ), -1);
   rb_define_method(cWxEnum, "inspect", VALUEFUNC(wx_Enum_inspect), -1);
   rb_define_method(cWxEnum, "to_int", VALUEFUNC(wx_Enum_to_int), -1);
   rb_define_alias(cWxEnum, "to_i", "to_int");

@@ -74,7 +74,7 @@ TreeTest_TogButtons,
   TreeTest_SelectLast,
   TreeTest_Select,
   TreeTest_Unselect,
-  TreeTest_SelectChildren = (Wx::ID_HIGHEST.to_i..Wx::ID_HIGHEST.to_i + 61).to_a
+  TreeTest_SelectChildren = (Wx::ID_HIGHEST..Wx::ID_HIGHEST + 61).to_a
 
 TreeCtrlIcon_File,
   TreeCtrlIcon_FileSelected,
