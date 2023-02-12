@@ -16,8 +16,8 @@ module Wx::PG
         property_editors[name] = editor # keep safe from GC and for lookup
       end
 
-      def register_editor_class(editor_class)
-        do_register_editor_class(editor_class, editor_class.class.name)
+      def register_editor_class(editor)
+        do_register_editor_class(editor, editor_class.class.name)
       end
 
       def get_editor_class(name)
