@@ -28,40 +28,6 @@ class Wx::Variant
   end
   alias :<< :assign
 
-  # protect some tricky methods against segfaulting (not easily done with SWIG)
-
-  def has_value_of?(klass, elem_klass = nil)
-    case
-    when klass == ::TrueClass ||  klass == ::FalseClass
-      bool?
-    when klass == ::String
-      string?
-    when klass == ::Time || klass == ::Date || klass == ::DateTime
-      date_time?
-    when klass == ::Float
-      double?
-    when klass >= ::Numeric
-      long? || long_long? || u_long_long?
-    when klass == ::Array
-      if elem_klass == ::String
-        array_string?
-      elsif elem_klass == Wx::Variant
-        list?
-      else
-        object? && ::Array === self.object
-      end
-    when klass == Wx::Font
-      font?
-    when klass == Wx::PG::ColourPropertyValue
-      colour_property_value?
-    when klass == Wx::Colour
-      colour?
-    else
-      object? && klass === self.object
-    end
-  end
-  alias :value_of? :has_value_of?
-
   # extend to_s to arraylist and list (easier in pure Ruby)
 
   wx_to_s = instance_method :to_s
@@ -83,7 +49,33 @@ class Wx::Variant
     wx_to_s.bind(self).call
   end
 
-  # extend with more Ruby-like type checks
+  # extend with more Ruby-like type checking
+
+  def has_value_of?(klass)
+    case
+    when klass == ::TrueClass ||  klass == ::FalseClass
+      bool?
+    when klass == ::String
+      string?
+    when klass == ::Time || klass == ::Date || klass == ::DateTime
+      date_time?
+    when klass == ::Float
+      double?
+    when klass >= ::Numeric
+      long? || long_long? || u_long_long?
+    when klass == ::Array
+      array_string? || list? || (object? && klass === self.object)
+    when klass == Wx::Font
+      font?
+    when klass == Wx::PG::ColourPropertyValue
+      colour_property_value?
+    when klass == Wx::Colour
+      colour?
+    else
+      object? && klass === self.object
+    end
+  end
+  alias :value_of? :has_value_of?
 
   def string?; !null? && is_type('string'); end
   def bool?; !null? && is_type('bool'); end
