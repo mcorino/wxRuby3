@@ -95,6 +95,31 @@ module WXRuby3
 
         # String <> wxChar* type mappings
 
+        map 'wxUniChar' => 'String' do
+          map_in temp: 'wxString temp', code: <<~__CODE
+            temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
+            $1 = temp.Len() > 0 ? temp.GetChar(0) : wxUniChar();
+          __CODE
+          map_out code: '$result = rb_str_new2((const char *)wxString($1).utf8_str());'
+          map_directorin code: "$input = rb_str_new2((const char *)wxString($1).utf8_str());"
+          map_directorout temp: 'wxString temp', code: <<~__CODE
+            temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
+            $result = temp.Len() > 0 ? temp.GetChar(0) : wxUniChar();
+          __CODE
+          map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
+          map_varout code: '$result = rb_str_new2((const char *)wxString($1).utf8_str());'
+        end
+
+        map 'const wxUniChar &', 'wxUniChar const &', as: 'String' do
+          map_in temp: 'wxString tempS, wxUniChar temp', code: <<~__CODE
+            tempS = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
+            temp = tempS.Len() > 0 ? tempS.GetChar(0) : wxUniChar();
+            $1 = &temp;
+          __CODE
+          map_directorin code: "$input = rb_str_new2((const char *)wxString($1).utf8_str());"
+          map_typecheck precedence: 'string', code: '$1 = (TYPE($input) == T_STRING);'
+        end
+
         map 'const wxChar *' => 'String' do
           map_in temp: 'wxString temp', code: <<~__CODE
             temp = ($input == Qnil ? wxString() : wxString(StringValuePtr($input), wxConvUTF8));
