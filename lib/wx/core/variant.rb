@@ -56,8 +56,10 @@ class Wx::Variant
   def long?; !null? && is_type('long'); end
   def long_long?; !null? && is_type('longlong'); end
   def u_long_long?; !null? && is_type('ulonglong'); end
+  def integer?; !null? && (long? || long_long? || u_long_long?); end
   def date_time?; !null? && is_type('datetime'); end
   def double?; !null? && is_type('double'); end
+  def numeric?; !null? && (integer? || double?); end
   def list?; !null? && is_type('list'); end
   def array_string?; !null? && is_type('arrstring'); end
   def font?; !null? && is_type('wxFont'); end
