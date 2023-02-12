@@ -357,12 +357,12 @@ module WXRuby3
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'
         end
         spec.map 'wxGridCellEditor *' => 'Wx::GRID::GridCellEditor' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce, int own = 0);'
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce);'
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
         end
         spec.map 'wxGridCellRenderer *' => 'Wx::GRID::GridCellRenderer' do
-          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr, int own = 0);'
+          add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr);'
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
