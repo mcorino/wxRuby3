@@ -111,6 +111,52 @@ module WXRuby3
         # missing from XML docs
         spec.extend_interface 'wxPropertyGrid',
                               'wxPoint GetGoodEditorDialogPosition(wxPGProperty* p, const wxSize& sz)'
+        # add extension code to retrieve the internal standard editors
+        # can't use the global variables directly to create constants as these will
+        # only be initialized after the app has started so we add a module method
+        # to retrieve the variables and use that to initialize the constants using
+        # delayed init
+        spec.include 'wx/propgrid/advprops.h'
+        spec.add_extend_code 'wxPropertyGrid', <<~__HEREDOC
+          static wxPGEditor* get_standard_editor_class(const wxString& editor_name)
+          {
+            // will trigger registration of all property editors
+            wxPropertyGridInterface::RegisterAdditionalEditors();
+            if (editor_name == wxS("TextCtrl"))
+            {
+              return wxPGEditor_TextCtrl;
+            }
+            if (editor_name == wxS("TextCtrlAndButton"))
+            {
+              return wxPGEditor_TextCtrlAndButton;
+            }
+            if (editor_name == wxS("Choice"))
+            {
+              return wxPGEditor_Choice;
+            }
+            if (editor_name == wxS("ComboBox"))
+            {
+              return wxPGEditor_ComboBox;
+            }
+            if (editor_name == wxS("CheckBox"))
+            {
+              return wxPGEditor_CheckBox;
+            }
+            if (editor_name == wxS("ChoiceAndButton"))
+            {
+              return wxPGEditor_ChoiceAndButton;
+            }
+            if (editor_name == wxS("SpinCtrl"))
+            {
+              return wxPGEditor_SpinCtrl;
+            }
+            if (editor_name == wxS("DatePickerCtrl"))
+            {
+              return wxPGEditor_DatePickerCtrl;
+            }
+            return 0;
+          }
+        __HEREDOC
       end
     end # class PropertyGrid
 

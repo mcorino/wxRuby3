@@ -17,11 +17,11 @@ module Wx::PG
       end
 
       def register_editor_class(editor_class)
-        do_register_editor_class(class_name, '')
+        do_register_editor_class(editor_class, editor_class.class.name)
       end
 
       def get_editor_class(name)
-        property_editors[name]
+        property_editors[name] || get_standard_editor_class(name)
       end
     end
 

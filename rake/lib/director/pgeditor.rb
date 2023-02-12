@@ -116,52 +116,6 @@ module WXRuby3
             return SWIG_NewPointerObj(const_cast<wxPGEditor*> (wx_pe), swig_type, 0);
           }
           __CODE
-        # add extension code to retrieve the internal standard editors
-        # can't use the global variables directly to create constants as these will
-        # only be initialized after the app has started so we add a module method
-        # to retrieve the variables and use that to initialize the constants using
-        # delayed init
-        spec.include 'wx/propgrid/propgridiface.h'
-        spec.add_extend_code 'wxPGEditor', <<~__HEREDOC
-          static wxPGEditor* get_standard_editor_class(const wxString& editor_name)
-          {
-            // will trigger registration of all property editors
-            wxPropertyGridInterface::RegisterAdditionalEditors();
-            if (editor_name == wxS("TextCtrl"))
-            {
-              return wxPGEditor_TextCtrl;
-            }
-            if (editor_name == wxS("TextCtrlAndButton"))
-            {
-              return wxPGEditor_TextCtrlAndButton;
-            }
-            if (editor_name == wxS("Choice"))
-            {
-              return wxPGEditor_Choice;
-            }
-            if (editor_name == wxS("ComboBox"))
-            {
-              return wxPGEditor_ComboBox;
-            }
-            if (editor_name == wxS("CheckBox"))
-            {
-              return wxPGEditor_CheckBox;
-            }
-            if (editor_name == wxS("ChoiceAndButton"))
-            {
-              return wxPGEditor_ChoiceAndButton;
-            }
-            if (editor_name == wxS("SpinCtrl"))
-            {
-              return wxPGEditor_SpinCtrl;
-            }
-            if (editor_name == wxS("DatePickerCtrl"))
-            {
-              return wxPGEditor_DatePickerCtrl;
-            }
-            return 0;
-          }
-          __HEREDOC
         # ignore the variables themselves
         spec.ignore 'wxPGEditor_TextCtrl',
                     'wxPGEditor_Choice',
