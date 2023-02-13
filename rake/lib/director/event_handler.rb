@@ -97,11 +97,10 @@ module WXRuby3
                   return c_call_id;
                 }
   
-                wxRbCallback(VALUE func, wxEventType eventType, int first, int last) 
-                  : m_func(func), m_eventType(eventType), m_firstId(first), m_lastId(last) {}
+                wxRbCallback(VALUE func) 
+                  : m_func(func) {}
                 wxRbCallback(const wxRbCallback &other) 
-                  : wxObject(), m_func(other.m_func), m_eventType(other.m_eventType) 
-                  , m_firstId(other.m_firstId), m_lastId(other.m_lastId) {}
+                  : wxObject(), m_func(other.m_func) {}
             
                 // This method handles all events on the WxWidgets/C++ side. It link
                 // inspects the event and based on the event's type wraps it in the
@@ -120,9 +119,6 @@ module WXRuby3
                 }
             
                 VALUE m_func;
-                wxEventType m_eventType;
-                int m_firstId;
-                int m_lastId;
             };
   
             ID wxRbCallback::c_call_id = 0;
@@ -172,30 +168,6 @@ module WXRuby3
               {
                 delete Evt_Handler_Handlers[evt_handler];
                 Evt_Handler_Handlers.erase(evt_handler);
-              }
-            }
-            
-            // Called when a Dialog is garbage collected.
-            // Prevents any wxRuby event handler procs from being called
-            // in destruction process of dialog.
-            void wxRuby_DisconnectEvtHandlerProcs(void* evt_handler) 
-            {
-              if (Evt_Handler_Handlers.count(evt_handler) != 0)
-              {
-                EvtHandlerProcListPtr procs = Evt_Handler_Handlers[evt_handler];
-                for (EvtHandlerProcList::iterator itproc = procs->begin();
-                     itproc != procs->end();
-                     itproc++)
-                {
-                  wxObjectEventFunction function = 
-                      (wxObjectEventFunction )&wxRbCallback::EventThunker;
-                  wxRbCallback* proc_cb = *itproc;
-                  ((wxEvtHandler*)evt_handler)->Disconnect(proc_cb->m_firstId, 
-                                                           proc_cb->m_lastId, 
-                                                           proc_cb->m_eventType,
-                                                           function,
-                                                           proc_cb);
-                }
               }
             }
 
@@ -253,7 +225,7 @@ module WXRuby3
             // This provides the public Ruby 'connect' method
             VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
             {
-              wxRbCallback* userData = new wxRbCallback(proc, eventType, firstId, lastId);
+              wxRbCallback* userData = new wxRbCallback(proc);
               wxRuby_ProtectEvtHandlerProc((void *)$self, userData);
           
               wxObjectEventFunction function = 
