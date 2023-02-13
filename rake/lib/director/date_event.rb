@@ -51,6 +51,20 @@ module WXRuby3
               return __id;
             }
 
+            static ID __wxrb_to_time()
+            {
+              static ID __id = 0;
+              if (__id == 0) __id = rb_intern("to_time");
+              return __id;
+            }
+
+            static ID __wxrb_round()
+            {
+              static ID __id = 0;
+              if (__id == 0) __id = rb_intern("round");
+              return __id;
+            }
+
             static VALUE rescue(VALUE, VALUE)
             { 
               return Qnil;
@@ -118,23 +132,25 @@ module WXRuby3
                 {
                     if (!rb_obj_is_kind_of(ruby_value, rb_cTime))
                     {
-                      ruby_value = rb_funcall(ruby_value, rb_intern("to_time"), 0);
+                      ruby_value = rb_funcall(ruby_value, __wxrb_to_time(), 0);
                     }
+                    ruby_value = rb_funcall(ruby_value, __wxrb_round(), 1, INT2NUM(3));
+
                     int y       = NUM2INT(rb_funcall(ruby_value, rb_intern("year"), 0));
                     int rMonth  = NUM2INT(rb_funcall(ruby_value, rb_intern("month"), 0));
                     int rDay    = NUM2INT(rb_funcall(ruby_value, rb_intern("mday"), 0));
                     int rHour   = NUM2INT(rb_funcall(ruby_value, rb_intern("hour"), 0));
                     int rMinute = NUM2INT(rb_funcall(ruby_value, rb_intern("min"), 0));
                     int rSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("sec"), 0));
-                    int uSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("usec"), 0));
-                    int mSecond = lround(uSecond / 1000.0);
+                    int rUSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("usec"), 0));
+                    int rMSecond = rUSecond / 1000;
                 
                     wxDateTime::Month mon        = (wxDateTime::Month)(rMonth-1);
                     wxDateTime::wxDateTime_t d   = (wxDateTime::wxDateTime_t)rDay;
                     wxDateTime::wxDateTime_t h   = (wxDateTime::wxDateTime_t)rHour;
                     wxDateTime::wxDateTime_t min = (wxDateTime::wxDateTime_t)rMinute;
                     wxDateTime::wxDateTime_t s   = (wxDateTime::wxDateTime_t)rSecond;
-                    wxDateTime::wxDateTime_t ms   = (wxDateTime::wxDateTime_t)mSecond;
+                    wxDateTime::wxDateTime_t ms   = (wxDateTime::wxDateTime_t)rMSecond;
                     
                     return new wxDateTime(d, mon, y, h, min, s, ms);
                 }
