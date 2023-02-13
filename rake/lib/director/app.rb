@@ -161,8 +161,7 @@ module WXRuby3
               {
                 if ( rb_obj_is_kind_of(rb_obj, wxRuby_GetWindowClass()) )
                 {
-                  if ( !rb_obj_is_kind_of(rb_obj, wxRuby_GetDialogClass()) )
-                    rb_gc_mark(rb_obj);
+                  rb_gc_mark(rb_obj);
                 }
                 else if (rb_obj_is_kind_of(rb_obj, wxRuby_GetDefaultEventClass()) )
                   rb_gc_mark(rb_obj);

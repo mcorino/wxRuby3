@@ -45,10 +45,6 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
 {
   // All Windows are EvtHandlers, so prevent any pending events being
   // sent after destruction (otherwise ObjectPreviouslyDeleted errors result)
-
-  // first disconnect all Ruby defined event handlers
-  wxRuby_DisconnectEvtHandlerProcs((wxEvtHandler*)ptr);
-
   wxEvtHandler* evt_handler = (wxEvtHandler*)ptr;
   evt_handler->SetEvtHandlerEnabled(false);
 
@@ -66,26 +62,6 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
   // Disassociate the C++ and Ruby objects
   SWIG_RubyUnlinkObjects(ptr);
   SWIG_RubyRemoveTracking(ptr);
-}
-
-// Code to be run when a ruby Dialog object is swept by GC - this
-// unlinks the C++ object from the ruby VALUE and calls the Destroy
-// method.
-WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr)
-{
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GcDialogFreeFunc : " << ptr << std::endl;
-#endif
-  if ( !GC_IsWindowDeleted(ptr) )
-  {
-#ifdef __WXRB_DEBUG__
-    std::wcout << "> GcDialogFreeFunc : destroying " << ptr << std::endl;
-#endif
-    // do the generic window cleanup
-    GC_SetWindowDeleted(ptr);
-    // lastly delete the dialog
-    delete ((wxDialog*)ptr);
-  }
 }
 
 // Code to be run when the ruby object is swept by GC - this only
