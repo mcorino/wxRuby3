@@ -126,16 +126,23 @@ module WXRuby3
           #ifdef __WXRB_TRACE__
             std::wcout << "** wxRuby_UnregisterGridCellAttr : " << wx_attr << ":" << (void*)Grid_Cell_Attr_Value_Map[wx_attr] << std::endl;
           #endif
-            VALUE object = Grid_Cell_Attr_Value_Map[wx_attr];  
-            if (object && !NIL_P(object)) {
-              DATA_PTR(object) = 0; // unlink
+            if (Grid_Cell_Attr_Value_Map.count(wx_attr) != 0)
+            {
+              VALUE object = Grid_Cell_Attr_Value_Map[wx_attr];  
+              if (object && !NIL_P(object)) 
+              {
+                DATA_PTR(object) = 0; // unlink
+              }
+              Grid_Cell_Attr_Value_Map.erase(wx_attr);
             }
-            Grid_Cell_Attr_Value_Map.erase(wx_attr);
           }
 
           extern VALUE wxRuby_GridCellAttrInstance(wxGridCellAttr* wx_attr)
           {
-            return Grid_Cell_Attr_Value_Map[wx_attr];
+            if (Grid_Cell_Attr_Value_Map.count(wx_attr) == 0)
+              return Qnil;
+            else
+              return Grid_Cell_Attr_Value_Map[wx_attr];
           }
 
           // specialized client data class
@@ -159,19 +166,17 @@ module WXRuby3
             {
               // always (keep) disown(ed); wxWidgets takes over ownership
               RDATA(rb_attr)->dfree = 0;
-              if (Grid_Cell_Attr_Value_Map.find(wx_attr) == Grid_Cell_Attr_Value_Map.end())
+              if (Grid_Cell_Attr_Value_Map.count(wx_attr) == 0)
               {
           #ifdef __WXRB_TRACE__
                 std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
           #endif
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
-              }
-              else
-              {
-                // we're passing an already registered instance (which does not manage refcounts anymore)
-                // to wxWidgets (again) so we'll have to increase the refcount in anticipation of an 
-                // additional DecRef() by wxWidgets at some point
-                wx_attr->IncRef();
+                // if the class of the renderer is not a SWIG type 
+                if (wxRuby_GetSwigTypeForClass(CLASS_OF(rb_attr)) == 0)
+                {
+                  wx_attr->IncRef(); // add refcount to compensate for GC free handler
+                }
               }
             }
           }
@@ -197,16 +202,23 @@ module WXRuby3
           #ifdef __WXRB_TRACE__
             std::wcout << "** wxRuby_UnregisterGridCellEditor : " << wx_edt << ":" << (void*)Grid_Cell_Editor_Value_Map[wx_edt] << std::endl;
           #endif
-            VALUE object = Grid_Cell_Editor_Value_Map[wx_edt];  
-            if (object && !NIL_P(object)) {
-              DATA_PTR(object) = 0; // unlink
+            if (Grid_Cell_Editor_Value_Map.count(wx_edt) != 0)
+            {
+              VALUE object = Grid_Cell_Editor_Value_Map[wx_edt];  
+              if (object && !NIL_P(object)) 
+              {
+                DATA_PTR(object) = 0; // unlink
+              }
+              Grid_Cell_Editor_Value_Map.erase(wx_edt);
             }
-            Grid_Cell_Editor_Value_Map.erase(wx_edt);
           }
 
           extern VALUE wxRuby_GridCellEditorInstance(wxGridCellEditor* wx_edt)
           {
-            return Grid_Cell_Editor_Value_Map[wx_edt];
+            if (Grid_Cell_Editor_Value_Map.count(wx_edt) == 0)
+              return Qnil;
+            else
+              return Grid_Cell_Editor_Value_Map[wx_edt];
           }
 
           // specialized client data class
@@ -230,19 +242,17 @@ module WXRuby3
             {
               // always (keep) disown(ed); wxWidgets takes over ownership
               RDATA(rb_edt)->dfree = 0;
-              if (Grid_Cell_Editor_Value_Map.find(wx_edt) == Grid_Cell_Editor_Value_Map.end())
+              if (Grid_Cell_Editor_Value_Map.count(wx_edt) == 0)
               {
           #ifdef __WXRB_TRACE__
                 std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
           #endif
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
-              }
-              else
-              {
-                // we're passing an already registered instance (which does not manage refcounts anymore)
-                // to wxWidgets (again) so we'll have to increase the refcount in anticipation of an 
-                // additional DecRef() by wxWidgets at some point
-                wx_edt->IncRef();
+                // if the class of the renderer is not a SWIG type 
+                if (wxRuby_GetSwigTypeForClass(CLASS_OF(rb_edt)) == 0)
+                {
+                  wx_edt->IncRef(); // add refcount to compensate for GC free handler
+                }
               }
             }
           }
@@ -268,15 +278,21 @@ module WXRuby3
           #ifdef __WXRB_TRACE__
             std::wcout << "** wxRuby_UnregisterGridCellRenderer : " << wx_rnd << ":" << (void*)Grid_Cell_Renderer_Value_Map[wx_rnd] << std::endl;
           #endif
-            VALUE object = Grid_Cell_Renderer_Value_Map[wx_rnd];  
-            if (object && !NIL_P(object)) {
-              DATA_PTR(object) = 0; // unlink
+            if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) != 0)
+            {
+              VALUE object = Grid_Cell_Renderer_Value_Map[wx_rnd];  
+              if (object && !NIL_P(object)) 
+              {
+                DATA_PTR(object) = 0; // unlink
+              }
+              Grid_Cell_Renderer_Value_Map.erase(wx_rnd);
             }
-            Grid_Cell_Renderer_Value_Map.erase(wx_rnd);
           }
 
           extern VALUE wxRuby_GridCellRendererInstance(wxGridCellRenderer* wx_rnd)
           {
+            if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) == 0)
+              return Qnil;
             return Grid_Cell_Renderer_Value_Map[wx_rnd];
           }
 
@@ -301,19 +317,17 @@ module WXRuby3
             {
               // always (keep) disowned(ed); wxWidgets takes over ownership
               RDATA(rb_rnd)->dfree = 0;
-              if (Grid_Cell_Renderer_Value_Map.find(wx_rnd) == Grid_Cell_Renderer_Value_Map.end())
+              if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) == 0)
               {
           #ifdef __WXRB_TRACE__
-                std::wcout << "** wxRuby_RegisterGridCellRenderer : " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
+                std::wcout << "** wxRuby_RegisterGridCellRenderer : registering " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
           #endif
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
-              }
-              else
-              {
-                // we're passing an already registered instance (which does not manage refcounts anymore)
-                // to wxWidgets (again) so we'll have to increase the refcount in anticipation of an 
-                // additional DecRef() by wxWidgets at some point
-                wx_rnd->IncRef();
+                // if the class of the renderer is not a SWIG type 
+                if (wxRuby_GetSwigTypeForClass(CLASS_OF(rb_rnd)) == 0)
+                {
+                  wx_rnd->IncRef(); // add refcount to compensate for GC free handler
+                }
               }
             }
           }
@@ -337,21 +351,18 @@ module WXRuby3
         # add type mappings to handle registration
         # first declare 'normal' type mapping for const pointer (for DrawCellHighlight)
         spec.map 'const wxGridCellAttr *'  => 'Wx::GRID::GridCellAttr' do
-          map_check code: ''
+          map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'
         end
         # next handle registering mappings
         spec.map 'wxGridCellAttr *' => 'Wx::GRID::GridCellAttr' do
           map_out code: <<~__CODE
             $result = wxRuby_GridCellAttrInstance($1); // check for already registered instance
-            if ($result && !NIL_P($result))
+            if (NIL_P($result))
             {
-              $1->DecRef();
-            }
-            else
-            {
-              // created by wxWidgets itself; no registration necessary (yet)
-              // make owned instance which will take care of the refcount when GC claimed
-              $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 1);
+              // created by wxWidgets itself
+              // convert and register
+              $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 0);
+              wxRuby_RegisterGridCellAttr($1, $result);
             }
             __CODE
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'

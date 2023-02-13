@@ -29,28 +29,22 @@ module WXRuby3
                           'extern VALUE wxRuby_GridCellAttrInstance(wxGridCellAttr* wx_attr);'
           map_out code: <<~__CODE
             $result = wxRuby_GridCellAttrInstance($1); // check for already registered instance
-            if ($result && !NIL_P($result))
+            if (NIL_P($result))
             {
-              $1->DecRef();
-            }
-            else
-            {
-              // created by wxWidgets itself; no registration necessary (yet)
-              // make owned instance which will take care of the refcount when GC claimed
-              $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 1);
+              // created by wxWidgets itself
+              // convert and register
+              $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 0);
+              wxRuby_RegisterGridCellAttr($1, $result);
             }
             __CODE
           map_directorin code: <<~__CODE
             $input = wxRuby_GridCellAttrInstance($1); // check for already registered instance
-            if ($input && !NIL_P($input))
+            if (NIL_P($input))
             {
-              $1->DecRef();
-            }
-            else
-            {
-              // newly created somewhere; no registration necessary (yet)
-              // make owned instance which will take care of the refcount when GC claimed
-              $input = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 1);
+              // created by wxWidgets itself
+              // convert and register
+              $input = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 0);
+              wxRuby_RegisterGridCellAttr($1, $input);
             }
             __CODE
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'

@@ -24,6 +24,7 @@ module WXRuby3
           spec.add_header_code <<~__CODE
             extern VALUE mWxGRID; // declare external module reference
             extern VALUE wxRuby_GridCellEditorInstance(wxGridCellEditor* wx_edt);
+            extern void wxRuby_RegisterGridCellEditor(wxGridCellEditor* wx_edt, VALUE rb_edt);
             extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce)
             {
               // If no object was passed to be wrapped.
@@ -34,9 +35,6 @@ module WXRuby3
               VALUE rb_gce = wxRuby_GridCellEditorInstance(const_cast<wxGridCellEditor*> (wx_gce));
               if (rb_gce && !NIL_P(rb_gce))
               {
-                // wxWidgets will have increased the refcount but since this Ruby instance
-                // does not manage the refcounts anymore we decrease that here immediately
-                const_cast<wxGridCellEditor*> (wx_gce)->DecRef();
                 return rb_gce;
               }
 
@@ -99,7 +97,9 @@ module WXRuby3
               // in Ruby. Make it owned to manage the ref count if GC claims the object. 
               // wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              return SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 1);
+              rb_gce = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 0);
+              wxRuby_RegisterGridCellEditor(const_cast<wxGridCellEditor*> (wx_gce), rb_gce);
+              return rb_gce;
             }
           __CODE
         elsif spec.module_name == 'wxGridCellActivatableEditor'

@@ -23,6 +23,7 @@ module WXRuby3
           spec.add_header_code <<~__CODE
             extern VALUE mWxGRID; // declare external module reference
             extern VALUE wxRuby_GridCellRendererInstance(wxGridCellRenderer* wx_rnd);
+            extern void wxRuby_RegisterGridCellRenderer(wxGridCellRenderer* wx_rnd, VALUE rb_rnd);
             extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr)
             {
               // If no object was passed to be wrapped.
@@ -33,12 +34,10 @@ module WXRuby3
               VALUE rb_gcr = wxRuby_GridCellRendererInstance(const_cast<wxGridCellRenderer*> (wx_gcr));
               if (rb_gcr && !NIL_P(rb_gcr))
               {
-                // wxWidgets will have increased the refcount but since this Ruby instance
-                // does not manage the refcounts anymore we decrease that here immediately
-                const_cast<wxGridCellRenderer*> (wx_gcr)->DecRef();
                 return rb_gcr;
               }
 
+              // unregistered renderer must be a standard C++ class renderer
               const void *ptr = 0;
               wxString class_name;
               if ((ptr = dynamic_cast<const wxGridCellBoolRenderer*> (wx_gcr)))
@@ -94,7 +93,9 @@ module WXRuby3
               // in Ruby. Make it owned to manage the ref count if GC claims the object.
               // wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              return SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 1);
+              rb_gcr = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 0);
+              wxRuby_RegisterGridCellRenderer(const_cast<wxGridCellRenderer*> (wx_gcr), rb_gcr);
+              return rb_gcr;
             }
           __CODE
         else
