@@ -376,7 +376,8 @@ module WXRuby3
                 code = <<~__CODE     # insert the code update
                 // added by wxRuby3 Processor.update_evthandler
                 if (wxRuby_FindTracking(this) == Qnil)
-                  return false;
+                  return this->#{director_wx_class}::Try#{director_method_id}(event);
+                  //return false;
                 if (!rb_respond_to(swig_get_self(), rb_intern("try_#{director_method_id.downcase}")))
                   return this->#{director_wx_class}::Try#{director_method_id}(event);
                 __CODE
