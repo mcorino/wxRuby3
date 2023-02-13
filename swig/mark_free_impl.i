@@ -37,6 +37,7 @@ WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)
 
 // See swig/classes/EvtHandler.i
 extern void wxRuby_ReleaseEvtHandlerProcs(void *);
+extern void wxRuby_DisconnectEvtHandlerProcs(void *);
 
 // Records when a wxWindow has been signalled as destroyed by a
 // WindowDestroyEvent, handled by wxRubyApp (see swig/classes/App.i).
@@ -44,6 +45,10 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
 {
   // All Windows are EvtHandlers, so prevent any pending events being
   // sent after destruction (otherwise ObjectPreviouslyDeleted errors result)
+
+  // first disconnect all Ruby defined event handlers
+  wxRuby_DisconnectEvtHandlerProcs((wxEvtHandler*)ptr);
+
   wxEvtHandler* evt_handler = (wxEvtHandler*)ptr;
   evt_handler->SetEvtHandlerEnabled(false);
 
@@ -76,8 +81,10 @@ WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr)
 #ifdef __WXRB_DEBUG__
     std::wcout << "> GcDialogFreeFunc : destroying " << ptr << std::endl;
 #endif
+    // do the generic window cleanup
     GC_SetWindowDeleted(ptr);
-    delete ((wxDialog*)ptr); //->Destroy();
+    // lastly delete the dialog
+    delete ((wxDialog*)ptr);
   }
 }
 

@@ -76,38 +76,6 @@ module WXRuby3
           spec.add_runtime_code <<~__HEREDOC
             static swig_class wxRuby_GetSwigClassWxEvtHandler();
             WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
-  
-            // Internally, all event handlers are anonymous ruby Proc objects,
-            // created by EvtHandler#connect. These need to be preserved from Ruby's
-            // GC until the EvtHandler object itself is destroyed. So we keep a hash
-            // which maps C++ pointer addresses of EvtHandlers to Ruby arrays of
-            // the Proc objects which handle their events.
-            WX_DECLARE_VOIDPTR_HASH_MAP(VALUE, PtrToEvtHandlerProcs);
-            PtrToEvtHandlerProcs Evt_Handler_Handlers;
-            
-            // Add a proc to the list of protected handler for an EvtHandler object
-            void wxRuby_ProtectEvtHandlerProc(void* evt_handler, VALUE proc) {
-              if ( Evt_Handler_Handlers.count(evt_handler) == 0 )
-                Evt_Handler_Handlers[evt_handler] = rb_ary_new();
-              VALUE protected_procs = Evt_Handler_Handlers[evt_handler];
-              rb_ary_push(protected_procs, proc);
-            }
-            
-            // Called by App's mark function; protect all currently needed procs
-            void wxRuby_MarkProtectedEvtHandlerProcs() {
-              PtrToEvtHandlerProcs::iterator it;
-              for( it = Evt_Handler_Handlers.begin(); 
-                   it != Evt_Handler_Handlers.end(); 
-                   ++it )
-                rb_gc_mark( it->second );
-            }
-            
-            // Called when a Window is destroyed; allows handler procs associated
-            // with this object to be garbage collected at next run. See
-            // swig/mark_free_impl.i
-            void wxRuby_ReleaseEvtHandlerProcs(void* evt_handler) {
-              Evt_Handler_Handlers.erase(evt_handler);
-            }
             
             // Class which stores the ruby proc associated with an event handler. We
             // also cache the "call" symbol as this improves speed for event
@@ -129,10 +97,11 @@ module WXRuby3
                   return c_call_id;
                 }
   
-                wxRbCallback(VALUE func) 
-                  : m_func(func) {}
+                wxRbCallback(VALUE func, wxEventType eventType, int first, int last) 
+                  : m_func(func), m_eventType(eventType), m_firstId(first), m_lastId(last) {}
                 wxRbCallback(const wxRbCallback &other) 
-                  : wxObject(), m_func(other.m_func) {}
+                  : wxObject(), m_func(other.m_func), m_eventType(other.m_eventType) 
+                  , m_firstId(other.m_firstId), m_lastId(other.m_lastId) {}
             
                 // This method handles all events on the WxWidgets/C++ side. It link
                 // inspects the event and based on the event's type wraps it in the
@@ -151,10 +120,84 @@ module WXRuby3
                 }
             
                 VALUE m_func;
+                wxEventType m_eventType;
+                int m_firstId;
+                int m_lastId;
             };
   
             ID wxRbCallback::c_call_id = 0;
             bool wxRbCallback::c_init_done = false;
+  
+            // Internally, all event handlers are anonymous ruby Proc objects,
+            // created by EvtHandler#connect. These need to be preserved from Ruby's
+            // GC until the EvtHandler object itself is destroyed. So we keep a hash
+            // which maps C++ pointer addresses of EvtHandlers to lists of
+            // the callback objects created to handle their events.
+            typedef wxVector<wxRbCallback*> EvtHandlerProcList;
+            typedef EvtHandlerProcList* EvtHandlerProcListPtr;
+            WX_DECLARE_VOIDPTR_HASH_MAP(EvtHandlerProcListPtr, PtrToEvtHandlerProcs);
+            PtrToEvtHandlerProcs Evt_Handler_Handlers;
+            
+            // Add a proc to the list of protected handler for an EvtHandler object
+            void wxRuby_ProtectEvtHandlerProc(void* evt_handler, wxRbCallback* proc_cb) 
+            {
+              if (Evt_Handler_Handlers.count(evt_handler) == 0)
+                Evt_Handler_Handlers[evt_handler] = new EvtHandlerProcList();
+              Evt_Handler_Handlers[evt_handler]->push_back(proc_cb);
+            }
+            
+            // Called by App's mark function; protect all currently needed procs
+            void wxRuby_MarkProtectedEvtHandlerProcs() 
+            {
+              PtrToEvtHandlerProcs::iterator it;
+              for( it = Evt_Handler_Handlers.begin(); 
+                   it != Evt_Handler_Handlers.end(); 
+                   ++it )
+              {
+                for (EvtHandlerProcList::iterator itproc = it->second->begin();
+                     itproc != it->second->end();
+                     itproc++)
+                {
+                  rb_gc_mark((*itproc)->m_func);
+                }
+              }
+            }
+            
+            // Called when a Window is destroyed; allows handler procs associated
+            // with this object to be garbage collected at next run. See
+            // swig/mark_free_impl.i
+            void wxRuby_ReleaseEvtHandlerProcs(void* evt_handler) 
+            {
+              if (Evt_Handler_Handlers.count(evt_handler) != 0)
+              {
+                delete Evt_Handler_Handlers[evt_handler];
+                Evt_Handler_Handlers.erase(evt_handler);
+              }
+            }
+            
+            // Called when a Dialog is garbage collected.
+            // Prevents any wxRuby event handler procs from being called
+            // in destruction process of dialog.
+            void wxRuby_DisconnectEvtHandlerProcs(void* evt_handler) 
+            {
+              if (Evt_Handler_Handlers.count(evt_handler) != 0)
+              {
+                EvtHandlerProcListPtr procs = Evt_Handler_Handlers[evt_handler];
+                for (EvtHandlerProcList::iterator itproc = procs->begin();
+                     itproc != procs->end();
+                     itproc++)
+                {
+                  wxObjectEventFunction function = 
+                      (wxObjectEventFunction )&wxRbCallback::EventThunker;
+                  wxRbCallback* proc_cb = *itproc;
+                  ((wxEvtHandler*)evt_handler)->Disconnect(proc_cb->m_firstId, 
+                                                           proc_cb->m_lastId, 
+                                                           proc_cb->m_eventType,
+                                                           function,
+                                                           proc_cb);
+                }
+              }
+            }
 
             __HEREDOC
           spec.add_header_code <<~__HEREDOC
@@ -210,12 +253,12 @@ module WXRuby3
             // This provides the public Ruby 'connect' method
             VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
             {
-              wxRuby_ProtectEvtHandlerProc((void *)$self, proc);
+              wxRbCallback* userData = new wxRbCallback(proc, eventType, firstId, lastId);
+              wxRuby_ProtectEvtHandlerProc((void *)$self, userData);
           
-              wxObject* userData = new wxRbCallback(proc);
               wxObjectEventFunction function = 
                   (wxObjectEventFunction )&wxRbCallback::EventThunker;
-              self->Connect(firstId, lastId, eventType, function, userData);
+              $self->Connect(firstId, lastId, eventType, function, userData);
               return Qtrue;
             }
           
@@ -248,9 +291,7 @@ module WXRuby3
               else 
                 rb_raise(rb_eTypeError, "Invalid specifier for event type");
           
-              // TODO - enable switching off all handlers by type only - this
-              // version doesn't work if the first arg is wxID_ANY
-              if ( self->Disconnect(firstId, lastId, event_type))
+              if ( $self->Disconnect(firstId, lastId, event_type))
                 return Qtrue;
               else
                 return Qfalse;
