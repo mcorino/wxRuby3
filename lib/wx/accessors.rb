@@ -57,7 +57,7 @@ module WxRubyStyleAccessors
   def self.included(mod)
     mod.extend WxRubyStyleAccessors
     mod.constants.collect { | c | mod.const_get(c) }.grep(Module).each do |mod|
-      mod.include WxRubyStyleAccessors
+      mod.include WxRubyStyleAccessors if mod.name.start_with?('Wx::') # only setup Wx namespace
     end
   end
 end
