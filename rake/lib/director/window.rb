@@ -69,8 +69,6 @@ module WXRuby3
                         "#{itm}::GetDropTarget",
                         "#{itm}::GetValidator",
                         "#{itm}::IsTopLevel") unless /\.h\Z/ =~ itm
-          # for extra safeguarding we need this to change name in Ruby
-          spec.rename_for_ruby '_wx_on_internal_idle' => "wxWindow::OnInternalIdle"  unless /\.h\Z/ =~ itm
         end
 
         case spec.module_name
@@ -107,8 +105,6 @@ module WXRuby3
             'wxWindow::SendIdleEvents',
             'wxWindow::ClientToScreen(int*,int*)' # no need; prefer the wxPoint version
           ]
-          # disregard docs for this
-          spec.regard 'wxWindow::OnInternalIdle', regard_doc: false
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.ignore('wxWindow::SetSize(int, int)') # not useful as the wxSize variant will also accept an array
@@ -190,6 +186,15 @@ module WXRuby3
                                 'virtual bool ShouldInheritColours() const override',
                                 'virtual void DoUpdateWindowUI(wxUpdateUIEvent& event) override')
         end
+        # helper for all Window modules
+        spec.add_header_code <<~__HEREDOC
+          static ID __wxrb_on_internal_idle_id()
+          {
+            static ID __id = 0;
+            if (__id == 0) __id = rb_intern("on_internal_idle");
+            return __id;
+          }
+          __HEREDOC
         # update generated code for all windows
         spec.post_processors << :update_window
       end
@@ -207,10 +212,8 @@ module WXRuby3
       # in the absence of which a direct call to the wxWidget implementation is made. If there
       # does exist a Ruby ('override') implementation the method continues and calls the Ruby
       # method implementation.
-      # The original wxWidget implementation is available in Ruby as 'wx_on_internal_idle'
-      # and can be called from the 'overrides'.
       # Additionally the inserted code first off checks if the window is actually (still)
-      # able to handle events by calling wxRuby_FindTracking() since in wxRuby it is in rare occasions
+      # able to handle events by calling wxRuby_FindTracking() since in wxRuby it seems in rare occasions
       # possible the event handler instance gets garbage collected AFTER the event processing
       # path has started in which case the C++ and Ruby object are unlinked and any attempts to
       # access the (originally) associated Ruby object will have bad results (this is especially
@@ -230,15 +233,13 @@ module WXRuby3
               if director_method_line == 2 && line.strip.empty?   # are we at the right spot?
                 code = <<~__CODE     # insert the code update
                 // added by wxRuby3 Processor.update_window
-                if (wxRuby_FindTracking(this) == Qnil)
-                  return;
-                if (!rb_respond_to(swig_get_self(), rb_intern("on_internal_idle")))
+                // if Ruby object not registered anymore or no Ruby defined method override
+                // reroute directly to C++ method
+                if (wxRuby_FindTracking(this) == Qnil || wxRuby_IsNativeMethod(swig_get_self(), __wxrb_on_internal_idle_id()))
                   this->#{director_wx_class}::OnInternalIdle();
                 else
                 __CODE
                 line << "\n  " << code.split("\n").join("\n  ")
-              elsif /rb_funcall\(.*\"wx_on_internal_idle\".*\)/ =~ line
-                line[%Q{"wx_on_internal_idle"}] = %Q{"on_internal_idle"}
                 at_director_method = false  # end of update
               end
             elsif /void\s+SwigDirector_(\w+)::OnInternalIdle\(.*\)\s+{/ =~ line

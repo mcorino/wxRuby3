@@ -32,10 +32,7 @@ module WXRuby3
           spec.no_proxy 'wxEvtHandler::ProcessEvent'
           spec.regard('wxEvtHandler::ProcessEvent', regard_doc: false) # we provide customized docs
           # make SWIG aware of these
-          spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter', regard_doc: false
-          # to optimize we need these to change name in Ruby
-          spec.rename_for_ruby '_wx_try_before' => 'wxEvtHandler::TryBefore',
-                               '_wx_try_after' => 'wxEvtHandler::TryAfter'
+          spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter'
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
           # We need to create a shallow copy of the Ruby event instance (copying it's Ruby members if any),
           # pass linkage of the C++ event to the copy and remove it from the original (input) Ruby
@@ -171,6 +168,40 @@ module WXRuby3
               }
             }
 
+            static ID __wxrb_method_id()
+            {
+              static ID __id = 0;
+              if (__id == 0) __id = rb_intern("method");
+              return __id;
+            }
+
+            static ID __wxrb_try_before_id()
+            {
+              static ID __id = 0;
+              if (__id == 0) __id = rb_intern("try_before");
+              return __id;
+            }
+
+            static ID __wxrb_try_after_id()
+            {
+              static ID __id = 0;
+              if (__id == 0) __id = rb_intern("try_after");
+              return __id;
+            }
+
+            static ID __wxrb_source_location_id()
+            {
+              static ID __id = 0;
+              if (__id == 0) __id = rb_intern("source_location");
+              return __id;
+            }
+
+            WXRUBY_EXPORT bool wxRuby_IsNativeMethod(VALUE object, ID method_id)
+            {
+              return Qnil != rb_funcall(rb_funcall(object, __wxrb_method_id(), 1, ID2SYM(method_id)), 
+                                        __wxrb_source_location_id(), 
+                                        0);
+            }
             __HEREDOC
           spec.add_header_code <<~__HEREDOC
             #include <memory> // for std::unique_ptr<>
@@ -302,10 +333,22 @@ module WXRuby3
           spec.items.each do |itm|
             # Avoid adding unneeded directors
             spec.no_proxy("#{spec.class_name(itm)}::ProcessEvent") unless /\.h\Z/ =~ itm
-            # to optimize we need these to change name in Ruby
-            spec.rename_for_ruby '_wx_try_before' => 'wxEvtHandler::TryBefore',
-                                 '_wx_try_after' => 'wxEvtHandler::TryAfter'
           end
+          spec.add_header_code <<~__HEREDOC
+              static ID __wxrb_try_before_id()
+              {
+                static ID __id = 0;
+                if (__id == 0) __id = rb_intern("try_before");
+                return __id;
+              }
+  
+              static ID __wxrb_try_after_id()
+              {
+                static ID __id = 0;
+                if (__id == 0) __id = rb_intern("try_after");
+                return __id;
+              }
+          __HEREDOC
         end
       end
     end # class EvtHandler
@@ -347,17 +390,14 @@ module WXRuby3
               if director_method_line == 4 && line.strip.empty?   # are we at the right spot?
                 code = <<~__CODE     # insert the code update
                 // added by wxRuby3 Processor.update_evthandler
-                if (wxRuby_FindTracking(this) == Qnil)
+                // if Ruby object not registered anymore or no Ruby defined method override
+                // reroute directly to C++ method
+                if (Qnil == wxRuby_FindTracking(this) || wxRuby_IsNativeMethod(swig_get_self(), __wxrb_try_#{director_method_id.downcase}_id()))
+                {
                   return this->#{director_wx_class}::Try#{director_method_id}(event);
-                  //return false;
-                if (!rb_respond_to(swig_get_self(), rb_intern("try_#{director_method_id.downcase}")))
-                  return this->#{director_wx_class}::Try#{director_method_id}(event);
+                }
                 __CODE
                 line << "\n  " << code.split("\n").join("\n  ")
-              elsif /rb_funcall\(.*\"(wx_try_(before|after))\".*\)/ =~ line
-                curname = $1
-                newname = "try_#{$2}"
-                line[%Q{"#{curname}"}] = %Q{"#{newname}"}
                 at_director_method = false  # end of update
               end
             elsif /bool\s+SwigDirector_(\w+)::Try(Before|After)\(.*\)\s+{/ =~ line
