@@ -40,6 +40,14 @@ class TargetHitEvent < Wx::CommandEvent
   end
 end
 
+class CountEvent < Wx::CommandEvent
+  EVT_COUNTER = Wx::EvtHandler.register_class(self, nil, 'evt_counter', 1)
+
+  def initialize(id)
+    super(EVT_COUNTER, id)
+  end
+end
+
 # An example of a simple user-written control, which displays a
 # "bulls-eye" like target, and sends events with a score and distance
 class TargetControl < Wx::Window
@@ -92,10 +100,10 @@ class TargetControl < Wx::Window
     end
   end
 
-  def wx_try_before(event)
+  def try_before(event)
+    event_handler.queue_event(CountEvent.new(self.id)) if TargetHitEvent === event
     super
   end
-  alias :try_before :wx_try_before
 end
 
 # Container frame for the target control
@@ -106,17 +114,24 @@ class TargetFrame < Wx::Frame
     # This user-defined event handling method was set up by
     # EvtHandler.register_class, above
     evt_target(@tgt.get_id) { | e | on_target(e) }
+    @counter = 0
+    evt_counter(@tgt.get_id) { | e | on_counter(e) }
     @listening = true
     evt_size { | e | on_size(e) }
     setup_menus
-    create_status_bar
+    create_status_bar(2)
   end
 
   # What's done when the target is hit
   def on_target(evt)
     msg = "Target hit for score %i, %.2f pixels from centre" %
           [ evt.score, evt.distance ]
-    self.status_text = msg
+    set_status_text(msg, 0)
+  end
+
+  def on_counter(evt)
+    @counter += 1
+    set_status_text(@counter.to_s, 1)
   end
 
   # Keep the target centred and square
