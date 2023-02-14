@@ -13,11 +13,7 @@ class Wx::EvtHandler
   #
   # In wxRuby this method can not be effectively overridden.
   # In order to override default event processing define a try_before(event) or try_after(event) method
-  # as member of a derived EvtHandler class. As this is not an override in the normal sense of the word
-  # it is not possible to call <code>super</code> to execute the base wxWidgets implementation. To do
-  # that call either {#wx_try_before} or {#wx_try_after}.
-  # Alternatively (and maybe better) it is possible to override either {#wx_try_before} or {#wx_try_after}
-  # where it **IS** possible to use <code>super</code> and alias these as either #try_before or #try_after.
+  # as member of a derived EvtHandler class.
   #
   # The normal order of event table searching is as follows:
   #
@@ -35,20 +31,6 @@ class Wx::EvtHandler
   # @param event [Wx::Event]  Event to process.
   # @return [true,false] true if event has been processed
   def process_event(event) end
-
-  # Ruby wrapper for the C++ TryBefore method called by ProcessEvent before examining this object event tables.
-  # See {#process_event} for information on event processing overrides in Ruby.
-  # @param event [Wx::Event]  Event to process.
-  # @return [true,false] true if event has been processed
-  def wx_try_before(event) end
-  protected :wx_try_before
-
-  # Ruby wrapper for the C++ TryAfter method called by ProcessEvent as last resort.
-  # See {#process_event} for information on event processing overrides in Ruby.
-  # @param event [Wx::Event]  Event to process.
-  # @return [true,false] true if event has been processed
-  def wx_try_after(event) end
-  protected :wx_try_after
 
   # Process a command, supplying the window identifier, command event identifier, and member function or proc.
   # @param [Integer] id window identifier
