@@ -5,3 +5,5 @@
 require_relative './events/evt_list'
 require_relative './keyword_defs'
 require_relative './grid'
+
+Wx::Dialog.setup_dialog_functors(Wx::GRID)

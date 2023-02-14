@@ -3,3 +3,5 @@
 
 require_relative './keyword_defs'
 require_relative './previewframe'
+
+Wx::Dialog.setup_dialog_functors(Wx::PRT)

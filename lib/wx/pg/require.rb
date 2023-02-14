@@ -6,3 +6,5 @@ require_relative './property_grid_interface'
 require_relative './property_grid'
 require_relative './pg_property'
 require_relative './pgeditor'
+
+Wx::Dialog.setup_dialog_functors(Wx::PG)

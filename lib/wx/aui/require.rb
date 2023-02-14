@@ -5,3 +5,5 @@
 require_relative './events/evt_list'
 require_relative './auimanager'
 require_relative './auinotebook'
+
+Wx::Dialog.setup_dialog_functors(Wx::AUI)

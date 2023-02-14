@@ -100,16 +100,18 @@ class WxFontDataProperty < Wx::PG::FontProperty
     fontData = value.object
     fontData.initial_font = fontData.chosen_font
 
-    dlg = Wx::FontDialog.new(pg.panel, fontData)
-    dlg_title = self.get_attribute(Wx::PG::PG_DIALOG_TITLE).string
-    dlg.title = dlg_title unless dlg_title.empty?
+    Wx.FontDialog(pg.panel, fontData) do |dlg|
+      dlg_title = self.get_attribute(Wx::PG::PG_DIALOG_TITLE).string
+      dlg.title = dlg_title unless dlg_title.empty?
 
-    if dlg.show_modal == Wx::ID_OK
-      fontData = dlg.get_font_data
-      value << fontData
-      return true
+      if dlg.show_modal == Wx::ID_OK
+        fontData = dlg.get_font_data
+        value << fontData
+        true
+      else
+        false
+      end
     end
-    false
   end
 
 end # FontDataProperty
@@ -208,15 +210,15 @@ class WxDirsProperty < Wx::PG::ArrayStringProperty
   end
 
   def on_custom_string_edit(parent)
-    dlg = Wx::DirDialog.new(parent,
-                    "Select a directory to be added to the list:",
-                            '',
-                            0);
-
-    if dlg.show_modal == Wx::ID_OK
-      dlg.path
-    else
-      nil
+    Wx.DirDialog(parent,
+                 "Select a directory to be added to the list:",
+                 '',
+                 0) do |dlg|
+      if dlg.show_modal == Wx::ID_OK
+        dlg.path
+      else
+        nil
+      end
     end
   end
 end
@@ -348,22 +350,23 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
       raise 'Function called for incompatible property'
     end
 
-    dlg = EditorDialog.new
-    dlg.set_dialog_value(value)
-    dlg.precision = @precision
-    dlg.create(pg.panel,
-               '',
-               self.dlg_title.empty? ? self.label : self.dlg_title,
-               self.dlg_style)
-    dlg.move(pg.get_good_editor_dialog_position(self, dlg.size))
+    WxArrayDoubleProperty.EditorDialog() do |dlg|
+      dlg.set_dialog_value(value)
+      dlg.precision = @precision
+      dlg.create(pg.panel,
+                 '',
+                 self.dlg_title.empty? ? self.label : self.dlg_title,
+                 self.dlg_style)
+      dlg.move(pg.get_good_editor_dialog_position(self, dlg.size))
 
-    # Execute editor dialog
-    res = dlg.show_modal
-    if res == Wx::ID_OK && dlg.modified?
-      value << dlg.get_dialog_value
-      true
-    else
-      false
+      # Execute editor dialog
+      res = dlg.show_modal
+      if res == Wx::ID_OK && dlg.modified?
+        value << dlg.get_dialog_value
+        true
+      else
+        false
+      end
     end
   end
 
