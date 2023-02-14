@@ -198,7 +198,7 @@ module WXRuby3
 
             WXRUBY_EXPORT bool wxRuby_IsNativeMethod(VALUE object, ID method_id)
             {
-              return Qnil != rb_funcall(rb_funcall(object, __wxrb_method_id(), 1, ID2SYM(method_id)), 
+              return Qnil == rb_funcall(rb_funcall(object, __wxrb_method_id(), 1, ID2SYM(method_id)), 
                                         __wxrb_source_location_id(), 
                                         0);
             }
