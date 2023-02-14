@@ -495,6 +495,10 @@ module WXRuby3
 
       public
 
+      def check_for_interface(class_name, package)
+        get_class_interface(package, class_name) unless has_class_interface(class_name)
+      end
+
       def class_interface_members_public(class_name)
         class_interface_registry(class_name).public_members
       end

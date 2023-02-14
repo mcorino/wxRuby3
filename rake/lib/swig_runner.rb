@@ -531,6 +531,7 @@ module WXRuby3
                               else
                                 clsdef.name
                               end
+            InterfaceAnalyzer.check_for_interface(intf_class_name, package)
             mtds = InterfaceAnalyzer.class_interface_members_public(intf_class_name).collect do |member|
               member = if ::String === member
                          InterfaceAnalyzer.class_interface_extension_methods(intf_class_name)[member.tr("\n", '')]
