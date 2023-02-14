@@ -124,6 +124,12 @@ GC_NEVER(kls);
 %feature("freefunc") kls "GcRefCountedFreeFunc";
 %enddef
 
+// special refcounted for grid cell renderers/editors and attrs
+%define GC_MANAGE_AS_UNTRACKED_REFCOUNTED(kls)
+%feature("freefunc") kls "GcRefCountedFreeFunc";
+%enddef
+
+
 // All other classes - mainly helper classes (eg Sizer, GridCellxxx) and
 // informational classes eg Point, Size, Rect. These are tracked but
 // sometimes later disowned once passed into a widget, and thenceforth

@@ -172,11 +172,6 @@ module WXRuby3
                 std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
           #endif
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
-                // if the class of the renderer is not a SWIG type 
-                if (wxRuby_GetSwigTypeForClass(CLASS_OF(rb_attr)) == 0)
-                {
-                  wx_attr->IncRef(); // add refcount to compensate for GC free handler
-                }
               }
             }
           }
@@ -248,11 +243,6 @@ module WXRuby3
                 std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
           #endif
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
-                // if the class of the renderer is not a SWIG type 
-                if (wxRuby_GetSwigTypeForClass(CLASS_OF(rb_edt)) == 0)
-                {
-                  wx_edt->IncRef(); // add refcount to compensate for GC free handler
-                }
               }
             }
           }
@@ -323,11 +313,6 @@ module WXRuby3
                 std::wcout << "** wxRuby_RegisterGridCellRenderer : registering " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
           #endif
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
-                // if the class of the renderer is not a SWIG type 
-                if (wxRuby_GetSwigTypeForClass(CLASS_OF(rb_rnd)) == 0)
-                {
-                  wx_rnd->IncRef(); // add refcount to compensate for GC free handler
-                }
               }
             }
           }

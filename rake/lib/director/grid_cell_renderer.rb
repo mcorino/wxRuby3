@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_refcounted
+        spec.gc_as_untracked_refcounted
         if spec.module_name == 'wxGridCellRenderer'
           # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
           # for wxRuby; far easier to just use member variables in derived classes
