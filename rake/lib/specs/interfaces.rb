@@ -268,6 +268,7 @@ module WXRuby3
 
   Director.Package('Wx::PG', 'wxUSE_PROPGRID') { |pkg|
     Director.Spec(pkg, 'wxPGEditor')
+    Director.Spec(pkg, 'wxPGMultiButton', director: Director::Window)
     Director.Spec(pkg, 'wxPGCell')
     Director.Spec(pkg, 'wxPGProperty')
     Director.Spec(pkg, 'wxNumericPropertyValidator')
