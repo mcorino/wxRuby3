@@ -1044,9 +1044,8 @@ module WXRuby3
         as = nil
         swig = true
         if ::Hash === mappings.last && (mappings.last.has_key?(:as) || mappings.last.has_key?(:swig))
-          kwargs = mappings.pop
-          as = kwargs[:as]
-          swig = !!kwargs[:swig] if kwargs.has_key?(:swig)
+          as = mappings.last.delete(:as)
+          swig = !!mappings.last.delete(:swig) if mappings.last.has_key?(:swig)
         end
         type_maps << Map.new(*mappings, as: as, swig: swig, &block)
       end
