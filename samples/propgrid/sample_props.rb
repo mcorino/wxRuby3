@@ -88,8 +88,7 @@ class WxFontDataProperty < Wx::PG::FontProperty
     super
     return if get_child_count < 6    # Number is count of wxFontProperty's children + 1.
     fontData = @value_wxFontData.object
-    variant = Wx::Variant.new(fontData.colour)
-    item(6).value = variant
+    item(6).value = fontData.colour
   end
 
   protected
@@ -140,8 +139,8 @@ class WxSizeProperty < Wx::PG::PGProperty
   def refresh_children
     return unless child_count>0
     size = self.value.object
-    item(0).value = Wx::Variant.new(size.width)
-    item(1).value = Wx::Variant.new(size.height)
+    item(0).value = size.width
+    item(1).value = size.height
   end
 
   protected
@@ -177,8 +176,8 @@ class WxPointProperty < Wx::PG::PGProperty
   def refresh_children
     return unless child_count>0
     point = self.value.object
-    item(0).value = Wx::Variant.new(point.x)
-    item(1).value = Wx::Variant.new(point.y)
+    item(0).value = point.x
+    item(1).value = point.y
   end
 
   protected
@@ -193,7 +192,7 @@ end
 class WxDirsProperty < Wx::PG::ArrayStringProperty
   def initialize(label = Wx::PG::PG_LABEL, name = Wx::PG::PG_LABEL, value = [])
     super
-    self.set_attribute(Wx::PG::PG_ARRAY_DELIMITER, Wx::Variant.new(','))
+    self.set_attribute(Wx::PG::PG_ARRAY_DELIMITER, ',')
     self.custom_btn_text = 'Browse'
   end
 

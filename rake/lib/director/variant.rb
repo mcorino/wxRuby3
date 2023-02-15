@@ -21,8 +21,138 @@ module WXRuby3
         # able to handle all PGProperty specific value types
         spec.add_header_code <<~__HEREDOC
           #include <wx/font.h>
-          #include <wx/propgrid/advprops.h>
-        __HEREDOC
+          #ifdef wxUSE_PROPGRID
+          # include <wx/propgrid/advprops.h>
+          #endif
+          #ifndef __WXRB_DATETIME_HELPERS__
+          #include <wx/datetime.h>
+          WXRB_EXPORT_FLAG wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
+          #endif
+          __HEREDOC
+        # add Ruby to Variant auto converter
+        spec.add_wrapper_code <<~__HEREDOC
+          WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval)
+          {
+            if (!NIL_P(rbval))
+            {
+              long lval;
+              double dval;
+              if (rb_obj_is_kind_of(rbval, rb_cTime) || rb_respond_to(rbval, rb_intern ("to_time")))
+              {
+                wxDateTime* wxdt = wxRuby_wxDateTimeFromRuby(rbval);
+                wxVariant var(*wxdt);
+                delete wxdt;
+                return var;
+              }
+              if (TYPE(rbval) == T_DATA)
+              {
+                void *ptr;
+                VALUE klass;
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Variant"))))
+                {
+                  int res = SWIG_ConvertPtr(rbval, &ptr, SWIGTYPE_p_wxVariant, 0);
+                  if (!SWIG_IsOK(res)) {
+                    rb_raise(rb_eTypeError, "Unexpected failure to convert to wxVariant");
+                  }
+                  return wxVariant(*static_cast<wxVariant*> (ptr));
+                }
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Font"))))
+                {
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
+                  int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
+                  if (!SWIG_IsOK(res)) {
+                    rb_raise(rb_eTypeError, "Unexpected failure to convert to wxFont");
+                  }
+                  return wxVariant(*static_cast<wxFont*> (ptr));
+                }
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Colour"))))
+                {
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
+                  int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
+                  if (!SWIG_IsOK(res)) {
+                    rb_raise(rb_eTypeError, "Unexpected failure to convert to wxColour");
+                  }
+                  return wxVariant(*static_cast<wxColour*> (ptr));
+                }
+          #ifdef wxUSE_PROPGRID
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("ColourPropertyValue"))))
+                {
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
+                  int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
+                  if (!SWIG_IsOK(res)) {
+                    rb_raise(rb_eTypeError, "Unexpected failure to convert to wxColourPropertyValue");
+                  }
+                  return wxVariant(*static_cast<wxColourPropertyValue*> (ptr));
+                }
+          #endif
+              }
+              else if (TYPE(rbval) == T_ARRAY)
+              {
+                if ((RARRAY_LEN(rbval) > 0 && TYPE(rb_ary_entry(rbval, 0)) == T_STRING))
+                {
+                  wxArrayString arrs;
+                  for (int i = 0; i < RARRAY_LEN(rbval); i++)
+                  {
+                    VALUE str = rb_ary_entry(rbval, i);
+                    wxString item(StringValuePtr(str), wxConvUTF8);
+                    arrs.Add(item);
+                  }
+                  return wxVariant(arrs);
+                }
+                if (RARRAY_LEN(rbval) == 0 || rb_obj_is_kind_of(rb_ary_entry(rbval, 0), rb_const_get(mWxCore, rb_intern("Variant"))))
+                {
+                  wxVariantList vlist;
+                  for (int i = 0; i < RARRAY_LEN(rbval); i++)
+                  {
+                    void *ptr;
+                    VALUE var = rb_ary_entry(rbval, i);
+                    int res = SWIG_ConvertPtr(var, &ptr, SWIGTYPE_p_wxVariant, 0);
+                    if (!SWIG_IsOK(res)) {
+                      rb_raise(rb_eTypeError, "Array of Variant should contain nothing else but Variants");
+                    }
+                    // the default constructed wxVariantList will not delete it's contents so no need to copy variant 
+                    vlist.Append(static_cast<wxVariant*>(ptr));
+                  }
+                  return wxVariant(vlist);
+                }
+              }
+              else
+              {
+                if (TYPE(rbval) == T_STRING)
+                {
+                  return wxVariant(RSTR_TO_WXSTR(rbval));
+                }
+                if ((TYPE(rbval) == T_TRUE) || (TYPE(rbval) == T_FALSE))
+                {
+                  return wxVariant(TYPE(rbval) == T_TRUE);
+                }
+          #ifdef wxUSE_LONGLONG
+                if ((sizeof(long) < 8) && (TYPE(rbval) == T_BIGNUM) && (rb_big_sign(rbval) == 0))
+                {
+                  wxLongLong_t ll = rb_big2ll(rbval);
+                  return wxVariant(wxLongLong(ll));
+                }
+          #endif
+                if (SWIG_CheckState(SWIG_AsVal_long(rbval, &lval)))
+                {
+                  return wxVariant(lval);
+                }
+                if ((TYPE(rbval) == T_FIXNUM || TYPE(rbval) == T_BIGNUM))
+                {
+                  wxULongLong_t ull = TYPE(rbval) == T_FIXNUM ? NUM2ULL(rbval) : rb_big2ull(rbval);
+                  return wxVariant(wxULongLong(ull));
+                }
+                if (SWIG_CheckState(SWIG_AsVal_double(rbval, &dval)))
+                {
+                  return wxVariant(dval);
+                }
+              }
+              // if nothing else; wrap as Ruby value
+              return wxVariant(new WXRBValueVariantData(rbval));
+            }
+            return wxVariant();
+          }
+          __HEREDOC
         spec.add_extend_code 'wxVariant', <<~__HEREDOC
           wxVariant(const wxFont& val, const wxString &name=wxEmptyString)
           {

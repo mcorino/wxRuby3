@@ -27,10 +27,9 @@ module WXRuby3
         # for Append, AppendIn, Insert, ReplaceProperty
         spec.disown 'wxPGProperty *property', 'wxPGProperty *newProperty'
         spec.ignore 'wxPropertyGridInterface::RemoveProperty' # too problematic bc of GC issues
-        # ignore unuseful shadowing overloads
-        spec.ignore 'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, wxObject &)',
-                    'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, const wchar_t *)',
-                    'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, const char *)'
+        # ignore ALL but the Wx::Variant overload
+        spec.ignore 'wxPropertyGridInterface::SetPropertyValue', ignore_doc: false
+        spec.regard 'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, wxVariant)'
         # SWIG chokes on the specified 'defaultCategory' default arg
         spec.ignore 'wxPropertyGridInterface::SetPropertyValues', ignore_doc: false
         # so redeclare in way SWIG can process (type map takes care of the defaults)

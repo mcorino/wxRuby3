@@ -155,6 +155,7 @@ WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE
 // Variant support
 WXRUBY_EXPORT VALUE& operator << (VALUE &value, const wxVariant &variant);
 WXRUBY_EXPORT wxVariant& operator << (wxVariant &variant, const VALUE &value);
+WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval);
 #endif
 %}
 

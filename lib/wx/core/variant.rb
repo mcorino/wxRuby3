@@ -13,13 +13,6 @@ class Wx::Variant
     end
   end
 
-  # add 'smart' conversion for ==
-  wx__eq__ = instance_method :==
-  define_method :== do |val|
-    val = Wx::Variant.new(val) unless Wx::Variant === val
-    wx__eq__.bind(self).call(val)
-  end
-
   # make assign return self and add it's handy alias
   wx_assign = instance_method :assign
   define_method :assign do |v|

@@ -594,6 +594,18 @@ module WXRuby3
           map 'const wxRegion&', 'const wxRegion*' do
             map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'
           end
+
+          # add type mapping for wxVariant input args
+          intypes = 'nil,String,Integer,Float,Time,Wx::Font,Wx::Colour,Wx::Variant,Array<WxVariant>,Array<String>,Object'
+          if Config.instance.features_set?('wxUSE_PROPGRID')
+            intypes << 'Wx::PG::ColourPropertyValue'
+          end
+          map 'const wxVariant&' => intypes do
+            map_in temp: 'wxVariant tmp', code: 'tmp = wxRuby_ConvertRbValue2Variant($input); $1 = &tmp;'
+          end
+          map 'wxVariant' => intypes do
+            map_in code: '$1 = wxRuby_ConvertRbValue2Variant($input);'
+          end
         end
 
       end # define
