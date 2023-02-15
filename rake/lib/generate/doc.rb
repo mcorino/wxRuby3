@@ -641,16 +641,29 @@ module WXRuby3
       mtd.rb_doc(@xml_trans, type_maps)
     end
 
-    def gen_class_doc_members(fdoc, cls_members, alias_methods)
+    def get_method_head(clsdef, mtdef)
+      if mtdef.class_name == clsdef.name
+        # get method head item
+        clsdef.items.find { |m| Extractor::MethodDef === m && m.name == mtdef.name }
+      else
+        # check folded bases
+        base = folded_bases(clsdef.name).find { |bc| bc == mtdef.class_name }
+        base = def_classes.find { |c| base == c.name }
+        base ? base.items.find { |m| Extractor::MethodDef === m && m.name == mtdef.name } : nil
+      end
+    end
+
+    def gen_class_doc_members(fdoc, clsdef, cls_members, alias_methods)
       # generate method and member variable documentation
       mtd_done = ::Set.new
       cls_members.each do |cm|
         case cm
         when Extractor::MethodDef
-          # overloads are flattened out by the Analyzer (with the head of the overloads list coming first)
-          # but for doc gen we only need the head item so keep track and skip the rest
+          # overloads are flattened out by the Analyzer keeping only the non-ignored items
+          # but for doc gen we need the head item (and only that, so keep track and skip the rest)
           unless cm.is_dtor || mtd_done.include?(cm.name)
-            get_method_doc(cm).each_pair do |name, docs|
+            # get method head item
+            get_method_doc(get_method_head(clsdef, cm)).each_pair do |name, docs|
               if docs.size>1 # method with overloads?
                 docs.each do |params, ovl_doc|
                   fdoc.doc.puts "@overload #{name}(#{params})"
@@ -741,54 +754,14 @@ module WXRuby3
                 end
               end if xref_table
               # generate method and member var documentation
-              gen_class_doc_members(fdoc, cls_members, alias_methods)
-              # mtd_done = ::Set.new
-              # cls_members.each do |cm|
-              #   case cm
-              #   when Extractor::MethodDef
-              #     # overloads are flattened out by the Analyzer (with the head of the overloads list coming first)
-              #     # but for doc gen we only need the head item so keep track and skip the rest
-              #     unless cm.is_dtor || mtd_done.include?(cm.name)
-              #       get_method_doc(cm).each_pair do |name, docs|
-              #         if docs.size>1 # method with overloads?
-              #           docs.each do |params, ovl_doc|
-              #             fdoc.doc.puts "@overload #{name}(#{params})"
-              #             fdoc.doc.indent { fdoc.doc.puts ovl_doc }
-              #           end
-              #           fdoc.puts "def #{name}(*args) end"
-              #         else
-              #           params, doc = docs.shift
-              #           fdoc.doc.puts doc
-              #           if params.empty?
-              #             fdoc.puts "def #{name}; end"
-              #           else
-              #             fdoc.puts "def #{name}(#{params}) end"
-              #           end
-              #           if alias_methods.has_key?(cm.name)
-              #             fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{name}"
-              #           end
-              #         end
-              #         fdoc.puts
-              #       end
-              #       mtd_done << cm.name
-              #     end
-              #   when Extractor::MemberVarDef
-              #     rd_doc, rd_decl, wr_doc, wr_decl = cm.rb_doc(@xml_trans, type_maps)
-              #     rd_doc.each { |s| fdoc.doc.puts s }
-              #     fdoc.puts rd_decl
-              #     if wr_doc
-              #       wr_doc.each { |s| fdoc.doc.puts s }
-              #       fdoc.puts wr_decl
-              #     end
-              #     fdoc.puts
-              #   end
-              # end
+              gen_class_doc_members(fdoc, item, cls_members, alias_methods)
+
               cls_members = InterfaceAnalyzer.class_interface_members_protected(intf_class_name)
               unless cls_members.empty?
                 fdoc.puts
                 fdoc.puts 'protected'
                 fdoc.puts
-                gen_class_doc_members(fdoc, cls_members, alias_methods)
+                gen_class_doc_members(fdoc, item, cls_members, alias_methods)
               end
             end
             fdoc.puts "end # #{clsnm}"
