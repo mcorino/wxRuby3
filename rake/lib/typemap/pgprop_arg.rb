@@ -56,6 +56,11 @@ module WXRuby3
             __CODE
         end
 
+        # doc-only
+        map 'wxPGPropArg' => 'String,Wx::PG::PGProperty', swig: false do
+          map_in code: ''
+        end
+
       end
 
     end # PGPropArg
