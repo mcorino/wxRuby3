@@ -15,6 +15,8 @@ module WXRuby3
 
       include Typemap::PGCell
 
+      include Typemap::PGPropArg
+
       def setup
         super
         spec.gc_as_window 'wxPropertyGrid'

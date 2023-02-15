@@ -11,6 +11,8 @@ module WXRuby3
 
     class PropertyGridManager < Window
 
+      include Typemap::PGPropArg
+
       def setup
         super
         spec.override_inheritance_chain('wxPropertyGridManager', %w[wxPanel wxWindow wxEvtHandler wxObject])

@@ -13,6 +13,8 @@ module WXRuby3
 
       include Typemap::PGProperty
 
+      include Typemap::PGPropArg
+
       def setup
         super
         spec.items << 'wxPropertyGridPageState'
@@ -48,6 +50,7 @@ module WXRuby3
         spec.map 'bool doDelete' do
           map_in ignore: true, code: '$1= true;'
         end
+        spec.suppress_warning(473, 'wxPropertyGridPage::DoInsert')
       end
     end # class PropertyGridPage
 

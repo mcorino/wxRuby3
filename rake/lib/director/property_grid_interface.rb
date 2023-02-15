@@ -15,10 +15,10 @@ module WXRuby3
 
       include Typemap::PGEditor
 
+      include Typemap::PGPropArg
+
       def setup
         super
-        spec.items << 'wxPGPropArgCls'
-        spec.gc_as_temporary 'wxPGPropArgCls'
         spec.gc_as_temporary 'wxPropertyGridInterface' # actually no GC control necessary as this is a mixin only
         # turn wxPropertyGridInterface into a mixin module
         spec.make_mixin 'wxPropertyGridInterface'
@@ -30,16 +30,13 @@ module WXRuby3
         # ignore unuseful shadowing overloads
         spec.ignore 'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, wxObject &)',
                     'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, const wchar_t *)',
-                    'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, const char *)',
-                    'wxPGPropArgCls::wxPGPropArgCls(const char *)',
-                    'wxPGPropArgCls::wxPGPropArgCls(const wchar_t *)'
+                    'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, const char *)'
         # SWIG chokes on the specified 'defaultCategory' default arg
         spec.ignore 'wxPropertyGridInterface::SetPropertyValues', ignore_doc: false
-        # so redeclare in way SWIG can process
-        spec.add_header_code '#define WXRB_NULL_PROP_ARG wxPGPropArgCls((wxPGProperty*)0)'
+        # so redeclare in way SWIG can process (type map takes care of the defaults)
         spec.extend_interface 'wxPropertyGridInterface',
-                              'void SetPropertyValues(const wxVariantList &list, const wxPGPropArgCls& defaultCategory=WXRB_NULL_PROP_ARG)',
-                              'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory=WXRB_NULL_PROP_ARG)'
+                              'void SetPropertyValues(const wxVariantList &list, const wxPGPropArgCls& defaultCategory)',
+                              'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory)'
         # don't expose property grid iterators; add a more Ruby-like extension
         spec.ignore 'wxPropertyGridInterface::GetIterator', 'wxPropertyGridInterface::GetVIterator'
         # add basic property enumerator; will wrap this in pure Ruby still for improved argument handling
@@ -138,11 +135,6 @@ module WXRuby3
         spec.map 'wxPropertyGridPageState *state' => 'Wx::PG::PropertyGridPage', swig: false do
           map_in
         end
-        # not useful in wxRuby
-        spec.ignore 'wxPGPropArgCls::GetPtr(wxPropertyGridInterface *) const',
-                    'wxPGPropArgCls::GetPtr(const wxPropertyGridInterface *) const',
-                    'wxPGPropArgCls::GetPtr0() const',
-                    'wxPGPropArgCls::wxPGPropArgCls(wxString *, bool)'
 
         spec.do_not_generate :variables, :defines, :enums, :functions # with pgproperty
       end
