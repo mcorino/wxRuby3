@@ -1,5 +1,5 @@
 
-class Wx
+module Wx
 
   class Log
     class << self
