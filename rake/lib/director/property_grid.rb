@@ -110,7 +110,9 @@ module WXRuby3
         spec.add_swig_code '%markfunc wxPropertyGrid "GC_mark_wxPropertyGrid";'
         # missing from XML docs
         spec.extend_interface 'wxPropertyGrid',
-                              'wxPoint GetGoodEditorDialogPosition(wxPGProperty* p, const wxSize& sz)'
+                              'wxPoint GetGoodEditorDialogPosition(wxPGProperty* p, const wxSize& sz)',
+                              'wxWindow* GetPrimaryEditor() const',
+                              'wxWindow* GetEditorControlSecondary() const'
         # add extension code to retrieve the internal standard editors
         # can't use the global variables directly to create constants as these will
         # only be initialized after the app has started so we add a module method

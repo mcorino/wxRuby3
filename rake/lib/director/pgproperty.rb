@@ -38,7 +38,10 @@ module WXRuby3
                       'wxPGChoices::AssignData',
                       'wxPGChoices::GetData',
                       'wxPGChoices::GetDataPtr',
-                      'wxPGChoices::ExtractData'
+                      'wxPGChoices::ExtractData',
+                      # no use in wxRuby
+                      'wxPGChoices::Add(size_t, const wxString *, const long *)',
+                      'wxPGChoices::Add(const wxChar **, const long *)'
           # replace by extension
           spec.ignore 'wxPGChoices::operator[]', ignore_doc: false
           spec.add_extend_code 'wxPGChoices', <<~__HEREDOC

@@ -24,6 +24,17 @@ module Wx::PG
     # @param [Wx::Size] sz Size of the editor dialog to be shown.
     # @return [Wx::Point] Best position to show the dialog.
     def get_good_editor_dialog_position(p, sz) end
+    alias :good_editor_dialog_position :get_good_editor_dialog_position
+
+    # Returns current active primary editor control
+    # @return [Wx::Window]
+    def get_primary_editor; end
+    alias :primary_editor :get_primary_editor
+
+    # Returns current active secondary editor control or nil
+    # @return [Wx::Window, nil]
+    def get_editor_control_secondary; end
+    alias :editor_control_secondary :get_editor_control_secondary
 
   end
 

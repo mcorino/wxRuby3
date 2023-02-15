@@ -13,14 +13,15 @@ module WXRuby3
 
       def setup
         super
-        spec.override_inheritance_chain('wxPropertyGrid', %w[wxPanel wxWindow wxEvtHandler wxObject])
+        spec.override_inheritance_chain('wxPropertyGridManager', %w[wxPanel wxWindow wxEvtHandler wxObject])
         spec.add_swig_code 'typedef const wxPGPropArgCls& wxPGPropArg;'
         # mixin PropertyGridInterface
-        spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
+        spec.include_mixin 'wxPropertyGridManager', 'Wx::PG::PropertyGridInterface'
         # for AddPage and InsertPage
         spec.disown 'wxPropertyGridPage *pageObj'
+        spec.suppress_warning(473, 'wxPropertyGridManager::InsertPage')
         # do not expose iterator class; #each_property provided by PropertyGridInterface mixin
-        spec.ignore 'wxPropertyGridPage::GetVIterator'
+        spec.ignore 'wxPropertyGridManager::GetVIterator'
       end
     end # class PropertyGridManager
 
