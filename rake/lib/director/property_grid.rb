@@ -29,6 +29,7 @@ module WXRuby3
         spec.ignore 'wxPropertyGrid::SetSortFunction',
                     'wxPropertyGrid::GetSortFunction'
         spec.ignore 'wxPropertyGrid::RegisterEditorClass' # defined in pure Ruby
+        spec.disown 'wxPGEditor *editor' # for DoRegisterEditorClass
         # special doc-only mapping to remove this arg from docs as wxRuby always passes false here
         spec.map 'bool noDefCheck', swig: false do
           map_in ignore: true
