@@ -18,10 +18,7 @@ module WXRuby3
       def setup
         super
         if spec.module_name == 'wxPGProperty'
-          spec.items << 'wxPGChoices' << 'wxPGPaintData' << 'propgriddefs.h' << 'wxPGCellRenderer' << 'wxPGDefaultRenderer'
-          spec.gc_as_refcounted 'wxPGCellRenderer', 'wxPGDefaultRenderer'
-          spec.override_inheritance_chain('wxPGCellRenderer')
-          spec.override_inheritance_chain('wxPGDefaultRenderer', 'wxPGCellRenderer')
+          spec.items << 'wxPGChoices' << 'wxPGPaintData' << 'propgriddefs.h'
           spec.regard 'wxPGPaintData::m_parent',
                       'wxPGPaintData::m_choiceItem',
                       'wxPGPaintData::m_drawnWidth',
@@ -55,6 +52,8 @@ module WXRuby3
             }
           __HEREDOC
           spec.disown 'wxPGProperty *prop', 'wxPGProperty *childProperty'
+          # do not think this useful for wxRuby (Also; caused GC problems)
+          spec.ignore 'wxPGProperty::GetCellRenderer'
           # obsolete
           spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
           # not of use in Ruby
@@ -85,12 +84,10 @@ module WXRuby3
           spec.new_object 'wxPGProperty::GetEditorDialog'
           spec.suppress_warning(473, 'wxPGProperty::GetEditorDialog')
           # these return objects that will be owned (and need to be lifecycle managed) by any
-          # overrrides (where PGCellRenderer is reference counted and so in a Ruby override could
-          # simply be left to standard GC)
+          # overrrides
           spec.suppress_warning(473,
                                 'wxPGProperty::DoGetEditorClass',
-                                'wxPGProperty::DoGetValidator',
-                                'wxPGProperty::GetCellRenderer')
+                                'wxPGProperty::DoGetValidator')
           spec.add_header_code <<~__HEREDOC
             extern void GC_mark_wxPGProperty(void* ptr)
             {
