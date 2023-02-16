@@ -54,6 +54,10 @@ module WXRuby3
               $input = wxRuby_WrapWxPGPropertyInRuby($1.GetPtr0());
             }
             __CODE
+          map_typecheck precedence: 1, code: <<~__CODE
+            VALUE rb_klass = rb_const_get(mWxPG, rb_intern("PGProperty"));
+            $1 = NIL_P($input) || (TYPE($input) == T_STRING) || (TYPE($input) == T_DATA && rb_obj_is_kind_of($input, rb_klass));
+            __CODE
         end
 
         # doc-only
