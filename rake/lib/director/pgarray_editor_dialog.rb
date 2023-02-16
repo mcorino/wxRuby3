@@ -27,12 +27,12 @@ module WXRuby3
                     'wxPGArrayEditorDialog::m_itemPendingAtIndex',
                     'wxPGArrayEditorDialog::m_modified',
                     'wxPGArrayEditorDialog::m_hasCustomNewAction'
-        spec.rename_for_ruby 'elb' => 'wxPGArrayEditorDialog::m_elb',
-                             'elb_sub_panel' => 'wxPGArrayEditorDialog::m_elbSubPanel',
-                             'last_focused' => 'wxPGArrayEditorDialog::m_lastFocused',
-                             'item_pending_at_index' => 'wxPGArrayEditorDialog::m_itemPendingAtIndex',
-                             'modified' => 'wxPGArrayEditorDialog::m_modified',
-                             'has_custom_new_action' => 'wxPGArrayEditorDialog::m_hasCustomNewAction'
+        spec.rename_for_ruby 'elb_' => 'wxPGArrayEditorDialog::m_elb',
+                             'elb_sub_panel_' => 'wxPGArrayEditorDialog::m_elbSubPanel',
+                             'last_focused_' => 'wxPGArrayEditorDialog::m_lastFocused',
+                             'item_pending_at_index_' => 'wxPGArrayEditorDialog::m_itemPendingAtIndex',
+                             'modified_' => 'wxPGArrayEditorDialog::m_modified',
+                             'has_custom_new_action_' => 'wxPGArrayEditorDialog::m_hasCustomNewAction'
         spec.extend_interface 'wxPGArrayStringEditorDialog',
                               'wxEditableListBox *m_elb',
                               'wxWindow *m_elbSubPanel',
@@ -41,12 +41,12 @@ module WXRuby3
                               'bool m_modified',
                               'bool m_hasCustomNewAction',
                               visibility: 'protected'
-        spec.rename_for_ruby 'elb' => 'wxPGArrayStringEditorDialog::m_elb',
-                             'elb_sub_panel' => 'wxPGArrayStringEditorDialog::m_elbSubPanel',
-                             'last_focused' => 'wxPGArrayStringEditorDialog::m_lastFocused',
-                             'item_pending_at_index' => 'wxPGArrayStringEditorDialog::m_itemPendingAtIndex',
-                             'modified' => 'wxPGArrayStringEditorDialog::m_modified',
-                             'has_custom_new_action' => 'wxPGArrayStringEditorDialog::m_hasCustomNewAction'
+        spec.rename_for_ruby 'elb_' => 'wxPGArrayStringEditorDialog::m_elb',
+                             'elb_sub_panel_' => 'wxPGArrayStringEditorDialog::m_elbSubPanel',
+                             'last_focused_' => 'wxPGArrayStringEditorDialog::m_lastFocused',
+                             'item_pending_at_index_' => 'wxPGArrayStringEditorDialog::m_itemPendingAtIndex',
+                             'modified_' => 'wxPGArrayStringEditorDialog::m_modified',
+                             'has_custom_new_action_' => 'wxPGArrayStringEditorDialog::m_hasCustomNewAction'
         spec.suppress_warning(473, 'wxPGArrayEditorDialog::GetTextCtrlValidator')
       end
     end # class PGArrayEditorDialog

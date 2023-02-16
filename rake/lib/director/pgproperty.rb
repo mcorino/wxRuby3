@@ -18,7 +18,7 @@ module WXRuby3
       def setup
         super
         if spec.module_name == 'wxPGProperty'
-          spec.items << 'wxPGChoices' << 'wxPGPaintData' << 'wxPGCellRenderer' << 'wxPGDefaultRenderer' << 'propgriddefs.h'
+          spec.items << 'wxPGChoices' << 'wxPGPaintData' << 'propgriddefs.h' << 'wxPGCellRenderer' << 'wxPGDefaultRenderer'
           spec.gc_as_refcounted 'wxPGCellRenderer', 'wxPGDefaultRenderer'
           spec.override_inheritance_chain('wxPGCellRenderer')
           spec.override_inheritance_chain('wxPGDefaultRenderer', 'wxPGCellRenderer')
@@ -118,7 +118,7 @@ module WXRuby3
           spec.extend_interface 'wxPGProperty',
                                 'wxVariant m_value',
                                 visibility: 'protected'
-          spec.rename_for_ruby 'value_data' => 'wxPGProperty::m_value'
+          spec.rename_for_ruby 'value_' => 'wxPGProperty::m_value'
           spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
           spec.ignore %w[wxPG_LABEL wxPG_NULL_BITMAP wxPG_COLOUR_BLACK wxPG_DEFAULT_IMAGE_SIZE]
           # define in Ruby
@@ -175,7 +175,7 @@ module WXRuby3
                                     'bool IsChildSelected(bool recursive=false) const',
                                     'wxVariant m_value',
                                     visibility: 'protected'
-              spec.rename_for_ruby 'value_data' => "#{itm}::m_value"
+              spec.rename_for_ruby 'value_' => "#{itm}::m_value"
               spec.add_swig_code %Q{%markfunc #{itm} "GC_mark_wxPGProperty";}
               spec.new_object %Q{#{itm}::GetEditorDialog}
               spec.suppress_warning(473, "#{itm}::GetEditorDialog")
