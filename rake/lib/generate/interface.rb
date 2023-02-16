@@ -60,9 +60,12 @@ module WXRuby3
             #{rb_name}_Mixin_Cast_Map[cls_info] = converter;
           }
           
-          WXRB_EXPORT_FLAG #{name}* wxRuby_ConvertTo#{rb_name}(VALUE obj)
+          WXRB_EXPORT_FLAG int wxRuby_ConvertTo#{rb_name}(VALUE obj, void** ptr)
           {
-            if (NIL_P(obj)) return 0;
+            if (NIL_P(obj)) 
+            {
+              return SWIG_ERROR;
+            }
             
             if (TYPE(obj) != T_DATA)
             {
@@ -78,18 +81,15 @@ module WXRuby3
               swig_class* cls_info = static_cast<swig_class*> (it->first);
               if (rb_obj_is_kind_of(obj, cls_info->klass))
               {
-                void *ptr = 0;
+                void *vptr = 0;
                 /* Grab the pointer */
-                Data_Get_Struct(obj, void, ptr);
+                Data_Get_Struct(obj, void, vptr);
                 wx_#{underscore(rb_name)}_convert_fn fn_cvt = it->second;
-                return (*fn_cvt)(ptr);
+                *ptr = (*fn_cvt)(vptr);
+                return SWIG_OK;
               }
             }
-            
-            VALUE msg = rb_inspect(obj);
-            rb_raise(rb_eTypeError, 
-                     "Unable to convert %s to #{rb_name}", 
-                     StringValuePtr(msg));
+            return SWIG_ERROR;
           }
       __HEREDOC
     end

@@ -486,18 +486,12 @@ module WXRuby3
             if skip_method
               skip_method = false if /\A}\s*\Z/ =~ line # end of function?
               line = nil # remove line in output
-            elsif skip_conversion
-              if /\A(\s*arg1\s*=\s*)reinterpret_cast<\s*wx(#{cls_re_txt})/ =~ line
-                skip_conversion = false
-                line = "#{$1}wxRuby_ConvertTo#{$2}(self);"
-              else
-                line = nil
-              end
             else
               # transform conversion of 'self' in wrapper functions
-              if /\A(\s*)res1\s*=\s*SWIG_ConvertPtr\(self,\s*&argp1,SWIGTYPE_p_wx(#{cls_re_txt})/ =~ line
-                skip_conversion = true
-                line = "#{$1}wxUnusedVar(res1); wxUnusedVar(argp1);"
+              if /\A(\s*)res1\s*=\s*SWIG_ConvertPtr\(self,\s*&(\w+),\s*SWIGTYPE_p_wx(#{cls_re_txt})/ =~ line
+                line = "#{$1}res1 = wxRuby_ConvertTo#{$3}(self, &#{$2});"
+              elsif /\A(\s*)int\s+(\w+)\s*=\s*SWIG_ConvertPtr\(argv\[0\],\s*&(\w+),\s*SWIGTYPE_p_wx(#{cls_re_txt})/ =~ line
+                line = "#{$1}int #{$2} = wxRuby_ConvertTo#{$4}(argv[0], &#{$3});"
                 # remove unwanted function definitions
               elsif /\Afree_wx(#{cls_re_txt})/ =~ line
                 line = "free_wx#{$1}() {}"
