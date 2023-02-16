@@ -33,10 +33,7 @@ class WxSampleMultiButtonEditor < Wx::PG::PGTextCtrlEditor
     buttons.add(Wx::ArtProvider::get_bitmap(Wx::ART_FOLDER))
 
     # Create the 'primary' editor control (textctrl in this case)
-    primary, _ = Wx::PG::PGTextCtrlEditor::create_controls(propGrid,
-                                                           property,
-                                                           pos,
-                                                           buttons.primary_size)
+    primary, _ = super(propGrid, property, pos, buttons.primary_size)
 
     # Finally, move buttons-subwindow to correct position and make sure
     # returned Wx::PG::PGWindowList contains our custom button list.
@@ -67,7 +64,7 @@ class WxSampleMultiButtonEditor < Wx::PG::PGTextCtrlEditor
         return false # Return false since value did not change
       end
     end
-    return super(propGrid, property, ctrl, event)
+    super(propGrid, property, ctrl, event)
   end
 
 end # class WxSampleMultiButtonEditor
@@ -132,12 +129,12 @@ class WxVectorProperty < Wx::PG::PGProperty
     when 2
       vector.z = childValue.to_f
     end
-    return Wx::Variant.new(vector)
+    Wx::Variant.new(vector)
   end
 
   def refresh_children
     return if get_child_count == 0
-    vector = self.value_data.object
+    vector = self.value_.object
     item(0).value = vector.x
     item(1).value = vector.y
     item(2).value = vector.z
@@ -178,12 +175,12 @@ class WxTriangleProperty < Wx::PG::PGProperty
     when 2
       triangle.c = vector
     end
-    return Wx::Variant.new(triangle)
+    Wx::Variant.new(triangle)
   end
 
   def refresh_children
     return if get_child_count == 0
-    triangle = self.value_data.object
+    triangle = self.value_.object
     item(0).value = triangle.a
     item(1).value = triangle.b
     item(2).value = triangle.c
@@ -253,7 +250,7 @@ class MyColourProperty < Wx::PG::ColourProperty
                  name = Wx::PG::PG_LABEL,
                  value = Wx::WHITE )
     super(label, name, value)
-    @choices = Wx::PG::PGChoices.new(%w[White Black Red Green Blue Custom None])
+    self.choices = Wx::PG::PGChoices.new(%w[White Black Red Green Blue Custom None])
     set_index(0)
     self.value = value
   end
@@ -273,22 +270,22 @@ class MyColourProperty < Wx::PG::ColourProperty
     when 5
       # Return current colour for the custom entry
       if get_index == get_custom_colour_index
-        return self.value_data.colour unless self.value_data.null?
+        return self.value_.colour unless self.value_.null?
       else
         return Wx::WHITE
       end
     end
-    return Wx::Colour.new
+    Wx::Colour.new
   end
 
   def colour_to_string(col, index, argFlags = 0)
-    return '' if index == (@choices.get_count-1)
+    return '' if index == (self.choices.get_count-1)
 
-    Wx::PG::ColourProperty::colour_to_string(col, index, argFlags)
+    super(col, index, argFlags)
   end
 
   def get_custom_colour_index
-    @choices.get_count-2
+    self.choices.get_count-2
   end
 end
 
@@ -668,26 +665,6 @@ class FormMain < Wx::Frame
                             position.y)
       @logWindow.show
     end
-
-    # wxTextCtrl*     m_tcPropLabel;
-    # wxWindow*       m_panel;
-    # wxBoxSizer*     m_topSizer;
-    #
-    # #if wxUSE_LOGWINDOW
-    # wxLogWindow*    m_logWindow;
-    # #endif
-    #
-    # Wx::PG::PGEditor*     m_pSampleMultiButtonEditor;
-    # Wx::PG::PGChoices     m_combinedFlags;
-    #
-    # wxMenuItem*     m_itemCatColours;
-    # wxMenuItem*     m_itemFreeze;
-    # wxMenuItem*     m_itemEnable;
-    # wxMenuItem*     m_itemVetoDragging;
-    #
-    # wxVariant       m_storedValues;
-    #
-    # wxString        m_savedState;
   end
 
   #
@@ -1156,6 +1133,7 @@ class FormMain < Wx::Frame
         "AutoComplete attribute has been set for this property "+
         "(try writing something beginning with 'a', 'o' or 'y').")
 
+
     # Add string property with arbitrarily wide bitmap in front of it. We
     # intentionally lower-than-typical row height here so that the ugly
     # scaling code won't be run.
@@ -1337,7 +1315,7 @@ class FormMain < Wx::Frame
 
     #
     # Test how non-editable composite strings appear
-    pid = Wx::PG::StringProperty.new("wxWidgets Traits", Wx::PG::PG_LABEL, "<composed>")
+    pid = Wx::PG::StringProperty.new("wxRuby Traits", Wx::PG::PG_LABEL, "<composed>")
     pg.set_property_read_only(pid)
 
     #
@@ -1346,7 +1324,7 @@ class FormMain < Wx::Frame
 
     pid.append_child(Wx::PG::StringProperty.new("Latest Release",
                                            Wx::PG::PG_LABEL,
-                                           "3.1.2"))
+                                           "3.0.0"))
     pid.append_child(Wx::PG::BoolProperty.new("Win API",
                                          Wx::PG::PG_LABEL,
                                          true))
