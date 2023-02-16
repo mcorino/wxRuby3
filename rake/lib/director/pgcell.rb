@@ -31,7 +31,11 @@ module WXRuby3
               if (r_pc && !NIL_P(r_pc)) return r_pc;              
 
               // Get the wx class and the ruby class we are converting into
-              wxString class_name( wx_pc->GetClassInfo()->GetClassName() ); 
+              wxString class_name = wxS("wxPGCell");
+              if (dynamic_cast<const wxPGChoiceEntry*> (wx_pc))
+              {
+                class_name = wxS("wxPGChoiceEntry");
+              }
               VALUE r_class = Qnil;
               if ( class_name.Len() > 2 )
               {
