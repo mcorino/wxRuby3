@@ -46,7 +46,7 @@ module WXRuby3
           # replace by extension
           spec.ignore 'wxPGChoices::operator[]', ignore_doc: false
           spec.add_extend_code 'wxPGChoices', <<~__HEREDOC
-            wxPGChoiceEntry __getitem__(unsigned int idx)
+            wxPGChoiceEntry& __getitem__(unsigned int idx)
             {
               return (*self)[idx];
             }
