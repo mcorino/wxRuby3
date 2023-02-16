@@ -7,11 +7,7 @@ class Wx::Colour
     begin
       wx_init.bind(self).call(*args)
     # Invalid integer values raise SWIG 'no matching func'
-    rescue ArgumentError 
-      Kernel.raise ArgumentError, "Invalid colour values #{args.inspect}"
-    end
-
-    if not is_ok
+    rescue ArgumentError, TypeError
       Kernel.raise ArgumentError, "Invalid colour values #{args.inspect}"
     end
   end
