@@ -17,7 +17,7 @@ module Wx::PG
       end
 
       def register_editor_class(editor)
-        do_register_editor_class(editor, editor_class.class.name)
+        do_register_editor_class(editor, editor.class.name)
       end
 
       def get_editor_class(name)

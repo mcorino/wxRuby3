@@ -5,6 +5,7 @@ require_relative './events'
 require_relative './property_grid_interface'
 require_relative './property_grid'
 require_relative './pg_property'
-require_relative './pgeditor'
+require_relative './pg_properties'
+require_relative './pg_editor'
 
 Wx::Dialog.setup_dialog_functors(Wx::PG)
