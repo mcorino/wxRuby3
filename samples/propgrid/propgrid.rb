@@ -3,6 +3,12 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+begin
+  require 'rubygems'
+rescue LoadError
+end
+require 'wx'
+
 require_relative './sample_props'
 
 # -----------------------------------------------------------------------
@@ -71,7 +77,7 @@ if Wx.has_feature?(:USE_VALIDATORS)
   class WxInvalidWordValidator < Wx::Validator
 
     def initialize(invalidWord)
-      super
+      super()
       @invalidWord = invalidWord
     end
 
@@ -100,13 +106,11 @@ end
 # WxVectorProperty
 # -----------------------------------------------------------------------
 
-require 'struct'
-
 class WxVectorProperty < Wx::PG::PGProperty
 
   WxVector3f = Struct.new(:x, :y, :z) do |klass|
     def initialize
-      @x = @y = @z = 0.0
+      self.x = self.y = self.z = 0.0
     end
   end
 
@@ -149,9 +153,9 @@ class WxTriangleProperty < Wx::PG::PGProperty
 
   WxTriangle = Struct.new(:a, :b, :c) do |klass|
     def initialize
-      @a = WxVectorProperty::WxVector3f.new
-      @b = WxVectorProperty::WxVector3f.new
-      @c = WxVectorProperty::WxVector3f.new
+      self.a = WxVectorProperty::WxVector3f.new
+      self.b = WxVectorProperty::WxVector3f.new
+      self.c = WxVectorProperty::WxVector3f.new
     end
   end
 
@@ -195,7 +199,7 @@ end # class WxTriangleProperty
 class WxSingleChoiceDialogAdapter < Wx::PG::PGEditorDialogAdapter
 
   def initialize(choices)
-    super
+    super()
     @choices = choices
   end
 
@@ -237,68 +241,119 @@ class SingleChoiceProperty < Wx::PG::StringProperty
 
 end # class SingleChoiceProperty
 
+#
+# Test customizing wxColourProperty via subclassing
+#
+# * Includes custom colour entry.
+# * Includes extra custom entry.
+#
+class MyColourProperty < Wx::PG::ColourProperty
+
+  def initialize(label = Wx::PG::PG_LABEL,
+                 name = Wx::PG::PG_LABEL,
+                 value = Wx::WHITE )
+    super(label, name, value)
+    @choices = Wx::PG::PGChoices.new(%w[White Black Red Green Blue Custom None])
+    set_index(0)
+    self.value = value
+  end
+
+  def get_colour(index)
+    case index
+    when 0
+      return Wx::WHITE
+    when 1
+      return Wx::BLACK
+    when 2
+      return Wx::RED
+    when 3
+      return Wx::GREEN
+    when 4
+      return Wx::BLUE
+    when 5
+      # Return current colour for the custom entry
+      if get_index == get_custom_colour_index
+        return self.value_data.colour unless self.value_data.null?
+      else
+        return Wx::WHITE
+      end
+    end
+    return Wx::Colour.new
+  end
+
+  def colour_to_string(col, index, argFlags = 0)
+    return '' if index == (@choices.get_count-1)
+
+    Wx::PG::ColourProperty::colour_to_string(col, index, argFlags)
+  end
+
+  def get_custom_colour_index
+    @choices.get_count-2
+  end
+end
+
 module ID
   %i[
-    PGID,
-    ABOUT,
-    QUIT,
-    APPENDPROP,
-    APPENDCAT,
-    INSERTPROP,
-    INSERTCAT,
-    ENABLE,
-    SETREADONLY,
-    HIDE,
-    BOOL_CHECKBOX,
-    DELETE,
-    DELETER,
-    DELETEALL,
-    UNSPECIFY,
-    ITERATE1,
-    ITERATE2,
-    ITERATE3,
-    ITERATE4,
-    CLEARMODIF,
-    FREEZE,
-    DUMPLIST,
-    COLOURSCHEME1,
-    COLOURSCHEME2,
-    COLOURSCHEME3,
-    CATCOLOURS,
-    SETBGCOLOUR,
-    SETBGCOLOURRECUR,
-    STATICLAYOUT,
-    POPULATE1,
-    POPULATE2,
-    COLLAPSE,
-    COLLAPSEALL,
-    GETVALUES,
-    SETVALUES,
-    SETVALUES2,
-    RUNTESTFULL,
-    RUNTESTPARTIAL,
-    FITCOLUMNS,
-    CHANGEFLAGSITEMS,
-    TESTINSERTCHOICE,
-    TESTDELETECHOICE,
-    INSERTPAGE,
-    REMOVEPAGE,
-    SETSPINCTRLEDITOR,
-    SETPROPERTYVALUE,
-    TESTREPLACE,
-    SETCOLUMNS,
-    SETVIRTWIDTH,
-    SETPGDISABLED,
-    TESTXRC,
-    ENABLECOMMONVALUES,
-    SELECTSTYLE,
-    SAVESTATE,
-    RESTORESTATE,
-    RUNMINIMAL,
-    ENABLELABELEDITING,
-    VETOCOLDRAG,
-    ONEXTENDEDKEYNAV,
-    SHOWPOPUP,
+    PGID
+    ABOUT
+    QUIT
+    APPENDPROP
+    APPENDCAT
+    INSERTPROP
+    INSERTCAT
+    ENABLE
+    SETREADONLY
+    HIDE
+    BOOL_CHECKBOX
+    DELETE
+    DELETER
+    DELETEALL
+    UNSPECIFY
+    ITERATE1
+    ITERATE2
+    ITERATE3
+    ITERATE4
+    CLEARMODIF
+    FREEZE
+    DUMPLIST
+    COLOURSCHEME1
+    COLOURSCHEME2
+    COLOURSCHEME3
+    CATCOLOURS
+    SETBGCOLOUR
+    SETBGCOLOURRECUR
+    STATICLAYOUT
+    POPULATE1
+    POPULATE2
+    COLLAPSE
+    COLLAPSEALL
+    GETVALUES
+    SETVALUES
+    SETVALUES2
+    RUNTESTFULL
+    RUNTESTPARTIAL
+    FITCOLUMNS
+    CHANGEFLAGSITEMS
+    TESTINSERTCHOICE
+    TESTDELETECHOICE
+    INSERTPAGE
+    REMOVEPAGE
+    SETSPINCTRLEDITOR
+    SETPROPERTYVALUE
+    TESTREPLACE
+    SETCOLUMNS
+    SETVIRTWIDTH
+    SETPGDISABLED
+    TESTXRC
+    ENABLECOMMONVALUES
+    SELECTSTYLE
+    SAVESTATE
+    RESTORESTATE
+    RUNMINIMAL
+    ENABLELABELEDITING
+    VETOCOLDRAG
+    ONEXTENDEDKEYNAV
+    SHOWPOPUP
     POPUPGRID
   ].each_with_index { |sym, ix| self.const_set(sym, ix+1) }
 
@@ -350,6 +405,21 @@ class WxMyPropertyGridPage < Wx::PG::PropertyGridPage
 
 end # class WxMyPropertyGridPage
 
+
+class WxPGKeyHandler < Wx::EvtHandler
+
+  def initialize
+    super
+    evt_key_down :on_key_event
+  end
+
+  def on_key_event(event)
+    Wx.message_box("%i" % event.get_key_code)
+    event.skip
+  end
+
+end
+
 class FormMain < Wx::Frame
 
   FS_WINDOWSTYLE_LABELS = %w[
@@ -392,9 +462,9 @@ class FormMain < Wx::Frame
   ]
   
   def initialize(title, pos, size)
-    super(-1, title, pos, size,
-          (Wx::MINIMIZE_BOX|Wx::MAXIMIZE_BOX|Wx::RESIZE_BORDER|Wx::SYSTEM_MENU|
-            Wx::CAPTION|Wx::TAB_TRAVERSAL|Wx::CLOSE_BOX))
+    super(nil, title: title, pos: pos, size: size,
+          style: (Wx::MINIMIZE_BOX|Wx::MAXIMIZE_BOX|Wx::RESIZE_BORDER|Wx::SYSTEM_MENU|
+                  Wx::CAPTION|Wx::TAB_TRAVERSAL|Wx::CLOSE_BOX))
     @propGridManager = nil
     @propGrid = nil
     @hasHeader = false
@@ -444,7 +514,7 @@ class FormMain < Wx::Frame
     menuTools2.append(ID::ITERATE2, 'Iterate Over Visible Items')
     menuTools2.append(ID::ITERATE3, 'Reverse Iterate Over Properties')
     menuTools2.append(ID::ITERATE4, 'Iterate Over Categories')
-    menuTools2.appppend_separator
+    menuTools2.append_separator
     menuTools2.append(ID::ONEXTENDEDKEYNAV, 'Extend Keyboard Navigation',
                        'This will set Enter to navigate to next property, '+
                        'and allows arrow keys to navigate even when in '+
@@ -549,7 +619,7 @@ class FormMain < Wx::Frame
     @sampleMultiButtonEditor =
       Wx::PG::PropertyGrid.register_editor_class(WxSampleMultiButtonEditor.new)
 
-    @panel = Wx::Panel.new(this, Wx::ID_ANY, Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE, Wx::TAB_TRAVERSAL)
+    @panel = Wx::Panel.new(self, Wx::ID_ANY, Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE, Wx::TAB_TRAVERSAL)
 
     style = Wx::PG::PG_BOLD_MODIFIED |
       Wx::PG::PG_SPLITTER_AUTO_CENTER |
@@ -593,7 +663,7 @@ class FormMain < Wx::Frame
 
     if Wx.has_feature?(:USE_LOGWINDOW)
       # Create log window
-      @logWindow = Wx::LogWindow.new(this, 'Log Messages', false)
+      @logWindow = Wx::LogWindow.new(self, 'Log Messages', false)
       @logWindow.frame.move(position.x + size.width + 10,
                             position.y)
       @logWindow.show
@@ -631,7 +701,7 @@ class FormMain < Wx::Frame
 
     if pg.get_property_by_label(base_label)
       while true
-        count++;
+        count += 1
         new_label = "%s%i" % [base_label,count]
         break unless pg.get_property_by_label(new_label)
       end
@@ -703,7 +773,7 @@ class FormMain < Wx::Frame
     # Set somewhat different unspecified value appearance
     cell = Wx::PG::PGCell.new
     cell.text = 'Unspecified'
-    cell.set_fg_col(Wx::Colour.new('LIGHT_GREY'))
+    cell.set_fg_col(Wx::Colour.new('LIGHTGREY'))
     @propGrid.set_unspecified_value_appearance(cell)
 
     populate_grid
@@ -749,14 +819,14 @@ class FormMain < Wx::Frame
     pg = pgman.get_page("Standard Items")
 
     # Append is ideal way to add items to wxPropertyGrid.
-    pg.append(Wx::PG::PropertyCategory("Appearance", Wx::PG::PG_LABEL))
+    pg.append(Wx::PG::PropertyCategory.new("Appearance", Wx::PG::PG_LABEL))
 
     pg.append(Wx::PG::StringProperty.new("Label", Wx::PG::PG_LABEL, get_title))
     pg.append(Wx::PG::FontProperty.new("Font", Wx::PG::PG_LABEL))
     pg.set_property_help_string("Font", "Editing this will change font used in the property grid.")
 
     pg.append(Wx::PG::SystemColourProperty.new("Margin Colour",Wx::PG::PG_LABEL,
-                                               pg.get_grid.get_margin_colour))
+                                               Wx::PG::ColourPropertyValue.new(pg.get_grid.get_margin_colour)))
 
     pg.append(Wx::PG::SystemColourProperty.new("Cell Colour",Wx::PG::PG_LABEL,
                                                pg.grid.get_cell_background_colour))
@@ -769,7 +839,7 @@ class FormMain < Wx::Frame
 
     pg.append(Wx::PG::CursorProperty.new("Cursor",Wx::PG::PG_LABEL))
 
-    pg.append(Wx::PG::PropertyCategory("Position","PositionCategory"))
+    pg.append(Wx::PG::PropertyCategory.new("Position","PositionCategory"))
     pg.set_property_help_string("PositionCategory", "Change in items in this category will cause respective changes in frame.")
 
     # Let's demonstrate 'Units' attribute here
@@ -785,7 +855,7 @@ class FormMain < Wx::Frame
 
     # Set value to unspecified so that Hint attribute will be demonstrated
     pg.set_property_value_unspecified("Height")
-    pg.set_property_attribute("height", Wx::PG::PG_ATTR_HINT,
+    pg.set_property_attribute("Height", Wx::PG::PG_ATTR_HINT,
                              "Enter new height for window")
 
     # Difference between hint and help string is that the hint is shown in
@@ -809,7 +879,7 @@ class FormMain < Wx::Frame
     pg.set_property_attribute("X", Wx::PG::PG_ATTR_UNITS, "Pixels")
     pg.set_property_help_string("X", "This property uses \"Units\" attribute.")
 
-    pg.append Wx::PG::IntProperty.new("Y",Wx::PG::PG_LABEL,10))
+    pg.append Wx::PG::IntProperty.new("Y",Wx::PG::PG_LABEL,10)
     pg.set_property_attribute("Y", Wx::PG::PG_ATTR_UNITS, "Pixels")
     pg.set_property_help_string("Y", "This property uses \"Units\" attribute.")
 
@@ -873,8 +943,7 @@ class FormMain < Wx::Frame
     bmp = Wx::ArtProvider.get_bitmap(Wx::ART_FOLDER)
 
     pg.grid.each_property do |p|
-      if p.category?
-        continue
+      continue if p.category?
 
       pg.set_property_cell(p, 3, "Cell 3", bmp)
       pg.set_property_cell(p, 4, "Cell 4", Wx::BitmapBundle.new, Wx::WHITE, Wx::BLACK)
@@ -882,11 +951,11 @@ class FormMain < Wx::Frame
   end
 
   def populate_with_examples
-    pgman = @propGridManager;
+    pgman = @propGridManager
     pg = pgman.get_page("Examples")
 
     if Wx.has_feature?(:USE_SPINBTN)
-      pg.append(Wx::PG::IntProperty.new ("SpinCtrl", Wx::PG::PG_LABEL, 0))
+      pg.append(Wx::PG::IntProperty.new("SpinCtrl", Wx::PG::PG_LABEL, 0))
 
       pg.set_property_editor("SpinCtrl", Wx::PG::PG_EDITOR_SPIN_CTRL)
       pg.set_property_attribute("SpinCtrl", Wx::PG::PG_ATTR_MIN, -2)  # Use constants instead of string
@@ -1006,11 +1075,11 @@ class FormMain < Wx::Frame
     # Test custom colours ([] operator of Wx::PG::PGChoices returns
     # references to Wx::PG::PGChoiceEntry).
     soc[1].set_fg_col(Wx::RED)
-    soc[1].set_bg_col(Wx::Colour.new('LIGHT_GREY'))
+    soc[1].set_bg_col(Wx::Colour.new('LIGHTGREY'))
     soc[2].set_fg_col(Wx::GREEN)
-    soc[2].set_bg_col(Wx::Colour.new('LIGHT_GREY'))
+    soc[2].set_bg_col(Wx::Colour.new('LIGHTGREY'))
     soc[3].set_fg_col(Wx::BLUE)
-    soc[3].set_bg_col(Wx::Colour.new('LIGHT_GREY'))
+    soc[3].set_bg_col(Wx::Colour.new('LIGHTGREY'))
     soc[4].set_bitmap(Wx::ArtProvider.get_bitmap(Wx::ART_FOLDER))
 
     pg.append(Wx::PG::EnumProperty.new("EnumProperty 2",
@@ -1059,7 +1128,7 @@ class FormMain < Wx::Frame
                               "This is a custom dir dialog title")
 
     # Add string property - first arg is label, second name, and third initial value
-    pg.append(Wx::PG::StringProperty.new ("StringProperty", Wx::PG::PG_LABEL))
+    pg.append(Wx::PG::StringProperty.new("StringProperty", Wx::PG::PG_LABEL))
     pg.set_property_max_length("StringProperty", 6)
     pg.set_property_help_string("StringProperty",
         "Max length of this text has been limited to 6, using wxPropertyGrid::SetPropertyMaxLength.")
@@ -1114,7 +1183,7 @@ class FormMain < Wx::Frame
     mdc.draw_line(0, 0, 119, 31)
     mdc.set_text_foreground(Wx::BLUE)
     f = mdc.font
-    f.set_pixel_size(2 * f.get_pixel_size
+    f.set_pixel_size(f.get_pixel_size * 2)
     mdc.set_font(f)
     mdc.draw_text("x2", 0, 0)
 
@@ -1144,15 +1213,15 @@ class FormMain < Wx::Frame
 
     #
     # Wx::PG::EditEnumProperty
-    eech = [
+    eech = Wx::PG::PGChoices.new([
       "Choice 1",
       "Choice 2",
       "Choice 3"
-    ]
+    ])
     pg.append(Wx::PG::EditEnumProperty.new("EditEnumProperty",
-                                       Wx::PG::PG_LABEL,
-                                       eech,
-                                       "Choice not in the list"))
+                                           Wx::PG::PG_LABEL,
+                                           eech,
+                                           "Choice not in the list"))
 
     # Test Hint attribute in EditEnumProperty
     pg.get_property("EditEnumProperty").set_attribute(Wx::PG::PG_ATTR_HINT, "Dummy Hint")
@@ -1248,7 +1317,7 @@ class FormMain < Wx::Frame
     pg.set_property_editor("MultipleButtons", @sampleMultiButtonEditor)
 
     # Test SingleChoiceProperty
-    pg.append(new SingleChoiceProperty("SingleChoiceProperty"))
+    pg.append(SingleChoiceProperty.new("SingleChoiceProperty"))
 
 
     #
@@ -1295,7 +1364,123 @@ class FormMain < Wx::Frame
   end
 
   def populate_with_library_config
+    pgman = @propGridManager;
+    pg = pgman.get_page("wxWidgets Library Config")
 
+    # Set custom column proportions (here in the sample app we need
+    # to check if the grid has wxPG_SPLITTER_AUTO_CENTER style. You usually
+    # need not to do it in your application).
+    if pgman.has_flag(Wx::PG::PG_SPLITTER_AUTO_CENTER)
+      pg.set_column_proportion(0, 3)
+      pg.set_column_proportion(1, 1)
+    end
+
+    bmp = Wx::ArtProvider.get_bitmap(Wx::ART_REPORT_VIEW)
+
+    italicFont = pgman.grid.get_caption_font
+    italicFont.set_style(Wx::FONTSTYLE_ITALIC)
+
+    italicFontHelp = "Font of this property's wxPGCell has " +
+      "been modified. Obtain property's cell " +
+      "with wxPGProperty::" +
+      "GetOrCreateCell(column)."
+
+    pid = pg.append(Wx::PG::PropertyCategory.new("wxWidgets Library Configuration" ))
+    pg.set_property_cell(pid, 0, Wx::PG::PG_LABEL, bmp)
+
+    # Both of following lines would set a label for the second column
+    pg.set_property_cell(pid, 1, "Is Enabled")
+    pid.set_value("Is Enabled")
+
+    _ADD_WX_LIB_CONF_GROUP = ->(label) {
+      cat = pg.append_in(pid, Wx::PG::PropertyCategory.new(label))
+      pg.set_property_cell(cat, 0, Wx::PG::PG_LABEL, bmp)
+      cat.get_cell(0).set_font(italicFont)
+      cat.set_help_string(italicFontHelp)
+    }
+
+    _ADD_WX_LIB_CONF = ->(sym) {
+      pg.append(Wx::PG::BoolProperty.new(sym.to_s, Wx::PG::PG_LABEL, Wx.has_feature?(sym)))
+    }
+
+    _ADD_WX_LIB_CONF_NODEF = ->(sym) {
+      pg.append(Wx::PG::BoolProperty.new(sym.to_s, Wx::PG::PG_LABEL, Wx.has_feature?(sym)))
+      pg.disable_property(sym.to_s) unless Wx.has_feature?(sym)
+    }
+
+    _ADD_WX_LIB_CONF_GROUP.call("Global Settings")
+    _ADD_WX_LIB_CONF.call(:USE_GUI)
+
+    _ADD_WX_LIB_CONF_GROUP.call("Compatibility Settings")
+    if Wx.has_feature?(:WXWIN_COMPATIBILITY_3_0)
+      _ADD_WX_LIB_CONF.call(:WXWIN_COMPATIBILITY_3_0)
+    end
+    _ADD_WX_LIB_CONF_NODEF.call(:FONT_SIZE_COMPATIBILITY)
+    _ADD_WX_LIB_CONF_NODEF.call(:DIALOG_UNIT_COMPATIBILITY)
+
+    _ADD_WX_LIB_CONF_GROUP.call("Debugging Settings")
+    _ADD_WX_LIB_CONF.call(:USE_DEBUG_CONTEXT)
+    _ADD_WX_LIB_CONF.call(:USE_MEMORY_TRACING)
+    _ADD_WX_LIB_CONF.call(:USE_GLOBAL_MEMORY_OPERATORS)
+    _ADD_WX_LIB_CONF.call(:USE_DEBUG_NEW_ALWAYS)
+    _ADD_WX_LIB_CONF.call(:USE_ON_FATAL_EXCEPTION)
+
+    _ADD_WX_LIB_CONF_GROUP.call("Unicode Support")
+    _ADD_WX_LIB_CONF.call(:USE_UNICODE)
+
+    _ADD_WX_LIB_CONF_GROUP.call("Global Features")
+    _ADD_WX_LIB_CONF.call(:USE_EXCEPTIONS)
+    _ADD_WX_LIB_CONF.call(:USE_EXTENDED_RTTI)
+    _ADD_WX_LIB_CONF.call(:USE_STL)
+    _ADD_WX_LIB_CONF.call(:USE_LOG)
+    _ADD_WX_LIB_CONF.call(:USE_LOGWINDOW)
+    _ADD_WX_LIB_CONF.call(:USE_LOGGUI)
+    _ADD_WX_LIB_CONF.call(:USE_LOG_DIALOG)
+    _ADD_WX_LIB_CONF.call(:USE_CMDLINE_PARSER)
+    _ADD_WX_LIB_CONF.call(:USE_THREADS)
+    _ADD_WX_LIB_CONF.call(:USE_STREAMS)
+    _ADD_WX_LIB_CONF.call(:USE_STD_IOSTREAM)
+
+    _ADD_WX_LIB_CONF_GROUP.call("Non-GUI Features")
+    _ADD_WX_LIB_CONF.call(:USE_LONGLONG)
+    _ADD_WX_LIB_CONF.call(:USE_FILE)
+    _ADD_WX_LIB_CONF.call(:USE_FFILE)
+    _ADD_WX_LIB_CONF.call(:USE_FSVOLUME)
+    _ADD_WX_LIB_CONF.call(:USE_TEXTBUFFER)
+    _ADD_WX_LIB_CONF.call(:USE_TEXTFILE)
+    _ADD_WX_LIB_CONF.call(:USE_INTL)
+    _ADD_WX_LIB_CONF.call(:USE_DATETIME)
+    _ADD_WX_LIB_CONF.call(:USE_TIMER)
+    _ADD_WX_LIB_CONF.call(:USE_STOPWATCH)
+    _ADD_WX_LIB_CONF.call(:USE_CONFIG)
+    _ADD_WX_LIB_CONF_NODEF.call(:USE_CONFIG_NATIVE)
+    _ADD_WX_LIB_CONF.call(:USE_DIALUP_MANAGER)
+    _ADD_WX_LIB_CONF.call(:USE_DYNLIB_CLASS)
+    _ADD_WX_LIB_CONF.call(:USE_DYNAMIC_LOADER)
+    _ADD_WX_LIB_CONF.call(:USE_SOCKETS)
+    _ADD_WX_LIB_CONF.call(:USE_FILESYSTEM)
+    _ADD_WX_LIB_CONF.call(:USE_FS_ZIP)
+    _ADD_WX_LIB_CONF.call(:USE_FS_INET)
+    _ADD_WX_LIB_CONF.call(:USE_ZIPSTREAM)
+    _ADD_WX_LIB_CONF.call(:USE_ZLIB)
+    _ADD_WX_LIB_CONF.call(:USE_APPLE_IEEE)
+    _ADD_WX_LIB_CONF.call(:USE_JOYSTICK)
+    _ADD_WX_LIB_CONF.call(:USE_FONTMAP)
+    _ADD_WX_LIB_CONF.call(:USE_MIMETYPE)
+    _ADD_WX_LIB_CONF.call(:USE_PROTOCOL)
+    _ADD_WX_LIB_CONF.call(:USE_PROTOCOL_FILE)
+    _ADD_WX_LIB_CONF.call(:USE_PROTOCOL_FTP)
+    _ADD_WX_LIB_CONF.call(:USE_PROTOCOL_HTTP)
+    _ADD_WX_LIB_CONF.call(:USE_URL)
+    _ADD_WX_LIB_CONF_NODEF.call(:USE_URL_NATIVE)
+    _ADD_WX_LIB_CONF.call(:USE_REGEX)
+    _ADD_WX_LIB_CONF.call(:USE_SYSTEM_OPTIONS)
+    _ADD_WX_LIB_CONF.call(:USE_SOUND)
+    _ADD_WX_LIB_CONF_NODEF.call(:USE_XRC)
+    _ADD_WX_LIB_CONF.call(:USE_XML)
+
+    # Set them to use check box.
+    pg.set_property_attribute(pid, Wx::PG::PG_BOOL_USE_CHECKBOX, true, Wx::PG::PG_RECURSE)
   end
 
   def on_close_click(event) end
@@ -1448,8 +1633,35 @@ class FormMain < Wx::Frame
 
   def on_show_popup(event) end
 
-  def add_test_properties(pg) end
+  def add_test_properties(pg)
+    pg.append(MyColourProperty.new("CustomColourProperty", Wx::PG::PG_LABEL, Wx::GREEN))
+    pg.get_property("CustomColourProperty").set_auto_unspecified(true)
+    pg.set_property_editor("CustomColourProperty", Wx::PG::PG_EDITOR_COMBO_BOX)
+
+    pg.set_property_help_string("CustomColourProperty",
+                             "This is a MyColourProperty from the sample app. "+
+                               "It is built by subclassing wxColourProperty.")
+  end
 
   def run_tests(fullTest, interactive = false) end
 
+end
+
+Wx::App.run do
+  frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
+                           (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
+  frameSize.width = 500 if frameSize.width > 500
+
+  frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
+  frame.show(true)
+
+  #
+  # Parse command-line
+  if ARGV.size>0 && ARGV[0] == '--run-tests'
+    #
+    # Run tests
+    return false if (testResult = frame.run_tests(true))
+  end
+
+  true
 end
