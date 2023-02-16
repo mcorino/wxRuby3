@@ -8,7 +8,7 @@ class WxFontDataProperty < Wx::PG::FontProperty
   def initialize(label = Wx::PG::PG_LABEL, name = Wx::PG::PG_LABEL, value = Wx::FontData.new)
     super(label,name,value.get_initial_font)
 
-    font = self.value_data.font
+    font = self.value_.font
 
     value.set_chosen_font(font)
 
@@ -27,20 +27,20 @@ class WxFontDataProperty < Wx::PG::FontProperty
   end
 
   def on_set_value
-    if self.value_data.object?(Wx::FontData)
+    if self.value_.object?(Wx::FontData)
       # Set m_value to wxFont so that wxFontProperty methods will work
       # correctly.
-      @value_wxFontData = self.value_data
+      @value_wxFontData = self.value_
 
       fontData = @value_wxFontData.object
 
       font = fontData.get_chosen_font
       font = Wx::FontInfo(10).family(Wx::FONTFAMILY_SWISS) unless font.ok?
 
-      self.value_data = font
+      self.value_ = font
     else
-      if self.value_data.font?
-        font = self.value_data.font
+      if self.value_.font?
+        font = self.value_.font
         fontData = Wx::FontData.new
         fontData.set_chosen_font(font)
         unless @value_wxFontData.null?
@@ -193,7 +193,7 @@ class WxDirsProperty < Wx::PG::ArrayStringProperty
   def initialize(label = Wx::PG::PG_LABEL, name = Wx::PG::PG_LABEL, value = [])
     super
     self.set_attribute(Wx::PG::PG_ARRAY_DELIMITER, ',')
-    self.custom_btn_text = 'Browse'
+    self.custom_btn_text_ = 'Browse'
   end
 
   def do_get_editor_class
@@ -317,7 +317,7 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
   def initialize(label = Wx::PG::PG_LABEL, name = Wx::PG::PG_LABEL, value = [])
     super(label, name)
     @precision = -1
-    self.dlg_style = Wx::PG::AEDIALOG_STYLE
+    self.dlg_style_ = Wx::PG::AEDIALOG_STYLE
     @delimiter = ';'
     @display = ''
     self.value = value
