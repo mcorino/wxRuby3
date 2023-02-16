@@ -49,7 +49,7 @@ module WXRuby3
           # replace by extension
           spec.ignore 'wxPGChoices::operator[]', ignore_doc: false
           spec.add_extend_code 'wxPGChoices', <<~__HEREDOC
-            wxPGChoiceEntry __get__(unsigned int idx)
+            wxPGChoiceEntry __getitem__(unsigned int idx)
             {
               return (*self)[idx];
             }
@@ -59,6 +59,11 @@ module WXRuby3
           spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
           # not of use in Ruby
           spec.ignore(%w[wxPGProperty::GetClientObject wxPGProperty::SetClientObject])
+          # only keep the const version
+          spec.ignore 'wxPGProperty::GetCell'
+          spec.regard 'wxPGProperty::GetCell(unsigned int) const'
+          spec.rename_for_ruby 'GetCellOrDefault' => 'wxPGProperty::GetCell(unsigned int) const'
+          spec.rename_for_ruby 'get_cell' => 'wxPGProperty::GetOrCreateCell'
           # don't expose wxPGAttributeStorage; add a more Ruby-like extension
           spec.ignore 'wxPGProperty::GetAttributes'
           spec.add_extend_code 'wxPGProperty', <<~__HEREDOC
