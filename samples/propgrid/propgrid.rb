@@ -750,7 +750,7 @@ class FormMain < Wx::Frame
     # Set somewhat different unspecified value appearance
     cell = Wx::PG::PGCell.new
     cell.text = 'Unspecified'
-    cell.set_fg_col(Wx::Colour.new('LIGHTGREY'))
+    cell.set_fg_col(Wx::LIGHT_GREY)
     @propGrid.set_unspecified_value_appearance(cell)
 
     populate_grid
@@ -1052,17 +1052,17 @@ class FormMain < Wx::Frame
     # Test custom colours ([] operator of Wx::PG::PGChoices returns
     # references to Wx::PG::PGChoiceEntry).
     soc[1].set_fg_col(Wx::RED)
-    soc[1].set_bg_col(Wx::Colour.new('LIGHTGREY'))
+    soc[1].set_bg_col(Wx::LIGHT_GREY)
     soc[2].set_fg_col(Wx::GREEN)
-    soc[2].set_bg_col(Wx::Colour.new('LIGHTGREY'))
+    soc[2].set_bg_col(Wx::LIGHT_GREY)
     soc[3].set_fg_col(Wx::BLUE)
-    soc[3].set_bg_col(Wx::Colour.new('LIGHTGREY'))
+    soc[3].set_bg_col(Wx::LIGHT_GREY)
     soc[4].set_bitmap(Wx::ArtProvider.get_bitmap(Wx::ART_FOLDER))
 
     pg.append(Wx::PG::EnumProperty.new("EnumProperty 2",
                                    Wx::PG::PG_LABEL,
                                    soc,
-                                  240))
+                                   240))
     pg.get_property("EnumProperty 2").add_choice("Testing Extra", 360)
 
     # Here we only display the original 'soc' choices
