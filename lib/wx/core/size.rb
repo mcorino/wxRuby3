@@ -9,19 +9,19 @@ class Wx::Size
     unless other.kind_of?(Wx::Size)
       Kernel.raise TypeError, "Cannot compare Size to #{other}"
     end
-    get_x == other.get_x and get_y == other.get_y
+    width == other.width and height == other.height
   end
 
   # Return a new Wx::Size with the width and height values both divided
   # by parameter +div+, which should be a Numeric
   def /(div)
-    self.class.new( (get_x / div).to_i, (get_y / div).to_i )
+    self.class.new( (width / div).to_i, (height / div).to_i )
   end
 
   # Return a new Wx::Size with the width and height values both
   # multiplied by parameter +mul+, which should be a Numeric
   def *(mul)
-    self.class.new( (get_x * mul).to_i, (get_y * mul).to_i )
+    self.class.new( (width * mul).to_i, (height * mul).to_i )
   end
 
   # Return a new Wx::Size with the width and height parameters both
@@ -32,9 +32,9 @@ class Wx::Size
   def -(arg)
     case arg
     when self.class
-      self.class.new( get_x - arg.get_x, get_y - arg.get_y )
+      self.class.new( width - arg.width, height - arg.height )
     when Numeric
-      self.class.new( (get_x - arg).to_i, (get_y - arg).to_i )
+      self.class.new( (width - arg).to_i, (height - arg).to_i )
     else
       Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
     end
@@ -48,9 +48,9 @@ class Wx::Size
   def +(arg)
     case arg
     when self.class
-      self.class.new( get_x + arg.get_x, get_y + arg.get_y )
+      self.class.new( width + arg.width, height + arg.height )
     when Numeric
-      self.class.new( (get_x + arg).to_i, (get_y + arg).to_i )
+      self.class.new( (width + arg).to_i, (height + arg).to_i )
     else
       Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
     end
