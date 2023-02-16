@@ -98,11 +98,17 @@ module WXRuby3
               {
                 VALUE object = (VALUE)((wxPGProperty*)ptr)->GetClientData();
                 if (object && !NIL_P(object))
+                {
+            #ifdef __WXRB_TRACE__
+                  std::wcout << "*** marking property data " << ptr << std::endl;
+            #endif
                   rb_gc_mark(object);
+                }
               }
             }
             __HEREDOC
-          spec.ignore 'wxPGProperty::m_clientData' # not needed for wxRuby
+          spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
+          spec.ignore 'wxPGProperty::m_clientData' # not wanted for wxRuby
           # take protected members into account
           spec.regard 'wxPGProperty::wxPGProperty',
                       'wxPGProperty::ClearCells',
@@ -116,7 +122,6 @@ module WXRuby3
                                 'wxVariant m_value',
                                 visibility: 'protected'
           spec.rename_for_ruby 'value_' => 'wxPGProperty::m_value'
-          spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
           spec.ignore %w[wxPG_LABEL wxPG_NULL_BITMAP wxPG_COLOUR_BLACK wxPG_DEFAULT_IMAGE_SIZE]
           # define in Ruby
           spec.ignore %w[wxNullProperty wxPGChoicesEmptyData], ignore_doc: false

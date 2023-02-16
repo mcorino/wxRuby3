@@ -84,7 +84,7 @@ module WXRuby3
 
             // mark all properties
             wxPGVIterator it =
-                wx_pg->GetVIterator(wxPG_ITERATE_ALL);
+                wx_pg->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
             // iterate all
             for ( ; !it.AtEnd(); it.Next() )
             {
@@ -92,12 +92,14 @@ module WXRuby3
               VALUE rb_p = SWIG_RubyInstanceFor(p);
               if (NIL_P(rb_p))
               {
-          #ifdef __WXRB_TRACE__
-                std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
-          #endif
                 VALUE object = (VALUE) p->GetClientData();
                 if ( object && !NIL_P(object))
+                {
+          #ifdef __WXRB_TRACE__
+                  std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+          #endif
                   rb_gc_mark(object);
+                }
               }
               else
               {
