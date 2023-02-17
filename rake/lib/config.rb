@@ -425,7 +425,7 @@ module WXRuby3
           def _retrieve_features(wxwidgets_setup_h)
             features = {}
 
-            File.read(wxwidgets_setup_h).scan(/^#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
+            File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
               features[$1] = $2.to_i.zero? ? false : true
             end
 
