@@ -174,6 +174,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxXmlNode', requirements: %w[wxUSE_XML])
     Director.Spec(pkg, 'wxXmlResource', requirements: %w[wxUSE_XRC])
     Director.Spec(pkg, 'wxVariant', requirements: %w[wxUSE_VARIANT])
+    Director.Spec(pkg, 'wxPlatformInfo')
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
