@@ -500,9 +500,9 @@ class FormMain < Wx::Frame
     menuTools1.append(ID::SETBGCOLOURRECUR, 'Set Bg Colour (Recursively)')
     menuTools1.append(ID::UNSPECIFY, 'Set Value to Unspecified')
     menuTools1.append_separator
-    m_itemEnable = menuTools1.append(ID::ENABLE, 'Enable',
+    @itemEnable = menuTools1.append(ID::ENABLE, 'Enable',
                                       'Toggles item\'s enabled state.')
-    m_itemEnable.enable(false)
+    @itemEnable.enable(false)
     menuTools1.append(ID::HIDE, 'Hide', 'Hides a property')
     menuTools1.append(ID::SETREADONLY, 'Set as Read-Only',
                        'Set property as read-only')
@@ -520,7 +520,7 @@ class FormMain < Wx::Frame
     menuTools2.append(ID::SETPROPERTYVALUE, 'Set Property Value')
     menuTools2.append(ID::CLEARMODIF, 'Clear Modified Status', 'Clears Wx::PG::PG_MODIFIED flag from all properties.')
     menuTools2.append_separator
-    m_itemFreeze = menuTools2.append_check_item(ID::FREEZE, 'Freeze',
+    @itemFreeze = menuTools2.append_check_item(ID::FREEZE, 'Freeze',
                                                'Disables painting, auto-sorting, etc.')
     menuTools2.append_separator
     menuTools2.append(ID::DUMPLIST, 'Display Values as wxVariant List', 'Tests GetAllValues method and wxVariant conversion.')
@@ -542,7 +542,7 @@ class FormMain < Wx::Frame
     menuTools2.append(ID::REMOVEPAGE, 'Remove Page')
     menuTools2.append_separator
     menuTools2.append(ID::FITCOLUMNS, 'Fit Columns')
-    m_itemVetoDragging =
+    @itemVetoDragging =
       menuTools2.append_check_item(ID::VETOCOLDRAG,
                                   'Veto Column Dragging')
     menuTools2.append_separator
@@ -571,7 +571,7 @@ class FormMain < Wx::Frame
     menuTry.append_radio_item(ID::COLOURSCHEME3, '.NET Colour Scheme')
     menuTry.append_radio_item(ID::COLOURSCHEME4, 'Cream Colour Scheme')
     menuTry.append_separator
-    m_itemCatColours = menuTry.append_check_item(ID::CATCOLOURS, 'Category Specific Colours',
+    @itemCatColours = menuTry.append_check_item(ID::CATCOLOURS, 'Category Specific Colours',
                                                 'Switches between category-specific cell colours and default scheme (actually done using SetPropertyTextColour and SetPropertyBackgroundColour).')
     menuTry.append_separator
     menuTry.append_check_item(ID::STATICLAYOUT, 'Static Layout',
@@ -666,7 +666,74 @@ class FormMain < Wx::Frame
       @logWindow.show
     end
 
-    evt_menu ID::QUIT, :on_close_click
+=begin
+    evt_idle :on_idle
+    evt_move :on_move
+    evt_size :on_resize
+
+    # This occurs when a property is selected
+    evt_pg_selected ID::PGID, :on_property_grid_select
+    # This occurs when a property value changes
+    evt_pg_changed ID::PGID, :on_property_grid_change
+    # This occurs just prior a property value is changed
+    evt_pg_changing ID::PGID, :on_property_grid_changing
+    # This occurs when a mouse moves over another property
+    evt_pg_highlighted ID::PGID, :on_property_grid_highlight
+    # This occurs when mouse is right-clicked.
+    evt_pg_right_click ID::PGID, :on_property_grid_item_right_click
+    # This occurs when mouse is double-clicked.
+    evt_pg_double_click ID::PGID, :on_property_grid_item_double_click
+    # This occurs when propgridmanager's page changes.
+    evt_pg_page_changed ID::PGID, :on_property_grid_page_change
+    # This occurs when user starts editing a property label
+    evt_pg_label_edit_begin ID::PGID, :on_property_grid_label_edit_begin
+    # This occurs when user stops editing a property label
+    evt_pg_label_edit_ending ID::PGID, :on_property_grid_label_edit_ending
+    # This occurs when property's editor button (if any) is clicked.
+    evt_button ID::PGID, :on_property_grid_button_click
+
+    evt_pg_item_collapsed ID::PGID, :on_property_grid_item_collapse
+    evt_pg_item_expanded ID::PGID, :on_property_grid_item_expand
+
+    evt_pg_col_begin_drag ID::PGID, :on_property_grid_col_begin_drag
+    evt_pg_col_dragging ID::PGID, :on_property_grid_col_dragging
+    evt_pg_col_end_drag ID::PGID, :on_property_grid_col_end_drag
+
+    evt_text ID::PGID, :on_property_grid_text_update
+
+    #
+    # Rest of the events are not property grid specific
+    evt_key_down :on_property_grid_key_event
+    evt_key_up :on_property_grid_key_event
+=end
+
+    evt_menu ID::APPENDPROP, :on_append_prop_click
+    evt_menu ID::APPENDCAT, :on_append_cat_click
+    evt_menu ID::INSERTPROP, :on_insert_prop_click
+    evt_menu ID::INSERTCAT, :on_insert_cat_click
+    evt_menu ID::DELETE, :on_del_prop_click
+    evt_menu ID::DELETER, :on_del_prop_r_click
+    evt_menu ID::UNSPECIFY, :on_misc
+    evt_menu ID::DELETEALL, :on_clear_click
+    evt_menu ID::ENABLE, :on_enable_disable
+    evt_menu ID::SETREADONLY, :on_set_read_only
+    evt_menu ID::HIDE, :on_hide
+    evt_menu ID::BOOL_CHECKBOX, :on_bool_checkbox
+
+    evt_menu ID::ITERATE1, :on_iterate1_click
+    evt_menu ID::ITERATE2, :on_iterate2_click
+    evt_menu ID::ITERATE3, :on_iterate3_click
+    evt_menu ID::ITERATE4, :on_iterate4_click
+    evt_menu ID::ONEXTENDEDKEYNAV, :on_extended_key_nav
+    evt_menu ID::SETBGCOLOUR, :on_set_background_colour
+    evt_menu ID::SETBGCOLOURRECUR, :on_set_background_colour
+    evt_menu ID::CLEARMODIF, :on_clear_modify_status_click
+    evt_menu ID::FREEZE, :on_freeze_click
+    evt_menu ID::ENABLELABELEDITING, :on_enable_label_editing
+    if Wx.has_feature? :USE_HEADERCTRL
+      evt_menu ID::SHOWHEADER, :on_show_header
+    end
+    evt_menu ID::DUMPLIST, :on_dump_list
 
     evt_menu ID::COLOURSCHEME1, :on_colour_scheme
     evt_menu ID::COLOURSCHEME2, :on_colour_scheme
@@ -674,6 +741,53 @@ class FormMain < Wx::Frame
     evt_menu ID::COLOURSCHEME4, :on_colour_scheme
 
     evt_menu ID::ABOUT, :on_about
+    evt_menu ID::QUIT, :on_close_click
+
+    evt_menu ID::CATCOLOURS, :on_cat_colours
+    evt_menu ID::SETCOLUMNS, :on_set_columns
+    evt_menu ID::SETVIRTWIDTH, :on_set_virtual_width
+    evt_menu ID::SETPGDISABLED, :on_set_grid_disabled
+    evt_menu ID::TESTXRC, :on_test_xrc
+    evt_menu ID::ENABLECOMMONVALUES, :on_enable_common_values
+    evt_menu ID::SELECTSTYLE, :on_select_style
+
+    evt_menu ID::STATICLAYOUT, :on_misc
+    evt_menu ID::COLLAPSE, :on_misc
+    evt_menu ID::COLLAPSEALL, :on_misc
+
+    evt_menu ID::POPULATE1, :on_populate_click
+    evt_menu ID::POPULATE2, :on_populate_click
+
+    evt_menu ID::GETVALUES, :on_misc
+    evt_menu ID::SETVALUES, :on_misc
+    evt_menu ID::SETVALUES2, :on_misc
+
+    evt_menu ID::FITCOLUMNS, :on_fit_columns_click
+
+    evt_menu ID::CHANGEFLAGSITEMS, :on_change_flags_prop_items_click
+
+    evt_menu ID::RUNTESTFULL, :on_misc
+    evt_menu ID::RUNTESTPARTIAL, :on_misc
+
+    evt_menu ID::TESTINSERTCHOICE, :on_insert_choice
+    evt_menu ID::TESTDELETECHOICE, :on_delete_choice
+
+    evt_menu ID::INSERTPAGE, :on_insert_page
+    evt_menu ID::REMOVEPAGE, :on_remove_page
+
+    evt_menu ID::SAVESTATE, :on_save_state
+    evt_menu ID::RESTORESTATE, :on_restore_state
+
+    evt_menu ID::SETSPINCTRLEDITOR, :on_set_spin_ctrl_editor_click
+    evt_menu ID::TESTREPLACE, :on_test_replace_click
+    evt_menu ID::SETPROPERTYVALUE, :on_set_property_value
+
+    evt_menu ID::RUNMINIMAL, :on_run_minimal_click
+
+    evt_update_ui ID::CATCOLOURS, :on_cat_colours_update_ui
+
+    evt_context_menu :on_context_menu
+    evt_button ID::SHOWPOPUP, :on_show_popup
 
   end
 
@@ -1553,9 +1667,56 @@ class FormMain < Wx::Frame
 
   def on_dump_list(event) end
 
-  def on_cat_colours_update_ui(event) end
+  def on_cat_colours_update_ui(event)
+    # Prevent menu item from being checked
+    # if it is selected from improper page.
+    pg = @propGridManager.grid
+    @itemCatColours.enable(
+      !!(pg.get_property_by_name("Appearance") &&
+        pg.get_property_by_name("PositionCategory") &&
+        pg.get_property_by_name("Environment") &&
+        pg.get_property_by_name("More Examples"))
+    )
+  end
 
-  def on_cat_colours(event) end
+  def on_cat_colours(event)
+    pg = @propGridManager.grid
+    unless !!(pg.get_property_by_name("Appearance") &&
+              pg.get_property_by_name("PositionCategory") &&
+              pg.get_property_by_name("Environment") &&
+              pg.get_property_by_name("More Examples"))
+      Wx.message_box("First switch to 'Standard Items' page!")
+      return
+    end
+
+    @propGridManager.freeze
+
+    if event.checked?
+      # Set custom colours.
+      pg.set_property_text_colour("Appearance", Wx::Colour.new(255,0,0), Wx::PG::PG_DONT_RECURSE)
+      pg.set_property_background_colour("Appearance", Wx::Colour.new(255,255,183))
+      pg.set_property_text_colour("Appearance", Wx::Colour.new(255,0,183))
+      pg.set_property_text_colour("PositionCategory", Wx::Colour.new(0,255,0), Wx::PG::PG_DONT_RECURSE)
+      pg.set_property_background_colour("PositionCategory", Wx::Colour.new(255,226,190))
+      pg.set_property_text_colour("PositionCategory", Wx::Colour.new(255,0,190))
+      pg.set_property_text_colour("Environment", Wx::Colour.new(0,0,255), Wx::PG::PG_DONT_RECURSE)
+      pg.set_property_background_colour("Environment", Wx::Colour.new(208,240,175))
+      pg.set_property_text_colour("Environment", Wx::Colour.new(255,255,255))
+      pg.set_property_background_colour("More Examples", Wx::Colour.new(172,237,255))
+      pg.set_property_text_colour("More Examples", Wx::Colour.new(172,0,255))
+    else
+      # Revert to original.
+      pg.set_property_colours_to_default("Appearance")
+      pg.set_property_colours_to_default("Appearance", Wx::PG::PG_RECURSE)
+      pg.set_property_colours_to_default("PositionCategory")
+      pg.set_property_colours_to_default("PositionCategory", Wx::PG::PG_RECURSE)
+      pg.set_property_colours_to_default("Environment")
+      pg.set_property_colours_to_default("Environment", Wx::PG::PG_RECURSE)
+      pg.set_property_colours_to_default("More Examples", Wx::PG::PG_RECURSE)
+    end
+    @propGridManager.thaw
+    @propGridManager.refresh
+  end
 
   def on_set_columns(event) end
 
