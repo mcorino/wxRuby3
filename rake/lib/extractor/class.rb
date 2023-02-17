@@ -182,7 +182,7 @@ module WXRuby3
           @event = true
           if /Event macros(\s+for\s+events\s+emitted\s+by\s+this\s+class)?:/ =~ detailed_doc.text
             detailed_doc.xpath('.//listitem').each do |li|
-              if li.text =~ /(EVT_\w+)\s*\((.*)\)/
+              if li.text =~ /(EVT_\w+)\W*\((.*)\)/
                 evt_handler = $1
                 args = $2.split(',').collect {|a| a.strip }
                 # skip event macros with event type argument
