@@ -665,6 +665,16 @@ class FormMain < Wx::Frame
                             position.y)
       @logWindow.show
     end
+
+    evt_menu ID::QUIT, :on_close_click
+
+    evt_menu ID::COLOURSCHEME1, :on_colour_scheme
+    evt_menu ID::COLOURSCHEME2, :on_colour_scheme
+    evt_menu ID::COLOURSCHEME3, :on_colour_scheme
+    evt_menu ID::COLOURSCHEME4, :on_colour_scheme
+
+    evt_menu ID::ABOUT, :on_about
+
   end
 
   #
@@ -1461,11 +1471,49 @@ class FormMain < Wx::Frame
     pg.set_property_attribute(pid, Wx::PG::PG_BOOL_USE_CHECKBOX, true, Wx::PG::PG_RECURSE)
   end
 
-  def on_close_click(event) end
+  def on_close_click(event)
+    close(false)
+  end
 
-  def on_label_text_change(event) end
-
-  def on_colour_scheme(event) end
+  def on_colour_scheme(event)
+    id = event.id
+    if id == ID::COLOURSCHEME1
+      @propGridManager.grid.reset_colours
+    elsif id == ID::COLOURSCHEME2
+      # white
+      my_grey_1 = Wx::Colour.new(212,208,200)
+      my_grey_3 = Wx::Colour.new(113,111,100)
+      @propGridManager.freeze
+      @propGridManager.grid.set_margin_colour(Wx::WHITE)
+      @propGridManager.grid.set_caption_background_colour(Wx::WHITE)
+      @propGridManager.grid.set_cell_background_colour(Wx::WHITE)
+      @propGridManager.grid.set_cell_text_colour(my_grey_3)
+      @propGridManager.grid.set_line_colour(my_grey_1)
+      @propGridManager.thaw
+     elsif id == ID::COLOURSCHEME3
+       # .NET
+      my_grey_1 = Wx::Colour.new(212,208,200)
+      my_grey_2 = Wx::Colour.new(236,233,216)
+      @propGridManager.freeze
+      @propGridManager.grid.set_margin_colour(my_grey_1)
+      @propGridManager.grid.set_caption_background_colour(my_grey_1)
+      @propGridManager.grid.set_line_colour(my_grey_1)
+      @propGridManager.thaw
+    elsif id == ID::COLOURSCHEME4
+      # cream
+      my_grey_1 = Wx::Colour.new(212,208,200)
+      my_grey_2 = Wx::Colour.new(241,239,226)
+      my_grey_3 = Wx::Colour.new(113,111,100)
+       @propGridManager.freeze
+       @propGridManager.grid.set_margin_colour(Wx::WHITE)
+       @propGridManager.grid.set_caption_background_colour(Wx::WHITE)
+       @propGridManager.grid.set_cell_background_colour(my_grey_2)
+       @propGridManager.grid.set_cell_background_colour(my_grey_2)
+       @propGridManager.grid.set_cell_text_colour(my_grey_3)
+       @propGridManager.grid.set_line_colour(my_grey_1)
+       @propGridManager.thaw
+    end
+  end
 
   def on_insert_prop_click(event) end
 
@@ -1597,7 +1645,33 @@ class FormMain < Wx::Frame
 
   def on_property_grid_col_end_drag(event) end
 
-  def on_about(event) end
+  def on_about(event)
+    toolkit = "%s %i.%i.%i" % [Wx::PlatformInfo.get_port_id_name,
+                               Wx::PlatformInfo.get_toolkit_major_version,
+                               Wx::PlatformInfo.get_toolkit_minor_version,
+                               Wx::PlatformInfo.get_toolkit_micro_version]
+    msg = ("wxRuby PropertyGrid Sample" +
+    if Wx.has_feature? :USE_UNICODE
+      if Wx.has_feature?(:USE_UNICODE_UTF8) && Wx.has_feature?(:USE_UNICODE_UTF8)
+        " <utf-8>"
+      else
+        " <unicode>"
+      end
+    else
+      " <ansi>"
+    end +
+    if Wx::RB_DEBUG
+      " <debug>"
+    else
+      " <release>"
+    end +
+    "\n\n" +
+    "Programmed by %s\n\n" +
+    "Using wxRuby %s (%s; %s)\n\n") %
+      ["Martin Corino (C++ original by Jaakko Salli)", Wx::WXRUBY_VERSION, Wx::WXWIDGETS_VERSION_STRING, toolkit]
+
+    Wx.message_box(msg, "About", Wx::OK | Wx::ICON_INFORMATION, self)
+  end
 
   def on_move(event) end
 
