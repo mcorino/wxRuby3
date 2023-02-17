@@ -83,7 +83,6 @@ module WXRuby3
                 static ID c_call_id;
                 static bool c_init_done;
               
-            public:
                 static ID call_id ()
                 {
                   if (!c_init_done)
@@ -93,7 +92,19 @@ module WXRuby3
                   }
                   return c_call_id;
                 }
+
+                static VALUE rescue(VALUE, VALUE error)
+                { 
+                  return error;
+                }
   
+                static VALUE do_call_back(VALUE rb_cb_data)
+                {
+                  rb_funcall(rb_ary_entry(rb_cb_data, 0), call_id (), 1, rb_ary_entry(rb_cb_data, 1));
+                  return Qnil;
+                }
+
+            public:
                 wxRbCallback(VALUE func) 
                   : m_func(func) {}
                 wxRbCallback(const wxRbCallback &other) 
@@ -112,7 +123,20 @@ module WXRuby3
                   VALUE rb_event = wxRuby_WrapWxEventInRuby(&event);
             #endif
                   wxRbCallback *cb = (wxRbCallback *)event.m_callbackUserData;
-                  rb_funcall(cb->m_func, call_id (), 1, rb_event);
+                  VALUE rb_cb_args = rb_ary_new();
+                  rb_ary_push(rb_cb_args, cb->m_func);
+                  rb_ary_push(rb_cb_args, rb_event);
+                  VALUE err = rb_rescue2(VALUEFUNC(do_call_back), rb_cb_args, VALUEFUNC(rescue), Qnil, rb_eException, 0);
+                  if (!NIL_P(err))
+                  {
+                    VALUE msg = rb_funcall(err, rb_intern("message"), 0);
+                    VALUE err_name = rb_funcall(rb_funcall(err, rb_intern("class"), 0), rb_intern("name"), 0);
+                    VALUE bt = rb_funcall(err, rb_intern("backtrace"), 0);
+                    bt = rb_funcall(bt, rb_intern("join"), 1, rb_str_new2("\\n"));
+                    std::cout << std::endl
+                              << ' ' << StringValuePtr(err_name) << ": " << StringValuePtr(msg) << std::endl
+                              << StringValuePtr(bt) << std::endl;
+                  }
                 }
             
                 VALUE m_func;
