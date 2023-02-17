@@ -117,6 +117,36 @@ module WXRuby3
                     'wxLongStringProperty::DisplayEditorDialog',
                     'wxMultiChoiceProperty::DisplayEditorDialog',
                     'wxFontProperty::DisplayEditorDialog'
+        # for UIntProperty and IntProperty
+        if Config.instance.features_set?('wxUSE_LONGLONG')
+          # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
+          spec.map 'wxLongLong' => 'Integer' do
+            map_in code: <<~__CODE
+              wxLongLong_t ll = rb_big2ll($input);
+              $1 = ll;
+            __CODE
+            map_out code: <<~__CODE
+              $result = LL2NUM($1.GetValue());
+            __CODE
+            # only map to wxLongLong if size of long is less than 64bit and a bignum given otherwise leave it to long mapping
+            map_typecheck precedence: 10, code: '$1 = (sizeof(long) < 8) && (TYPE($input) == T_BIGNUM) && (rb_big_sign($input) == 0);'
+          end
+          # wxULongLong mapping to be considered after considering wxLongLong and 'long' (see typecheck precedence)
+          spec.map 'wxULongLong' => 'Integer' do
+            map_in code: <<~__CODE
+              wxULongLong_t ull = TYPE($input) == T_FIXNUM ? NUM2ULL($input) : rb_big2ull($input);
+              $1 = ull;
+            __CODE
+            map_out code: <<~__CODE
+              $result = ULL2NUM($1.GetValue());
+            __CODE
+            # only map to wxULongLong if integer specified
+            map_typecheck precedence: 69, code: '$1 = (TYPE($input) == T_FIXNUM || TYPE($input) == T_BIGNUM);'
+          end
+        else
+          spec.ignore 'wxUIntProperty::wxUIntProperty(const wxString &, const wxString &, const wxULongLong &)',
+                      'wxIntProperty::wxUIntProperty(const wxString &, const wxString &, const wxLongLong &)'
+        end
         spec.new_object 'wxArrayStringProperty::CreateEditorDialog'
         spec.suppress_warning(473, 'wxArrayStringProperty::CreateEditorDialog')
         # for wxArrayStringProperty::OnCustomStringEdit

@@ -36,6 +36,21 @@ module WXRuby3
         spec.extend_interface 'wxPropertyGridInterface',
                               'void SetPropertyValues(const wxVariantList &list, const wxPGPropArgCls& defaultCategory)',
                               'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory)'
+        # optionals
+        if Config.instance.features_set?('wxUSE_LONGLONG')
+          spec.set_only_for 'wxLongLong_t',
+                            'wxPropertyGridInterface::GetPropertyValueAsLongLong',
+                            'wxPropertyGridInterface::GetPropertyValueAsULongLong'
+        else
+          spec.ignore 'wxPropertyGridInterface::GetPropertyValueAsLongLong',
+                      'wxPropertyGridInterface::GetPropertyValueAsULongLong'
+        end
+        unless Config.instance.features_set?('wxUSE_DATETIME')
+          spec.ignore 'wxPropertyGridInterface::GetPropertyValueAsDateTime'
+        end
+        unless Config.instance.features_set?('wxUSE_VALIDATORS')
+          spec.ignore 'wxPropertyGridInterface::GetPropertyValidator'
+        end
         # fix incorrect XML documentation
         spec.ignore 'wxPropertyGridInterface::SetPropertyImage', ignore_doc: false # ignore non-const BitmapBundle arg decl
         # and add correct decl
