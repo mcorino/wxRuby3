@@ -304,6 +304,7 @@ module WXRuby3
           fsrc.puts '#define VALUEFUNC(f) ((VALUE (*)(ANYARGS)) f)'
           fsrc.puts
           if is_core?
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'funcall.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'enum.inc'))
             fsrc.puts
           end

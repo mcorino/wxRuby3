@@ -113,6 +113,8 @@ struct wxrb_flag
 #error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
 #endif
 
+WXRUBY_EXPORT VALUE wxRuby_Funcall(VALUE rcvr, ID func, int argc, ...);
+
 WXRUBY_EXPORT bool wxRuby_IsAppRunning();
 typedef void (*WXRBMarkFunction)();
 WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker);

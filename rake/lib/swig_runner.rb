@@ -212,6 +212,7 @@ module WXRuby3
               # director called method names
             when /rb_funcall\(swig_get_self.*rb_intern.*("[_a-zA-Z0-9]*")/
               name = $1
+              line['rb_funcall'] = 'wxRuby_Funcall'
               line[name] = '"%s"' % rb_method_name(name[1..-2])
               # defined alias methods (original method name)
             when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*")/
