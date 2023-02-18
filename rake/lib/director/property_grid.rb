@@ -104,9 +104,6 @@ module WXRuby3
               }
               else
               {
-          #ifdef __WXRB_TRACE__
-                std::wcout << "*** marking property " << p << ":" << p->GetName() << std::endl;
-          #endif
                 rb_gc_mark(rb_p);
               }
             }
