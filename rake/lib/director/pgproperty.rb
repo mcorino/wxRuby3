@@ -92,7 +92,9 @@ module WXRuby3
             extern void GC_mark_wxPGProperty(void* ptr)
             {
             #ifdef __WXRB_TRACE__
-              std::wcout << "> GC_mark_wxPGProperty : " << ptr << std::endl;
+              std::wcout << "> GC_mark_wxPGProperty : " << ptr;
+              if (ptr) std::wcout << " (" << ((wxPGProperty*)ptr)->GetName() << ')';
+              std::wcout << std::endl;
             #endif
               if (ptr)
               {
@@ -143,10 +145,17 @@ module WXRuby3
               VALUE r_class = Qnil;
               if ( class_name.Len() > 2 )
               {
-                wxCharBuffer wx_classname = class_name.mb_str();
-                VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
-                if (rb_const_defined(mWxPG, r_class_name))
-                  r_class = rb_const_get(mWxPG, r_class_name);
+                if (class_name == wxS("wxPGRootProperty"))
+                {
+                  r_class = ((swig_class*)SWIGTYPE_p_wxPGProperty->clientdata)->klass;
+                }
+                else
+                {
+                  wxCharBuffer wx_classname = class_name.mb_str();
+                  VALUE r_class_name = rb_intern(wx_classname.data () + 2); // wxRuby class name (minus 'wx')
+                  if (rb_const_defined(mWxPG, r_class_name))
+                    r_class = rb_const_get(mWxPG, r_class_name);
+                }
               }
 
               // If we cannot find the class output a warning and return nil
