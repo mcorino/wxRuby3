@@ -10,6 +10,9 @@ class Wx::Dialog
           dlg = #{klass.name}.new(*args)
           begin
             block.call(dlg) if block_given?
+          rescue Exception
+            Wx.log_debug "\#{$!}\\n\#{$!.backtrace.join("\\n")}"
+            raise
           ensure
             dlg.destroy
           end
