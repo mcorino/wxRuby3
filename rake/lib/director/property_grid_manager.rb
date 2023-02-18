@@ -40,33 +40,42 @@ module WXRuby3
             
             wxPropertyGridManager* wx_pg = (wxPropertyGridManager*) ptr;
 
-            // mark all properties
-            wxPGVIterator it =
-                wx_pg->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
-            // iterate all
-            for ( ; !it.AtEnd(); it.Next() )
-            {
-              wxPGProperty* p = it.GetProperty();
-              VALUE rb_p = SWIG_RubyInstanceFor(p);
-              if (NIL_P(rb_p))
-              {
-                VALUE object = (VALUE) p->GetClientData();
-                if ( object && !NIL_P(object))
-                {
+            // mark all properties of all pages
           #ifdef __WXRB_TRACE__
-                  std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+            long l = 0;
           #endif
-                  rb_gc_mark(object);
+            for (size_t i=0; i < wx_pg->GetPageCount() ;++i)
+            {
+              wxPGVIterator it =
+                  wx_pg->GetPage(i)->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
+              // iterate all
+              for ( ; !it.AtEnd(); it.Next() )
+              {
+          #ifdef __WXRB_TRACE__
+                ++l;
+          #endif
+                wxPGProperty* p = it.GetProperty();
+                VALUE rb_p = SWIG_RubyInstanceFor(p);
+                if (NIL_P(rb_p))
+                {
+                  VALUE object = (VALUE) p->GetClientData();
+                  if ( object && !NIL_P(object))
+                  {
+          #ifdef __WXRB_TRACE__
+                    std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+          #endif
+                    rb_gc_mark(object);
+                  }
+                }
+                else
+                {
+                  rb_gc_mark(rb_p);
                 }
               }
-              else
-              {
-          #ifdef __WXRB_TRACE__
-                std::wcout << "*** marking property " << p << ":" << p->GetName() << std::endl;
-          #endif
-                rb_gc_mark(rb_p);
-              }
             }
+          #ifdef __WXRB_TRACE__
+            std::wcout << "*** iterated " << l << " properties" << std::endl;
+          #endif
           }
         __HEREDOC
         spec.add_swig_code '%markfunc wxPropertyGridManager "GC_mark_wxPropertyGridManager";'
