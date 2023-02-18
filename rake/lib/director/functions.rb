@@ -36,7 +36,7 @@ module WXRuby3
             if ( wxLog::IsEnabled() )
               {
                 wxLogLevel lvl = static_cast<wxLogLevel> (NUM2INT(argv[0]));
-                VALUE log_msg = rb_f_sprintf(argc-1, &argv[1]);
+                VALUE log_msg = argc==2 ? argv[1] : rb_f_sprintf(argc-1, &argv[1]);
                 wxLog::OnLog( lvl,
                               wxString(StringValuePtr(log_msg), wxConvUTF8),
                               time(NULL) );
@@ -49,7 +49,7 @@ module WXRuby3
           {
             if ( wxLog::IsEnabled() )
               {
-                VALUE log_msg = rb_f_sprintf(argc, argv);
+                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
                 wxLog::OnLog( wxLOG_Info,
                               wxString(StringValuePtr(log_msg), wxConvUTF8),
                               time(NULL) );
@@ -62,7 +62,7 @@ module WXRuby3
           {
             if ( wxLog::IsEnabled() && wxLog::GetVerbose () )
               {
-                VALUE log_msg = rb_f_sprintf(argc, argv);
+                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
                 wxLog::OnLog( wxLOG_Info,
                               wxString(StringValuePtr(log_msg), wxConvUTF8),
                               time(NULL) );
@@ -75,7 +75,7 @@ module WXRuby3
           {
             if ( wxLog::IsEnabled() )
               {
-                VALUE log_msg = rb_f_sprintf(argc, argv);
+                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
                 wxLog::OnLog( wxLOG_Message,
                               wxString(StringValuePtr(log_msg), wxConvUTF8),
                               time(NULL) );
@@ -88,7 +88,7 @@ module WXRuby3
           {
             if ( wxLog::IsEnabled() )
               {
-                VALUE log_msg = rb_f_sprintf(argc, argv);
+                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
                 wxLog::OnLog( wxLOG_Warning,
                               wxString(StringValuePtr(log_msg), wxConvUTF8),
                               time(NULL) );
@@ -101,11 +101,22 @@ module WXRuby3
           {
             if ( wxLog::IsEnabled() )
               {
-                VALUE log_msg = rb_f_sprintf(argc, argv);
+                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
                 wxLog::OnLog( wxLOG_Error,
                               wxString(StringValuePtr(log_msg), wxConvUTF8),
                               time(NULL) );
               }
+            return Qnil;
+          }
+
+          // Log a debug message
+          static VALUE log_debug(int argc, VALUE *argv, VALUE self)
+          {
+            if (wxLog::IsLevelEnabled(wxLOG_Debug, wxASCII_STR(wxLOG_COMPONENT)))
+            {
+                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
+                wxLogDebug(wxString(StringValuePtr(log_msg), wxConvUTF8));
+            }
             return Qnil;
           }
           
@@ -264,6 +275,7 @@ module WXRuby3
           rb_define_module_function(mWxFunctions, "log_warning", VALUEFUNC(log_warning), -1);
           rb_define_module_function(mWxFunctions, "log_status", VALUEFUNC(log_status), -1);
           rb_define_module_function(mWxFunctions, "log_error", VALUEFUNC(log_error), -1);
+          rb_define_module_function(mWxFunctions, "log_debug", VALUEFUNC(log_debug), -1);
           rb_define_module_function(mWxFunctions, "get_app", VALUEFUNC(get_app), 0);
           rb_define_module_function(mWxFunctions, "xrcid", VALUEFUNC(xrcid), 1);
           rb_define_module_function(mWxFunctions, "ptr_addr", VALUEFUNC(cpp_ptr_addr), 1);

@@ -17,11 +17,4 @@ module Wx
     end
   end
 
-  def self.log_debug(_fmt, *_args)
-    if Wx.has_feature?(:USE_LOG_DEBUG) && Wx::Log.is_level_enabled(LogLevelValues::LOG_Debug, 'wx')
-      Wx.log_generic(LogLevelValues::LOG_Debug, _fmt, *_args)
-    end
-    nil
-  end
-
 end

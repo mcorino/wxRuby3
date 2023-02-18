@@ -58,6 +58,12 @@ module Wx
   # @return [nil]
   def self.log_verbose(fmt, *args) end
 
+  # Log a Wx debug message to the current Wx log output
+  # @param fmt  [String]  message (formatting) string
+  # @param args [Array<Object>] optional message arguments
+  # @return [nil]
+  def self.log_debug(fmt, *args) end
+
   # @!endgroup
 
   # @!group Other class methods
