@@ -214,7 +214,7 @@ class WxSingleChoiceDialogAdapter < Wx::PG::PGEditorDialogAdapter
 
 end # class WxSingleChoiceDialogAdapter
 
-class SingleChoiceProperty < Wx::PG::StringProperty
+class WxSingleChoiceProperty < Wx::PG::StringProperty
 
   def initialize(label, name = Wx::PG::PG_LABEL, value = '')
     super(label, name, value)
@@ -666,7 +666,6 @@ class FormMain < Wx::Frame
       @logWindow.show
     end
 
-=begin
     evt_idle :on_idle
     evt_move :on_move
     evt_size :on_resize
@@ -705,7 +704,6 @@ class FormMain < Wx::Frame
     # Rest of the events are not property grid specific
     evt_key_down :on_property_grid_key_event
     evt_key_up :on_property_grid_key_event
-=end
 
     evt_menu ID::APPENDPROP, :on_append_prop_click
     evt_menu ID::APPENDCAT, :on_append_cat_click
@@ -803,7 +801,7 @@ class FormMain < Wx::Frame
     if pg.get_property_by_label(base_label)
       while true
         count += 1
-        new_label = "%s%i" % [base_label,count]
+        new_label = "%s %i" % [base_label,count]
         break unless pg.get_property_by_label(new_label)
       end
     end
@@ -1419,8 +1417,7 @@ class FormMain < Wx::Frame
     pg.set_property_editor("MultipleButtons", @sampleMultiButtonEditor)
 
     # Test SingleChoiceProperty
-    pg.append(SingleChoiceProperty.new("SingleChoiceProperty"))
-
+    pg.append(WxSingleChoiceProperty.new("SingleChoiceProperty"))
 
     #
     # Test adding variable height bitmaps in Wx::PG::PGChoices
@@ -1629,29 +1626,135 @@ class FormMain < Wx::Frame
     end
   end
 
-  def on_insert_prop_click(event) end
+  def on_insert_prop_click(event)
+    if @propGridManager.grid.root.get_child_count == 0
+      Wx.message_box("No items to relate - first add some with Append.")
+      return
+    end
 
-  def on_append_prop_click(event) end
+    id = @propGridManager.grid.get_selection
+    unless id
+      Wx.message_box("First select a property - new one will be inserted right before that.")
+      return
+    end
 
-  def on_clear_click(event) end
+    propLabel = FormMain.generate_unique_property_label(@propGridManager, 'Property')
 
-  def on_append_cat_click(event) end
+    @propGridManager.insert(@propGridManager.get_property_parent(id),
+                            id.get_index_in_parent,
+                            Wx::PG::StringProperty.new(propLabel))
+  end
 
-  def on_insert_cat_click(event) end
+  def on_append_prop_click(event)
+    propLabel = FormMain.generate_unique_property_label(@propGridManager, 'Property')
 
-  def on_del_prop_click(event) end
+    @propGridManager.append(Wx::PG::StringProperty.new(propLabel))
 
-  def on_del_prop_r_click(event) end
+    @propGridManager.refresh
+  end
 
-  def on_context_menu(event) end
+  def on_clear_click(event)
+    @propGridManager.grid.clear
+  end
 
-  def on_enable_disable(event) end
+  def on_append_cat_click(event)
+    propLabel = FormMain.generate_unique_property_label(@propGridManager, 'Category')
 
-  def on_set_read_only(event) end
+    @propGridManager.append(Wx::PG::PropertyCategory.new(propLabel))
 
-  def on_hide(event) end
+    @propGridManager.refresh
+  end
 
-  def on_bool_checkbox(evt) end
+  def on_insert_cat_click(event)
+    if @propGridManager.grid.root.get_child_count == 0
+      Wx.message_box("No items to relate - first add some with Append.")
+      return
+    end
+
+    id = @propGridManager.grid.get_selection
+    unless id
+      Wx.message_box("First select a property - new one will be inserted right before that.")
+      return
+    end
+
+    propLabel = FormMain.generate_unique_property_label(@propGridManager, 'Category')
+
+    @propGridManager.insert(@propGridManager.get_property_parent(id),
+                            id.get_index_in_parent,
+                            Wx::PG::PropertyCategory.new(propLabel))
+  end
+
+  def on_del_prop_click(event)
+    id = @propGridManager.grid.get_selection
+    unless id
+      Wx.message_box("First select a property.")
+      return
+    end
+
+    @propGridManager.delete_property(id)
+  end
+
+  def on_del_prop_r_click(event)
+    # Delete random property
+    p = @propGridManager.grid.root
+
+    while true
+      break if p.get_child_count == 0
+
+      n = rand(p.get_child_count)
+      p = p.item(n)
+
+      if !p.category?
+        label = p.get_label
+        @propGridManager.delete_property(p)
+        Wx.log_message("Property deleted: %s", label)
+        break
+      end
+    end
+  end
+
+  def on_context_menu(event)
+    Wx.log_debug("FormMain::OnContextMenu(%i,%i)",
+               event.get_position.x,event.get_position.y)
+  end
+
+  def on_enable_disable(event)
+    id = @propGridManager.grid.get_selection
+    unless id
+      Wx.message_box("First select a property.")
+      return
+    end
+
+    if @propGridManager.is_property_enabled(id)
+      @propGridManager.disable_property(id)
+      @itemEnable.set_item_label("Enable")
+    else
+      @propGridManager.enable_property(id)
+      @itemEnable.set_item_label("Disable")
+    end
+  end
+
+  def on_set_read_only(event)
+    id = @propGridManager.grid.get_selection
+    unless id
+      Wx.message_box("First select a property.")
+      return
+    end
+    @propGridManager.set_property_read_only(id)
+  end
+
+  def on_hide(event)
+    id = @propGridManager.grid.get_selection
+    unless id
+      Wx.message_box("First select a property.")
+      return
+    end
+    @propGridManager.hide_property(id, true)
+  end
+
+  def on_bool_checkbox(evt)
+    @propGridManager.set_property_attribute_all(Wx::PG::PG_BOOL_USE_CHECKBOX, evt.checked?)
+  end
 
   def on_set_background_colour(event) end
 
@@ -1776,7 +1879,29 @@ class FormMain < Wx::Frame
 
   def on_property_grid_changing(event) end
 
-  def on_property_grid_select(event) end
+  def on_property_grid_select(event)
+    property = event.property
+    if property
+      @itemEnable.enable(true)
+      if property.enabled?
+        @itemEnable.set_item_label("Disable")
+      else
+        @itemEnable.set_item_label("Enable")
+      end
+    else
+      @itemEnable.enable(false)
+    end
+
+    if Wx.has_feature? :USE_STATUSBAR
+      prop = event.property
+      sb = self.status_bar
+      if prop
+        text = "Selected: "
+        text << @propGridManager.get_property_label(prop)
+        sb.set_status_text(text)
+      end
+    end
+  end
 
   def on_property_grid_highlight(event) end
 
@@ -1834,15 +1959,63 @@ class FormMain < Wx::Frame
     Wx.message_box(msg, "About", Wx::OK | Wx::ICON_INFORMATION, self)
   end
 
-  def on_move(event) end
+  def on_move(event)
+    unless @propGridManager
+      # this check is here so the frame layout can be tested
+      # without creating propertygrid
+      event.skip
+      return
+    end
 
-  def on_resize(event) end
+    # Update position properties
+    pos = get_position
 
-  def on_paint(event) end
+    # Must check if properties exist (as they may be deleted).
 
-  def on_close_event(event) end
+    # Using m_pPropGridManager, we can scan all pages automatically.
+    id = @propGridManager.get_property_by_name("X")
+    @propGridManager.set_property_value(id, pos.x) if id
 
-  def on_idle(event) end
+    id = @propGridManager.get_property_by_name("Y")
+    @propGridManager.set_property_value( id, pos.y) if id
+
+    id = @propGridManager.get_property_by_name("Position")
+    @propGridManager.set_property_value(id, pos) if id
+
+    # Should always call event.skip in frame's MoveEvent handler
+    event.skip
+  end
+
+  def on_resize(event)
+    unless @propGridManager
+      # this check is here so the frame layout can be tested
+      # without creating propertygrid
+      event.skip
+      return
+    end
+
+    # Update size properties
+    sz = get_size
+
+    # Must check if properties exist (as they may be deleted).
+
+    # Using m_pPropGridManager, we can scan all pages automatically.
+    p = @propGridManager.get_property_by_name("Width")
+    @propGridManager.set_property_value(p, sz.width) if p && !p.is_value_unspecified
+
+    p = @propGridManager.get_property_by_name("Height")
+    @propGridManager.set_property_value(p, sz.height) if p && !p.is_value_unspecified
+
+    id = @propGridManager.get_property_by_name("Size")
+    @propGridManager.set_property_value(id, sz) if id
+
+    # Should always call event.skip in frame's SizeEvent handler
+    event.skip
+  end
+
+  def on_idle(event)
+    event.skip
+  end
 
   def on_show_popup(event) end
 
@@ -1864,6 +2037,8 @@ Wx::App.run do
   frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
                            (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
   frameSize.width = 500 if frameSize.width > 500
+
+  self.gc_stress
 
   frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
   frame.show(true)
