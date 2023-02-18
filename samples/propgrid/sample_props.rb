@@ -235,7 +235,6 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
     end
 
     def create(parent, message, caption, style = Wx::PG::AEDIALOG_STYLE, pos = Wx::DEFAULT_POSITION, sz = Wx::DEFAULT_SIZE)
-      @array = array
       super(parent,message,caption,style,pos,sz)
     end
 
@@ -346,7 +345,8 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
 
   protected def display_editor_dialog(pg, value)
     unless value.object?(::Array) && value.object.all? { |e| ::Float === e }
-      raise 'Function called for incompatible property'
+      Wx.log_debug 'display_editor_dialog : Function called for incompatible property'
+      return false
     end
 
     WxArrayDoubleProperty.EditorDialog() do |dlg|
@@ -354,8 +354,8 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
       dlg.precision = @precision
       dlg.create(pg.panel,
                  '',
-                 self.dlg_title.empty? ? self.label : self.dlg_title,
-                 self.dlg_style)
+                 self.dlg_title_.empty? ? self.label : self.dlg_title_,
+                 self.dlg_style_)
       dlg.move(pg.get_good_editor_dialog_position(self, dlg.size))
 
       # Execute editor dialog
