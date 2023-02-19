@@ -68,6 +68,7 @@ module WXRuby3
             xref_tbl[constnm] = constspec.merge({'mod' => mods.join('::') })
           end
         end
+        File.open('constants_xrefs.json', "w") { |f| f << JSON.pretty_generate(xref_tbl) } if Rake.application.options.trace
         xref_tbl
       end
 
@@ -563,7 +564,7 @@ module WXRuby3
     end
 
     def gen_constants_doc(fdoc)
-      xref_table = DocGenerator.constants_xref_db
+      xref_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
       def_items.select {|itm| !itm.docs_ignored }.each do |item|
         case item
         when Extractor::GlobalVarDef
@@ -575,17 +576,17 @@ module WXRuby3
           end
         when Extractor::EnumDef
           unless no_gen?(:enums)
-            unless item.is_type
+            if item.is_type
+              enum_name = rb_wx_name(item.name)
+              if xref_table.has_key?(enum_name)
+                gen_enum_doc(fdoc, enum_name, item, xref_table[enum_name] || {})
+              end
+            else
               item.items.each do |e|
                 const_name = rb_constant_name(e.name)
                 if xref_table.has_key?(const_name)
                   gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(e))
                 end
-              end
-            else
-              enum_name = rb_wx_name(item.name)
-              if xref_table.has_key?(enum_name)
-                gen_enum_doc(fdoc, enum_name, item, xref_table[enum_name]['table'] || {})
               end
             end
           end
@@ -700,6 +701,7 @@ module WXRuby3
     end
 
     def gen_class_doc(fdoc)
+      const_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
       def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || template_as_class?(item.name)
           @xml_trans.for_class(item) do
@@ -709,7 +711,7 @@ module WXRuby3
                                 item.name
                               end
             clsnm = rb_wx_name(intf_class_name)
-            xref_table = (DocGenerator.constants_xref_db[clsnm] || {})['table']
+            xref_table = const_table[clsnm] || {}
             fdoc.doc.puts get_class_doc(item)
             if is_mixin?(item)
               fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
