@@ -112,6 +112,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxColourPickerEvent', director: Director::Event, requirements: %w[wxUSE_COLOURPICKERCTRL wxUSE_COLOURDLG])
     Director.Spec(pkg, 'wxColourPickerCtrl', requirements: %w[wxUSE_COLOURPICKERCTRL wxUSE_COLOURDLG])
     Director.Spec(pkg, 'wxTextEntryDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxNumberEntryDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxSingleChoiceDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxMultiChoiceDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxTipProvider')
