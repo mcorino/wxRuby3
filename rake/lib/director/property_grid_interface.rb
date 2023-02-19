@@ -32,10 +32,9 @@ module WXRuby3
         spec.regard 'wxPropertyGridInterface::SetPropertyValue(wxPGPropArg, wxVariant)'
         # SWIG chokes on the specified 'defaultCategory' default arg
         spec.ignore 'wxPropertyGridInterface::SetPropertyValues', ignore_doc: false
-        # so redeclare in way SWIG can process (type map takes care of the defaults)
+        # so redeclare in way SWIG can process (type map takes care of the defaults; no need for wxVariantList overload)
         spec.extend_interface 'wxPropertyGridInterface',
-                              'void SetPropertyValues(const wxVariantList &list, const wxPGPropArgCls& defaultCategory)',
-                              'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory)'
+                              'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory = 0)'
         # optionals
         if Config.instance.features_set?('wxUSE_LONGLONG')
           spec.set_only_for 'wxLongLong_t',
