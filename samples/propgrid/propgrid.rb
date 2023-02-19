@@ -1756,13 +1756,46 @@ class FormMain < Wx::Frame
     @propGridManager.set_property_attribute_all(Wx::PG::PG_BOOL_USE_CHECKBOX, evt.checked?)
   end
 
-  def on_set_background_colour(event) end
+  def on_set_background_colour(event)
+    pg = @propGridManager.grid
+    prop = pg.get_selection
+    unless prop
+      Wx.message_box("First select a property.")
+      return
+    end
 
-  def on_clear_modify_status_click(event) end
+    col = Wx.get_colour_from_user(self, Wx::WHITE, "Choose colour")
 
-  def on_freeze_click(event) end
+    if col.ok?
+      flags = (event.id==ID::SETBGCOLOURRECUR) ? Wx::PG::PG_RECURSE : 0
+      pg.set_property_background_colour(prop, col, flags)
+    end
+  end
 
-  def on_enable_label_editing(event) end
+  def on_clear_modify_status_click(event)
+    @propGridManager.clear_modified_status
+    @propGridManager.refresh
+  end
+
+  def on_freeze_click(event)
+    return unless @propGridManager
+
+    if event.checked?
+      unless @propGridManager.is_frozen
+        @propGridManager.freeze
+      end
+    else
+      if @propGridManager.frozen?
+        @propGridManager.thaw
+        @propGridManager.refresh
+      end
+    end
+  end
+
+  def on_enable_label_editing(event)
+    @labelEditingEnabled = event.checked?
+    @propGrid.make_column_editable(0, @labelEditingEnabled)
+  end
 
   if Wx.has_feature?(:USE_HEADERCTRL)
     def on_show_header(event) end
