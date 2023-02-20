@@ -222,7 +222,8 @@ module WXRuby3
             // wxEntry calls the C++ App::OnInit method
             int main_loop()
             {
-              rb_define_const(#{spec.package.module_variable}, "THE_APP", SWIG_RubyInstanceFor(this));
+              VALUE rb_app = SWIG_RubyInstanceFor(this);
+              rb_define_const(#{spec.package.module_variable}, "THE_APP", rb_app);
               this->Connect(wxEVT_DESTROY,
                     wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
           
@@ -254,6 +255,12 @@ module WXRuby3
           #ifdef __WXRB_DEBUG__
               std::wcout << "survived gc" << std::endl;
           #endif
+
+              VALUE exc = rb_iv_get(rb_app, "@exception");
+              if (!NIL_P(exc))
+              {
+                rb_exc_raise(exc);
+              }
               return 0;
             }
           
