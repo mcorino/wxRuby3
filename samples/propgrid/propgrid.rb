@@ -2106,19 +2106,89 @@ class FormMain < Wx::Frame
     replace_grid(style, extraStyle)
   end
 
-  def on_fit_columns_click(event) end
+  def on_fit_columns_click(event)
+    page = @propGridManager.get_current_page
 
-  def on_change_flags_prop_items_click(event) end
+    # Remove auto-centering
+    @propGridManager.set_window_style(@propGridManager.get_window_style & ~Wx::PG::PG_SPLITTER_AUTO_CENTER)
 
-  def on_save_to_file_click(event) end
+    # Grow manager size just prior fit - otherwise
+    # column information may be lost.
+    oldGridSize = @propGridManager.grid.get_client_size
+    oldFullSize = self.size
+    self.size = ([1000, oldFullSize.height])
 
-  def on_load_from_file_click(event) end
+    newSz = page.fit_columns
 
-  def on_set_property_value(event) end
+    dx = oldFullSize.width - oldGridSize.width;
+    dy = oldFullSize.height - oldGridSize.height;
 
-  def on_insert_choice(event) end
+    newSz.inc_by(dx, dy)
 
-  def on_delete_choice(event) end
+    self.size = newSz
+  end
+
+  def on_change_flags_prop_items_click(event)
+    p = @propGridManager.get_property_by_name("Window Styles")
+
+    newChoices = Wx::PG::PGChoices.new
+    newChoices.add("Fast",0x1)
+    newChoices.add("Powerful",0x2)
+    newChoices.add("Safe",0x4)
+    newChoices.add("Sleek",0x8)
+
+    p.set_choices(newChoices)
+  end
+
+  # def on_save_to_file_click(event) end
+
+  # def on_load_from_file_click(event) end
+
+  def on_set_property_value(event)
+    pg = @propGridManager.grid
+    selected = pg.selection
+
+    if selected
+      value = Wx.get_text_from_user("Enter new value:")
+      pg.set_property_value(selected, value)
+    end
+  end
+
+  def on_insert_choice(event)
+    pg = @propGridManager.grid
+    selected = pg.selection
+
+    if selected
+      choices = selected.choices
+
+      if choices.ok?
+        # Insert new choice to the center of list
+        pos = choices.count / 2
+        selected.insert_choice("New Choice", pos)
+        return
+      end
+    end
+
+    Wx.message_box("First select a property with some choices.")
+  end
+
+  def on_delete_choice(event)
+    pg = @propGridManager.grid
+    selected = pg.selection
+
+    if selected
+      choices = selected.choices
+
+      if choices.ok?
+        # Deletes choice from the center of list
+        pos = choices.count / 2
+        selected.delete_choice(pos)
+        return
+      end
+    end
+
+    Wx.message_box("First select a property with some choices.")
+  end
 
   def on_insert_page(event) end
 
