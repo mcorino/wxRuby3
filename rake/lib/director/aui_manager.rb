@@ -14,6 +14,20 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object
+        # need a custom implementation to handle event handler proc cleanup
+        spec.add_header_code <<~__HEREDOC
+          class WXRubyAuiManager : public wxAuiManager
+          {
+          public:
+            WXRubyAuiManager(wxWindow *managed_wnd=NULL, unsigned int flags=wxAUI_MGR_DEFAULT) 
+              : wxAuiManager(managed_wnd, flags) {}
+            virtual ~WXRubyAuiManager() 
+            {
+              wxRuby_ReleaseEvtHandlerProcs(this);
+            }               
+          };
+        __HEREDOC
+        spec.use_class_implementation 'wxAuiManager', 'WXRubyAuiManager'
         spec.map_apply('SWIGTYPE *DISOWN' => 'wxAuiDockArt* art_provider')
         # Any set AuiDockArt ruby object must be protected from GC once set,
         # even if it is no longer referenced anywhere else.

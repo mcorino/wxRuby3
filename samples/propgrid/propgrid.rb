@@ -496,6 +496,9 @@ class FormMain < Wx::Frame
     menuTools1.append(ID::DELETER, 'Delete Random')
     menuTools1.append(ID::DELETEALL, 'Delete All')
     menuTools1.append_separator
+    menuTools1.append(ID::POPULATE1, 'Populate with Standard Items')
+    menuTools1.append(ID::POPULATE2, 'Populate with Library Configuration')
+    menuTools1.append_separator
     menuTools1.append(ID::SETBGCOLOUR, 'Set Bg Colour')
     menuTools1.append(ID::SETBGCOLOURRECUR, 'Set Bg Colour (Recursively)')
     menuTools1.append(ID::UNSPECIFY, 'Set Value to Unspecified')
@@ -1798,10 +1801,61 @@ class FormMain < Wx::Frame
   end
 
   if Wx.has_feature?(:USE_HEADERCTRL)
-    def on_show_header(event) end
+    def on_show_header(event)
+      @hasHeader = event.checked?
+      @propGridManager.show_header(@hasHeader)
+      if @hasHeader
+        @propGridManager.set_column_title(2, "Units")
+      end
+    end
   end
 
-  def on_dump_list(event) end
+  def on_dump_list(event)
+    values = @propGridManager.get_property_values("list", nil, Wx::PG::PG_INC_ATTRIBUTES)
+    text = "This only tests that wxVariant related routines do not crash.\n"
+
+    Wx.Dialog(self, Wx::ID_ANY,"wxVariant Test",
+              Wx::DEFAULT_POSITION,Wx::DEFAULT_SIZE,Wx::DEFAULT_DIALOG_STYLE|Wx::RESIZE_BORDER) do |dlg|
+      values.get_count.times do |i|
+        v = values[i]
+
+        strValue = v.to_s
+
+        if v.name.end_with?("@attr")
+          text << "Attributes:\n"
+
+          v.count.times do |n|
+            a = v[n]
+
+            t = "  attribute %i: name=\"%s\"  (type=\"%s\"  value=\"%s\")\n" % [n , a.name, a.type, a.to_s]
+            text << t
+          end
+        else
+          t = "%i: name=\"%s\"  type=\"%s\"  value=\"%s\"\n" % [i, v.name, v.type, strValue]
+          text << t
+        end
+      end
+
+      # multi-line text editor dialog
+      spacing = 8;
+      topsizer = Wx::BoxSizer.new(Wx::VERTICAL)
+      rowsizer = Wx::BoxSizer.new(Wx::HORIZONTAL)
+      ed = Wx::TextCtrl.new(dlg, Wx::ID_ANY, text, style: Wx::TE_MULTILINE|Wx::TE_READONLY)
+      rowsizer.add(ed, Wx::SizerFlags.new(1).expand.border(Wx::ALL, spacing))
+      topsizer.add(rowsizer, Wx::SizerFlags.new(1).expand)
+      rowsizer = Wx::BoxSizer.new(Wx::HORIZONTAL)
+      rowsizer.add(Wx::Button.new(dlg, Wx::ID_OK, "Ok"),
+                   Wx::SizerFlags.new.centre_horizontal.centre_vertical.border(Wx::Direction::BOTTOM|Wx::LEFT|Wx::RIGHT, spacing))
+      topsizer.add(rowsizer, Wx::SizerFlags.new.right)
+
+      dlg.set_sizer(topsizer)
+      topsizer.set_size_hints(dlg)
+
+      dlg.set_size([400,300])
+      dlg.centre
+      dlg.show_modal
+    end
+  end
 
   def on_cat_colours_update_ui(event)
     # Prevent menu item from being checked
@@ -1854,25 +1908,203 @@ class FormMain < Wx::Frame
     @propGridManager.refresh
   end
 
-  def on_set_columns(event) end
+  def on_set_columns(event)
+    colCount = Wx::get_number_from_user("Enter number of columns (2-20).","Columns:",
+                                          "Change Columns", @propGridManager.get_column_count,
+                                          2,20)
 
-  def on_set_virtual_width(evt) end
+    if colCount != @propGridManager.column_count
+      @propGridManager.set_column_count(colCount)
+    end
+  end
 
-  def on_set_grid_disabled(evt) end
+  def on_set_virtual_width(evt)
+    oldWidth = @propGridManager.current_page.get_virtual_width
+    newWidth = oldWidth
+    Wx.NumberEntryDialog(self, "Enter virtual width (-1-2000).", "Width:",
+                              "Change Virtual Width", oldWidth, -1, 2000) do |dlg|
+      newWidth = dlg.value if dlg.show_modal == Wx::ID_OK
+    end
+    if newWidth != oldWidth
+      @propGridManager.grid.set_virtual_width(newWidth)
+    end
+  end
 
-  def on_misc(event) end
+  def on_set_grid_disabled(evt)
+    @propGridManager.enable(!evt.is_checked)
+  end
 
-  def on_populate_click(event) end
+  def on_misc(event)
+    case event.id
+    when ID::STATICLAYOUT
+      wsf = @propGridManager.get_window_style_flag
+      if event.is_checked
+        @propGridManager.set_window_style_flag(wsf|Wx::PG::PG_STATIC_LAYOUT)
+      else
+        @propGridManager.set_window_style_flag(wsf&~(Wx::PG::PG_STATIC_LAYOUT))
+      end
+    when ID::COLLAPSEALL
+      pg = @propGridManager.grid
+      pg.each_property(Wx::PG::PG_ITERATE_ALL) { |p| p.set_expanded(false) }
+      pg.refresh_grid
+    when ID::GETVALUES
+      @storedValues = @propGridManager.grid.get_property_values("Test",
+                                                                @propGridManager.grid.root,
+                                                                Wx::PG::PG_KEEP_STRUCTURE|Wx::PG::PG_INC_ATTRIBUTES)
+    when ID::SETVALUES
+      if @storedValues && @storedValues.is_type("list")
+        @propGridManager.grid.set_property_values(@storedValues)
+      else
+        Wx.message_box("First use Get Property Values.")
+      end
+    when ID::SETVALUES2
+      list = Wx::Variant.new([ Wx::Variant.new(1234, "VariantLong"),
+                               Wx::Variant.new(true,"VariantBool") ])
+      list.append(Wx::Variant.new("Test Text", "VariantString"))
+      @propGridManager.grid.set_property_values(list)
+    when ID::COLLAPSE
+      # Collapses selected.
+      selProp = @propGridManager.selection
+      @propGridManager.collapse(selProp) if selProp
+    when ID::RUNTESTFULL
+      # Runs a regression test.
+      run_tests(true)
+    when ID::RUNTESTPARTIAL
+      # Runs a regression test.
+      run_tests(false)
+    when ID::UNSPECIFY
+      prop = @propGridManager.selection
+      if prop
+        @propGridManager.set_property_value_unspecified(prop)
+        prop.refresh_editor
+      end
+    end
+  end
 
-  def on_set_spin_ctrl_editor_click(event) end
+  def on_populate_click(event)
+    id = event.id
+    @propGrid.clear
+    @propGrid.freeze
+    if id == ID::POPULATE1
+      populate_with_standard_items
+    elsif id == ID::POPULATE2
+      populate_with_library_config
+    end
+    @propGrid.thaw
+  end
 
-  def on_test_replace_click(event) end
+  def on_set_spin_ctrl_editor_click(event)
+    if Wx.has_feature? :USE_SPINBTN
+      pgId = @propGridManager.get_selection
+      if pgId
+        @propGridManager.set_property_editor(pgId, Wx::PG::PG_EDITOR_SPIN_CTRL)
+      else
+        Wx.message_box("First select a property")
+      end
+    end
+  end
 
-  def on_test_xrc(event) end
+  def on_test_replace_click(event)
+    pgId = @propGridManager.selection
+    if pgId
+      choices = Wx::PG::PGChoices.new
+      choices.add("Flag 0", 0x0001)
+      choices.add("Flag 1", 0x0002)
+      choices.add("Flag 2", 0x0004)
+      choices.add("Flag 3", 0x0008)
+      maxVal = 0x000F
+      # Look for unused property name
+      propName = "ReplaceFlagsProperty"
+      idx = 0;
+      while @propGridManager.get_property_by_name(propName)
+          propName = "ReplaceFlagsProperty %i" % (idx += 1)
+      end
+      # Replace property and select new one
+      # with random value in range [1..maxVal]
+      propVal = Time.now.to_i % maxVal + 1
+      newId = @propGridManager.replace_property(pgId, Wx::FlagsProperty.new(propName, Wx::PG::PG_LABEL,
+                                                                            choices, propVal))
+      @propGridManager.set_property_attribute(newId, Wx::PG::PG_BOOL_USE_CHECKBOX,
+                                              true, Wx::PG::PG_RECURSE)
+      @propGridManager.select_property(newId)
+    else
+      Wx.message_box("First select a property")
+    end
+  end
 
-  def on_enable_common_values(event) end
+  def on_test_xrc(event)
+    Wx.message_box("Sorry, not yet implemented")
+  end
 
-  def on_select_style(event) end
+  def on_enable_common_values(event)
+    prop = @propGridManager.selection
+    if prop
+      prop.enable_common_value
+    else
+      Wx.message_box("First select a property")
+    end
+  end
+
+  def on_select_style(event)
+    extraStyle = style = 0
+    names, values = %w[
+      PG_HIDE_CATEGORIES
+      PG_AUTO_SORT
+      PG_BOLD_MODIFIED
+      PG_SPLITTER_AUTO_CENTER
+      PG_TOOLTIPS
+      PG_STATIC_SPLITTER
+      PG_HIDE_MARGIN
+      PG_LIMITED_EDITING
+      PG_TOOLBAR
+      PG_DESCRIPTION
+      PG_NO_INTERNAL_BORDER
+    ].inject([[],[]]) { |set, name| set[0] << "Wx::PG::#{name}"; set[1] << Wx::PG.const_get(name); set }
+    flags = @propGridManager.get_window_style
+    Wx.MultiChoiceDialog(self, "Select window styles to use",
+                             "wxPropertyGrid Window Style", names) do |dlg|
+      sel = []
+      values.each_with_index { |val, ix| sel << ix if (flags & val) == val }
+      dlg.set_selections(sel)
+      return if dlg.show_modal == Wx::ID_CANCEL
+
+      flags = 0
+      sel = dlg.selections
+      sel.each { |ix| flags |= values[ix] }
+      style = flags
+    end
+
+    names, values = %w[
+      PG_EX_INIT_NOCAT
+      PG_EX_NO_FLAT_TOOLBAR
+      PG_EX_MODE_BUTTONS
+      PG_EX_HELP_AS_TOOLTIPS
+      PG_EX_NATIVE_DOUBLE_BUFFERING
+      PG_EX_AUTO_UNSPECIFIED_VALUES
+      PG_EX_WRITEONLY_BUILTIN_ATTRIBUTES
+      PG_EX_HIDE_PAGE_BUTTONS
+      PG_EX_MULTIPLE_SELECTION
+      PG_EX_ENABLE_TLP_TRACKING
+      PG_EX_NO_TOOLBAR_DIVIDER
+      PG_EX_TOOLBAR_SEPARATOR
+      PG_EX_ALWAYS_ALLOW_FOCUS
+    ].inject([[],[]]) { |set, name| set[0] << "Wx::PG::#{name}"; set[1] << Wx::PG.const_get(name); set }
+    flags = @propGridManager.get_extra_style
+    Wx.MultiChoiceDialog(self, "Select extra window styles to use",
+                         "wxPropertyGrid Extra Style", names) do |dlg|
+      sel = []
+      values.each_with_index { |val, ix| sel << ix if (flags & val) == val }
+      dlg.set_selections(sel)
+      return if dlg.show_modal == Wx::ID_CANCEL
+
+      flags = 0
+      sel = dlg.selections
+      sel.each { |ix| flags |= values[ix] }
+      extraStyle = flags
+    end
+
+    replace_grid(style, extraStyle)
+  end
 
   def on_fit_columns_click(event) end
 

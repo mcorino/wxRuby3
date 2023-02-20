@@ -21,7 +21,10 @@ module WXRuby3
           {
           public:
             wxRubyValidator () : wxValidator () {}
-            virtual ~wxRubyValidator () {}
+            virtual ~wxRubyValidator ()
+            {
+              wxRuby_ReleaseEvtHandlerProcs(this);
+            }               
 
             // these two methods are noops in wxRuby (since we do not support C++ data transfer there) 
             // but we want them to always return true to prevent wxWidgets from complaining 

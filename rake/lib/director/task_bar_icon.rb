@@ -14,6 +14,19 @@ module WXRuby3
       def setup
         super
         spec.gc_never
+        # need a custom implementation to handle event handler proc cleanup
+        spec.add_header_code <<~__HEREDOC
+          class WXRubyTaskBarIcon : public wxTaskBarIcon
+          {
+          public:
+            WXRubyTaskBarIcon(wxTaskBarIconType iconType=wxTBI_DEFAULT_TYPE) : wxTaskBarIcon(iconType) {}
+            virtual ~WXRubyTaskBarIcon() 
+            {
+              wxRuby_ReleaseEvtHandlerProcs(this);
+            }               
+          };
+        __HEREDOC
+        spec.use_class_implementation 'wxTaskBarIcon', 'WXRubyTaskBarIcon'
         # this one is protected so ignored by default but we want it here
         # (we do not want GetPopupMenu available for override in Ruby)
         spec.regard %w[wxTaskBarIcon::CreatePopupMenu]

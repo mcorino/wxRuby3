@@ -21,6 +21,19 @@ module WXRuby3
         spec.override_inheritance_chain('wxPropertyGridPage', %w[wxEvtHandler wxObject])
         # no real use in exposing wxPropertyGridPageState currently
         spec.fold_bases 'wxPropertyGridPage' => 'wxPropertyGridPageState'
+        # need a custom implementation to handle event handler proc cleanup
+        spec.add_header_code <<~__HEREDOC
+          class WXRubyPropertyGridPage : public wxPropertyGridPage
+          {
+          public:
+            WXRubyPropertyGridPage() : wxPropertyGridPage() {}
+            virtual ~WXRubyPropertyGridPage() 
+            {
+              wxRuby_ReleaseEvtHandlerProcs(this);
+            }               
+          };
+          __HEREDOC
+        spec.use_class_implementation 'wxPropertyGridPage', 'WXRubyPropertyGridPage'
         spec.ignore 'wxPropertyGridPage::GetStatePtr'
         spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition'
         # mixin PropertyGridInterface

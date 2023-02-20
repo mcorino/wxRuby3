@@ -13,6 +13,22 @@ module WXRuby3
 
       def setup
         super
+        # need a custom implementation to handle event handler proc cleanup
+        spec.add_header_code <<~__HEREDOC
+          class WXRubyTextValidator : public wxTextValidator
+          {
+          public:
+            WXRubyTextValidator(const wxTextValidator& v) 
+              : wxTextValidator(v) {}
+            WXRubyTextValidator(long style=wxFILTER_NONE, wxString *valPtr=NULL) 
+              : wxTextValidator(style, valPtr) {}
+            virtual ~WXRubyTextValidator() 
+            {
+              wxRuby_ReleaseEvtHandlerProcs(this);
+            }               
+          };
+        __HEREDOC
+        spec.use_class_implementation 'wxTextValidator', 'WXRubyTextValidator'
         spec.no_proxy 'wxTextValidator::Clone'
         spec.new_object 'wxTextValidator::Clone'
         # handle clone mapping
