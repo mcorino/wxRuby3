@@ -58,10 +58,10 @@ module WXRuby3
         spec.ignore 'wxPropertyGridInterface::GetIterator', 'wxPropertyGridInterface::GetVIterator'
         # add basic property enumerator; will wrap this in pure Ruby still for improved argument handling
         spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
-          VALUE each_property(int flags, VALUE start, bool recurse)
+          VALUE each_property(int flags, VALUE start, bool reverse)
           {
             VALUE rc = Qnil;
-            if (NIL_P(start))
+            if (NIL_P(start) && !reverse)
             {
               // use faster forward-only iterating over all containers
               wxPGVIterator prop_it = self->GetVIterator(flags);
@@ -76,7 +76,11 @@ module WXRuby3
             else
             {
               wxPropertyGridIterator prop_it;
-              if (TYPE(start) == T_DATA)
+              if (NIL_P(start))
+              {
+                prop_it = self->GetIterator(flags, wxBOTTOM); // reverse -> start at end
+              }
+              else if (TYPE(start) == T_DATA)
               {
                 void* ptr;
                 int res = SWIG_ConvertPtr(start, &ptr,SWIGTYPE_p_wxPGProperty, 0);
@@ -89,7 +93,7 @@ module WXRuby3
                 wxPGProperty* pp = static_cast<wxPGProperty*> (ptr);
                 prop_it = self->GetIterator(flags, pp);
               }
-              else if (TYPE(start) == T_FIXNUM)
+              else if (TYPE(start) == T_FIXNUM || wxRuby_IsAnEnum(start))
               {
                 prop_it = self->GetIterator(flags, (int)NUM2INT(start));
               }
@@ -104,7 +108,7 @@ module WXRuby3
                 wxPGProperty* pp = prop_it.GetProperty();
                 VALUE rb_prop = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
                 rc = rb_yield(rb_prop);
-                prop_it.Next(recurse);
+                reverse ? prop_it.Prev() : prop_it.Next();
               }
             }
             return rc;
