@@ -184,11 +184,11 @@ module WXRuby3
       end
       fout.puts
       fout.puts "%runtime %{"
+      fout.puts "extern VALUE #{package.module_variable}; // The global package module"
+      fout.puts 'WXRUBY_EXPORT VALUE wxRuby_Core(); // returns the core package module'
       if runtime_code && !runtime_code.empty?
         fout.puts runtime_code
       end
-      fout.puts "extern VALUE #{package.module_variable}; // The global package module"
-      fout.puts 'WXRUBY_EXPORT VALUE wxRuby_Core(); // returns the core package module'
       fout.puts "%}"
     end
 
