@@ -131,13 +131,28 @@ class Wx::Variant
   # @return [true,false]
   def font?; end
 
+  # Returns font value.
+  # @return [Wx::Font]
+  def get_font; end
+  alias :font :get_font
+
   # Checks if Variant contains a Colour value (not null).
   # @return [true,false]
   def colour?; end
 
+  # Returns colour value.
+  # @return [Wx::Colour]
+  def get_colour; end
+  alias :colour :get_colour
+
   # Checks if Variant contains a ColourPropertyValue value (not null).
   # @return [true,false]
   def colour_property_value?; end
+
+  # Returns colour property value.
+  # @return [Wx::PG::ColourPropertyValue]
+  def get_colour_property_value; end
+  alias :colour_property_value :get_colour_property_value
 
   # Checks if Variant contains an unspecified Ruby object (not null or
   # nil and not one of the other value types).
