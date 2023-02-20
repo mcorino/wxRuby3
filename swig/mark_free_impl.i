@@ -35,10 +35,6 @@ WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)
 	  return true;
 }
 
-// See swig/classes/EvtHandler.i
-extern void wxRuby_ReleaseEvtHandlerProcs(void *);
-extern void wxRuby_DisconnectEvtHandlerProcs(void *);
-
 // Records when a wxWindow has been signalled as destroyed by a
 // WindowDestroyEvent, handled by wxRubyApp (see swig/classes/App.i).
 WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
