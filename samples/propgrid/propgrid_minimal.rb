@@ -76,10 +76,16 @@ class MyFrame < Wx::Frame
 
 end
 
-Wx::App.run do
-  self.app_name = 'Minimal PropertyGrid'
-  Wx::Log::set_active_target(Wx::LogStderr.new)
-  frame = MyFrame.new
-  gc_stress
+def display_minimal_frame(parent = nil)
+  frame = MyFrame.new(parent)
   frame.show
+end
+
+if __FILE__ == $0
+  Wx::App.run do
+    self.app_name = 'Minimal PropertyGrid'
+    Wx::Log::set_active_target(Wx::LogStderr.new)
+    gc_stress
+    display_minimal_frame
+  end
 end

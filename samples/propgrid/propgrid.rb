@@ -9,7 +9,7 @@ rescue LoadError
 end
 require 'wx'
 
-require_relative './sample_props'
+require_relative './propgrid_minimal'
 
 # -----------------------------------------------------------------------
 # WxSampleMultiButtonEditor
@@ -413,6 +413,125 @@ class WxPGKeyHandler < Wx::EvtHandler
   def on_key_event(event)
     Wx.message_box("%i" % event.get_key_code)
     event.skip
+  end
+
+end
+
+class PropertyGridPopup < Wx::PopupWindow
+
+  private def get_real_root(grid)
+    property = grid.root
+    property ? grid.get_first_child(property) : nil
+  end
+
+  private def get_column_widths(grid, root)
+    state = grid.get_state
+
+    width = [0,0,0]
+    minWidths = [ state.get_column_min_width(0),
+                  state.get_column_min_width(1),
+                  state.get_column_min_width(2) ]
+    root.child_count.times do |ii|
+      p = root.item(ii)
+
+      width[0] = [width[0], state.get_column_full_width(p, 0)].max
+      width[1] = [width[1], state.get_column_full_width(p, 1)].max
+      width[2] = [width[2], state.get_column_full_width(p, 2)].max
+    end
+    root.child_count.times do |ii|
+      p = root.item(ii)
+      if p.is_expanded
+        w = get_column_widths(grid, p)
+        width[0] = [width[0], w[0]].max
+        width[1] = [width[1], w[1]].max
+        width[2] = [width[2], w[2]].max
+      end
+    end
+
+    width[0] = [width[0], minWidths[0]].max
+    width[1] = [width[1], minWidths[1]].max
+    width[2] = [width[2], minWidths[2]].max
+    width
+  end
+
+  private def set_popup_min_size(grid)
+    p = get_real_root(grid)
+    first = grid.get_first(Wx::PG::PG_ITERATE_ALL)
+    last = grid.get_last_item(Wx::PG::PG_ITERATE_DEFAULT)
+    rect = grid.get_property_rect(first, last)
+    height = rect.height + 2 * grid.get_vertical_spacing
+
+    # add some height when the root item is collapsed,
+    # this is needed to prevent the vertical scroll from showing
+    unless grid.is_property_expanded(p)
+      height += 2 * grid.get_vertical_spacing
+    end
+
+    width = get_column_widths(grid, grid.root)
+    rect.width = width.sum
+
+    minWidth = (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X, grid.get_parent)*3)/2
+    minHeight = (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y, grid.get_parent)*3)/2
+
+    size = [[minWidth, rect.width + grid.get_margin_width].min, [minHeight, height].min]
+    grid.set_min_size(size)
+
+    proportions = [ (100.0*width[0]/size[0]).round,
+                    (100.0*width[1]/size[0]).round ]
+    proportions << [100 - proportions[0] - proportions[1], 0].max
+    grid.set_column_proportion(0, proportions[0])
+    grid.set_column_proportion(1, proportions[1])
+    grid.set_column_proportion(2, proportions[2])
+    grid.reset_column_sizes(true)
+  end
+
+  def initialize(parent)
+    super(parent, Wx::BORDER_NONE|Wx::WANTS_CHARS)
+    @panel = Wx::ScrolledWindow.new(self, Wx::ID_ANY, size: Wx::Size.new(200, 200))
+    @grid = Wx::PG::PropertyGrid.new(@panel, ID::POPUPGRID, size: [400,400], style: Wx::PG::PG_SPLITTER_AUTO_CENTER)
+    @grid.set_column_count(3)
+
+    prop = @grid.append(Wx::PG::StringProperty.new("test_name", Wx::PG::PG_LABEL, "test_value"))
+    @grid.set_property_attribute(prop, Wx::PG::PG_ATTR_UNITS, "type")
+    prop1 = @grid.append_in(prop, Wx::PG::StringProperty.new("sub_name1", Wx::PG::PG_LABEL, "sub_value1"))
+
+    @grid.append_in(prop1, Wx::PG::SystemColourProperty.new("Cell Colour", Wx::PG::PG_LABEL, @grid.grid.get_cell_background_colour))
+    prop2 = @grid.append_in(prop, Wx::PG::StringProperty.new("sub_name2", Wx::PG::PG_LABEL, "sub_value2"))
+    @grid.append_in(prop2, Wx::PG::StringProperty.new("sub_name21", Wx::PG::PG_LABEL, "sub_value21"))
+
+    arrdbl = [-1.0, -0.5, 0.0, 0.5, 1.0]
+    @grid.append_in(prop, WxArrayDoubleProperty.new("ArrayDoubleProperty", Wx::PG::PG_LABEL, arrdbl))
+    @grid.append_in(prop, Wx::PG::FontProperty.new("Font", Wx::PG::PG_LABEL))
+    @grid.append_in(prop2, Wx::PG::StringProperty.new("sub_name22", Wx::PG::PG_LABEL, "sub_value22"))
+    @grid.append_in(prop2, Wx::PG::StringProperty.new("sub_name23", Wx::PG::PG_LABEL, "sub_value23"))
+    prop2.set_expanded(false)
+
+    set_popup_min_size(@grid)
+
+    @sizer = Wx::BoxSizer.new(Wx::VERTICAL)
+    @sizer.add(@grid, Wx::SizerFlags.new(0).expand.border(Wx::ALL, 0))
+    @panel.set_auto_layout(true)
+    @panel.set_sizer(@sizer)
+    @sizer.fit(@panel)
+    @sizer.fit(self)
+  end
+
+  def on_collapse(event)
+    Wx.log_message("OnCollapse")
+    fit
+  end
+
+  def on_expand(event)
+    Wx.log_message("OnExpand")
+    fit
+  end
+
+  def fit
+    set_popup_min_size(@grid)
+    @sizer.fit(@panel)
+    pos = get_screen_position
+    size = @panel.get_screen_rect.size
+    set_size(pos.x, pos.y, size.width, size.height)
   end
 
 end
@@ -2190,29 +2309,138 @@ class FormMain < Wx::Frame
     Wx.message_box("First select a property with some choices.")
   end
 
-  def on_insert_page(event) end
+  def on_insert_page(event)
+    @propGridManager.add_page("New Page")
+  end
 
-  def on_remove_page(event) end
+  def on_remove_page(event)
+    @propGridManager.remove_page(@propGridManager.get_selected_page)
+  end
 
-  def on_save_state(event) end
+  def on_save_state(event)
+    @savedState = @propGridManager.save_editable_state
+    Wx.log_debug("Saved editable state string: \"%s\"", @savedState)
+  end
 
-  def on_restore_state(event) end
+  def on_restore_state(event)
+    @propGridManager.restore_editable_state(@savedState) if @savedState
+  end
 
-  def on_run_minimal_click(event) end
+  def on_run_minimal_click(event)
+    display_minimal_frame(self)
+  end
 
-  def on_iterate1_click(event) end
+  private def iterate_message(prop)
+    s = "\"%s\" class = %s, valuetype = %s" % [prop.label,  prop.class.name, prop.value_type]
 
-  def on_iterate2_click(event) end
+    Wx.message_box(s, "Iterating... (press CANCEL to end)", Wx::OK|Wx::CANCEL)
+  end
 
-  def on_iterate3_click(event) end
+  def on_iterate1_click(event)
+    @propGridManager.get_current_page.each_property do |p|
+      break if iterate_message(p) == Wx::CANCEL
+    end
+  end
 
-  def on_iterate4_click(event) end
+  def on_iterate2_click(event)
+    @propGridManager.get_current_page.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |p|
+      break if iterate_message(p) == Wx::CANCEL
+    end
+  end
 
-  def on_extended_key_nav(event) end
+  def on_iterate3_click(event)
+    @propGridManager.get_current_page.properties_reversed(Wx::PG::PG_ITERATE_DEFAULT).each do |p|
+      break if iterate_message(p) == Wx::CANCEL
+    end
+  end
 
-  def on_property_grid_change(event) end
+  def on_iterate4_click(event)
+    @propGridManager.get_current_page.each_property(Wx::PG::PG_ITERATE_CATEGORIES) do |p|
+      break if iterate_message(p) == Wx::CANCEL
+    end
+  end
 
-  def on_property_grid_changing(event) end
+  def on_extended_key_nav(event)
+    # Use AddActionTrigger() and DedicateKey() to set up Enter,
+    # Up, and Down keys for navigating between properties.
+    propGrid = @propGridManager.grid
+
+    propGrid.add_action_trigger(Wx::PG::PG_ACTION_NEXT_PROPERTY,
+                                Wx::K_RETURN)
+    propGrid.dedicate_key(Wx::K_RETURN)
+
+    # Up and Down keys are already associated with navigation,
+    # but we must also prevent them from being eaten by
+    # editor controls.
+    propGrid.dedicate_key(Wx::K_UP)
+    propGrid.dedicate_key(Wx::K_DOWN)
+  end
+
+  def on_property_grid_change(event)
+    property = event.property
+
+    name = property.name
+
+    # Properties store values internally as wxVariants, but it is preferred
+    # to use the more modern wxAny at the interface level in C++
+    # wxRuby however does not support wxAny and does not need to as Variants map
+    # pretty seamless to Ruby
+    value = property.value
+
+    # Don't handle 'unspecified' values
+    return if value.null?
+
+    # Some settings are disabled outside Windows platform
+    if name == "X"
+        set_size(value.to_i, -1, -1, -1, Wx::SIZE_USE_EXISTING)
+    elsif name == "Y"
+      set_size(-1, value.to_i, -1, -1, Wx::SIZE_USE_EXISTING)
+    elsif ( name == "Width" )
+      set_size(-1, -1, value.to_i, -1, Wx::SIZE_USE_EXISTING)
+    elsif name == "Height"
+      set_size( -1, -1, -1, value.to_i, Wx::SIZE_USE_EXISTING)
+    elsif name == "Label"
+      set_title(value.to_s)
+    elsif name == "Font"
+      font = value.font
+      unless font.ok?
+        Wx.message_box('Invalid font!')
+        return
+      end
+      @propGridManager.set_font(font)
+    elsif name == "Margin Colour"
+      cpv = value.colour_property_value
+      @propGridManager.grid.set_margin_colour(cpv.colour_)
+    elsif name == "Cell Colour"
+      cpv = value.colour_property_value
+      @propGridManager.grid.set_cell_background_colour(cpv.colour_)
+    elsif name == "Line Colour"
+      cpv = value.colour_property_value
+      @propGridManager.grid.set_line_colour(cpv.colour_)
+    elsif name == "Cell Text Colour"
+      cpv = value.colour_property_value
+      @propGridManager.grid.set_cell_text_colour(cpv.colour_)
+    end
+  end
+
+  def on_property_grid_changing(event)
+    p = event.property
+
+    if p.name == "Font"
+      res = Wx.message_box("'%s' is about to change (to variant of type '%s')\n\nAllow or deny?" %
+                                      [p.name, event.value.type],
+                     "Testing wxEVT_PG_CHANGING", Wx::YES_NO, @propGridManager)
+      if res == Wx::NO
+        Kernel.raise 'Must be able to Veto event' unless event.can_veto?
+
+        event.veto
+
+        # Since we ask a question, it is better if we omit any validation
+        # failure behaviour.
+        event.set_validation_failure_behavior(0)
+      end
+    end
+  end
 
   def on_property_grid_select(event)
     property = event.property
@@ -2238,33 +2466,104 @@ class FormMain < Wx::Frame
     end
   end
 
-  def on_property_grid_highlight(event) end
+  def on_property_grid_highlight(event)
+  end
 
-  def on_property_grid_item_right_click(event) end
+  def on_property_grid_item_right_click(event)
+    if Wx.has_feature? :USE_STATUSBAR
+      prop = event.property
+      sb = self.status_bar
+      if prop
+        text  = "Right-clicked: "
+        text << prop.label
+        text << ", name=";
+        text << @propGridManager.get_property_name(prop)
+        sb.set_status_text(text)
+      else
+        sb.set_status_text('')
+      end
+    end
+  end
 
-  def on_property_grid_item_double_click(event) end
+  def on_property_grid_item_double_click(event)
+    if Wx.has_feature? :USE_STATUSBAR
+      prop = event.property
+      sb = self.status_bar
+      if prop
+        text = "Double-clicked: "
+        text << prop.label
+        text << ", name="
+        text << @propGridManager.get_property_name(prop)
+        sb.set_status_text(text)
+      else
+        sb.set_status_text('')
+      end
+    end
+  end
 
-  def on_property_grid_page_change(event) end
+  def on_property_grid_page_change(event)
+    if Wx.has_feature? :USE_STATUSBAR
+      sb = self.status_bar
+      text = "Page Changed: "
+      text << @propGridManager.get_page_name(@propGridManager.get_selected_page)
+      sb.set_status_text(text)
+    end
+  end
 
-  def on_property_grid_button_click(event) end
+  def on_property_grid_button_click(event)
+    if Wx.has_feature? :USE_STATUSBAR
+      prop = @propGridManager.selection
+      sb = self.status_bar
+      if prop
+        text = "Button clicked: "
+        text << @propGridManager.get_property_label(prop)
+        text << ", name="
+        text << @propGridManager.get_property_name(prop)
+        sb.set_status_text(text)
+      else
+        Wx.message_box("SHOULD NOT HAPPEN!!!")
+      end
+    end
+  end
 
-  def on_property_grid_text_update(event) end
+  def on_property_grid_text_update(event)
+    event.skip
+  end
 
-  def on_property_grid_key_event(event) end
+  def on_property_grid_key_event(event)
+  end
 
-  def on_property_grid_item_collapse(event) end
+  def on_property_grid_item_collapse(event)
+    Wx.log_message("Item was Collapsed")
+  end
 
-  def on_property_grid_item_expand(event) end
+  def on_property_grid_item_expand(event)
+    Wx.log_message("Item was Expanded")
+  end
 
-  def on_property_grid_label_edit_begin(event) end
+  def on_property_grid_label_edit_begin(event)
+    Wx.log_message("PG_EVT_LABEL_EDIT_BEGIN(%s)", event.property.label)
+  end
 
-  def on_property_grid_label_edit_ending(event) end
+  def on_property_grid_label_edit_ending(event)
+    Wx.log_message("PG_EVT_LABEL_EDIT_ENDING(%s)", event.property.label)
+  end
 
-  def on_property_grid_col_begin_drag(event) end
+  def on_property_grid_col_begin_drag(event)
+    if @itemVetoDragging.is_checked
+      Wx.log_message("Splitter %i resize was vetoed", event.column)
+      event.veto
+    else
+      Wx.log_debug("Splitter %i resize began", event.column)
+    end
+  end
 
-  def on_property_grid_col_dragging(event) end
+  def on_property_grid_col_dragging(event)
+  end
 
-  def on_property_grid_col_end_drag(event) end
+  def on_property_grid_col_end_drag(event)
+    Wx.log_debug("Splitter %i resize ended", event.column)
+  end
 
   def on_about(event)
     toolkit = "%s %i.%i.%i" % [Wx::PlatformInfo.get_port_id_name,
@@ -2352,7 +2651,18 @@ class FormMain < Wx::Frame
     event.skip
   end
 
-  def on_show_popup(event) end
+  def on_show_popup(event)
+    if @popup
+      @popup.destroy
+      @popup = nil
+      return
+    end
+
+    @popup = PropertyGridPopup.new(self)
+    pt = Wx.get_mouse_position
+    @popup.position(pt, [0, 0])
+    @popup.show
+  end
 
   def add_test_properties(pg)
     pg.append(MyColourProperty.new("CustomColourProperty", Wx::PG::PG_LABEL, Wx::GREEN))
