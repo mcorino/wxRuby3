@@ -51,6 +51,14 @@ module Wx::PG
     def each_property_attribute; end
     alias :property_attributes :each_property_attribute
 
+    # Returns the current grid state.
+    # Depending on the actual grid object (Wx::PropertyGrid or Wx::PropertyGridManager)
+    # this will return either a Wx::PG::PropertyGridPageState instance or a
+    # Wx::PG::PropertyGridPage instance (current page of Wx::PropertyGridManager).
+    # Both provide the same interface (Ruby duck typing applies here).
+    # @return [Wx::PG::PropertyGridPage,Wx::PG::PropertyGridPageState]
+    def get_state; end
+    alias :state :get_state
   end
 
 end
