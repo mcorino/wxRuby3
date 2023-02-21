@@ -1,0 +1,50 @@
+MIT License
+
+Copyright (c) 2023 Martin Corino
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+============================================================================
+THE FOLLOWING IS NOT PART OF THE LICENSE, NOR IS IT LEGAL ADVICE!
+
+
+wxRuby3 and wxWidgets
+--------------------
+If you distribute (your) wxRuby3 (application) with a binary copy of wxWidgets,
+you are bound to the requirements of the copy of wxWidgets within. Fortunately,
+those requirements do not impose any serious restrictions.
+
+
+wxWidgets License Summary (from the wxWidgets README)
+-----------------------------------------------------
+In summary, the licence is LGPL plus a clause allowing unrestricted 
+distribution of application binaries. To answer a FAQ, you don't have to 
+distribute any source if you wish to write commercial applications using 
+wxWidgets.
+
+
+Required Credits and Attribution
+--------------------------------
+
+Generally, neither wxWidgets nor wxRuby3 require attribution, beyond
+retaining existing copyright notices. However, if you build your own 
+custom wxWidgets library, there may be portions that require specific 
+attributions or credits, such as TIFF or JPEG support. See the wxWidgets 
+README and license files for details.
