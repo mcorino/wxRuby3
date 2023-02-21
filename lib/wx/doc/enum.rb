@@ -3,6 +3,7 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+
 module Wx
 
   # Base class for typed enums.
