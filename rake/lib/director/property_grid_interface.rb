@@ -144,16 +144,73 @@ module WXRuby3
             }
             __CODE
         end
-        # add customized version of RefreshGrid which does not expose wxPropertyGridPageState
+        # GetState is missing from the XML docs but we want to add a customized version anyway
+        # to be able to return either a PropertyGridPage (for PropertyGridManager) or a PropertyGridPageState
+        # (for PropertyGrid).
         spec.include 'wx/propgrid/manager.h'
+        spec.add_header_code <<~__CODE
+          extern VALUE mWxPG; // declare external module reference
+          __CODE
+        spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
+          VALUE get_state()
+          {
+            // attempt cast
+            wxPropertyGridManager* wx_pgm = dynamic_cast<wxPropertyGridManager*> (self);
+            if (wx_pgm)
+            {
+              return wxRuby_WrapWxObjectInRuby(wx_pgm->GetCurrentPage());
+            }
+            else
+            {
+              wxPropertyGridPageState* wx_pgps = self->GetState();
+              VALUE klass = rb_const_get(mWxPG, rb_intern("PropertyGridPageState"));
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass); 
+              return SWIG_NewPointerObj(SWIG_as_voidptr(wx_pgps), swig_type, 0);
+            } 
+          }
+          __HEREDOC
+        # In wxRuby PropertyGridPageState is folded into PropertyGridPage so it is not actually
+        # derived from PropertyGridPageState but is one in the sense of Ruby's duck typing so we have
+        # some tinkering to do to make RefreshGrid accept either a PropertyGridPageState (returned from
+        # PropertyGridInterface#GetSate for a PropertyGrid) or a PropertyGridPage (returned either by
+        # PropertyGridInterface#GetState for a PropertyGridManager or any of the PropertyGridManager#GetXXXPage
+        # methods).
         spec.ignore 'wxPropertyGridInterface::RefreshGrid', ignore_doc: false
         spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
-          void RefreshGrid(wxPropertyGridPage* state = NULL)
+          void RefreshGrid(VALUE rb_state)
           {
+            wxPropertyGridPageState *state = 0;
+            if (!NIL_P(rb_state))
+            {
+              VALUE klass = rb_const_get(mWxPG, rb_intern("PropertyGridPageState"));
+              if (rb_obj_is_kind_of(rb_state, klass))
+              {
+                swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass); 
+                int res = SWIG_ConvertPtr(rb_state, SWIG_as_voidptrptr(&state), swig_type, 0);
+                if (!SWIG_IsOK(res)) {
+                  VALUE msg = rb_inspect(rb_state);
+                  rb_raise(rb_eArgError, "Expected PropertyGridPage or PropertyGridPageState for 1 but got %s", 
+                                StringValuePtr(msg));
+                }
+              }
+              else
+              {
+                wxPropertyGridPage *wx_pg = 0;
+                VALUE klass = rb_const_get(mWxPG, rb_intern("PropertyGridPage"));
+                swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass); 
+                int res = SWIG_ConvertPtr(rb_state, SWIG_as_voidptrptr(&wx_pg), swig_type, 0);
+                if (!SWIG_IsOK(res)) {
+                  VALUE msg = rb_inspect(rb_state);
+                  rb_raise(rb_eArgError, "Expected PropertyGridPage or PropertyGridPageState for 1 but got %s", 
+                                StringValuePtr(msg));
+                }
+                state = wx_pg;
+              }
+            }
             self->RefreshGrid(state);
           }
           __HEREDOC
-        spec.map 'wxPropertyGridPageState *state' => 'Wx::PG::PropertyGridPage', swig: false do
+        spec.map 'wxPropertyGridPageState *state' => 'Wx::PG::PropertyGridPage,Wx::PG::PropertyGridPageState', swig: false do
           map_in
         end
 

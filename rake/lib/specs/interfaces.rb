@@ -24,6 +24,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxMemoryDC')
     Director.Spec(pkg, 'wxWindow')
     Director.Spec(pkg, 'wxNonOwnedWindow', director: Director::Window)
+    Director.Spec(pkg, 'wxPopupWindow')
     Director.Spec(pkg, 'wxTopLevelWindow')
     Director.Spec(pkg, 'wxFrame')
     Director.Spec(pkg, 'wxMiniFrame', director: Director::Frame)
@@ -278,9 +279,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxPGProperties')
     Director.Spec(pkg, 'wxPropertyGridEvent')
     Director.Spec(pkg, 'wxPGValidationInfo')
+    Director.Spec(pkg, 'wxPropertyGridPageState')
+    Director.Spec(pkg, 'wxPropertyGridPage')
     Director.Spec(pkg, 'wxPropertyGridInterface')
     Director.Spec(pkg, 'wxPropertyGrid')
-    Director.Spec(pkg, 'wxPropertyGridPage')
     Director.Spec(pkg, 'wxPropertyGridManager')
   }
 end # module WXRuby3
