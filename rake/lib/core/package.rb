@@ -306,6 +306,7 @@ module WXRuby3
           if is_core?
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'funcall.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'enum.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'init.inc'))
             fsrc.puts
           end
           fsrc.puts decls.join("\n")
@@ -321,6 +322,10 @@ module WXRuby3
             fsrc.puts 'initialized = true;'
             fsrc.puts
             if is_core?
+              if Config.instance.windows?
+                fsrc.puts 'wxRuby_SetActivationContext();'
+                fsrc.puts
+              end
               fsrc.puts %Q{#{module_variable} = rb_define_module("Wx");}
               # create instance variable for main module with array to record package submodules in
               fsrc.puts %Q{rb_ivar_set(#{module_variable}, rb_intern("@__pkgmods__"), rb_ary_new());}
