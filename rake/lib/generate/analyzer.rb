@@ -83,9 +83,10 @@ module WXRuby3
 
       attr_reader :director, :classdef, :class_spec_name, :class_registry
 
-      private def item_ignored?(item)
+      def item_ignored?(item)
         @doc_gen ? item.docs_ignored : item.ignored
       end
+      private :item_ignored?
 
       def register_interface_member(member, req_pure_virt=false)
         reg = if declare_public?(@classdef, member)
@@ -212,15 +213,16 @@ module WXRuby3
         methods << methoddef
       end
 
-      private def ctor_name(ctor)
+      def ctor_name(ctor)
         if @classdef.is_template? && template_as_class?(ctor.name)
           template_class_name(ctor.name)
         else
           ctor.name
         end
       end
+      private :ctor_name
 
-      private def dtor_name(dtor)
+      def dtor_name(dtor)
         dtor_name = dtor.name.sub(/~/, '')
         if @classdef.is_template? && template_as_class?(dtor_name)
           template_class_name(dtor_name)
@@ -228,6 +230,7 @@ module WXRuby3
           dtor.name
         end
       end
+      private :dtor_name
 
       def preprocess_class_members(classdef, visibility, methods, requires_purevirt)
         classdef.items.each do |member|

@@ -240,7 +240,7 @@ module WXRuby3
           @ignore
         end
 
-        private def ignored_out_to_swig(typename)
+        def ignored_out_to_swig(typename)
           <<~__SWIG
             typedef #{typename} #{Typemap.rb_void_type(typename)};
             %{
@@ -250,6 +250,7 @@ module WXRuby3
             %typemap(directorout) #{Typemap.rb_void_type(typename)} \"\";
             __SWIG
         end
+        private :ignored_out_to_swig
 
         def to_swig
           @ignore ? @ignored.collect { |typename|  ignored_out_to_swig(typename) } : super
@@ -1091,14 +1092,15 @@ module WXRuby3
                 # provide the map creation methods
                 include Typemap::MappingMethods
                 # define type_maps collection initializer
-                private def init_type_maps
+                def init_type_maps
                   @type_maps = Collection.new
                   # create the type maps from included type map modules (by us or our ancestors)
                   self.included_modules.reverse.select { |mod| mod.include?(Typemap::Module) }.each { |mod| mod.add_maps(self) }
                   @type_maps
                 end
+                private :init_type_maps
                 # type maps accessor
-                public def type_maps
+                def type_maps
                   @type_maps ||= init_type_maps
                 end
               end

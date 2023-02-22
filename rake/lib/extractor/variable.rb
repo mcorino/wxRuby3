@@ -80,10 +80,11 @@ module WXRuby3
         ignore # ignore all member variables by default (trust on availability of accessor methods)
       end
 
-      private def rb_return_type(type_maps)
+      def rb_return_type(type_maps)
         mapped_type = type_maps.map_output(type)
         (mapped_type.empty? || mapped_type == 'void') ? nil : mapped_type
       end
+      private :rb_return_type
 
       # collect Ruby doc for member var
       # SWIG generates an attribute reader and writer for these

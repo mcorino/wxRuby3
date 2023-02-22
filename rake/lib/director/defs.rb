@@ -29,13 +29,15 @@ module WXRuby3
         super
       end
 
-      protected def generator
+      def generator
         WXRuby3::DefsGenerator.new(self)
       end
+      protected :generator
 
-      protected def rake_generator
+      def rake_generator
         WXRuby3::DefsRakeGenerator.new(self)
       end
+      protected :rake_generator
 
     end # class Defs
 
@@ -118,12 +120,13 @@ module WXRuby3
   class DefsRakeGenerator < RakeDependencyGenerator
 
 
-    protected def create_rake_tasks(frake)
+    def create_rake_tasks(frake)
       super
       frake << <<~__TASK
           file '#{File.join(Config.instance.common_dir, 'typedefs.i')}' => '#{File.join(Config.instance.classes_dir, 'Defs.i')}'
       __TASK
     end
+    protected :create_rake_tasks
 
   end
 

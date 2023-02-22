@@ -96,9 +96,10 @@ module WXRuby3
 
       attr_reader :source_path, :header_path
 
-      private def config
+      def config
         Config.instance
       end
+      private :config
 
       def source
         unless @source
@@ -243,7 +244,7 @@ module WXRuby3
 
       class Fixmodule < Processor
 
-        private def collect_enumerators
+        def collect_enumerators
           enumerators = {}
           def_items.each do |item|
             case item
@@ -257,6 +258,7 @@ module WXRuby3
           end
           enumerators
         end
+        private :collect_enumerators
 
         def run
           enum_table = collect_enumerators
