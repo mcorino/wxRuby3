@@ -1,4 +1,4 @@
-name: linux
+name: Linux builds
 
 on:
   workflow_dispatch:
@@ -26,43 +26,43 @@ jobs:
             CC: gcc-7
             CXX: g++-7
             ruby: '2.5'
-            wxWidgets: '3.1.5'
+            wxWidgets: '3.2.1'
             PackageDeps: g++-7 doxygen libgtk2.0-dev libwebkitgtk-dev
           - os: ubuntu-18.04
             gtk_version: 2
-            CC: gcc-7
-            CXX: g++-7
+            CC: gcc-9
+            CXX: g++-9
+            ruby: '3.2'
+            wxWidgets: '3.2.1'
+            PackageDeps: g++-9 doxygen libgtk2.0-dev libwebkitgtk-dev
+          - os: ubuntu-20.04
+            gtk_version: 3
+            CC: gcc-9
+            CXX: g++-9
             ruby: '2.5'
             wxWidgets: '3.2.1'
-            PackageDeps: g++-7 doxygen libgtk2.0-dev libwebkitgtk-dev
-          - os: ubuntu-18.04
-            gtk_version: 2
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '2.7'
-            wxWidgets: '3.1.5'
-            PackageDeps: g++-9 doxygen libgtk2.0-dev libwebkitgtk-dev
-          - os: ubuntu-18.04
-            gtk_version: 2
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '2.7'
-            wxWidgets: '3.2.1'
-            PackageDeps: g++-9 doxygen libgtk2.0-dev libwebkitgtk-dev
+            PackageDeps: g++-9 doxygen libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev
           - os: ubuntu-20.04
             gtk_version: 3
             CC: gcc-11
             CXX: g++-11
-            ruby: '3.0'
-            wxWidgets: '3.1.5'
+            ruby: '3.2'
+            wxWidgets: '3.2.1'
             PackageDeps: g++-11 doxygen libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-11
             CXX: g++-11
             ruby: '3.0'
             wxWidgets: '3.2.1'
-            PackageDeps: g++-11 doxygen libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev
+            PackageDeps: g++-11 doxygen libgtk-3-dev libgspell-1-dev
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.1'
+            PackageDeps: g++-12 doxygen libgtk-3-dev libgspell-1-dev
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}
     env:
