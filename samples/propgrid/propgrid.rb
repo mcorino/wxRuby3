@@ -514,6 +514,9 @@ class PropertyGridPopup < Wx::PopupWindow
     @panel.set_sizer(@sizer)
     @sizer.fit(@panel)
     @sizer.fit(self)
+    
+    evt_pg_item_collapsed ID::POPUPGRID, :on_collapse
+    evt_pg_item_expanded ID::POPUPGRID, :on_expand
   end
 
   def on_collapse(event)
