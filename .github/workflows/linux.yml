@@ -121,6 +121,7 @@ jobs:
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
         sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ ${{ matrix.Repo }} main"
     - name: Add packages
+      if: matrix.os != 'ubuntu-22.04'
       run: |
         sudo apt-get --yes update
         sudo apt-get --yes install ${{ matrix.PackageDeps }} libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libglu1-mesa-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev
