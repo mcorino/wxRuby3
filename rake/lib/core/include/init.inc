@@ -1,6 +1,13 @@
 
 #ifdef __WXMSW__
 
+extern "C"
+{
+    WXDLLIMPEXP_BASE HINSTANCE wxGetInstance();
+}
+
+WXDLLIMPEXP_BASE void wxSetInstance(HINSTANCE hInst);
+
 //----------------------------------------------------------------------
 // This gets run when the DLL is loaded.  We just need to save the
 // instance handle.
@@ -20,16 +27,16 @@ BOOL WINAPI DllMain(
     return TRUE;
 }
 
-// "Borrowed" from wxPython
+// Adapted from wxPython
 static void wxRuby_SetActivationContext()
 {
 
     OSVERSIONINFO info;
-    wxZeroMemory(info);
+    memset(&info, 0, sizeof(OSVERSIONINFO));
     info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&info);
     if (info.dwMajorVersion < 5)
-        return 0;
+        return;
 
     ULONG_PTR cookie = 0;
     HANDLE h;
@@ -37,7 +44,7 @@ static void wxRuby_SetActivationContext()
     TCHAR modulename[MAX_PATH];
 
     GetModuleFileName(wxGetInstance(), modulename, MAX_PATH);
-    wxZeroMemory(actctx);
+    memset(&actctx, 0, sizeof(ACTCTX));
     actctx.cbSize = sizeof(actctx);
     actctx.lpSource = modulename;
     actctx.lpResourceName = MAKEINTRESOURCE(2);
@@ -47,7 +54,7 @@ static void wxRuby_SetActivationContext()
     h = CreateActCtx(&actctx);
     if (h == INVALID_HANDLE_VALUE) {
         wxLogLastError(wxT("CreateActCtx"));
-        return 0;
+        return;
     }
 
     if (! ActivateActCtx(h, &cookie))

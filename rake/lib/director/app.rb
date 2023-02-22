@@ -100,6 +100,13 @@ module WXRuby3
           extern "C" void Init_wxRubyStockObjects();
           extern void wxRuby_MarkProtectedEvtHandlerProcs();
 
+          #ifdef __WXMSW__
+          extern "C"
+          {
+            WXDLLIMPEXP_BASE HINSTANCE wxGetInstance();
+          }
+          #endif
+
           static wxVector<WXRBMarkFunction> WXRuby_Mark_List;
 
           WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker)
