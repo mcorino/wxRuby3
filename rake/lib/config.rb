@@ -388,7 +388,7 @@ module WXRuby3
             @features ||= _retrieve_features(wx_setup_h)
           end
 
-          private def any_feature_set?(*featureset)
+          def any_feature_set?(*featureset)
             featureset.any? do |feature|
               if ::Array === feature
                 features_set?(*feature)
@@ -397,6 +397,7 @@ module WXRuby3
               end
             end
           end
+          private :any_feature_set?
 
           def features_set?(*featureset)
             featureset.all? do |feature|

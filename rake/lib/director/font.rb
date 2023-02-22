@@ -36,9 +36,10 @@ module WXRuby3
         spec.do_not_generate :functions
       end
 
-      protected def generator
+      def generator
         WXRuby3::FontGenerator.new(self)
       end
+      protected :generator
 
     end # class Font
 

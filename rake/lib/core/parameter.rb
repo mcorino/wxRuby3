@@ -79,7 +79,7 @@ module WXRuby3
 
       attr_reader :type_mask
 
-      private def match(paramdef)
+      def match(paramdef)
         if (name.empty? || name == paramdef.name) && (array? == paramdef.array)
           # compare unmodified types
           return true if type_mask == paramdef.type.tr(' ', '')
@@ -91,6 +91,7 @@ module WXRuby3
         end
         false
       end
+      private :match
 
       def ==(param)
         case param
@@ -128,7 +129,7 @@ module WXRuby3
         end
       end
 
-      private def match(funcdef)
+      def match(funcdef)
         STDERR.puts "*** matching #{self} to #{funcdef.signature}" if Director.trace?
         # see if the first parameter mask matches anywhere in the function's argument list
         if fpix = (0...funcdef.parameters.size).to_a.detect { |pix| @param_masks.first == funcdef.parameters[pix] }
@@ -147,6 +148,7 @@ module WXRuby3
         end
         false
       end
+      private :match
 
       def to_s
         "(#{@param_masks.join(', ')})"

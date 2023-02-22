@@ -11,7 +11,9 @@ module WXRuby3
 
     include DirectorSpecsHelper
 
-    private attr_reader :director
+    private
+
+    attr_reader :director
 
     public
 

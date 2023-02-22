@@ -99,13 +99,14 @@ module WXRuby3
       end
     end
 
-    private def get_base_list(hierarchy, foldedbases, list = ::Set.new)
+    def get_base_list(hierarchy, foldedbases, list = ::Set.new)
       hierarchy.each_value do |super_def|
         list << super_def.name unless foldedbases.include?(super_def.name)
         get_base_list(super_def.supers, folded_bases(super_def.name), list)
       end
       list
     end
+    private :get_base_list
 
     def base_list(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
@@ -115,13 +116,14 @@ module WXRuby3
       get_base_list(hierarchy, folded_bases(class_def.name)).to_a
     end
 
-    private def get_base_module_list(hierarchy, foldedbases, list = ::Set.new)
+    def get_base_module_list(hierarchy, foldedbases, list = ::Set.new)
       hierarchy.each_value do |super_def|
         list << super_def.module unless foldedbases.include?(super_def.name)
         get_base_module_list(super_def.supers, folded_bases(super_def.name), list)
       end
       list
     end
+    private :get_base_module_list
 
     def base_module_list(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
