@@ -7,6 +7,8 @@ require 'rbconfig'
 require 'fileutils'
 require 'ruby_memcheck'
 
+require_relative './swig_runner'
+
 module WXRuby3
 
   module Config
@@ -143,6 +145,8 @@ module WXRuby3
             @platform = Config.platform
             require File.join(File.dirname(__FILE__), 'config', @platform.to_s)
             self.class.include(WXRuby3::Config::Platform)
+
+            @swig_major = SwigRunner.swig_major
 
             # STANDARD BUILD DIRECTORIES
             @swig_dir = defined?(SWIG_DIR) ? SWIG_DIR : 'swig'
@@ -295,7 +299,7 @@ module WXRuby3
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
-          attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
+          attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
           attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path,

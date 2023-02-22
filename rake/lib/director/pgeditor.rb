@@ -26,6 +26,14 @@ module WXRuby3
             operator wxPGWindowList() { return wxPGWindowList(*this); }
           };
           __HEREDOC
+        if Config.instance.swig_major > 3
+          spec.add_header_code <<~__HEREDOC
+            // template specialization to circumvent lack of default ctor
+            template <> wxPGWindowList SwigValueInit<wxPGWindowList>() {
+              return wxPGWindowList(0);
+            }
+            __HEREDOC
+        end
         spec.post_processors << :update_pg_window_list
         spec.map 'wxPGWindowList' => 'Wx::Window,Array<Wx::Window,Wx::Window>' do
           map_out code: <<~__CODE
