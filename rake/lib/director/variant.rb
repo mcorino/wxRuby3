@@ -63,7 +63,8 @@ module WXRuby3
                   if (!SWIG_IsOK(res)) {
                     rb_raise(rb_eTypeError, "Unexpected failure to convert to wxFont");
                   }
-                  return wxVariant(*static_cast<wxFont*> (ptr));
+                  wxVariant var; var << *static_cast<wxFont*> (ptr); 
+                  return var;
                 }
                 if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Colour"))))
                 {
@@ -72,7 +73,8 @@ module WXRuby3
                   if (!SWIG_IsOK(res)) {
                     rb_raise(rb_eTypeError, "Unexpected failure to convert to wxColour");
                   }
-                  return wxVariant(*static_cast<wxColour*> (ptr));
+                  wxVariant var; var << *static_cast<wxColour*> (ptr); 
+                  return var;
                 }
           #ifdef wxUSE_PROPGRID
                 if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("ColourPropertyValue"))))
@@ -82,7 +84,8 @@ module WXRuby3
                   if (!SWIG_IsOK(res)) {
                     rb_raise(rb_eTypeError, "Unexpected failure to convert to wxColourPropertyValue");
                   }
-                  return wxVariant(*static_cast<wxColourPropertyValue*> (ptr));
+                  wxVariant var; var << *static_cast<wxColourPropertyValue*> (ptr); 
+                  return var;
                 }
           #endif
               }
