@@ -85,6 +85,8 @@ module WXRuby3
                              'prefix_' => 'wxUIntProperty::m_prefix',
                              'format_' => 'wxDateProperty::m_format',
                              'dp_style_' => 'wxDateProperty::m_dpStyle'
+        # solve masking overload
+        spec.rename_for_ruby 'get_item_label' => 'wxFlagsProperty::GetLabel(size_t) const'
         # make sure the derived Numeric property classes provide the protected accessors too
         %w[wxIntProperty wxFloatProperty wxUIntProperty].each do |kls|
           spec.extend_interface kls,
