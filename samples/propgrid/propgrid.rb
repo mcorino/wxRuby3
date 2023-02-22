@@ -486,7 +486,7 @@ class PropertyGridPopup < Wx::PopupWindow
   end
 
   def initialize(parent)
-    super(parent, Wx::BORDER_NONE|Wx::WANTS_CHARS)
+    super(parent, Wx::BORDER_NONE|Wx::WANTS_CHARS|Wx::PU_CONTAINS_CONTROLS)
     @panel = Wx::ScrolledWindow.new(self, Wx::ID_ANY, size: Wx::Size.new(200, 200))
     @grid = Wx::PG::PropertyGrid.new(@panel, ID::POPUPGRID, size: [400,400], style: Wx::PG::PG_SPLITTER_AUTO_CENTER)
     @grid.set_column_count(3)
