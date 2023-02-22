@@ -137,7 +137,7 @@ jobs:
         # skipping them.
         sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
         
-        {{ env.WXWIDGETS_ROOT }}/build/tools/before_install.sh
+        $WXWIDGETS_ROOT/build/tools/before_install.sh
 
 #    - name: Add repository ${{ matrix.Repo }}
 #      if: matrix.Repo != ''
@@ -156,19 +156,19 @@ jobs:
         if [ -n "${{ matrix.gtk_version }}" ]; then
           wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
         fi
-        pushd ${{ env.WXWIDGETS_ROOT }}
-        ./configure $wxCONFIGURE_OPTIONS --prefix=${{ env.WXWIN }} --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        pushd $WXWIDGETS_ROOT
+        ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN --disable-tests --without-subdirs --disable-debug_info || rc=$?
         popd
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
           echo '-----------------------------------------------------------'
-          cat ${{ env.WXWIDGETS_ROOT }}/config.log
+          cat $WXWIDGETS_ROOT/config.log
           echo '-----------------------------------------------------------'
           exit $rc
         fi
     - name: Build wxWidgets
       run: |
-        pushd ${{ env.WXWIDGETS_ROOT }}
+        pushd $WXWIDGETS_ROOT
         make && make install
         popd
     - name: Bootstrap wxRuby3
