@@ -21,7 +21,7 @@ BOOL WINAPI DllMain(
 {
     // If wxRuby is embedded in another (wxWidgets) app then
     // the instance may already have been set.
-    if (! wxGetInstance())
+    if (fdwReason==DLL_PROCESS_ATTACH && !wxGetInstance())
         wxSetInstance(hinstDLL);
 
     return TRUE;
