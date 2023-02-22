@@ -43,8 +43,8 @@ README and license files for details.
 
 Currently the following are fully supported:
 
-* Windows 10 (RubyInstaller MSYS2-DevKit) / Ruby >= 2.5 / wxWidgets >= 3.0
-* Linux (i686 + AMD-64) / Ruby >= 2.5 / wxWidgets >= 3.0
+* Windows 10 (RubyInstaller MSYS2-DevKit) / Ruby >= 2.5 / wxWidgets >= 3.2
+* Linux (i686 + AMD-64) / Ruby >= 2.5 / wxWidgets >= 3.2
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
