@@ -16,6 +16,27 @@ wxRuby3 is free and open-source. It is distributed under the liberal
 MIT licence which is compatible with both free and commercial development.
 See LICENSE for more details.
 
+### wxRuby3 and wxWidgets
+
+If you distribute (your) wxRuby3 (application) with a binary copy of wxWidgets,
+you are bound to the requirements of the copy of wxWidgets within. Fortunately,
+those requirements do not impose any serious restrictions.
+
+### wxWidgets License Summary (from wxWidgets)
+
+In summary, the licence is LGPL plus a clause allowing unrestricted
+distribution of application binaries. To answer a FAQ, you don't have to
+distribute any source if you wish to write commercial applications using
+wxWidgets.
+
+### Required Credits and Attribution
+
+Generally, neither wxWidgets nor wxRuby3 require attribution, beyond
+retaining existing copyright notices. However, if you build your own
+custom wxWidgets library, there may be portions that require specific
+attributions or credits, such as TIFF or JPEG support. See the wxWidgets
+README and license files for details.
+
 ## FAQ
  
 ### What platforms and operating systems are supported in wxRuby3?
