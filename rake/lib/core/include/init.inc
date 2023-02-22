@@ -47,18 +47,49 @@ static void wxRuby_SetActivationContext()
     memset(&actctx, 0, sizeof(ACTCTX));
     actctx.cbSize = sizeof(actctx);
     actctx.lpSource = modulename;
+#ifdef ISOLATION_AWARE_ENABLED    
     actctx.lpResourceName = MAKEINTRESOURCE(2);
+#else    
+    actctx.lpResourceName = MAKEINTRESOURCE(1);
+#endif
     actctx.hModule = wxGetInstance();
     actctx.dwFlags = ACTCTX_FLAG_HMODULE_VALID | ACTCTX_FLAG_RESOURCE_NAME_VALID;
 
     h = CreateActCtx(&actctx);
-    if (h == INVALID_HANDLE_VALUE) {
-        wxLogLastError(wxT("CreateActCtx"));
+    if (h == INVALID_HANDLE_VALUE) 
+    {
+        LPTSTR lpMsgBuf;
+        DWORD dw = GetLastError(); 
+
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            dw,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR) &lpMsgBuf,
+            0, NULL );
+        ::fprintf(stderr, "Error in CreateActCtx : %s\n", lpMsgBuf);
         return;
     }
 
     if (! ActivateActCtx(h, &cookie))
-        wxLogLastError(wxT("ActivateActCtx"));
+    {
+        LPTSTR lpMsgBuf;
+        DWORD dw = GetLastError(); 
+
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            dw,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR) &lpMsgBuf,
+            0, NULL );
+        ::fprintf(stderr, "Error in ActivateActCtx : %s\n", lpMsgBuf);
+    }
 }
 
 #endif
