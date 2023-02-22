@@ -100,6 +100,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxFontPickerCtrl', requirements: %w[wxUSE_FONTDLG wxUSE_FONTPICKERCTRL])
     Director.Spec(pkg, 'wxLocale')
     Director.Spec(pkg, 'wxSystemSettings')
+    Director.Spec(pkg, 'wxSystemOptions')
     Director.Spec(pkg, 'wxPropertySheetDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxScrolledWindow', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxScrolledCanvas', director: Director::ScrolledT)
