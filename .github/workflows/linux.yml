@@ -29,7 +29,6 @@ jobs:
             wxWidgets: '3.2.1'
             configure_flags:
             use_xvfb: true
-#            PackageDeps: g++-7 doxygen libgtk2.0-dev libwebkitgtk-dev
           - os: ubuntu-18.04
             gtk_version: 2
             CC: gcc-9
@@ -38,7 +37,6 @@ jobs:
             wxWidgets: '3.2.1'
             configure_flags:
             use_xvfb: true
-#            PackageDeps: g++-9 doxygen libgtk2.0-dev libwebkitgtk-dev
           - os: ubuntu-20.04
             gtk_version: 3
             CC: gcc-9
@@ -47,16 +45,14 @@ jobs:
             wxWidgets: '3.2.1'
             configure_flags:
             use_xvfb: true
-#            PackageDeps: g++-9 doxygen libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev
           - os: ubuntu-20.04
             gtk_version: 3
-            CC: gcc-11
-            CXX: g++-11
+            CC: gcc-10
+            CXX: g++-10
             ruby: '3.2'
             wxWidgets: '3.2.1'
             configure_flags:
             use_xvfb: true
-#            PackageDeps: g++-11 doxygen libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-11
@@ -65,7 +61,6 @@ jobs:
             wxWidgets: '3.2.1'
             configure_flags:
             use_xvfb: true
-#            PackageDeps: g++-11 doxygen libgtk-3-dev libgspell-1-dev
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
@@ -74,7 +69,6 @@ jobs:
             wxWidgets: '3.2.1'
             configure_flags:
             use_xvfb: true
-#            PackageDeps: g++-12 doxygen libgtk-3-dev libgspell-1-dev
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}
     env:
@@ -82,43 +76,15 @@ jobs:
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
       wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
+      WX_EXTRA_PACKAGES: doxygen
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
       # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
     steps:
-#    - name: Set up build system
-#      run: |
-#        case '${{ matrix.container }}' in
-#          ubuntu:*)
-#            export DEBIAN_FRONTEND=noninteractive
-#            if [ '${{ matrix.container }}' = 'ubuntu:18.04' ]; then
-#              # First get the package containing /usr/bin/apt-add-repository.
-#              apt-get update -qq
-#              apt-get install -qq software-properties-common
-#              # Git 2.17 in the official repository is too old to checkout
-#              # submodules using it, so get a newer version.
-#              apt-add-repository ppa:git-core/ppa
-#            fi
-#            compiler=${{ matrix.compiler }}
-#            # Explanation for installing some less obvious packages:
-#            #   - coreutils contains nproc used in proc_count.sh called below.
-#            #   - locales contains locale-gen also used below.
-#            #   - Python can't be installed using the action as usual because
-#            #     it installs an ABI-incompatible version, see (wrongly, IMO)
-#            #     closed https://github.com/actions/setup-python/issues/370
-#            #   - xvfb is used for running the GUI tests.
-#            apt-get update -qq
-#            apt-get install -qq coreutils ${compiler-g++} git locales make pkg-config sudo xvfb
-#            ;;
-#          '')
-#            ;;
-#          *)
-#            echo '::error ::Unknown container kind.'
-#            exit 1
-#        esac
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
+
     - name: checkout wxWidgets
       uses: actions/checkout@v3
       with:
@@ -126,6 +92,7 @@ jobs:
         path: ${{ env.WXWIDGETS_ROOT }}
         ref: v${{ matrix.wxWidgets }}
         submodules: 'recursive'
+
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
@@ -138,17 +105,6 @@ jobs:
         sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
         
         $WXWIDGETS_ROOT/build/tools/before_install.sh
-
-#    - name: Add repository ${{ matrix.Repo }}
-#      if: matrix.Repo != ''
-#      run:
-#        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-#        sudo apt-add-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ ${{ matrix.Repo }} main"
-#    - name: Add packages
-#      if: matrix.os != 'ubuntu-22.04'
-#      run: |
-#        sudo apt-get --yes update
-#        sudo apt-get --yes install ${{ matrix.PackageDeps }} libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libglu1-mesa-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev
 
     - name: Configuring wxWidgets
       run: |
@@ -166,17 +122,21 @@ jobs:
           echo '-----------------------------------------------------------'
           exit $rc
         fi
+
     - name: Build wxWidgets
       run: |
         pushd $WXWIDGETS_ROOT
         make && make install
         popd
+
     - name: Bootstrap wxRuby3
       run: |
         bundle exec rake bootstrap
+
     - name: Build wxRuby3
       run: |
-        bundle exec rake
+        bundle exec rake -m
+
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
