@@ -73,7 +73,7 @@ jobs:
       - name: Configuring wxWidgets
         run: |
           Push-Location ${{ env.WXWIDGETS_ROOT }}
-          ridk exec bash -c './configure --prefix=`pwd`/../install --disable-tests --without-subdirs --disable-debug_info'
+          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
           Pop-Location
 
       - name: Build wxWidgets
