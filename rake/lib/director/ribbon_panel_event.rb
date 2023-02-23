@@ -13,8 +13,6 @@ module WXRuby3
 
       def setup
         super
-        spec.override_inheritance_chain('wxRibbonPanelEvent',
-                                        {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class RibbonPanelEvent

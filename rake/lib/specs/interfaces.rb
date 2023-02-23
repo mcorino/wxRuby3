@@ -292,5 +292,9 @@ module WXRuby3
     Director.Spec(pkg, 'wxRibbonButtonBarEvent')
     Director.Spec(pkg, 'wxRibbonGalleryEvent')
     Director.Spec(pkg, 'wxRibbonPanelEvent')
+    Director.Spec(pkg, 'wxRibbonArtProvider')
+    Director.Spec(pkg, 'wxRibbonControl')
+    Director.Spec(pkg, 'wxRibbonBar')
+    Director.Spec(pkg, 'wxRibbonGallery')
   }
 end # module WXRuby3
