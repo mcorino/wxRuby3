@@ -1,3 +1,6 @@
+/* wxRuby3
+ * Copyright (c) Martin J.N. Corino
+ */
 // Copyright 2004-2007, wxRuby development team
 // released under the MIT-like wxRuby2 license
 
