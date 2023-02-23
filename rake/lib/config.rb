@@ -354,7 +354,7 @@ module WXRuby3
           private :check_git
 
           def check_doxygen
-            if `which doxygen 2>/dev/null`.chomp.empty?
+            if sh('which doxygen 2>/dev/null').chomp.empty?
               STDERR.puts 'ERROR: Need Doxygen installed to run wxRuby3 bootstrap!'
               exit(1)
             end
