@@ -19,7 +19,7 @@ env:
 
 jobs:
   build:
-    runs-on: windows-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     name: wxMSW ${{ matrix.os }} Ruby ${{ matrix.ruby }} wxWidgets ${{ matrix.wxWidgets }}
     strategy:
       fail-fast: false
