@@ -27,6 +27,7 @@ jobs:
             CXX: g++-7
             ruby: '2.5'
             wxWidgets: '3.2.1'
+            swig: '3'
             configure_flags:
             use_xvfb: true
           - os: ubuntu-18.04
@@ -35,6 +36,7 @@ jobs:
             CXX: g++-9
             ruby: '3.2'
             wxWidgets: '3.2.1'
+            swig: '3'
             configure_flags:
             use_xvfb: true
           - os: ubuntu-20.04
@@ -43,6 +45,7 @@ jobs:
             CXX: g++-9
             ruby: '2.5'
             wxWidgets: '3.2.1'
+            swig: '4'
             configure_flags:
             use_xvfb: true
           - os: ubuntu-20.04
@@ -51,6 +54,7 @@ jobs:
             CXX: g++-10
             ruby: '3.2'
             wxWidgets: '3.2.1'
+            swig: '4'
             configure_flags:
             use_xvfb: true
           - os: ubuntu-22.04
@@ -59,6 +63,7 @@ jobs:
             CXX: g++-11
             ruby: '3.0'
             wxWidgets: '3.2.1'
+            swig: '4'
             configure_flags:
             use_xvfb: true
           - os: ubuntu-22.04
@@ -67,10 +72,11 @@ jobs:
             CXX: g++-12
             ruby: '3.2'
             wxWidgets: '3.2.1'
+            swig: '4'
             configure_flags:
             use_xvfb: true
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}
+    name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }} SWIG{{ matrix.swig }}
     env:
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
