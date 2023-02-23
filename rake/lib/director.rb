@@ -205,7 +205,7 @@ module WXRuby3
     end
 
     def has_events?
-      @defmod.items.any? {|item| Extractor::ClassDef === item && item.event && !item.event_types.empty? }
+      @defmod.items.any? {|item| Extractor::ClassDef === item && (item.event || item.event_list) }
     end
 
     def extract_interface(genint = true, gendoc: false)
