@@ -14,26 +14,14 @@ module WXRuby3
         spec.items.concat %w[wxPGCheckBoxEditor wxPGChoiceEditor wxPGChoiceAndButtonEditor wxPGComboBoxEditor
                              wxPGTextCtrlEditor wxPGSpinCtrlEditor wxPGTextCtrlAndButtonEditor wxPGEditorDialogAdapter]
         spec.includes << 'wx/propgrid/propgriddefs.h'
-        # custom class to work around lack of default ctor of wxPGWindowList
         spec.add_header_code <<~__HEREDOC
-          class WXRB_PGWindowList : public wxPGWindowList
-          {
-          public:
-            WXRB_PGWindowList() : wxPGWindowList(0) {}
-            WXRB_PGWindowList(wxWindow *primary, wxWindow *secondary=NULL) : wxPGWindowList(primary, secondary) {}
-            WXRB_PGWindowList(const wxPGWindowList& other) : wxPGWindowList(other) {}
-            WXRB_PGWindowList& operator=(const wxPGWindowList& lst) { this->m_primary = lst.m_primary; this->m_secondary = lst.m_secondary; return *this; }
-            operator wxPGWindowList() { return wxPGWindowList(*this); }
-          };
+          // template specialization to circumvent lack of default ctor
+          template <> wxPGWindowList SwigValueInit<wxPGWindowList>() {
+            return wxPGWindowList(0);
+          }
           __HEREDOC
-        if Config.instance.swig_major > 3
-          spec.add_header_code <<~__HEREDOC
-            // template specialization to circumvent lack of default ctor
-            template <> wxPGWindowList SwigValueInit<wxPGWindowList>() {
-              return wxPGWindowList(0);
-            }
-            __HEREDOC
-        end
+        # SWIG fails to use SwigValueInit for local var init properly (SWIG 4 partially)
+        # so we fix it ourselves
         spec.post_processors << :update_pg_window_list
         spec.map 'wxPGWindowList' => 'Wx::Window,Array<Wx::Window,Wx::Window>' do
           map_out code: <<~__CODE
@@ -147,10 +135,10 @@ module WXRuby3
     class Processor
       class UpdatePgWindowList < Processor
         def run
-          # just replace all occurrences of wxPGWindowList result var decls by WXRB_PGWindowList decls.
+          # just replace all occurrences of wxPGWindowList result var decls by SwigValueInit decls.
           update_source do |line|
-            if /\A\s*wxPGWindowList\s+(c_)?result\s*;/ =~ line
-              line.sub!('wxPGWindowList', 'WXRB_PGWindowList')
+            if /\A(\s*)wxPGWindowList\s+(c_)?result\s*;/ =~ line
+              line = "#{$1}wxPGWindowList #{$2}result = SwigValueInit<wxPGWindowList>();"
             end
             line
           end
