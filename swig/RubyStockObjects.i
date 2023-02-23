@@ -18,7 +18,6 @@
 extern VALUE mWxCore;
 %}
 
-%constant wxFont            wxNullFont;
 %constant wxFont* const     wxNORMAL_FONT;
 %constant wxFont* const     wxSMALL_FONT;
 %constant wxFont* const     wxITALIC_FONT;
@@ -34,6 +33,7 @@ extern VALUE mWxCore;
 %constant wxPen* const     wxGREY_PEN;
 %constant wxPen* const     wxMEDIUM_GREY_PEN;
 %constant wxPen* const     wxLIGHT_GREY_PEN;
+%constant wxPen* const     wxYELLOW_PEN;
 
 %constant wxBrush* const   wxBLUE_BRUSH;
 %constant wxBrush* const   wxGREEN_BRUSH;
@@ -45,8 +45,8 @@ extern VALUE mWxCore;
 %constant wxBrush* const   wxTRANSPARENT_BRUSH;
 %constant wxBrush* const   wxCYAN_BRUSH;
 %constant wxBrush* const   wxRED_BRUSH;
+%constant wxBrush* const   wxYELLOW_BRUSH;
 
-%constant wxCursor wxNullCursor;
 %constant wxCursor const* wxSTANDARD_CURSOR;
 %constant wxCursor const* wxHOURGLASS_CURSOR;
 %constant wxCursor const* wxCROSS_CURSOR;
@@ -59,3 +59,4 @@ extern VALUE mWxCore;
 %constant wxColour* wxLIGHT_GREY;
 %constant wxColour* wxRED;
 %constant wxColour* wxWHITE;
+%constant wxColour* wxYELLOW;
