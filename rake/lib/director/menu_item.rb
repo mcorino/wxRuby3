@@ -21,9 +21,6 @@ module WXRuby3
         spec.set_only_for 'wxUSE_ACCEL', 'wxMenuItem::GetAccel'
         spec.no_proxy 'wxMenuItem::GetAccel'
         spec.ignore 'wxMenuItem::GetBitmap(bool)' # not portable
-        if Config.instance.wx_version < '3.2.0'
-          spec.set_only_for('__WXMSW__', 'wxMenuItem::SetBitmap(const wxBitmap &,bool)')
-        end
         super
       end
     end # class MenuItem

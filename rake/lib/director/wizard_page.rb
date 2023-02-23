@@ -14,11 +14,7 @@ module WXRuby3
       def setup
         super
         if spec.module_name == 'wxWizardPage'
-          if Config.instance.wx_version > '3.1.5'
-            spec.ignore 'wxWizardPage::wxWizardPage(wxWizard * ,const wxBitmapBundle &)'
-          else
-            spec.ignore 'wxWizardPage::wxWizardPage(wxWizard * ,const wxBitmap &)'
-          end
+          spec.ignore 'wxWizardPage::wxWizardPage(wxWizard * ,const wxBitmapBundle &)'
         elsif spec.module_name == 'wxWizardPageSimple'
           spec.ignore 'wxWizardPageSimple::Chain(wxWizardPageSimple *, wxWizardPageSimple *)'
           # overrides not documented in XML docs

@@ -10,38 +10,36 @@ module WXRuby3
     class Bitmap < Director
 
       def setup
-        if Config.instance.wx_version > '3.1.5'
-          spec.items << 'wxBitmapBundle'
-          spec.gc_as_object 'wxBitmapBundle'
-          spec.ignore 'wxBitmapBundle::FromSVG(char *,const wxSize &)'
-          # not useful in Ruby
-          spec.ignore 'wxBitmapBundle::wxBitmapBundle(const char * const *)'
-          # disable the wxBitmapBundle typemap for the copy constructor
-          spec.map_disable 'const wxBitmapBundle&'
-          # add typemap for bitmap vectors
-          spec.map 'const wxVector<wxBitmap> &' do
-            map_in from: 'Array<Wx::Bitmap>', temp: 'wxVector<wxBitmap> tmpVec', code: <<~__CODE
-              $1 = &tmpVec;
-              if (TYPE($input) == T_ARRAY)
+        spec.items << 'wxBitmapBundle'
+        spec.gc_as_object 'wxBitmapBundle'
+        spec.ignore 'wxBitmapBundle::FromSVG(char *,const wxSize &)'
+        # not useful in Ruby
+        spec.ignore 'wxBitmapBundle::wxBitmapBundle(const char * const *)'
+        # disable the wxBitmapBundle typemap for the copy constructor
+        spec.map_disable 'const wxBitmapBundle&'
+        # add typemap for bitmap vectors
+        spec.map 'const wxVector<wxBitmap> &' do
+          map_in from: 'Array<Wx::Bitmap>', temp: 'wxVector<wxBitmap> tmpVec', code: <<~__CODE
+            $1 = &tmpVec;
+            if (TYPE($input) == T_ARRAY)
+            {
+              for (int i = 0; i < RARRAY_LEN($input); i++)
               {
-                for (int i = 0; i < RARRAY_LEN($input); i++)
+                void* ptr;
+                VALUE obj = rb_ary_entry($input, i);
+                int res = SWIG_ConvertPtr(obj, &ptr, SWIGTYPE_p_wxBitmap, 0);
+                if (!SWIG_IsOK(res)) 
                 {
-                  void* ptr;
-                  VALUE obj = rb_ary_entry($input, i);
-                  int res = SWIG_ConvertPtr(obj, &ptr, SWIGTYPE_p_wxBitmap, 0);
-                  if (!SWIG_IsOK(res)) 
-                  {
-                    SWIG_exception_fail(SWIG_ArgError(res), "Expected array of Wx::Bitmap for argument 1"); 
-                  }
-                  tmpVec.push_back (*static_cast<wxBitmap*> (ptr));
+                  SWIG_exception_fail(SWIG_ArgError(res), "Expected array of Wx::Bitmap for argument 1"); 
                 }
+                tmpVec.push_back (*static_cast<wxBitmap*> (ptr));
               }
-              else
-              {
-                SWIG_exception_fail(SWIG_TypeError, "Wrong type for $1_basetype parameter $argnum");
-              }
-              __CODE
-          end
+            }
+            else
+            {
+              SWIG_exception_fail(SWIG_TypeError, "Wrong type for $1_basetype parameter $argnum");
+            }
+            __CODE
         end
         spec.no_proxy 'wxBitmap'
         # // Handler functions are not needed in wxRuby - all standard handlers

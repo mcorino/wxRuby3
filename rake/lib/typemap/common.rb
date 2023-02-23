@@ -525,87 +525,85 @@ module WXRuby3
         end
 
         # typemap to provide backward compatibility for BitmapBundle
-        if Config.instance.wx_version > '3.1.5'
-          map 'const wxBitmapBundle&' do
-            add_header_code <<~__CODE
-              inline bool wx_IsClass(VALUE obj, const char* class_name)
+        map 'const wxBitmapBundle&' do
+          add_header_code <<~__CODE
+            inline bool wx_IsClass(VALUE obj, const char* class_name)
+            {
+              VALUE klass = rb_const_get(wxRuby_Core(), rb_intern(class_name));
+              return rb_obj_is_kind_of(obj, klass);
+            }
+            __CODE
+          map_in from: 'Wx::BitmapBundle,Wx::Bitmap,Wx::Icon,Wx::Image',
+                 temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
+            $1 = &tmpBundle;
+            if (!NIL_P($input))
+            {
+              bool ok = false;
+              if (TYPE($input) == T_DATA) 
               {
-                VALUE klass = rb_const_get(wxRuby_Core(), rb_intern(class_name));
-                return rb_obj_is_kind_of(obj, klass);
-              }
-              __CODE
-            map_in from: 'Wx::BitmapBundle,Wx::Bitmap,Wx::Icon,Wx::Image',
-                   temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
-              $1 = &tmpBundle;
-              if (!NIL_P($input))
-              {
-                bool ok = false;
-                if (TYPE($input) == T_DATA) 
+                void *ptr;
+                Data_Get_Struct($input, void, ptr);
+                if (ptr)
                 {
-                  void *ptr;
-                  Data_Get_Struct($input, void, ptr);
-                  if (ptr)
-                  {
-                    ok = true;
-                    if (wx_IsClass($input, "BitmapBundle"))
-                      tmpBundle = *static_cast<wxBitmapBundle*> (ptr);
-                    else if (wx_IsClass($input, "Bitmap"))
-                      tmpBundle = wxBitmapBundle(*static_cast<wxBitmap*> (ptr)); 
-                    else if (wx_IsClass($input, "Icon"))
-                      tmpBundle = wxBitmapBundle(*static_cast<wxIcon*> (ptr)); 
-                    else if (wx_IsClass($input, "Image"))
-                      tmpBundle = wxBitmapBundle(*static_cast<wxImage*> (ptr));
-                    else
-                      ok = false;
-                  }
+                  ok = true;
+                  if (wx_IsClass($input, "BitmapBundle"))
+                    tmpBundle = *static_cast<wxBitmapBundle*> (ptr);
+                  else if (wx_IsClass($input, "Bitmap"))
+                    tmpBundle = wxBitmapBundle(*static_cast<wxBitmap*> (ptr)); 
+                  else if (wx_IsClass($input, "Icon"))
+                    tmpBundle = wxBitmapBundle(*static_cast<wxIcon*> (ptr)); 
+                  else if (wx_IsClass($input, "Image"))
+                    tmpBundle = wxBitmapBundle(*static_cast<wxImage*> (ptr));
                   else
-                  {
-                    rb_raise(rb_eArgError, "Object already deleted for $1_basetype parameter $argnum");
-                  }
+                    ok = false;
                 }
-                // did we get a bitmap of some kind?
-                if (!ok)
+                else
                 {
-                  rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter $argnum");
+                  rb_raise(rb_eArgError, "Object already deleted for $1_basetype parameter $argnum");
                 }
               }
-              __CODE
-            map_typecheck precedence: 2000, code: <<~__CODE
-              $1 = (NIL_P($input) || 
-                      (TYPE($input) == T_DATA && 
-                       (wx_IsClass($input, "BitmapBundle") || 
-                        wx_IsClass($input, "Bitmap") || 
-                        wx_IsClass($input, "Icon") || 
-                        wx_IsClass($input, "Image")))
-                   );
-              __CODE
-          end
+              // did we get a bitmap of some kind?
+              if (!ok)
+              {
+                rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter $argnum");
+              }
+            }
+            __CODE
+          map_typecheck precedence: 2000, code: <<~__CODE
+            $1 = (NIL_P($input) || 
+                    (TYPE($input) == T_DATA && 
+                     (wx_IsClass($input, "BitmapBundle") || 
+                      wx_IsClass($input, "Bitmap") || 
+                      wx_IsClass($input, "Icon") || 
+                      wx_IsClass($input, "Image")))
+                 );
+            __CODE
+        end
 
-          # output typemaps for common reference counted objects like wxColour, wxFont,
-          # making sure to ALWAYS create managed copies
-          %w[wxColour wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
-            map "const #{klass}&", "const #{klass}*" do
-              map_out code: <<~__CODE
-                $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);
-                __CODE
-            end
+        # output typemaps for common reference counted objects like wxColour, wxFont,
+        # making sure to ALWAYS create managed copies
+        %w[wxColour wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
+          map "const #{klass}&", "const #{klass}*" do
+            map_out code: <<~__CODE
+              $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);
+              __CODE
           end
-          # special case bc SWIG causes trouble in Window.cpp
-          map 'const wxRegion&', 'const wxRegion*' do
-            map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'
-          end
+        end
+        # special case bc SWIG causes trouble in Window.cpp
+        map 'const wxRegion&', 'const wxRegion*' do
+          map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'
+        end
 
-          # add type mapping for wxVariant input args
-          intypes = 'nil,String,Integer,Float,Time,Wx::Font,Wx::Colour,Wx::Variant,Array<WxVariant>,Array<String>,Object'
-          if Config.instance.features_set?('wxUSE_PROPGRID')
-            intypes << 'Wx::PG::ColourPropertyValue'
-          end
-          map 'const wxVariant&' => intypes do
-            map_in temp: 'wxVariant tmp', code: 'tmp = wxRuby_ConvertRbValue2Variant($input); $1 = &tmp;'
-          end
-          map 'wxVariant' => intypes do
-            map_in code: '$1 = wxRuby_ConvertRbValue2Variant($input);'
-          end
+        # add type mapping for wxVariant input args
+        intypes = 'nil,String,Integer,Float,Time,Wx::Font,Wx::Colour,Wx::Variant,Array<WxVariant>,Array<String>,Object'
+        if Config.instance.features_set?('wxUSE_PROPGRID')
+          intypes << 'Wx::PG::ColourPropertyValue'
+        end
+        map 'const wxVariant&' => intypes do
+          map_in temp: 'wxVariant tmp', code: 'tmp = wxRuby_ConvertRbValue2Variant($input); $1 = &tmp;'
+        end
+        map 'wxVariant' => intypes do
+          map_in code: '$1 = wxRuby_ConvertRbValue2Variant($input);'
         end
 
       end # define

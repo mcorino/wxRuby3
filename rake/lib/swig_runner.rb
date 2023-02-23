@@ -21,6 +21,11 @@ module WXRuby3
       include FileUtils
       include Util::StringUtil
 
+      def swig_major
+        check_swig unless swig_state
+        (@swig_version || '').split('.').first.to_i
+      end
+
       private
 
       def config
@@ -32,11 +37,8 @@ module WXRuby3
       end
 
       def swig_version
+        check_swig unless swig_state
         @swig_version
-      end
-
-      def swig_major
-        (@swig_version || '').split('.').first.to_i
       end
 
       def check_swig

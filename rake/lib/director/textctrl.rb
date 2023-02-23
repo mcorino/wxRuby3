@@ -17,9 +17,7 @@ module WXRuby3
         spec.include_mixin 'wxTextCtrl', 'Wx::TextEntry'
         spec.override_inheritance_chain('wxTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
-        if Config.instance.wx_version > '3.1.5'
-          spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
-        end
+        spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
         spec.map_apply 'long * OUTPUT' => 'long *'
         spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]

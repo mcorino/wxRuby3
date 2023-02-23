@@ -118,13 +118,11 @@ module WXRuby3
             return *$self == pt;
           }
         __HEREDOC
-        if Config.instance.wx_version >= '3.2.0'
-          spec.add_extend_code 'wxSize', <<~__HEREDOC
-            wxSize div(double factor) {
-              return *$self / factor;
-            }
-          __HEREDOC
-        end
+        spec.add_extend_code 'wxSize', <<~__HEREDOC
+          wxSize div(double factor) {
+            return *$self / factor;
+          }
+        __HEREDOC
           spec.swig_import 'swig/classes/include/wxDefs.h'
         super
       end

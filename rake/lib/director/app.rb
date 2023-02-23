@@ -53,9 +53,7 @@ module WXRuby3
           wxSafeYield
           wxExit
         }
-        if Config.instance.wx_version > '3.1.5'
-          spec.ignore 'wxApp::GetGUIInstance'
-        end
+        spec.ignore 'wxApp::GetGUIInstance'
         unless Config.instance.wx_abi_version >= '3.2.1' || Config.instance.wx_version < '3.2.1'
           spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
         end

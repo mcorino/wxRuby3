@@ -13,14 +13,12 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version > '3.1.5'
-          # because of error in XML docs
-          spec.ignore('wxSplitterEvent::GetOldSize', ignore_doc: false)
-          # add these by hand here
-          spec.extend_interface('wxSplitterEvent',
-                                'int GetOldSize() const',
-                                'int GetNewSize() const')
-        end
+        # because of error in XML docs
+        spec.ignore('wxSplitterEvent::GetOldSize', ignore_doc: false)
+        # add these by hand here
+        spec.extend_interface('wxSplitterEvent',
+                              'int GetOldSize() const',
+                              'int GetNewSize() const')
         spec.do_not_generate(:variables, :enums, :defines, :functions)
       end
     end # class SplitterEvent
