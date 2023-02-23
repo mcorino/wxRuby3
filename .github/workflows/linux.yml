@@ -112,6 +112,14 @@ jobs:
         
         $WXWIDGETS_ROOT/build/tools/before_install.sh
 
+    - name: Display build environment
+      run: |
+        echo $PATH
+        ruby -v
+        doxygen -V
+        gcc -v
+        g++ -v
+
     - name: Configuring wxWidgets
       run: |
         wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
