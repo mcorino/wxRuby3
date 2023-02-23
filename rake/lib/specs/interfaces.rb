@@ -286,4 +286,11 @@ module WXRuby3
     Director.Spec(pkg, 'wxPropertyGrid')
     Director.Spec(pkg, 'wxPropertyGridManager')
   }
+
+  Director.Package('Wx::RBN', 'wxUSE_RIBBON') { |pkg|
+    Director.Spec(pkg, 'wxRibbonBarEvent')
+    Director.Spec(pkg, 'wxRibbonButtonBarEvent')
+    Director.Spec(pkg, 'wxRibbonGalleryEvent')
+    Director.Spec(pkg, 'wxRibbonPanelEvent')
+  }
 end # module WXRuby3
