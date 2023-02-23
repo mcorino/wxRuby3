@@ -20,7 +20,7 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    name: wxMSW ${{ matrix.os }} Ruby ${{ matrix.ruby }} wxWidgets ${{ matrix.wxWidgets }} SWIG{{ matrix.swig }}
+    name: wxMSW ${{ matrix.os }} Ruby ${{ matrix.ruby }} wxWidgets ${{ matrix.wxWidgets }} SWIG${{ matrix.swig }}
     strategy:
       fail-fast: false
       matrix:
