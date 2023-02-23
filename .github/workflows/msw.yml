@@ -61,10 +61,31 @@ jobs:
       - name: Download Doxygen tool
         run: wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
 
-      - name: Expand Doxygen package
-        run: Expand-Archive -LiteralPath '.\doxygen-1.9.6.windows.x64.bin.zip' -DestinationPath ${{ env.DOXYGEN_ROOT }} -Force
+      - name: Install Doxygen package
+        run: |
+          Expand-Archive -LiteralPath '.\doxygen-1.9.6.windows.x64.bin.zip' -DestinationPath ${{ env.DOXYGEN_ROOT }} -Force
+          Add-Content $env:GITHUB_PATH "${{ env.DOXYGEN_ROOT }}"
 
       - name: Configuring wxWidgets
         run: |
-          cd ${{ env.WXWIDGETS_ROOT }}
-          ridk exec bash './configure --prefix=${{ env.WXWIN }} --disable-tests --without-subdirs --disable-debug_info'
+          Push-Location ${{ env.WXWIDGETS_ROOT }}
+          ridk exec bash -c './configure --prefix=${{ env.WXWIN }} --disable-tests --without-subdirs --disable-debug_info'
+          Pop-Location
+
+      - name: Build wxWidgets
+        run: |
+          Push-Location ${{ env.WXWIDGETS_ROOT }}
+          ridk exec bash -c 'make && make install'
+          Pop-Location
+
+      - name: Bootstrap wxRuby3
+        run: |
+          bundle exec rake bootstrap
+
+      - name: Build wxRuby3
+        run: |
+          bundle exec rake -m
+
+      - name: Run wxRuby3 regression tests
+        run: |
+          bundle exec rake wxtest[:nodep]
