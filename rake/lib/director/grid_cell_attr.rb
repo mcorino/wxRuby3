@@ -16,7 +16,7 @@ module WXRuby3
         # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
         # for wxRuby; far easier to just use member variables in derived classes
         spec.override_inheritance_chain('wxGridCellAttr', [])
-        spec.gc_as_refcounted('wxGridCellAttr')
+        spec.gc_as_untracked_refcounted('wxGridCellAttr')
         spec.ignore %w[wxGridCellAttr::IncRef wxGridCellAttr::DecRef]
         spec.ignore('wxGridCellAttr::GetEditorPtr',
                     'wxGridCellAttr::GetRendererPtr')

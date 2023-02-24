@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_refcounted
+        spec.gc_as_untracked_refcounted
         if spec.module_name == 'wxGridCellEditor'
           spec.post_processors << :fix_gridcelleditor
           # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
