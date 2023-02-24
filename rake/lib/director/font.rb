@@ -13,6 +13,7 @@ module WXRuby3
         super
         spec.items << 'wxFontInfo'
         spec.gc_as_temporary 'wxFontInfo'
+        spec.rename_for_ruby 'create' => 'wxFont::New'
         spec.ignore %w[
           wxFont::SetNativeFontInfo wxFont::GetNativeFontInfo wxFont::operator!=
           ]
