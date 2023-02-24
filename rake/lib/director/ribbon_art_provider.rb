@@ -14,6 +14,10 @@ module WXRuby3
         super
         spec.gc_as_object 'wxRibbonArtProvider'
         spec.gc_as_temporary 'wxRibbonPageTabInfo'
+        spec.suppress_warning(473,
+                              'wxRibbonArtProvider::Clone',
+                              'wxRibbonMSWArtProvider::Clone',
+                              'wxRibbonAUIArtProvider::Clone')
         # add method for correctly wrapping RibbonArtProvider references
         spec.add_header_code <<~__CODE
             extern VALUE mWxRBN; // declare external module reference

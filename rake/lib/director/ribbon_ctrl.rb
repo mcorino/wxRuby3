@@ -19,6 +19,7 @@ module WXRuby3
           # wrap (do not own)
           map_out code: '$result = wxRuby_WrapWxRibbonArtProviderInRuby($1, 0);'
         end
+        spec.suppress_warning(473, 'wxRibbonControl::GetAncestorRibbonBar')
       end
     end # class RibbonControl
 
