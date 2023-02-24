@@ -34,22 +34,23 @@ module WXRuby3
         name = name.sub('wx/', '')
         subdir = name.index('/') ? File.dirname(name) : ''
         name = File.basename(name).sub('.h', '_8h')
+        unless subdir.empty?
+          pathname = File.join(xml_dir, subdir + '_2' + name + '.xml')
+          if File.exist?(pathname)
+            return [pathname, subdir + '_2' + name + '.xml']
+          else
+            pathname = File.join(xml_dir, 'interface_2wx_2' + subdir + '_2' + name + '.xml')
+            if File.exist?(pathname)
+              return [pathname, 'interface_2wx_2' + subdir + '_2' + name + '.xml']
+            end
+          end
+        end
         pathname = File.join(xml_dir, name + '.xml')
         if File.exist?(pathname)
           [pathname, name + '.xml']
         else
           pathname = File.join(xml_dir, 'interface_2wx_2' + name + '.xml')
-          if File.exist?(pathname) || subdir.empty?
-            [pathname, 'interface_2wx_2' + name + '.xml']
-          else
-            pathname = File.join(xml_dir, subdir + '_2' + name + '.xml')
-            if File.exist?(pathname)
-              [pathname, subdir + '_2' + name + '.xml']
-            else
-              pathname = File.join(xml_dir, 'interface_2wx_2' + subdir + '_2' + name + '.xml')
-              [pathname, 'interface_2wx_2' + subdir + '_2' + name + '.xml']
-            end
-          end
+          [pathname, 'interface_2wx_2' + name + '.xml']
         end
       end
 
