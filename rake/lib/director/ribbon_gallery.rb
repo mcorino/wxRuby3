@@ -70,7 +70,7 @@ module WXRuby3
           __HEREDOC
         spec.map 'wxRibbonGalleryItem*' => 'Wx::RBN::RibbonGalleryItem' do
           map_in code: '$1 = _wxRuby_Unwrap_wxRibbonGalleryItem($input);'
-          map_directorin code: '$input = _wxRuby_Wrap_wxRibbonGalleryItem($1);'
+          map_directorin code: '$result = _wxRuby_Wrap_wxRibbonGalleryItem($1);'
         end
         # GC handling for item data objects.
         spec.add_header_code <<~__HEREDOC
