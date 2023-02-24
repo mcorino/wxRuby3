@@ -127,7 +127,6 @@ module WXRuby3
             }
             __CODE
         end
-        spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class RibbonArtProvider
 

@@ -15,6 +15,7 @@ module WXRuby3
         super
         # for SetArtProvider (only in RibbonBar)
         spec.disown 'wxRibbonArtProvider *art'
+        spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class RibbonBar
 
