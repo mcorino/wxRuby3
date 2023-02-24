@@ -15,9 +15,9 @@ module WXRuby3
         super
         # exclude these; far better done in pure Ruby
         spec.ignore 'wxRibbonGallery::SetItemClientObject',
-                    'wxRibbonGallery::GetItemClientObject',
-                    'wxRibbonGallery::SetItemClientData',
-                    'wxRibbonGallery::GetItemClientData'
+                    'wxRibbonGallery::GetItemClientObject'
+        spec.ignore 'wxRibbonGallery::SetItemClientData',
+                    'wxRibbonGallery::GetItemClientData', ignore_doc: false
         # create a lightweight, but typesafe, wrapper for wxRibbonGalleryItem
         spec.add_init_code <<~__HEREDOC
           // define RibbonGalleryItem wrapper class

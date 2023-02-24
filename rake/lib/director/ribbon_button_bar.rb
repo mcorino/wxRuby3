@@ -15,8 +15,8 @@ module WXRuby3
         super
         # exclude these; far better done in pure Ruby
         spec.ignore 'wxRibbonButtonBar::SetItemClientData',
-                    'wxRibbonButtonBar::GetItemClientData',
-                    'wxRibbonButtonBar::SetItemClientObject',
+                    'wxRibbonButtonBar::GetItemClientData', ignore_doc: false
+        spec.ignore 'wxRibbonButtonBar::SetItemClientObject',
                     'wxRibbonButtonBar::GetItemClientObject'
         # not needed because of type mapping
         spec.ignore 'wxRibbonButtonBar::GetItemId',

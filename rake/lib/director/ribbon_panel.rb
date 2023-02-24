@@ -13,6 +13,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wx/ribbon/panel.h'
       end
     end # class RibbonPanel
 

@@ -15,7 +15,11 @@ module WXRuby3
         super
         # exclude these; far better done in pure Ruby
         spec.ignore 'wxRibbonToolBar::SetToolClientData',
-                    'wxRibbonToolBar::GetToolClientData'
+                    'wxRibbonToolBar::GetToolClientData', ignore_doc: false
+        spec.map 'wxObject*' => 'Object', swig: false do
+          map_in
+          map_out
+        end
         # not needed because of type mapping
         spec.ignore 'wxRibbonToolBar::GetToolId',
                     'wxRibbonToolBar::FindById'
