@@ -10,4 +10,4 @@ require_relative './rbn/require'
 
 ::Wx.include(WxRubyStyleAccessors)
 
-::Wx::RBN.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx.include(::Wx::RBN) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
