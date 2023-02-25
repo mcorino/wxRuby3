@@ -164,10 +164,11 @@ class MyFrame < Wx::Frame
   end
 
   def on_page_setup(event)
-    page_setup_dialog = Wx::PageSetupDialog.new(self, Wx::get_app.page_setup_data)
-    page_setup_dialog.show_modal
+    Wx::PRT.PageSetupDialog(self, Wx::get_app.page_setup_data) do |dlg|
+      dlg.show_modal
 
-    Wx::get_app.page_setup_data = page_setup_dialog.page_setup_data
+      Wx::get_app.page_setup_data = dlg.page_setup_data
+    end
   end
 
   def on_exit(event)

@@ -184,13 +184,14 @@ class SamplePrintFrame < Wx::Frame
     data.set_margin_top_left(@margins.first)
     data.set_margin_bottom_right(@margins.last)
 
-    dlg = Wx::PageSetupDialog.new(self, data)
-    data = dlg.get_page_setup_data if dlg.show_modal == Wx::ID_OK
-    @pdata = data.get_print_data
-    @pdata.set_paper_id(data.paper_id)
-    #print_("paperID %r, paperSize %r" % (self.pdata.GetPaperId(), self.pdata.GetPaperSize()))
-    @margins = [data.margin_top_left,
-                data.margin_bottom_right]
+    Wx::PRT.PageSetupDialog(self, data) do |dlg|
+      data = dlg.get_page_setup_data if dlg.show_modal == Wx::ID_OK
+      @pdata = data.get_print_data
+      @pdata.set_paper_id(data.paper_id)
+      #print_("paperID %r, paperSize %r" % (self.pdata.GetPaperId(), self.pdata.GetPaperSize()))
+      @margins = [data.margin_top_left,
+                  data.margin_bottom_right]
+    end
   end
 
   def on_print_preview(evt)

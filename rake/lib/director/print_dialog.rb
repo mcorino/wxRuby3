@@ -9,15 +9,25 @@ module WXRuby3
 
     class PrintDialog < Director
 
-      include Typemap::PrintData
-
       def setup
         super
         spec.no_proxy 'wxPrintDialog::GetPrintDC' # do not think this is really useful
         spec.new_object 'wxPrintDialog::GetPrintDC'
-        spec.suppress_warning(473,
-                              'wxPrintDialog::GetPrintData',
-                              'wxPrintDialog::GetPrintDialogData')
+        # make PrintDialog GC-safe
+        spec.ignore 'wxPrintDialog::GetPrintData',
+                    'wxPrintDialog::GetPrintDialogData'
+        spec.add_extend_code 'wxPrintDialog', <<~__HEREDOC
+          wxPrintData* GetPrintData()
+          { return new wxPrintData(self->GetPrintData()); }
+          void SetPrintData(const wxPrintData& pd)
+          { self->GetPrintData() = pd; }
+          wxPrintDialogData* GetPrintDialogData()
+          { return new wxPrintDialogData(self->GetPrintDialogData()); }
+          void SetPrintDialogData(const wxPrintDialogData& pd)
+          { self->GetPrintDialogData() = pd; }
+          __HEREDOC
+        spec.new_object 'wxPrintDialog::GetPrintData',
+                        'wxPrintDialog::GetPrintDialogData'
       end
     end # class PrintDialog
 

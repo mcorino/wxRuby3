@@ -9,8 +9,6 @@ module WXRuby3
 
     class RichTextHeaderFooterData < Director
 
-      include Typemap::PrintData
-
       def setup
         super
         spec.gc_as_temporary

@@ -9,8 +9,6 @@ module WXRuby3
 
     class RichTextPrinting < Director
 
-      include Typemap::PrintData
-
       def setup
         spec.items << 'wxRichTextPrintout'
         super
@@ -23,8 +21,17 @@ module WXRuby3
             vresult = SWIG_NewPointerObj((new wxRichTextHeaderFooterData(*result)), SWIGTYPE_p_wxRichTextHeaderFooterData, SWIG_POINTER_OWN |  0 );
             __CODE
         end
-        spec.map_apply 'wxPageSetupDialogData &' => 'wxPageSetupDialogData *'
-        spec.map_apply 'wxPrintData &' => 'wxPrintData *'
+        # make wxRichTextPrinting GC-safe
+        spec.ignore 'wxRichTextPrinting::GetPageSetupData',
+                    'wxRichTextPrinting::GetPrintData'
+        spec.add_extend_code 'wxRichTextPrinting', <<~__HEREDOC
+          wxPrintData* GetPrintData()
+          { return new wxPrintData(*self->GetPrintData()); }
+          wxPageSetupDialogData* GetPageSetupData()
+          { return new wxPageSetupDialogData(*self->GetPageSetupData()); }
+          __HEREDOC
+        spec.new_object 'wxRichTextPrinting::GetPageSetupData',
+                        'wxRichTextPrinting::GetPrintData'
         spec.map 'const wxRect&' => 'Wx::Rect' do
           map_out code: 'vresult = SWIG_NewPointerObj(SWIG_as_voidptr(new wxRect(*result)), SWIGTYPE_p_wxRect, SWIG_POINTER_OWN |  0 );'
         end
