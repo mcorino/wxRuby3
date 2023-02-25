@@ -3,6 +3,7 @@
 
 require_relative './events'
 require_relative './keyword_defs'
+require_relative './ribbon_art_provider'
 require_relative './ribbon_button_bar'
 require_relative './ribbon_tool_bar'
 require_relative './ribbon_gallery'
