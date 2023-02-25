@@ -491,7 +491,7 @@ class MyFrame < Wx::Frame
     end
     Wx.ColourDialog(self, @colour_data) do |dlg|
       if dlg.show_modal == Wx::ID_OK
-        @colour_data.colour = dlg.get_colour_data.colour
+        @colour_data = dlg.colour_data
         clr = @colour_data.colour
 
         # Try to find colour in gallery

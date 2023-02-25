@@ -67,6 +67,19 @@ module WXRuby3
           spec.map_apply 'SWIGTYPE *DISOWN' => 'wxFindReplaceData* data'
           spec.do_not_generate(:variables, :enums)
         when 'wxColourDialog'
+          # make interface GC-safe
+          spec.ignore 'wxColourDialog::GetColourData'
+          spec.add_extend_code 'wxColourDialog', <<~__HEREDOC
+            wxColourData* GetColourData()
+            {
+              return new wxColourData(self->GetColourData());
+            }
+            void SetColourData(const wxColourData& cd)
+            {
+              self->GetColourData() = cd;
+            }
+            __HEREDOC
+          spec.new_object 'wxColourDialog::GetColourData'
         when 'wxTextEntryDialog'
           spec.items << 'wxPasswordEntryDialog'
         when 'wxSingleChoiceDialog'
