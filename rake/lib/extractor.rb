@@ -64,7 +64,8 @@ module WXRuby3
       # Doxygen XML output folder.
       def parse_doxy_xml(moddef, class_or_filename_list)
         filesparsed = Set.new
-        class_or_filename_list.each do |class_or_filename|
+        until class_or_filename_list.empty?
+          class_or_filename = class_or_filename_list.shift
           attempts = []
           pathname = class_to_doxy_name(class_or_filename, attempts)
 
@@ -99,14 +100,14 @@ module WXRuby3
             # Make sure though, that for interface files we only parse the one
             # that belongs to this class. Otherwise, enums, etc. will be defined
             # in multiple places.
-            xmlname = class_or_filename.sub('wx', '').downcase
+            xmlname = class_or_filename.downcase
 
             if item.respond_to?(:includes)
               item.includes.each do |inc|
                 pathname, name = include_to_doxy_name(inc)
                 class_or_filename_list << name if File.exist?(pathname) &&
                                                   !filesparsed.include?(pathname) &&
-                                                  (!name.index('interface') || name.index(xmlname)) &&
+                                                  (!name.index('interface') || name.gsub('_2', '').index(xmlname)) &&
                                                   !class_or_filename_list.index(name)
               end
             end
@@ -140,7 +141,7 @@ module WXRuby3
 
       def extract_module(pkg, mod, name, items, gendoc: false)
         moddef = ModuleDef.new(pkg, mod, name, gendoc: gendoc)
-        parse_doxy_xml(moddef, items)
+        parse_doxy_xml(moddef, items.dup)
         moddef
       end
     end
