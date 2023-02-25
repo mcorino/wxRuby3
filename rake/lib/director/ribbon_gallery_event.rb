@@ -13,13 +13,10 @@ module WXRuby3
 
       def setup
         super
-        spec.map 'wxRibbonGalleryItem*' => 'Wx::RBN::RibbonGalleryItem' do
-          add_header_code <<~__CODE
-            extern VALUE _wxRuby_Wrap_wxRibbonGalleryItem(const wxRibbonGalleryItem* itm);
-            extern wxRibbonGalleryItem* _wxRuby_Unwrap_wxRibbonGalleryItem(VALUE itm);
-            __CODE
-          map_in code: '$1 = _wxRuby_Unwrap_wxRibbonGalleryItem($input);'
-          map_out code: '$result = _wxRuby_Wrap_wxRibbonGalleryItem($1);'
+        # map opaque wxRibbonGalleryItem* to an pointer sized integer value
+        spec.map 'wxRibbonGalleryItem*' => 'Integer' do
+          map_out code: '$result = ULL2NUM(reinterpret_cast<uintptr_t> ($1));'
+          map_in code: '$1 = reinterpret_cast<wxRibbonGalleryItem*> ((uintptr_t)NUM2ULL($input));'
         end
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
