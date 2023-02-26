@@ -11,6 +11,12 @@ rescue LoadError
   Wx::WXRUBY_VERSION = '0.0.0'
 end
 
+# decompose wxRuby version
+Wx::WXRUBY_RELEASE_TYPE = (/\d+\.\d+\.\d+(.+)/ =~ Wx::WXRUBY_VERSION ? $1 : '')
+Wx::WXRUBY_MAJOR,
+  Wx::WXRUBY_MINOR,
+  Wx::WXRUBY_RELEASE = Wx::WXRUBY_VERSION.split('.').collect { |v| v.to_i }
+
 # Convenience string for WxWidgets version info
 Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
                                        Wx::WXWIDGETS_MINOR_VERSION,
