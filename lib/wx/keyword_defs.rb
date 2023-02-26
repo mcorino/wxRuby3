@@ -1,6 +1,6 @@
 # Wx core package loader for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
-
+# Adapted from wxRuby2.
 
 module Wx
   # = WxSugar - Keyword Constructors Classes
@@ -12,10 +12,8 @@ module Wx
   #
   # For each class, the parameters *must* be declared in the order that
   # they are supplied to wxRuby. A parameter is specified by a symbol
-  # name, and, optionally, a default argument which will of whatever type
-  # the wxRuby core library accepts. Because hashes are unordered in Ruby
-  # 1.8, if a default argument is specified, this must be the last in a
-  # list of parameters.
+  # name, and, optionally, a default argument which will be of whatever type
+  # the wxRuby core library accepts.
   # To support complex (context dependent) defaults and/or autoconversion
   # of arguments for backwards the specified default can also be a lambda
   # or  a proc accepting a single argument. This argument will be the
@@ -48,14 +46,15 @@ module Wx
       STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx::RB_DEBUG
       return nil
     end if ::String === klass
-    # If the klass inherited from a class which already included Wx::KeywordConstructor
-    # it will have a @param_spec array copied from the base already.
+    # If the klass inherited from a class which already has keyword ctor defined
+    # it will already have a param_spec class attribute defined.
     # We need to clear it here because we're going to define a new param_spec for
     # this specific derivative.
-    if klass < Wx::KeywordConstructor
-      klass.param_spec.clear
+    unless klass.respond_to?(:param_spec)
+      klass.include Wx::KeywordConstructor::ParamSpec
     end
-    klass.module_eval { include Wx::KeywordConstructor }
+    klass.param_spec = []
+    klass.include Wx::KeywordConstructor
     klass.instance_eval(&block)
   end
 end
