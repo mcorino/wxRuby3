@@ -47,12 +47,6 @@ class LogTextCtrl < Wx::TextCtrl
 end
 
 class IConvFrame < Wx::Frame
-  # Ruby stdlib for converting strings between encodings
-  begin
-    require 'iconv'
-    ICONV_LOADED = 1
-  rescue LoadError
-  end
 
   # The encodings we're going to make importable and exportable in this
   # application - see construct_import_export_menus below
@@ -110,17 +104,18 @@ class IConvFrame < Wx::Frame
   # Prompt the user to specify a file whose contents should be loaded
   # into the text ctrl. The file should be encoded in +encoding+
   def on_import_file(encoding)
-    fd = Wx::FileDialog.new( nil, 'Import file', "", "", 
-                             "*.*", Wx::OPEN|Wx::FILE_MUST_EXIST  )
-    return unless fd.show_modal == Wx::ID_OK
-    File.open( fd.get_path ) do | file |
-      import_file( file, encoding )
+    Wx::FileDialog(nil, 'Import file', "", "",
+                   "*.*", Wx::FD_OPEN | Wx::FD_FILE_MUST_EXIST) do |fd|
+      return unless fd.show_modal == Wx::ID_OK
+      File.open(fd.get_path) do |file|
+        import_file(file, encoding)
+      end
+    rescue
+      message = "The file %s does not seem to be in %s encoding\n%s" %
+        [fd.get_filename, encoding, $!.to_s]
+      Wx::MessageDialog(self, message, 'Wrong encoding',
+                        Wx::OK | Wx::ICON_EXCLAMATION)
     end
-  rescue Iconv::IllegalSequence
-    message = "The file %s does not seem to be in %s encoding " %
-              [ fd.get_filename, encoding ]
-    Wx::MessageDialog.new(self, message, 'Wrong encoding',
-                          Wx::OK|Wx::ICON_EXCLAMATION).show_modal
   end
 
   # Read +io+, which should be text file encoding in +source_encoding+,
@@ -130,29 +125,25 @@ class IConvFrame < Wx::Frame
     when /UTF-?8/
       @textctrl.set_value( io.read )
     else
-      output = ''
-      Iconv.open('UTF-8', source_encoding) do | converter |
-        output << converter.iconv( io.read )
-        output << converter.iconv(nil)
-      end
-      @textctrl.set_value( output )
+      @textctrl.set_value(io.read.encode("UTF-8", :invalid => :replace, :undef => :replace, :replace => "?"))
     end
   end
 
   # Ask the user for a file path, and then export the content of the
   # textctrl to it in the encoding +encoding+
   def on_export_file(encoding)
-    fd = Wx::FileDialog.new( nil, 'Export file', "", "",
-                             "*.*", Wx::SAVE|Wx::OVERWRITE_PROMPT )
-    return unless fd.show_modal == Wx::ID_OK
-    File.open( fd.get_path, 'w' ) do | file |
-      export_file( file, encoding )
+    Wx::FileDialog(nil, 'Export file', "", "",
+                   "*.*", Wx::FD_SAVE | Wx::FD_OVERWRITE_PROMPT) do |fd|
+      return unless fd.show_modal == Wx::ID_OK
+      File.open(fd.get_path, 'w') do |file|
+        export_file(file, encoding)
+      end
+    rescue
+      message = "The text content containts characters that " <<
+        "cannot be encoded using %s.\n%s" % [encoding, $!.to_s]
+      Wx::MessageDialog(self, message, 'Invalid encoding',
+                        Wx::OK | Wx::ICON_EXCLAMATION)
     end
-  rescue Iconv::IllegalSequence
-    message = "The text content containts characters that " <<
-              "cannot be encoded using %s" % encoding
-    Wx::MessageDialog.new(self, message, 'Invalid encoding',
-                          Wx::OK|Wx::ICON_EXCLAMATION).show_modal
   end
 
   # Write the content of the textctrl to the file or io +io+, encoding
@@ -160,12 +151,9 @@ class IConvFrame < Wx::Frame
   def export_file(io, target_encoding = 'utf-8')
     case target_encoding
     when /UTF-?8/
-      io.write( @textctrl.get_value )
+      io.write(@textctrl.get_value)
     else
-      Iconv.open(target_encoding, 'UTF-8') do | converter |
-        io << converter.iconv( @textctrl.get_value )
-        io << converter.iconv(nil)
-      end
+      io.write(@textctrl.get_value.encode(target_encoding, :invalid => :replace, :undef => :replace, :replace => "?"))
     end
   end
 
@@ -176,9 +164,7 @@ class IConvFrame < Wx::Frame
     menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
     evt_menu(Wx::ID_EXIT) { on_quit }
     menu_bar.append(menu_file, "&File")
-    if self.class.const_defined?(:ICONV_LOADED)
-      construct_import_export_menus(menu_bar)
-    end
+    construct_import_export_menus(menu_bar)
 
     menu_help = Wx::Menu.new
     menu_help.append(Wx::ID_ABOUT, "&About...\tF1", "Show about dialog")
