@@ -1,3 +1,5 @@
+# WxRuby Extensions - Dialog functors for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
 
 class Wx::Dialog
 
@@ -18,7 +20,9 @@ class Wx::Dialog
           end
         end
         __CODE
-      unless scope.empty?
+      if scope.empty?
+        ::Kernel.module_eval code
+      else
         scope.inject(::Object) { |mod, nm| mod.const_get(nm) }.singleton_class.module_eval code
       end
       klass.class_eval do
