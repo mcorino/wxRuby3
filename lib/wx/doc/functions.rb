@@ -124,26 +124,38 @@ module Wx
 
   # @!group Dialog shortcuts
 
-  # @return [Integer] One of {Wx::YES}, {Wx::NO}, {Wx::CANCEL}, {Wx::OK} or {Wx::HELP}
-  def self.message_box(message, caption = 'Message', style = Wx::OK,
-                       parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD) end
-
   # @return [Array<Integer>] Selected choices
   def self.get_selected_choices(message, caption, choices,
                                 parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD,
                                 centre = true, width = Wx::CHOICE_WIDTH, height = Wx::CHOICE_HEIGHT) end
 
-  # Do not use if -1 is a valid number to enter.
-  # @return [Integer] Entered number or -1 if cancelled
-  def self.get_number_from_user(message, prompt, caption,
-                                value, min = 0, max = 100,
-                                parent = nil, pos = Wx::DEFAULT_POSITION) end
-
-  # @return [String] Entered text.
-  def self.get_text_from_user(message, caption = 'Input Text', default_value = '', parent = nil) end
-
-  # @return [String] Entered text.
-  def self.get_password_from_user(message, caption = 'Enter Password', default_value = '', parent = nil) end
+  # Pops up a file selector box.
+  #
+  # In Windows, this is the common file selector dialog. In X, this is a file selector box with the same functionality.
+  # The path and filename are distinct elements of a full file pathname. If path is empty, the current directory will
+  # be used. If filename is empty, no default filename will be supplied. The wildcard determines what files are
+  # displayed in the file selector, and file extension supplies a type extension for the required filename. Flags may
+  # be a combination of Wx::FD_OPEN, Wx::FD_SAVE, Wx::FD_OVERWRITE_PROMPT or Wx::FD_FILE_MUST_EXIST.
+  #
+  # @note Wx::FD_MULTIPLE can only be used with Wx::FileDialog and not here since this function only returns a single file name.
+  #
+  # Both the Unix and Windows versions implement a wildcard filter. Typing a filename containing wildcards (*, ?) in
+  # the filename text item, and clicking on Ok, will result in only those files matching the pattern being displayed.
+  # The wildcard may be a specification for multiple types of file with a description for each, such as:
+  # <code>"BMP files (*.bmp)|*.bmp|GIF files (*.gif)|*.gif"</code>
+  #
+  # The application must check for an empty return value (the user pressed Cancel). For example:
+  # <code>
+  #   filename = Wx::file_selector("Choose a file to open")
+  #   unless filename.empty?
+  #     # work with the file
+  #     ...
+  #   end
+  #   # else: cancelled by user
+  # </code>
+  # @return [String] selected file name
+  def file_selector(message, default_path='', default_filename='', default_extension='', wildcard='',
+                    flags=0, parent=nil, x=Wx::DEFAULT_COORD, y=Wx::DEFAULT_COORD) end
 
   # @!endgroup
 

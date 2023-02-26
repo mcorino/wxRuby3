@@ -164,11 +164,11 @@ class TargetFrame < Wx::Frame
     msg =  sprintf("This is the About dialog of the event handling sample.\n" \
                    "Welcome to wxRuby, version %s", Wx::WXRUBY_VERSION)
 
-    about_dlg = Wx::MessageDialog.new( self, msg, 'About Event Handling',
-                                       Wx::OK|Wx::ICON_INFORMATION )
-    about_dlg.ok_label = Wx::ButtonLabel.new('Close')
-    about_dlg.show_modal
-
+    Wx::MessageDialog(self, msg, 'About Event Handling',
+                      Wx::OK | Wx::ICON_INFORMATION) do |about_dlg|
+      about_dlg.ok_label = Wx::ButtonLabel.new('Close')
+      about_dlg.show_modal
+    end
   end
 
   TOGGLE_LISTEN = 1001

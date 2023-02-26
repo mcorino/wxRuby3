@@ -911,30 +911,30 @@ class MyPanel < Panel
       return nil
     end
 
-    dialog = ProgressDialog.new("Progress dialog example",
-                                 "An informative message",
-                                 max,    # range
-                                 self,   # parent
-                                 PD_CAN_ABORT |
-                                 PD_AUTO_HIDE |
-                                 PD_APP_MODAL |
-                                 PD_ELAPSED_TIME |
-                                 PD_ESTIMATED_TIME |
-                                 PD_REMAINING_TIME)
-
-    cont = true
-    0.upto(max) {|i|
-      break if !cont
-      sleep(1)
-      if i == max
-        cont = dialog.update(i, "That's all, folks!")
-      elsif i == max / 2
-        cont = dialog.update(i, "Only a half left (very long message)!")
-      else
-        cont = dialog.update(i)
-      end
-    }
-    dialog.destroy()
+    cont = false
+    ProgressDialog("Progress dialog example",
+                   "An informative message",
+                   max, # range
+                   self, # parent
+                   PD_CAN_ABORT |
+                     PD_AUTO_HIDE |
+                     PD_APP_MODAL |
+                     PD_ELAPSED_TIME |
+                     PD_ESTIMATED_TIME |
+                     PD_REMAINING_TIME) do |dialog|
+      cont = true
+      0.upto(max) {|i|
+        break if !cont
+        sleep(1)
+        if i == max
+          cont = dialog.update(i, "That's all, folks!")
+        elsif i == max / 2
+          cont = dialog.update(i, "Only a half left (very long message)!")
+        else
+          cont = dialog.update(i)
+        end
+      }
+    end
     if !cont
       @m_text << "Progress dialog aborted!\n"
     else
@@ -1043,8 +1043,7 @@ class MyFrame < Frame
 
   def onAbout(event)
     BusyCursor.busy do
-      dialog = MessageDialog.new(self, "This is a control sample", "About Controls", OK)
-      dialog.show_modal()
+      Wx.MessageDialog(self, "This is a control sample", "About Controls", OK) { |dlg| dlg.show_modal }
     end
   end
 

@@ -435,10 +435,11 @@ class WxRubyDemo < Wx::Frame
             @nb.refresh
           end
         rescue Exception => problem
-          dlg = Wx::MessageDialog.new(self, "A problem occurred with the %s demo:\n%s\n%s" % [itemText, problem, problem.backtrace.join("\n").to_s()],
-                                      "Error!!!", Wx::OK | Wx::ICON_ERROR)
-          dlg.show_modal
-          dlg.destroy
+          Wx.MessageDialog(self, "A problem occurred with the %s demo:\n%s\n%s" % [itemText, problem, problem.backtrace.join("\n").to_s()],
+                                      "Error!!!", Wx::OK | Wx::ICON_ERROR) do |dlg|
+            dlg.show_modal
+            dlg.destroy
+          end
         end
       else
         @ovr.set_value("")
@@ -482,8 +483,8 @@ class WxRubyDemo < Wx::Frame
 
   def on_help_find(event)
     @nb.set_selection(1)
-    @finddlg = Wx::FindReplaceDialog.new(self, @finddata, "Find", Wx::FR_NOUPDOWN | Wx::FR_NOMATCHCASE | Wx::FR_NOWHOLEWORD)
-    @finddlg.show()
+    @finddlg ||= Wx::FindReplaceDialog.new(self, @finddata, "Find", Wx::FR_NOUPDOWN | Wx::FR_NOMATCHCASE | Wx::FR_NOWHOLEWORD)
+    @finddlg.show
   end
 
   def on_find(event)
@@ -521,18 +522,18 @@ class WxRubyDemo < Wx::Frame
       end
 
       if loc == nil
-        dlg = Wx::MessageDialog.new(self, 'Find String Not Found', 'Find String Not Found in Demo File',
-                                    Wx::OK | Wx::ICON_INFORMATION)
-        dlg.show_modal()
-        dlg.destroy()
+        Wx.MessageDialog(self, 'Find String Not Found', 'Find String Not Found in Demo File',
+                                    Wx::OK | Wx::ICON_INFORMATION) do |dlg|
+          dlg.show_modal
+        end
       end
 
       if @finddlg
         if loc == nil
-          @finddlg.set_focus()
+          @finddlg.set_focus
           return
         else
-          @finddlg.hide()
+          @finddlg.hide
         end
       end
       @txt.show_position(loc)
@@ -546,10 +547,10 @@ class WxRubyDemo < Wx::Frame
       @txt.set_search_flags(0)
       loc = @txt.search_in_target(event.get_find_string)
       if loc == -1
-        dlg = Wx::MessageDialog.new(self, 'Find String Not Found', 'Find String Not Found in Demo File',
-                                    Wx::OK | Wx::ICON_INFORMATION)
-        dlg.show_modal()
-        dlg.destroy()
+        Wx.MessageDialog(self, 'Find String Not Found', 'Find String Not Found in Demo File',
+                                    Wx::OK | Wx::ICON_INFORMATION) do |dlg|
+          dlg.show_modal
+        end
       end
 
       if @finddlg

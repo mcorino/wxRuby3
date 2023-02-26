@@ -208,9 +208,10 @@ class MathsPanel < Panel
 
   # Display a dialog to save the image to a file
   def on_save
-    dlg = SaveImageDialog.new(parent)
-    if dlg.show_modal == ID_OK
-      @drawing.img.save_file(dlg.path, dlg.image_type)
+    SaveImageDialog(parent) do |dlg|
+      if dlg.show_modal == ID_OK
+        @drawing.img.save_file(dlg.path, dlg.image_type)
+      end
     end
   end
 

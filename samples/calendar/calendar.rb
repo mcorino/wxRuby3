@@ -239,17 +239,18 @@ class MyFrame < Frame
       dt = nil if get_menu_bar.is_checked(Calendar_DatePicker_StartWithNone)
     end
     
-    dlg = MyDialog.new(self, dt, style)
-    if dlg.show_modal == ID_OK
-      if dt = dlg.get_date
-        today = Time.now
-        if dt.day == today.day && dt.month == today.month
-          message_box("Happy birthday", "Calendar Sample")
+    MyDialog(self, dt, style) do |dlg|
+      if dlg.show_modal == ID_OK
+        if dt = dlg.get_date
+          today = Time.now
+          if dt.day == today.day && dt.month == today.month
+            message_box("Happy birthday", "Calendar Sample")
+          end
+          @calendar.set_date(dt)
+          log_status("Changed the date to your input")
+        else
+          log_status("No date entered")
         end
-        @calendar.set_date(dt)
-        log_status("Changed the date to your input")
-      else
-        log_status("No date entered")
       end
     end
   end
@@ -286,13 +287,13 @@ class MyFrame < Frame
       @calendar.reset_attr(29)
       # @calendar.reset_attr(13)
     end
-    @calendar.refresh()
+    @calendar.refresh
   end
 
   def set_date(d)
     str = "%s-%s-%s" % [ d.year, d.mon, d.day ]
-    Wx::MessageDialog.new( self, "The selected date is #{str}", 
-                           "Date chosen" ).show_modal
+    Wx.MessageDialog( self, "The selected date is #{str}",
+                           "Date chosen" ) { |dlg| dlg.show_modal }
   end
   alias :date= :set_date
   

@@ -11,7 +11,11 @@ class Wx::Dialog
         def #{functor_nm}(*args, &block)
           dlg = #{klass.name}.new(*args)
           begin
-            block.call(dlg) if block_given?
+            if block_given?
+              return block.call(dlg)
+            else
+              return dlg.show_modal
+            end
           rescue Exception
             Wx.log_debug "\#{$!}\\n\#{$!.backtrace.join("\\n")}"
             raise

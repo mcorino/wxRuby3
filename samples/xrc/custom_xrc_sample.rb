@@ -23,7 +23,7 @@ class SimpleFrame < Wx::Frame
     menu_bar.append(menu,"File")
     
     # Assign the menu events
-    evt_menu(Wx::ID_OPEN) { $xml.load_dialog(self, 'SAMPLE_DIALOG').setup_dialog.show_modal }
+    evt_menu(Wx::ID_OPEN) { (dlg = $xml.load_dialog(self, 'SAMPLE_DIALOG').setup_dialog).show_modal; dlg.destroy }
     evt_menu(Wx::ID_EXIT) { close }
   end
 end

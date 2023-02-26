@@ -23,7 +23,7 @@ class SimpleFrame < Wx::Frame
     menu_bar.append(menu,"File")
     
     # Assign the menu events
-    evt_menu(Wx::ID_OPEN) { SimpleDialog.new(self).show_modal }
+    evt_menu(Wx::ID_OPEN) { SimpleDialog(self) }
     evt_menu(Wx::ID_EXIT) { close }
   end
 end

@@ -200,13 +200,6 @@ module WXRuby3
           wxWindow * wxGetActiveWindow();
           
           // Dialog shortcuts
-          int wxMessageBox(const wxString& message,
-                   const wxString& caption = wxT("Message"),
-                   int style = wxOK,
-                   wxWindow *parent = NULL,
-                   int x = -1,
-                   int y = -1);
-          
           VOID_INT wxGetSelectedChoices(wxArrayInt& selections,
                         const wxString& message,
                         const wxString& caption,
@@ -217,20 +210,6 @@ module WXRuby3
                         bool centre = true,
                         int width = wxCHOICE_WIDTH,
                         int height = wxCHOICE_HEIGHT);
-          long wxGetNumberFromUser(const wxString& message,
-                       const wxString& prompt,
-                       const wxString& caption,
-                       long value, long min = 0, long max = 100,
-                       wxWindow *parent = NULL,
-                       const wxPoint& pos = wxDefaultPosition);
-          wxString wxGetTextFromUser(const wxString& message,
-                         const wxString& caption = wxT("Input text"),
-                         const wxString& default_value = wxT(""),
-                         wxWindow *parent = NULL);
-          wxString wxGetPasswordFromUser(const wxString& message,
-                           const wxString& caption = wxT("Input text"),
-                           const wxString& default_value = wxT(""),
-                           wxWindow *parent = NULL);
           
           
           wxString wxFileSelector (const wxString &message,

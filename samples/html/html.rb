@@ -209,10 +209,8 @@ class HtmlFrame < Wx::Frame
                    "Welcome to wxRuby, version %s", Wx::WXRUBY_VERSION)
 
     # create a simple message dialog with OK button
-    about_dlg = Wx::MessageDialog.new( self, msg, 'About WxRuby HTML',
-                                       Wx::OK|Wx::ICON_INFORMATION )
-    about_dlg.show_modal
-	about_dlg.destroy
+    Wx::MessageDialog(self, msg, 'About WxRuby HTML',
+                      Wx::OK | Wx::ICON_INFORMATION)
   end
 
   def on_html_link_clicked(event)
