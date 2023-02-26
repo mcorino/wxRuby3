@@ -157,6 +157,65 @@ module Wx
   def file_selector(message, default_path='', default_filename='', default_extension='', wildcard='',
                     flags=0, parent=nil, x=Wx::DEFAULT_COORD, y=Wx::DEFAULT_COORD) end
 
+  # An extended version of {Wx::file_selector}.
+  # @return [String] selected file name
+  def file_selector_ex(message='Select a file', default_path='', default_filename='', indexDefaultExtension=nil,
+                       wildcard='*', flags=0, parent=nil, x=Wx::DEFAULT_COORD, y=Wx::DEFAULT_COORD) end
+
+  # Shows a file dialog asking the user for a file name for saving a file.
+  # @see Wx::file_selector, Wx::FileDialog
+  def load_file_selector(what,  extension, default_name='', parent=nil) end
+
+  # Shows a file dialog asking the user for a file name for opening a file.
+  # @see Wx::file_selector, Wx::FileDialog
+  def save_file_selector(what, extension, default_name='', parent=nil) end
+
+  # @!endgroup
+
+  # @!group Managing stock IDs
+
+  # Returns true if the ID is in the list of recognized stock actions
+  # @param [Integer] id ID to check
+  # @return [true,false]
+  def is_stock_id(id) end
+
+  # Returns true if the label is empty or label of a stock button with
+  # given ID
+  # @param [Integer] id ID to check
+  # @param [String] label to check
+  # @return [true,false]
+  def is_stock_label(id, label) end
+
+  STOCK_NOFLAGS = 0
+
+  STOCK_WITH_MNEMONIC = 1
+
+  STOCK_WITH_ACCELERATOR = 2
+
+  STOCK_WITHOUT_ELLIPSIS = 4
+
+  STOCK_FOR_BUTTON = STOCK_WITHOUT_ELLIPSIS | STOCK_WITH_MNEMONIC
+
+  # Returns label that should be used for given id element.
+  # @param [Integer] id	Given id of the wxMenuItem, wxButton, wxToolBar tool, etc.
+  # @param [Integer] flags Combination of the elements of STOCK_xxx flags.
+  # @return [String]
+  def get_stock_label(id, flags = Wx::STOCK_WITH_MNEMONIC) end
+
+  # Returns the accelerator that should be used for given stock UI element
+  # (e.g. "Ctrl+X" for Wx::ID_CUT)
+  # @param [Integer] id stock UI element ID
+  # @return [Wx::AcceleratorEntry]
+  def get_stock_accelerator(id) end
+
+  STOCK_MENU = 0
+
+  # Returns a help string for the given stock UI element and for the given "context".
+  # @param [Integer] id stock UI element ID
+  # @param [Integer] client context (currently only STOCK_MENU)
+  # @return [String]
+  def get_stock_help_string(id, client = Wx::STOCK_MENU) end
+
   # @!endgroup
 
 end

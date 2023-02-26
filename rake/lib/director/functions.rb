@@ -236,13 +236,26 @@ module WXRuby3
                                        const wxString &default_name=wxEmptyString,
                                        wxWindow *parent=NULL);
           
-          
           // Managing stock ids
+          enum  	wxStockLabelQueryFlag {
+            wxSTOCK_NOFLAGS = 0 ,
+            wxSTOCK_WITH_MNEMONIC = 1 ,
+            wxSTOCK_WITH_ACCELERATOR = 2 ,
+            wxSTOCK_WITHOUT_ELLIPSIS = 4 ,
+            wxSTOCK_FOR_BUTTON = wxSTOCK_WITHOUT_ELLIPSIS | wxSTOCK_WITH_MNEMONIC
+          };
+
           bool wxIsStockID(wxWindowID id);
           bool wxIsStockLabel(wxWindowID id, const wxString& label);
           wxString wxGetStockLabel(wxWindowID id,
                                    long flags = wxSTOCK_WITH_MNEMONIC);
           wxAcceleratorEntry wxGetStockAccelerator(wxWindowID id);
+
+          enum wxStockHelpStringClient
+          {
+              wxSTOCK_MENU
+          };
+
           wxString wxGetStockHelpString(wxWindowID id,
                                         wxStockHelpStringClient client = wxSTOCK_MENU);
           __HEREDOC
