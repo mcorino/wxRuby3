@@ -53,7 +53,7 @@ def create_gem_tasks
     this_gemspec = $base_gemspec.dup()    
     this_gemspec.instance_eval do       
       self.platform = Gem::Platform::CURRENT
-      self.files += [ TARGET_LIB ]
+      # self.files += [ TARGET_LIB ]
       # If building on OS X, test for splitting OS universal gem into two 
       if self.platform.os == 'darwin' and 
          self.platform.cpu == 'universal' and 

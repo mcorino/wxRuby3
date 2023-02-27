@@ -16,9 +16,9 @@ module WXRuby3
       private
 
       def sh(cmd)
-        STDERR.puts "> sh: #{cmd}" if Rake.application.options.trace
+        STDERR.puts "> sh: #{cmd}" if verbose?
         s = `#{cmd}`
-        STDERR.puts "< #{s}" if Rake.application.options.trace
+        STDERR.puts "< #{s}" if verbose?
         s
       end
 
@@ -75,7 +75,7 @@ module WXRuby3
         # static wxRuby3 builds)
         @wx_path = get_wx_path
 
-        STDERR.puts "> wx_path = '#{@wx_path}'" if Rake.application.options.trace
+        STDERR.puts "> wx_path = '#{@wx_path}'" if verbose?
 
         @wx_xml_path = get_wx_xml_path
 

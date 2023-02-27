@@ -9,7 +9,31 @@ require 'ruby_memcheck'
 
 require_relative './swig_runner'
 
+module FileUtils
+  # add convenience methods
+  def rmdir_if(list, **kwargs)
+    list = fu_list(list).select { |path| File.exist?(path) }
+    rmdir(list, **kwargs) unless list.empty?
+  end
+  def rm_if(list, **kwargs)
+    list = fu_list(list).select { |path| File.exist?(path) }
+    rm_f(list, **kwargs) unless list.empty?
+  end
+end
+
 module WXRuby3
+
+  SWIG_DIR = ENV['SWIGDIR'] || 'swig'
+
+  # Ruby 2.5 is the minimum version for wxRuby3
+  __rb_ver = RUBY_VERSION.split('.').collect {|v| v.to_i}
+  if (__rb_major = __rb_ver.shift) < 2 || (__rb_major == 2 && __rb_ver.shift < 5)
+    STDERR.puts 'ERROR: wxRuby3 requires Ruby >= 2.5.0!'
+    exit(1)
+  end
+
+  # Pure-ruby lib files
+  ALL_RUBY_LIB_FILES = FileList[ 'lib/**/*.rb' ]
 
   module Config
 
@@ -201,14 +225,15 @@ module WXRuby3
               end.flatten
 
 
-            @release_build = !!ENV['WXRUBY_RELEASE']
-            @debug_build   = ENV['WXRUBY_DEBUG'] ? true : !@release_build
-            @verbose_debug = !!ENV['WXRUBY_VERBOSE']
+            @debug_build   = (ENV['WXRUBY_DEBUG'] && ENV['WXRUBY_DEBUG'] == '1') ? true : false
+            @release_build = !@debug_build
+            @debug_trace   = ENV['WXRUBY_TRACE'] ? (ENV['WXRUBY_TRACE'] || '1').to_i : 0
+            @verbosity     = ENV['WXRUBY_VERBOSE'] ? (ENV['WXRUBY_VERBOSE'] || '1').to_i : 0
 
             @dynamic_build = !!ENV['WXRUBY_DYNAMIC']
             @static_build  = !!ENV['WXRUBY_STATIC']
 
-            @no_deprecate = !!ENV['WXNO_DEPRECATE']
+            @no_deprecate = !(!!ENV['WX_KEEP_DEPRECATE'])
 
             @ruby_cppflags = RbConfig::CONFIG["CFLAGS"]
 
@@ -273,11 +298,10 @@ module WXRuby3
             if @debug_build
               puts "Enabling debugging output"
               @verbose_flag << '-D__WXRB_DEBUG__=1'
-            end
-
-            if @verbose_debug
-              puts "Enabling VERBOSE debugging output"
-              @verbose_flag << " -D__WXRB_TRACE__=#{ENV['WXRUBY_VERBOSE'] || 1}"
+              if @debug_trace
+                puts "Enabling debug tracing output (#{@debug_trace})"
+                @verbose_flag << " -D__WXRB_TRACE__=#{@debug_trace}"
+              end
             end
 
             # SIXTH: Putting it all together
@@ -293,7 +317,7 @@ module WXRuby3
             @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].join(' ')
           end
 
-          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules
+          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
           attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
@@ -304,6 +328,10 @@ module WXRuby3
                       :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
           attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path,
                       :rb_doc_dir, :rb_doc_path, :rb_docgen_dir, :rb_docgen_path
+
+          def verbose?
+            @verbosity>0
+          end
 
           def mswin?
             @platform == :mswin

@@ -38,20 +38,20 @@ module WXRuby3
             STDOUT.puts JSON.dump(table)
           end
         __SCRIPT
-        STDERR.puts "* executing constants collection script:\n#{script}" if Rake.application.options.trace
+        STDERR.puts "* executing constants collection script:\n#{script}" if Director.trace?
         begin
           tmpfile = Tempfile.new('script')
           ftmp_name = tmpfile.path.dup
           tmpfile << script
           tmpfile.close(false)
-          result = if Rake.application.options.trace
+          result = if Director.trace?
                      Config.instance.run(ftmp_name, capture: :out)
                    else
                      Config.instance.run(ftmp_name, capture: :no_err)
                    end
-          STDERR.puts "* got constants collection output:\n#{result}" if Rake.application.options.trace
+          STDERR.puts "* got constants collection output:\n#{result}" if Director.trace?
           db = JSON.load(result)
-          File.open('constants.json', "w") { |f| f << JSON.pretty_generate(db) } if Rake.application.options.trace
+          File.open('constants.json', "w") { |f| f << JSON.pretty_generate(db) } if Director.verbose?
           return db
         ensure
           File.unlink(ftmp_name)
@@ -68,7 +68,7 @@ module WXRuby3
             xref_tbl[constnm] = constspec.merge({'mod' => mods.join('::') })
           end
         end
-        File.open('constants_xrefs.json', "w") { |f| f << JSON.pretty_generate(xref_tbl) } if Rake.application.options.trace
+        File.open('constants_xrefs.json', "w") { |f| f << JSON.pretty_generate(xref_tbl) } if Director.verbose?
         xref_tbl
       end
 

@@ -587,7 +587,7 @@ module WXRuby3
           ftmp_name = tmpfile.path.dup
           tmpfile << script
           tmpfile.close(false)
-          result = if Rake.application.options.trace
+          result = if Director.trace?
                      Config.instance.run(ftmp_name, capture: :out)
                    else
                      Config.instance.run(ftmp_name, capture: :no_err)

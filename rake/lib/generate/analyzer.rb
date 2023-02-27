@@ -274,7 +274,7 @@ module WXRuby3
       end
 
       def preprocess
-        STDERR.puts "** Preprocessing #{module_name} class #{class_spec_name}" if Director.trace?
+        STDERR.puts "** Preprocessing #{module_name} class #{class_spec_name}" if Director.verbose?
         # preprocess any public inner classes
         classdef.innerclasses.each do |inner|
           if inner.protection == 'public' && !item_ignored?(inner) && !inner.deprecated
@@ -577,7 +577,7 @@ module WXRuby3
             end
           end
           unless warnings.empty? || doc_gen
-            warnings.each { |warn| STDERR.puts warn }
+            warnings.each { |warn| STDERR.puts warn } if Director.verbose?
           end
           unless errors.empty?
             errors.each {|err| STDERR.puts err }

@@ -1,6 +1,7 @@
-# rakewx.rb
-# Copyright 2004-2008, wxRuby Development Team
-# released under the MIT-style wxruby3 license
+###
+# wxRuby3 rake file
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require_relative './lib/director'
 require 'pathname'
@@ -50,12 +51,12 @@ if $config.has_wxwidgets_xml?
     end
 
     task :"clean_#{pkg.name.downcase}" => pkg.subpackages.values.collect {|sp| :"clean_#{sp.name.downcase}"} do
-      delete_files_in(File.join(pkg.ruby_classes_path, 'events'))
-      force_rmdir(File.join(pkg.ruby_classes_path, 'events'))
-      delete_files_in(File.join(pkg.ruby_classes_path, 'ext'))
-      force_rmdir(File.join(pkg.ruby_classes_path, 'ext'))
-      delete_files_in(pkg.ruby_doc_path)
-      force_rmdir(pkg.ruby_doc_path)
+      rm_if(Dir[File.join(pkg.ruby_classes_path, 'events', '*')])
+      rmdir_if(File.join(pkg.ruby_classes_path, 'events'))
+      rm_if(Dir[File.join(pkg.ruby_classes_path, 'ext', '*')])
+      rmdir_if(File.join(pkg.ruby_classes_path, 'ext'))
+      rm_if(Dir[File.join(pkg.ruby_doc_path, '*')])
+      rmdir_if(pkg.ruby_doc_path)
     end
 
     task :"install_#{pkg.name.downcase}" => [ :"default_#{pkg.name.downcase}" ] do | _ |
@@ -69,8 +70,8 @@ if $config.has_wxwidgets_xml?
 
   def enum_list
     unless WXRuby3::Director.validate_enum_cache
-      rm_f(WXRuby3::Director.enum_cache_path, verbose: false)
-      rm_f(WXRuby3::Director.enum_cache_control_path, verbose: false)
+      rm_if(WXRuby3::Director.enum_cache_path, verbose: false)
+      rm_if(WXRuby3::Director.enum_cache_control_path, verbose: false)
     end
     WXRuby3::Director.enum_cache_control_path
   end
@@ -126,9 +127,9 @@ if $config.has_wxwidgets_xml?
   end
 
   desc "Install the WxRuby library to Ruby's lib directories"
-  task :install => [ :default, *ALL_RUBY_LIB_FILES, *all_install_targets ] do | t |
+  task :install => [ :default, *WXRuby3::ALL_RUBY_LIB_FILES, *all_install_targets ] do | t |
     dest_dir = RbConfig::CONFIG['sitelibdir']
-    ALL_RUBY_LIB_FILES.each do | lib_file |
+    WXRuby3::ALL_RUBY_LIB_FILES.each do | lib_file |
       dest = lib_file.sub(/^lib/, dest_dir)
       mkdir_p(File.dirname(dest))
       cp lib_file, dest

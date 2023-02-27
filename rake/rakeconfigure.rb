@@ -1,8 +1,11 @@
+###
+# wxRuby3 rake file
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'yaml'
 require_relative './lib/config'
 
-WXRuby3::Config.wxruby_root = WXRUBY_ROOT
 $config = WXRuby3::Config.instance
 
 if $config.macosx?

@@ -48,11 +48,11 @@ module WXRuby3
       end
 
       def verbose?
-        ::Rake.verbose
+        Config.instance.verbose?
       end
 
       def trace?
-        ::Rake.application.options.trace
+        Config.instance.verbosity>1
       end
 
       private
@@ -213,7 +213,7 @@ module WXRuby3
         unless @defmod
           Director.check_enum_cache # check and possibly init/load enum cache
 
-          STDERR.puts "* extracting #{spec.module_name}" if Director.trace?
+          STDERR.puts "* extracting #{spec.module_name}" if Director.verbose?
 
           @defmod = process(gendoc: gendoc)
 
