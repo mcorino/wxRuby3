@@ -13,7 +13,6 @@ module WXRuby3
 
   module SwigRunner
 
-    SWIG_CMD = ENV['SWIG_CMD'] || "swig"
     SWIG_MINIMUM_VERSION = '3.0.12'
 
     class << self
@@ -41,22 +40,26 @@ module WXRuby3
         @swig_version
       end
 
+
       def check_swig
         begin
-          @swig_version = `#{SWIG_CMD} -version`[/\d+\.\d+\.\d+/]
+          @swig_version = `#{WXRuby3::Config.get_config(:swig)} -version`[/\d+\.\d+\.\d+/]
         rescue Exception
-          raise "Could not run SWIG (#{SWIG_CMD})"
+          STDERR.puts "ERROR: Could not run SWIG (#{WXRuby3::Config.get_config(:swig)})"
+          exit(1)
         end
 
         # Very old versions put --version on STDERR, not STDOUT
         unless @swig_version
-          raise "Could not get version info from SWIG; " +
-                  "is a very old version installed?.\n"
+          STDERR.puts "Could not get version info from SWIG; " +
+                        "is a very old version installed?.\n"
+          exit(1)
         end
 
         if @swig_version < SWIG_MINIMUM_VERSION
-          raise "SWIG version #{@swig_version} is installed, " +
-                  "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
+          STDERR.puts "SWIG version #{@swig_version} is installed, " +
+                        "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
+          exit(1)
         end
 
         @swig_state = true
@@ -66,7 +69,8 @@ module WXRuby3
         check_swig unless swig_state
         inc_paths = '-Iswig/custom'
         inc_paths << ' -Iswig/custom/swig3' if swig_major < 4
-        sh "#{SWIG_CMD} #{config.wx_cppflags} #{config.extra_cppflags} #{config.verbose_flag} #{inc_paths} " +
+        sh "#{WXRuby3::Config.get_config(:swig)} #{config.wx_cppflags} " +
+             "#{config.extra_cppflags} #{config.verbose_flag} #{inc_paths} " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +
              "-o #{target} #{source}"

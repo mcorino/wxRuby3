@@ -25,11 +25,11 @@ module WXRuby3
       # Allow specification of custom wxWidgets build (mostly useful for
       # static wxRuby3 builds)
       def get_wx_path
-        ENV['WXWIN'] || ''
+        WXRuby3::CONFIG[:wxwin]
       end
 
       def get_wx_xml_path
-        ENV['WXXML'] || ''
+        WXRuby3::CONFIG[:wxxml]
       end
 
       # Helper function that runs the wx-config command line program from
@@ -42,26 +42,15 @@ module WXRuby3
           debug_mode = '--debug=no'
         elsif @debug_build
           debug_mode = '--debug=yes'
-        else
-          debug_mode = '' # go with default
         end
 
-        if @static_build
-          static_mode = '--static=yes'
-        elsif @dynamic_build
-          static_mode = '--static=no'
-        else
-          static_mode = ''
-        end
-
-
-        cfg = sh("#{@wx_config} #{debug_mode} #{static_mode} #{option} 2>&1")
+        cfg = sh("#{@wx_config} #{debug_mode} --static=no #{option} 2>&1")
 
         # Check status for errors
         unless $?.exitstatus.zero?
           if cfg =~ /Warning: No config found to match:([^\n]*)/
             raise "No suitable wxWidgets found for specified build options;\n" +
-              "(#{$1.strip})"
+                    "(#{$1.strip})"
           else
             raise "wx-config error:\n(#{cfg})"
           end
@@ -80,30 +69,6 @@ module WXRuby3
         @wx_xml_path = get_wx_xml_path
 
         @wx_config = @wx_path.empty? ? 'wx-config' : File.join(@wx_path, 'bin', 'wx-config')
-
-        # First, if either debug/release or static/dynamic has been left
-        # unspecified, find out what default build is available, and set that.
-        unless @dynamic_build or @static_build
-          if wx_config('--list') =~ /\ADefault config is ([\w.-]+)/
-            available = $1
-            if available =~ /static/
-              @static_build  = true
-            else
-              @dynamic_build = true
-            end
-          end
-        end
-
-        unless @release_build or @debug_build
-          if wx_config('--list') =~ /\ADefault config is ([\w.-]+)/
-            available = $1
-            if available =~ /debug/
-              @debug_build  = true
-            else
-              @release_build = true
-            end
-          end
-        end
 
         # Now actually run the program to fill in some variables
         @wx_version  = wx_config("--version")

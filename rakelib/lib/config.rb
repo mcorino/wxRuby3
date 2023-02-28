@@ -5,6 +5,7 @@
 
 require 'rbconfig'
 require 'fileutils'
+require 'json'
 require 'ruby_memcheck'
 
 require_relative './swig_runner'
@@ -22,8 +23,59 @@ module FileUtils
 end
 
 module WXRuby3
+  ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
-  SWIG_DIR = ENV['SWIGDIR'] || 'swig'
+  if defined? ::RbConfig
+    RB_CONFIG = ::RbConfig::CONFIG
+  else
+    RB_CONFIG = ::Config::CONFIG
+  end unless defined? RB_CONFIG
+
+  CFG_KEYS = %w{prefix
+                bindir
+                libdir
+                datadir
+                mandir
+                sysconfdir
+                localstatedir
+                libruby
+                librubyver
+                librubyverarch
+                siteruby
+                siterubyver
+                siterubyverarch
+                rbdir
+                sodir}
+
+  RB_DEFAULTS = %w{bindir
+                   libdir
+                   datadir
+                   mandir
+                   sysconfdir
+                   localstatedir}
+
+  CONFIG = {
+    :libruby => File.join(RB_CONFIG['libdir'], 'ruby'),
+    :librubyver => RB_CONFIG['rubylibdir'],
+    :librubyverarch => RB_CONFIG['archdir'],
+    :siteruby => RB_CONFIG['sitedir'],
+    :siterubyver => RB_CONFIG['sitelibdir'],
+    :siterubyverarch => RB_CONFIG['sitearchdir'],
+    :rbdir => :siterubyver,
+    :sodir => :siterubyverarch,
+  }
+
+  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug})
+  CONFIG.merge!({
+                  :wxwin => ENV['WXWIN'] || '',
+                  :wxxml => ENV['WXXML'] || '',
+                  :wxwininstdir => '',
+                  :'with-wxwin' => false,
+                  :'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
+                  :swig => ENV['WXRUBY_SWIG'] || 'swig',
+                  :doxygen => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
+                })
+  BUILD_CFG = '.wxconfig'
 
   # Ruby 2.5 is the minimum version for wxRuby3
   __rb_ver = RUBY_VERSION.split('.').collect {|v| v.to_i}
@@ -34,6 +86,26 @@ module WXRuby3
 
   # Pure-ruby lib files
   ALL_RUBY_LIB_FILES = FileList[ 'lib/**/*.rb' ]
+
+  # The version file
+  VERSION_FILE = File.join(ROOT,'lib', 'wx', 'version.rb')
+
+  # Setting the version via an environment variable
+  if ENV['WXRUBY_VERSION']
+    WXRUBY_VERSION = ENV['WXRUBY_VERSION']
+    File.open(VERSION_FILE, 'w') do | version_file |
+      version_file.puts "module Wx"
+      version_file.puts "  WXRUBY_VERSION    = '#{WXRUBY_VERSION}#{ENV['WXRUBY_RELEASE_TYPE'] || ''}'"
+      version_file.puts "end"
+    end
+    # Try loading the existing version file
+  elsif File.exist?(VERSION_FILE)
+    require VERSION_FILE
+    WXRUBY_VERSION = Wx::WXRUBY_VERSION
+    # Leave version undefined
+  else
+    WXRUBY_VERSION = ''
+  end
 
   module Config
 
@@ -128,15 +200,22 @@ module WXRuby3
 
     class << self
 
-      def wxruby_root
-        unless @wxruby_root
-          @wxruby_root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+      def save
+        File.open(WXRuby3::BUILD_CFG, 'w') do |f|
+          f << JSON.pretty_generate(WXRuby3::CONFIG)
         end
-        @wxruby_root
       end
 
-      def wxruby_root=(path)
-        @wxruby_root = path
+      def load
+        if File.file?(WXRuby3::BUILD_CFG)
+          File.open(WXRuby3::BUILD_CFG, 'r') do |f|
+            WXRuby3::CONFIG.merge!(JSON.load(f.read))
+          end
+        end
+      end
+
+      def wxruby_root
+        WXRuby3::ROOT
       end
 
       def platform
@@ -157,23 +236,22 @@ module WXRuby3
       end
 
       def create
+        load # load the build config (if any)
         klass = Class.new do
           include Config
 
           include FileUtils
 
           def initialize
-            @ruby_exe = RbConfig::CONFIG["ruby_install_name"]
+            @ruby_exe = RB_CONFIG["ruby_install_name"]
 
             @extmk = /extmk\.rb/ =~ $0
             @platform = Config.platform
             require File.join(File.dirname(__FILE__), 'config', @platform.to_s)
             self.class.include(WXRuby3::Config::Platform)
 
-            @swig_major = SwigRunner.swig_major
-
             # STANDARD BUILD DIRECTORIES
-            @swig_dir = defined?(SWIG_DIR) ? SWIG_DIR : 'swig'
+            @swig_dir = 'swig'
             @swig_path = File.join(Config.wxruby_root, 'swig')
             @rake_deps_dir = File.join('rakelib', 'deps')
             @rake_deps_path = File.join(Config.wxruby_root, @rake_deps_dir)
@@ -225,7 +303,7 @@ module WXRuby3
               end.flatten
 
 
-            @debug_build   = (ENV['WXRUBY_DEBUG'] && ENV['WXRUBY_DEBUG'] == '1') ? true : false
+            @debug_build   = WXRuby3::CONFIG[:'with-debug']
             @release_build = !@debug_build
             @debug_trace   = ENV['WXRUBY_TRACE'] ? (ENV['WXRUBY_TRACE'] || '1').to_i : 0
             @verbosity     = ENV['WXRUBY_VERBOSE'] ? (ENV['WXRUBY_VERBOSE'] || '1').to_i : 0
@@ -235,22 +313,17 @@ module WXRuby3
 
             @no_deprecate = !(!!ENV['WX_KEEP_DEPRECATE'])
 
-            @ruby_cppflags = RbConfig::CONFIG["CFLAGS"]
+            @ruby_cppflags = RB_CONFIG["CFLAGS"]
 
-            # Ruby 1.9.0 changes location of some header files
-            if RUBY_VERSION >= "1.9.0"
-              includes = [ RbConfig::CONFIG["rubyhdrdir"],
-                           RbConfig::CONFIG["sitehdrdir"],
-                           RbConfig::CONFIG["vendorhdrdir"],
-                           File.join(RbConfig::CONFIG["rubyhdrdir"],
-                                     RbConfig::CONFIG['arch']) ]
-              @ruby_includes = " -I. -I " + includes.join(' -I ')
-            else
-              @ruby_includes = " -I. -I " + RbConfig::CONFIG["archdir"]
-            end
+            includes = [ RB_CONFIG["rubyhdrdir"],
+                         RB_CONFIG["sitehdrdir"],
+                         RB_CONFIG["vendorhdrdir"],
+                         File.join(RB_CONFIG["rubyhdrdir"],
+                                   RB_CONFIG['arch']) ]
+            @ruby_includes = " -I. -I " + includes.join(' -I ')
 
-            @ruby_ldflags = "#{RbConfig::CONFIG['LDFLAGS']} #{RbConfig::CONFIG['DLDFLAGS']} #{RbConfig::CONFIG['ARCHFLAG']}"
-            @ruby_libs  = "#{RbConfig::CONFIG['LIBS']} #{RbConfig::CONFIG['DLDLIBS']} #{RbConfig::CONFIG['LIBRUBYARG_SHARED']}"
+            @ruby_ldflags = "#{RB_CONFIG['LDFLAGS']} #{RB_CONFIG['DLDFLAGS']} #{RB_CONFIG['ARCHFLAG']}"
+            @ruby_libs  = "#{RB_CONFIG['LIBS']} #{RB_CONFIG['DLDLIBS']} #{RB_CONFIG['LIBRUBYARG_SHARED']}"
             @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
             @extra_cflags = ''
             @extra_ldflags = ''
@@ -259,7 +332,7 @@ module WXRuby3
             @cpp_out_flag =  '-o '
             @link_output_flag = '-o '
 
-            @obj_ext = RbConfig::CONFIG["OBJEXT"]
+            @obj_ext = RB_CONFIG["OBJEXT"]
 
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.
@@ -276,19 +349,7 @@ module WXRuby3
               @wx_xml_path = File.join(@ext_path, 'wxWidgets', 'docs', 'doxygen', 'out', 'xml')
             end
 
-            # FOURTH: summarise the main options chosen back for the user
-            if @dynamic_build and @static_build
-              raise "Both STATIC and RELEASE specified; request one or other"
-            elsif @dynamic_build
-              puts "Enabling DYNAMIC build"
-            elsif @static_build
-              puts "Enabling STATIC build"
-              @extra_cppflags << ' -DWXRUBY_STATIC_BUILD'
-            end
-
-            if @release_build and @debug_build
-              raise "Both RELEASE and DEBUG specified; request one or other"
-            elsif @release_build
+            if @release_build
               puts "Enabling RELEASE build"
             elsif @debug_build
               puts "Enabling DEBUG build"
@@ -318,7 +379,7 @@ module WXRuby3
           end
 
           attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
-          attr_reader :release_build, :debug_build, :verbose_debug, :dynamic_build, :static_build, :no_deprecate
+          attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
@@ -331,6 +392,10 @@ module WXRuby3
 
           def verbose?
             @verbosity>0
+          end
+
+          def is_configured?
+            File.file?(WXRuby3::BUILD_CFG)
           end
 
           def mswin?
@@ -373,8 +438,22 @@ module WXRuby3
             File.directory?(@wx_xml_path)
           end
 
+          def get_config(key)
+            v = if WXRuby3::CONFIG.has_key?(key.to_sym)
+                  WXRuby3::CONFIG[key.to_sym]
+                else
+                  RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
+                end
+            v = WXRuby3::CONFIG[v] while Symbol === v && WXRuby3::CONFIG.has_key?(v)
+            v
+          end
+
+          def set_config(key, val)
+            WXRuby3::CONFIG[key.to_sym] = val
+          end
+
           def check_git
-            if `which git 2>/dev/null`.chomp.empty?
+            if sh("which git 2>/dev/null").chomp.empty?
               STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
               exit(1)
             end
@@ -382,8 +461,8 @@ module WXRuby3
           private :check_git
 
           def check_doxygen
-            if sh('which doxygen 2>/dev/null').chomp.empty?
-              STDERR.puts 'ERROR: Need Doxygen installed to run wxRuby3 bootstrap!'
+            if sh("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
+              STDERR.puts "ERROR: Cannot find #{get_config(:doxygen)}. Need Doxygen installed to run wxRuby3 bootstrap!"
               exit(1)
             end
           end
@@ -476,11 +555,24 @@ module WXRuby3
         end
         @instance
       end
-    end
 
-  end
+      def get_config(key)
+        instance.get_config(key)
+      end
 
-end
+      def set_config(key, val)
+        instance.set_config(key, val)
+      end
+
+      def is_configured?
+        instance.is_configured?
+      end
+
+    end # class << self
+
+  end # module Config
+
+end # module WXRuby3
 
 Dir.glob(File.join(File.dirname(__FILE__), 'ext', '*.rb')).each do |fn|
   require fn

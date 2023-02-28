@@ -63,7 +63,7 @@ module WXRuby3
           end
 
           def get_wx_path
-            nix_path(ENV['WXWIN'] || '')
+            nix_path(WXRuby3::CONFIG[:wxwin])
           end
 
         end
@@ -109,7 +109,7 @@ module WXRuby3
         @rescomp = wx_config('--rescomp').gsub(/--include-dir\s+(\S+)/) { |s| "--include-dir #{win_path($1)}" }
         @rescomp << " --include-dir #{File.join(Config.wxruby_root, 'art')}"
         @rescomp << ' --define __WXMSW__ --define wxUSE_DPI_AWARE_MANIFEST=2 --define wxUSE_RC_MANIFEST=1 --define ISOLATION_AWARE_ENABLED' 
-        @rescomp << ' --define WXUSINGDLL' if @dynamic_build
+        @rescomp << ' --define WXUSINGDLL'
         @extra_cflags << ' -DISOLATION_AWARE_ENABLED'
       end
       private :init_platform
