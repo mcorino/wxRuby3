@@ -12,7 +12,7 @@ if $config.has_wxwidgets_xml?
 
     pkg.included_directors.each do |dir|
       # file tasks for each module's rake file
-      file dir.rake_file  => [WXRuby3::Director.enum_cache_control_path]+%w[rakefile rake/rakewx.rb]+dir.source_files do |_|
+      file dir.rake_file  => [WXRuby3::Director.enum_cache_control_path]+%w[rakefile rakelib/rakewx.rb]+dir.source_files do |_|
         dir.create_rakefile
       end
 

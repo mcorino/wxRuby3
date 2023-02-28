@@ -15,25 +15,25 @@
 # WXXML             : folder containing doxygen generated wxWidgets XML interface specs if not using wxRuby bootstrap
 
 # Determine or set version of wxRuby library
-require './rake/rakeversion'
+require './rakelib/rakeversion'
 
-require './rake/rakeconfigure'
+require './rakelib/rakeconfigure'
 
 if $config.has_wxwidgets_xml?
 
-  require "./rake/rakewx"
+  require "./rakelib/rakewx"
 
   # Redcloth library is required to build the documentation, but not
   # required just to compile the lib.
   begin
-    require "./rake/rakedocs"
+    require "./rakelib/rakedocs"
   rescue LoadError # documentation tasks will not be available
   end
 
   # Rubygems library is required to build a gem, but not just to compile
   # the lib.
   begin
-    require "./rake/rakepackage"
+    require "./rakelib/rakepackage"
   rescue LoadError # package tasks will not be available
   end
 

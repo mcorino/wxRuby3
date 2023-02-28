@@ -97,7 +97,7 @@ module WXRuby3
 
     def memcheck(*args, **options)
       RubyMemcheck.config(binary_name: "wxruby_core",
-                          valgrind_suppressions_dir: File.join(Config.wxruby_root, 'rake', 'memcheck', 'suppressions'),
+                          valgrind_suppressions_dir: File.join(Config.wxruby_root, 'rakelib', 'memcheck', 'suppressions'),
                           valgrind_generate_suppressions: !!options[:gensup])
       options.delete(:gensup)
       args.unshift("-r#{File.join('ruby_memcheck', 'test_helper.rb')}")
@@ -175,7 +175,7 @@ module WXRuby3
             # STANDARD BUILD DIRECTORIES
             @swig_dir = defined?(SWIG_DIR) ? SWIG_DIR : 'swig'
             @swig_path = File.join(Config.wxruby_root, 'swig')
-            @rake_deps_dir = File.join('rake', 'deps')
+            @rake_deps_dir = File.join('rakelib', 'deps')
             @rake_deps_path = File.join(Config.wxruby_root, @rake_deps_dir)
             FileUtils.mkdir_p(@rake_deps_path)
             @src_dir = 'src'
