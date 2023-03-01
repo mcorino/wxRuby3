@@ -21,24 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-18.04
-            gtk_version: 2
-            CC: gcc-7
-            CXX: g++-7
-            ruby: '2.5'
-            wxWidgets: '3.2.1'
-            swig: '3'
-            configure_flags:
-            use_xvfb: true
-          - os: ubuntu-18.04
-            gtk_version: 2
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '3.2'
-            wxWidgets: '3.2.1'
-            swig: '3'
-            configure_flags:
-            use_xvfb: true
           - os: ubuntu-20.04
             gtk_version: 3
             CC: gcc-9
@@ -86,18 +68,18 @@ jobs:
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
       # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
-      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
+#      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
 
-    - name: checkout wxWidgets
-      uses: actions/checkout@v3
-      with:
-        repository: wxWidgets/wxWidgets
-        path: ${{ env.WXWIDGETS_ROOT }}
-        ref: v${{ matrix.wxWidgets }}
-        submodules: 'recursive'
+#    - name: checkout wxWidgets
+#      uses: actions/checkout@v3
+#      with:
+#        repository: wxWidgets/wxWidgets
+#        path: ${{ env.WXWIDGETS_ROOT }}
+#        ref: v${{ matrix.wxWidgets }}
+#        submodules: 'recursive'
 
     - uses: ruby/setup-ruby@v1
       with:
