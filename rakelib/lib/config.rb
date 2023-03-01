@@ -55,25 +55,25 @@ module WXRuby3
                    localstatedir}
 
   CONFIG = {
-    :libruby => File.join(RB_CONFIG['libdir'], 'ruby'),
-    :librubyver => RB_CONFIG['rubylibdir'],
-    :librubyverarch => RB_CONFIG['archdir'],
-    :siteruby => RB_CONFIG['sitedir'],
-    :siterubyver => RB_CONFIG['sitelibdir'],
-    :siterubyverarch => RB_CONFIG['sitearchdir'],
-    :rbdir => :siterubyver,
-    :sodir => :siterubyverarch,
+    'libruby' => File.join(RB_CONFIG['libdir'], 'ruby'),
+    'librubyver' => RB_CONFIG['rubylibdir'],
+    'librubyverarch' => RB_CONFIG['archdir'],
+    'siteruby' => RB_CONFIG['sitedir'],
+    'siterubyver' => RB_CONFIG['sitelibdir'],
+    'siterubyverarch' => RB_CONFIG['sitearchdir'],
+    'rbdir' => '$siterubyver',
+    'sodir' => '$siterubyverarch',
   }
 
-  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug})
+  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug swig doxygen})
   CONFIG.merge!({
-                  :wxwin => ENV['WXWIN'] || '',
-                  :wxxml => ENV['WXXML'] || '',
-                  :wxwininstdir => '',
-                  :'with-wxwin' => false,
-                  :'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
-                  :swig => ENV['WXRUBY_SWIG'] || 'swig',
-                  :doxygen => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
+                  'wxwin' => ENV['WXWIN'] || '',
+                  'wxxml' => ENV['WXXML'] || '',
+                  'wxwininstdir' => '',
+                  'with-wxwin' => false,
+                  'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
+                  'swig' => ENV['WXRUBY_SWIG'] || 'swig',
+                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
                 })
   BUILD_CFG = '.wxconfig'
 
@@ -106,6 +106,8 @@ module WXRuby3
   else
     WXRUBY_VERSION = ''
   end
+
+  WXWIN_MINIMUM = '3.2.0'
 
   module Config
 
@@ -183,6 +185,14 @@ module WXRuby3
       end
     end
 
+    def check_wx_config
+      false
+    end
+
+    def wx_config(_option)
+      nil
+    end
+
     class AnyOf
       def initialize(*features)
         @features = features
@@ -200,15 +210,19 @@ module WXRuby3
 
     class << self
 
+      def build_cfg
+        File.join(WXRuby3::ROOT, WXRuby3::BUILD_CFG)
+      end
+
       def save
-        File.open(WXRuby3::BUILD_CFG, 'w') do |f|
+        File.open(build_cfg, 'w') do |f|
           f << JSON.pretty_generate(WXRuby3::CONFIG)
         end
       end
 
       def load
-        if File.file?(WXRuby3::BUILD_CFG)
-          File.open(WXRuby3::BUILD_CFG, 'r') do |f|
+        if File.file?(build_cfg)
+          File.open(build_cfg, 'r') do |f|
             WXRuby3::CONFIG.merge!(JSON.load(f.read))
           end
         end
@@ -250,6 +264,23 @@ module WXRuby3
             require File.join(File.dirname(__FILE__), 'config', @platform.to_s)
             self.class.include(WXRuby3::Config::Platform)
 
+            init # initialize settings
+          end
+
+          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
+          attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
+          attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
+                      :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
+                      :cxxflags, :libs, :cpp, :ld, :verbose_flag
+          attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
+          attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
+                      :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
+                      :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
+          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path,
+                      :rb_doc_dir, :rb_doc_path, :rb_docgen_dir, :rb_docgen_path
+
+          # (re-)initialize settings
+          def init
             # STANDARD BUILD DIRECTORIES
             @swig_dir = 'swig'
             @swig_path = File.join(Config.wxruby_root, 'swig')
@@ -299,7 +330,7 @@ module WXRuby3
             # included swig specfiles not needing standalone processing
             @include_modules =
               %w|common.i typedefs.i typemap.i mark_free_impl.i memory_management.i shared/*.i|.collect do |glob|
-                    Dir.glob(File.join(swig_dir, glob))
+                Dir.glob(File.join(swig_dir, glob))
               end.flatten
 
 
@@ -349,18 +380,10 @@ module WXRuby3
               @wx_xml_path = File.join(@ext_path, 'wxWidgets', 'docs', 'doxygen', 'out', 'xml')
             end
 
-            if @release_build
-              puts "Enabling RELEASE build"
-            elsif @debug_build
-              puts "Enabling DEBUG build"
-            end
-
             @verbose_flag = ''
             if @debug_build
-              puts "Enabling debugging output"
               @verbose_flag << '-D__WXRB_DEBUG__=1'
               if @debug_trace
-                puts "Enabling debug tracing output (#{@debug_trace})"
                 @verbose_flag << " -D__WXRB_TRACE__=#{@debug_trace}"
               end
             end
@@ -378,24 +401,24 @@ module WXRuby3
             @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].join(' ')
           end
 
-          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
-          attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
-          attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
-                      :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
-                      :cxxflags, :libs, :cpp, :ld, :verbose_flag
-          attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
-          attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
-                      :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
-                      :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
-          attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path,
-                      :rb_doc_dir, :rb_doc_path, :rb_docgen_dir, :rb_docgen_path
+          def report
+            if @debug_build
+              puts "Enabled DEBUG build"
+              puts "Enabled debugging output"
+              if @debug_trace
+                puts "Enabled debug tracing output (#{@debug_trace})"
+              end
+            else
+              puts "Enabled RELEASE build"
+            end
+          end
 
           def verbose?
             @verbosity>0
           end
 
           def is_configured?
-            File.file?(WXRuby3::BUILD_CFG)
+            File.file?(File.join(WXRuby3::ROOT, WXRuby3::BUILD_CFG))
           end
 
           def mswin?
@@ -439,17 +462,17 @@ module WXRuby3
           end
 
           def get_config(key)
-            v = if WXRuby3::CONFIG.has_key?(key.to_sym)
-                  WXRuby3::CONFIG[key.to_sym]
+            v = if WXRuby3::CONFIG.has_key?(key.to_s)
+                  WXRuby3::CONFIG[key.to_s]
                 else
                   RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
                 end
-            v = WXRuby3::CONFIG[v] while Symbol === v && WXRuby3::CONFIG.has_key?(v)
+            v = WXRuby3::CONFIG[v[1,v.size]] while v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
             v
           end
 
           def set_config(key, val)
-            WXRuby3::CONFIG[key.to_sym] = val
+            WXRuby3::CONFIG[key.to_s] = val
           end
 
           def check_git
@@ -539,7 +562,7 @@ module WXRuby3
 
             File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
               features[$1] = $2.to_i.zero? ? false : true
-            end
+            end if is_configured?
 
             features
           end
@@ -571,6 +594,18 @@ module WXRuby3
     end # class << self
 
   end # module Config
+
+  def self.build_cfg
+    Config.build_cfg
+  end
+
+  def self.config
+    Config.instance
+  end
+
+  def self.is_configured?
+    Config.is_configured?
+  end
 
 end # module WXRuby3
 

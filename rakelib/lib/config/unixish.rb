@@ -13,23 +13,8 @@ module WXRuby3
     # not MSW)
     module UnixLike
 
-      private
-
-      def sh(cmd)
-        STDERR.puts "> sh: #{cmd}" if verbose?
-        s = `#{cmd}`
-        STDERR.puts "< #{s}" if verbose?
-        s
-      end
-
-      # Allow specification of custom wxWidgets build (mostly useful for
-      # static wxRuby3 builds)
-      def get_wx_path
-        WXRuby3::CONFIG[:wxwin]
-      end
-
-      def get_wx_xml_path
-        WXRuby3::CONFIG[:wxxml]
+      def check_wx_config
+        !sh("which #{@wx_config} 2>/dev/null").chomp.empty?
       end
 
       # Helper function that runs the wx-config command line program from
@@ -49,14 +34,34 @@ module WXRuby3
         # Check status for errors
         unless $?.exitstatus.zero?
           if cfg =~ /Warning: No config found to match:([^\n]*)/
-            raise "No suitable wxWidgets found for specified build options;\n" +
-                    "(#{$1.strip})"
+            STDERR.puts "ERROR: No suitable wxWidgets found for specified build options " +
+                          "(#{$1.strip})"
           else
-            raise "wx-config error:\n(#{cfg})"
+            STDERR.puts "ERROR: wx-config error (#{cfg})"
           end
+          exit(1)
         end
 
         return cfg.strip
+      end
+
+      private
+
+      def sh(cmd)
+        STDERR.puts "> sh: #{cmd}" if verbose?
+        s = `#{cmd}`
+        STDERR.puts "< #{s}" if verbose?
+        s
+      end
+
+      # Allow specification of custom wxWidgets build (mostly useful for
+      # static wxRuby3 builds)
+      def get_wx_path
+        get_config(:wxwin)
+      end
+
+      def get_wx_xml_path
+        get_config(:wxxml)
       end
 
       def init_unix_platform
@@ -70,31 +75,33 @@ module WXRuby3
 
         @wx_config = @wx_path.empty? ? 'wx-config' : File.join(@wx_path, 'bin', 'wx-config')
 
-        # Now actually run the program to fill in some variables
-        @wx_version  = wx_config("--version")
-        @wx_cppflags = wx_config("--cppflags")
+        if check_wx_config
+          # Now actually run the program to fill in some variables
+          @wx_version  = wx_config("--version")
+          @wx_cppflags = wx_config("--cppflags")
 
-        # Find out where the wxWidgets setup.h file being used is located
-        setup_inc_dir = @wx_cppflags[/^-I(\S+)/][2..-1]
-        @wx_setup_h  = File.join(setup_inc_dir, 'wx', 'setup.h')
+          # Find out where the wxWidgets setup.h file being used is located
+          setup_inc_dir = @wx_cppflags[/^-I(\S+)/][2..-1]
+          @wx_setup_h  = File.join(setup_inc_dir, 'wx', 'setup.h')
 
-        @cpp         = wx_config("--cxx")
-        @ld          = wx_config("--ld")
-        wx_libset = ::Set.new
-        wx_libset.merge wx_config("--libs all").split(' ')
-        # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
-        if features_set?('wxUSE_MEDIACTRL')
-          wx_libset.merge wx_config("--libs media").split(' ')
+          @cpp         = wx_config("--cxx")
+          @ld          = wx_config("--ld")
+          wx_libset = ::Set.new
+          wx_libset.merge wx_config("--libs all").split(' ')
+          # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
+          if features_set?('wxUSE_MEDIACTRL')
+            wx_libset.merge wx_config("--libs media").split(' ')
+          end
+          @wx_libs = wx_libset.to_a.join(' ')
+
+          # remove all warning flags provided by Ruby config
+          @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
+          @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
+
+          # maintain minimum compatibility with ABI 3.0.0
+          @wx_abi_version = [ @wx_version, "3.0.0" ].min
+          @wx_cppflags << " -DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
         end
-        @wx_libs = wx_libset.to_a.join(' ')
-
-        # remove all warning flags provided by Ruby config
-        @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
-        @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
-
-        # maintain minimum compatibility with ABI 3.0.0
-        @wx_abi_version = [ @wx_version, "3.0.0" ].min
-        @wx_cppflags << " -DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
       end
     end
 

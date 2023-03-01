@@ -139,7 +139,7 @@ module WXRuby3
           @all_obj_files = all_build_modules.map { |mod| File.join(Config.instance.obj_dir,"#{mod}.#{Config.instance.obj_ext}") }
           @all_obj_files << File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
           # add standard wxRuby3 resource file for core module on Windows
-          @all_obj_files << File.join($config.obj_dir, "wx_rc.#{Config.instance.obj_ext}") if is_core? && Config.instance.windows?
+          @all_obj_files << File.join(Config.instance.obj_dir, "wx_rc.#{Config.instance.obj_ext}") if is_core? && Config.instance.windows?
         end
         @all_obj_files
       end

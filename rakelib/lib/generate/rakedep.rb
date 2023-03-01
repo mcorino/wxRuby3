@@ -17,7 +17,7 @@ module WXRuby3
 
 
     def wrapper_source
-      File.join($config.src_dir, "#{name}.cpp")
+      File.join(WXRuby3.config.src_dir, "#{name}.cpp")
     end
     protected :wrapper_source
 

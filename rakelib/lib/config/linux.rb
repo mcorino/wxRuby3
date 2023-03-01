@@ -31,33 +31,35 @@ module WXRuby3
       def init_platform
         init_unix_platform
 
-        @extra_cflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
-        @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
+        if @wx_version
+          @extra_cflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
+          @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
-        # create a .so binary
-        @extra_ldflags = '-shared'
+          # create a .so binary
+          @extra_ldflags = '-shared'
 
-        # This class is not available on WXGTK
-        exclude_module('PrinterDC')
+          # This class is not available on WXGTK
+          exclude_module('PrinterDC')
 
-        # Extra libraries that are required on Linux
-        @extra_libs = ""
-        # @extra_libs = "-Wl,-Bdynamic -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 " +
-        #   "-lgdk_pixbuf-2.0 -lpangoxft-1.0 -lpangox-1.0 -lpango-1.0 " +
-        #   "-lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 "
-        libs = @wx_libs.split(' ')
-        libs.collect! do | lib |
-          if @static_build and lib =~ /lwx_/
-            lib = "-Wl,-Bstatic #{lib} -Wl,-Bdynamic "
+          # Extra libraries that are required on Linux
+          @extra_libs = ""
+          # @extra_libs = "-Wl,-Bdynamic -lgtk-x11-2.0 -lgdk-x11-2.0 -latk-1.0 " +
+          #   "-lgdk_pixbuf-2.0 -lpangoxft-1.0 -lpangox-1.0 -lpango-1.0 " +
+          #   "-lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 "
+          libs = @wx_libs.split(' ')
+          libs.collect! do | lib |
+            if @static_build and lib =~ /lwx_/
+              lib = "-Wl,-Bstatic #{lib} -Wl,-Bdynamic "
+            end
+            lib
           end
-          lib
-        end
 
-        @wx_libs = libs.join(' ')
+          @wx_libs = libs.join(' ')
 
-        unless @wx_path.empty?
-          libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
-          @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{libdirs.join(':')}"
+          unless @wx_path.empty?
+            libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
+            @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{libdirs.join(':')}"
+          end
         end
       end
       private :init_platform
