@@ -520,6 +520,8 @@ module WXRuby3
             Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
               Rake.sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
             end
+            # now we need to respawn the rake command in place of this process
+            Kernel.exec($0, *ARGV)
           end
 
           # Testing the relevant wxWidgets setup.h file to see what
