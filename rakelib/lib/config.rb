@@ -151,6 +151,16 @@ module WXRuby3
       Rake.sh(Config.instance.exec_env, debug_command(*args), **options)
     end
 
+    def expand(cmd)
+      `#{cmd}`
+    end
+    private :expand
+
+    def sh(*cmd)
+      Rake.sh(*cmd) { |ok,_| !!ok }
+    end
+    private :sh
+
     def test(*tests, **options)
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
@@ -183,14 +193,6 @@ module WXRuby3
 
         yield ok, res if block_given?
       end
-    end
-
-    def do_wx_configure
-      Rake.sh('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info') { |ok,_| !!ok }
-    end
-
-    def do_wx_make
-      Rake.sh('make && make install') { |ok,_| !!ok }
     end
 
     def check_wx_config
@@ -496,14 +498,14 @@ module WXRuby3
           end
 
           def check_git
-            if sh("which git 2>/dev/null").chomp.empty?
+            if expand("which git 2>/dev/null").chomp.empty?
               STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
               exit(1)
             end
           end
 
           def check_doxygen
-            if sh("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
+            if expand("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
               STDERR.puts "ERROR: Cannot find #{get_config(:doxygen)}. Need Doxygen installed to run wxRuby3 bootstrap!"
               exit(1)
             end
@@ -516,28 +518,38 @@ module WXRuby3
               check_git
               # clone wxWidgets GIT repository under ext_path
               Dir.chdir(ext_path) do
-                sh("git clone https://github.com/wxWidgets/wxWidgets.git")
-                Dir.chdir('wxWidgets') do
-                  tag = if @wx_version
-                          "v#{@wx_version}"
-                        else
-                          sh('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
-                        end
-                  # checkout the version we are building against
-                  sh( "git checkout #{tag}")
+                rc = if sh("git clone https://github.com/wxWidgets/wxWidgets.git")
+                       Dir.chdir('wxWidgets') do
+                         tag = if @wx_version
+                                 "v#{@wx_version}"
+                               else
+                                 expand('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
+                               end
+                         # checkout the version we are building against
+                         sh("git checkout #{tag}")
+                       end
+                     end
+                unless !!rc
+                  STDERR.puts "ERROR: Failed to checkout wxWidgets."
+                  exit(1)
                 end
               end
             end
             # do we need to build wxWidgets?
             if get_config('with-wxwin')
               Dir.chdir(File.join(ext_path, 'wxWidgets')) do
+                # initialize submodules
+                unless sh('git submodule update --init')
+                  STDERR.puts "ERROR: Failed to update wxWidgets submodules."
+                  exit(1)
+                end
                 # configure wxWidgets
-                unless do_wx_configure
+                unless sh('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
                   STDERR.puts "ERROR: Failed to configure wxWidgets."
                   exit(1)
                 end
                 # make and install wxWidgets
-                unless do_wx_make
+                unless sh('make && make install')
                   STDERR.puts "ERROR: Failed to build wxWidgets libraries."
                   exit(1)
                 end
@@ -546,7 +558,7 @@ module WXRuby3
             # generate the doxygen XML output
             regen_cmd = windows? ? 'regen.bat' : './regen.sh'
             Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              Rake.sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
+              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
             end
             # now we need to respawn the rake command in place of this process
             Kernel.exec($0, *ARGV)

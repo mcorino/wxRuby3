@@ -46,18 +46,18 @@ module WXRuby3
             @wx_setup_h
           end
 
-          def do_wx_configure
-            Rake.sh('bash -c "./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info"') { |ok,_| !!ok }
-          end
-
-          def do_wx_make
-            Rake.sh('bash -c "make && make install"') { |ok,_| !!ok }
-          end
-
           private
 
-          def sh(cmd)
+          def expand(cmd)
             super("bash -c \"#{cmd}\"")
+          end
+
+          def sh(*cmd)
+            env = ::Hash === cmd.first ? cmd.shift : nil
+            opts = ::Hash === cmd.last ? cmd.pop : nil
+            cmd = ['bash', '-c', %Q{"#{cmd.join(' ')}"}]
+            cmd.unshift(env) if env
+            super(*cmd)
           end
 
           def nix_path(winpath)

@@ -14,7 +14,7 @@ module WXRuby3
     module UnixLike
 
       def check_wx_config
-        !sh("which #{@wx_config} 2>/dev/null").chomp.empty?
+        !expand("which #{@wx_config} 2>/dev/null").chomp.empty?
       end
 
       # Helper function that runs the wx-config command line program from
@@ -29,7 +29,7 @@ module WXRuby3
           debug_mode = '--debug=yes'
         end
 
-        cfg = sh("#{@wx_config} #{debug_mode} --static=no #{option} 2>&1")
+        cfg = expand("#{@wx_config} #{debug_mode} --static=no #{option} 2>&1")
 
         # Check status for errors
         unless $?.exitstatus.zero?
@@ -47,9 +47,9 @@ module WXRuby3
 
       private
 
-      def sh(cmd)
+      def expand(cmd)
         STDERR.puts "> sh: #{cmd}" if verbose?
-        s = `#{cmd}`
+        s = super
         STDERR.puts "< #{s}" if verbose?
         s
       end
