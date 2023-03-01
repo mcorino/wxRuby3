@@ -90,13 +90,10 @@ module WXRuby3
           end
 
         else
-          # set WXWIN path based on where wxWidgets is/will be built
-          set_config('wxwin', File.expand_path(File.join('etc','wxWidgets', 'install')))
-
           set_config('wxwininstdir', get_config('sodir')) if get_config('wxwininstdir').empty?
         end
 
-        if get_config('wxwin').empty? || !get_config('with-wxwin')
+        if !get_config('with-wxwin')
           # check wxWidgets availability through 'wx-config' command
           if instance.check_wx_config
             if instance.wx_config("--version") < '3.2.0'

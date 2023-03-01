@@ -63,7 +63,7 @@ module WXRuby3
           end
 
           def get_wx_path
-            nix_path(get_config(:wxwin))
+            nix_path(super)
           end
 
         end
