@@ -76,7 +76,7 @@ jobs:
         run: |
           echo "$env:PATH"
           ruby -v
-          doxygen -V
+          doxygen -v
           ridk exec bash -c 'gcc -v'
           ridk exec bash -c 'g++ -v'
 
