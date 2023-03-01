@@ -20,18 +20,16 @@ WXRuby3::Director.each_package do |pkg|
 
   namespace pkg.name.downcase do
 
-    if WXRuby3.is_configured?
+    if WXRuby3.is_bootstrapped?
 
-      if WXRuby3.is_bootstrapped?
-        pkg.included_directors.each do |dir|
-          # file tasks for each module's rake file
-          file dir.rake_file  => [enum_list_cache, WXRuby3.build_cfg, *dir.source_files] do |_|
-            dir.create_rakefile
-          end
-
-          # imports of each module's dependency file
-          import dir.rake_file
+      pkg.included_directors.each do |dir|
+        # file tasks for each module's rake file
+        file dir.rake_file  => [enum_list_cache, WXRuby3.build_cfg, *dir.source_files] do |_|
+          dir.create_rakefile
         end
+
+        # imports of each module's dependency file
+        import dir.rake_file
       end
 
       # file tasks to generate cpp wrapper sources for any extra package modules (core only)
@@ -60,6 +58,14 @@ WXRuby3::Director.each_package do |pkg|
       task :compile   => ['config:bootstrap', :build_report, *pkg.all_obj_files]
 
       task :build   => ['config:bootstrap', :build_report, enum_list_cache, pkg.lib_target, *pkg.dep_libs]
+
+    else
+
+      task :swig   => ['config:bootstrap']
+
+      task :compile   => ['config:bootstrap']
+
+      task :build   => ['config:bootstrap']
 
     end
 
