@@ -12,7 +12,6 @@ namespace :wxruby do
   #############################
   # public tasks
 
-  desc "Create the binary Ruby library file"
   task :build => ['config:bootstrap', :enum_list, *all_build_targets]
 
   desc "Compile object files from SWIG-generated sources"
@@ -24,8 +23,7 @@ namespace :wxruby do
   desc "Generate C++ source and header files using SWIG"
   task :swig   => ['config:bootstrap', WXRuby3.config.classes_path, :enum_list, *all_swig_targets]
 
-  desc "Delete SWIG interfaces, C++ sources, library and object files"
-  task :clean_all => [:clean, :clean_src, *all_clean_targets] do
+  task :clean => [:clean_bin, :clean_src, *all_clean_targets] do
     rm_if(Dir[File.join(WXRuby3.config.interface_dir, '*')])
     rmdir_if(WXRuby3.config.interface_dir)
     rm_if(Dir[File.join(WXRuby3.config.common_dir, '*')])
@@ -47,7 +45,7 @@ namespace :wxruby do
   task :reswig => ['config:bootstrap', :clean_src, :swig]
 
   desc "Delete compiled libraries and object files"
-  task :clean do
+  task :clean_bin do
     rm_if(Dir[File.join(WXRuby3.config.rb_lib_dir, '*.so')])
     rm_if(Dir[File.join(WXRuby3.config.obj_dir, '*')])
     rmdir_if(WXRuby3.config.obj_dir)
@@ -56,3 +54,9 @@ namespace :wxruby do
   Rake::Task[:clobber].enhance(['wxruby:clean_all'])
 
 end
+
+desc "Create the binary Ruby library file"
+task :build => 'wxruby:build'
+
+desc "Delete SWIG interfaces, C++ sources, library and object files"
+task :clean => 'wxruby:clean'

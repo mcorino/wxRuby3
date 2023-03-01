@@ -34,13 +34,13 @@ namespace :wxruby do
     end
   end
 
-  desc 'Configure wxRuby build settings (calling with "-- --help" provides usage information).'
-  task :configure => 'config:configure'
-
-  desc 'Show current wxRuby build settings'
-  task :show => 'config:show'
-
 end
+
+desc 'Configure wxRuby build settings (calling with "-- --help" provides usage information).'
+task :configure => 'wxruby:config:configure'
+
+desc 'Show current wxRuby build settings'
+task :show => 'wxruby:config:show'
 
 file WXRuby3::BUILD_CFG do
   unless File.file?(WXRuby3::BUILD_CFG)
