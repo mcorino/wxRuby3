@@ -621,6 +621,10 @@ module WXRuby3
     Config.is_configured?
   end
 
+  def self.is_bootstrapped?
+    Config.is_bootstrapped?
+  end
+
 end # module WXRuby3
 
 Dir.glob(File.join(File.dirname(__FILE__), 'ext', '*.rb')).each do |fn|
