@@ -95,6 +95,7 @@ module WXRuby3
 
           @wx_libs = libs.join(' ')
 
+          @ruby_ldflags.sub!(' $(DEFFILE)', '') # cleanup for older RubyInstaller versions
           @ruby_ldflags << " -L#{RbConfig::CONFIG['libdir']}"
           @ruby_ldflags.gsub!(/-s(\s|\Z)/, '') if @debug_build # do not strip debug symbols for debug build
           @ruby_cppflags << " #{RbConfig::CONFIG['debugflags']}" if @debug_build
