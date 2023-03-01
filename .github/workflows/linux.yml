@@ -10,7 +10,7 @@ concurrency:
 permissions:
   contents: read
 
-env:
+#env:
 #  WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
 #  WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
 #  WXRUBY_RELEASE: 1
