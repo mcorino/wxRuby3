@@ -4,22 +4,32 @@
 ###
 require_relative './lib/config'
 
-WXRuby3::Director.each_package do |pkg|
+if WXRuby3.is_bootstrapped?
 
-  namespace pkg.name.downcase do
+  WXRuby3::Director.each_package do |pkg|
 
-    if WXRuby3.is_configured?
+    namespace pkg.name.downcase do
 
-      task :doc => ['config:bootstrap', *pkg.all_swig_files] do
-        pkg.generate_docs
+      if WXRuby3.is_configured?
+
+        task :doc => ['config:bootstrap', *pkg.all_swig_files] do
+          pkg.generate_docs
+        end
+
       end
 
     end
 
   end
 
-end
+  def all_doc_targets
+    WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:doc".to_sym }
+  end
 
-def all_doc_targets
-  WXRuby3.is_configured? ? WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:doc".to_sym } : []
+else
+
+  def all_doc_targets
+    []
+  end
+
 end
