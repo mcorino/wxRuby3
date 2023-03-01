@@ -87,7 +87,7 @@ task :build_report do
 end
 
 task :enum_list do
-  Rake::Task[enum_list_cache].invoke
+  Rake::Task[enum_list_cache].invoke if WXRuby3.is_bootstrapped?
 end
 
 def all_swig_targets
