@@ -6,21 +6,21 @@
 require 'pathname'
 require_relative './lib/config'
 
-require_relative './lib/director'
+if WXRuby3.is_bootstrapped?
 
-def enum_list_cache
-  unless WXRuby3::Director.validate_enum_cache
-    rm_if(WXRuby3::Director.enum_cache_path, verbose: false)
-    rm_if(WXRuby3::Director.enum_cache_control_path, verbose: false)
+  require_relative './lib/director'
+
+  def enum_list_cache
+    unless WXRuby3::Director.validate_enum_cache
+      rm_if(WXRuby3::Director.enum_cache_path, verbose: false)
+      rm_if(WXRuby3::Director.enum_cache_control_path, verbose: false)
+    end
+    WXRuby3::Director.enum_cache_control_path
   end
-  WXRuby3::Director.enum_cache_control_path
-end
 
-WXRuby3::Director.each_package do |pkg|
+  WXRuby3::Director.each_package do |pkg|
 
-  namespace pkg.name.downcase do
-
-    if WXRuby3.is_bootstrapped?
+    namespace pkg.name.downcase do
 
       pkg.included_directors.each do |dir|
         # file tasks for each module's rake file
@@ -59,72 +59,84 @@ WXRuby3::Director.each_package do |pkg|
 
       task :build   => ['config:bootstrap', :build_report, enum_list_cache, pkg.lib_target, *pkg.dep_libs]
 
-    else
+      task :clean => pkg.subpackages.values.collect {|sp| "wxruby:#{sp.name.downcase}:clean" } do
+        rm_if(Dir[File.join(pkg.ruby_classes_path, 'events', '*')])
+        rmdir_if(File.join(pkg.ruby_classes_path, 'events'))
+        rm_if(Dir[File.join(pkg.ruby_classes_path, 'ext', '*')])
+        rmdir_if(File.join(pkg.ruby_classes_path, 'ext'))
+        rm_if(Dir[File.join(pkg.ruby_doc_path, '*')])
+        rmdir_if(pkg.ruby_doc_path)
+      end
 
-      task :swig   => ['config:bootstrap']
+    end # namespace
 
-      task :compile   => ['config:bootstrap']
-
-      task :build   => ['config:bootstrap']
-
-    end
-
-    task :clean => pkg.subpackages.values.collect {|sp| "wxruby:#{sp.name.downcase}:clean" } do
-      rm_if(Dir[File.join(pkg.ruby_classes_path, 'events', '*')])
-      rmdir_if(File.join(pkg.ruby_classes_path, 'events'))
-      rm_if(Dir[File.join(pkg.ruby_classes_path, 'ext', '*')])
-      rmdir_if(File.join(pkg.ruby_classes_path, 'ext'))
-      rm_if(Dir[File.join(pkg.ruby_doc_path, '*')])
-      rmdir_if(pkg.ruby_doc_path)
-    end
-
-  end # namespace
-
-end
-
-task :build_report do
-  WXRuby3::Config.instance.report
-end
-
-task :enum_list do
-  Rake::Task[enum_list_cache].invoke if WXRuby3.is_bootstrapped?
-end
-
-def all_swig_targets
-  WXRuby3.is_configured? ? WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:swig".to_sym } : []
-end
-
-def all_compile_targets
-  WXRuby3.is_configured? ? WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:compile".to_sym } : []
-end
-
-def all_build_targets
-  WXRuby3.is_configured? ? WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:build" } : []
-end
-
-def all_clean_targets
-  WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:clean".to_sym }
-end
-
-file WXRuby3::Director.enum_cache_control_path do |t_|
-  WXRuby3::Director.all_packages.each { |p| p.extract(genint: false) }
-  touch(WXRuby3::Director.enum_cache_control_path)
-end
-
-# Compile an object file from a generated c++ source
-cpp_src = lambda do | tn |
-  tn.sub(/#{WXRuby3.config.obj_dir}\/(\w+)\.#{WXRuby3.config.obj_ext}$/) { "#{WXRuby3.config.src_dir}/#{$1}.cpp" }
-end
-
-rule ".#{WXRuby3.config.obj_ext}" => cpp_src do | t |
-  sh "#{WXRuby3.config.cpp} -c #{WXRuby3.config.verbose_flag} " +
-       "#{WXRuby3.config.cxxflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
-       "#{WXRuby3.config.cpp_out_flag}#{t.name} #{t.source}"
-end
-
-if WXRuby3.config.windows?
-  # compile an object file from the standard wxRuby resource file
-  file File.join(WXRuby3.config.obj_dir, 'wx_rc.o') => File.join(WXRuby3.config.swig_dir, 'wx.rc') do |t|
-    sh "#{WXRuby3.config.rescomp} -i#{t.source} -o#{t.name}"
   end
+
+  task :build_report do
+    WXRuby3::Config.instance.report
+  end
+
+  task :enum_list do
+    Rake::Task[enum_list_cache].invoke
+  end
+
+  def all_swig_targets
+    WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:swig".to_sym }
+  end
+
+  def all_compile_targets
+    WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:compile".to_sym }
+  end
+
+  def all_build_targets
+    WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:build" }
+  end
+
+  def all_clean_targets
+    WXRuby3::Director.all_packages.collect {|p| "wxruby:#{p.name.downcase}:clean".to_sym }
+  end
+
+  file WXRuby3::Director.enum_cache_control_path do |t_|
+    WXRuby3::Director.all_packages.each { |p| p.extract(genint: false) }
+    touch(WXRuby3::Director.enum_cache_control_path)
+  end
+
+  # Compile an object file from a generated c++ source
+  cpp_src = lambda do | tn |
+    tn.sub(/#{WXRuby3.config.obj_dir}\/(\w+)\.#{WXRuby3.config.obj_ext}$/) { "#{WXRuby3.config.src_dir}/#{$1}.cpp" }
+  end
+
+  rule ".#{WXRuby3.config.obj_ext}" => cpp_src do | t |
+    sh "#{WXRuby3.config.cpp} -c #{WXRuby3.config.verbose_flag} " +
+         "#{WXRuby3.config.cxxflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
+         "#{WXRuby3.config.cpp_out_flag}#{t.name} #{t.source}"
+  end
+
+  if WXRuby3.config.windows?
+    # compile an object file from the standard wxRuby resource file
+    file File.join(WXRuby3.config.obj_dir, 'wx_rc.o') => File.join(WXRuby3.config.swig_dir, 'wx.rc') do |t|
+      sh "#{WXRuby3.config.rescomp} -i#{t.source} -o#{t.name}"
+    end
+  end
+
+else
+
+  task :enum_list
+
+  def all_swig_targets
+    []
+  end
+
+  def all_compile_targets
+    []
+  end
+
+  def all_build_targets
+    []
+  end
+
+  def all_clean_targets
+    []
+  end
+
 end
