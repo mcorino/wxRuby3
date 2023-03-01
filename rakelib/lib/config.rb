@@ -523,7 +523,7 @@ module WXRuby3
             # generate the doxygen XML output
             regen_cmd = windows? ? 'regen.bat' : './regen.sh'
             Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
+              Rake.sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
             end
             # now we need to respawn the rake command in place of this process
             Kernel.exec($0, *ARGV)
