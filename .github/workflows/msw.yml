@@ -13,9 +13,9 @@ permissions:
 
 env:
   DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-  WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
-  WXWIN: ${{ github.workspace }}/ext/wxWidgets/install
-  WXRUBY_RELEASE: 1
+#  WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
+#  WXWIN_ROOT: ${{ github.workspace }}/ext/wxWidgets/install
+#  WXRUBY_RELEASE: 1
 
 jobs:
   build:
@@ -51,13 +51,13 @@ jobs:
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v3
-      - name: checkout wxWidgets
-        uses: actions/checkout@v3
-        with:
-          repository: wxWidgets/wxWidgets
-          path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
-          submodules: 'recursive'
+#      - name: checkout wxWidgets
+#        uses: actions/checkout@v3
+#        with:
+#          repository: wxWidgets/wxWidgets
+#          path: ${{ env.WXWIDGETS_ROOT }}
+#          ref: v${{ matrix.wxWidgets }}
+#          submodules: 'recursive'
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -80,21 +80,21 @@ jobs:
           ridk exec bash -c 'gcc -v'
           ridk exec bash -c 'g++ -v'
 
-      - name: Configuring wxWidgets
-        run: |
-          Push-Location $env:WXWIDGETS_ROOT
-          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
-          Pop-Location
+#      - name: Configuring wxWidgets
+#        run: |
+#          Push-Location $env:WXWIDGETS_ROOT
+#          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
+#          Pop-Location
+#
+#      - name: Build wxWidgets
+#        run: |
+#          Push-Location $env:WXWIDGETS_ROOT
+#          ridk exec bash -c 'make && make install'
+#          Pop-Location
 
-      - name: Build wxWidgets
+      - name: Configure wxRuby3
         run: |
-          Push-Location $env:WXWIDGETS_ROOT
-          ridk exec bash -c 'make && make install'
-          Pop-Location
-
-      - name: Bootstrap wxRuby3
-        run: |
-          bundle exec rake bootstrap
+          bundle exec rake configure[--with-wxwin]
 
       - name: Build wxRuby3
         run: |
@@ -102,4 +102,4 @@ jobs:
 
       - name: Run wxRuby3 regression tests
         run: |
-          bundle exec rake wxtest[:nodep]
+          bundle exec rake test

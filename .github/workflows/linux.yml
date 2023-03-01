@@ -11,9 +11,9 @@ permissions:
   contents: read
 
 env:
-  WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-  WXWIN: ${{ github.workspace }}/ext/wxWidgets/install
-  WXRUBY_RELEASE: 1
+#  WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+#  WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+#  WXRUBY_RELEASE: 1
 
 jobs:
   build:
@@ -120,32 +120,32 @@ jobs:
         gcc -v
         g++ -v
 
-    - name: Configuring wxWidgets
-      run: |
-        wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
-        if [ -n "${{ matrix.gtk_version }}" ]; then
-          wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
-        fi
-        pushd $WXWIDGETS_ROOT
-        ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN --disable-tests --without-subdirs --disable-debug_info || rc=$?
-        popd
-        if [ -n "$rc" ]; then
-          echo '*** Configuring failed, contents of config.log follows: ***'
-          echo '-----------------------------------------------------------'
-          cat $WXWIDGETS_ROOT/config.log
-          echo '-----------------------------------------------------------'
-          exit $rc
-        fi
+#    - name: Configuring wxWidgets
+#      run: |
+#        wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
+#        if [ -n "${{ matrix.gtk_version }}" ]; then
+#          wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
+#        fi
+#        pushd $WXWIDGETS_ROOT
+#        ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+#        popd
+#        if [ -n "$rc" ]; then
+#          echo '*** Configuring failed, contents of config.log follows: ***'
+#          echo '-----------------------------------------------------------'
+#          cat $WXWIDGETS_ROOT/config.log
+#          echo '-----------------------------------------------------------'
+#          exit $rc
+#        fi
+#
+#    - name: Build wxWidgets
+#      run: |
+#        pushd $WXWIDGETS_ROOT
+#        make && make install
+#        popd
 
-    - name: Build wxWidgets
+    - name: Configure wxRuby3
       run: |
-        pushd $WXWIDGETS_ROOT
-        make && make install
-        popd
-
-    - name: Bootstrap wxRuby3
-      run: |
-        bundle exec rake bootstrap
+        bundle exec rake configure[--with-wxwin]
 
     - name: Build wxRuby3
       run: |
@@ -154,7 +154,7 @@ jobs:
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
-        /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake wxtest 2>&1 | tee -a wxtest.out" || rc=$?
+        /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test 2>&1 | tee -a wxtest.out" || rc=$?
         if [ -n "$rc" ]; then
           if fgrep -q '(core dumped)' wxtest.out; then
             echo '*** Test crashed, trying to get more information ***'
