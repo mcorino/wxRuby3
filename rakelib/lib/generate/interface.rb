@@ -523,7 +523,7 @@ module WXRuby3
           wx_pfx = item.name.start_with?('wx') ? 'wx' : ''
           const_name = underscore!(rb_wx_name(item.name))
           const_type = item.type
-          const_type << '*' if const_type.index('char') && item.args_string == '[]'
+          const_type += '*' if const_type.index('char') && item.args_string == '[]'
           fout.puts "%constant #{const_type} #{wx_pfx}#{const_name.upcase} = #{item.name.rstrip};"
         end
       end
