@@ -508,17 +508,22 @@ module WXRuby3
               check_git
               # clone wxWidgets GIT repository under ext_path
               Dir.chdir(ext_path) do
-                Rake.sh("git clone https://github.com/wxWidgets/wxWidgets.git")
+                sh("git clone https://github.com/wxWidgets/wxWidgets.git")
                 Dir.chdir('wxWidgets') do
+                  tag = if wx_version
+                          "v#{wx_version}"
+                        else
+                          sh('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
+                        end
                   # checkout the version we are building against
-                  Rake.sh( "git checkout v#{wx_version}")
+                  sh( "git checkout #{tag}")
                 end
               end
             end
             # generate the doxygen XML output
             regen_cmd = windows? ? 'regen.bat' : './regen.sh'
             Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              Rake.sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
+              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
             end
             # now we need to respawn the rake command in place of this process
             Kernel.exec($0, *ARGV)
