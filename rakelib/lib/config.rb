@@ -467,7 +467,7 @@ module WXRuby3
                 else
                   RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
                 end
-            v = WXRuby3::CONFIG[v[1,v.size]] while v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
+            v = WXRuby3::CONFIG[v[1,v.size]] while String === v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
             v
           end
 
