@@ -46,6 +46,14 @@ module WXRuby3
             @wx_setup_h
           end
 
+          def do_wx_configure
+            Rake.sh('bash -c "./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info"') { |ok,_| !!ok }
+          end
+
+          def do_wx_make
+            Rake.sh('bash -c "make && make install"') { |ok,_| !!ok }
+          end
+
           private
 
           def sh(cmd)

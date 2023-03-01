@@ -185,6 +185,14 @@ module WXRuby3
       end
     end
 
+    def do_wx_configure
+      Rake.sh('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info') { |ok,_| !!ok }
+    end
+
+    def do_wx_make
+      Rake.sh('make && make install') { |ok,_| !!ok }
+    end
+
     def check_wx_config
       false
     end
@@ -517,6 +525,21 @@ module WXRuby3
                         end
                   # checkout the version we are building against
                   sh( "git checkout #{tag}")
+                end
+              end
+            end
+            # do we need to build wxWidgets?
+            if get_config('with-wxwin')
+              Dir.chdir(File.join(ext_path, 'wxWidgets')) do
+                # configure wxWidgets
+                unless do_wx_configure
+                  STDERR.puts "ERROR: Failed to configure wxWidgets."
+                  exit(1)
+                end
+                # make and install wxWidgets
+                unless do_wx_make
+                  STDERR.puts "ERROR: Failed to build wxWidgets libraries."
+                  exit(1)
                 end
               end
             end
