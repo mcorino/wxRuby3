@@ -481,7 +481,6 @@ module WXRuby3
               exit(1)
             end
           end
-          private :check_git
 
           def check_doxygen
             if sh("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
@@ -489,7 +488,6 @@ module WXRuby3
               exit(1)
             end
           end
-          private :check_doxygen
 
           def do_bootstrap
             check_doxygen
