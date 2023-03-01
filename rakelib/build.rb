@@ -20,7 +20,7 @@ WXRuby3::Director.each_package do |pkg|
 
   namespace pkg.name.downcase do
 
-    if WXRuby3.is_configured?
+    if WXRuby3.is_bootstrapped?
 
       pkg.included_directors.each do |dir|
         # file tasks for each module's rake file

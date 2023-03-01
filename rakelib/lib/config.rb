@@ -421,6 +421,10 @@ module WXRuby3
             File.file?(File.join(WXRuby3::ROOT, WXRuby3::BUILD_CFG))
           end
 
+          def is_bootstrapped?
+            is_configured? && File.directory?(wx_xml_path)
+          end
+
           def wx_version
             @wx_version || ''
           end
