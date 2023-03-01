@@ -272,7 +272,7 @@ module WXRuby3
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
-          attr_reader :wx_path, :wx_version, :wx_abi_version, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
+          attr_reader :wx_path, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
@@ -372,7 +372,6 @@ module WXRuby3
             end
 
             @exec_env = {}
-            @wx_version = @wx_abi_version = ''
 
             # platform specific initialization
             init_platform
@@ -420,6 +419,14 @@ module WXRuby3
 
           def is_configured?
             File.file?(File.join(WXRuby3::ROOT, WXRuby3::BUILD_CFG))
+          end
+
+          def wx_version
+            @wx_version || ''
+          end
+
+          def wx_abi_version
+            @wx_abi_version || ''
           end
 
           def mswin?
