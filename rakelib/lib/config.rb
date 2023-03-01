@@ -560,7 +560,7 @@ module WXRuby3
 
             File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
               features[$1] = $2.to_i.zero? ? false : true
-            end if is_configured?
+            end if is_configured? && wxwidgets_setup_h
 
             features
           end
