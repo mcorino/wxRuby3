@@ -510,8 +510,8 @@ module WXRuby3
               Dir.chdir(ext_path) do
                 sh("git clone https://github.com/wxWidgets/wxWidgets.git")
                 Dir.chdir('wxWidgets') do
-                  tag = if wx_version
-                          "v#{wx_version}"
+                  tag = if @wx_version
+                          "v#{@wx_version}"
                         else
                           sh('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
                         end
