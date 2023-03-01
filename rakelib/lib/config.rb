@@ -372,6 +372,7 @@ module WXRuby3
             end
 
             @exec_env = {}
+            @wx_version = @wx_abi_version = ''
 
             # platform specific initialization
             init_platform
