@@ -10,9 +10,9 @@ concurrency:
 permissions:
   contents: read
 
-#env:
-#  WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-#  WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+env:
+  WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+  WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
 #  WXRUBY_RELEASE: 1
 
 jobs:
@@ -73,13 +73,13 @@ jobs:
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
 
-#    - name: checkout wxWidgets
-#      uses: actions/checkout@v3
-#      with:
-#        repository: wxWidgets/wxWidgets
-#        path: ${{ env.WXWIDGETS_ROOT }}
-#        ref: v${{ matrix.wxWidgets }}
-#        submodules: 'recursive'
+    - name: checkout wxWidgets
+      uses: actions/checkout@v3
+      with:
+        repository: wxWidgets/wxWidgets
+        path: ${{ env.WXWIDGETS_ROOT }}
+        ref: v${{ matrix.wxWidgets }}
+        submodules: 'recursive'
 
     - uses: ruby/setup-ruby@v1
       with:
@@ -102,32 +102,32 @@ jobs:
         gcc -v
         g++ -v
 
-#    - name: Configuring wxWidgets
-#      run: |
-#        wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
-#        if [ -n "${{ matrix.gtk_version }}" ]; then
-#          wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
-#        fi
-#        pushd $WXWIDGETS_ROOT
-#        ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
-#        popd
-#        if [ -n "$rc" ]; then
-#          echo '*** Configuring failed, contents of config.log follows: ***'
-#          echo '-----------------------------------------------------------'
-#          cat $WXWIDGETS_ROOT/config.log
-#          echo '-----------------------------------------------------------'
-#          exit $rc
-#        fi
-#
-#    - name: Build wxWidgets
-#      run: |
-#        pushd $WXWIDGETS_ROOT
-#        make && make install
-#        popd
+    - name: Configuring wxWidgets
+      run: |
+        wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
+        if [ -n "${{ matrix.gtk_version }}" ]; then
+          wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
+        fi
+        pushd $WXWIDGETS_ROOT
+        ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        popd
+        if [ -n "$rc" ]; then
+          echo '*** Configuring failed, contents of config.log follows: ***'
+          echo '-----------------------------------------------------------'
+          cat $WXWIDGETS_ROOT/config.log
+          echo '-----------------------------------------------------------'
+          exit $rc
+        fi
+
+    - name: Build wxWidgets
+      run: |
+        pushd $WXWIDGETS_ROOT
+        make && make install
+        popd
 
     - name: Configure wxRuby3
       run: |
-        bundle exec rake configure[--with-wxwin]
+        bundle exec rake configure[--wxwin=$WXWIN_INSTALL]
 
     - name: Build wxRuby3
       run: |
