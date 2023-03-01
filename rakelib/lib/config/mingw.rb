@@ -52,7 +52,7 @@ module WXRuby3
             super("bash -c \"#{cmd}\"")
           end
 
-          def sh(*cmd)
+          def bash(*cmd)
             env = ::Hash === cmd.first ? cmd.shift : nil
             opts = ::Hash === cmd.last ? cmd.pop : nil
             cmd = ['bash', '-c', %Q{"#{cmd.join(' ')}"}]

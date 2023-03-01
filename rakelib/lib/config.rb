@@ -160,6 +160,8 @@ module WXRuby3
       Rake.sh(*cmd) { |ok,_| !!ok }
     end
     private :sh
+    alias :bash :sh
+    private :bash
 
     def test(*tests, **options)
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
@@ -544,12 +546,12 @@ module WXRuby3
                   exit(1)
                 end
                 # configure wxWidgets
-                unless sh('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+                unless bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
                   STDERR.puts "ERROR: Failed to configure wxWidgets."
                   exit(1)
                 end
                 # make and install wxWidgets
-                unless sh('make && make install')
+                unless bash('make && make install')
                   STDERR.puts "ERROR: Failed to build wxWidgets libraries."
                   exit(1)
                 end
