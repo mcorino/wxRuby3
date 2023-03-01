@@ -31,7 +31,7 @@ module WXRuby3
     RB_CONFIG = ::Config::CONFIG
   end unless defined? RB_CONFIG
 
-  CFG_KEYS = %w{prefix
+  CFG_KEYS = %w[prefix
                 bindir
                 libdir
                 datadir
@@ -45,14 +45,14 @@ module WXRuby3
                 siterubyver
                 siterubyverarch
                 rbdir
-                sodir}
+                sodir]
 
-  RB_DEFAULTS = %w{bindir
+  RB_DEFAULTS = %w[bindir
                    libdir
                    datadir
                    mandir
                    sysconfdir
-                   localstatedir}
+                   localstatedir]
 
   CONFIG = {
     'libruby' => File.join(RB_CONFIG['libdir'], 'ruby'),
