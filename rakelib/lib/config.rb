@@ -601,6 +601,10 @@ module WXRuby3
         instance.is_configured?
       end
 
+      def is_bootstrapped?
+        instance.is_bootstrapped?
+      end
+
     end # class << self
 
   end # module Config
