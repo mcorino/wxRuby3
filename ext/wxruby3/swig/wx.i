@@ -243,7 +243,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 %constant const bool wxRB_TRACE = false;
 #endif
 
-%constant const char* wxWXWIDGETS_VERSION_STRING = wxString(wxVERSION_STRING);
+%constant const char* wxWXWIDGETS_VERSION_STRING = (const char*)wxString(wxVERSION_STRING).ToAscii();
 
 %include "mark_free_impl.i"
 

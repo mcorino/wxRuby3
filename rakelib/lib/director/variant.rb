@@ -484,7 +484,7 @@ module WXRuby3
             if (ts == wxS("ulonglong")) return ULL2NUM(self->GetULongLong().GetValue());
             if (ts == wxS("double")) return rb_funcall(SWIG_From_double(self->GetDouble()), to_i_id, 0);
             if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_i_id, 0);
-            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts);
+            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts.ToAscii());
             return Qnil;
           }
 
@@ -498,7 +498,7 @@ module WXRuby3
             if (ts == wxS("ulonglong")) return rb_funcall(ULL2NUM(self->GetULongLong().GetValue()), to_f_id, 0);
             if (ts == wxS("double")) return SWIG_From_double(self->GetDouble());
             if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_f_id, 0);
-            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts);
+            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts.ToAscii());
             return Qnil;
           }
 
@@ -515,7 +515,7 @@ module WXRuby3
             if (ts == wxS("double")) return rb_funcall(SWIG_From_double(self->GetDouble()), to_s_id, 0);
             if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_s_id, 0);
             if (ts == WXRBValueVariantData::type_name_) return rb_funcall(((WXRBValueVariantData*)self->GetData())->GetValue(), to_s_id, 0);
-            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to String", (const char*)ts);
+            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to String", (const char*)ts.ToAscii());
             return Qnil;
           }
           __HEREDOC
