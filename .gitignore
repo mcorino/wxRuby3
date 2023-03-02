@@ -5,6 +5,7 @@ obj
 src
 bak
 doc
+pkg
 rakelib/deps
 ext/wxruby3/swig/classes
 ext/wxruby3/lib
