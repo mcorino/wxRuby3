@@ -24,7 +24,7 @@ if WXRuby3.is_bootstrapped?
 
       pkg.included_directors.each do |dir|
         # file tasks for each module's rake file
-        file dir.rake_file  => [enum_list_cache, WXRuby3.build_cfg, *dir.source_files] do |_|
+        file dir.rake_file  => [:enum_list, WXRuby3.build_cfg, *dir.source_files] do |_|
           dir.create_rakefile
         end
 
@@ -53,11 +53,11 @@ if WXRuby3.is_bootstrapped?
              "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{t.name}"
       end
 
-      task :swig   => ['config:bootstrap', :build_report, enum_list_cache, WXRuby3.config.classes_path, *pkg.all_cpp_files]
+      task :swig   => ['config:bootstrap', :build_report, :enum_list, WXRuby3.config.classes_path, *pkg.all_cpp_files]
 
       task :compile   => ['config:bootstrap', :build_report, *pkg.all_obj_files]
 
-      task :build   => ['config:bootstrap', :build_report, enum_list_cache, pkg.lib_target, *pkg.dep_libs]
+      task :build   => ['config:bootstrap', :build_report, :enum_list, pkg.lib_target, *pkg.dep_libs]
 
       task :clean => pkg.subpackages.values.collect {|sp| "wxruby:#{sp.name.downcase}:clean" } do
         rm_if(Dir[File.join(pkg.ruby_classes_path, 'events', '*')])
