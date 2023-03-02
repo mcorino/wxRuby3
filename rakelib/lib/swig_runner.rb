@@ -67,9 +67,9 @@ module WXRuby3
 
       def run_swig(source, target)
         check_swig unless swig_state
-        inc_paths = '-Iswig/custom'
-        inc_paths << ' -Iswig/custom/swig3' if swig_major < 4
-        sh "#{WXRuby3::Config.get_config(:swig)} #{config.wx_cppflags} " +
+        inc_paths = "-I#{config.wxruby_dir} -I#{config.swig_dir}/custom"
+        inc_paths << " -I#{config.swig_dir}/custom/swig3" if swig_major < 4
+        sh "#{config.get_config('swig')} #{config.wx_cppflags} " +
              "#{config.extra_cppflags} #{config.verbose_flag} #{inc_paths} " +
              #"-w401 -w801 -w515 -c++ -ruby " +
              "-w801 -c++ -ruby " +

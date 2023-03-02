@@ -138,8 +138,18 @@ module WXRuby3
     end
     private :do_run
 
+    def make_ruby_cmd(*cmd)
+      [
+        FileUtils::RUBY,
+        '-I', rb_lib_path,
+        '-I', dest_dir,
+        *cmd.flatten
+      ]
+    end
+    private :make_ruby_cmd
+
     def run(*cmd, capture: nil)
-      do_run(FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), *cmd, capture: capture)
+      do_run(*make_ruby_cmd(cmd), capture: capture)
     end
 
     def debug_command(*args)
@@ -174,13 +184,13 @@ module WXRuby3
           test = File.join(Config.instance.test_dir, test)
           test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
         end
-        Rake.sh(Config.instance.exec_env, FileUtils::RUBY, '-I', File.join(Config.wxruby_root, 'lib'), test)
+        Rake.sh(Config.instance.exec_env, *make_ruby_cmd(test))
       end
     end
 
     def irb(**options)
       irb_cmd = File.join(File.dirname(FileUtils::RUBY), 'irb')
-      Rake.sh(Config.instance.exec_env, *[FileUtils::RUBY, '-I', "#{File.join(Config.wxruby_root, 'lib')}", '-x', irb_cmd], **options)
+      Rake.sh(Config.instance.exec_env, *make_ruby_cmd('-x', irb_cmd), **options)
     end
 
     attr_reader :configuration
@@ -308,33 +318,39 @@ module WXRuby3
           attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
           attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
-                      :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext,
+                      :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
-                      :common_dir, :common_path, :interface_dir, :interface_path, :ext_dir, :ext_path, :exec_env
+                      :common_dir, :common_path, :interface_dir, :interface_path,
+                      :ext_dir, :ext_path, :wxruby_dir, :wxruby_path, :exec_env
           attr_reader :rb_lib_dir, :rb_lib_path, :rb_events_dir, :rb_events_path,
                       :rb_doc_dir, :rb_doc_path, :rb_docgen_dir, :rb_docgen_path
 
           # (re-)initialize settings
           def init
-            # STANDARD BUILD DIRECTORIES
-            @swig_dir = 'swig'
-            @swig_path = File.join(Config.wxruby_root, 'swig')
+            # STANDARD DIRECTORIES
+            @ext_dir = 'ext'
+            @ext_path = File.join(Config.wxruby_root, @ext_dir)
+            @wxruby_dir = File.join(@ext_dir, 'wxruby3')
+            @wxruby_path = File.join(@ext_path, 'wxruby3')
+            @swig_dir = File.join(@wxruby_dir,'swig')
+            @swig_path = File.join(Config.wxruby_root, @swig_dir)
             @rake_deps_dir = File.join('rakelib', 'deps')
             @rake_deps_path = File.join(Config.wxruby_root, @rake_deps_dir)
             FileUtils.mkdir_p(@rake_deps_path)
-            @src_dir = 'src'
+            @src_dir = File.join(@wxruby_dir,'src')
             @src_path = File.join(Config.wxruby_root, @src_dir)
             FileUtils.mkdir_p(@src_path)
             @src_gen_dir = File.join(@src_dir, '.generate')
             @src_gen_path = File.join(Config.wxruby_root, @src_gen_dir)
             FileUtils.mkdir_p(@src_gen_path)
-            @obj_dir = 'obj'
+            @obj_dir = File.join(@wxruby_dir,'obj')
             @obj_path = File.join(Config.wxruby_root, @obj_dir)
             FileUtils.mkdir_p(@obj_path)
-            @dest_dir = File.join(Config.wxruby_root, 'lib')
+            @dest_dir = File.join(@wxruby_path, 'lib')
+            FileUtils.mkdir_p(@dest_dir)
             @test_dir = File.join(Config.wxruby_root, 'tests')
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
@@ -345,9 +361,6 @@ module WXRuby3
             @interface_dir = File.join(@classes_dir, 'include')
             @interface_path = File.join(Config.wxruby_root, @interface_dir)
             FileUtils.mkdir_p(@interface_path)
-            @ext_dir = 'ext'
-            @ext_path = File.join(Config.wxruby_root, @ext_dir)
-            FileUtils.mkdir_p(@ext_path)
             @rb_lib_dir = 'lib'
             @rb_lib_path = File.join(Config.wxruby_root, @rb_lib_dir)
             @rb_doc_dir = File.join(@rb_lib_dir, 'wx', 'doc')
@@ -368,7 +381,7 @@ module WXRuby3
             # included swig specfiles not needing standalone processing
             @include_modules =
               %w|common.i typedefs.i typemap.i mark_free_impl.i memory_management.i shared/*.i|.collect do |glob|
-                Dir.glob(File.join(swig_dir, glob))
+                Dir.glob(File.join(@swig_dir, glob))
               end.flatten
 
 
@@ -402,6 +415,7 @@ module WXRuby3
             @link_output_flag = '-o '
 
             @obj_ext = RB_CONFIG["OBJEXT"]
+            @dll_ext = RB_CONFIG['DLEXT']
 
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.

@@ -42,7 +42,7 @@ task :configure => 'wxruby:config:configure'
 desc 'Show current wxRuby build settings'
 task :show => 'wxruby:config:show'
 
-file WXRuby3::BUILD_CFG do
+file WXRuby3.build_cfg do
   unless File.file?(WXRuby3::BUILD_CFG)
     STDERR.puts "ERROR: Build configuration missing! First run 'rake wxruby::configure'."
     exit(1)

@@ -71,9 +71,9 @@ module WXRuby3
       end
 
       def get_common_dependencies
-        mods = ['swig/wx.i']
-                 .concat(WXRuby3::Config.instance.helper_modules.collect { |m| "swig/#{m}.i" })
-                 .concat(WXRuby3::Config.instance.include_modules)
+        mods = ["#{WXRuby3.config.swig_dir}/wx.i"]
+                 .concat(WXRuby3.config.helper_modules.collect { |m| "#{WXRuby3.config.swig_dir}/#{m}.i" })
+                 .concat(WXRuby3.config.include_modules)
         common_deps = mods.inject({}) do |hash, mod|
           hash[mod] = scan_for_includes(mod); hash
         end

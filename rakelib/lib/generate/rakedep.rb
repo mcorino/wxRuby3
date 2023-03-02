@@ -43,7 +43,7 @@ module WXRuby3
       swig_i_file = Pathname(interface_file).relative_path_from(wxruby_root).to_s
       frake << <<~__TASK__
         # file task for module's SWIG interface input file
-        file '#{swig_i_file}' => ['rakefile', '#{(@director.source_files + base_deps).join("', '")}'] do |_|
+        file '#{swig_i_file}' => ['#{WXRuby3.build_cfg}', '#{(@director.source_files + base_deps).join("', '")}'] do |_|
           WXRuby3::Director['#{package.fullname}'].extract('#{name}')
         end
       __TASK__
@@ -63,12 +63,20 @@ module WXRuby3
       [:prepend, :append].each do |pos|
         unless swig_imports[pos].empty?
           swig_imports[pos].each do |inc|
+            incdir = File.dirname(inc)
             # make sure all import dependencies are relative to wxruby root
-            if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
-              inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-              list << Pathname(inc).relative_path_from(wxruby_root).to_s
-            else
+            if File.directory?(File.join(wxruby_root.to_s, incdir))
               list << inc
+            else
+              if File.directory?(File.join(WXRuby3::Config.instance.wxruby_path, incdir))
+                inc = File.join(WXRuby3::Config.instance.wxruby_path, inc)
+              elsif File.directory?(File.join(WXRuby3::Config.instance.classes_path, incdir))
+                inc = File.join(WXRuby3::Config.instance.classes_path, inc)
+              else
+                STDERR.puts "ERROR: Cannot find SWIG import #{inc} for #{name}"
+                exit(1)
+              end
+              list << Pathname(inc).relative_path_from(wxruby_root).to_s
             end
           end
         end
@@ -76,12 +84,20 @@ module WXRuby3
 
       unless swig_includes.empty?
         swig_includes.each do |inc|
+          incdir = File.dirname(inc)
           # make sure all include dependencies are relative to wxruby root
-          if File.exist?(File.join(WXRuby3::Config.instance.classes_path, inc))
-            inc = File.join(WXRuby3::Config.instance.classes_path, inc)
-            list << Pathname(inc).relative_path_from(wxruby_root).to_s
-          else
+          if File.directory?(File.join(wxruby_root.to_s, incdir))
             list << inc
+          else
+            if File.directory?(File.join(WXRuby3::Config.instance.wxruby_path, incdir))
+              inc = File.join(WXRuby3::Config.instance.wxruby_path, inc)
+            elsif File.directory?(File.join(WXRuby3::Config.instance.classes_path, incdir))
+              inc = File.join(WXRuby3::Config.instance.classes_path, inc)
+            else
+              STDERR.puts "ERROR: Cannot find SWIG include #{inc} for #{name}"
+              exit(1)
+            end
+            list << Pathname(inc).relative_path_from(wxruby_root).to_s
           end
           list.concat(Director.common_dependencies[list.last] || [])
         end

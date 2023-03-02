@@ -256,7 +256,7 @@ module WXRuby3
       unless swig_imports[:prepend].empty?
         fout.puts
         swig_imports[:prepend].each do |inc|
-          fout .puts %Q{%import "#{inc}"}
+          fout.puts %Q{%import "#{inc}"}
           generated_imports << inc
         end
       end

@@ -14,4 +14,4 @@
 # WXWIN             : install folder of wxWidgets library if not system default
 # WXXML             : folder containing doxygen generated wxWidgets XML interface specs if not using wxRuby bootstrap
 
-task :default => 'wxruby:build'
+task :default => 'wxruby:help'
