@@ -11,3 +11,4 @@ require_relative './grid/require'
 ::Wx.include(WxRubyStyleAccessors)
 
 ::Wx.include(::Wx::GRID) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx::GRID.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
