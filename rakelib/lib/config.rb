@@ -142,7 +142,6 @@ module WXRuby3
       [
         FileUtils::RUBY,
         '-I', rb_lib_path,
-        '-I', dest_dir,
         *cmd.flatten
       ]
     end
@@ -349,8 +348,7 @@ module WXRuby3
             @obj_dir = File.join(@wxruby_dir,'obj')
             @obj_path = File.join(Config.wxruby_root, @obj_dir)
             FileUtils.mkdir_p(@obj_path)
-            @dest_dir = File.join(@wxruby_path, 'lib')
-            FileUtils.mkdir_p(@dest_dir)
+            @dest_dir = File.join(Config.wxruby_root, 'lib')
             @test_dir = File.join(Config.wxruby_root, 'tests')
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
