@@ -151,6 +151,10 @@ module WXRuby3
       Rake.sh(Config.instance.exec_env, debug_command(*args), **options)
     end
 
+    def respawn_rake(argv = ARGV)
+      Kernel.exec($0, *argv)
+    end
+
     def expand(cmd)
       `#{cmd}`
     end
@@ -175,8 +179,8 @@ module WXRuby3
     end
 
     def irb(**options)
-      irbcmd = File.join(File.dirname(FileUtils::RUBY), 'irb')
-      Rake.sh(Config.instance.exec_env, *[FileUtils::RUBY, '-I', "#{File.join(Config.wxruby_root, 'lib')}", '-x', irbcmd], **options)
+      irb_cmd = File.join(File.dirname(FileUtils::RUBY), 'irb')
+      Rake.sh(Config.instance.exec_env, *[FileUtils::RUBY, '-I', "#{File.join(Config.wxruby_root, 'lib')}", '-x', irb_cmd], **options)
     end
 
     attr_reader :configuration
@@ -197,12 +201,40 @@ module WXRuby3
       end
     end
 
+    def check_git
+      if expand("which git 2>/dev/null").chomp.empty?
+        STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
+        exit(1)
+      end
+    end
+
+    def check_doxygen
+      if expand("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
+        STDERR.puts "ERROR: Cannot find #{get_config(:doxygen)}. Need Doxygen installed to run wxRuby3 bootstrap!"
+        exit(1)
+      end
+    end
+
     def check_wx_config
       false
     end
 
     def wx_config(_option)
       nil
+    end
+
+    def get_config(key)
+      v = if WXRuby3::CONFIG.has_key?(key.to_s)
+            WXRuby3::CONFIG[key.to_s]
+          else
+            RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
+          end
+      v = WXRuby3::CONFIG[v[1,v.size]] while String === v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
+      v
+    end
+
+    def set_config(key, val)
+      WXRuby3::CONFIG[key.to_s] = val
     end
 
     class AnyOf
@@ -445,14 +477,6 @@ module WXRuby3
             @wx_abi_version || ''
           end
 
-          def mswin?
-            @platform == :mswin
-          end
-
-          def bccwin?
-            @platform == :bccwin
-          end
-
           def cygwin?
             @platform == :cygwin
           end
@@ -474,7 +498,7 @@ module WXRuby3
           end
 
           def windows?
-            mswin? || mingw? || cygwin?
+            mingw? || cygwin?
           end
 
           def ldflags(_target)
@@ -485,85 +509,22 @@ module WXRuby3
             File.directory?(@wx_xml_path)
           end
 
-          def get_config(key)
-            v = if WXRuby3::CONFIG.has_key?(key.to_s)
-                  WXRuby3::CONFIG[key.to_s]
-                else
-                  RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
-                end
-            v = WXRuby3::CONFIG[v[1,v.size]] while String === v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
-            v
-          end
-
-          def set_config(key, val)
-            WXRuby3::CONFIG[key.to_s] = val
-          end
-
-          def check_git
-            if expand("which git 2>/dev/null").chomp.empty?
-              STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
-              exit(1)
-            end
-          end
-
-          def check_doxygen
-            if expand("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
-              STDERR.puts "ERROR: Cannot find #{get_config(:doxygen)}. Need Doxygen installed to run wxRuby3 bootstrap!"
-              exit(1)
-            end
-          end
-
           def do_bootstrap
             check_doxygen
             # do we have a local wxWidgets tree already?
             unless File.directory?(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen'))
-              check_git
-              # clone wxWidgets GIT repository under ext_path
-              Dir.chdir(ext_path) do
-                rc = if sh("git clone https://github.com/wxWidgets/wxWidgets.git")
-                       Dir.chdir('wxWidgets') do
-                         tag = if @wx_version
-                                 "v#{@wx_version}"
-                               else
-                                 expand('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
-                               end
-                         # checkout the version we are building against
-                         sh("git checkout #{tag}")
-                       end
-                     end
-                unless !!rc
-                  STDERR.puts "ERROR: Failed to checkout wxWidgets."
-                  exit(1)
-                end
-              end
+              wx_checkout
             end
             # do we need to build wxWidgets?
             if get_config('with-wxwin')
               Dir.chdir(File.join(ext_path, 'wxWidgets')) do
-                # initialize submodules
-                unless sh('git submodule update --init')
-                  STDERR.puts "ERROR: Failed to update wxWidgets submodules."
-                  exit(1)
-                end
-                # configure wxWidgets
-                unless bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
-                  STDERR.puts "ERROR: Failed to configure wxWidgets."
-                  exit(1)
-                end
-                # make and install wxWidgets
-                unless bash('make && make install')
-                  STDERR.puts "ERROR: Failed to build wxWidgets libraries."
-                  exit(1)
-                end
+                wx_build
               end
             end
             # generate the doxygen XML output
-            regen_cmd = windows? ? 'regen.bat' : './regen.sh'
-            Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, " #{regen_cmd} xml")
-            end
+            wx_generate_xml
             # now we need to respawn the rake command in place of this process
-            Kernel.exec($0, *ARGV)
+            respawn_rake
           end
 
           # Testing the relevant wxWidgets setup.h file to see what

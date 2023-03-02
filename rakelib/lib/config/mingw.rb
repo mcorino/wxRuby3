@@ -48,6 +48,12 @@ module WXRuby3
 
           private
 
+          def wx_generate_xml
+            Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
+              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, 'regen.bat xml')
+            end
+          end
+
           def expand(cmd)
             super("bash -c \"#{cmd}\"")
           end

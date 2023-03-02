@@ -17,10 +17,13 @@ commands:
 
 rake <rake-options> configure[--help]|[<configure options>]    # Configure wxRuby3 build settings
 rake <rake-options> show             # Show current wxRuby3 build settings
-rake <rake-options> build            # Build wxRuby3
 rake <rake-options> clean            # Remove any temporary products.
 rake <rake-options> clobber          # Remove any generated file.
 rake <rake-options> help             # Provide help description about wxRuby3 build system
+
+(these next commands all require a valid configuration created by 'rake configure')
+
+rake <rake-options> build            # Build wxRuby3
 rake <rake-options> test             # Run all wxRuby3 tests
 rake <rake-options> tests            # Run wxRuby3 tests
 rake <rake-options> package          # Build all the packages

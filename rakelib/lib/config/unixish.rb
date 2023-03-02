@@ -47,6 +47,52 @@ module WXRuby3
 
       private
 
+      def wx_checkout
+        check_git
+        # clone wxWidgets GIT repository under ext_path
+        Dir.chdir(ext_path) do
+          rc = if sh("git clone https://github.com/wxWidgets/wxWidgets.git")
+                 Dir.chdir('wxWidgets') do
+                   tag = if @wx_version
+                           "v#{@wx_version}"
+                         else
+                           expand('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
+                         end
+                   # checkout the version we are building against
+                   sh("git checkout #{tag}")
+                 end
+               end
+          unless !!rc
+            STDERR.puts "ERROR: Failed to checkout wxWidgets."
+            exit(1)
+          end
+        end
+      end
+
+      def wx_build
+        # initialize submodules
+        unless sh('git submodule update --init')
+          STDERR.puts "ERROR: Failed to update wxWidgets submodules."
+          exit(1)
+        end
+        # configure wxWidgets
+        unless bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+          STDERR.puts "ERROR: Failed to configure wxWidgets."
+          exit(1)
+        end
+        # make and install wxWidgets
+        unless bash('make && make install')
+          STDERR.puts "ERROR: Failed to build wxWidgets libraries."
+          exit(1)
+        end
+      end
+
+      def wx_generate_xml
+        Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
+          sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
+        end
+      end
+
       def expand(cmd)
         STDERR.puts "> sh: #{cmd}" if verbose?
         s = super
