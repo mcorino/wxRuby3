@@ -51,7 +51,7 @@ namespace :wxruby do
     rmdir_if(WXRuby3.config.obj_dir)
   end
 
-  Rake::Task[:clobber].enhance(['wxruby:clean_all'])
+  Rake::Task[:clobber].enhance(['wxruby:clean'])
   Rake::Task[:clobber].enhance do
     rm_rf(File.join(WXRuby3.config.ext_path, 'wxWidgets'))
   end if WXRuby3.config.with_wxwin?
