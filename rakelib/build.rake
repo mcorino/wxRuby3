@@ -29,6 +29,7 @@ namespace :wxruby do
     rm_if(Dir[File.join(WXRuby3.config.common_dir, '*')])
     rmdir_if(WXRuby3.config.common_dir)
     rm_if(Dir[File.join(WXRuby3.config.classes_dir, '*')])
+    rmdir_if(WXRuby3.config.classes_dir)
     rm_if(Dir[File.join(WXRuby3.config.rake_deps_dir, '.*.rake')])
     rmdir_if(WXRuby3.config.rake_deps_dir)
     rm_if(Dir[File.join(WXRuby3.config.src_gen_dir, '*')])
