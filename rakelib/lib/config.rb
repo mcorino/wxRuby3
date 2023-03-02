@@ -224,17 +224,11 @@ module WXRuby3
     end
 
     def get_config(key)
-      v = if WXRuby3::CONFIG.has_key?(key.to_s)
-            WXRuby3::CONFIG[key.to_s]
-          else
-            RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
-          end
-      v = WXRuby3::CONFIG[v[1,v.size]] while String === v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
-      v
+      Config.get_config(key)
     end
 
     def set_config(key, val)
-      WXRuby3::CONFIG[key.to_s] = val
+      Config.set_config(key, val)
     end
 
     class AnyOf
@@ -469,6 +463,10 @@ module WXRuby3
             is_configured? && File.directory?(wx_xml_path)
           end
 
+          def with_wxwin?
+            get_config('with-wxwin')
+          end
+
           def wx_version
             @wx_version || ''
           end
@@ -595,11 +593,17 @@ module WXRuby3
       end
 
       def get_config(key)
-        instance.get_config(key)
+        v = if WXRuby3::CONFIG.has_key?(key.to_s)
+              WXRuby3::CONFIG[key.to_s]
+            else
+              RB_DEFAULTS.include?(key.to_s) ? RB_CONFIG[key.to_s] : nil
+            end
+        v = WXRuby3::CONFIG[v[1,v.size]] while String === v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
+        v
       end
 
       def set_config(key, val)
-        instance.set_config(key, val)
+        WXRuby3::CONFIG[key.to_s] = val
       end
 
       def is_configured?
