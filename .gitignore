@@ -5,9 +5,9 @@ obj
 src
 bak
 doc
-rake/deps
+rakelib/deps
 ext/wxruby3/swig/classes
-ext/wxruby3/swig/inc
+ext/wxruby3/lib
 lib/wx/doc/gen
 lib/wx/**/ext
 lib/wx/**/events
