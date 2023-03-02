@@ -76,7 +76,7 @@ if WXRuby3.is_bootstrapped?
     WXRuby3::Config.instance.report
   end
 
-  task :enum_list do
+  task :enum_list => 'config:bootstrap' do
     Rake::Task[enum_list_cache].invoke
   end
 
