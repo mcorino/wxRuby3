@@ -28,15 +28,20 @@ module WXRuby3
             wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
               lib = lib[2..lib.size]
               if WXRuby3.config.windows?
-                # translate lib name to shlib name
-                m = /\Awx_([a-z]+)_([a-z]+)-(.*)/.match(lib)
-                grp_id = m[1]
-                lib_id = m[2]
-                ver = m[3].sub('.', '')
-                lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}u_#{lib_id}"
-                @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
+                # match only wxWidgets libraries
+                if (m = /\Awx_([a-z]+)(_[a-z]+)?-(.*)/.match(lib))
+                  # translate lib name to shlib name
+                  grp_id = m[1]
+                  lib_id = m[2]
+                  ver = m[3].sub('.', '')
+                  lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}u#{lib_id}"
+                  @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
+                end
               else
-                @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_mask}")
+                # match only wxWidgets libraries
+                if /\Awx_([a-z]+)(_[a-z]+)?-(.*)/.match(lib))
+                  @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_mask}")
+                end
               end
             end
           end
