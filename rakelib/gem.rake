@@ -79,7 +79,7 @@ if WXRuby3.is_bootstrapped?
         gem.required_ruby_version = ">= #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}",
                                     "< #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor+1}"
         gem.licenses = ['MIT']
-        gem.licenses << 'LGPL+' if WXRuby3.config.get_config('with-wxwin')
+        gem.licenses << 'Nonstandard' if WXRuby3.config.get_config('with-wxwin')
         gem.add_dependency 'rake'
         gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
       end
