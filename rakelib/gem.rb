@@ -63,6 +63,7 @@ module WXRuby3
           manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
         end
         manifest.include 'ext/mkrf_conf_bingem.rb'
+        manifest.include 'rakelib/startup.rake'
       else
         manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
         manifest.include 'ext/wxruby3/swig/**/*'
