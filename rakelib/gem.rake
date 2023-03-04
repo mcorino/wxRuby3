@@ -22,7 +22,7 @@ if WXRuby3.is_bootstrapped?
   file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.manifest + ['ext/mkrf_conf_srcgem.rb'] do
     gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION) do |gem|
       gem.summary = %Q{wxWidgets extension for Ruby}
-      gem.description = %Q{wxWidgets extension for Ruby}
+      gem.description = %Q{wxRuby3 is a Ruby library providing an extension for the wxWidgets C++ UI framework}
       gem.email = 'mcorino@m2c-software.nl'
       gem.homepage = "https://github.com/mcorino/wxRuby3"
       gem.authors = ['Martin Corino']
@@ -67,7 +67,7 @@ if WXRuby3.is_bootstrapped?
       # create gemspec
       gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION, :bin) do |gem|
         gem.summary = %Q{wxWidgets extension for Ruby}
-        gem.description = %Q{wxWidgets extension for Ruby}
+        gem.description = %Q{wxRuby3 is a Ruby library providing an extension for the wxWidgets C++ UI framework}
         gem.email = 'mcorino@m2c-software.nl'
         gem.homepage = "https://github.com/mcorino/wxRuby3"
         gem.authors = ['Martin Corino']
