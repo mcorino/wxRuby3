@@ -1,158 +1,115 @@
+###
+# wxRuby3 rake gem support
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'rubygems'
-require 'rake/packagetask'
-
-# This file adds support for five Rake targets
-# Two important ones:
-# :gem     - build a binary wxruby gem for current platform
-# :package - build a platfrom-neutral source tarball
-task :version do
-  if WXRUBY_VERSION.empty?
-    raise "Cannot build a package without a version being specified\n" +
-          "Create a version by running rake with WXRUBY_VERSION=x.x.x"
-  end
+require 'rubygems/package'
+begin
+  require 'rubygems/builder'
+rescue LoadError
 end
 
-$base_gemspec = Gem::Specification.new do | spec |
-  spec.name = 'wxruby3'
+require_relative './lib/config'
 
-  spec.version = "#{WXRUBY_VERSION}"
+module WXRuby3
 
-  spec.require_path = 'lib'
-  spec.summary  = 'Ruby interface to the wxWidgets GUI library'
-  spec.author   = 'wxRuby development team'
-  spec.homepage = 'http://wxruby.rubyforge.org'
+  module Gem
 
-  spec.rubyforge_project = 'wxruby'
-  spec.description = <<-DESC
-  wxRuby3 allows the creation of graphical user interface (GUI)
-  applications via the wxWidgets library. wxRuby provides native-style
-  GUI windows, dialogs and controls on platforms including Windows, OS X
-  and Linux.
-  DESC
-
-  spec.require_path = 'lib'
-  # Platform specific binaries are added in later
-  spec.files        = FileList[ 'lib/**/*' ].to_a +
-                      FileList[ 'art/**/*' ].to_a +
-                      FileList[ 'samples/**/*' ].to_a +
-                      FileList[ 'README', 'INSTALL', 'LICENSE' ].to_a
-
-  # spec.has_rdoc = false
-end
-
-def create_release_tasks
-  create_gem_tasks
-  create_package_tasks
-end
-
-# creates 'gem', 'gem_osx', 'gem_linux' and 'gem_mswin' tasks
-def create_gem_tasks
-  # basic binary gem task for current platform
-  desc "Build a binary RubyGem for the current platform"
-  task :gem => [ :default, :version ] do
-    this_gemspec = $base_gemspec.dup()    
-    this_gemspec.instance_eval do       
-      self.platform = Gem::Platform::CURRENT
-      # self.files += [ TARGET_LIB ]
-      # If building on OS X, test for splitting OS universal gem into two 
-      if self.platform.os == 'darwin' and 
-         self.platform.cpu == 'universal' and 
-         $osx_split_gem_name
-        self.platform.cpu = $osx_split_gem_name
+    class << self
+      def wxwin_shlibs
+        unless @wxwin_shlibs
+          @wxwin_shlibs = Rake::FileList.new
+          # include wxWidgets shared libraries we linked with
+          WXRuby3.config.wx_libs.select { |s| s.start_with?('-L') }.each do |libdir|
+            libdir = libdir[2..libdir.size]
+            WXRuby3.config.wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
+              lib = lib[2..lib.size]
+              if WXRuby3.config.windows?
+                @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_ext}")
+              else
+                @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_ext}")
+              end
+            end
+          end
+        end
+        @wxwin_shlibs
       end
     end
-    Gem::Builder.new(this_gemspec).build
-  end
-end
 
-def create_package_tasks
-  Rake::PackageTask.new('wxruby', WXRUBY_VERSION) do | p_task |
-    p_task.need_tar_gz = true
-    pkg_files = p_task.package_files
-    pkg_files.include('README', 'INSTALL', 'LICENSE', 'ChangeLog', 'rakefile')
-    pkg_files.include('lib/**/*.rb')
-    pkg_files.include('swig/**/*')
-    pkg_files.include('tests/**/*')
-    pkg_files.include('rake/**/*')
-    pkg_files.include('art/**/*')
-    pkg_files.include('samples/**/*')
-    pkg_files.include('doc/lib/**/*.rb')
-    pkg_files.include('doc/**/*.txtl', 'doc/wxruby.css')
-  end
-end
-task :package => :version
+    def self.manifest(gemtype = :src)
+      # create MANIFEST list with included files
+      manifest = Rake::FileList.new
+      manifest.include %w[bin/*] # *nix executables in bin/
+      manifest.exclude %w[bin/*.bat] unless WXRuby3.config.windows?
+      manifest.include %w[lib/**/* samples/**/* tests/**/* art/**/*]
+      if gemtype == :bin
+        if WXRuby3.config.get_config('with-wxwin')
+          manifest.include "ext/*.#{WXRuby3.config.dll_ext}"
+        end
+        manifest.include 'ext/mkrf_conf_bingem.rb'
+      else
+        manifest.exclude "lib/*.#{WXRuby3.config.dll_ext}"
+        manifest.include 'ext/wxruby3/swig/**/*'
+        manifest.exclude 'ext/wxruby3/swig/classes/**/*'
+        manifest.include 'ext/mkrf_conf_srcgem.rb'
+        manifest.include 'rakelib/**/*'
+        manifest.exclude %w[rakefile/install.* rakelib/help.* rakelib/package.*]
+      end
+      manifest.include %w{LICENSE README.md CREDITS.md}
+      manifest
+    end
 
-desc "Creates 3 gems for Mac OS X: universal, powerpc, i686."
-task :osx_all_gems do
-  if !$macosx
-    puts "This task only works on Mac OS X."
-    exit
-  end
-  
-  # Figure out OS Version to run lipo correctly
-  # on 10.4 the ppc part of a universal binary is called ppc
-  # on 10.5 the ppc part is called ppc7400
-  data = %x{system_profiler SPSoftwareDataType}
-  if data.include?('Mac OS X 10.5')
-    lipo_ppc = 'ppc7400'
-  else
-    lipo_ppc = 'ppc'
-  end
-  
-  gem_name = 'wxruby'
-  default_full_gem_name = "#{gem_name}-#{WXRUBY_VERSION}-universal-darwin.gem"
-  
-  gem_task = Rake::Task['gem']
-  gem_task.application.handle_options()
-  
-  if File.exist?(default_full_gem_name)==false
-    puts ""
-    puts "The universal gem (#{default_full_gem_name}) must exist before running this task. Creating..."
-    gem_task.execute
-  end
-  
-  ext = GEM_PLATFORMS['osx'][1]
-  tmp_dir = "tmp_osx_lib"
-  
-  #save the current universal build
-  if File.exist?(tmp_dir)==false
-    sh "mkdir #{tmp_dir}"
-  end
-  sh "mv #{default_full_gem_name} #{tmp_dir}/"
-  sh "mv lib/wxruby3#{ext} #{tmp_dir}/"
-  
-  gem_task = Rake::Task['gem']
-  gem_task.application.handle_options()
-  
-  #create the ppc version of library and build gem
-  puts ""
-  create_osx_platform_gem(default_full_gem_name,tmp_dir,ext,gem_task,lipo_ppc)
+    def self.define_spec(name, version, gemtype = :src, &block)
+      gemspec = ::Gem::Specification.new(name, version)
+      if gemtype == :bin
+        platform = ::Gem::Platform.local.to_s
+        platform << "-#{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}"
+        if WXRuby3.config.get_config('with-wxwin')
+          platform << "-#{WXRuby3.config.wx_version}"
+        end
+        gemspec.platform = platform
+      end
+      gemspec.required_rubygems_version = ::Gem::Requirement.new(">= 0") if gemspec.respond_to? :required_rubygems_version=
+      block.call(gemspec) if block_given?
+      gemspec
+    end
 
-  #remove the stripped lib now that gem is made
-  sh "rm lib/wxruby3#{ext}"
+    def self.gem_name(name, version, gemtype = :src)
+      define_spec(name, version, gemtype).full_name
+    end
 
-  #create the i386 version of library and build gem
-  puts ""
-  create_osx_platform_gem(default_full_gem_name,tmp_dir,ext,gem_task,"i386")
+    def self.gem_file(name, version, gemtype = :src)
+      File.join('pkg', "#{WXRuby3::Gem.gem_name(name, version, gemtype)}.gem")
+    end
 
-  #move back the universal gem
-  sh "rm lib/wxruby3#{ext}"
-  sh "mv #{tmp_dir}/wxruby3#{ext} lib/"
-  sh "mv #{tmp_dir}/#{default_full_gem_name} ."
+    def self.build_gem(gemspec)
+      if defined?(::Gem::Package) && ::Gem::Package.respond_to?(:build)
+        gem_file_name = ::Gem::Package.build(gemspec)
+      else
+        gem_file_name = ::Gem::Builder.new(gemspec).build
+      end
 
-  sh "rmdir #{tmp_dir}"
-end
+      FileUtils.mkdir_p('pkg')
 
-def create_osx_platform_gem(gem_name,tmp_dir,lib_ext,gem_build_task,platform="ppc")
-  if platform.include?("ppc")
-    cpu = 'powerpc'
-  else
-    cpu = 'i686'
+      FileUtils.mv(gem_file_name, 'pkg')
+    end
+
+    # unless defined?(JRUBY_VERSION) || R2CORBA::Config.is_win32
+    #   def self.patch_extlib_rpath
+    #     if R2CORBA::Config.is_osx
+    #       # TODO
+    #     else
+    #       rpath = "#{File.expand_path('ext')}:#{get_config('libdir')}"
+    #       Dir['ext/*.so'].each do |extlib|
+    #         unless Rake.sh("#{R2CORBA::Config.rpath_patch} '#{rpath}' #{extlib}")
+    #           raise 'Failed to patch RPATH for #{extlib}'
+    #         end
+    #       end
+    #     end
+    #   end
+    # end
+
   end
-  
-  $osx_split_gem_name = "#{cpu}-darwin"
-  puts "Creating GEM for Mac OS X (#{platform})"
-  sh "lipo #{tmp_dir}/wxruby3#{lib_ext} -thin #{platform} -output lib/wxruby3#{lib_ext}"
-  sh "lipo -info lib/wxruby3#{lib_ext}"  
-  gem_build_task.execute
+
 end

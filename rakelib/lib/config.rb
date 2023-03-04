@@ -8,8 +8,6 @@ require 'fileutils'
 require 'json'
 require 'ruby_memcheck'
 
-require_relative './swig_runner'
-
 module FileUtils
   # add convenience methods
   def rmdir_if(list, **kwargs)
@@ -256,6 +254,22 @@ module WXRuby3
     end
 
     class << self
+
+      def rb_version
+        @rb_version ||= RUBY_VERSION.split('.').collect {|n| n.to_i}
+      end
+
+      def rb_ver_major
+        rb_version[0]
+      end
+
+      def rb_ver_minor
+        rb_version[1]
+      end
+
+      def rb_ver_release
+        rb_version[2]
+      end
 
       def build_cfg
         File.join(WXRuby3::ROOT, WXRuby3::BUILD_CFG)

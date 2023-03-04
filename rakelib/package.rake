@@ -13,5 +13,5 @@ Rake::PackageTask.new("wxruby3", WXRuby3::WXRUBY_VERSION) do |p|
   p.package_files.include(%w{ext/wxruby/swig/**/*.{i,rc,swg}})
   p.package_files.include(%w{samples/**/* lib/**/* tests/**/* art/**/* rakelib/**/*})
   p.package_files.exclude(%w{lib/wx/doc/gen/**/* rakelib/deps/**/*})
-  p.package_files.include(%w{CHANGES* INSTALL* LICENSE* Gemfile rakefile README.md CREDITS.md mkrf_conf*.rb})
+  p.package_files.include(%w{CHANGES* INSTALL* LICENSE* Gemfile rakefile README.md CREDITS.md ext/ext_conf*.rb})
 end
