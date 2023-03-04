@@ -30,9 +30,9 @@ module WXRuby3
               if WXRuby3.config.windows?
                 # translate lib name to shlib name
                 m = /\Awx_([a-z]+)_([a-z]+)-(.*)/.match(lib)
-                grp_id = $1
-                lib_id = $2
-                ver = $3.sub('.', '')
+                grp_id = m[1]
+                lib_id = m[2]
+                ver = m[3].sub('.', '')
                 lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}u_#{lib_id}"
                 @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
               else
