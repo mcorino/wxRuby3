@@ -24,6 +24,7 @@ module WXRuby3
           wx_libs = WXRuby3.config.wx_libs.split(' ')
           wx_libs.select { |s| s.start_with?('-L') }.each do |libdir|
             libdir = libdir[2..libdir.size]
+            libdir = File.join(File.dirname(libdir), 'bin') if WXRuby3.config.windows?
             wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
               lib = lib[2..lib.size]
               if WXRuby3.config.windows?
