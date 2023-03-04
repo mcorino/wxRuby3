@@ -27,9 +27,9 @@ module WXRuby3
             wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
               lib = lib[2..lib.size]
               if WXRuby3.config.windows?
-                @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_ext}")
+                @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
               else
-                @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_ext}")
+                @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_mask}")
               end
             end
           end
@@ -46,11 +46,11 @@ module WXRuby3
       manifest.include %w[lib/**/* samples/**/* tests/**/* art/**/*]
       if gemtype == :bin
         if WXRuby3.config.get_config('with-wxwin')
-          manifest.include "ext/*.#{WXRuby3.config.dll_ext}"
+          manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
         end
         manifest.include 'ext/mkrf_conf_bingem.rb'
       else
-        manifest.exclude "lib/*.#{WXRuby3.config.dll_ext}"
+        manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
         manifest.include 'ext/wxruby3/swig/**/*'
         manifest.exclude 'ext/wxruby3/swig/classes/**/*'
         manifest.include 'ext/mkrf_conf_srcgem.rb'

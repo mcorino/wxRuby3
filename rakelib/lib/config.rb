@@ -238,6 +238,10 @@ module WXRuby3
       Config.set_config(key, val)
     end
 
+    def dll_mask
+      "{#{dll_ext}}"
+    end
+
     class AnyOf
       def initialize(*features)
         @features = features

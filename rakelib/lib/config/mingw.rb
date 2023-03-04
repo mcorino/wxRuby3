@@ -46,6 +46,10 @@ module WXRuby3
             @wx_setup_h
           end
 
+          def dll_mask
+            "{#{dll_ext},dll}"
+          end
+
           private
 
           def wx_generate_xml
