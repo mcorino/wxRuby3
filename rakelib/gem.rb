@@ -21,9 +21,9 @@ module WXRuby3
         unless @wxwin_shlibs
           @wxwin_shlibs = Rake::FileList.new
           # include wxWidgets shared libraries we linked with
-          WXRuby3.config.wx_libs.select { |s| s.start_with?('-L') }.each do |libdir|
+          WXRuby3.config.wx_libs.each.select { |s| s.start_with?('-L') }.each do |libdir|
             libdir = libdir[2..libdir.size]
-            WXRuby3.config.wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
+            WXRuby3.config.wx_libs.each.select { |s| s.start_with?('-l') }.each do |lib|
               lib = lib[2..lib.size]
               if WXRuby3.config.windows?
                 @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_ext}")
