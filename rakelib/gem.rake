@@ -13,7 +13,7 @@ if WXRuby3.is_bootstrapped?
 
       task :srcgem => [WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION)]
 
-      task :bingem => [WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin)]
+      task :bingem => [File.join(WXRuby3.config.rb_docgen_path, 'window.rb'), WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin)]
     end
 
   end

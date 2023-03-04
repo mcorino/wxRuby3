@@ -58,7 +58,7 @@ module WXRuby3
         opts.on('--wxxml=path',
                 "the path to the doxygen generated wxWidgets XML interface specs if not using bootstrap")  {|v| CONFIG['wxxml'] = File.expand_path(v)}
         opts.on('--wxwininstdir=path',
-                "the directory where the wxWidgets dlls are to be installed if built together with wxRuby [#{instance.get_config('wxwininstdir')}]") {|v| CONFIG['wxwininstdir'] = v}
+                "the directory where the wxWidgets dlls are to be installed for wxRuby [#{instance.get_config('wxwininstdir')}]") {|v| CONFIG['wxwininstdir'] = v}
         opts.on('--with-wxwin',
                 "build a local copy of wxWidgets for use with wxRuby [false]")  {|v| CONFIG['with-wxwin'] = true}
         opts.on('--with-debug',
@@ -85,8 +85,12 @@ module WXRuby3
           if get_config('wxwin').empty?
             # assume system standard install; will be checked below
             set_config('wxwininstdir', get_config('libdir')) if get_config('wxwininstdir').empty?
-          else
-            set_config('wxwininstdir', File.join(get_config('wxwin'), 'lib')) if get_config('wxwininstdir').empty?
+          elsif get_config('wxwininstdir').empty?
+            if instance.windows?
+              set_config('wxwininstdir', File.join(get_config('wxwin'), 'bin'))
+            else
+              set_config('wxwininstdir', File.join(get_config('wxwin'), 'lib'))
+            end
           end
 
         else

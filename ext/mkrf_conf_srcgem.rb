@@ -12,7 +12,8 @@ File.open('../Rakefile', 'w') do |f|
 ###
 
 task :default => 'wxruby:build' do
- Rake::Task['wxruby:doc'].invoke
+  Rake::Task['wxruby:config:startup'].invoke
+  Rake::Task['wxruby:doc'].invoke
 end
 EOF__
 end
