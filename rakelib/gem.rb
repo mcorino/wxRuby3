@@ -3,6 +3,7 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require 'set'
 require 'rubygems'
 require 'rubygems/package'
 begin
@@ -45,6 +46,7 @@ module WXRuby3
               end
             end
           end
+          @wxwin_shlibs = ::Set.new(@wxwin_shlibs.to_a)
         end
         @wxwin_shlibs
       end
