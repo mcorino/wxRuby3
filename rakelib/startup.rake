@@ -3,6 +3,8 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+require_relative './lib/config'
+
 namespace 'wxruby' do
 
   namespace 'startup' do
