@@ -121,14 +121,14 @@ module WXRuby3
         when :out
           cmd << {out: w_p }
         when :no_err
-          cmd << {out: w_p, err: '/dev/null' }
+          cmd << {out: w_p, err: windows? ? 'NULL' : '/dev/null' }
         when :err
           cmd << {err: w_p}
         when :all
           cmd << {out: w_p, :err=>[:child, :out]}
         end
       when :null
-        cmd << {[:err, :out] => '/dev/null'}
+        cmd << {[:err, :out] => windows? ? 'NULL' : '/dev/null' }
       end
       spawn Config.instance.exec_env, *cmd
       w_p.close if w_p
