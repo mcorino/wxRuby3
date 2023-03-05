@@ -349,7 +349,7 @@ module WXRuby3
           attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
           attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
-                      :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext, :dll_pfx,
+                      :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
@@ -445,7 +445,6 @@ module WXRuby3
 
             @obj_ext = RB_CONFIG["OBJEXT"]
             @dll_ext = RB_CONFIG['DLEXT']
-            @dll_pfx = ''
 
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.

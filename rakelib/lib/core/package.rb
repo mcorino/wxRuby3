@@ -60,7 +60,7 @@ module WXRuby3
       end
 
       def lib_target
-        File.join(Config.instance.dest_dir, "#{Config.instance.dll_pfx}#{libname}.#{Config.instance.dll_ext}")
+        File.join(Config.instance.dest_dir, "#{libname}.#{Config.instance.dll_ext}")
       end
 
       def package(pkgname)
@@ -145,7 +145,7 @@ module WXRuby3
       end
 
       def dep_libs
-        parent ? parent.dep_libs + [File.join(Config.instance.dest_dir, "#{Config.instance.dll_pfx}#{parent.libname}.#{Config.instance.dll_ext}")] : []
+        parent ? parent.dep_libs + [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")] : []
       end
 
       def dep_libnames

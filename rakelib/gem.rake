@@ -73,7 +73,7 @@ if WXRuby3.is_bootstrapped?
       end
       # prepare wxRuby shared libs
       Dir["lib/*.#{WXRuby3.config.dll_mask}"].each do |shlib|
-        WXRuby3.config.patch_rpath(shlib, '$ORIGIN:$ORIGIN/../ext') unless File.symlink?(shlib)
+        WXRuby3.config.patch_rpath(shlib, '$ORIGIN:$ORIGIN/../ext')
       end
     end
     begin

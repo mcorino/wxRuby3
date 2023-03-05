@@ -46,13 +46,12 @@ module WXRuby3
       end
 
       def do_link(pkg)
-        objs = pkg.all_obj_files.join(' ') + ' '
-        depsh = ''
-        unless pkg.dep_libnames.empty?
-          depsh = "-L#{WXRuby3.config.dest_dir} -l#{pkg.dep_libnames.join(' -l')} "
+        objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
+        depsh = pkg.dep_libnames.collect { |dl| "#{dl}.#{dll_ext}" }.join(' ')
+        Dir.chdir('lib') do
+          sh "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
+               "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
         end
-        sh "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh}" +
-             "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
       end
 
       private

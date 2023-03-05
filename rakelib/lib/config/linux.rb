@@ -26,11 +26,6 @@ module WXRuby3
             args.join(' ')
           end
 
-          def do_link(pkg)
-            super
-            Dir.chdir('lib') { ln_s(File.basename(pkg.lib_target), "#{pkg.libname}.#{dll_ext}", force: true) }
-          end
-
           def check_rpath_patch
             unless @rpath_patch
               if system('which patchelf > /dev/null 2>&1')
