@@ -167,8 +167,8 @@ module WXRuby3
     end
     private :expand
 
-    def sh(*cmd)
-      Rake.sh(*cmd) { |ok,_| !!ok }
+    def sh(*cmd, **kwargs)
+      Rake.sh(*cmd, **kwargs) { |ok,_| !!ok }
     end
     private :sh
     alias :bash :sh
@@ -239,7 +239,17 @@ module WXRuby3
     end
 
     def dll_mask
-      "{#{dll_ext}}"
+      "#{dll_ext}*"
+    end
+
+    def do_link(_pkg)
+    end
+
+    def check_rpath_patch
+      true
+    end
+
+    def patch_rpath(_shlib, _rpath)
     end
 
     class AnyOf
@@ -335,7 +345,7 @@ module WXRuby3
           attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
           attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
-                      :extra_libs, :extra_objs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
+                      :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext, :dll_pfx,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_path, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
           attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
@@ -425,13 +435,13 @@ module WXRuby3
             @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
             @extra_cflags = ''
             @extra_ldflags = ''
-            @extra_objs = ''
             @extra_libs = ''
             @cpp_out_flag =  '-o '
             @link_output_flag = '-o '
 
             @obj_ext = RB_CONFIG["OBJEXT"]
             @dll_ext = RB_CONFIG['DLEXT']
+            @dll_pfx = ''
 
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.
@@ -544,7 +554,7 @@ module WXRuby3
               wx_checkout
             end
             # do we need to build wxWidgets?
-            if get_config('with-wxwin')
+            if get_config('with-wxwin') && !get_config('wxwin')
               Dir.chdir(File.join(ext_path, 'wxWidgets')) do
                 wx_build
               end

@@ -45,6 +45,16 @@ module WXRuby3
         return cfg.strip
       end
 
+      def do_link(pkg)
+        objs = pkg.all_obj_files.join(' ') + ' '
+        depsh = ''
+        unless pkg.dep_libnames.empty?
+          depsh = "-L#{WXRuby3.config.dest_dir} -l#{pkg.dep_libnames.join(' -l')} "
+        end
+        sh "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh}" +
+             "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
+      end
+
       private
 
       def wx_checkout
@@ -103,7 +113,7 @@ module WXRuby3
       # Allow specification of custom wxWidgets build (mostly useful for
       # static wxRuby3 builds)
       def get_wx_path
-        get_config('with-wxwin') ? File.join(ext_path, 'wxWidgets', 'install') : get_config('wxwin')
+        get_config('with-wxwin') && !get_config('wxwin') ? File.join(ext_path, 'wxWidgets', 'install') : get_config('wxwin')
       end
 
       def get_wx_xml_path
@@ -143,6 +153,7 @@ module WXRuby3
           # remove all warning flags provided by Ruby config
           @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
           @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
+          @ruby_ldflags << ' -s' if @release_build # strip debug symbols for release build
 
           # maintain minimum compatibility with ABI 3.0.0
           @wx_abi_version = [ @wx_version, "3.0.0" ].min

@@ -23,14 +23,10 @@ namespace :wxruby do
     end
 
     # Bootstrap the wxRuby3 build environment
-    bootstrap_task = task :bootstrap => [WXRuby3.build_cfg]
+    task :bootstrap => [WXRuby3.build_cfg, WXRuby3.config.wx_xml_path]
 
-    if WXRuby3.is_configured?
-      bootstrap_task.enhance([WXRuby3.config.wx_xml_path])
-
-      directory WXRuby3.config.wx_xml_path do
-        WXRuby3.config.do_bootstrap
-      end
+    directory WXRuby3.config.wx_xml_path do
+      WXRuby3.config.do_bootstrap
     end
   end
 
@@ -43,8 +39,6 @@ desc 'Show current wxRuby build settings'
 task :show => 'wxruby:config:show'
 
 file WXRuby3.build_cfg do
-  unless File.file?(WXRuby3::BUILD_CFG)
-    STDERR.puts "ERROR: Build configuration missing! First run 'rake wxruby::configure'."
-    exit(1)
-  end
+  STDERR.puts "ERROR: Build configuration missing! First run 'rake wxruby::configure'."
+  exit(1)
 end

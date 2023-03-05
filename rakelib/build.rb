@@ -24,7 +24,7 @@ if WXRuby3.is_bootstrapped?
 
       pkg.included_directors.each do |dir|
         # file tasks for each module's rake file
-        file dir.rake_file  => [:enum_list, WXRuby3.build_cfg, *dir.source_files] do |_|
+        file dir.rake_file  => [WXRuby3.build_cfg, enum_list_cache, *dir.source_files] do |_|
           dir.create_rakefile
         end
 
@@ -48,9 +48,7 @@ if WXRuby3.is_bootstrapped?
 
       # Target to run the linker to create a final .so/.dll wxruby3 package library
       file pkg.lib_target => [*pkg.all_obj_files, *pkg.dep_libs] do | t |
-        objs = WXRuby3.config.extra_objs + ' ' + pkg.all_obj_files.join(' ') + ' ' + pkg.dep_libs.join(' ')
-        sh "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(t.name)} #{objs} " +
-             "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{t.name}"
+        WXRuby3.config.do_link(pkg)
       end
 
       task :swig   => ['config:bootstrap', :build_report, :enum_list, WXRuby3.config.classes_path, *pkg.all_cpp_files]

@@ -9,7 +9,6 @@ namespace :wxruby do
 
     require_relative './install'
 
-    desc "Install the WxRuby library to Ruby's lib directories"
     task :install => [ 'wxruby:build', *WXRuby3::ALL_RUBY_LIB_FILES ] do | t, args |
       WXRuby3::Install.define(t, args)
       WXRuby3::Install.nowrite(ENV['NO_HARM'] ? true : false) do
@@ -24,7 +23,6 @@ namespace :wxruby do
       # end
     end
 
-    desc "Removes installed library files from site_ruby"
     task :uninstall => WXRuby3::BUILD_CFG do | t, args |
       WXRuby3::Install.define(t, args)
       WXRuby3::Install.nowrite(ENV['NO_HARM'] ? true : false) do

@@ -25,11 +25,38 @@ module WXRuby3
             args.unshift('gdb')
             args.join(' ')
           end
+
+          def do_link(pkg)
+            super
+            Dir.chdir('lib') { ln_s(File.basename(pkg.lib_target), "#{pkg.libname}.#{dll_ext}", force: true) }
+          end
+
+          def check_rpath_patch
+            unless @rpath_patch
+              if system('which patchelf > /dev/null 2>&1')
+                @rpath_patch = 'patchelf --set-rpath'
+              elsif system('which chrpath > /dev/null 2>&1')
+                @rpath_patch = 'chrpath --replace'
+              else
+                STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of either the patchelf OR chrpath utility.'
+                exit(1)
+              end
+            end
+            true
+          end
+
+          def patch_rpath(shlib, rpath)
+            if check_rpath_patch
+              sh("#{@rpath_patch} '#{rpath}' #{shlib}", verbose: false)
+            end
+          end
         end
       end
 
       def init_platform
         init_unix_platform
+
+        @dll_pfx = 'lib'
 
         if @wx_version
           @extra_cflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
@@ -58,7 +85,7 @@ module WXRuby3
 
           unless @wx_path.empty?
             libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
-            @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{libdirs.join(':')}"
+            @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{dest_dir}:#{libdirs.join(':')}"
           end
         end
       end

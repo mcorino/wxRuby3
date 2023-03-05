@@ -80,24 +80,30 @@ module WXRuby3
       if Dir[File.join('ext', 'wxruby_*.so')].empty? # Don't check for wxWidgets installation when executed for binary gem install
 
         if !get_config('with-wxwin')
-
           # check if a user defined ACE/TAO location is specified or we're using a system standard install
-          if get_config('wxwin').empty?
+          if !get_config('wxwin')
             # assume system standard install; will be checked below
-            set_config('wxwininstdir', get_config('libdir')) if get_config('wxwininstdir').empty?
-          elsif get_config('wxwininstdir').empty?
+            set_config('wxwininstdir', get_config('libdir')) unless get_config('wxwininstdir')
+          elsif !get_config('wxwininstdir')
             if instance.windows?
               set_config('wxwininstdir', File.join(get_config('wxwin'), 'bin'))
             else
               set_config('wxwininstdir', File.join(get_config('wxwin'), 'lib'))
             end
           end
-
+        elsif get_config('wxwin')
+          if !get_config('wxwininstdir')
+            if instance.windows?
+              set_config('wxwininstdir', File.join(get_config('wxwin'), 'bin'))
+            else
+              set_config('wxwininstdir', File.join(get_config('wxwin'), 'lib'))
+            end
+          end
         else
-          set_config('wxwininstdir', get_config('sodir')) if get_config('wxwininstdir').empty?
+          set_config('wxwininstdir', get_config('sodir')) unless get_config('wxwininstdir')
         end
 
-        if !get_config('with-wxwin')
+        if get_config('wxwin') || !get_config('with-wxwin')
           # check wxWidgets availability through 'wx-config' command
           if instance.check_wx_config
             if instance.wx_config("--version") < '3.2.0'

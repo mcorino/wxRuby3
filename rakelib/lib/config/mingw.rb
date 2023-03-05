@@ -62,12 +62,12 @@ module WXRuby3
             super("bash -c \"#{cmd}\"")
           end
 
-          def bash(*cmd)
+          def bash(*cmd, **kwargs)
             env = ::Hash === cmd.first ? cmd.shift : nil
             opts = ::Hash === cmd.last ? cmd.pop : nil
             cmd = ['bash', '-c', cmd.join(' ')]
             cmd.unshift(env) if env
-            super(*cmd)
+            super(*cmd, **kwargs)
           end
 
           def nix_path(winpath)
@@ -123,7 +123,7 @@ module WXRuby3
             exec_pfx = win_path(wx_config("--exec-prefix"))
             libdirs = [File.join(exec_pfx, 'bin')]
             libdirs << win_path(File.join(ENV['MSYSTEM_PREFIX'], 'bin'))
-            @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']};#{libdirs.join(';')}"
+            @exec_env['RUBY_DLL_PATH'] = "#{ENV['RUBY_DLL_PATH']};#{dest_dir};#{libdirs.join(';')}"
           end
 
           @rescomp = wx_config('--rescomp').gsub(/--include-dir\s+(\S+)/) { |s| "--include-dir #{win_path($1)}" }
