@@ -25,15 +25,15 @@ namespace 'wxruby' do
               end
             __CODE
           end
-        elsif WXRuby3.config.get_config('wxwin') && File.directory?(WXRuby3.config.get_config('wxwininstdir'))
+        elsif !WXRuby3.config.get_cfg_string('wxwin').empty? && File.directory?(WXRuby3.config.get_cfg_string('wxwininstdir'))
           File.open('lib/wx/startup.rb', 'a') do |f|
             f.puts <<~__CODE
               begin
                 require 'ruby_installer'
                 if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
-                  RubyInstaller::Runtime.add_dll_directory('#{WXRuby3.config.get_config('wxwininstdir')}')
+                  RubyInstaller::Runtime.add_dll_directory('#{WXRuby3.config.get_cfg_string('wxwininstdir')}')
                 else
-                  RubyInstaller::Build.add_dll_directory('#{WXRuby3.config.get_config('wxwininstdir')}')
+                  RubyInstaller::Build.add_dll_directory('#{WXRuby3.config.get_cfg_string('wxwininstdir')}')
                 end
               rescue LoadError
               end

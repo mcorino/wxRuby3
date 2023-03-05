@@ -216,8 +216,8 @@ module WXRuby3
     end
 
     def check_doxygen
-      if expand("which #{get_config(:doxygen)} 2>/dev/null").chomp.empty?
-        STDERR.puts "ERROR: Cannot find #{get_config(:doxygen)}. Need Doxygen installed to run wxRuby3 bootstrap!"
+      if expand("which #{get_config('doxygen')} 2>/dev/null").chomp.empty?
+        STDERR.puts "ERROR: Cannot find #{get_config('doxygen')}. Need Doxygen installed to run wxRuby3 bootstrap!"
         exit(1)
       end
     end
@@ -232,6 +232,10 @@ module WXRuby3
 
     def get_config(key)
       Config.get_config(key)
+    end
+
+    def get_cfg_string(key)
+      Config.get_cfg_string(key)
     end
 
     def set_config(key, val)
@@ -554,7 +558,7 @@ module WXRuby3
               wx_checkout
             end
             # do we need to build wxWidgets?
-            if get_config('with-wxwin') && !get_config('wxwin')
+            if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
               Dir.chdir(File.join(ext_path, 'wxWidgets')) do
                 wx_build
               end
@@ -640,6 +644,10 @@ module WXRuby3
             end
         v = WXRuby3::CONFIG[v[1,v.size]] while String === v && v.start_with?('$') && WXRuby3::CONFIG.has_key?(v[1,v.size])
         v
+      end
+
+      def get_cfg_string(key)
+        get_config(key) || ''
       end
 
       def set_config(key, val)

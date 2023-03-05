@@ -113,11 +113,11 @@ module WXRuby3
       # Allow specification of custom wxWidgets build (mostly useful for
       # static wxRuby3 builds)
       def get_wx_path
-        get_config('with-wxwin') && !get_config('wxwin') ? File.join(ext_path, 'wxWidgets', 'install') : get_config('wxwin')
+        get_config('with-wxwin') && get_cfg_string('wxwin').empty? ? File.join(ext_path, 'wxWidgets', 'install') : get_cfg_string('wxwin')
       end
 
       def get_wx_xml_path
-        get_config(:wxxml)
+        get_cfg_string('wxxml')
       end
 
       def init_unix_platform

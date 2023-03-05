@@ -43,9 +43,9 @@ module WXRuby3
 
       def check_swig
         begin
-          @swig_version = `#{WXRuby3::Config.get_config(:swig)} -version`[/\d+\.\d+\.\d+/]
+          @swig_version = `#{WXRuby3::Config.get_config('swig')} -version`[/\d+\.\d+\.\d+/]
         rescue Exception
-          STDERR.puts "ERROR: Could not run SWIG (#{WXRuby3::Config.get_config(:swig)})"
+          STDERR.puts "ERROR: Could not run SWIG (#{WXRuby3::Config.get_config('swig')})"
           exit(1)
         end
 

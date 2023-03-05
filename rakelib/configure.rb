@@ -81,29 +81,29 @@ module WXRuby3
 
         if !get_config('with-wxwin')
           # check if a user defined ACE/TAO location is specified or we're using a system standard install
-          if !get_config('wxwin')
+          if get_cfg_string('wxwin').empty?
             # assume system standard install; will be checked below
-            set_config('wxwininstdir', get_config('libdir')) unless get_config('wxwininstdir')
-          elsif !get_config('wxwininstdir')
+            set_config('wxwininstdir', get_cfg_string('libdir')) if get_cfg_string('wxwininstdir').empty?
+          elsif get_cfg_string('wxwininstdir').empty?
             if instance.windows?
-              set_config('wxwininstdir', File.join(get_config('wxwin'), 'bin'))
+              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'bin'))
             else
-              set_config('wxwininstdir', File.join(get_config('wxwin'), 'lib'))
+              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'lib'))
             end
           end
-        elsif get_config('wxwin')
-          if !get_config('wxwininstdir')
+        elsif !get_cfg_string('wxwin').empty?
+          if get_cfg_string('wxwininstdir').empty?
             if instance.windows?
-              set_config('wxwininstdir', File.join(get_config('wxwin'), 'bin'))
+              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'bin'))
             else
-              set_config('wxwininstdir', File.join(get_config('wxwin'), 'lib'))
+              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'lib'))
             end
           end
         else
-          set_config('wxwininstdir', get_config('sodir')) unless get_config('wxwininstdir')
+          set_config('wxwininstdir', get_cfg_string('sodir')) if get_cfg_string('wxwininstdir').empty?
         end
 
-        if get_config('wxwin') || !get_config('with-wxwin')
+        if !get_cfg_string('wxwin').empty? || !get_config('with-wxwin')
           # check wxWidgets availability through 'wx-config' command
           if instance.check_wx_config
             if instance.wx_config("--version") < '3.2.0'
@@ -117,7 +117,7 @@ module WXRuby3
         # else we're are assumed to build wxWidgets ourselves so cannot test anything yet
         end
 
-        if get_config('wxxml').empty?
+        if get_cfg_string('wxxml').empty?
           # no pre-generated XML specified so we are going to need Git and Doxygen
           instance.check_git
           instance.check_doxygen
