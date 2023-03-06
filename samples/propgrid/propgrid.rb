@@ -2590,8 +2590,8 @@ class FormMain < Wx::Frame
     end +
     "\n\n" +
     "Programmed by %s\n\n" +
-    "Using wxRuby %s (%s; %s)\n\n") %
-      ["Martin Corino (C++ original by Jaakko Salli)", Wx::WXRUBY_VERSION, Wx::WXWIDGETS_VERSION_STRING, toolkit]
+    "Using wxRuby %s (wxWidgets %s; %s)\n\n") %
+      ["Martin Corino (C++ original by Jaakko Salli)", Wx::WXRUBY_VERSION, Wx::WXWIDGETS_VERSION, toolkit]
 
     Wx.message_box(msg, "About", Wx::OK | Wx::ICON_INFORMATION, self)
   end

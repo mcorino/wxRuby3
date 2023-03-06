@@ -238,12 +238,10 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 #endif
 
 #ifdef __WXRB_TRACE__
-%constant const bool wxRB_TRACE = true;
+%constant const int wxRB_TRACE = __WXRB_TRACE__;
 #else
-%constant const bool wxRB_TRACE = false;
+%constant const void* wxRB_TRACE = 0;
 #endif
-
-%constant const char* wxWXWIDGETS_VERSION_STRING = (const char*)wxString(wxVERSION_STRING).ToAscii();
 
 %include "mark_free_impl.i"
 
@@ -257,5 +255,3 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 	// This is needed so HtmlHelp can load docs from a zip file
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
 %}
-
-#define VERSION_STRING "wxRuby3"

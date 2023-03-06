@@ -61,7 +61,7 @@ module WXRuby3
         %constant const int wxWXWIDGETS_MINOR_VERSION = wxMINOR_VERSION;
         %constant const int wxWXWIDGETS_RELEASE_NUMBER = wxRELEASE_NUMBER;
         %constant const int wxWXWIDGETS_SUBRELEASE_NUMBER = wxSUBRELEASE_NUMBER;
-        // WXWIDGETS_VERSION is defined in lib/wx/version.rb
+        // WXWIDGETS_VERSION is defined in lib/wx/core.rb
         
         #ifdef __WXDEBUG__
         %constant const bool wxDEBUG = true;
