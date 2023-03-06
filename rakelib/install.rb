@@ -99,8 +99,8 @@ module WXRuby3
     def self.specs
       specs = [
         #[RbConfig::CONFIG['bindir'], ['bin'], 0755],
-        [RB_CONFIG['sitelibdir'], ['lib/wx.rb'], 0644],
-        [RB_CONFIG['sitelibdir'], ['lib/wx'], 0644],
+        [WXRuby3.config.get_cfg_string('siterubyver'), ['lib/wx.rb'], 0644],
+        [WXRuby3.config.get_cfg_string('siterubyver'), ['lib/wx'], 0644],
       ]
       # add wxRuby shared libraries
       WXRuby3::Director.each_package { |pkg| specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), [pkg.lib_target], 0555] }
@@ -118,6 +118,21 @@ module WXRuby3
           else
             install_file(src, dest, mode) if match.nil? || match =~ src
           end
+        end
+      end
+      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin')
+        File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'lib/wx/startup.rb'), 'a') do |f|
+          f.puts <<~__CODE
+              begin
+                require 'ruby_installer'
+                if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
+                  RubyInstaller::Runtime.add_dll_directory('#{WXRuby3.config.get_cfg_string('siterubyverarch')}')
+                else
+                  RubyInstaller::Build.add_dll_directory('#{WXRuby3.config.get_cfg_string('siterubyverarch')}')
+                end
+              rescue LoadError
+              end
+          __CODE
         end
       end
     end
