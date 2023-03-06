@@ -2333,11 +2333,12 @@ class FormMain < Wx::Frame
     display_minimal_frame(self)
   end
 
-  private def iterate_message(prop)
+  def iterate_message(prop)
     s = "\"%s\" class = %s, valuetype = %s" % [prop.label,  prop.class.name, prop.value_type]
 
     Wx.message_box(s, "Iterating... (press CANCEL to end)", Wx::OK|Wx::CANCEL)
   end
+  private :iterate_message
 
   def on_iterate1_click(event)
     @propGridManager.get_current_page.each_property do |p|
