@@ -17,6 +17,39 @@ module WXRuby3
       def prefix=(v)
         @prefix = v.to_s
       end
+
+      def wxwin_shlibs
+        unless @wxwin_shlibs
+          @wxwin_shlibs = Rake::FileList.new
+          # include wxWidgets shared libraries we linked with
+          wx_libs = WXRuby3.config.wx_libs.split(' ')
+          wx_libs.select { |s| s.start_with?('-L') }.each do |libdir|
+            libdir = libdir[2..libdir.size]
+            libdir = File.join(File.dirname(libdir), 'bin').gsub('\\', '/') if WXRuby3.config.windows?
+            wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
+              lib = lib[2..lib.size]
+              if WXRuby3.config.windows?
+                # match only wxWidgets libraries
+                if (m = /\Awx_([a-z]+)(_[a-z]+)?-(.*)/.match(lib))
+                  # translate lib name to shlib name
+                  grp_id = m[1]
+                  lib_id = m[2]
+                  ver = m[3].sub('.', '')
+                  lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}u#{lib_id}"
+                  @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
+                end
+              else
+                # match only wxWidgets libraries
+                if /\Awx_([a-z\d]+)(_[a-z]+)?-(.*)/.match(lib)
+                  @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_mask}")
+                end
+              end
+            end
+          end
+          @wxwin_shlibs = ::Set.new(@wxwin_shlibs.to_a)
+        end
+        @wxwin_shlibs
+      end
     end
 
     def self.define(task, args)
@@ -66,24 +99,14 @@ module WXRuby3
     def self.specs
       specs = [
         #[RbConfig::CONFIG['bindir'], ['bin'], 0755],
-        [RbConfig::CONFIG['sitelibdir'], ['lib/wx.rb'], 0644],
-        [RbConfig::CONFIG['sitelibdir'], ['lib/wx'], 0644],
+        [RB_CONFIG['sitelibdir'], ['lib/wx.rb'], 0644],
+        [RB_CONFIG['sitelibdir'], ['lib/wx'], 0644],
       ]
       # add wxRuby shared libraries
-      WXRuby3::Director.each_package { |pkg| specs << [RbConfig::CONFIG['sitearchdir'], [pkg.lib_target], 0555] }
-      # unless get_config('without-tao')
-      #   dll_ext = if R2CORBA::Config.is_win32
-      #               '.dll'
-      #             elsif R2CORBA::Config.is_osx
-      #               '.dylib'
-      #             else
-      #               '.so.*'
-      #             end
-      #   dll_files = R2CORBA::Ext::ace_shlibs(dll_ext)
-      #   dll_files = dll_files.collect {|p| Dir.glob(p).first } unless R2CORBA::Config.is_win32 || R2CORBA::Config.is_osx
-      #   dll_files.concat(R2CORBA::Ext.sys_dlls) if R2CORBA::Config.is_win32
-      #   specs << [get_config('aceinstdir'), dll_files, 0555]
-      # end
+      WXRuby3::Director.each_package { |pkg| specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), [pkg.lib_target], 0555] }
+      if WXRuby3.config.get_config('with-wxwin')
+        specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), Install.wxwin_shlibs, 0555]
+      end
       specs
     end
 
@@ -91,28 +114,19 @@ module WXRuby3
       WXRuby3::Install.specs.each do |dest, srclist, mode, match|
         srclist.each do |src|
           if File.directory?(src)
-            install_dir(src, dest, mode, match)
+            install_dir(src, File.join(dest, File.basename(src)), mode, match)
           else
             install_file(src, dest, mode) if match.nil? || match =~ src
           end
         end
       end
-      # R2CORBA::Ext::ace_shlibs('.so', get_config('aceinstdir')).each do |acelib|
-      #   acelib = File.join(get_config(:prefix), acelib) if get_config(:prefix)
-      #   libver = File.expand_path(Dir.glob(acelib+'.*').first || (nowrite ? acelib+'.x.x.x' : nil))
-      #   FileUtils.ln_s(libver, acelib, :force => true, :noop => nowrite, :verbose => verbose)
-      # end
     end
 
     def self.uninstall
-      # R2CORBA::Ext::ace_shlibs('.so', get_config('aceinstdir')).each do |acelib|
-      #   acelib = File.join(get_config(:prefix), acelib) if get_config(:prefix)
-      #   FileUtils.rm_f(acelib, :noop => nowrite, :verbose => verbose) if nowrite || File.exist?(acelib)
-      # end
-      WXRuby3::Install.specs.each do |dest, srclist, mode, match|
+      WXRuby3::Install.specs.each do |dest, srclist, _mode, match|
         srclist.each do |src|
           if File.directory?(src)
-            uninstall_dir(src, dest, match)
+            uninstall_dir(src, File.join(dest, File.basename(src)), match)
           else
             uninstall_file(src, dest) if match.nil? || match =~ src
           end
@@ -130,18 +144,14 @@ module WXRuby3
       FileUtils.install(src, dest, :mode => mode, :noop => nowrite, :verbose => verbose)
     end
     def install_dir(dir, dest, mode, match)
-      curdir = Dir.getwd
-      begin
-        FileUtils.cd(dir, :verbose => verbose)
-        Dir.glob('*') do |entry|
+      FileUtils.chdir(dir, :verbose => verbose) do
+        Dir['*'].each do |entry|
           if File.directory?(entry)
             install_dir(entry, File.join(dest, entry), mode, match)
           else
             install_file(entry, dest, mode) if match.nil? || match =~ entry
           end
         end
-      ensure
-        FileUtils.cd(curdir, :verbose => verbose)
       end
     end
     def uninstall_file(src, dest)
@@ -156,23 +166,20 @@ module WXRuby3
       end
     end
     def uninstall_dir(dir, dest, match)
-      curdir = Dir.getwd
-      begin
-        FileUtils.cd(dir, :verbose => verbose)
-        Dir.glob('*') do |entry|
+      FileUtils.chdir(dir, :verbose => verbose) do
+        Dir['*'].each do |entry|
           if File.directory?(entry)
             uninstall_dir(entry, File.join(dest, entry), match)
           else
             uninstall_file(entry, dest) if match.nil? || match =~ entry
           end
         end
-      ensure
-        FileUtils.cd(curdir, :verbose => verbose)
       end
+      FileUtils.rmdir(dest, :noop => nowrite, :verbose => verbose)
     end
 
   end
 
-end
+  Install.singleton_class.include WXRuby3::InstallMethods
 
-include WXRuby3::InstallMethods
+end

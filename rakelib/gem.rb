@@ -12,45 +12,11 @@ rescue LoadError
 end
 
 require_relative './lib/config'
+require_relative './install'
 
 module WXRuby3
 
   module Gem
-
-    class << self
-      def wxwin_shlibs
-        unless @wxwin_shlibs
-          @wxwin_shlibs = Rake::FileList.new
-          # include wxWidgets shared libraries we linked with
-          wx_libs = WXRuby3.config.wx_libs.split(' ')
-          wx_libs.select { |s| s.start_with?('-L') }.each do |libdir|
-            libdir = libdir[2..libdir.size]
-            libdir = File.join(File.dirname(libdir), 'bin').gsub('\\', '/') if WXRuby3.config.windows?
-            wx_libs.select { |s| s.start_with?('-l') }.each do |lib|
-              lib = lib[2..lib.size]
-              if WXRuby3.config.windows?
-                # match only wxWidgets libraries
-                if (m = /\Awx_([a-z]+)(_[a-z]+)?-(.*)/.match(lib))
-                  # translate lib name to shlib name
-                  grp_id = m[1]
-                  lib_id = m[2]
-                  ver = m[3].sub('.', '')
-                  lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}u#{lib_id}"
-                  @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
-                end
-              else
-                # match only wxWidgets libraries
-                if /\Awx_([a-z\d]+)(_[a-z]+)?-(.*)/.match(lib)
-                  @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_mask}")
-                end
-              end
-            end
-          end
-          @wxwin_shlibs = ::Set.new(@wxwin_shlibs.to_a)
-        end
-        @wxwin_shlibs
-      end
-    end
 
     def self.manifest(gemtype = :src)
       # create MANIFEST list with included files
