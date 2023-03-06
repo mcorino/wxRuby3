@@ -24,7 +24,7 @@ if WXRuby3.is_bootstrapped?
 
       pkg.included_directors.each do |dir|
         # file tasks for each module's rake file
-        file dir.rake_file  => [WXRuby3.build_cfg, enum_list_cache, *dir.source_files] do |_|
+        file dir.rake_file  => [WXRuby3.build_cfg, 'config:build_paths', enum_list_cache, *dir.source_files] do |_|
           dir.create_rakefile
         end
 

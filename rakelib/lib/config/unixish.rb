@@ -48,10 +48,8 @@ module WXRuby3
       def do_link(pkg)
         objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
         depsh = pkg.dep_libnames.collect { |dl| "#{dl}.#{dll_ext}" }.join(' ')
-        Dir.chdir('lib') do
-          sh "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
-               "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
-        end
+        sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
+             "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
       end
 
       private
@@ -59,9 +57,9 @@ module WXRuby3
       def wx_checkout
         check_git
         # clone wxWidgets GIT repository under ext_path
-        Dir.chdir(ext_path) do
+        chdir(ext_path) do
           rc = if sh("git clone https://github.com/wxWidgets/wxWidgets.git")
-                 Dir.chdir('wxWidgets') do
+                 chdir('wxWidgets') do
                    tag = if @wx_version
                            "v#{@wx_version}"
                          else
@@ -97,7 +95,7 @@ module WXRuby3
       end
 
       def wx_generate_xml
-        Dir.chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
+        chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
           sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
         end
       end

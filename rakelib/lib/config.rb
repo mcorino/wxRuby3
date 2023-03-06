@@ -370,34 +370,26 @@ module WXRuby3
             @swig_path = File.join(Config.wxruby_root, @swig_dir)
             @rake_deps_dir = File.join('rakelib', 'deps')
             @rake_deps_path = File.join(Config.wxruby_root, @rake_deps_dir)
-            FileUtils.mkdir_p(@rake_deps_path)
             @src_dir = File.join(@wxruby_dir,'src')
             @src_path = File.join(Config.wxruby_root, @src_dir)
-            FileUtils.mkdir_p(@src_path)
             @src_gen_dir = File.join(@src_dir, '.generate')
             @src_gen_path = File.join(Config.wxruby_root, @src_gen_dir)
-            FileUtils.mkdir_p(@src_gen_path)
             @obj_dir = File.join(@wxruby_dir,'obj')
             @obj_path = File.join(Config.wxruby_root, @obj_dir)
-            FileUtils.mkdir_p(@obj_path)
             @dest_dir = File.join(Config.wxruby_root, 'lib')
             @test_dir = File.join(Config.wxruby_root, 'tests')
             @classes_dir = File.join(@swig_dir, 'classes')
             @classes_path = File.join(Config.wxruby_root, @classes_dir)
-            FileUtils.mkdir_p(@classes_path)
             @common_dir = File.join(@classes_dir, 'common')
             @common_path = File.join(Config.wxruby_root, @common_dir)
-            FileUtils.mkdir_p(@common_path)
             @interface_dir = File.join(@classes_dir, 'include')
             @interface_path = File.join(Config.wxruby_root, @interface_dir)
-            FileUtils.mkdir_p(@interface_path)
             @rb_lib_dir = 'lib'
             @rb_lib_path = File.join(Config.wxruby_root, @rb_lib_dir)
             @rb_doc_dir = File.join(@rb_lib_dir, 'wx', 'doc')
             @rb_doc_path = File.join(Config.wxruby_root, @rb_doc_dir)
             @rb_docgen_dir = File.join(@rb_doc_dir, 'gen')
             @rb_docgen_path = File.join(Config.wxruby_root, @rb_docgen_dir)
-            FileUtils.mkdir_p(@rb_docgen_path)
 
             # Extra swig helper files to be built
             @helper_modules = if macosx?
@@ -558,7 +550,7 @@ module WXRuby3
             end
             # do we need to build wxWidgets?
             if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
-              Dir.chdir(File.join(ext_path, 'wxWidgets')) do
+              chdir(File.join(ext_path, 'wxWidgets')) do
                 wx_build
               end
             end

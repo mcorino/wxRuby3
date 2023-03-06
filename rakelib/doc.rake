@@ -13,7 +13,9 @@ namespace :wxruby do
 
 end
 
-file File.join(WXRuby3.config.rb_docgen_path, 'window.rb') => all_doc_targets
+directory WXRuby3.config.rb_docgen_path
+
+file File.join(WXRuby3.config.rb_docgen_path, 'window.rb') => [WXRuby3.config.rb_docgen_path, *all_doc_targets]
 
 desc 'Generate documentation stubs for wxRuby'
 task :doc => 'wxruby:doc'
