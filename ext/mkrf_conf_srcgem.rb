@@ -12,8 +12,7 @@ File.open('../Rakefile', 'w') do |f|
 ###
 
 task :default => 'wxruby:build' do
-  Rake::Task['wxruby:startup:config'].invoke
-  Rake::Task['wxruby:doc'].invoke
+  Rake::Task['wxruby:post:srcgem'].invoke
 end
 EOF__
 end
@@ -45,13 +44,15 @@ __EOT
 
 wxwin = ENV['WXWIN']
 wxxml = ENV['WXXML']
+with_wxwin = !!ENV['WITH_WXWIN']
 
 # run configure with appropriate settings
 cfgargs = ''
-if wxwin
-  cfgargs << "[--wxwin=#{wxwin}"
-  cfgargs << ",--wxxml=#{wxxml}" if wxxml
-  cfgargs << ']'
+if wxwin || with_wxwin
+  cfgargs = ["--wxwin=#{wxwin}"]
+  cfgargs << "--wxxml=#{wxxml}" if wxxml
+  cfgargs << '--with-wxwin' if with_wxwin
+  cfgargs = "[#{cfgargs.join(',')}]"
 end
 Dir.chdir('..') do
   puts "Running 'rake #{ARGV.join(' ')} configure#{cfgargs}'"

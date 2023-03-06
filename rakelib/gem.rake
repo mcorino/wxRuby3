@@ -59,23 +59,7 @@ if WXRuby3.is_bootstrapped?
 
   # binary gem file
   file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin) => WXRuby3::Gem.manifest(:bin) + ['ext/mkrf_conf_bingem.rb'] do
-    if WXRuby3.config.get_config('with-wxwin')
-      # prepare required wxWidgets shared libs
-      WXRuby3::Install.wxwin_shlibs.each do |shlib|
-        if File.symlink?(shlib)
-          src_shlib = shlib
-          src_shlib = File.join(File.dirname(shlib), File.basename(File.readlink(src_shlib))) while File.symlink?(src_shlib)
-          ln_s(File.join('.', File.basename(src_shlib)), File.join('ext', File.basename(shlib)), :verbose => false)
-        else
-          cp(shlib, inshlib = File.join('ext', File.basename(shlib)), :verbose => false)
-          WXRuby3.config.patch_rpath(inshlib, '$ORIGIN')
-        end
-      end
-      # prepare wxRuby shared libs
-      Dir["lib/*.#{WXRuby3.config.dll_mask}"].each do |shlib|
-        WXRuby3.config.patch_rpath(shlib, '$ORIGIN:$ORIGIN/../ext')
-      end
-    end
+    WXRuby3::Install.install_wxwin_shlibs
     begin
       # create gemspec
       gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION, :bin) do |gem|
@@ -97,9 +81,7 @@ if WXRuby3.is_bootstrapped?
       end
       WXRuby3::Gem.build_gem(gemspec)
     ensure
-      if WXRuby3.config.get_config('with-wxwin')
-        WXRuby3::Install.wxwin_shlibs.each { |shlib| rm_f(File.join('ext', File.basename(shlib)), :verbose => false) }
-      end
+      WXRuby3::Install.remove_wxwin_shlibs
     end
   end
 

@@ -12,7 +12,7 @@ File.open('../Rakefile', 'w') do |f|
 ###
 
 task :default do
-  Rake::Task['wxruby:startup:config'].invoke
+  Rake::Task['wxruby:post:bingem'].invoke
 end
 EOF__
 end

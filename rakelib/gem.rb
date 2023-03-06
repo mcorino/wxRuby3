@@ -37,7 +37,7 @@ module WXRuby3
         manifest.exclude 'ext/wxruby3/swig/classes/**/*'
         manifest.include 'ext/mkrf_conf_srcgem.rb'
         manifest.include 'rakelib/**/*'
-        manifest.exclude %w[rakefile/install.* rakelib/help.* rakelib/package.*]
+        manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.*]
       end
       manifest.include %w{LICENSE README.md CREDITS.md}
       manifest
@@ -77,21 +77,6 @@ module WXRuby3
 
       FileUtils.mv(gem_file_name, 'pkg')
     end
-
-    # unless defined?(JRUBY_VERSION) || R2CORBA::Config.is_win32
-    #   def self.patch_extlib_rpath
-    #     if R2CORBA::Config.is_osx
-    #       # TODO
-    #     else
-    #       rpath = "#{File.expand_path('ext')}:#{get_config('libdir')}"
-    #       Dir['ext/*.so'].each do |extlib|
-    #         unless Rake.sh("#{R2CORBA::Config.rpath_patch} '#{rpath}' #{extlib}")
-    #           raise 'Failed to patch RPATH for #{extlib}'
-    #         end
-    #       end
-    #     end
-    #   end
-    # end
 
   end
 

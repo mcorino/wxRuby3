@@ -3,7 +3,6 @@
 
 WX_GLOBAL_CONSTANTS=true
 
-require 'wx/startup'
 require 'wx/core'
 require 'wx/prt' if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)
 require 'wx/rtc' if Wx.has_feature?(:USE_RICHTEXT)

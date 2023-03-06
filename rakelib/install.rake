@@ -13,23 +13,16 @@ namespace :wxruby do
       WXRuby3::Install.define(t, args)
       WXRuby3::Install.nowrite(ENV['NO_HARM'] ? true : false) do
         WXRuby3::Install.install
+        Rake::Task['wxruby:post:install'].invoke
       end
-      # dest_dir = RbConfig::CONFIG['sitelibdir']
-      # WXRuby3::ALL_RUBY_LIB_FILES.each do | lib_file |
-      #   dest = lib_file.sub(/^lib/, dest_dir)
-      #   mkdir_p(File.dirname(dest))
-      #   cp lib_file, dest
-      #   chmod 0755, dest
-      # end
     end
 
     task :uninstall => WXRuby3::BUILD_CFG do | t, args |
       WXRuby3::Install.define(t, args)
       WXRuby3::Install.nowrite(ENV['NO_HARM'] ? true : false) do
+        Rake::Task['wxruby:pre:install'].invoke
         WXRuby3::Install.uninstall
       end
-      # rm_rf File.join(RbConfig::CONFIG['sitelibdir'], 'wx.rb')
-      # rm_rf File.join(RbConfig::CONFIG['sitelibdir'], 'wx')
     end
 
   end

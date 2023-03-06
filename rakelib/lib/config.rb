@@ -68,7 +68,7 @@ module WXRuby3
                   'wxwin' => ENV['WXWIN'] || '',
                   'wxxml' => ENV['WXXML'] || '',
                   'wxwininstdir' => '',
-                  'with-wxwin' => false,
+                  'with-wxwin' => !!ENV['WITH_WXWIN'],
                   'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
                   'swig' => ENV['WXRUBY_SWIG'] || 'swig',
                   'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
