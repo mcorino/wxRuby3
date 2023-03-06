@@ -121,7 +121,7 @@ module WXRuby3
         end
       end
       if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin')
-        File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'lib/wx/startup.rb'), 'a') do |f|
+        File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), 'a') do |f|
           f.puts <<~__CODE
               begin
                 require 'ruby_installer'
@@ -138,6 +138,10 @@ module WXRuby3
     end
 
     def self.uninstall
+      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin')
+        # since we changed this file ourselves remove it beforehand
+        FileUtils.rm_f(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'))
+      end
       WXRuby3::Install.specs.each do |dest, srclist, _mode, match|
         srclist.each do |src|
           if File.directory?(src)
