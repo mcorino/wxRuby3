@@ -29,11 +29,7 @@ namespace :wxruby do
       WXRuby3.config.do_bootstrap
     end
 
-    task :build_paths => (paths = [ WXRuby3.config.rake_deps_path, WXRuby3.config.src_path, WXRuby3.config.src_gen_path,
-                                    WXRuby3.config.obj_path, WXRuby3.config.classes_path, WXRuby3.config.common_path,
-                                    WXRuby3.config.interface_path])
-
-    paths.each do |p|
+    WXRuby3.config.build_paths.each do |p|
       directory p
     end
   end

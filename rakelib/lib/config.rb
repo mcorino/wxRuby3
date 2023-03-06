@@ -542,6 +542,10 @@ module WXRuby3
             File.directory?(@wx_xml_path)
           end
 
+          def build_paths
+            [ rake_deps_path, src_path, src_gen_path, obj_path, classes_path, common_path, interface_path ]
+          end
+
           def do_bootstrap
             check_doxygen
             # do we have a local wxWidgets tree already?
