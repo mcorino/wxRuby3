@@ -151,7 +151,7 @@ jobs:
           WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make && sudo make install
+          make && sudo make install && sudo ldconfig
         fi
         popd
 
