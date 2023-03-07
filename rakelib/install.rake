@@ -9,7 +9,7 @@ namespace :wxruby do
 
     require_relative './install'
 
-    task :install => [ 'wxruby:build', *WXRuby3::ALL_RUBY_LIB_FILES ] do | t, args |
+    task :install => [ 'wxruby:build', *WXRuby3::ALL_RUBY_LIB_FILES, 'bin:build' ] do | t, args |
       WXRuby3::Install.define(t, args)
       WXRuby3::Install.nowrite(ENV['NO_HARM'] ? true : false) do
         WXRuby3::Install.install
@@ -20,7 +20,7 @@ namespace :wxruby do
     task :uninstall => WXRuby3::BUILD_CFG do | t, args |
       WXRuby3::Install.define(t, args)
       WXRuby3::Install.nowrite(ENV['NO_HARM'] ? true : false) do
-        Rake::Task['wxruby:pre:install'].invoke
+        Rake::Task['wxruby:pre:uninstall'].invoke
         WXRuby3::Install.uninstall
       end
     end
@@ -28,9 +28,3 @@ namespace :wxruby do
   end
 
 end
-
-desc 'Install wxRuby (calling with "-- --help" provides usage information).'
-task :install => 'wxruby:install'
-
-desc 'Uninstall wxRuby (calling with "-- --help" provides usage information).'
-task :uninstall => 'wxruby:uninstall'

@@ -11,9 +11,9 @@ if WXRuby3.is_bootstrapped?
 
     namespace :gem do
 
-      task :srcgem => [WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION)]
+      task :srcgem => ['bin:build', WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION)]
 
-      task :bingem => [File.join(WXRuby3.config.rb_docgen_path, 'window.rb'), WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin)]
+      task :bingem => ['bin:build', File.join(WXRuby3.config.rb_docgen_path, 'window.rb'), WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin)]
     end
 
   end
@@ -29,7 +29,7 @@ if WXRuby3.is_bootstrapped?
       gem.files = WXRuby3::Gem.manifest
       gem.extensions = ['ext/mkrf_conf_srcgem.rb']
       gem.require_paths = %w{lib}
-      gem.executables = %w{}
+      gem.executables = WXRuby3::Bin.binaries
       gem.required_ruby_version = '>= 2.5'
       gem.licenses = ['MIT']
       gem.add_dependency 'nokogiri', '~> 1.12'
@@ -71,7 +71,7 @@ if WXRuby3.is_bootstrapped?
         gem.files = WXRuby3::Gem.manifest(:bin)
         gem.require_paths = %w{lib}
         gem.require_paths << 'ext' if WXRuby3.config.get_config('with-wxwin')
-        gem.executables = %w{}
+        gem.executables = WXRuby3::Bin.binaries
         gem.extensions = ['ext/mkrf_conf_bingem.rb']
         gem.required_ruby_version = ">= #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}",
                                     "< #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor+1}"

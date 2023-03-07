@@ -1,6 +1,7 @@
 *.o
 *.so
 .*
+bin
 obj
 src
 bak

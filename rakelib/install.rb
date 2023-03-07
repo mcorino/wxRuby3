@@ -125,9 +125,8 @@ module WXRuby3
 
     def self.specs
       specs = [
-        #[RbConfig::CONFIG['bindir'], ['bin'], 0755],
         [WXRuby3.config.get_cfg_string('siterubyver'), ['lib/wx.rb'], 0644],
-        [WXRuby3.config.get_cfg_string('siterubyver'), ['lib/wx'], 0644],
+        [File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx'), ['lib/wx'], 0644],
       ]
       # add wxRuby shared libraries
       WXRuby3::Director.each_package { |pkg| specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), [pkg.lib_target], 0555] }
@@ -141,9 +140,9 @@ module WXRuby3
       WXRuby3::Install.specs.each do |dest, srclist, mode, match|
         srclist.each do |src|
           if File.directory?(src)
-            install_dir(src, File.join(dest, File.basename(src)), mode, match)
+            install_dir(src, dest, mode, match)
           else
-            install_file(src, dest, mode) if match.nil? || match =~ src
+            install_file(src, dest, mode, match)
           end
         end
       end
@@ -153,9 +152,9 @@ module WXRuby3
       WXRuby3::Install.specs.each do |dest, srclist, _mode, match|
         srclist.each do |src|
           if File.directory?(src)
-            uninstall_dir(src, File.join(dest, File.basename(src)), match)
+            uninstall_dir(src, dest, match)
           else
-            uninstall_file(src, dest) if match.nil? || match =~ src
+            uninstall_file(src, dest, match)
           end
         end
       end
@@ -165,23 +164,26 @@ module WXRuby3
 
   module InstallMethods
 
-    def install_file(src, dest, mode)
+    def install_file(src, dest, mode, match)
+      return unless match.nil? || match.call(src)
       dest = File.join(Install.prefix, dest) if Install.prefix
       FileUtils.mkdir_p(dest, :noop => nowrite, :verbose => verbose) unless File.directory?(dest)
       FileUtils.install(src, dest, :mode => mode, :noop => nowrite, :verbose => verbose)
     end
     def install_dir(dir, dest, mode, match)
+      return unless match.nil? || match.call(dir)
       FileUtils.chdir(dir, :verbose => verbose) do
         Dir['*'].each do |entry|
           if File.directory?(entry)
             install_dir(entry, File.join(dest, entry), mode, match)
           else
-            install_file(entry, dest, mode) if match.nil? || match =~ entry
+            install_file(entry, dest, mode, match)
           end
         end
       end
     end
-    def uninstall_file(src, dest)
+    def uninstall_file(src, dest, match)
+      return unless match.nil? || match.call(src)
       dest = File.join(Install.prefix, dest) if Install.prefix
       dst_file = File.join(dest, File.basename(src))
       if nowrite || File.file?(dst_file)
@@ -193,12 +195,13 @@ module WXRuby3
       end
     end
     def uninstall_dir(dir, dest, match)
+      return unless match.nil? || match.call(dir)
       FileUtils.chdir(dir, :verbose => verbose) do
         Dir['*'].each do |entry|
           if File.directory?(entry)
             uninstall_dir(entry, File.join(dest, entry), match)
           else
-            uninstall_file(entry, dest) if match.nil? || match =~ entry
+            uninstall_file(entry, dest, match)
           end
         end
       end

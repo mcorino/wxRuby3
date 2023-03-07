@@ -29,7 +29,7 @@ module WXRuby3
           manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
         end
         manifest.include 'ext/mkrf_conf_bingem.rb'
-        manifest.include %w[rakelib/startup.rake rakelib/lib/config.rb rakelib/lib/config/**/* rakelib/lib/ext/**/*]
+        manifest.include %w[rakelib/prepost.* rakelib/lib/config.rb rakelib/lib/config/**/* rakelib/lib/ext/**/*]
         manifest.include WXRuby3::BUILD_CFG
       else
         manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
@@ -37,7 +37,7 @@ module WXRuby3
         manifest.exclude 'ext/wxruby3/swig/classes/**/*'
         manifest.include 'ext/mkrf_conf_srcgem.rb'
         manifest.include 'rakelib/**/*'
-        manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.*]
+        manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.* rakelib/bin.*]
       end
       manifest.include %w{LICENSE README.md CREDITS.md}
       manifest
