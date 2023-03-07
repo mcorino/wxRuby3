@@ -27,7 +27,10 @@ namespace 'wxruby' do
       rm_rf('ext/wxWidgets') if File.exist?('ext/wxWidgets')
     end
 
-    task :bingem => 'gem:install'
+    task :bingem => 'gem:install' do
+      # cleanup
+      rm_rf('rakelib')
+    end
 
     namespace 'gem' do
       task :wxwin do

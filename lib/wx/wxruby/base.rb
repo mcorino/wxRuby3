@@ -5,7 +5,6 @@ require 'optparse'
 require "rbconfig"
 
 module WxRuby
-  ROOT = File.expand_path(File.join(File.dirname($0), '..'))
   RUBY = ENV["RUBY"] || File.join(
     RbConfig::CONFIG["bindir"],
     RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]).sub(/.*\s.*/m, '"\&"')

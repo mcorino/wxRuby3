@@ -16,8 +16,8 @@ module WXRuby3
           #---------------------------------
           # This file is generated
           #---------------------------------
-          unless defined? Gem
-            require 'rubygems' rescue nil
+          module WxRuby
+            ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
           end
           require 'wx/wxruby/base'
           WxRuby.run
@@ -39,8 +39,8 @@ module WXRuby3
           goto endofruby
           #!/bin/#{RB_CONFIG['ruby_install_name']}
           #
-          unless defined? Gem
-            require 'rubygems' rescue nil
+          module WxRuby
+            ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
           end
           require 'wx/wxruby/base'
           WxRuby.run
