@@ -20,6 +20,7 @@ rake <rake-options> show             # Show current wxRuby3 build settings
 rake <rake-options> clean            # Remove any temporary products.
 rake <rake-options> clobber          # Remove any generated file.
 rake <rake-options> help             # Provide help description about wxRuby3 build system
+rake <rake-options> gem              # Build wxRuby3 gem
 
 (these next commands all require a valid configuration created by 'rake configure')
 
@@ -29,7 +30,7 @@ rake <rake-options> tests            # Run wxRuby3 tests
 rake <rake-options> package          # Build all the packages
 rake <rake-options> repackage        # Force a rebuild of the package files
 rake <rake-options> clobber_package  # Remove package products
-rake <rake-options> gem              # Build wxRuby3 gem
+rake <rake-options> bingem           # Build wxRuby3 pre-built binary gem
 
 __HELP_TXT
 end
