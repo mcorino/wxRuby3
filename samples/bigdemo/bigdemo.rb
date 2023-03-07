@@ -438,7 +438,6 @@ class WxRubyDemo < Wx::Frame
           Wx.MessageDialog(self, "A problem occurred with the %s demo:\n%s\n%s" % [itemText, problem, problem.backtrace.join("\n").to_s()],
                                       "Error!!!", Wx::OK | Wx::ICON_ERROR) do |dlg|
             dlg.show_modal
-            dlg.destroy
           end
         end
       else
