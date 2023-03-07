@@ -29,8 +29,6 @@ rake <rake-options> tests            # Run wxRuby3 tests
 rake <rake-options> package          # Build all the packages
 rake <rake-options> repackage        # Force a rebuild of the package files
 rake <rake-options> clobber_package  # Remove package products
-rake <rake-options> install[--help]|[<install options>] [NO_HARM=1]  # Install wxRuby3
-rake <rake-options> uninstall[--help]|[<uninstall options>] [NO_HARM=1]  # Uninstall wxRuby3
 rake <rake-options> gem              # Build wxRuby3 gem
 
 __HELP_TXT
