@@ -186,7 +186,7 @@ jobs:
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
-        if [ "${{ matrix.wxr_type == "develop" }}" ]; then
+        if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           TEST_CMD="bundle exec rake test"
         else
           TEST_CMD="wxruby test"
