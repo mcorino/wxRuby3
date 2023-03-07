@@ -77,7 +77,7 @@ jobs:
             wxw_type: none
             wxr_type: gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG{{ matrix.swig }} wxRuby(${{ matrix.wxr_type }})
+    name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
