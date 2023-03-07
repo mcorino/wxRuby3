@@ -32,28 +32,28 @@ jobs:
             use_xvfb: true
             wxw_type: system
             wxr_type: develop
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-10
-            CXX: g++-10
-            ruby: '3.2'
-            wxWidgets: '3.2.1'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
-          - os: ubuntu-22.04
-            gtk_version: 3
-            CC: gcc-11
-            CXX: g++-11
-            ruby: '3.0'
-            wxWidgets: '3.2.1'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
+#          - os: ubuntu-20.04
+#            gtk_version: 3
+#            CC: gcc-10
+#            CXX: g++-10
+#            ruby: '3.2'
+#            wxWidgets: '3.2.1'
+#            swig: '4'
+#            configure_flags:
+#            use_xvfb: true
+#            wxw_type: develop
+#            wxr_type: develop
+#          - os: ubuntu-22.04
+#            gtk_version: 3
+#            CC: gcc-11
+#            CXX: g++-11
+#            ruby: '3.0'
+#            wxWidgets: '3.2.1'
+#            swig: '4'
+#            configure_flags:
+#            use_xvfb: true
+#            wxw_type: develop
+#            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
@@ -151,7 +151,7 @@ jobs:
           WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make && sudo make install && sudo ldconfig
+          make && sudo make install && sudo ldconfig /usr/local/lib
         fi
         popd
 
