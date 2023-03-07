@@ -17,11 +17,6 @@ namespace :wxruby do
     WXRuby3.config.debug args[:app]
   end
 
-  task :memcheck, [:app] => 'config:bootstrap' do |t, args|
-    Rake::Task[:build].invoke
-    WXRuby3.config.memcheck args[:app], gensup: args.extras.include?(':gensup')
-  end
-
   task :test => 'config:bootstrap' do |t, args|
     Rake::Task[:build].invoke
     tests = args.extras - [':nodep']
@@ -48,7 +43,5 @@ task :run, [:app] => 'wxruby:run'
 
 desc 'Debug wxRuby (sample) app'
 task :debug, [:app] => 'wxruby:debug'
-
-task :memcheck, [:app] => 'wxruby:memcheck'
 
 task :irb => 'wxruby:irb'

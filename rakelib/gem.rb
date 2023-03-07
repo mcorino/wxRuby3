@@ -37,7 +37,7 @@ module WXRuby3
         manifest.exclude 'ext/wxruby3/swig/classes/**/*'
         manifest.include 'ext/mkrf_conf_srcgem.rb'
         manifest.include 'rakelib/**/*'
-        manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.* rakelib/bin.*]
+        manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.* rakelib/bin.* rakelib/memcheck.* rakelib/memcheck/**/*]
       end
       manifest.include %w{LICENSE README.md CREDITS.md}
       manifest
