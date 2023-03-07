@@ -58,18 +58,18 @@ module WXRuby3
         check_git
         # clone wxWidgets GIT repository under ext_path
         chdir(ext_path) do
-          rc = if sh("git clone https://github.com/wxWidgets/wxWidgets.git")
-                 chdir('wxWidgets') do
-                   tag = if @wx_version
-                           "v#{@wx_version}"
-                         else
-                           expand('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
-                         end
-                   # checkout the version we are building against
-                   sh("git checkout #{tag}")
-                 end
-               end
-          unless !!rc
+          if (rc = sh("git clone https://github.com/wxWidgets/wxWidgets.git"))
+            chdir('wxWidgets') do
+              tag = if @wx_version
+                      "v#{@wx_version}"
+                    else
+                      expand('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
+                    end
+              # checkout the version we are building against
+              rc = sh("git checkout #{tag}")
+            end
+          end
+          unless rc
             STDERR.puts "ERROR: Failed to checkout wxWidgets."
             exit(1)
           end
