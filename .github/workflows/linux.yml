@@ -30,6 +30,8 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
+            wxw_type: system
+            wxr_type: develop
           - os: ubuntu-20.04
             gtk_version: 3
             CC: gcc-10
@@ -39,6 +41,8 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-11
@@ -48,6 +52,8 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
@@ -57,14 +63,27 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
+            wxw_type: system
+            wxr_type: develop
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: none
+            wxr_type: gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }} SWIG{{ matrix.swig }}
+    name: ${{ matrix.os }} ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG{{ matrix.swig }} wxRuby(${{ matrix.wxr_type }})
     env:
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
       wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
-      WX_EXTRA_PACKAGES: doxygen
+      WX_EXTRA_PACKAGES: doxygen chrpath
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
       # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
@@ -73,6 +92,11 @@ jobs:
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
 
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
     - name: checkout wxWidgets
       uses: actions/checkout@v3
       with:
@@ -80,11 +104,6 @@ jobs:
         path: ${{ env.WXWIDGETS_ROOT }}
         ref: v${{ matrix.wxWidgets }}
         submodules: 'recursive'
-
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
 
     - name: Set up build environment
       run: |
@@ -103,13 +122,18 @@ jobs:
         g++ -v
 
     - name: Configuring wxWidgets
+      if: matrix.wxw_type != 'none'
       run: |
         wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
         if [ -n "${{ matrix.gtk_version }}" ]; then
           wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
         fi
         pushd $WXWIDGETS_ROOT
-        ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        else
+          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        fi
         popd
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
@@ -120,27 +144,58 @@ jobs:
         fi
 
     - name: Build wxWidgets
+      if: matrix.wxw_type != 'none'
       run: |
         pushd $WXWIDGETS_ROOT
-        make && make install
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          WX_SKIP_DOXYGEN_VERSION_CHECK=1
+          make && make install && pushd docs/doxygen && ./regen.sh xml && popd 
+        else
+          make && sudo make install
+        fi
         popd
 
+    - name: Remove wxWidgets
+      if: matrix.wxw_type != 'develop'
+      run: rm -rf $WXWIDGETS_ROOT
+
     - name: Configure wxRuby3
+      if: matrix.wxr_type != 'gem'
       run: |
-        bundle exec rake configure[--wxwin=$WXWIN_INSTALL]
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          bundle exec rake configure[--wxwin=$WXWIN_INSTALL,--wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml]
+        else
+          bundle exec rake configure
+        fi
 
     - name: Build wxRuby3
+      if: matrix.wxr_type != 'gem'
       run: |
         bundle exec rake -m build
+
+    - name: Build wxRuby3 gem
+      if: matrix.wxr_type == 'gem'
+      run: |
+        bundle exec rake gem
+
+    - name: Install wxRuby3 gem
+      if: matrix.wxr_type == 'gem'
+      run: |
+        gem install `echo pkg/*.gem`
 
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
-        /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test 2>&1 | tee -a wxtest.out" || rc=$?
+        if [ "${{ matrix.wxr_type == "develop" }}" ]; then
+          TEST_CMD="bundle exec rake test"
+        else
+          TEST_CMD="wxruby test"
+        fi
+        /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
         if [ -n "$rc" ]; then
           if fgrep -q '(core dumped)' wxtest.out; then
             echo '*** Test crashed, trying to get more information ***'
-            gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args bundle exec rake wxtest
+            gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $TEST_CMD
           fi
         exit $rc
         fi
