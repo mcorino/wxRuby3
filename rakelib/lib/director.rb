@@ -295,6 +295,21 @@ module WXRuby3
       end
     end
 
+    def handle_item_event_overrides(defmod, clsnm, overrides)
+      # find the item
+      item = defmod.find_item(clsnm)
+      if Extractor::ClassDef === item
+        overrides.each_pair do |evt, spec|
+          # remove overridden spec
+          item.event_types.delete_if { |evt_hnd, _, _, _| evt_hnd == evt.upcase }
+          # add new spec
+          item.event_types << [evt.upcase, *spec]
+        end
+      else
+        STDERR.puts "ERROR: Invalid item [#{item}]. Only classes can have ignored events."
+      end
+    end
+
     def handle_item_rename(defmod, fullname, rb_name)
       # find the item
       unless (item = defmod.find_item(fullname))
@@ -342,6 +357,10 @@ module WXRuby3
       # handle readonly settings
       spec.readonly.each do |name|
         handle_item_readonly(defmod, name)
+      end
+      # handle event(handler)s overrides
+      spec.event_overrides.each_pair do |clsnm, overrides|
+        handle_item_event_overrides(defmod, clsnm, overrides)
       end
       # handle renames for ruby (for doc purposes)
       spec.renames.each_pair do |rb_name, names|

@@ -52,6 +52,7 @@ module WXRuby3
         @ignores = ::Hash.new
         @regards = ::Hash.new
         @readonly = ::Set.new
+        @event_overrides = ::Hash.new
         @disabled_proxies = false
         @force_proxies = ::Set.new
         @no_proxies = ::Set.new
@@ -77,7 +78,7 @@ module WXRuby3
         @type_maps = Typemap::Collection.new
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly, :event_overrides,
                   :mixins, :included_mixins, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
@@ -308,6 +309,12 @@ module WXRuby3
 
       def make_readonly(*names)
         @readonly.merge names.flatten
+      end
+
+      def override_events(cls, overrides)
+        raise "Need Hash for event overrides" unless ::Hash === overrides
+        overrides.inject(@event_overrides[cls] ||= ::Hash.new) { |hash, (evt, spec)| hash[evt.upcase] = spec; hash }
+        self
       end
 
       def no_proxy(*names)

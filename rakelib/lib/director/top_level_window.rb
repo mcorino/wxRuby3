@@ -88,6 +88,10 @@ module WXRuby3
           }
           spec.set_only_for '__WXMSW__', 'wxTopLevelWindow::MSWGetSystemMenu'
           spec.swig_import 'swig/classes/include/wxDefs.h'
+          # incorrectly documented here
+          spec.override_events 'wxTopLevelWindow',
+                               { 'EVT_FULLSCREEN' => ['EVT_FULLSCREEN', 0, 'wxFullScreenEvent'],
+                                 'EVT_MAXIMIZE' => ['EVT_MAXIMIZE', 0, 'wxMaximizeEvent'] }
         end
       end
     end # class Frame

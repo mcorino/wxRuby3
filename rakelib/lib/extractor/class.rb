@@ -205,27 +205,29 @@ module WXRuby3
           if evt_heading
             @event_list = true
             evt_paras = evt_heading.xpath('parent::para').first.xpath('following-sibling::para')
-            if evt_paras.size>1 &&
-                evt_paras.first.text.start_with?('The following event handler macros redirect') &&
-                (evt_ref = evt_paras.first.at('./ref'))
-              evt_klass = evt_ref.text
-              if evt_paras[1].text.index('Event macros for events emitted by this class:')
-                evt_paras[1].xpath('.//listitem').each do |li|
-                  if li.text =~ /(EVT_\w+)\((.*)\)/
-                    evt_handler = $1
-                    args = $2.split(',').collect {|a| a.strip }
-                    # skip event macros with event type argument
-                    unless args.any? { |a| a == 'event' }
-                      # determine evt_type handled
-                      evt_type = if li.text =~ /Process\s+a\s+wx(\w+)\s+/
-                                   $1
-                                 else
-                                   evt_handler
-                                 end
-                      # record event handler (macro) name, event type handled and the number of event id arguments
-                      evt_arity = args.inject(0) {|c, a| c += 1 if a.start_with?('id'); c }
-                      @event_types << [evt_handler, evt_type, evt_arity, evt_klass]
-                    end
+            if (evt_paras.size>1 &&
+                  (evt_paras[0].text.start_with?('The following event handler macros redirect') ||
+                    evt_paras[0].text.start_with?('Event macros for events emitted by this class:')))
+              evt_klass = if (evt_ref = evt_paras[0].at('./ref'))
+                            evt_ref.text
+                          else
+                            nil
+                          end
+              evt_paras[1].xpath('.//listitem').each do |li|
+                if li.text =~ /(EVT_\w+)\((.*)\)/
+                  evt_handler = $1
+                  args = $2.split(',').collect {|a| a.strip }
+                  # skip event macros with event type argument
+                  unless args.any? { |a| a == 'event' }
+                    # determine evt_type handled
+                    evt_type = if li.text =~ /Process\s+a\s+wx(\w+)\s+/
+                                 $1
+                               else
+                                 evt_handler
+                               end
+                    # record event handler (macro) name, event type handled and the number of event id arguments
+                    evt_arity = args.inject(0) {|c, a| c += 1 if a.start_with?('id'); c }
+                    @event_types << [evt_handler, evt_type, evt_arity, evt_klass]
                   end
                 end
               end

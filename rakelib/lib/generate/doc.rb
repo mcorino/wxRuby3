@@ -392,6 +392,14 @@ module WXRuby3
         end
       end
 
+      def get_event_override(evt)
+        if ifspec.event_overrides.has_key?(@classdef.name)
+          return ifspec.event_overrides[@classdef.name][evt] || ifspec.event_overrides[@classdef.name][evt.upcase]
+        end
+        nil
+      end
+      private :get_event_override
+
       def para_to_doc(node)
         para = node_to_doc(node)
         # loose specific notes paragraphs
@@ -408,7 +416,20 @@ module WXRuby3
             when /\AEVT_[A-Z]+/
               if event_list? && /\A(EVT_[_A-Z]+)\((.*,)\s+\w+\):(.*)/ =~ para
                 evthnd_name = $1.downcase
-                arglist = "#{$2} meth = nil, &block"
+                if override_spec = get_event_override(evthnd_name)
+                  evthnd_name, evt_type, evt_arity, evt_klass = override_spec
+                  idarg = case evt_arity
+                          when 0
+                            ''
+                          when 1
+                            'id, '
+                          when 2
+                            'first_id, last_id, '
+                          end
+                  arglist = "#{idarg}meth = nil, &block"
+                else
+                  arglist = "#{$2} meth = nil, &block"
+                end
                 docstr = $3.lstrip
                 package.event_docs[evthnd_name] = [arglist, docstr.dup] # register for eventlist doc gen
                 "{Wx::EvtHandler\##{evthnd_name}}(#{arglist}): #{docstr}"
