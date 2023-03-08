@@ -131,10 +131,10 @@ module WXRuby3
         if check_wx_config
           # Now actually run the program to fill in some variables
           @wx_version  = wx_config("--version")
-          @wx_cppflags = wx_config("--cppflags")
+          @wx_cppflags = wx_config("--cppflags").split(' ')
 
           # Find out where the wxWidgets setup.h file being used is located
-          setup_inc_dir = @wx_cppflags[/^-I(\S+)/][2..-1]
+          setup_inc_dir = @wx_cppflags.find { |flag| flag =~ /^-I\S+/ }[2..-1]
           @wx_setup_h  = File.join(setup_inc_dir, 'wx', 'setup.h')
 
           @cpp         = wx_config("--cxx")
@@ -145,17 +145,19 @@ module WXRuby3
           if features_set?('wxUSE_MEDIACTRL')
             wx_libset.merge wx_config("--libs media").split(' ')
           end
-          @wx_libs = wx_libset.to_a.join(' ')
+          @wx_libs = wx_libset.to_a
 
           # remove all warning flags provided by Ruby config
-          @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') || o.start_with?('-Wl,') }.join(' ')
-          @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
-          @ruby_ldflags << " -L#{RB_CONFIG['libdir']}" # add lib dir for ruby lib
-          @ruby_ldflags << ' -s' if @release_build # strip debug symbols for release build
+          @ruby_cppflags = @ruby_cppflags.collect { |flags| flags.split(' ') }.flatten.
+            select { |o| !o.start_with?('-W') || o.start_with?('-Wl,') }
+          @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
+          @ruby_ldflags << '-s' if @release_build                         # strip debug symbols for release build
+          @ruby_ldflags << "-Wl,-rpath,\\$ORIGIN/../lib"                   # add default rpath
+          @ruby_libs <<  "-L#{RB_CONFIG['libdir']}" << '-lruby'           # add ruby lib dir and ruby lib
 
           # maintain minimum compatibility with ABI 3.0.0
           @wx_abi_version = [ @wx_version, "3.0.0" ].min
-          @wx_cppflags << " -DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
+          @wx_cppflags << "-DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
         end
       end
     end

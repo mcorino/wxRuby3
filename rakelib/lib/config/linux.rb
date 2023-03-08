@@ -54,7 +54,7 @@ module WXRuby3
         @dll_pfx = 'lib'
 
         if @wx_version
-          @extra_cflags = '-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized'
+          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           # create a .so binary
@@ -63,13 +63,8 @@ module WXRuby3
           # This class is not available on WXGTK
           exclude_module('PrinterDC')
 
-          # Extra libraries that are required on Linux
-          @extra_libs = ""
-          libs = @wx_libs.split(' ')
-          @wx_libs = libs.join(' ')
-
           unless @wx_path.empty?
-            libdirs = @wx_libs.split(' ').select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
+            libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
             @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{dest_dir}:#{libdirs.join(':')}"
           end
         end

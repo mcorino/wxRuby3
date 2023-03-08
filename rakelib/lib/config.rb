@@ -396,26 +396,26 @@ module WXRuby3
 
             @no_deprecate = !(!!ENV['WX_KEEP_DEPRECATE'])
 
-            @ruby_cppflags = RB_CONFIG["CFLAGS"]
 
             includes = [ RB_CONFIG["rubyhdrdir"],
                          RB_CONFIG["sitehdrdir"],
                          RB_CONFIG["vendorhdrdir"],
                          File.join(RB_CONFIG["rubyhdrdir"],
                                    RB_CONFIG['arch']) ]
-            @ruby_includes = " -I. -I " + includes.join(' -I ')
+            @ruby_includes    = ['-I.', *includes.collect { |inc| "-I#{inc}" }]
 
-            @ruby_ldflags = "#{RB_CONFIG['LDFLAGS']} #{RB_CONFIG['DLDFLAGS']} #{RB_CONFIG['ARCHFLAG']}"
-            @ruby_libs  = "#{RB_CONFIG['LIBS']} #{RB_CONFIG['DLDLIBS']} #{RB_CONFIG['LIBRUBYARG_SHARED']}"
-            @extra_cppflags = '-DSWIG_TYPE_TABLE=wxruby3'
-            @extra_cflags = ''
-            @extra_ldflags = ''
-            @extra_libs = ''
-            @cpp_out_flag =  '-o '
+            @ruby_cppflags    = [RB_CONFIG["CFLAGS"]]
+            @ruby_ldflags     = [RB_CONFIG['LDFLAGS'], RB_CONFIG['DLDFLAGS'], RB_CONFIG['ARCHFLAG']]
+            @ruby_libs        = []
+            @extra_cppflags   = ['-DSWIG_TYPE_TABLE=wxruby3']
+            @extra_cflags     = []
+            @extra_ldflags    = []
+            @extra_libs       = []
+            @cpp_out_flag     =  '-o '
             @link_output_flag = '-o '
 
-            @obj_ext = RB_CONFIG["OBJEXT"]
-            @dll_ext = RB_CONFIG['DLEXT']
+            @obj_ext          = RB_CONFIG["OBJEXT"]
+            @dll_ext          = RB_CONFIG['DLEXT']
 
             # Exclude certian classes from being built, even if they are present
             # in the configuration of wxWidgets.
@@ -423,7 +423,7 @@ module WXRuby3
               ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| exclude_module(classname) }
             end
 
-            @exec_env = {}
+            @exec_env         = {}
 
             # platform specific initialization
             init_platform
@@ -444,13 +444,13 @@ module WXRuby3
 
             # Flags to be passed to the C++ compiler
             @cxxflags = [@wx_cppflags, @ruby_cppflags, @extra_cflags,
-                         @extra_cppflags, @ruby_includes ].join(' ')
+                         @extra_cppflags, @ruby_includes ].flatten.join(' ')
 
             # Flags to be passed to the linker
-            @ldflags  = [ @ruby_ldflags, @extra_ldflags ].join(' ')
+            @ldflags  = [ @ruby_ldflags, @extra_ldflags ].flatten.join(' ')
 
             # Libraries that the linker should build
-            @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].join(' ')
+            @libs     = [ @wx_libs, @ruby_libs, @extra_libs ].flatten.join(' ')
           end
 
           def report
