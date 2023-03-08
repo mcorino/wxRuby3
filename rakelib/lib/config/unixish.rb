@@ -152,8 +152,10 @@ module WXRuby3
             select { |o| !o.start_with?('-W') || o.start_with?('-Wl,') }
           @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
           @ruby_ldflags << '-s' if @release_build                         # strip debug symbols for release build
-          @ruby_ldflags << "-Wl,-rpath,\\$ORIGIN/../lib"                   # add default rpath
-          @ruby_libs <<  "-L#{RB_CONFIG['libdir']}" << '-lruby'           # add ruby lib dir and ruby lib
+          @ruby_ldflags << "-Wl,-rpath,\\$ORIGIN/../lib"                  # add default rpath
+          @ruby_libs <<  "-L#{RB_CONFIG['libdir']}"                       # add ruby lib dir
+          # add ruby defined shared ruby lib(s); not any other flags
+          @ruby_libs.concat RB_CONFIG['LIBRUBYARG_SHARED'].split(' ').select { |s| s.start_with?('-l')}
 
           # maintain minimum compatibility with ABI 3.0.0
           @wx_abi_version = [ @wx_version, "3.0.0" ].min
