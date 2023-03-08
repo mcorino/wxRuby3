@@ -148,8 +148,9 @@ module WXRuby3
           @wx_libs = wx_libset.to_a.join(' ')
 
           # remove all warning flags provided by Ruby config
-          @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') }.join(' ')
+          @ruby_cppflags = @ruby_cppflags.split(' ').select { |o| !o.start_with?('-W') || o.start_with?('-Wl,') }.join(' ')
           @ruby_cppflags << ' -Wall -Wextra -Wno-unused-parameter' # only keep these
+          @ruby_ldflags << " -L#{RB_CONFIG['libdir']}" # add lib dir for ruby lib
           @ruby_ldflags << ' -s' if @release_build # strip debug symbols for release build
 
           # maintain minimum compatibility with ABI 3.0.0
