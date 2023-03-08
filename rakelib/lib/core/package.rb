@@ -510,13 +510,21 @@ module WXRuby3
             fdoc.puts
             evts_handled = ::Set.new
             # first iterate all event classes
+            command_event = nil # special case
             included_directors.each do |dir|
               dir.defmod.items.each do |item|
                 if Extractor::ClassDef === item && item.event
-                  generate_event_doc(fdoc, item, evts_handled)
+                  if item.name == 'wxCommandEvent'
+                    command_event = item # skip for now
+                  else
+                    generate_event_doc(fdoc, item, evts_handled)
+                  end
                 end
               end
             end
+            # only now generate from wxCommandEvent as that one specifies a lot of common core
+            # events which actually belong to derived event classes
+            generate_event_doc(fdoc, command_event, evts_handled) if command_event
             # now see what's left in the arbitrary event lists declared in various classes
             included_directors.each do |dir|
               dir.defmod.items.each do |item|
