@@ -100,11 +100,9 @@ if WXRuby3.is_bootstrapped?
   end
 
   # Compile an object file from a generated c++ source
-  cpp_src = lambda do | tn |
-    tn.sub(/#{WXRuby3.config.obj_dir}\/(\w+)\.#{WXRuby3.config.obj_ext}$/) { "#{WXRuby3.config.src_dir}/#{$1}.cpp" }
-  end
-
-  rule ".#{WXRuby3.config.obj_ext}" => cpp_src do | t |
+  rule ".#{WXRuby3.config.obj_ext}" => [
+    proc { |tn| "#{WXRuby3.config.src_dir}/#{File.basename(tn, ".*")}.cpp" }
+  ] do | t |
     sh "#{WXRuby3.config.cpp} -c #{WXRuby3.config.verbose_flag} " +
          "#{WXRuby3.config.cxxflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
          "#{WXRuby3.config.cpp_out_flag}#{t.name} #{t.source}"
