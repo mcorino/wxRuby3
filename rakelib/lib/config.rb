@@ -401,11 +401,11 @@ module WXRuby3
                          RB_CONFIG["sitehdrdir"],
                          RB_CONFIG["vendorhdrdir"],
                          File.join(RB_CONFIG["rubyhdrdir"],
-                                   RB_CONFIG['arch']) ]
+                                   RB_CONFIG['arch']) ].compact
             @ruby_includes    = ['-I.', *includes.collect { |inc| "-I#{inc}" }]
 
-            @ruby_cppflags    = [RB_CONFIG["CFLAGS"]]
-            @ruby_ldflags     = [RB_CONFIG['LDFLAGS'], RB_CONFIG['DLDFLAGS'], RB_CONFIG['ARCHFLAG']]
+            @ruby_cppflags    = [RB_CONFIG["CFLAGS"]].compact
+            @ruby_ldflags     = [RB_CONFIG['LDFLAGS'], RB_CONFIG['DLDFLAGS'], RB_CONFIG['ARCHFLAG']].compact
             @ruby_libs        = []
             @extra_cppflags   = ['-DSWIG_TYPE_TABLE=wxruby3']
             @extra_cflags     = []
