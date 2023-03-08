@@ -151,8 +151,7 @@ jobs:
           WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make && sudo make install
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
+          make && sudo make install && sudo ldconfig
         fi
         popd
 
