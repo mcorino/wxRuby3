@@ -87,7 +87,7 @@ module WXRuby3
             end
           end
 
-          puts("Loading %s..." % pathname) if verbose
+          STDERR.puts("Extractor: Loading %s..." % pathname) if verbose
           filesparsed.add(pathname)
 
           root = File.open(pathname) {|f| Nokogiri::XML(f) }.root
@@ -100,11 +100,20 @@ module WXRuby3
             # Make sure though, that for interface files we only parse the one
             # that belongs to this class. Otherwise, enums, etc. will be defined
             # in multiple places.
-            xmlname = class_or_filename.downcase
+
+            # in case of a class name starting with 'wx' prefix remove the prefix
+            xmlname = if /\Awx[A-Z]/ =~ class_or_filename
+                        class_or_filename[2..class_or_filename.size]
+                      else
+                        class_or_filename
+                      end
+            # lowercase the rest
+            xmlname = xmlname.downcase
 
             if item.respond_to?(:includes)
               item.includes.each do |inc|
                 pathname, name = include_to_doxy_name(inc)
+                STDERR.puts "Extractor: checking include #{inc} as #{name}:#{pathname} for #{xmlname}" if trace
                 class_or_filename_list << name if File.exist?(pathname) &&
                                                   !filesparsed.include?(pathname) &&
                                                   (!name.index('interface') || name.gsub('_2', '').index(xmlname)) &&
@@ -124,19 +133,19 @@ module WXRuby3
       end
 
       def verbose
-        @verbose ||= false
+        Director.verbose?
       end
 
-      def verbose=(v)
-        @verbose = !!v
+      def trace
+        Director.trace?
       end
 
       def extracting_msg(kind, element, name_tag='name')
-        puts('Extracting %s: %s' % [kind, element.at_xpath("#{name_tag}").text]) if verbose
+        STDERR.puts('Extracting %s: %s' % [kind, element.at_xpath("#{name_tag}").text]) if trace
       end
 
       def skipping_msg(kind, element)
-        puts('Skipping %s: %s' % [kind, element.at_xpath('name').text]) if verbose
+        STDERR.puts('Skipping %s: %s' % [kind, element.at_xpath('name').text]) if trace
       end
 
       def extract_module(pkg, mod, name, items, gendoc: false)
