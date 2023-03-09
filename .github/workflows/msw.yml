@@ -98,7 +98,7 @@ jobs:
 
       - name: Build wxRuby3
         run: |
-          bundle exec rake -m build
+          bundle exec rake build
 
       - name: Run wxRuby3 regression tests
         run: |
