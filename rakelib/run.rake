@@ -30,13 +30,10 @@ namespace :wxruby do
 
 end
 
-desc "Run All wxRuby tests"
+desc "Run wxRuby tests"
 task :test => 'wxruby:test'
 
-desc "Run selected wxRuby tests (use tests[test1,...])"
-task :tests do |_, args|
-  Rake::Task['wxruby:test'].invoke(*args.extras)
-end
+task :tests => 'wxruby:test'
 
 desc 'Run wxRuby (sample) app'
 task :run, [:app] => 'wxruby:run'
