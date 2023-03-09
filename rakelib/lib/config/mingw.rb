@@ -92,8 +92,8 @@ module WXRuby3
 
         if @wx_version
           # need to convert these to windows paths
-          @wx_cppflags.each { |flags| flags.gsub!(/^-I(\S+)|\s-I(\S+)/) { |s| " -I#{win_path($1 || $2)}" } }
-          @wx_libs.each { |libflag| libflag.gsub!(/^-L(\S+)|\s-L(\S+)/) { |s| " -L#{win_path($1 || $2)}" } }
+          @wx_cppflags.each { |flags| flags.gsub!(/-I(\S+)/) { |s| "-I#{win_path($1)}" } }
+          @wx_libs.each { |libflag| libflag.gsub!(/-L(\S+)/) { |s| "-L#{win_path($1)}" } }
 
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
