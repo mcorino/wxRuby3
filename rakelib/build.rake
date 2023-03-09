@@ -5,11 +5,6 @@
 
 require 'rake/clean'
 
-Rake.application.options.always_multitask =
-  WXRuby3.is_configured? &&
-    Rake.application.top_level_tasks.size == 1 &&
-    Rake.application.top_level_tasks.first == 'build'
-
 namespace :wxruby do
 
   require_relative './build'

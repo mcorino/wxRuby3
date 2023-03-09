@@ -8,6 +8,9 @@ require_relative './lib/config'
 
 if WXRuby3.is_bootstrapped?
 
+  Rake.application.options.always_multitask =
+    Rake.application.top_level_tasks.size == 1 && Rake.application.top_level_tasks.first == 'build'
+
   require_relative './lib/director'
 
   def enum_list_cache
