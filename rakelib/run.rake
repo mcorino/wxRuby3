@@ -20,6 +20,7 @@ namespace :wxruby do
   task :test => 'config:bootstrap' do |t, args|
     Rake::Task[:build].invoke
     tests = args.extras - [':nodep']
+    tests << ENV['TEST'] if ENV['TEST']
     WXRuby3.config.test *tests
   end
 
