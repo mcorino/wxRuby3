@@ -69,7 +69,7 @@ namespace 'wxruby' do
     end
 
     task :install do
-      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin') && !FileUtilsExt.nowrite_flag
+      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin') && !Rake::FileUtilsExt.nowrite_flag
         File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), 'a') do |f|
           WXRuby3::Post.create_startup <<~__CODE
             begin
