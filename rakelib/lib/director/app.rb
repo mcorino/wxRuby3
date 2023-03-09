@@ -288,7 +288,7 @@ module WXRuby3
               // Get the ruby representation of the App object, and call the
               // ruby on_init method to set up the initial window state
               VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
-              VALUE result  = rb_funcall(the_app, rb_intern("on_ruby_init"), 0, 0);
+              VALUE result  = wxRuby_Funcall(the_app, rb_intern("on_ruby_init"), 0, 0);
         
               // If on_init return any (ruby) true value, signal to wxWidgets to
               // enter the main event loop by returning true, else return false
@@ -317,7 +317,7 @@ module WXRuby3
               ID on_exit_id = rb_intern("on_exit");
               if (rb_funcall(the_app, rb_intern("respond_to?"), 1, ID2SYM(on_exit_id)) == Qtrue)
               {
-                rb_funcall(the_app, on_exit_id, 0, 0);
+                wxRuby_Funcall(the_app, on_exit_id, 0, 0);
               }
 
               // perform wxRuby cleanup
