@@ -55,6 +55,10 @@ class Wx::EvtHandler
   # @yieldparam [Wx::ScrollWinEvent] event event to handle
   def evt_scrollwin(&block) end
 
+  # Processes Wx::WindowDestroyEvent events.
+  # @yieldparam [Wx::WindowDestroyEvent] event event to handle
+  def evt_window_destroy(&block) end
+
   # Schedule a call for asynchronous execution (at idle time).
   # @param meth [Symbol,String,Method,Proc] (name of) method or proc to call
   # @param args [Array<Object>] optional arguments to pass to the call
