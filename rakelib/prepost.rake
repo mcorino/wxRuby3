@@ -71,7 +71,7 @@ namespace 'wxruby' do
     task :install do
       if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin') && !Rake::FileUtilsExt.nowrite_flag
         File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), 'w') do |f|
-          WXRuby3::Post.create_startup <<~__CODE
+          f.puts <<~__CODE
             begin
               require 'ruby_installer'
               if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
