@@ -172,6 +172,7 @@ module WXRuby3
               return Qnil;
             }
           __HEREDOC
+          spec.override_events 'wxWindow', 'EVT_ACTIVATE' => ['EVT_ACTIVATE', 0, 'wxActivateEvent']
         when 'wxNonOwnedWindow'
           spec.no_proxy('wxNonOwnedWindow')
         when 'wxControl'
