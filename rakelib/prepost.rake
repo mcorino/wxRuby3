@@ -10,7 +10,7 @@ namespace 'wxruby' do
   namespace 'pre' do
 
     task :uninstall do
-      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin') && !FileUtilsExt.nowrite_flag
+      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin') && !Rake::FileUtilsExt.nowrite_flag
         # since we created this file ourselves remove it before uninstalling
         rm_f(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), verbose: false)
       end
