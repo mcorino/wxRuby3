@@ -77,6 +77,31 @@ module WXRuby3
           # // when passed into Wx, and so will be deleted automatically; using
           # // DISOWN resets their %freefunc to avoid deleting the object twice
           spec.disown 'wxCaret* caret', 'wxSizer* sizer', 'wxToolTip* tip', 'wxDropTarget* target'
+          # do not allow SetSizer and SetSizerAndFit to leave the 'old' sizer unattached alive
+          spec.map 'wxSizer *sizer, bool deleteOld' => 'Wx::Sizer' do
+            map_in code: <<~__CODE
+                int res = SWIG_ConvertPtr($input, SWIG_as_voidptrptr(&$1), SWIGTYPE_p_wxSizer, SWIG_POINTER_DISOWN);
+                if (!SWIG_IsOK(res)) {
+                  SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxSizer *","SetSizer", 2, $input));
+                }
+                $2 = true; // always delete 'old' sizer
+              __CODE
+          end
+          spec.add_extend_code 'wxWindow', <<~__HEREDOC
+            VALUE SwitchSizer(VALUE new_szr)
+            {
+              wxSizer *new_wx_szr = 0;
+              int res = SWIG_ConvertPtr(new_szr, SWIG_as_voidptrptr(&new_wx_szr), SWIGTYPE_p_wxSizer, SWIG_POINTER_DISOWN);
+              if (!SWIG_IsOK(res)) {
+                SWIG_Error(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxSizer *","SetSizer", 2, new_szr));
+                return Qnil;
+              }
+              wxSizer* old_szr = self->GetSizer();
+              self->SetSizer(new_wx_szr, false);
+              return SWIG_NewPointerObj(old_szr, SWIGTYPE_p_wxSizer, 1); // return owned wrapper for old sizer
+            }
+            __HEREDOC
+          spec.new_object 'wxWindow::SwitchSizer'
           # Typemap for GetChildren - casts wxObjects to correct ruby wrappers
           spec.map 'wxWindowList&' => 'Array<Wx::Window>' do
             map_out code: <<~__CODE

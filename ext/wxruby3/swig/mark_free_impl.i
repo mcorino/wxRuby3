@@ -70,20 +70,52 @@ WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
     ((wxRefCounter*)ptr)->DecRef();
 }
 
-// This does not work
-// // Code to be run when the ruby object is swept by GC - this checks
-// // for orphaned sizers and deletes those, only unlinking others
-// // as these will be managed by WxWidgets.
-// void GcSizerFreeFunc(void *ptr)
-// {
-//   wxSizer* arg1 = (wxSizer*)ptr;
-//   // unlink in all cases
-//   SWIG_RubyRemoveTracking(ptr);
-//   if (!arg1->GetContainingWindow ())
-//   {
-//     delete arg1; // delete orphaned sizers
-//   }
-// }
+// Code to be run when the ruby object is swept by GC - this checks
+// for unattached sizers and deletes those, only unlinking others
+// as these will be managed by WxWidgets.
+WXRUBY_EXPORT void GcSizerFreeFunc(void *ptr)
+{
+  wxSizer* wx_szr = (wxSizer*)ptr;
+  // unlink in all cases
+  SWIG_RubyRemoveTracking(ptr);
+  delete wx_szr; // delete unattached sizers
+}
+
+void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer);
+
+WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
+{
+  VALUE rb_szr = SWIG_RubyInstanceFor(ptr);
+  if (rb_szr && rb_szr != Qnil)
+  {
+    wxSizer* wx_szr = (wxSizer*)ptr;
+
+    // as long as the dfree function is still the GCSizeFreeFunc the sizer has not been attached to a window
+    // or added to a parent sizer (as that would 'disown' and replace the free function by the tracking removal function)
+    // but it may hay have already had child sizers added which need to be marked
+    if (RDATA(rb_szr)->dfree == (void (*)(void *))GcSizerFreeFunc)
+    {
+      // Then loop over the sizer's content and mark each sub-sizer
+      wxSizerItemList& children = wx_szr->GetChildren();
+      for ( wxSizerItemList::compatibility_iterator node = children.GetFirst();
+        node;
+        node = node->GetNext() )
+      {
+        wxSizerItem* item = node->GetData();
+        wxSizer* child_sizer  = item->GetSizer();
+        if ( child_sizer )
+        {
+          VALUE rb_child_sizer = SWIG_RubyInstanceFor(child_sizer);
+          if ( rb_child_sizer != Qnil )
+          {
+            // just reuse this function here (will do exactly what we want)
+            GC_mark_SizerBelongingToWindow(child_sizer, rb_child_sizer);
+          }
+        }
+      }
+    }
+  }
+}
 
 // Carries out marking of Sizer objects belonging to a Wx::Window. Note
 // that this isn't done as a standard mark routine because ONLY sizers

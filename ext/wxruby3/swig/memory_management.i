@@ -25,8 +25,10 @@
 // These are implemented in swig/wx.i, so they are shared among all classes
 %{
 WXRUBY_EXPORT void GcNullFreeFunc(void *);
-WXRUBY_EXPORT void GcDialogFreeFunc(void *ptr);
+WXRUBY_EXPORT void GcSizerFreeFunc(void *);
+WXRUBY_EXPORT void GcDialogFreeFunc(void *);
 WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
+WXRUBY_EXPORT void GC_mark_wxSizer(void *);
 WXRUBY_EXPORT void GC_mark_wxWindow(void *);
 WXRUBY_EXPORT void GC_mark_wxFrame(void *);
 WXRUBY_EXPORT void GC_mark_wxEvent(void *);
@@ -113,7 +115,8 @@ GC_NEVER(kls);
 // required to prevent a memory leak.
 %define GC_MANAGE_AS_SIZER(kls)
 %trackobjects kls;
-%feature("freefunc") kls "GcNullFreeFunc";
+%feature("freefunc") kls "GcSizerFreeFunc";
+%feature("markfunc") kls "GC_mark_wxSizer";
 %enddef
 
 // wxRefCounter derived objects need to dereferenced when GC-ed but
