@@ -21,10 +21,13 @@ module WXRuby3
           void GC_free_wxPen(wxPen *pen) 
           {
             SWIG_RubyRemoveTracking(pen);
-            wxDash *dashes;
-            int dash_count = pen->GetDashes(&dashes);
-            if ( dash_count )
-              delete dashes;
+            if (pen && pen->IsOk ())
+            {
+              wxDash *dashes;
+              int dash_count = pen->GetDashes(&dashes);
+              if ( dash_count )
+                delete dashes;
+            }
             delete pen;
           }
           __HEREDOC
