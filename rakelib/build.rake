@@ -41,8 +41,8 @@ namespace :wxruby do
   task :reswig => ['config:bootstrap', :clean_src, :swig]
 
   task :clean_bin do
-    rm_if(Dir[File.join(WXRuby3.config.bin_dir, '*')])
-    rmdir_if(WXRuby3.config.bin_dir)
+    rm_if(Dir[File.join(WXRuby3::Config.wxruby_root, 'bin', '*')])
+    rmdir_if(File.join(WXRuby3::Config.wxruby_root, 'bin'))
     rm_if(Dir[File.join(WXRuby3.config.dest_dir, "*.#{WXRuby3.config.dll_mask}")])
     rm_if(Dir[File.join(WXRuby3.config.obj_dir, '*')])
     rmdir_if(WXRuby3.config.obj_dir)
