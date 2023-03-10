@@ -52,6 +52,7 @@ module WXRuby3
         @ignores = ::Hash.new
         @regards = ::Hash.new
         @readonly = ::Set.new
+        @contracts = ::Hash.new
         @event_overrides = ::Hash.new
         @disabled_proxies = false
         @force_proxies = ::Set.new
@@ -78,7 +79,7 @@ module WXRuby3
         @type_maps = Typemap::Collection.new
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly, :event_overrides,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly, :contracts, :event_overrides,
                   :mixins, :included_mixins, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters, :only_for,
                   :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
@@ -311,8 +312,25 @@ module WXRuby3
         @readonly.merge names.flatten
       end
 
+      def add_contracts(contracts)
+        raise 'Need Hash for contracts' unless ::Hash === contracts
+        contracts.inject(@contracts) do |hash, (fn, contract)|
+          raise "Duplicate contract for #{fn} : #{contract}" if hash.has_key?(fn)
+          hash[fn] = contract # should be code string providing contract condition
+          hash
+        end
+        self
+      end
+      alias :add_contract :add_contracts
+
+      # shortcut for much needed contract
+      def require_app(*names)
+        names.flatten.each { |fn| add_contract(fn => 'wxRuby_IsAppRunning()') }
+        self
+      end
+
       def override_events(cls, overrides)
-        raise "Need Hash for event overrides" unless ::Hash === overrides
+        raise 'Need Hash for event overrides' unless ::Hash === overrides
         overrides.inject(@event_overrides[cls] ||= ::Hash.new) { |hash, (evt, spec)| hash[evt.upcase] = spec; hash }
         self
       end

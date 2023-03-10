@@ -59,6 +59,12 @@
 // # SWIG 1.3.29 added this new feature which we can't use (yet)
 #define SWIG_DIRECTOR_NOUEH TRUE
 
+// Customize SWIG contract assertion
+#if defined(SWIG_contract_assert)
+#undef SWIG_contract_assert
+#endif
+#define SWIG_contract_assert(expr, msg) if (!(expr)) { SWIG_Error(SWIG_RuntimeError, msg); SWIG_fail; }
+
 #  undef GetClassName
 #  undef GetClassInfo
 #  undef Yield

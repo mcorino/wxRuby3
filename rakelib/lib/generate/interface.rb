@@ -251,6 +251,18 @@ module WXRuby3
     end
 
     def gen_swig_interface_code(fout)
+      unless ifspec.contracts.empty?
+        fout.puts
+        ifspec.contracts.each_pair do |fn, contract|
+          fout.puts <<~__CODE
+            %contract #{fn} {
+              require:
+                #{contract};
+            }
+            __CODE
+        end
+      end
+
       generated_imports = ::Set.new
 
       unless swig_imports[:prepend].empty?
