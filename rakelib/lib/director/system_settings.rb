@@ -13,6 +13,11 @@ module WXRuby3
         spec.gc_never
         spec.make_abstract 'wxSystemSettings'
         spec.disable_proxies
+        spec.require_app 'wxSystemSettings::GetColour',
+                         'wxSystemSettings::GetFont',
+                         'wxSystemSettings::GetMetric',
+                         'wxSystemSettings::HasFeature',
+                         'wxSystemSettings::GetScreenType'
         spec.ignore 'wxSystemSettings::GetAppearance'
         spec.add_extend_code <<~__HEREDOC
           static wxString GetAppearanceName()

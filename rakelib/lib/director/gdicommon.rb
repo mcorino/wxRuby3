@@ -11,6 +11,11 @@ module WXRuby3
 
       def setup
         spec.items.replace %w{wxPoint wxSize wxRect wxRealPoint wxColourDatabase}
+        # all ctors
+        spec.require_app 'wxColourDatabase'
+        # global functions
+        spec.require_app %w[wxColourDisplay wxDisplayDepth wxSetCursor wxGetClientDisplayRect
+                            wxGetDisplayPPI wxGetDisplaySize wxGetDisplaySizeMM]
         spec.ignore %w{
           wxTheColourDatabase
         }

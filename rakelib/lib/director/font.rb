@@ -13,6 +13,15 @@ module WXRuby3
         super
         spec.items << 'wxFontInfo'
         spec.gc_as_temporary 'wxFontInfo'
+        # all but the default ctor require a running App
+        spec.require_app 'wxFont::wxFont(const wxFont &)',
+                         'wxFont::wxFont(const wxFontInfo &)',
+                         'wxFont::wxFont(int, wxFontFamily, wxFontStyle, wxFontWeight, bool, const wxString &, wxFontEncoding)',
+                         'wxFont::wxFont(const wxSize &, wxFontFamily, wxFontStyle, wxFontWeight, bool, const wxString &, wxFontEncoding)',
+                         'wxFont::wxFont(const wxString &)',
+                         # and these statics
+                         'wxFont::GetDefaultEncoding',
+                         'wxFont::SetDefaultEncoding'
         spec.rename_for_ruby 'create' => 'wxFont::New'
         spec.ignore %w[
           wxFont::SetNativeFontInfo wxFont::GetNativeFontInfo wxFont::operator!=

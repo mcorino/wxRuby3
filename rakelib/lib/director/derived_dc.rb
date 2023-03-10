@@ -7,14 +7,15 @@ module WXRuby3
 
   class Director
 
-    class ImageList < Director
+    class DerivedDC < Director
 
       def setup
-        spec.require_app 'wxImageList'
-        spec.rename_for_ruby('AddIcon' => 'wxImageList::Add(const wxIcon &)')
         super
+        spec.disable_proxies
+        # all ctors of derived DC require a running App
+        spec.require_app spec.module_name
       end
-    end # class ImageList
+    end # class DerivedDC
 
   end # class Director
 

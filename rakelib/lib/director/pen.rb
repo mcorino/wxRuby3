@@ -32,6 +32,11 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_swig_code '%feature("freefunc") wxPen "GC_free_wxPen";'
+        # all but the default ctor require a running App
+        spec.require_app 'wxPen::wxPen(const wxPenInfo &info)',
+                         'wxPen::wxPen(const wxColour &colour, int width, wxPenStyle style)',
+                         'wxPen::wxPen(const wxBitmap &stipple, int width)',
+                         'wxPen::wxPen(const wxPen &pen)'
         # dealt with below - these require special handling becaause of the use
         # of wxDash array, which cannot be freed until the pen is disposed of
         # or until a new dash pattern is specified.

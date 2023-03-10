@@ -11,6 +11,7 @@ module WXRuby3
 
       def setup
         super
+        spec.require_app 'wxRegion'
         spec.disable_proxies
         spec.ignore 'wxNullRegion' # does not exist in code
       end

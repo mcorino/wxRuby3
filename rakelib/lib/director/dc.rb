@@ -12,6 +12,7 @@ module WXRuby3
       include Typemap::PointsList
 
       def setup
+        super
         spec.ignore [
           'wxDC::StartPage',
           'wxDC::GetPartialTextExtents',
@@ -21,7 +22,7 @@ module WXRuby3
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const',
           'wxDC::GetHandle'
         ]
-        spec.no_proxy 'wxDC'
+        spec.disable_proxies
         spec.rename_for_ruby({
           'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *) const',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *, wxCoord *) const',
@@ -43,7 +44,6 @@ module WXRuby3
           }
           __HEREDOC
         spec.swig_import 'swig/classes/include/wxGDICommon.h'
-        super
       end
     end # class DC
 

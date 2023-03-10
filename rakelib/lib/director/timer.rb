@@ -13,6 +13,7 @@ module WXRuby3
 
       def setup
         super
+        spec.require_app 'wxTimer'
         # need a custom implementation to handle event handler proc cleanup
         spec.add_header_code <<~__HEREDOC
           class WXRubyTimer : public wxTimer

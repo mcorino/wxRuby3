@@ -12,6 +12,10 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
+        # all but the default ctor require a running App
+        spec.require_app 'wxBrush::wxBrush(const wxColour &colour, wxBrushStyle style)',
+                         'wxBrush::wxBrush(const wxBitmap &stippleBitmap)',
+                         'wxBrush::wxBrush(const wxBrush &brush)'
         # these are defined and loaded in RubyStockObjects.i
         spec.ignore %w[
           wxBLUE_BRUSH wxGREEN_BRUSH wxYELLOW_BRUSH wxWHITE_BRUSH wxBLACK_BRUSH wxGREY_BRUSH

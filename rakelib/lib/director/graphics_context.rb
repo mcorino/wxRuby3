@@ -12,6 +12,9 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
+        # these static creators require a running app
+        spec.require_app 'wxGraphicsContext::Create',
+                         'wxGraphicsContext::CreateFromUnknownDC'
         spec.ignore 'wxGraphicsContext::CreateFromNative',
                     'wxGraphicsContext::CreateFromNativeWindow',
                     'wxGraphicsContext::CreateFromNativeHDC',

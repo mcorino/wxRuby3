@@ -12,6 +12,7 @@ module WXRuby3
       def setup
         spec.items << 'wxIconBundle'
         spec.disable_proxies
+        spec.require_app 'wxIcon', 'wxIconBundle'
         # disable as there is no way to distinguish char*/[] from wxString in Ruby
         # and anyway there is no real benefit compared to loading XPM by filename
         spec.ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)')

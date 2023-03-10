@@ -12,6 +12,8 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object 'wxCaret'
+        # all ctors require a running App
+        spec.require_app 'wxCaret'
         # ignore method overloads that have no additional benefit  in Ruby
         spec.ignore 'wxCaret::wxCaret(wxWindow*, int, int)',
                     'wxCaret::Create(wxWindow*, int, int)',
