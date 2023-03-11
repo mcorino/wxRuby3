@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample demonstrates the use of Activate Events. These are
@@ -30,6 +30,8 @@ class MinimalFrame < Wx::Frame
     create_status_bar(2)
     set_status_text("Welcome to wxRuby!")
 
+    evt_close { on_quit }
+
     evt_menu(Wx::ID_EXIT) { on_quit }
     evt_menu(Wx::ID_ABOUT) { on_about }
 
@@ -47,6 +49,7 @@ class MinimalFrame < Wx::Frame
   end
 
   def on_activate(event)
+    return if Wx::get_app.destroying
     if event.get_active
       puts "Frame '#{get_title}' became activated"
       set_status_text 'Active'
@@ -79,8 +82,9 @@ class RbApp < Wx::App
     evt_activate_app { | e | on_activate_app(e) }
     @frame_1.show
     @frame_2.show
-
   end
+
+  attr_reader :destroying
 
   def on_activate_app(event)
     if event.get_active
@@ -92,9 +96,28 @@ class RbApp < Wx::App
   end
 
   def close_all
-    @frame_1.close(true)
-    @frame_2.close(true)
+    @frame_1.destroy
+    @frame_2.destroy
   end
 end
 
-RbApp.new.run
+module ActivationSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby Activate events example.',
+      description: 'wxRuby example demonstrating the use of Activate Events.')
+  end
+
+  def self.run
+    RbApp.new.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

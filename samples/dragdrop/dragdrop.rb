@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample demonstrates the use of the Clipboard and Drag and Drop
@@ -171,7 +171,33 @@ class DataObjectFrame < Wx::Frame
   end
 end
 
-Wx::App.run do 
-  frame = DataObjectFrame.new(nil)
-  frame.show
+module DragDropSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby Drag&Drop example.',
+      description: <<~__TXT
+        wxRuby example demonstrating the use of the Clipboard and Drag and Drop
+        classes. Whilst the functionality of these is slightly different, they
+        are both based around the use of the DataObject classes to exchange
+        data of various sorts between applications (i.e. into and out of
+        wxRuby).
+        __TXT
+    )
+  end
+
+  def self.run
+    Wx::App.run do
+      frame = DataObjectFrame.new(nil)
+      frame.show
+    end
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
 end

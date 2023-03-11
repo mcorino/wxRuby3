@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 # Written by Nobuaki Arima
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 class ListctrlFrame < Wx::Frame
@@ -32,27 +36,37 @@ class ListctrlFrame < Wx::Frame
     item.set_font(Wx::ITALIC_FONT)
     item.set_background_colour(Wx::LIGHT_GREY)
     list.set_item( item )
-    
+
+    if Wx.has_feature?(:USE_LOGWINDOW)
+      # Create log window
+      logWindow = Wx::LogWindow.new(self, 'Log Messages', false)
+      logWindow.frame.move(position.x + size.width + 10,
+                            position.y)
+      logWindow.show
+    end
+
     # test of get_item method
     0.upto(2) do |i|
       if item = list.get_item(i)      
-        print "ID:",item.get_id,"\n"
-        print "column:    ",item.get_column,"\n"
-        print "text:      ",item.get_text,"\n"
-        print "text color:",show_color(item.get_text_colour),"\n"
-        print "BG color:  ",show_color(item.get_background_colour),"\n"
-        print "font:      ",show_font(item.get_font),"\n\n"
+        Wx.log_info "ID:        %d",item.get_id
+        Wx.log_info "column:    %d ",item.get_column
+        Wx.log_info "text:      %s",item.get_text
+        Wx.log_info "text color:%s",show_color(item.get_text_colour)
+        Wx.log_info "BG color:  %s",show_color(item.get_background_colour)
+        Wx.log_info "font:      %s",show_font(item.get_font)
+        Wx.log_info '--'
       end
     end
     # test other column
     0.upto(2) do |i|
       if item = list.get_item(i, 1)
-        print "ID:",item.get_id,"\n"
-        print "column:    ",item.get_column,"\n"
-        print "text:      ",item.get_text,"\n"
-        print "text color:",show_color(item.get_text_colour),"\n"
-        print "BG color:  ",show_color(item.get_background_colour),"\n"
-        print "font:      ",show_font(item.get_font),"\n\n"
+        Wx.log_info "ID:        %d",item.get_id
+        Wx.log_info "column:    %d",item.get_column
+        Wx.log_info "text:      %s",item.get_text
+        Wx.log_info "text color:%s",show_color(item.get_text_colour)
+        Wx.log_info "BG color:  %s",show_color(item.get_background_colour)
+        Wx.log_info "font:      %s",show_font(item.get_font)
+        Wx.log_info '--'
       end
     end
   end
@@ -76,12 +90,31 @@ end
 
 class RbApp < Wx::App
   def on_init
+    Wx::Log::set_active_target(Wx::LogStderr.new)
     frame = ListctrlFrame.new("Listctrl test",Wx::Point.new(50, 50), Wx::Size.new(450, 340))
 
     frame.show(true)
-
   end
 end
 
-a = RbApp.new
-a.run
+module GetItemSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby list control example.',
+      description: 'wxRuby example demonstrating getting item information from a Wx::ListCtrl.')
+  end
+
+  def self.run
+    app = RbApp.new
+    app.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

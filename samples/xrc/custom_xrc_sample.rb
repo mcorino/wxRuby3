@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # Basic Frame Class. This creates the dialog window
@@ -65,9 +65,29 @@ class XrcApp < Wx::App
     $xml = Wx::XmlResource.new(xrc_file)
 
     # Show the main frame.
-    main = SimpleFrame.new()
+    main = SimpleFrame.new
     main.show(true)
   end
 end
 
-XrcApp.new.run()
+module CustomXrcSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby XRC custom class example.',
+      description: 'wxRuby example showcasing a custom dialog class using XRC and a custom XmlSubclassFactory.',
+      thumbnail: 'tn_xrc_sample')
+  end
+
+  def self.run
+    XrcApp.new.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

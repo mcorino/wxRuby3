@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # A resizable control that displays its current size, and, if an AUI
@@ -1185,7 +1185,28 @@ class AuiFrame < Wx::Frame
     ctrl = Wx::HtmlWindow.new(parent, Wx::ID_ANY,
                               Wx::DEFAULT_POSITION,
                               Wx::Size.new(400, 300))
-    ctrl.set_page(DATA.read)
+    ctrl.set_page <<~__HTML
+      <html>
+      <head><title>Test page</title></head>
+      <body background="pic.png" bgcolor="#ffffff">
+      
+      <B>wxString</B> <B>FindFirst</B>(was there a space between 'g' and 'F'?)<P>
+      
+      <font size="+2">Unbre</font>akable word<P>
+      
+      <pre width="50%">
+      &lt;pre&gt; text, 50% wide
+      </pre>
+      
+      
+      <script>
+      some meaningless script < is this > </is> FIXME: write real jscript here
+      </script>
+      text after script <b>in bold</b>
+      
+      </body>
+      </html>
+      __HTML
     ctrl
   end
 
@@ -1285,6 +1306,23 @@ class AuiDemoApp < Wx::App
   end
 end
 
-AuiDemoApp.new.run
+module AUISample
 
-__END__
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby AUI example.',
+      description: 'wxRuby example demonstrating the AUI framework.')
+  end
+
+  def self.run
+    AuiDemoApp.new.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

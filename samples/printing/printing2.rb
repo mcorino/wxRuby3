@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby3 Sample Code. (converted from wxPython/Phoenix printing.py example)
 # Copyright (c) M.J.N. Corino, The Netherlands
-begin
-  require 'rubygems'
-rescue LoadError
-end
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 FONTSIZE = 10
@@ -228,32 +227,28 @@ class SamplePrintFrame < Wx::Frame
     end
     @pdata = data.print_data
   end
-
-  # def on_print_test(evt)
-  #   data = Wx::PrintDialogData(self.pdata)
-  #   dlg = Wx::PrintDialog(self, data)
-  #   if dlg.ShowModal() == Wx::ID_OK:
-  #     data = dlg.GetPrintDialogData()
-  #   print_()
-  #   print_("GetFromPage:", data.GetFromPage())
-  #   print_("GetToPage:", data.GetToPage())
-  #   print_("GetMinPage:", data.GetMinPage())
-  #   print_("GetMaxPage:", data.GetMaxPage())
-  #   print_("GetNoCopies:", data.GetNoCopies())
-  #   print_("GetAllPages:", data.GetAllPages())
-  #   print_("GetSelection:", data.GetSelection())
-  #   print_("GetCollate:", data.GetCollate())
-  #   print_("GetPrintToFile:", data.GetPrintToFile())
-  #
-  #   self.pdata = Wx::PrintData(data.GetPrintData())
-  #   print_()
-  #   print_("GetPrinterName:", self.pdata.GetPrinterName())
-  #
-  #   dlg.Destroy()
-  # end
 end
 
-Wx::App.new.run do
-  frame = SamplePrintFrame.new
-  frame.show
+module Printing2Sample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'Another wxRuby Printing example.',
+      description: 'Another wxRuby example showcasing printing framework.')
+  end
+
+  def self.run
+    Wx::App.new.run do
+      frame = SamplePrintFrame.new
+      frame.show
+    end
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
 end

@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 WXPRINT_QUIT = Wx::ID_EXIT
@@ -479,4 +479,23 @@ class MyApp < Wx::App
   end
 end
 
-MyApp.new.run
+module PrintingSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby Printing example.',
+      description: 'wxRuby example showcasing printing framework.')
+  end
+
+  def self.run
+    MyApp.new.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

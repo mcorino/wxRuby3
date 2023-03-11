@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 class MyTextCellEditor < Wx::GRID::GridCellTextEditor
@@ -23,7 +23,7 @@ class GridFrame < Wx::Frame
     super(parent, id, title, pos, size, style)
     sizer = Wx::BoxSizer.new(Wx::VERTICAL)
     create_status_bar
-    set_status_text(Wx::VERSION_STRING)
+    set_status_text(Wx::WXRUBY_VERSION)
 
     # panel = Wx::Panel.new(self)
     sel_menu = Wx::Menu.new
@@ -208,4 +208,23 @@ class GridApp < Wx::App
   end
 end
 
-GridApp.new.run
+module GridSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby Grid example.',
+      description: 'wxRuby example showcasing Grid control features.')
+  end
+
+  def self.run
+    GridApp.new.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

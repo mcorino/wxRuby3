@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
+require 'wx'
 
 # RichTextCtrl sample by Chauk-Mean Proum
 #
@@ -18,12 +23,6 @@
 #
 # Icons are taken from the Tango Icon Theme.
 # Disabled icons are created at runtime as darkened grayscale versions.
-
-begin
-  require 'rubygems'
-rescue LoadError
-end
-require 'wx'
 
 class RichTextFrame < Wx::Frame
 
@@ -287,11 +286,29 @@ class RichTextFrame < Wx::Frame
   end
 end
 
+module RichTextSample
 
-# The Application
-Wx::App.run do 
-  self.app_name = 'RichTextCtrl sample'
-  frame = RichTextFrame.new
-  frame.centre
-  frame.show
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby RichTextCtrl example.',
+      description: 'wxRuby example displaying a frame window showcasing a RichTextCtrl.')
+  end
+
+  def self.run
+    # The Application
+    Wx::App.run do
+      self.app_name = 'RichTextCtrl sample'
+      frame = RichTextFrame.new
+      frame.centre
+      frame.show
+    end
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
 end

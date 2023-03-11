@@ -1,12 +1,9 @@
 ###
-# Ribbon sample
+# wxRuby Ribbon sample
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-begin
-  require 'rubygems'
-rescue LoadError
-end
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 class MyFrame < Wx::Frame
@@ -872,11 +869,30 @@ class MyFrame < Wx::Frame
 
 end
 
-Wx::App.run do
-  self.gc_stress
+module RibbonSample
 
-  frame = MyFrame.new
-  frame.show(true)
+  include WxRuby::Sample
 
-  true
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'Ribbon wxRuby example.',
+      description: 'wxRuby example displaying frame window showcasing Ribbon framework.')
+  end
+
+  def self.run
+    Wx::App.run do
+      self.gc_stress
+
+      frame = MyFrame.new
+      frame.show(true)
+
+      true
+    end
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
 end

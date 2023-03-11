@@ -3,10 +3,7 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-begin
-  require 'rubygems'
-rescue LoadError
-end
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 require_relative './propgrid_minimal'
@@ -2682,23 +2679,42 @@ class FormMain < Wx::Frame
 
 end
 
-Wx::App.run do
-  frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
-                           (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
-  frameSize.width = 500 if frameSize.width > 500
+module PropgridSample
 
-  self.gc_stress
+  include WxRuby::Sample
 
-  frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
-  frame.show(true)
-
-  #
-  # Parse command-line
-  if ARGV.size>0 && ARGV[0] == '--run-tests'
-    #
-    # Run tests
-    return false if (testResult = frame.run_tests(true))
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby PropGrid example.',
+      description: 'wxRuby PropGrid example displaying frame showcasing PropgridManager.')
   end
 
-  true
+  def self.run
+    Wx::App.run do
+      frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
+                               (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
+      frameSize.width = 500 if frameSize.width > 500
+
+      self.gc_stress
+
+      frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
+      frame.show(true)
+
+      #
+      # Parse command-line
+      if ARGV.size>0 && ARGV[0] == '--run-tests'
+        #
+        # Run tests
+        return false if (testResult = frame.run_tests(true))
+      end
+
+      true
+    end
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
 end

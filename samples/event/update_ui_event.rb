@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # Demonstrating the use of evt_update_ui to keep menu items and controls
@@ -67,4 +69,23 @@ class UpdateUIFrame < Wx::Frame
   end
 end
 
-Wx::App.run { UpdateUIFrame.new.show }
+module UpdateUISample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'Simple wxRuby UpdateUIEvent example.',
+      description: 'Simple wxRuby example demonstrating UpdateUIEvent handling.')
+  end
+
+  def self.run
+    Wx::App.run { UpdateUIFrame.new.show }
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

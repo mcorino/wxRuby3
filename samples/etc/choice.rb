@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 include Wx
@@ -62,4 +62,23 @@ class RbApp < App
 
 end
 
-RbApp.new.run
+module ChoiceSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby Choice example.',
+      description: 'wxRuby example demonstrating the use of Wx::Choice control.')
+  end
+
+  def self.run
+    RbApp.new.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

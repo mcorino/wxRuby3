@@ -14,7 +14,7 @@ class MyAboutBox < Wx::Dialog
         rVersion.set_font(bodyFont)
         rVersion.set_foreground_colour(Wx::RED)
         
-        wxVersion = Wx::StaticText.new(self, -1, Wx::VERSION_STRING, Wx::Point.new(20,120))
+        wxVersion = Wx::StaticText.new(self, -1, Wx::WXWIDGETS_VERSION, Wx::Point.new(20,120))
         wxVersion.set_font(bodyFont)
         wxVersion.set_foreground_colour(Wx::BLUE)
         

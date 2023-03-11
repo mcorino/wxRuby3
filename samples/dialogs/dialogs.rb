@@ -1,15 +1,11 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
-
-
-require 'wx'
-
 
 include Wx
 
@@ -41,8 +37,6 @@ DIALOGS_STYLED_BUSYINFO = 25
 DIALOGS_FIND = 26
 DIALOGS_REPLACE = 27
 DIALOGS_PREFS = 28
-
-$my_canvas = nil
 
 class MyTipProvider < TipProvider
   TIPS = [
@@ -293,7 +287,7 @@ class MyFrame < Frame
 
   def on_choose_colour(event)
 
-    col = $my_canvas.get_background_colour()
+    col = MyApp.canvas.get_background_colour()
 
     data = ColourData.new
     data.set_colour(col)
@@ -308,9 +302,9 @@ class MyFrame < Frame
       if dialog.show_modal() == ID_OK
         retData = dialog.get_colour_data()
         col = retData.get_colour()
-        $my_canvas.set_background_colour(col)
+        MyApp.canvas.set_background_colour(col)
         #$my_canvas.clear()
-        $my_canvas.refresh()
+        MyApp.canvas.refresh()
       end
     end
   end
@@ -798,9 +792,14 @@ end
 
 
 class MyApp < App
+
+  class << self
+    attr_accessor :canvas
+  end
+
   attr_accessor :canvas_text_colour, :canvas_font
   
-  def on_init()
+  def on_init
     self.canvas_text_colour = Wx::Colour.new("BLACK")
     self.canvas_font        = Wx::NORMAL_FONT
     # Create the main frame window
@@ -846,17 +845,38 @@ class MyApp < App
     menu_bar.append(file_menu, "&File")
     frame.set_menu_bar(menu_bar)
 
-    $my_canvas = MyCanvas.new(frame)
-    $my_canvas.set_background_colour(WHITE)
+    MyApp.canvas = MyCanvas.new(frame)
+    MyApp.canvas.set_background_colour(WHITE)
 
     frame.centre(BOTH)
 
     # Show the frame
-    frame.show()
+    frame.show
+  end
+
+  def on_exit
+    MyApp.canvas = nil
   end
 end
 
-app = MyApp.new()
-app.run()
+module DialogsSample
 
-$my_canvas = nil
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby dialogs example.',
+      description: 'wxRuby example demonstrating various common dialogs.')
+  end
+
+  def self.run
+    app = MyApp.new
+    app.run
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
+end

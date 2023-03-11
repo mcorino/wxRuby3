@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
-
 # wxRuby2 Sample Code. Copyright (c) 2004-2009 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
+require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 include Wx
 include Math
@@ -114,9 +116,9 @@ end
 # A helper dialog for saving the image to a file
 class SaveImageDialog < FileDialog
   # The image file formats on offer
-  TYPES = [ [ "PNG file (*.png)|*.png", BITMAP_TYPE_PNG ],
-            [ "TIF file (*.tif)|*.tif", BITMAP_TYPE_TIF ],
-            [ "BMP file (*.bmp)|*.bmp", BITMAP_TYPE_BMP ] ]
+  TYPES = [ [ "PNG file (*.png)|*.png", Wx::BITMAP_TYPE_PNG ],
+            [ "TIF file (*.tif)|*.tif", Wx::BITMAP_TYPE_TIF ],
+            [ "BMP file (*.bmp)|*.bmp", Wx::BITMAP_TYPE_BMP ] ]
   
   WILDCARD = TYPES.map { | type | type.first }.join("|")
   
@@ -261,6 +263,25 @@ class MathsFrame < Frame
   end
 end
 
-App.run do
-  MathsFrame.new.show
+module MathImagesSample
+
+  include WxRuby::Sample
+
+  def self.describe
+    Description.new(
+      file: __FILE__,
+      summary: 'wxRuby math images example.',
+      description: 'wxRuby example demonstrating drawing using math functions.')
+  end
+
+  def self.run
+    Wx::App.run do
+      MathsFrame.new.show
+    end
+  end
+
+  if $0 == __FILE__
+    self.run
+  end
+
 end
