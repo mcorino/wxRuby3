@@ -6,6 +6,20 @@
 require 'rbconfig'
 require 'wx'
 
+class ::String
+
+  def modulize!
+    self.gsub!(/[^a-zA-Z0-9_]/, '_')
+    self.sub!(/^[a-z\d]*/) { $&.capitalize }
+    self.gsub!(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{$2.capitalize}" }
+    self
+  end
+
+  def modulize
+    self.dup.modulize!
+  end
+end
+
 module WxRuby
 
   module Sample
@@ -21,6 +35,10 @@ module WxRuby
 
       def path
         File.dirname(self.file)
+      end
+
+      def category
+        File.basename(path).modulize!
       end
 
       def image_file
@@ -54,48 +72,78 @@ module WxRuby
       end
     end
 
+    class SampleEntry
+      def initialize(mod)
+        @module = mod
+      end
+
+      def description
+        @description ||= @module.describe
+      end
+
+      def category
+        description.category
+      end
+    end
+
     class << self
 
       def samples
         @samples ||= []
       end
 
+      def categories
+        @categories ||= {}
+      end
+
+      def category_samples(cat)
+        categories[cat] ||= []
+      end
+
+      def sample_captures
+        @captures ||= []
+      end
+      private :sample_captures
+
       def collect_samples
         Dir[File.join(__dir__, '*')].each do |entry|
-          if 'bigdemo' != File.basename(entry) && File.directory?(entry)
-            Dir[File.join(entry, '*.rb')].each do |rb|
-              # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
-              if File.file?(rb) && File.readlines(rb).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
-                Kernel.eval((
-                              <<~__CODE
-                                  module #{modulize(File.basename(rb, '.*'))}_SampleLoader 
+          if File.directory?(entry)
+            category = File.basename(entry)
+            if 'bigdemo' !=  category
+              category.modulize!
+              Dir[File.join(entry, '*.rb')].each do |rb|
+                # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
+                if File.file?(rb) && File.readlines(rb).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
+                  Kernel.eval((
+                                <<~__CODE
+                                  module #{category}
+                                  module #{File.basename(rb, '.*').modulize!}_SampleLoader 
                                     #{File.read(rb)}
                                   end
-                              __CODE
-                            ),
-                            TOPLEVEL_BINDING, rb, 1)
+                                  end
+                                __CODE
+                              ),
+                              TOPLEVEL_BINDING, rb, 1)
+                  sample_captures.each do |mod|
+                    samples << (smpl = SampleEntry.new(mod))
+                    category_samples(smpl.category) << (samples.size-1)
+                  end
+                  sample_captures.clear
+                end
               end
             end
           end
         end
       end
 
-      def modulize(s)
-        s = s.gsub(/[^a-zA-Z0-9_]/, '_')
-        s.sub!(/^[a-z\d]*/) { $&.capitalize }
-        s.gsub!(/(?:_|(\/))([a-z\d]*)/i) { "#{$1}#{$2.capitalize}" }
-        s
-      end
-      private :modulize
-
       def run(sample_ix)
-        system(RUBY, '-I', File.join(__dir__, '..', 'lib'), samples[sample_ix].describe.file)
+        system(RUBY, '-I', File.join(__dir__, '..', 'lib'), samples[sample_ix].description.file)
       end
 
     end
 
     def self.included(mod)
-      samples << mod
+      sample_captures << mod
     end
 
   end
@@ -110,6 +158,8 @@ module WxRuby
     TB_CLOSE = Wx::ID_HIGHEST + 2001
     TB_CHANGE = Wx::ID_HIGHEST + 2002
     TB_REMOVE = Wx::ID_HIGHEST + 2003
+
+    CATEGORY_ID_MIN = Wx::ID_HIGHEST+4000
 
     SAMPLE_ID_MIN = Wx::ID_HIGHEST+6000
     RUN = 1
@@ -199,37 +249,18 @@ module WxRuby
       @scroll_panel = Wx::ScrolledWindow.new(@main_panel, Wx::ID_ANY, :size => [ 600, 400 ], style: Wx::VSCROLL)
       @scroll_panel.set_scroll_rate(15, 15)
       scroll_sizer = Wx::VBoxSizer.new
+      @category_panes = []
+      @category_thumbnails = []
       @sample_thumbnails = []
       @sample_panes = []
-      Sample.samples.each_with_index do |sample, sample_ix|
-        sample_desc = sample.describe
-
-        sample_panel = Wx::Panel.new(@scroll_panel, Wx::ID_ANY, style: Wx::SUNKEN_BORDER)
-        @sample_panes << (sample_pane = Wx::CollapsiblePane.new(sample_panel, ID.index_to_sample_id(sample_ix), sample_desc.summary))
-        pane = sample_pane.pane
-
-        sample_pane_sizer = Wx::HBoxSizer.new
-        sample_pane_sizer.add(Wx::StaticBitmap.new(pane, Wx::ID_ANY, sample_desc.image), 0, Wx::ALIGN_TOP)
-        sample_pane_ctrl_sizer = Wx::VBoxSizer.new
-        sample_pane_ctrl_sizer.add(Wx::StaticText.new(pane, Wx::ID_ANY, sample_desc.description), 0, Wx::ALL, 2)
-        sample_pane_ctrl_sizer.add(Wx::StaticLine.new(pane, Wx::ID_ANY, size: [30, 30], style: Wx::LI_HORIZONTAL|Wx::RAISED_BORDER), 0, Wx::EXPAND|Wx::ALL, 2)
-        sample_pane_ctrl_sizer.add(Wx::Button.new(pane, ID.index_to_run_id(sample_ix), 'Run sample'), 0, Wx::ALL, 2)
-        sample_pane_sizer.add(sample_pane_ctrl_sizer, 0, Wx::EXPAND, 2)
-        pane.sizer = sample_pane_sizer
-
-        sample_sizer = Wx::HBoxSizer.new
-        sample_sizer.add(sample_pane, 1, Wx::EXPAND, 4)
-        @sample_thumbnails << Wx::StaticBitmap.new(sample_panel, Wx::ID_ANY, sample_desc.thumbnail)
-        sample_sizer.add(@sample_thumbnails.last, 0, Wx::ALIGN_TOP)
-        sample_panel.sizer = sample_sizer
-        scroll_sizer.add(sample_panel, 0, Wx::EXPAND, 3)
-      end
+      Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(scroll_sizer, cat, cat_ix) }
       @scroll_panel.set_sizer(scroll_sizer)
 
       main_sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
       @main_panel.sizer = main_sizer
 
-      @expanded_sample_pane = nil
+      @expanded_sample = nil
+      @expanded_category = nil
 
       # Give the frame an icon. PNG is a good choice of format for
       # cross-platform images. Note that OS X doesn't have "Frame" icons.
@@ -271,6 +302,50 @@ module WxRuby
       @main_panel.layout
     end
 
+    def create_category_pane(scroll_sizer, cat, cat_ix)
+      category_panel = Wx::Panel.new(@scroll_panel, Wx::ID_ANY, style: Wx::RAISED_BORDER)
+      @category_panes << (category_pane = Wx::CollapsiblePane.new(category_panel, ID::CATEGORY_ID_MIN+cat_ix, "#{cat} samples"))
+      category_pane_win = category_pane.pane
+      category_pane_sizer = Wx::VBoxSizer.new
+
+      Sample.category_samples(cat).each do |sample_ix|
+        sample = Sample.samples[sample_ix]
+        sample_desc = sample.description
+
+        sample_panel = Wx::Panel.new(category_pane_win, Wx::ID_ANY, style: Wx::SUNKEN_BORDER)
+        @sample_panes << (sample_pane = Wx::CollapsiblePane.new(sample_panel, ID.index_to_sample_id(sample_ix), sample_desc.summary))
+        pane = sample_pane.pane
+
+        sample_pane_sizer = Wx::HBoxSizer.new
+        sample_pane_sizer.add(Wx::StaticBitmap.new(pane, Wx::ID_ANY, sample_desc.image), 0, Wx::ALIGN_TOP)
+        sample_pane_ctrl_sizer = Wx::VBoxSizer.new
+        sample_pane_ctrl_sizer.add(Wx::StaticText.new(pane, Wx::ID_ANY, sample_desc.description), 0, Wx::ALL, 2)
+        sample_pane_ctrl_sizer.add(Wx::StaticLine.new(pane, Wx::ID_ANY, size: [30, 30], style: Wx::LI_HORIZONTAL|Wx::RAISED_BORDER), 0, Wx::EXPAND|Wx::ALL, 2)
+        sample_pane_ctrl_sizer.add(Wx::Button.new(pane, ID.index_to_run_id(sample_ix), 'Run sample'), 0, Wx::ALL, 2)
+        sample_pane_sizer.add(sample_pane_ctrl_sizer, 0, Wx::EXPAND, 2)
+        pane.sizer = sample_pane_sizer
+        sample_pane_sizer.set_size_hints(pane)
+
+        sample_sizer = Wx::HBoxSizer.new
+        sample_sizer.add(sample_pane, 1, Wx::EXPAND|Wx::ALL, 4)
+        @sample_thumbnails << Wx::StaticBitmap.new(sample_panel, Wx::ID_ANY, sample_desc.thumbnail)
+        sample_sizer.add(@sample_thumbnails.last, 0, Wx::ALIGN_TOP)
+        sample_panel.sizer = sample_sizer
+        category_pane_sizer.add(sample_panel, 0, Wx::EXPAND|Wx::ALL, 3)
+      end
+
+      category_pane_win.sizer = category_pane_sizer
+      category_pane_sizer.set_size_hints(category_pane_win)
+
+      category_sizer = Wx::HBoxSizer.new
+      @category_thumbnails << Wx::StaticBitmap.new(category_panel, Wx::ID_ANY, Wx::ArtProvider::get_bitmap(Wx::ART_FOLDER, Wx::ART_OTHER, [32,32]))
+      category_sizer.add(category_pane, 1, Wx::EXPAND|Wx::ALL, 2)
+      category_sizer.add(@category_thumbnails.last, 0, Wx::ALIGN_TOP)
+      category_panel.sizer = category_sizer
+
+      scroll_sizer.add(category_panel, 0, Wx::EXPAND|Wx::ALL, 3)
+    end
+
     def on_run_sample(_evt)
       if ID.id_is_run_button?(_evt.id)
         sample_ix = ID.run_id_to_sample_index(_evt.id)
@@ -279,17 +354,32 @@ module WxRuby
     end
 
     def on_sample_pane_changed(_evt)
-      sample_ix = ID.id_to_sample_index(_evt.id)
-      if _evt.collapsed
-        @sample_thumbnails[sample_ix].show
-        @expanded_sample_pane = nil
-      else
-        @sample_thumbnails[sample_ix].hide
-        if @expanded_sample_pane
-          @sample_thumbnails[@expanded_sample_pane].show
-          @sample_panes[@expanded_sample_pane].collapse
+      if _evt.id < ID::SAMPLE_ID_MIN
+        cat_ix = _evt.id - ID::CATEGORY_ID_MIN
+        if _evt.collapsed
+          @category_thumbnails[cat_ix].show
+          @expanded_category = nil
+        else
+          @category_thumbnails[cat_ix].hide
+          if @expanded_category
+            @category_thumbnails[@expanded_category].show
+            @category_panes[@expanded_category].collapse
+          end
+          @expanded_category = cat_ix
         end
-        @expanded_sample_pane = sample_ix
+      else
+        sample_ix = ID.id_to_sample_index(_evt.id)
+        if _evt.collapsed
+          @sample_thumbnails[sample_ix].show
+          @expanded_sample = nil
+        else
+          @sample_thumbnails[sample_ix].hide
+          if @expanded_sample
+            @sample_thumbnails[@expanded_sample].show
+            @sample_panes[@expanded_sample].collapse
+          end
+          @expanded_sample = sample_ix
+        end
       end
       @main_panel.layout
     end
