@@ -189,15 +189,14 @@ module DragDropSample
     )
   end
 
-  def self.run
-    Wx::App.run do
-      frame = DataObjectFrame.new(nil)
-      frame.show
-    end
+  def self.activate
+    frame = DataObjectFrame.new(nil)
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { DragDropSample.activate }
   end
 
 end

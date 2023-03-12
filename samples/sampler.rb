@@ -75,6 +75,8 @@ module WxRuby
     class SampleEntry
       def initialize(mod)
         @module = mod
+        @runner = nil
+        @description = nil
       end
 
       def description
@@ -83,6 +85,61 @@ module WxRuby
 
       def category
         description.category
+      end
+
+      def run
+        @runner = @module.run
+      end
+
+      def close
+        @runner.close if @runner
+        @runner = nil
+      end
+
+      def close_window(win)
+        if EmbeddedRunner === @runner && @runner.frame == win
+          @runner.frame = nil
+        end
+      end
+
+      class EmbeddedRunner
+        def initialize(frame)
+          @frame = frame
+        end
+        attr_accessor :frame
+        def close
+          @frame.close(true) if @frame
+        end
+      end
+
+      class SpawnedRunner
+        def initialize(pid)
+          @pid = pid
+        end
+
+        def check_status
+          begin
+            tmp, status = ::Process.waitpid2(@pid, ::Process::WNOHANG)
+            if tmp==@pid and status.success? == false
+              return false
+            end
+            return true
+          rescue Errno::ECHILD, Errno::ESRCH
+            return false
+          end
+        end
+        private :check_status
+
+        def close
+          if check_status
+            ::Process.kill('SIGKILL', @pid) rescue Errno::ESRCH
+            10.times do
+              sleep(0.1)
+              return unless check_status
+            end
+            ::Process.kill('SIGKILL', @pid) if check_status
+          end
+        end
       end
     end
 
@@ -136,13 +193,25 @@ module WxRuby
         end
       end
 
-      def run(sample_ix)
-        system(RUBY, '-I', File.join(__dir__, '..', 'lib'), samples[sample_ix].description.file)
+    end
+
+    module SampleMethods
+      def activate
+        raise NotImplementedError, '#activate needs an override'
       end
 
+      def run
+        SampleEntry::EmbeddedRunner.new(activate)
+      end
+
+      def execute(sample_file)
+        SampleEntry::SpawnedRunner.new(::Process.spawn(RUBY, '-I', File.join(__dir__, '..', 'lib'), sample_file))
+      end
+      private :execute
     end
 
     def self.included(mod)
+      mod.extend SampleMethods
       sample_captures << mod
     end
 
@@ -151,6 +220,7 @@ module WxRuby
 end
 
 if $0 == __FILE__
+
 module WxRuby
 
   module ID
@@ -261,6 +331,7 @@ module WxRuby
 
       @expanded_sample = nil
       @expanded_category = nil
+      @running_sample = nil
 
       # Give the frame an icon. PNG is a good choice of format for
       # cross-platform images. Note that OS X doesn't have "Frame" icons.
@@ -301,6 +372,8 @@ module WxRuby
 
       @main_panel.layout
     end
+
+    attr_reader :running_sample
 
     def create_category_pane(scroll_sizer, cat, cat_ix)
       category_panel = Wx::Panel.new(@scroll_panel, Wx::ID_ANY, style: Wx::RAISED_BORDER)
@@ -348,14 +421,20 @@ module WxRuby
 
     def on_run_sample(_evt)
       if ID.id_is_run_button?(_evt.id)
-        sample_ix = ID.run_id_to_sample_index(_evt.id)
-        Sample.run(sample_ix)
+        Sample.samples[@running_sample].close if @running_sample
+        @running_sample = ID.run_id_to_sample_index(_evt.id)
+        Sample.samples[@running_sample].run
       end
     end
 
     def on_sample_pane_changed(_evt)
       if _evt.id < ID::SAMPLE_ID_MIN
         cat_ix = _evt.id - ID::CATEGORY_ID_MIN
+        if @expanded_sample
+          @sample_thumbnails[@expanded_sample].show
+          @sample_panes[@expanded_sample].collapse
+          @expanded_sample = nil
+        end
         if _evt.collapsed
           @category_thumbnails[cat_ix].show
           @expanded_category = nil
@@ -385,6 +464,7 @@ module WxRuby
     end
 
     def on_close(_evt)
+      Sample.samples[@running_sample].close if @running_sample
       @tbicon.remove_icon
       destroy
     end
@@ -412,14 +492,26 @@ module WxRuby
   end
 end
 
-  Wx::App.run do
-    WxRuby::Sample.collect_samples
-    if WxRuby::Sample.samples.empty?
-      STDERR.puts 'No samples available here.'
-      false
-    else
-      frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
-      frame.show
+Wx::App.run do
+  self.set_app_name('wxRuby Sampler')
+
+  @frame = nil
+
+  evt_window_destroy do |evt|
+    unless @frame.nil? || @frame == evt.window
+      WxRuby::Sample.samples[@frame.running_sample].close_window(evt.window) if @frame.running_sample
     end
+    evt.skip
   end
+
+  WxRuby::Sample.collect_samples
+  if WxRuby::Sample.samples.empty?
+    STDERR.puts 'No samples available here.'
+    false
+  else
+    @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
+    @frame.show
+  end
+end
+
 end

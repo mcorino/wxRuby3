@@ -111,15 +111,33 @@ module ThreadSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby threading example.',
-      description: 'wxRuby example demonstrating how to use ruby threads in wxRuby windows in combination with either event queuing and/or asynchronous calling (#call_after).')
+      description: <<~__TXT
+        wxRuby example demonstrating how to use ruby threads in wxRuby.
+        This simple sample demonstrates how to use Ruby (green) threads
+        to execute non-GUI code in parallel with a wxRuby
+        GUI. This strategy is useful in a number of situations:
+        
+        * To keep the GUI responsive whilst computationally intensive
+          operations are carried out in the background
+        * To keep the GUI responsive while waiting for networking operations
+          to complete 
+        
+        The basic problem is that, as with other Ruby GUI toolkits, non-GUI
+        threads will not, by default, get allocated time to run while Ruby is
+        busy in Wx code - the main wxRuby event loop. Strategies to deal with
+        this include using non-blocking IO, and, more generically, using
+        wxRuby's Timer class to explicitly allocate time for non-GUI threads
+        to run. The latter technique is shown here.
+        __TXT
+    )
   end
 
   def self.run
-    GaugeApp.new.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    GaugeApp.run
   end
 
 end

@@ -239,15 +239,6 @@ class SettingsFrame < Wx::Frame
   end
 end
 
-class MyApp < Wx::App
-  def on_init
-    frame = SettingsFrame.new("System Settings", 
-                        Wx::DEFAULT_POSITION,
-                        Wx::Size.new(600, 400) )
-    frame.show(true)
-  end
-end
-
 module SystemSettingsSample
 
   include WxRuby::Sample
@@ -259,13 +250,16 @@ module SystemSettingsSample
       description: 'wxRuby example demonstrating using SystemSettings and displaying various system settings in a grid.')
   end
 
-  def self.run
-    # run the app
-    MyApp.new.run
+  def self.activate
+    frame = SettingsFrame.new("System Settings",
+                              Wx::DEFAULT_POSITION,
+                              Wx::Size.new(600, 400) )
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { SystemSettingsSample.activate }
   end
 
 end

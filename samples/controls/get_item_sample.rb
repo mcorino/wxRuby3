@@ -109,12 +109,11 @@ module GetItemSample
   end
 
   def self.run
-    app = RbApp.new
-    app.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    RbApp.run
   end
 
 end

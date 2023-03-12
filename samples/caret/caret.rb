@@ -269,14 +269,6 @@ class MyFrame < Frame
   end
 end
 
-class CaretApp < App
-  def on_init    
-    frame = MyFrame.new("Caret Windows sample", 
-                        Point.new(50, 50), Size.new(450, 340))
-    frame.show(true)
-  end
-end
-
 module CaretSample
 
   include WxRuby::Sample
@@ -289,12 +281,15 @@ module CaretSample
   end
 
   def self.run
-    a = CaretApp.new
-    a.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      frame = MyFrame.new("Caret Windows sample",
+                          Point.new(50, 50), Size.new(450, 340))
+      frame.show(true)
+    end
   end
 
 end

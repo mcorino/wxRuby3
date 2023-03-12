@@ -167,14 +167,14 @@ module GridTableSample
       description: 'wxRuby example showcasing a custom GridTable for a Grid control.')
   end
 
-  def self.run
-    Wx::App.run do
-      GridFrame.new.show
-    end
+  def self.activate
+    frame = GridFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { GridTableSample.activate }
   end
 
 end

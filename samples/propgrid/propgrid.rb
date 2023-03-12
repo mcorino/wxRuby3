@@ -2690,31 +2690,20 @@ module PropgridSample
       description: 'wxRuby PropGrid example displaying frame showcasing PropgridManager.')
   end
 
-  def self.run
-    Wx::App.run do
-      frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
-                               (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
-      frameSize.width = 500 if frameSize.width > 500
-
-      self.gc_stress
-
-      frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
-      frame.show(true)
-
-      #
-      # Parse command-line
-      if ARGV.size>0 && ARGV[0] == '--run-tests'
-        #
-        # Run tests
-        return false if (testResult = frame.run_tests(true))
-      end
-
-      true
-    end
+  def self.activate
+    frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
+                             (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
+    frameSize.width = 500 if frameSize.width > 500
+    frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      gc_stress
+      PropgridSample.activate
+    end
   end
 
 end

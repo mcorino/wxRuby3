@@ -192,16 +192,6 @@ class TargetFrame < Wx::Frame
   end
 end
 
-class TargetApp < Wx::App
-  def on_init
-    TargetFrame.new("Event Handling Sample").show
-    return true
-  end
-  def on_exit
-    STDERR.puts 'TargetApp#on_exit'
-  end
-end
-
 module EventSample
 
   include WxRuby::Sample
@@ -210,16 +200,23 @@ module EventSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby event handling example.',
-      description: 'wxRuby example demonstrating event handling.')
+      description: <<~__TXT
+        wxRuby example demonstrating event handling.
+        This sample demonstrates how to dynamically connect and disconnect
+        event handlers, and how to create custom event types and listeners
+        associated with user-defined control classes.
+        __TXT
+    )
   end
 
-  def self.run
-    a = TargetApp.new
-    a.run
+  def self.activate
+    frame = TargetFrame.new("Event Handling Sample")
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { EventSample.activate }
   end
 
 end

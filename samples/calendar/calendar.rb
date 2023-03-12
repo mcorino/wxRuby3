@@ -343,13 +343,6 @@ class MyDialog < Dialog
 
 end
 
-class RbApp < App
-  def on_init()
-    frame = MyFrame.new("Calendar Windows sample")
-    frame.show(true)
-  end
-end
-
 module CalendarSample
 
   include WxRuby::Sample
@@ -362,11 +355,11 @@ module CalendarSample
   end
 
   def self.run
-    RbApp.new.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { MyFrame.new("Calendar Windows sample").show(true) }
   end
 
 end

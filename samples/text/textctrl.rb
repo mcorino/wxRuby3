@@ -111,17 +111,16 @@ module TextCtrlSample
       description: 'wxRuby example displaying a frame window showcasing a TextCtrl.')
   end
 
-  def self.run
-    Wx::App.run do
-      frame = TextCtrlFrame.new( :title => "TextCtrl demonstration",
-                                 :pos => [ 50, 50 ],
-                                 :size => [ 450, 340 ] )
-      frame.show
-    end
+  def self.activate
+    frame = TextCtrlFrame.new( :title => "TextCtrl demonstration",
+                               :pos => [ 50, 50 ],
+                               :size => [ 450, 340 ] )
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { TextCtrlSample.activate }
   end
 
 end

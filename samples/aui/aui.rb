@@ -1295,17 +1295,6 @@ class AuiFrame < Wx::Frame
   end
 end
 
-class AuiDemoApp < Wx::App
-  def on_init
-    frame = AuiFrame.new(nil, Wx::ID_ANY, "Wx::AUI Sample Application",
-                         Wx::DEFAULT_POSITION,
-                         Wx::Size.new(800, 600))
-    set_top_window(frame)
-    frame.show
-    return true
-  end
-end
-
 module AUISample
 
   include WxRuby::Sample
@@ -1317,12 +1306,16 @@ module AUISample
       description: 'wxRuby example demonstrating the AUI framework.')
   end
 
-  def self.run
-    AuiDemoApp.new.run
+  def self.activate
+    frame = AuiFrame.new(nil, Wx::ID_ANY, "Wx::AUI Sample Application",
+                         Wx::DEFAULT_POSITION,
+                         Wx::Size.new(800, 600))
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { AUISample.activate }
   end
 
 end

@@ -213,16 +213,6 @@ class IConvFrame < Wx::Frame
   end
 end
 
-class IConvApp < Wx::App
-  def on_init
-    frame = IConvFrame.new("Unicode demonstration - ",
-                           Wx::Point.new(50, 50),
-                           Wx::Size.new(450, 450) )
-
-    frame.show(true)
-  end
-end
-
 module UnicodeSample
 
   include WxRuby::Sample
@@ -234,12 +224,17 @@ module UnicodeSample
       description: 'wxRuby example showcasing unicode support.')
   end
 
-  def self.run
-    IConvApp.new.run
+  def self.activate
+    frame = IConvFrame.new("Unicode demonstration - ",
+                           Wx::Point.new(50, 50),
+                           Wx::Size.new(450, 450) )
+
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { UnicodeSample.activate }
   end
 
 end

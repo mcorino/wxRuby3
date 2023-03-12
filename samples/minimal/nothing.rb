@@ -18,18 +18,23 @@ module EmptySample
       description: 'wxRuby example displaying empty frame window.')
   end
 
+  def self.activate
+    frame = Wx::Frame.new(nil, title: "Empty wxRuby App")
+    frame.show
+    frame
+  end
+
   def self.run
-    # This is the minimum code to start a WxRuby app - create a Frame, and
-    # show it.
-    Wx::App.run do
-      self.app_name = 'Nothing'
-      frame = Wx::Frame.new(nil, title: "Empty wxRuby App")
-      frame.show
-    end
+    execute(__FILE__)
   end
 
-  if $0 == __FILE__
-    self.run
-  end
+end
 
+if $0 == __FILE__
+  # This is the minimum code to start a WxRuby app - create a Frame, and
+  # show it.
+  Wx::App.run do
+    self.app_name = 'Nothing'
+    EmptySample.activate
+  end
 end

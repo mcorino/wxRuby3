@@ -109,15 +109,23 @@ module ActivationSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby Activate events example.',
-      description: 'wxRuby example demonstrating the use of Activate Events.')
+      description: <<~__TXT
+        wxRuby example demonstrating the use of Activate Events.
+        This sample demonstrates the use of Activate Events. These are
+        generated when a frame becomes active or inactive. This is typically
+        indicated by a frame's titlebar changing colour, and a widget within
+        the frame gainin focus. An event is also generated when a whole wxRuby
+        app starts or stops being the current focussed desktop application.
+        __TXT
+    )
   end
 
   def self.run
-    RbApp.new.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    RbApp.run
   end
 
 end

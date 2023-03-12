@@ -491,11 +491,11 @@ module PrintingSample
   end
 
   def self.run
-    MyApp.new.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    MyApp.run
   end
 
 end

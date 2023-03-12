@@ -294,21 +294,35 @@ module RichTextSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby RichTextCtrl example.',
-      description: 'wxRuby example displaying a frame window showcasing a RichTextCtrl.')
+      description: <<~__TXT 
+        wxRuby example displaying a frame window showcasing a RichTextCtrl.
+        RichTextCtrl is a sophisticated styled text editing component.
+        This sample illustrates a basic but functional rich editor featuring :
+        - file loading/saving
+        - text formatting
+        - change undo/redo
+        - selection copy/cut and clipboard paste
+        - font preferences
+        RichTextCtrl supports numerous other text characteristics (colour, super/subscript),
+        as well as paragraph alignment and spacing, and bullets.
+        It permits named text styles to be created and organised in stylesheets.
+        Facilities are also provided for printing.
+      __TXT
+      )
   end
 
-  def self.run
-    # The Application
-    Wx::App.run do
-      self.app_name = 'RichTextCtrl sample'
-      frame = RichTextFrame.new
-      frame.centre
-      frame.show
-    end
+  def self.activate
+    frame = RichTextFrame.new
+    frame.centre
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      self.app_name = 'RichTextCtrl sample'
+      RichTextSample.activate
+    end
   end
 
 end

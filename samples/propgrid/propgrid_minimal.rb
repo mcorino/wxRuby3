@@ -91,16 +91,16 @@ unless defined? PropgridSample
     end
 
     def self.run
+      execute(__FILE__)
+    end
+
+    if $0 == __FILE__
       Wx::App.run do
         self.app_name = 'Minimal PropertyGrid'
         Wx::Log::set_active_target(Wx::LogStderr.new)
         gc_stress
         display_minimal_frame
       end
-    end
-
-    if $0 == __FILE__
-      self.run
     end
 
   end

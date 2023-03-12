@@ -16,8 +16,8 @@ require 'wx'
 # - Wx::Image, which allows a wide range of manipulations such as rescaling
 # and writing to files.
 # - Wx::Bitmap, which is a platform-specific representation of an image.
-# This is the class that must be used to actually display an image.
 
+# This is the class that must be used to actually display an image.
 class ImageFrame < Wx::Frame
   def initialize
     super(nil, :title => 'Simple image demo', :size => [600, 600])
@@ -94,17 +94,26 @@ module BitmapImageSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby bitmap image example.',
-      description: 'wxRuby example demonstrating how to draw the same image in various forms (original, mirrored, greyscaled and blurred).')
+      description: <<~__TXT
+        wxRuby example demonstrating how to draw the same image in various forms (original, mirrored, greyscaled and blurred).
+        This sample uses :
+        - Wx::Image, which allows a wide range of manipulations such as rescaling
+        and writing to files.
+        - Wx::Bitmap, which is a platform-specific representation of an image.
+        __TXT
+    )
   end
 
-  def self.run
-    Wx::App.run do
-      ImageFrame.new.show
-    end
+  def self.activate
+    frame = ImageFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      BitmapImageSample.activate
+    end
   end
 
 end

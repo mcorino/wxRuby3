@@ -68,15 +68,6 @@ class MyFrame < Wx::Frame
   end
 end
 
-class RbApp < Wx::App
-  def on_init
-    frame = MyFrame.new("Mini Frame wxRuby App",
-                        Wx::Point.new(50, 50), 
-                        Wx::Size.new(450, 340))
-    frame.show
-  end
-end
-
 module ActivationSample
 
   include WxRuby::Sample
@@ -88,12 +79,16 @@ module ActivationSample
       description: 'wxRuby example demonstrating the use of Wx::MinFrame.')
   end
 
-  def self.run
-    RbApp.new.run
+  def self.activate
+    frame = MyFrame.new("Mini Frame wxRuby App",
+                        Wx::Point.new(50, 50),
+                        Wx::Size.new(450, 340))
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { ActivationSample.activate }
   end
 
 end

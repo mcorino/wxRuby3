@@ -270,11 +270,11 @@ module HTMLSample
   end
 
   def self.run
-    HtmlApp.new.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    HtmlApp.run
   end
 
 end

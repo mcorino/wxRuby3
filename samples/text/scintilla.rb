@@ -153,14 +153,6 @@ class MyFrame < Frame
 
 end
 
-class RbApp < App
-  def on_init
-    frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
-
-    frame.show(true)
-  end
-end
-
 module STCSample
 
   include WxRuby::Sample
@@ -173,15 +165,17 @@ module STCSample
   end
 
   def self.run
-    a = RbApp.new
-    a.run
-    puts("back from run...") if Wx::RB_DEBUG
-    GC.start
-    puts("survived gc") if Wx::RB_DEBUG
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
+      frame.show(true)
+    end
+    puts("back from run...") if Wx::RB_DEBUG
+    GC.start
+    puts("survived gc") if Wx::RB_DEBUG
   end
 
 end

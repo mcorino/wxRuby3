@@ -77,20 +77,21 @@ module MinimalSample
       description: 'Minimal wxRuby example displaying minimal frame window with menu.')
   end
 
-  def self.run
+  def self.activate
+    frame = MinimalFrame.new("Minimal wxRuby App")
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
     # Wx::App is the container class for any wxRuby3 app. To start an
     # application, either create an app instance (from Wx::App or a class
     # derived from Wx::App) and call its run method OR simply call the
     # Wx::App.run class method as shown here.
     Wx::App.run do
       self.app_name = 'Minimal'
-      frame = MinimalFrame.new("Minimal wxRuby App")
-      frame.show
+      MinimalSample.activate
     end
-  end
-
-  if $0 == __FILE__
-    self.run
   end
 
 end

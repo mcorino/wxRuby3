@@ -10,7 +10,7 @@ require 'wx'
 # Basic Frame Class. This creates the dialog window
 class SimpleFrame < Wx::Frame 
   def initialize
-    super nil, :title => "Sample", :pos => [50, 50], :size => [300, 300]
+    super nil, :title => "Custom XRC Dialog Sample", :pos => [50, 50], :size => [300, 300]
 
     txt = "Choose 'Open Dialog' from the menu to see a dialog made with XRC"
     Wx::StaticText.new self, :label => txt, :pos => [20, 20]
@@ -54,22 +54,6 @@ class CustomDialogXmlFactory < Wx::XmlSubclassFactory
   end
 end
 
-# Application class.
-class XrcApp < Wx::App
-
-  def on_init
-    # add the CustomDialog XML factory
-    Wx::XmlResource.add_subclass_factory(CustomDialogXmlFactory.new)
-    # Get a new resources object
-    xrc_file = File.join( File.dirname(__FILE__), 'custom_dialog.xrc' )
-    $xml = Wx::XmlResource.new(xrc_file)
-
-    # Show the main frame.
-    main = SimpleFrame.new
-    main.show(true)
-  end
-end
-
 module CustomXrcSample
 
   include WxRuby::Sample
@@ -82,12 +66,21 @@ module CustomXrcSample
       thumbnail: 'tn_xrc_sample')
   end
 
-  def self.run
-    XrcApp.new.run
+  def self.activate
+    # add the CustomDialog XML factory
+    Wx::XmlResource.add_subclass_factory(CustomDialogXmlFactory.new)
+    # Get a new resources object
+    xrc_file = File.join( File.dirname(__FILE__), 'custom_dialog.xrc' )
+    $xml = Wx::XmlResource.new(xrc_file)
+
+    # Show the main frame.
+    main = SimpleFrame.new
+    main.show(true)
+    main
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { CustomXrcSample.activate }
   end
 
 end

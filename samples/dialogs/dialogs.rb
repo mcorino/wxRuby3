@@ -871,12 +871,11 @@ module DialogsSample
   end
 
   def self.run
-    app = MyApp.new
-    app.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    MyApp.run
   end
 
 end

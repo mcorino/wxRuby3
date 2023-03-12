@@ -80,12 +80,14 @@ module UpdateUISample
       description: 'Simple wxRuby example demonstrating UpdateUIEvent handling.')
   end
 
-  def self.run
-    Wx::App.run { UpdateUIFrame.new.show }
+  def self.activate
+    frame = UpdateUIFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { UpdateUISample.activate }
   end
 
 end

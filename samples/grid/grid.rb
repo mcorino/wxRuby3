@@ -197,17 +197,6 @@ class GridFrame < Wx::Frame
   
 end
 
-class GridApp < Wx::App
-  def on_init
-    frame = GridFrame.new(nil, -1, "Grid Sample",
-                         Wx::Point.new(10, 100),
-                         Wx::Size.new(630,400))
-    gc_stress
-    set_top_window(frame)
-    frame.show
-  end
-end
-
 module GridSample
 
   include WxRuby::Sample
@@ -219,12 +208,19 @@ module GridSample
       description: 'wxRuby example showcasing Grid control features.')
   end
 
-  def self.run
-    GridApp.new.run
+  def self.activate
+    frame = GridFrame.new(nil, -1, "Grid Sample",
+                          Wx::Point.new(10, 100),
+                          Wx::Size.new(630,400))
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      gc_stress
+      GridSample.activate
+    end
   end
 
 end

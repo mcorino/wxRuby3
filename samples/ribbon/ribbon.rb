@@ -880,19 +880,17 @@ module RibbonSample
       description: 'wxRuby example displaying frame window showcasing Ribbon framework.')
   end
 
-  def self.run
-    Wx::App.run do
-      self.gc_stress
-
-      frame = MyFrame.new
-      frame.show(true)
-
-      true
-    end
+  def self.activate
+    frame = MyFrame.new
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      self.gc_stress
+      RibbonSample.activate
+    end
   end
 
 end

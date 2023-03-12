@@ -98,13 +98,6 @@ class ScrollFrame < Wx::Frame
 
 end
 
-class ScrollingApp < Wx::App
-  def on_init
-    frame = ScrollFrame.new('')
-    frame.show(true)
-  end
-end
-
 module ScrollwinSample
 
   include WxRuby::Sample
@@ -116,12 +109,14 @@ module ScrollwinSample
       description: 'wxRuby example demonstrating the use of Wx::ScrolledWindow and the ScrollWinEvents.')
   end
 
-  def self.run
-    ScrollingApp.new.run
+  def self.activate
+    frame = ScrollFrame.new('')
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { ScrollwinSample.activate }
   end
 
 end

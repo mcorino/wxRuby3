@@ -61,15 +61,11 @@ end
 
 class RbApp < Wx::App
   def on_init
-    frame = MyFrame.new("Wizard wxRuby App",
-                        Wx::Point.new(50, 50), 
-                        Wx::Size.new(450, 340))
-    frame.show(true)
 
   end
 end
 
-module GridSample
+module WizardSample
 
   include WxRuby::Sample
 
@@ -80,12 +76,16 @@ module GridSample
       description: 'wxRuby example demonstrating Wizard dialog.')
   end
 
-  def self.run
-    RbApp.new.run
+  def self.activate
+    frame = MyFrame.new("Wizard wxRuby App",
+                        Wx::Point.new(50, 50),
+                        Wx::Size.new(450, 340))
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { WizardSample.activate }
   end
 
 end

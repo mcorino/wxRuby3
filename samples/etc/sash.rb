@@ -115,17 +115,6 @@ class MySashFrame < Wx::Frame
   end
 end
 
-class SashApp < Wx::App
-  def on_init
-    frame = MySashFrame.new("Sash Layout wxRuby App",
-                            Wx::Point.new(50, 50), 
-                            Wx::Size.new(450, 340))
-
-    frame.show(true)
-
-  end
-end
-
 module SashSample
 
   include WxRuby::Sample
@@ -137,12 +126,17 @@ module SashSample
       description: 'wxRuby example demonstrating the use of Wx::SashLayoutWindow.')
   end
 
-  def self.run
-    SashApp.new.run
+  def self.activate
+    frame = MySashFrame.new("Sash Layout wxRuby App",
+                            Wx::Point.new(50, 50),
+                            Wx::Size.new(450, 340))
+
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { SashSample.activate }
   end
 
 end

@@ -233,12 +233,6 @@ class GraphicsFrame < Wx::Frame
   end
 end
 
-class GraphicsApp < Wx::App
-  def on_init()
-    GraphicsFrame.new.show
-  end
-end
-
 module GraphicsSample
 
   include WxRuby::Sample
@@ -250,12 +244,14 @@ module GraphicsSample
       description: 'wxRuby example demonstrating drawing text and geometrical shapes.')
   end
 
-  def self.run
-    GraphicsApp.new.run
+  def self.activate
+    frame = GraphicsFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { GraphicsSample.activate }
   end
 
 end

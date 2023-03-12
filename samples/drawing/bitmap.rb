@@ -51,17 +51,28 @@ module BitmapSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby bitmap example.',
-      description: 'wxRuby example demonstrating how to draw an image from a file onto a window. This one uses a small PNG file, but other formats such as JPEG are supported.')
+      description: <<~__TXT
+        wxRuby example demonstrating how to draw an image from a file onto a window.
+        This sample demonstrates how to draw an image from a file onto a
+        window. This one uses a small PNG file, but other formats such as JPEG
+        are supported - see documentation for more details.
+        
+        This sample uses the Wx::Bitmap class, which is a platform-specific
+        representation of an image. This is the class that must be used to
+        display an image, but see also Wx::Image, which allows a much wider
+        range of manipulations (such as rescaling) and writing to files.
+        __TXT
+    )
   end
 
-  def self.run
-    Wx::App.run do
-      ImageFrame.new.show
-    end
+  def self.activate
+    frame = ImageFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { BitmapSample.activate }
   end
 
 end

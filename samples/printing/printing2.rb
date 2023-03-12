@@ -240,15 +240,14 @@ module Printing2Sample
       description: 'Another wxRuby example showcasing printing framework.')
   end
 
-  def self.run
-    Wx::App.new.run do
-      frame = SamplePrintFrame.new
-      frame.show
-    end
+  def self.activate
+    frame = SamplePrintFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run { Printing2Sample.activate }
   end
 
 end

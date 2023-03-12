@@ -271,17 +271,37 @@ module MathImagesSample
     Description.new(
       file: __FILE__,
       summary: 'wxRuby math images example.',
-      description: 'wxRuby example demonstrating drawing using math functions.')
+      description: <<~__TXT
+        wxRuby example demonstrating drawing using math functions.
+        This sample was originally written by Alex Fenton as an answer to Ruby
+        Quiz #191, which challenged entrants to create an application which
+        could draw images based on mathematical functions:
+        
+        http://rubyquiz.strd6.com/quizzes/191/
+        
+        To use the application, enter functions which take input values of x
+        and y from 0 to 1, and return intensities of red, green and blue. If a
+        bad function is entered, a cross is displayed; hover over this to get
+        a hint on the problem.
+        
+        The sample demonstrates some uses of the Wx::Image class, a
+        platform-independent representation of an image which can be
+        manipulated (for example, resizing) and written to files in various
+        formats. It also shows how an image's rgb data can be written directly, by
+        using Array#pack.
+        __TXT
+    )
   end
 
   def self.run
-    Wx::App.run do
-      MathsFrame.new.show
-    end
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    Wx::App.run do
+      frame = MathsFrame.new
+      frame.show
+    end
   end
 
 end

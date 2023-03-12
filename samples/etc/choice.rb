@@ -74,11 +74,11 @@ module ChoiceSample
   end
 
   def self.run
-    RbApp.new.run
+    execute(__FILE__)
   end
 
   if $0 == __FILE__
-    self.run
+    RbApp.run
   end
 
 end
