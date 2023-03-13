@@ -7,7 +7,6 @@
 require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 include Wx
-include Math
 
 # This sample was originally written by Alex Fenton as an answer to Ruby
 # Quiz #191, which challenged entrants to create an application which
@@ -136,6 +135,8 @@ end
 
 # A Panel for displaying the image and controls to manipulate it
 class MathsPanel < Panel
+  include Math
+
   # Set functions to some nice initial values
   RED_INITIAL   = "cos(x)"
   GREEN_INITIAL = "cos(y ** x)"
@@ -293,14 +294,15 @@ module MathImagesSample
     )
   end
 
-  def self.run
-    execute(__FILE__)
+  def self.activate
+    frame = MathsFrame.new
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
     Wx::App.run do
-      frame = MathsFrame.new
-      frame.show
+      MathImagesSample.activate
     end
   end
 

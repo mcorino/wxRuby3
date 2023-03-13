@@ -20,6 +20,35 @@ class ::String
   end
 end
 
+# Hack to make the sample loader modules behave like the normal 'toplevel' binding
+# otherwise samples using 'include Wx' (or other modules) will fail on referencing
+# a constant unscoped from one of these included modules
+class ::Module
+  def const_missing(sym)
+    if self.name.start_with?('WxRuby::Sample::SampleLoader_') && (scope = self.name.split('::')).size > 3
+      top_mod = Object.const_get(scope[0,3].join('::'))
+      return top_mod.const_get(sym)
+    end
+    super
+  end
+end
+
+# Hack to make the sample loader modules behave like the normal 'toplevel' binding
+# otherwise samples using 'include Wx' (or other modules) will fail on referencing
+# a (module) method unscoped from one of these included modules
+module ::Kernel
+  def method_missing(name, *args)
+    if self.class.name.start_with?('WxRuby::Sample::SampleLoader_') && (scope = self.class.name.split('::')).size > 3
+      top_mod = Object.const_get(scope[0,3].join('::'))
+      return top_mod.__send__(name, *args) if top_mod.respond_to?(name)
+      top_mod.included_modules.each do |imod|
+        return imod.__send__(name, *args) if imod.respond_to?(name)
+      end
+    end
+    super
+  end
+end
+
 module WxRuby
 
   module Sample
@@ -170,17 +199,13 @@ module WxRuby
               category.modulize!
               Dir[File.join(entry, '*.rb')].each do |rb|
                 # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
-                if File.file?(rb) && File.readlines(rb).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
-                  Kernel.eval((
-                                <<~__CODE
-                                  module #{category}
-                                  module #{File.basename(rb, '.*').modulize!}_SampleLoader 
-                                    #{File.read(rb)}
-                                  end
-                                  end
-                                __CODE
-                              ),
-                              TOPLEVEL_BINDING, rb, 1)
+                if File.file?(rb) && (sample_lns = File.readlines(rb)).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
+                  # cannot use (Kernel#load with) an anonymous module because that will break the Wx::Dialog functor
+                  # functionality for one thing (that code will attempt to define a module method for a new dialog class
+                  # in the class/module scope in which the dialog class is defined working from the dialog class name;
+                  # this will fail for anonymous modules as these cannot be identified by name)
+                  sample_mod = Sample.const_set("SampleLoader_#{File.basename(rb, '.*').modulize!}", Module.new)
+                  sample_mod.module_eval File.read(rb), rb, 1
                   sample_captures.each do |mod|
                     samples << (smpl = SampleEntry.new(mod))
                     category_samples(smpl.category) << (samples.size-1)

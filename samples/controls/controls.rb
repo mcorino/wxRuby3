@@ -1120,17 +1120,6 @@ class MyFrame < Frame
 
 end
 
-class MyApp < App
-  def on_init()
-    # parse the cmd line
-    x = 50
-    y = 50
-    # Create the main frame window
-    frame = MyFrame.new("Controls Windows App", x, y)
-    frame.show(true)
-  end
-end
-
 module ControlsSample
 
   include WxRuby::Sample
@@ -1142,12 +1131,15 @@ module ControlsSample
       description: 'wxRuby example demonstrating various common controls.')
   end
 
-  def self.run
-    execute(__FILE__)
+  def self.activate
+    # Create the main frame window
+    frame = MyFrame.new("Controls Windows App", 50, 50)
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
-    MyApp.run
+    ControlsSample.activate
   end
 
 end

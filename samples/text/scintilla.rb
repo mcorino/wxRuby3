@@ -9,7 +9,6 @@ require 'wx'
 
 include Wx
 
-
 Minimal_Quit = 1
 Minimal_About = ID_ABOUT
 Toggle_Whitespace = 5000
@@ -164,14 +163,15 @@ module STCSample
       description: 'wxRuby example displaying frame window showcasing Scintilla editor control.')
   end
 
-  def self.run
-    execute(__FILE__)
+  def self.activate
+    frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
+    frame.show(true)
+    frame
   end
 
   if $0 == __FILE__
     Wx::App.run do
-      frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
-      frame.show(true)
+      STCSample.activate
     end
     puts("back from run...") if Wx::RB_DEBUG
     GC.start
