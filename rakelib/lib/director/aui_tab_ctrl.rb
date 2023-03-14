@@ -15,13 +15,14 @@ module WXRuby3
         # first let Director::Window do it's stuff
         super
         # now replace items because wxAuiTabCtrl is actually not documented (!!!)
-        spec.items.replace %w[wxAuiTabContainer wxAuiTabContainerButton]
-        spec.ignore 'wxAuiTabContainer'
+        spec.items.replace %w[wxAuiTabContainerButton]
         spec.gc_as_temporary 'wxAuiTabContainerButton'
         spec.no_proxy %w[wxAuiTabCtrl wxAuiTabContainerButton]
         spec.swig_import %w[swig/classes/include/wxObject.h swig/classes/include/wxEvtHandler.h swig/classes/include/wxWindow.h swig/classes/include/wxControl.h]
         # cannot use #add_extend_code because we do not have an actual parsed XML item
         spec.add_swig_code <<~__CODE
+          GC_MANAGE_AS_WINDOW(wxAuiTabCtrl);
+
           %extend wxAuiTabCtrl {
             VALUE TabHitTest(int x, int y)
             {
