@@ -59,7 +59,7 @@ class ImageFrame < Wx::Frame
     # Set the alpha (transparency) if any
     if magick_img.alpha?
       magick_img.format = 'A'
-      wx_img.set_alpha_data(magick_img.to_blob)
+      wx_img.alpha_data = magick_img.to_blob
     end
 
     wx_img
