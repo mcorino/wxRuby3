@@ -322,7 +322,12 @@ module WXRuby3
         end
       end
       if item
-        item.rb_name = rb_name
+        if Extractor::FunctionDef === item && !fullname.index('(')
+          # in case a function/method is renamed without a full signature spec rename ALL overloads similarly
+          item.all { |ovl| ovl.rb_name = rb_name }
+        else
+          item.rb_name = rb_name
+        end
       else
         STDERR.puts "INFO: Cannot find '#{fullname}' (module '#{spec.module_name}') to rename." if Director.trace?
       end

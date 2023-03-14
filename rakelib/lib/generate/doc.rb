@@ -700,8 +700,22 @@ module WXRuby3
                 else
                   fdoc.puts "def #{name}(#{params}) end"
                 end
+                # check for SWIG generated aliases
                 if alias_methods.has_key?(cm.name)
                   fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{name}"
+                else
+                  # check for aliases that will be available from WxRubyStyleAccessors at runtime
+                  # and document these as well
+                  case name
+                  when /\Aget_(\w+)/
+                    fdoc.puts "alias_method :#{$1}, :#{name}"
+                  when /\Aset_(\w+)/
+                    fdoc.puts "alias_method :#{$1}=, :#{name}"
+                  when /\Ais_(\w+)/
+                    fdoc.puts "alias_method :#{$1}?, :#{name}"
+                  when /\A(has_|can_)/
+                    fdoc.puts "alias_method :#{name}?, :#{name}"
+                  end
                 end
               end
               fdoc.puts

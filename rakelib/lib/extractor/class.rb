@@ -320,9 +320,16 @@ module WXRuby3
           rc = false
           unless mtd.is_ctor || mtd.is_dtor || mtd.is_static
             mtd_ovls = mtd.all.select { |ovl| !ovl.ignored } # only consider non-ignored
-            # only consider methods without overloads or where all overloads have not been renamed
-            # (SWIG %rename does not work well with %alias in these cases)
-            if mtd_ovls.size==1 || !mtd_ovls.select { |ovl| !ovl.rb_name }.empty?
+            # only consider methods without overloads or where all overloads have either
+            # not been renamed or have all been renamed identically
+            # (SWIG %rename does not work well with %alias in these cases so leave those
+            # for WxRubyStyleAccessors to handle at runtime)
+            last_nm = nil
+            rc = !mtd_ovls.empty? &&
+              (mtd_ovls.size==1 ||
+                mtd_ovls.all? { |ovl| !ovl.rb_name } ||
+                mtd_ovls.inject(::Set.new) { |set, ovl| set << ovl.rb_name }.size==1)
+            if rc
               mtd = mtd_ovls.shift
               mtd_name = mtd.rb_name || mtd.name
               unless (rc = (/\A(Is|Has|Can|Set)[A-Z]/ =~ mtd_name))
