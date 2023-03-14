@@ -386,7 +386,7 @@ module WXRuby3
               end.flatten
 
 
-            @debug_build   = WXRuby3::CONFIG[:'with-debug']
+            @debug_build   = WXRuby3::CONFIG['with-debug']
             @release_build = !@debug_build
             @debug_trace   = ENV['WXRUBY_TRACE'] ? (ENV['WXRUBY_TRACE'] || '1').to_i : 0
             @verbosity     = ENV['WXRUBY_VERBOSE'] ? (ENV['WXRUBY_VERBOSE'] || '1').to_i : 0
