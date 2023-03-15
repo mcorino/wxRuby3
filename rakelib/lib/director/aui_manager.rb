@@ -14,7 +14,7 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object
-        # need a custom implementation to handle event handler proc cleanup
+        # need a custom implementation to handle (event handler proc) cleanup
         spec.add_header_code <<~__HEREDOC
           #include "wx/aui/aui.h"
 
@@ -93,6 +93,10 @@ module WXRuby3
             return rc;
           }
 
+          // in wxRuby AuiManager-s do not get automatically destructed  when the managed window does
+          // (like in C++ when declared as a window class member) which poses problems in
+          // cleanup of the panes and such so bind an event handler to the close event of the
+          // managed window which cleans up the AuiManager
           void SetManagedWindow(wxWindow* managedWnd)
           {
             self->SetManagedWindow(managedWnd);
