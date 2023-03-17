@@ -78,7 +78,8 @@ def display_minimal_frame(parent = nil)
   frame.show
 end
 
-unless defined? PropgridSample
+unless WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__
+
   module MinimalSample
 
     include WxRuby::Sample

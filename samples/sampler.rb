@@ -6,6 +6,8 @@
 require 'rbconfig'
 require 'wx'
 
+require_relative 'sampler/editor'
+
 class ::String
 
   def modulize!
@@ -29,7 +31,11 @@ class ::Module
       top_mod = Object.const_get(scope[0,3].join('::'))
       return top_mod.const_get(sym)
     end
-    super
+    begin
+      super
+    rescue NoMethodError
+      raise NameError, "uninitialized constant #{sym}"
+    end
   end
 end
 
@@ -82,7 +88,10 @@ module WxRuby
 
       def image
         if (img_file = image_file)
-          Wx::Bitmap.new(img_file)
+          img = Wx::Image.new(img_file)
+          scale = 320.0 / img.height
+          img = img.copy.rescale((img.width*scale).to_i, (img.height*scale).to_i)
+          img.to_bitmap
         else
           Wx::ArtProvider::get_bitmap(Wx::ART_QUESTION)
         end
@@ -102,18 +111,34 @@ module WxRuby
     end
 
     class SampleEntry
-      def initialize(mod)
+      def initialize(mod, newfiles)
         @module = mod
         @runner = nil
         @description = nil
+        # filter new required files; keep only .rb from sample path
+        @files = newfiles.select { |fp| File.extname(fp) == '.rb' && fp.start_with?(path) }
       end
+
+      attr_reader :files
 
       def description
         @description ||= @module.describe
       end
 
+      def file
+        description.file
+      end
+
+      def path
+        description.path
+      end
+
       def category
         description.category
+      end
+
+      def summary
+        description.summary
       end
 
       def run
@@ -174,6 +199,10 @@ module WxRuby
 
     class << self
 
+      def loading_sample
+        @loading_sample
+      end
+
       def samples
         @samples ||= []
       end
@@ -200,17 +229,23 @@ module WxRuby
               Dir[File.join(entry, '*.rb')].each do |rb|
                 # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
                 if File.file?(rb) && (sample_lns = File.readlines(rb)).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
+                  # register currently required files
+                  cur_loaded = ::Set.new($LOADED_FEATURES)
+                  @loading_sample = rb
                   # cannot use (Kernel#load with) an anonymous module because that will break the Wx::Dialog functor
                   # functionality for one thing (that code will attempt to define a module method for a new dialog class
                   # in the class/module scope in which the dialog class is defined working from the dialog class name;
                   # this will fail for anonymous modules as these cannot be identified by name)
                   sample_mod = Sample.const_set("SampleLoader_#{File.basename(rb, '.*').modulize!}", Module.new)
                   sample_mod.module_eval File.read(rb), rb, 1
+                  # determine additionally required files
+                  new_loaded = ::Set.new($LOADED_FEATURES) - cur_loaded
                   sample_captures.each do |mod|
-                    samples << (smpl = SampleEntry.new(mod))
+                    samples << (smpl = SampleEntry.new(mod, new_loaded))
                     category_samples(smpl.category) << (samples.size-1)
                   end
                   sample_captures.clear
+                  @loading_sample = nil
                 end
               end
             end
@@ -258,6 +293,7 @@ module WxRuby
 
     SAMPLE_ID_MIN = Wx::ID_HIGHEST+6000
     RUN = 1
+    EDIT = 2
 
     def self.index_to_sample_id(sample_ix)
       SAMPLE_ID_MIN+(sample_ix*10)
@@ -271,12 +307,24 @@ module WxRuby
       SAMPLE_ID_MIN+(sample_ix*10)+RUN
     end
 
+    def self.index_to_edit_id(sample_ix)
+      SAMPLE_ID_MIN+(sample_ix*10)+EDIT
+    end
+
     def self.id_is_run_button?(id)
       ((id - SAMPLE_ID_MIN) % 10) == RUN
     end
 
+    def self.id_is_edit_button?(id)
+      ((id - SAMPLE_ID_MIN) % 10) == EDIT
+    end
+
     def self.run_id_to_sample_index(run_id)
       (run_id - (SAMPLE_ID_MIN + RUN))/10
+    end
+
+    def self.edit_id_to_sample_index(run_id)
+      (run_id - (SAMPLE_ID_MIN + EDIT))/10
     end
   end
 
@@ -334,8 +382,12 @@ module WxRuby
   class SamplerFrame < Wx::Frame
 
     def initialize(title)
+      frameSize = Wx::Size.new([850, (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 4)].max,
+                               (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 2))
+      framePos = Wx::Point.new(Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 20,
+                               Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 4)
       # The main application frame has no parent (nil)
-      super(nil, :title => title, :size => [ 800, 600 ])
+      super(nil, :title => title, :size => frameSize, pos: framePos)
 
       @tbicon = SampleTaskBarIcon.new(self)
 
@@ -348,7 +400,7 @@ module WxRuby
       @category_thumbnails = []
       @sample_thumbnails = []
       @sample_panes = []
-      Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(scroll_sizer, cat, cat_ix) }
+      # Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(scroll_sizer, cat, cat_ix) }
       @scroll_panel.set_sizer(scroll_sizer)
 
       main_sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
@@ -357,6 +409,7 @@ module WxRuby
       @expanded_sample = nil
       @expanded_category = nil
       @running_sample = nil
+      @sample_editor = nil
 
       # Give the frame an icon. PNG is a good choice of format for
       # cross-platform images. Note that OS X doesn't have "Frame" icons.
@@ -393,12 +446,18 @@ module WxRuby
 
       evt_collapsiblepane_changed Wx::ID_ANY, :on_sample_pane_changed
 
-      evt_button Wx::ID_ANY, :on_run_sample
+      evt_button Wx::ID_ANY, :on_sample_button
 
       @main_panel.layout
     end
 
     attr_reader :running_sample
+    attr_accessor :sample_editor
+
+    def load_samples
+      Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(@scroll_panel.sizer, cat, cat_ix) }
+      @main_panel.layout
+    end
 
     def create_category_pane(scroll_sizer, cat, cat_ix)
       category_panel = Wx::Panel.new(@scroll_panel, Wx::ID_ANY, style: Wx::RAISED_BORDER)
@@ -417,10 +476,15 @@ module WxRuby
         sample_pane_sizer = Wx::HBoxSizer.new
         sample_pane_sizer.add(Wx::StaticBitmap.new(pane, Wx::ID_ANY, sample_desc.image), 0, Wx::ALIGN_TOP)
         sample_pane_ctrl_sizer = Wx::VBoxSizer.new
-        sample_pane_ctrl_sizer.add(Wx::StaticText.new(pane, Wx::ID_ANY, sample_desc.description), 0, Wx::ALL, 2)
+        sample_buttons_sizer = Wx::HBoxSizer.new
+        sample_buttons_sizer.add(Wx::Button.new(pane, ID.index_to_run_id(sample_ix), 'Run sample'), 0, Wx::ALL, 2)
+        sample_buttons_sizer.add(Wx::Button.new(pane, ID.index_to_edit_id(sample_ix), 'Inspect sample'), 0, Wx::ALL, 2)
+        sample_pane_ctrl_sizer.add(sample_buttons_sizer, 0, Wx::ALL, 0)
         sample_pane_ctrl_sizer.add(Wx::StaticLine.new(pane, Wx::ID_ANY, size: [30, 30], style: Wx::LI_HORIZONTAL|Wx::RAISED_BORDER), 0, Wx::EXPAND|Wx::ALL, 2)
-        sample_pane_ctrl_sizer.add(Wx::Button.new(pane, ID.index_to_run_id(sample_ix), 'Run sample'), 0, Wx::ALL, 2)
-        sample_pane_sizer.add(sample_pane_ctrl_sizer, 0, Wx::EXPAND, 2)
+        desc = Wx::TextCtrl.new(pane, Wx::ID_ANY, sample_desc.description, style: Wx::TE_MULTILINE|Wx::TE_READONLY|Wx::BORDER_NONE)
+        desc.background_colour = background_colour
+        sample_pane_ctrl_sizer.add(desc, 1, Wx::EXPAND|Wx::ALL, 2)
+        sample_pane_sizer.add(sample_pane_ctrl_sizer, 1, Wx::EXPAND, 2)
         pane.sizer = sample_pane_sizer
         sample_pane_sizer.set_size_hints(pane)
 
@@ -444,11 +508,17 @@ module WxRuby
       scroll_sizer.add(category_panel, 0, Wx::EXPAND|Wx::ALL, 3)
     end
 
-    def on_run_sample(_evt)
+    def on_sample_button(_evt)
       if ID.id_is_run_button?(_evt.id)
         Sample.samples[@running_sample].close if @running_sample
         @running_sample = ID.run_id_to_sample_index(_evt.id)
         Sample.samples[@running_sample].run
+      elsif ID.id_is_edit_button?(_evt.id)
+        @sample_editor.destroy if @sample_editor
+        sample_ix = ID.run_id_to_sample_index(_evt.id)
+        sample = Sample.samples[sample_ix]
+        @sample_editor = SampleEditor.new(sample, self.icon)
+        @sample_editor.show
       end
     end
 
@@ -490,6 +560,7 @@ module WxRuby
 
     def on_close(_evt)
       Sample.samples[@running_sample].close if @running_sample
+      @sample_editor.destroy if @sample_editor
       @tbicon.remove_icon
       destroy
     end
@@ -524,7 +595,11 @@ Wx::App.run do
 
   evt_window_destroy do |evt|
     unless @frame.nil? || @frame == evt.window
-      WxRuby::Sample.samples[@frame.running_sample].close_window(evt.window) if @frame.running_sample
+      if evt.window == @frame.sample_editor
+        @frame.sample_editor = nil
+      else
+        WxRuby::Sample.samples[@frame.running_sample].close_window(evt.window) if @frame.running_sample
+      end
     end
     evt.skip
   end
@@ -536,6 +611,15 @@ Wx::App.run do
   else
     @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
     @frame.show
+    Wx::WindowDisabler.disable(@frame) do
+      bif = Wx::BusyInfoFlags.new.parent(@frame).icon(Wx::Icon.new(@frame.icon)).title('wxRuby Sampler Starting').text("Loading samples, please wait...")
+      Wx::BusyInfo.busy(bif) do |bi|
+        30.times { Wx::get_app.yield }
+        @frame.load_samples
+      end
+    end
+    @frame.update
+    true
   end
 end
 

@@ -1306,16 +1306,17 @@ module AUISample
       description: 'wxRuby example demonstrating the AUI framework.')
   end
 
-  def self.run
-    execute(__FILE__)
+  def self.activate
+    frame = AuiFrame.new(nil, Wx::ID_ANY, "Wx::AUI Sample Application",
+                         Wx::DEFAULT_POSITION,
+                         Wx::Size.new(800, 600))
+    frame.show
+    frame
   end
 
   if $0 == __FILE__
     Wx::App.run do
-      frame = AuiFrame.new(nil, Wx::ID_ANY, "Wx::AUI Sample Application",
-                           Wx::DEFAULT_POSITION,
-                           Wx::Size.new(800, 600))
-      frame.show
+      AUISample.activate
     end
   end
 
