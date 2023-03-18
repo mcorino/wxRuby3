@@ -63,6 +63,10 @@ module WxRuby
     end
     private :add_editor_page
 
+    def self.stc_editor?
+      !(SampleEditorCtrl < Wx::TextCtrl)
+    end
+
     def display_dark(f = true)
       @editors.each { |e| e.display_dark(f) }
     end
@@ -207,8 +211,10 @@ module WxRuby
 
       menuView = Wx::Menu.new
       menuView.append(ID::TOGGLE_THEME, 'Display dark theme', 'Display dark theme', Wx::ITEM_CHECK)
-      menuView.append(ID::TOGGLE_WS, "Show &Whitespace\tF6", "Show Whitespace", Wx::ITEM_CHECK)
-      menuView.append(ID::TOGGLE_EOL, "Show &End of Line\tF7", "Show End of Line characters", Wx::ITEM_CHECK)
+      if SampleEditPanel.stc_editor?
+        menuView.append(ID::TOGGLE_WS, "Show &Whitespace\tF6", "Show Whitespace", Wx::ITEM_CHECK)
+        menuView.append(ID::TOGGLE_EOL, "Show &End of Line\tF7", "Show End of Line characters", Wx::ITEM_CHECK)
+      end
 
       menuHelp = Wx::Menu.new
       menuHelp.append(ID::ABOUT, "&About...\tF1", "Show about dialog")
@@ -245,8 +251,10 @@ module WxRuby
       evt_menu(ID::QUIT) { on_quit }
       evt_menu(ID::ABOUT) { on_about }
       evt_menu(ID::TOGGLE_THEME) {on_toggle_theme}
-      evt_menu(ID::TOGGLE_WS) {on_toggle_ws}
-      evt_menu(ID::TOGGLE_EOL) {on_toggle_eol}
+      if SampleEditPanel.stc_editor?
+        evt_menu(ID::TOGGLE_WS) {on_toggle_ws}
+        evt_menu(ID::TOGGLE_EOL) {on_toggle_eol}
+      end
 
       evt_menu(ID::UNDO) { @editors.undo }
       evt_menu(ID::REDO) { @editors.redo }
