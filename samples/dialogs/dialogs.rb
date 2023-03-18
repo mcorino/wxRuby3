@@ -679,7 +679,7 @@ class MyFrame < Frame
 
   def on_show_styled_busy_info(event)
     result = nil
-    icon_file = File.join( File.dirname(__FILE__)+"/../../art", "wxruby.png")
+    icon_file = File.join( File.dirname(__FILE__)+"/../art", "wxruby.png")
     WindowDisabler.disable(self) do
       bif = BusyInfoFlags.new.parent(self).icon(Wx::Icon.new(icon_file)).title("Busy window").text("Working, please wait...")
       result = BusyInfo.busy(bif) do |bi|

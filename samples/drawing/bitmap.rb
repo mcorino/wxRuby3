@@ -26,7 +26,7 @@ class ImageFrame < Wx::Frame
     self.client_size = [size, size]
 
     # Load a PNG bitmap from a file for drawing
-    img_file = File.join( File.dirname(__FILE__)+"/../../art",
+    img_file = File.join( File.dirname(__FILE__)+"/../art",
       'wxruby-256x256.png')
     @bitmap = Wx::Bitmap.new(img_file)
 

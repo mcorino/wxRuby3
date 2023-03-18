@@ -23,7 +23,7 @@ class ImageFrame < Wx::Frame
     super(nil, :title => 'RMagick sample', :size => [600, 600])
 
     # Create the magick image from an image file
-    img_file = File.join( File.dirname(__FILE__)+"/../../art",
+    img_file = File.join( File.dirname(__FILE__)+"/../art",
       'wxruby-256x256.png')
     @magick_image = Magick::ImageList.new(img_file)
     
