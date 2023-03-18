@@ -156,6 +156,10 @@ module WxRuby
         end
       end
 
+      def copy_to(path)
+
+      end
+
       class EmbeddedRunner
         def initialize(frame)
           @frame = frame
@@ -359,7 +363,7 @@ module WxRuby
     def make_icon(imgname)
       # Different platforms have different requirements for the
       #  taskbar icon size
-      filename = File.join(__dir__, '..', 'art', imgname)
+      filename = File.join(__dir__, 'art', imgname)
       img = Wx::Image.new(filename)
       if Wx::PLATFORM == "WXMSW"
         img = img.scale(16, 16)
@@ -413,7 +417,7 @@ module WxRuby
 
       # Give the frame an icon. PNG is a good choice of format for
       # cross-platform images. Note that OS X doesn't have "Frame" icons.
-      icon_file = File.join(__dir__,'..', 'art', "wxruby.png")
+      icon_file = File.join(__dir__, 'art', "wxruby.png")
       self.icon = Wx::Icon.new(icon_file)
 
       menu_bar = Wx::MenuBar.new
@@ -508,16 +512,20 @@ module WxRuby
       scroll_sizer.add(category_panel, 0, Wx::EXPAND|Wx::ALL, 3)
     end
 
+    def run_sample(sample)
+      @running_sample.close if @running_sample
+      @running_sample = sample
+      @running_sample.run
+    end
+
     def on_sample_button(_evt)
       if ID.id_is_run_button?(_evt.id)
-        Sample.samples[@running_sample].close if @running_sample
-        @running_sample = ID.run_id_to_sample_index(_evt.id)
-        Sample.samples[@running_sample].run
+        run_sample(Sample.samples[ID.run_id_to_sample_index(_evt.id)])
       elsif ID.id_is_edit_button?(_evt.id)
         @sample_editor.destroy if @sample_editor
-        sample_ix = ID.run_id_to_sample_index(_evt.id)
+        sample_ix = ID.edit_id_to_sample_index(_evt.id)
         sample = Sample.samples[sample_ix]
-        @sample_editor = SampleEditor.new(sample, self.icon)
+        @sample_editor = SampleEditor.new(self, sample)
         @sample_editor.show
       end
     end
@@ -559,7 +567,7 @@ module WxRuby
     end
 
     def on_close(_evt)
-      Sample.samples[@running_sample].close if @running_sample
+      @running_sample.close if @running_sample
       @sample_editor.destroy if @sample_editor
       @tbicon.remove_icon
       destroy
@@ -598,7 +606,7 @@ Wx::App.run do
       if evt.window == @frame.sample_editor
         @frame.sample_editor = nil
       else
-        WxRuby::Sample.samples[@frame.running_sample].close_window(evt.window) if @frame.running_sample
+        @frame.running_sample.close_window(evt.window) if @frame.running_sample
       end
     end
     evt.skip
