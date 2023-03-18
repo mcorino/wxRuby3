@@ -442,6 +442,11 @@ module WxRuby
       # The main application frame has no parent (nil)
       super(nil, :title => title, :size => frameSize, pos: framePos)
 
+      # Give the frame an icon. PNG is a good choice of format for
+      # cross-platform images. Note that OS X doesn't have "Frame" icons.
+      icon_file = File.join(__dir__, 'art', "wxruby.png")
+      self.icon = Wx::Icon.new(icon_file)
+
       @tbicon = SampleTaskBarIcon.new(self)
 
       @main_panel = Wx::Panel.new(self, Wx::ID_ANY)
@@ -455,18 +460,27 @@ module WxRuby
       @sample_panes = []
       @scroll_panel.set_sizer(scroll_sizer)
 
-      main_sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
+      @startup_panel = Wx::Panel.new(@main_panel)
+      @startup_panel.background_colour = Wx::LIGHT_GREY
+      startup_sizer = Wx::VBoxSizer.new
+      startup_sizer.add(Wx::StaticBitmap.new(@startup_panel,Wx::ID_ANY, Wx::Bitmap.new(icon_file)),
+                        0, Wx::TOP|Wx::ALIGN_CENTER, 100)
+      txt = Wx::StaticText.new(@startup_panel, Wx::ID_ANY, 'wxRuby Sampler Starting')
+      txt.own_font = Wx::Font.new(20, Wx::FontFamily::FONTFAMILY_ROMAN, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_BOLD)
+      txt.font.set_weight(Wx::FontWeight::FONTWEIGHT_BOLD)
+      startup_sizer.add(txt,  0, Wx::ALL|Wx::ALIGN_CENTER, 30)
+      txt = Wx::StaticText.new(@startup_panel, Wx::ID_ANY, 'Loading samples, please wait...')
+      startup_sizer.add(txt,  0, Wx::ALL|Wx::ALIGN_CENTER, 10)
+      @startup_panel.sizer = startup_sizer
+      main_sizer.add(@startup_panel, 1, Wx::EXPAND, 0)
+
+      # main_sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
       @main_panel.sizer = main_sizer
 
       @expanded_sample = nil
       @expanded_category = nil
       @running_sample = nil
       @sample_editor = nil
-
-      # Give the frame an icon. PNG is a good choice of format for
-      # cross-platform images. Note that OS X doesn't have "Frame" icons.
-      icon_file = File.join(__dir__, 'art', "wxruby.png")
-      self.icon = Wx::Icon.new(icon_file)
 
       menu_bar = Wx::MenuBar.new
       # The "file" menu
@@ -507,8 +521,11 @@ module WxRuby
     attr_accessor :sample_editor
 
     def load_samples
+      @main_panel.sizer.remove(0)
+      @startup_panel.destroy
+      @startup_panel = nil
       Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(@scroll_panel.sizer, cat, cat_ix) }
-      #@main_panel.sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
+      @main_panel.sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
       @main_panel.layout
     end
 
@@ -670,11 +687,7 @@ Wx::App.run do
     @frame.show
     self.call_after do
       Wx::WindowDisabler.disable(@frame) do
-        bif = Wx::BusyInfoFlags.new.parent(@frame).icon(@frame.icon).title('wxRuby Sampler Starting').text("Loading samples, please wait...")
-        Wx::BusyInfo.busy(bif) do |bi|
-          50.times { Wx::get_app.yield }
-          @frame.load_samples
-        end
+        @frame.load_samples
       end
       @frame.update
     end
