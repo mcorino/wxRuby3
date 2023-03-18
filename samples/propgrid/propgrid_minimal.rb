@@ -77,7 +77,7 @@ def display_minimal_frame(parent = nil)
   frame.show
 end
 
-unless WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__
+unless (!defined? WxRuby::Sample) || WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__
 
   module MinimalSample
 

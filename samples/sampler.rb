@@ -4,6 +4,7 @@
 ###
 
 require 'rbconfig'
+require 'fileutils'
 require 'wx'
 
 require_relative 'sampler/editor'
@@ -56,6 +57,8 @@ module ::Kernel
 end
 
 module WxRuby
+
+  ART_FOLDER = File.join(__dir__, 'art')
 
   module Sample
     RUBY = ENV["RUBY"] || File.join(
@@ -156,8 +159,54 @@ module WxRuby
         end
       end
 
-      def copy_to(path)
+      class Copy < SampleEntry
+        def initialize(desc, files)
+          super(nil, [])
+          @description = desc
+          @files = files
+        end
 
+        def run
+          @runner = SpawnedRunner.new(::Process.spawn(RUBY, '-I', File.join(__dir__, '..', 'lib'), description.file))
+        end
+      end
+
+      def copy_to(dest)
+        # create description clone
+        desc_clone = description.dup
+        # create sample folder at dest
+        sample_folder = File.join(dest, File.basename(path))
+        FileUtils.mkdir_p(sample_folder)
+        # copy main file
+        desc_clone.file = File.join(sample_folder, File.basename(file))
+        FileUtils.cp(file, desc_clone.file)
+        # copy required files
+        files_copy = []
+        files.each do |f|
+          files_copy << File.join(sample_folder, File.basename(f))
+          FileUtils.cp(f, files_copy.last)
+        end
+        # copy thumbnail image file if any
+        if description.image_file
+          desc_clone[:thumbnail] = File.join(sample_folder, File.basename(description.image_file))
+          FileUtils.cp(description.image_file, desc_clone[:thumbnail])
+        end
+        # copy sample specific resources (not .rb or 'tn_*.png' files and not directories)
+        Dir[File.join(path, '*')].each do |fp|
+          unless File.directory?(fp) || File.extname(fp) == '.rb' || /\Atn_.*\.png\Z/ =~ File.basename(fp)
+            FileUtils.cp(fp, File.join(sample_folder, File.basename(fp)))
+          end
+        end
+        # copy art folder to dest
+        art_dest = File.join(dest, 'art')
+        FileUtils.mkdir_p(art_dest)
+        Dir[File.join(ART_FOLDER, '*')].each do |fp|
+          FileUtils.cp(fp, File.join(art_dest, File.basename(fp)))
+        end
+        # copy sample.xpm
+        FileUtils.cp(File.join(__dir__, 'sample.xpm'), File.join(dest, 'sample.xpm'))
+        # copy and return SampleEntry::Copy
+        Copy.new(desc_clone, files_copy)
       end
 
       class EmbeddedRunner
@@ -228,7 +277,7 @@ module WxRuby
         Dir[File.join(__dir__, '*')].each do |entry|
           if File.directory?(entry)
             category = File.basename(entry)
-            if 'bigdemo' !=  category
+            unless 'bigdemo' ==  category || 'sampler' == category
               category.modulize!
               Dir[File.join(entry, '*.rb')].each do |rb|
                 # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
@@ -404,7 +453,6 @@ module WxRuby
       @category_thumbnails = []
       @sample_thumbnails = []
       @sample_panes = []
-      # Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(scroll_sizer, cat, cat_ix) }
       @scroll_panel.set_sizer(scroll_sizer)
 
       main_sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
@@ -460,6 +508,7 @@ module WxRuby
 
     def load_samples
       Sample.categories.keys.each_with_index { |cat, cat_ix| create_category_pane(@scroll_panel.sizer, cat, cat_ix) }
+      #@main_panel.sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
       @main_panel.layout
     end
 
@@ -619,14 +668,16 @@ Wx::App.run do
   else
     @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
     @frame.show
-    Wx::WindowDisabler.disable(@frame) do
-      bif = Wx::BusyInfoFlags.new.parent(@frame).icon(Wx::Icon.new(@frame.icon)).title('wxRuby Sampler Starting').text("Loading samples, please wait...")
-      Wx::BusyInfo.busy(bif) do |bi|
-        30.times { Wx::get_app.yield }
-        @frame.load_samples
+    self.call_after do
+      Wx::WindowDisabler.disable(@frame) do
+        bif = Wx::BusyInfoFlags.new.parent(@frame).icon(@frame.icon).title('wxRuby Sampler Starting').text("Loading samples, please wait...")
+        Wx::BusyInfo.busy(bif) do |bi|
+          50.times { Wx::get_app.yield }
+          @frame.load_samples
+        end
       end
+      @frame.update
     end
-    @frame.update
     true
   end
 end

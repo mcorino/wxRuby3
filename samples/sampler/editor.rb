@@ -63,6 +63,26 @@ module WxRuby
     end
     private :add_editor_page
 
+    def update_page_modify(pg, f)
+      pgtxt = if pg == 0
+                File.basename(@sample.file)
+              else
+                File.basename(@sample.files[pg-1])
+              end
+      @edt_book.set_page_text(pg, "#{pgtxt}#{f ? '*' : ''}")
+    end
+
+    def save(sample)
+      @sample = sample
+      @editors[0].save_file(@sample.file) if @editors[0].modified?
+      update_page_modify(0, false)
+      @sample.files.each_with_index do |f, i|
+        @editors[i+1].save_file(f) if @editors[i+1].modified?
+        update_page_modify(i+1, false)
+      end
+      @frame.update_modify(@editors.any? { |e| e.modified? })
+    end
+
     def self.stc_editor?
       !(SampleEditorCtrl < Wx::TextCtrl)
     end
@@ -140,13 +160,8 @@ module WxRuby
 
     def update_modify(id, modify)
       if (pgnr = page_from_id(id))
-        pgtxt = if pgnr == 0
-                  File.basename(@sample.file)
-                else
-                  File.basename(@sample.files[pgnr-1])
-                end
-        @edt_book.set_page_text(pgnr, "#{pgtxt}#{modify ? '*' : ''}")
-        @frame.update_modify(modify)
+        update_page_modify(pgnr, modify)
+        @frame.update_modify(@editors.any? { |e| e.modified? })
       end
     end
 
@@ -154,6 +169,7 @@ module WxRuby
       find_close
       @editors[evt.selection].update_ui
     end
+
   end
 
   class SampleEditor < Wx::Frame
@@ -182,11 +198,12 @@ module WxRuby
       ].each_with_index { |ids, idx| self.const_set(ids, Wx::ID_HIGHEST+1+idx) }
     end
 
-    def initialize(sample, icon, pos: Wx::DEFAULT_POSITION , style: Wx::DEFAULT_FRAME_STYLE)
+    def initialize(sampler, sample, pos: Wx::DEFAULT_POSITION , style: Wx::DEFAULT_FRAME_STYLE)
       frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 5) * 2,
                                (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 3) * 2)
-      super(nil, Wx::ID_ANY, sample.summary,pos: pos,size: frameSize, style: style)
-      self.icon = icon
+      super(nil, Wx::ID_ANY, sample.summary, pos: pos,size: frameSize, style: style)
+      self.icon = sampler.icon
+      @sampler = sampler
       @sample = sample
       @modified = false
 
@@ -242,14 +259,18 @@ module WxRuby
       tb.add_tool(ID::FIND_PREV, 'FindPrev', Wx::ArtProvider.get_bitmap(Wx::ART_GO_BACK, Wx::ART_TOOLBAR), 'Find previous occurrence of the search phrase')
       tb.add_tool(ID::REPLACE, 'Replace', Wx::ArtProvider.get_bitmap(Wx::ART_FIND_AND_REPLACE, Wx::ART_TOOLBAR), 'Show Replace Dialog')
 
-      create_status_bar(2)
-      set_status_text("Welcome to wxRuby!")
+      create_status_bar(1)
+      set_status_text("Welcome to wxRuby Sample editor.")
 
       # Create the editor panel
       @editors = SampleEditPanel.new(self, @sample)
 
+      evt_menu(ID::RUN, :on_run)
+      evt_menu(ID::SAVE, :on_save)
+
       evt_menu(ID::QUIT) { on_quit }
       evt_menu(ID::ABOUT) { on_about }
+
       evt_menu(ID::TOGGLE_THEME) {on_toggle_theme}
       if SampleEditPanel.stc_editor?
         evt_menu(ID::TOGGLE_WS) {on_toggle_ws}
@@ -286,15 +307,55 @@ module WxRuby
       @m_redo.enable(f_redo)
       self.tool_bar.enable_tool(ID::UNDO, f_undo)
       self.tool_bar.enable_tool(ID::REDO, f_redo)
+      set_status_text('')
     end
 
     def update_paste(f_paste)
       @m_paste.enable(f_paste)
       self.tool_bar.enable_tool(ID::PASTE, f_paste)
+      set_status_text('')
     end
 
     def update_modify(modify)
       @modified = modify
+      set_status_text('')
+    end
+
+    def on_run
+      if @modified
+        on_save
+      end
+      @sampler.run_sample(@sample) unless @modified
+    end
+
+    def on_save
+      unless WxRuby::Sample::SampleEntry::Copy === @sample
+        Wx::DirDialog(self, 'Select a folder to save the sample in', Wx.get_home_dir) do |dialog|
+          if dialog.show_modal == Wx::ID_OK
+            if Wx::YES == Wx.message_box(
+              "Are you sure you want to save the sample to\n#{dialog.path}?\n"\
+                      "Any existing files will be overwritten.", 'Confirm',
+                      Wx::YES_NO | Wx::CANCEL || Wx::ICON_QUESTION)
+              begin
+                @sample = @sample.copy_to(dialog.get_path)
+              rescue Exception
+                Wx.message_box("Failed to save the sample:\n#{$!.message}", 'Error',
+                               Wx::OK | Wx::ICON_ERROR)
+                return
+              end
+              self.title = "#{@sample.summary} [#{@sample.path}]"
+            end
+          end
+        end
+      end
+      begin
+        @editors.save(@sample)
+      rescue Exception
+        Wx.message_box("Failed to save the sample:\n#{$!.message}", 'Error',
+                       Wx::OK | Wx::ICON_ERROR)
+        return
+      end
+      set_status_text('Successfully saved sample.')
     end
 
     def on_quit
@@ -347,9 +408,9 @@ module WxRuby
                        (flags&Wx::FR_DOWN) == Wx::FR_DOWN,
                        (flags&Wx::FR_WHOLEWORD) == Wx::FR_WHOLEWORD,
                        (flags&Wx::FR_MATCHCASE) == Wx::FR_MATCHCASE)
-        set_status_text('', 1)
+        set_status_text('')
       else
-        set_status_text(%Q{No occurrence of "#{txt}" found}, 1)
+        set_status_text(%Q{No occurrence of "#{txt}" found})
       end
     end
     private :do_find
@@ -364,9 +425,9 @@ module WxRuby
                                    (flags & Wx::FR_WHOLEWORD) == Wx::FR_WHOLEWORD,
                                    (flags & Wx::FR_MATCHCASE) == Wx::FR_MATCHCASE,
                                    all)) > 0
-        set_status_text(%Q{Replaced #{count} occurrences of "#{from}" to "#{to}"}, 1)
+        set_status_text(%Q{Replaced #{count} occurrences of "#{from}" to "#{to}"})
       else
-        set_status_text(%Q{No occurrence of "#{from}" found to replace}, 1)
+        set_status_text(%Q{No occurrence of "#{from}" found to replace})
       end
     end
 
@@ -392,7 +453,7 @@ module WxRuby
       @find_dialog.destroy if @find_dialog
       @find_dialog = nil
       @editors.find_close
-      set_status_text('', 1)
+      set_status_text('')
     end
 
   end
