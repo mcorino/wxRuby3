@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # Demonstrates a simple MDI (Multiple Document Interface) parent frame
@@ -81,11 +80,10 @@ end
 
 module MDISample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'Minimal wxRuby MDI example.',
       description: <<~__TXT
         Minimal wxRuby MDI example showcasing MDI framework.
@@ -104,7 +102,7 @@ module MDISample
         development. Alternative interface strategies include using separate
         frames, or the AUI classes.
         __TXT
-        )
+    }
   end
 
   def self.activate

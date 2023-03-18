@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # RichTextCtrl sample by Chauk-Mean Proum
@@ -288,11 +287,10 @@ end
 
 module RichTextSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby RichTextCtrl example.',
       description: <<~__TXT 
         wxRuby example displaying a frame window showcasing a RichTextCtrl.
@@ -308,7 +306,7 @@ module RichTextSample
         It permits named text styles to be created and organised in stylesheets.
         Facilities are also provided for printing.
       __TXT
-      )
+    }
   end
 
   def self.activate

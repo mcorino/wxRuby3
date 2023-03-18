@@ -3,7 +3,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 class MyFrame < Wx::Frame
@@ -871,13 +870,12 @@ end
 
 module RibbonSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'Ribbon wxRuby example.',
-      description: 'wxRuby example displaying frame window showcasing Ribbon framework.')
+      description: 'wxRuby example displaying frame window showcasing Ribbon framework.' }
   end
 
   def self.activate

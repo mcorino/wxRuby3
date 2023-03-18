@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This example lists the various system settings that WxRuby knows
@@ -241,13 +240,12 @@ end
 
 module SystemSettingsSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby SystemSettings example.',
-      description: 'wxRuby example demonstrating using SystemSettings and displaying various system settings in a grid.')
+      description: 'wxRuby example demonstrating using SystemSettings and displaying various system settings in a grid.' }
   end
 
   def self.activate

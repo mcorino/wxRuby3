@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 
@@ -45,11 +44,10 @@ end
 
 module BitmapSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby bitmap example.',
       description: <<~__TXT
         wxRuby example demonstrating how to draw an image from a file onto a window.
@@ -62,7 +60,7 @@ module BitmapSample
         display an image, but see also Wx::Image, which allows a much wider
         range of manipulations (such as rescaling) and writing to files.
         __TXT
-    )
+    }
   end
 
   def self.activate

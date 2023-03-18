@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample demonstrates the use of the Clipboard and Drag and Drop
@@ -173,11 +172,10 @@ end
 
 module DragDropSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Drag&Drop example.',
       description: <<~__TXT
         wxRuby example demonstrating the use of the Clipboard and Drag and Drop
@@ -186,7 +184,7 @@ module DragDropSample
         data of various sorts between applications (i.e. into and out of
         wxRuby).
         __TXT
-    )
+    }
   end
 
   def self.activate

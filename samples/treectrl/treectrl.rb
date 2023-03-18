@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample shows off the features of the TreeCtrl widget. The actual
@@ -1702,13 +1701,12 @@ end
 
 module TreeCtrlSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby TreeCtrl example.',
-      description: 'wxRuby example displaying use of TreeCtrl.')
+      description: 'wxRuby example displaying use of TreeCtrl.' }
   end
 
   def self.run

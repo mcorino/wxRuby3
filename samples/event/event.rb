@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample demonstrates how to dynamically connect and disconnect
@@ -194,11 +193,10 @@ end
 
 module EventSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby event handling example.',
       description: <<~__TXT
         wxRuby example demonstrating event handling.
@@ -206,7 +204,7 @@ module EventSample
         event handlers, and how to create custom event types and listeners
         associated with user-defined control classes.
         __TXT
-    )
+     }
   end
 
   def self.activate

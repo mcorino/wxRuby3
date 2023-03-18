@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # A resizable control that displays its current size, and, if an AUI
@@ -1297,13 +1296,12 @@ end
 
 module AUISample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby AUI example.',
-      description: 'wxRuby example demonstrating the AUI framework.')
+      description: 'wxRuby example demonstrating the AUI framework.' }
   end
 
   def self.activate

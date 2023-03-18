@@ -3,7 +3,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 require_relative './propgrid_minimal'
@@ -2681,13 +2680,12 @@ end
 
 module PropgridSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby PropGrid example.',
-      description: 'wxRuby PropGrid example displaying frame showcasing PropgridManager.')
+      description: 'wxRuby PropGrid example displaying frame showcasing PropgridManager.' }
   end
 
   def self.activate

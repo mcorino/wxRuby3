@@ -2,7 +2,6 @@
 # wxRuby Sample Code.
 # Copyright (c) M.J.N. Corino, The Netherlands
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 require_relative './sample_props'
@@ -82,13 +81,12 @@ unless WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE_
 
   module MinimalSample
 
-    include WxRuby::Sample
+    include WxRuby::Sample if defined? WxRuby::Sample
 
     def self.describe
-      Description.new(
-        file: __FILE__,
+      { file: __FILE__,
         summary: 'Minimal wxRuby PropGrid example.',
-        description: 'Minimal wxRuby example displaying frame window with a property grid.')
+        description: 'Minimal wxRuby example displaying frame window with a property grid.' }
     end
 
     def self.run

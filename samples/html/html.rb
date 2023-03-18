@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 require 'net/http'
@@ -260,13 +259,12 @@ end
 
 module HTMLSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby HTML example.',
-      description: 'wxRuby example showcasing HTML framework.')
+      description: 'wxRuby example showcasing HTML framework.' }
   end
 
   def self.run

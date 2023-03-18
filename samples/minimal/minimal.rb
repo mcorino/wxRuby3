@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample shows a fairly minimal Wx::App using a Frame, with a
@@ -68,13 +67,12 @@ end
 
 module MinimalSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'Minimal wxRuby example.',
-      description: 'Minimal wxRuby example displaying minimal frame window with menu.')
+      description: 'Minimal wxRuby example displaying minimal frame window with menu.' }
   end
 
   def self.activate

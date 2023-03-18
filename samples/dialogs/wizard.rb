@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 
@@ -67,13 +66,12 @@ end
 
 module WizardSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Wizard example.',
-      description: 'wxRuby example demonstrating Wizard dialog.')
+      description: 'wxRuby example demonstrating Wizard dialog.' }
   end
 
   def self.activate

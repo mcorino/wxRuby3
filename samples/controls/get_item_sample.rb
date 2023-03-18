@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 class ListctrlFrame < Wx::Frame
@@ -99,13 +98,12 @@ end
 
 module GetItemSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby list control example.',
-      description: 'wxRuby example demonstrating getting item information from a Wx::ListCtrl.')
+      description: 'wxRuby example demonstrating getting item information from a Wx::ListCtrl.' }
   end
 
   def self.run

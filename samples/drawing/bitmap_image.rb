@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # Bitmap sample (rewritten by Chauk-Mean Proum)
@@ -88,11 +87,10 @@ end
 
 module BitmapImageSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby bitmap image example.',
       description: <<~__TXT
         wxRuby example demonstrating how to draw the same image in various forms (original, mirrored, greyscaled and blurred).
@@ -101,7 +99,7 @@ module BitmapImageSample
         and writing to files.
         - Wx::Bitmap, which is a platform-specific representation of an image.
         __TXT
-    )
+    }
   end
 
   def self.activate

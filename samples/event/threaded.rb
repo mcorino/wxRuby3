@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This simple sample demonstrates how to use Ruby (green) threads
@@ -105,11 +104,10 @@ end
 
 module ThreadSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby threading example.',
       description: <<~__TXT
         wxRuby example demonstrating how to use ruby threads in wxRuby.
@@ -129,7 +127,7 @@ module ThreadSample
         wxRuby's Timer class to explicitly allocate time for non-GUI threads
         to run. The latter technique is shown here.
         __TXT
-    )
+    }
   end
 
   def self.run

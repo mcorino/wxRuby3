@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 WXPRINT_QUIT = Wx::ID_EXIT
@@ -481,13 +480,12 @@ end
 
 module PrintingSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Printing example.',
-      description: 'wxRuby example showcasing printing framework.')
+      description: 'wxRuby example showcasing printing framework.' }
   end
 
   def self.run

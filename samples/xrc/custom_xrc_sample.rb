@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # Basic Frame Class. This creates the dialog window
@@ -56,14 +55,13 @@ end
 
 module CustomXrcSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby XRC custom class example.',
       description: 'wxRuby example showcasing a custom dialog class using XRC and a custom XmlSubclassFactory.',
-      thumbnail: 'tn_xrc_sample')
+      thumbnail: 'tn_xrc_sample' }
   end
 
   def self.activate

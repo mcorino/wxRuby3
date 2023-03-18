@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 include Wx
@@ -271,13 +270,12 @@ end
 
 module CaretSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Caret example.',
-      description: 'wxRuby example demonstrating using and controlling a caret.')
+      description: 'wxRuby example demonstrating using and controlling a caret.' }
   end
 
   def self.run

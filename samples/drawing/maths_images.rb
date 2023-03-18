@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 include Wx
 
@@ -266,11 +265,10 @@ end
 
 module MathImagesSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby math images example.',
       description: <<~__TXT
         wxRuby example demonstrating drawing using math functions.
@@ -291,7 +289,7 @@ module MathImagesSample
         formats. It also shows how an image's rgb data can be written directly, by
         using Array#pack.
         __TXT
-    )
+    }
   end
 
   def self.activate

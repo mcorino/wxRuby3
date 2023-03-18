@@ -122,7 +122,7 @@ module WxRuby
       attr_reader :files
 
       def description
-        @description ||= @module.describe
+        @description ||= Description.new(**@module.describe)
       end
 
       def file

@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # This sample demonstrates the use of Activate Events. These are
@@ -103,11 +102,10 @@ end
 
 module ActivationSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Activate events example.',
       description: <<~__TXT
         wxRuby example demonstrating the use of Activate Events.
@@ -117,7 +115,7 @@ module ActivationSample
         the frame gainin focus. An event is also generated when a whole wxRuby
         app starts or stops being the current focussed desktop application.
         __TXT
-    )
+     }
   end
 
   def self.run

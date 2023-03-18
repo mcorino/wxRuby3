@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 include Wx
@@ -1122,13 +1121,12 @@ end
 
 module ControlsSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby controls example.',
-      description: 'wxRuby example demonstrating various common controls.')
+      description: 'wxRuby example demonstrating various common controls.' }
   end
 
   def self.activate

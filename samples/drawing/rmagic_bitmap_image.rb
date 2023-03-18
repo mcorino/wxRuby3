@@ -10,7 +10,6 @@ rescue LoadError
 end
 
 if defined? ::Magick
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # RMagick sample (written by Chauk-Mean Proum)
@@ -113,17 +112,16 @@ end
 
 module RMagickBitmapSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby RMagick Bitmap example.',
       description: <<~__TXT
         wxRuby example demonstrating ow to convert directly a RMagick image 
         to a wxRuby image (without saving and loading the image file).
         __TXT
-    )
+    }
   end
 
   def self.activate

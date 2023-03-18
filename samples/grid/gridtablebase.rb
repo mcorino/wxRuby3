@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 # GridTableBase is an alternative way to provide data to a Wx::Grid. A
@@ -158,13 +157,12 @@ end
 
 module GridTableSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby GridTable example.',
-      description: 'wxRuby example showcasing a custom GridTable for a Grid control.')
+      description: 'wxRuby example showcasing a custom GridTable for a Grid control.' }
   end
 
   def self.activate

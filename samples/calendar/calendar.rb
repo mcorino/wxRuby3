@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 require 'date'
 
@@ -345,13 +344,12 @@ end
 
 module CalendarSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Calendar example.',
-      description: 'wxRuby example demonstrating the Wx::CalendarCtrl and Wx::DatePickerCtrl.')
+      description: 'wxRuby example demonstrating the Wx::CalendarCtrl and Wx::DatePickerCtrl.' }
   end
 
   def self.run

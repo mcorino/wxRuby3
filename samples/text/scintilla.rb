@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 include Wx
@@ -154,13 +153,12 @@ end
 
 module STCSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'Scintilla editor wxRuby example.',
-      description: 'wxRuby example displaying frame window showcasing Scintilla editor control.')
+      description: 'wxRuby example displaying frame window showcasing Scintilla editor control.' }
   end
 
   def self.activate

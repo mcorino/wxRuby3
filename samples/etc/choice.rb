@@ -4,7 +4,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative '../sampler' if $0 == __FILE__
 require 'wx'
 
 include Wx
@@ -64,13 +63,12 @@ end
 
 module ChoiceSample
 
-  include WxRuby::Sample
+  include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
-    Description.new(
-      file: __FILE__,
+    { file: __FILE__,
       summary: 'wxRuby Choice example.',
-      description: 'wxRuby example demonstrating the use of Wx::Choice control.')
+      description: 'wxRuby example demonstrating the use of Wx::Choice control.' }
   end
 
   def self.run
