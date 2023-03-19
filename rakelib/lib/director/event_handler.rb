@@ -16,14 +16,8 @@ module WXRuby3
         if spec.module_name == 'wxEvtHandler'
           # fully ignore
           spec.ignore(
-              'wxEvtHandler::Connect(int,wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)',
-              'wxEvtHandler::Connect(wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)',
-              'wxEvtHandler::Disconnect(wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)',
-              'wxEvtHandler::Disconnect(int,wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)')
-          spec.ignore([
-              'wxEvtHandler::Connect(int,int,wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)',
-              'wxEvtHandler::Disconnect(int,int,wxEventType,wxObjectEventFunction,wxObject *,wxEvtHandler *)'],
-              ignore_doc: false) # keep docs
+              'wxEvtHandler::Connect',
+              'wxEvtHandler::Disconnect')
           spec.ignore(%w[wxEVT_HOTKEY])
           spec.ignore(%w[wxEvtHandler::SetClientData wxEvtHandler::GetClientData
                          wxEvtHandler::SetClientObject wxEvtHandler::GetClientObject])
