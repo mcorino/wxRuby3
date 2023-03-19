@@ -21,30 +21,32 @@ module WxRuby
     def initialize(parent, sample)
       @frame = parent
       @sample = sample
-      splitter = Wx::SplitterWindow.new(parent, Wx::ID_ANY)
+      @splitter = Wx::SplitterWindow.new(parent, Wx::ID_ANY)
 
       # Create a Notebook with editors
-      @edt_book = Wx::Notebook.new(splitter, :style => Wx::CLIP_CHILDREN)
+      @edt_book = Wx::Notebook.new(@splitter, :style => Wx::CLIP_CHILDREN)
       @editors = []
       # main source file
       add_editor_page(@sample.file, 0)
       # additional files
       @sample.files.each_with_index { |filename, ix| add_editor_page(filename, ix+1) }
       # create a (console) log window
-      log_panel = Wx::Panel.new(splitter, Wx::ID_ANY)
+      @log_panel = Wx::Panel.new(@splitter, Wx::ID_ANY)
       log_sizer = Wx::VBoxSizer.new
       lbl_sizer = Wx::HBoxSizer.new
-      lbl_sizer.add(Wx::StaticText.new(log_panel, Wx::ID_ANY, 'Log'), 0, Wx::RIGHT, 5)
-      lbl_sizer.add(Wx::StaticLine.new(log_panel, Wx::ID_ANY, [100,100], style: Wx::LI_HORIZONTAL|Wx::SIMPLE_BORDER), 1, Wx::EXPAND, 0)
+      lbl_sizer.add(Wx::StaticText.new(@log_panel, Wx::ID_ANY, 'Log'), 0, Wx::RIGHT, 5)
+      lbl_sizer.add(Wx::StaticLine.new(@log_panel, Wx::ID_ANY, [100,100], style: Wx::LI_HORIZONTAL|Wx::SIMPLE_BORDER), 1, Wx::EXPAND, 0)
       log_sizer.add(lbl_sizer, 0, Wx::EXPAND|Wx::ALL, 3)
-      @log = Wx::TextCtrl.new(log_panel, style: Wx::TE_MULTILINE | Wx::TE_READONLY | Wx::TE_NOHIDESEL | Wx::HSCROLL | Wx::VSCROLL)
+      @log = Wx::TextCtrl.new(@log_panel, style: Wx::TE_MULTILINE | Wx::TE_READONLY | Wx::TE_NOHIDESEL | Wx::HSCROLL | Wx::VSCROLL)
       @log.set_max_length(0) unless Wx::PLATFORM == 'WXGTK'
       log_sizer.add(@log, 1, Wx::EXPAND|Wx::ALL, 2)
-      log_sizer.fit(log_panel)
-      log_panel.sizer = log_sizer
+      log_sizer.fit(@log_panel)
+      @log_panel.sizer = log_sizer
+      @log_panel.hide
 
-      splitter.split_horizontally(@edt_book, log_panel, -1)
-      splitter.set_minimum_pane_size(1)
+      @splitter.init(@edt_book)
+      # @splitter.split_horizontally(@edt_book,@log_panel, -1)
+      # @splitter.set_minimum_pane_size(0)
 
       @edt_book.evt_notebook_page_changed(@edt_book.id) { |evt| on_page_changed(evt) }
 
@@ -62,6 +64,28 @@ module WxRuby
       @edt_book.add_page(panel, File.basename(filename))
     end
     private :add_editor_page
+
+    def split
+      @log_panel.show
+      @splitter.split_horizontally(@edt_book, @log_panel, (0.75 * @frame.get_client_size.height).to_i)
+      @splitter.set_sash_gravity(0.75)
+      @splitter.set_minimum_pane_size(0)
+      @frame.update
+    end
+
+    def unsplit
+      @log_panel.hide
+      @splitter.init(@edt_book)
+      @splitter.update_size
+      @frame.update
+    end
+
+    def add_log(txt)
+      unless @splitter.split?
+        split
+      end
+      @log.write_text(txt)
+    end
 
     def update_page_modify(pg, f)
       pgtxt = if pg == 0
@@ -195,6 +219,7 @@ module WxRuby
         TOGGLE_THEME
         TOGGLE_WS
         TOGGLE_EOL
+        TOGGLE_LOG
       ].each_with_index { |ids, idx| self.const_set(ids, Wx::ID_HIGHEST+1+idx) }
     end
 
@@ -232,6 +257,8 @@ module WxRuby
         menuView.append(ID::TOGGLE_WS, "Show &Whitespace\tF6", "Show Whitespace", Wx::ITEM_CHECK)
         menuView.append(ID::TOGGLE_EOL, "Show &End of Line\tF7", "Show End of Line characters", Wx::ITEM_CHECK)
       end
+      menuView.append_separator
+      @m_log = menuView.append(ID::TOGGLE_LOG, 'Show log', 'Show log panel', Wx::ITEM_CHECK)
 
       menuHelp = Wx::Menu.new
       menuHelp.append(ID::ABOUT, "&About...\tF1", "Show about dialog")
@@ -265,17 +292,20 @@ module WxRuby
       # Create the editor panel
       @editors = SampleEditPanel.new(self, @sample)
 
+      evt_idle(:on_idle)
+
       evt_menu(ID::RUN, :on_run)
       evt_menu(ID::SAVE, :on_save)
 
-      evt_menu(ID::QUIT) { on_quit }
-      evt_menu(ID::ABOUT) { on_about }
+      evt_menu(ID::QUIT, :on_quit)
+      evt_menu(ID::ABOUT, :on_about)
 
-      evt_menu(ID::TOGGLE_THEME) {on_toggle_theme}
+      evt_menu(ID::TOGGLE_THEME, :on_toggle_theme)
       if SampleEditPanel.stc_editor?
-        evt_menu(ID::TOGGLE_WS) {on_toggle_ws}
-        evt_menu(ID::TOGGLE_EOL) {on_toggle_eol}
+        evt_menu(ID::TOGGLE_WS, :on_toggle_ws)
+        evt_menu(ID::TOGGLE_EOL, :on_toggle_eol)
       end
+      evt_menu(ID::TOGGLE_LOG, :on_toggle_log)
 
       evt_menu(ID::UNDO) { @editors.undo }
       evt_menu(ID::REDO) { @editors.redo }
@@ -325,7 +355,20 @@ module WxRuby
       if @modified
         on_save
       end
-      @sampler.run_sample(@sample) unless @modified
+      return if @modified
+      @sampler.run_sample(@sample)
+    end
+
+    def on_idle(evt)
+      if @sample.running?
+        output = @sample.read
+        if @sample.active?
+          evt.request_more(true)
+        else
+          output << @sample.close
+        end
+        @editors.add_log(output) unless output.empty?
+      end
     end
 
     def on_save
@@ -383,6 +426,14 @@ module WxRuby
     def on_toggle_eol
       @eol_visible = !@eol_visible
       @editors.show_eol(@eol_visible)
+    end
+
+    def on_toggle_log(evt)
+      if evt.checked?
+        @editors.split
+      else
+        @editors.unsplit
+      end
     end
 
     def on_show_find(_evt)
