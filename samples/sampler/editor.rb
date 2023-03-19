@@ -87,6 +87,10 @@ module WxRuby
       @log.write_text(txt)
     end
 
+    def clear_log
+      @log.clear
+    end
+
     def update_page_modify(pg, f)
       pgtxt = if pg == 0
                 File.basename(@sample.file)
@@ -220,6 +224,7 @@ module WxRuby
         TOGGLE_WS
         TOGGLE_EOL
         TOGGLE_LOG
+        CLEAR_LOG
       ].each_with_index { |ids, idx| self.const_set(ids, Wx::ID_HIGHEST+1+idx) }
     end
 
@@ -258,7 +263,9 @@ module WxRuby
         menuView.append(ID::TOGGLE_EOL, "Show &End of Line\tF7", "Show End of Line characters", Wx::ITEM_CHECK)
       end
       menuView.append_separator
-      @m_log = menuView.append(ID::TOGGLE_LOG, 'Show log', 'Show log panel', Wx::ITEM_CHECK)
+      @m_log = menuView.append(ID::TOGGLE_LOG, 'Show log', 'Show the log panel', Wx::ITEM_CHECK)
+      @m_clr_log = menuView.append(ID::CLEAR_LOG, 'Clear log', 'Clear the log panel')
+      @m_clr_log.enable(false)
 
       menuHelp = Wx::Menu.new
       menuHelp.append(ID::ABOUT, "&About...\tF1", "Show about dialog")
@@ -306,6 +313,7 @@ module WxRuby
         evt_menu(ID::TOGGLE_EOL, :on_toggle_eol)
       end
       evt_menu(ID::TOGGLE_LOG, :on_toggle_log)
+      evt_menu(ID::CLEAR_LOG, :on_clear_log)
 
       evt_menu(ID::UNDO) { @editors.undo }
       evt_menu(ID::REDO) { @editors.redo }
@@ -367,7 +375,11 @@ module WxRuby
         else
           output << @sample.close
         end
-        @editors.add_log(output) unless output.empty?
+        unless output.empty?
+          @m_log.check(true)
+          @editors.add_log(output)
+        end
+        @m_clr_log.enable(@m_log.checked?)
       end
     end
 
@@ -430,10 +442,16 @@ module WxRuby
 
     def on_toggle_log(evt)
       if evt.checked?
+        @m_clr_log.enable(true)
         @editors.split
       else
+        @m_clr_log.enable(false)
         @editors.unsplit
       end
+    end
+
+    def on_clear_log
+      @editors.clear_log
     end
 
     def on_show_find(_evt)
