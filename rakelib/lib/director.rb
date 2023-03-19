@@ -324,7 +324,9 @@ module WXRuby3
       if item
         if Extractor::FunctionDef === item && !fullname.index('(')
           # in case a function/method is renamed without a full signature spec rename ALL overloads similarly
-          item.all { |ovl| ovl.rb_name = rb_name }
+          item.all.each do |ovl|
+            ovl.rb_name = rb_name
+          end
         else
           item.rb_name = rb_name
         end
