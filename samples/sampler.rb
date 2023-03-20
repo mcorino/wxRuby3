@@ -152,6 +152,7 @@ module WxRuby
       @sample_thumbnails = []
       @sample_panes = []
       @scroll_panel.set_sizer(scroll_sizer)
+      @scroll_panel.hide
 
       @startup_panel = Wx::Panel.new(@main_panel)
       @startup_panel.background_colour = Wx::LIGHT_GREY
@@ -228,6 +229,7 @@ module WxRuby
         @startup_panel.destroy
         @startup_panel = nil
         @gauge = nil
+        @scroll_panel.show
         @main_panel.sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
         @main_panel.layout
         self.event_handler.disconnect(Wx::ID_ANY, Wx::ID_ANY, SampleLoadEvent::EVT_LOAD_SAMPLE)
@@ -343,6 +345,7 @@ module WxRuby
       @running_sample.close if @running_sample
       @sample_editor.destroy if @sample_editor
       @tbicon.remove_icon
+      @tbicon.destroy
       destroy
     end
 
