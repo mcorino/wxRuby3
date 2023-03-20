@@ -67,6 +67,9 @@ module WXRuby3
           spec.add_runtime_code <<~__HEREDOC
             static swig_class wxRuby_GetSwigClassWxEvtHandler();
             WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
+
+            class wxRbCallback;
+            static void wxRuby_ReleaseEvtHandlerProc(void* evt_handler, wxRbCallback* proc_cb);
             
             // Class which stores the ruby proc associated with an event handler. We
             // also cache the "call" symbol as this improves speed for event
@@ -99,10 +102,12 @@ module WXRuby3
                 }
 
             public:
-                wxRbCallback(VALUE func) 
-                  : m_func(func) {}
+                wxRbCallback(VALUE func, void* evh) 
+                  : m_func(func), m_evh(evh) {}
                 wxRbCallback(const wxRbCallback &other) 
-                  : wxObject(), m_func(other.m_func) {}
+                  : wxObject(), m_func(other.m_func), m_evh(other.m_evh) {}
+                ~wxRbCallback()
+                { wxRuby_ReleaseEvtHandlerProc(m_evh, this); }
             
                 // This method handles all events on the WxWidgets/C++ side. It link
                 // inspects the event and based on the event's type wraps it in the
@@ -142,6 +147,7 @@ module WXRuby3
                 }
             
                 VALUE m_func;
+                void* m_evh;
             };
   
             ID wxRbCallback::c_call_id = 0;
@@ -165,6 +171,24 @@ module WXRuby3
               Evt_Handler_Handlers[evt_handler]->push_back(proc_cb);
             }
             
+            static void wxRuby_ReleaseEvtHandlerProc(void* evt_handler, wxRbCallback* proc_cb) 
+            {        
+              if (Evt_Handler_Handlers.count(evt_handler) != 0)
+              {
+                EvtHandlerProcList *ehpl = Evt_Handler_Handlers[evt_handler];
+                for (EvtHandlerProcList::iterator itproc = ehpl->begin();
+                     itproc != ehpl->end();
+                     itproc++)
+                {
+                  if (proc_cb == (*itproc))
+                  {
+                    ehpl->erase(itproc);
+                    return;
+                  }
+                }
+              }
+            }
+
             // Called by App's mark function; protect all currently needed procs
             void wxRuby_MarkProtectedEvtHandlerProcs() 
             {
@@ -282,7 +306,7 @@ module WXRuby3
             // This provides the public Ruby 'connect' method
             VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
             {
-              wxRbCallback* userData = new wxRbCallback(proc);
+              wxRbCallback* userData = new wxRbCallback(proc, (void *)$self);
               wxRuby_ProtectEvtHandlerProc((void *)$self, userData);
           
               wxObjectEventFunction function = 
