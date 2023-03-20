@@ -277,7 +277,8 @@ module WxRuby
       menuBar.append(menuHelp, "&Help")
       set_menu_bar(menuBar)
 
-      tb = create_tool_bar(Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT )
+      tb = create_tool_bar(Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT)
+      tb.tool_bitmap_size = [ 16, 16 ]
       tb.add_tool(ID::SAVE, 'Save', Wx::ArtProvider.get_bitmap(Wx::ART_FILE_SAVE, Wx::ART_TOOLBAR), 'Save the sample to a local folder')
       tb.add_tool(ID::RUN, 'Run', Wx::ArtProvider.get_bitmap(Wx::ART_EXECUTABLE_FILE, Wx::ART_TOOLBAR), 'Run the (changed) sample')
       tb.add_separator
@@ -292,6 +293,7 @@ module WxRuby
       tb.add_tool(ID::FIND_NEXT, 'FindNext', Wx::ArtProvider.get_bitmap(Wx::ART_GO_FORWARD, Wx::ART_TOOLBAR), 'Find next occurrence of the search phrase')
       tb.add_tool(ID::FIND_PREV, 'FindPrev', Wx::ArtProvider.get_bitmap(Wx::ART_GO_BACK, Wx::ART_TOOLBAR), 'Find previous occurrence of the search phrase')
       tb.add_tool(ID::REPLACE, 'Replace', Wx::ArtProvider.get_bitmap(Wx::ART_FIND_AND_REPLACE, Wx::ART_TOOLBAR), 'Show Replace Dialog')
+      tb.realize
 
       create_status_bar(1)
       set_status_text("Welcome to wxRuby Sample editor.")
