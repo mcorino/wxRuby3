@@ -259,9 +259,9 @@ module WxRuby
         sample_buttons_sizer.add(Wx::Button.new(pane, ID.index_to_run_id(sample_ix), 'Run sample'), 0, Wx::ALL, 2)
         sample_buttons_sizer.add(Wx::Button.new(pane, ID.index_to_edit_id(sample_ix), 'Inspect sample'), 0, Wx::ALL, 2)
         sample_pane_ctrl_sizer.add(sample_buttons_sizer, 0, Wx::ALL, 0)
-        sample_pane_ctrl_sizer.add(Wx::StaticLine.new(pane, Wx::ID_ANY, size: [30, 30], style: Wx::LI_HORIZONTAL|Wx::RAISED_BORDER), 0, Wx::EXPAND|Wx::ALL, 2)
+        sample_pane_ctrl_sizer.add(Wx::StaticLine.new(pane, Wx::ID_ANY, size: [2, 2], style: Wx::LI_HORIZONTAL|Wx::RAISED_BORDER), 0, Wx::EXPAND|Wx::ALL, 2)
         desc = Wx::TextCtrl.new(pane, Wx::ID_ANY, sample_desc.description, style: Wx::TE_MULTILINE|Wx::TE_READONLY|Wx::BORDER_NONE)
-        desc.background_colour = background_colour
+        desc.background_colour = sample_panel.background_colour
         sample_pane_ctrl_sizer.add(desc, 1, Wx::EXPAND|Wx::ALL, 2)
         sample_pane_sizer.add(sample_pane_ctrl_sizer, 1, Wx::EXPAND, 2)
         pane.sizer = sample_pane_sizer
