@@ -28,8 +28,9 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           static void GC_mark_wxPropertyGridManager(void* ptr) 
           {
-          #ifdef __WXRB_TRACE__
-            std::wcout << "> GC_mark_wxPropertyGridManager : " << ptr << std::endl;
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "> GC_mark_wxPropertyGridManager : " << ptr << std::endl;
           #endif
             if ( GC_IsWindowDeleted(ptr) )
             {
@@ -41,7 +42,7 @@ module WXRuby3
             wxPropertyGridManager* wx_pg = (wxPropertyGridManager*) ptr;
 
             // mark all properties of all pages
-          #ifdef __WXRB_TRACE__
+          #ifdef __WXRB_DEBUG__
             long l = 0;
           #endif
             for (size_t i=0; i < wx_pg->GetPageCount() ;++i)
@@ -51,7 +52,7 @@ module WXRuby3
               // iterate all
               for ( ; !it.AtEnd(); it.Next() )
               {
-          #ifdef __WXRB_TRACE__
+          #ifdef __WXRB_DEBUG__
                 ++l;
           #endif
                 wxPGProperty* p = it.GetProperty();
@@ -61,8 +62,9 @@ module WXRuby3
                   VALUE object = (VALUE) p->GetClientData();
                   if ( object && !NIL_P(object))
                   {
-          #ifdef __WXRB_TRACE__
-                    std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+          #ifdef __WXRB_DEBUG__
+                    if (wxRuby_TraceLevel()>2)
+                      std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
           #endif
                     rb_gc_mark(object);
                   }
@@ -73,8 +75,9 @@ module WXRuby3
                 }
               }
             }
-          #ifdef __WXRB_TRACE__
-            std::wcout << "*** iterated " << l << " properties" << std::endl;
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "*** iterated " << l << " properties" << std::endl;
           #endif
           }
         __HEREDOC

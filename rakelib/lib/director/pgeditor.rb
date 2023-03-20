@@ -62,7 +62,7 @@ module WXRuby3
         # since OnEvent is const we need a slightly different version of this type map
         spec.map 'wxEvent &event' => 'Wx::Event' do
           map_directorin code: <<~__CODE
-            #ifdef __WXRB_TRACE__
+            #ifdef __WXRB_DEBUG__
             $input = wxRuby_WrapWxEventInRuby(const_cast<void*> (static_cast<const void*> (this)), &$1);
             #else
             $input = wxRuby_WrapWxEventInRuby(&$1);

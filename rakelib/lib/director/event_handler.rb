@@ -111,7 +111,7 @@ module WXRuby3
                 // into the ruby proc for handling on the ruby side
                 void EventThunker(wxEvent &event)
                 {
-            #ifdef __WXRB_TRACE__                
+            #ifdef __WXRB_DEBUG__                
                   VALUE rb_event = wxRuby_WrapWxEventInRuby(0, &event);
             #else
                   VALUE rb_event = wxRuby_WrapWxEventInRuby(&event);
@@ -125,8 +125,8 @@ module WXRuby3
                   {
                     VALUE rb_app = rb_const_get(wxRuby_Core(), rb_intern("THE_APP"));
                     rb_iv_set(rb_app, "@exception", err);
-            #ifdef __WXRB_TRACE__                
-                    if (!rb_obj_is_kind_of(err, rb_eSystemExit))
+            #ifdef __WXRB_DEBUG__                
+                    if (!rb_obj_is_kind_of(err, rb_eSystemExit) && wxRuby_TraceLevel()>0)
                     {
                       VALUE msg = rb_funcall(err, rb_intern("message"), 0);
                       VALUE err_name = rb_funcall(rb_funcall(err, rb_intern("class"), 0), rb_intern("name"), 0);

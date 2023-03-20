@@ -66,8 +66,9 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           static void GC_mark_wxGridCtrl(void* ptr) 
           {
-          #ifdef __WXRB_TRACE__
-            std::wcout << "> GC_mark_wxGridCtrl : " << ptr << std::endl;
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "> GC_mark_wxGridCtrl : " << ptr << std::endl;
           #endif
             if ( GC_IsWindowDeleted(ptr) )
             {
@@ -123,8 +124,9 @@ module WXRuby3
 
           static void wxRuby_UnregisterGridCellAttr(wxGridCellAttr* wx_attr)
           {
-          #ifdef __WXRB_TRACE__
-            std::wcout << "** wxRuby_UnregisterGridCellAttr : " << wx_attr << ":" << (void*)Grid_Cell_Attr_Value_Map[wx_attr] << std::endl;
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "** wxRuby_UnregisterGridCellAttr : " << wx_attr << ":" << (void*)Grid_Cell_Attr_Value_Map[wx_attr] << std::endl;
           #endif
             if (Grid_Cell_Attr_Value_Map.count(wx_attr) != 0)
             {
@@ -168,8 +170,9 @@ module WXRuby3
               RDATA(rb_attr)->dfree = 0;
               if (Grid_Cell_Attr_Value_Map.count(wx_attr) == 0)
               {
-          #ifdef __WXRB_TRACE__
-                std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
+          #ifdef __WXRB_DEBUG__
+                if (wxRuby_TraceLevel()>1)
+                  std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
           #endif
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
               }
@@ -194,8 +197,9 @@ module WXRuby3
 
           static void wxRuby_UnregisterGridCellEditor(wxGridCellEditor* wx_edt)
           {
-          #ifdef __WXRB_TRACE__
-            std::wcout << "** wxRuby_UnregisterGridCellEditor : " << wx_edt << ":" << (void*)Grid_Cell_Editor_Value_Map[wx_edt] << std::endl;
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "** wxRuby_UnregisterGridCellEditor : " << wx_edt << ":" << (void*)Grid_Cell_Editor_Value_Map[wx_edt] << std::endl;
           #endif
             if (Grid_Cell_Editor_Value_Map.count(wx_edt) != 0)
             {
@@ -239,8 +243,9 @@ module WXRuby3
               RDATA(rb_edt)->dfree = 0;
               if (Grid_Cell_Editor_Value_Map.count(wx_edt) == 0)
               {
-          #ifdef __WXRB_TRACE__
-                std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
+          #ifdef __WXRB_DEBUG__
+                if (wxRuby_TraceLevel()>1)
+                  std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
           #endif
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
               }
@@ -265,8 +270,9 @@ module WXRuby3
 
           static void wxRuby_UnregisterGridCellRenderer(wxGridCellRenderer* wx_rnd)
           {
-          #ifdef __WXRB_TRACE__
-            std::wcout << "** wxRuby_UnregisterGridCellRenderer : " << wx_rnd << ":" << (void*)Grid_Cell_Renderer_Value_Map[wx_rnd] << std::endl;
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "** wxRuby_UnregisterGridCellRenderer : " << wx_rnd << ":" << (void*)Grid_Cell_Renderer_Value_Map[wx_rnd] << std::endl;
           #endif
             if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) != 0)
             {
@@ -309,8 +315,9 @@ module WXRuby3
               RDATA(rb_rnd)->dfree = 0;
               if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) == 0)
               {
-          #ifdef __WXRB_TRACE__
-                std::wcout << "** wxRuby_RegisterGridCellRenderer : registering " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
+          #ifdef __WXRB_DEBUG__
+                if (wxRuby_TraceLevel()>1)
+                  std::wcout << "** wxRuby_RegisterGridCellRenderer : registering " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
           #endif
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
               }

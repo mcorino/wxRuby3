@@ -91,18 +91,22 @@ module WXRuby3
           spec.add_header_code <<~__HEREDOC
             extern void GC_mark_wxPGProperty(void* ptr)
             {
-            #ifdef __WXRB_TRACE__
-              std::wcout << "> GC_mark_wxPGProperty : " << ptr;
-              if (ptr) std::wcout << " (" << ((wxPGProperty*)ptr)->GetName() << ')';
-              std::wcout << std::endl;
+            #ifdef __WXRB_DEBUG__
+              if (wxRuby_TraceLevel()>1)
+              {
+                std::wcout << "> GC_mark_wxPGProperty : " << ptr;
+                if (ptr) std::wcout << " (" << ((wxPGProperty*)ptr)->GetName() << ')';
+                std::wcout << std::endl;
+              }
             #endif
               if (ptr)
               {
                 VALUE object = (VALUE)((wxPGProperty*)ptr)->GetClientData();
                 if (object && !NIL_P(object))
                 {
-            #ifdef __WXRB_TRACE__
-                  std::wcout << "*** marking property data " << ptr << std::endl;
+            #ifdef __WXRB_DEBUG__
+                  if (wxRuby_TraceLevel()>2)
+                    std::wcout << "*** marking property data " << ptr << std::endl;
             #endif
                   rb_gc_mark(object);
                 }

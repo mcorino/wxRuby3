@@ -119,6 +119,10 @@ struct wxrb_flag
 #error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
 #endif
 
+#ifdef __WXRB_DEBUG__
+WXRUBY_EXPORT int wxRuby_TraceLevel();
+#endif
+
 WXRUBY_EXPORT VALUE wxRuby_Funcall(VALUE rcvr, ID func, int argc, ...);
 
 WXRUBY_EXPORT bool wxRuby_IsAppRunning();
@@ -135,7 +139,7 @@ WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty);
 
 // Common wrapping functions
 WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject* obj);
-#ifdef __WXRB_TRACE__
+#ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent* event);
 #else
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent* event);

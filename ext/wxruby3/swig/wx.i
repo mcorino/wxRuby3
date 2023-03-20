@@ -53,13 +53,16 @@ PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
 WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object) {
-#ifdef __WXRB_TRACE__
-  std::wcout << "> wxRuby_AddTracking" << std::flush;
-  VALUE clsname = rb_mod_name(CLASS_OF(object));
-  std::wcout << "("
-             << ptr << ":{"
-             << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
-             << "})" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+  {
+    std::wcout << "> wxRuby_AddTracking" << std::flush;
+    VALUE clsname = rb_mod_name(CLASS_OF(object));
+    std::wcout << "("
+               << ptr << ":{"
+               << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
+               << "})" << std::endl;
+  }
 #endif
   Global_Ptr_Map[ptr] = object;
 }
@@ -74,8 +77,9 @@ WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr) {
 
 // Remove the tracking for ptr
 WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr) {
-#ifdef __WXRB_TRACE__
-  std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
 #endif
   Global_Ptr_Map.erase(ptr);
 }
@@ -170,7 +174,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 // Cached reference to EvtHandler evt_type_id -> ruby_event_class map
 static VALUE Evt_Type_Map = NULL;
 
-#ifdef __WXRB_TRACE__
+#ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent *wx_event)
 #else
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
@@ -182,8 +186,9 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
     Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
   }
 
-#if __WXRB_TRACE__ == 2
-  std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
+#if __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
 #endif
 
   // Then, look up the event type in this hash (MUCH faster than calling
@@ -223,25 +228,33 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
   rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
-#if __WXRB_TRACE__ == 2
-  std::wcout << "* wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}" << std::endl;
+#if __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "* wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}" << std::endl;
 #endif
 
   return rb_event;
 }
 %}
 
+%inline %{
 #ifdef __WXRB_DEBUG__
-%constant const bool wxRB_DEBUG = true;
+const bool wxRB_DEBUG = true;
+int wxRB_TRACE = 0;
 #else
-%constant const bool wxRB_DEBUG = false;
+const bool wxRB_DEBUG = false;
+const int wxRB_TRACE = 0;
 #endif
+%}
 
-#ifdef __WXRB_TRACE__
-%constant const int wxRB_TRACE = __WXRB_TRACE__;
-#else
-%constant const void* wxRB_TRACE = 0;
+%{
+#ifdef __WXRB_DEBUG__
+WXRUBY_EXPORT int wxRuby_TraceLevel()
+{
+  return wxRB_TRACE;
+}
 #endif
+%}
 
 %include "mark_free_impl.i"
 

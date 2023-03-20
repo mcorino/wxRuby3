@@ -283,7 +283,7 @@ module WXRuby3
                 break;
               case wxGridActivationSource::Key:
                 rb_ary_push(rbresult, ID2SYM(rb_intern("key")));
-            #ifdef __WXRB_TRACE__
+            #ifdef __WXRB_DEBUG__
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(0, const_cast<wxKeyEvent*> (&arg.GetKeyEvent())));
             #else 
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(const_cast<wxKeyEvent*> (&arg.GetKeyEvent())));
@@ -291,7 +291,7 @@ module WXRuby3
                 break;
               case wxGridActivationSource::Mouse:
                 rb_ary_push(rbresult, ID2SYM(rb_intern("mouse")));
-            #ifdef __WXRB_TRACE__
+            #ifdef __WXRB_DEBUG__
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(0, const_cast<wxMouseEvent*> (&arg.GetMouseEvent()))); 
             #else 
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(const_cast<wxMouseEvent*> (&arg.GetMouseEvent()))); 

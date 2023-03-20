@@ -388,7 +388,6 @@ module WXRuby3
 
             @debug_build   = WXRuby3::CONFIG['with-debug']
             @release_build = !@debug_build
-            @debug_trace   = ENV['WXRUBY_TRACE'] ? (ENV['WXRUBY_TRACE'] || '1').to_i : 0
             @verbosity     = ENV['WXRUBY_VERBOSE'] ? (ENV['WXRUBY_VERBOSE'] || '1').to_i : 0
 
             @dynamic_build = !!ENV['WXRUBY_DYNAMIC']
@@ -435,9 +434,6 @@ module WXRuby3
             @verbose_flag = ''
             if @debug_build
               @verbose_flag << '-D__WXRB_DEBUG__=1'
-              if @debug_trace
-                @verbose_flag << " -D__WXRB_TRACE__=#{@debug_trace}"
-              end
             end
 
             # SIXTH: Putting it all together
@@ -457,9 +453,6 @@ module WXRuby3
             if @debug_build
               puts "Enabled DEBUG build"
               puts "Enabled debugging output"
-              if @debug_trace
-                puts "Enabled debug tracing output (#{@debug_trace})"
-              end
             else
               puts "Enabled RELEASE build"
             end

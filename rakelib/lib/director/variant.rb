@@ -357,9 +357,12 @@ module WXRuby3
             for( it = Variant_Value_Map.begin(); it != Variant_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
-          #ifdef __WXRB_TRACE__
-              void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0);
-              std::wcout << "**** wxRuby_markRbValueVariants : " << it->first << "|" << (void*)c_ptr << std::endl;
+          #ifdef __WXRB_DEBUG__
+              if (wxRuby_TraceLevel()>1)
+              {
+                void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0);
+                std::wcout << "**** wxRuby_markRbValueVariants : " << it->first << "|" << (void*)c_ptr << std::endl;
+              }
           #endif 
               rb_gc_mark(obj);
             }
@@ -367,17 +370,21 @@ module WXRuby3
 
           static void wxRuby_RegisterValueVariantData(void* ptr, VALUE rbval)
           {
-          #ifdef __WXRB_TRACE__
-            void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0);
-            std::wcout << "**** wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr << std::endl; 
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+            {
+              void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0);
+              std::wcout << "**** wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr << std::endl;
+            } 
           #endif 
             Variant_Value_Map[ptr] = rbval;
           }
 
           static void wxRuby_UnregisterValueVariantData(void* ptr)
           {
-          #ifdef __WXRB_TRACE__
-            std::wcout << "**** wxRuby_UnregisterValueVariantData : " << ptr << std::endl; 
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "**** wxRuby_UnregisterValueVariantData : " << ptr << std::endl; 
           #endif 
             Variant_Value_Map.erase(ptr);
           }

@@ -125,8 +125,9 @@ WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
 // directors, they must be preserved from GC.
 void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 {
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "> GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
 #endif
 
   // First, mark this sizer
@@ -150,8 +151,9 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
     }
   }
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "< GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "< GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
 #endif
 }
 
@@ -165,8 +167,9 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 // containing Frame.
 void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 {
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "> GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
 #endif
 
   rb_gc_mark( SWIG_RubyInstanceFor(menu_bar) );
@@ -177,8 +180,9 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 	  rb_gc_mark( SWIG_RubyInstanceFor(menu) );
 	}
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "< GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "< GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
 #endif
 }
 
@@ -186,87 +190,100 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 // belong to this window
 WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
 {
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxWindow : " << ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "> GC_mark_wxWindow : " << ptr << std::endl;
 #endif
 
   if ( GC_IsWindowDeleted(ptr) )
   {
-#ifdef __WXRB_TRACE__
-    std::wcout << "< GC_mark_wxWindow : deleted" << std::endl;
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>1)
+      std::wcout << "< GC_mark_wxWindow : deleted" << std::endl;
 #endif
     return;
   }
 
   wxWindow* wx_win = (wxWindow*)ptr;
-#ifdef __WXRB_TRACE__
-  std::wcout << "* GC_mark_wxWindow - getting sizer" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>2)
+    std::wcout << "* GC_mark_wxWindow - getting sizer" << std::endl;
 #endif
   wxSizer* wx_sizer = wx_win->GetSizer();
   if ( wx_sizer )
   {
-#ifdef __WXRB_TRACE__
-    std::wcout << "* GC_mark_wxWindow - found sizer" << std::endl;
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>2)
+      std::wcout << "* GC_mark_wxWindow - found sizer" << std::endl;
 #endif
     VALUE rb_sizer = SWIG_RubyInstanceFor(wx_sizer);
 	if ( rb_sizer != Qnil )
       GC_mark_SizerBelongingToWindow(wx_sizer, rb_sizer);
   }
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "* GC_mark_wxWindow - getting caret" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>2)
+    std::wcout << "* GC_mark_wxWindow - getting caret" << std::endl;
 #endif
   wxCaret* wx_caret = wx_win->GetCaret();
   if ( wx_caret )
   {
-#ifdef __WXRB_TRACE__
-    std::wcout << "* GC_mark_wxWindow - found caret" << std::endl;
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>2)
+      std::wcout << "* GC_mark_wxWindow - found caret" << std::endl;
 #endif
     VALUE rb_caret = SWIG_RubyInstanceFor(wx_caret);
 	rb_gc_mark(rb_caret);
   }
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "* GC_mark_wxWindow - getting droptarget" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>2)
+    std::wcout << "* GC_mark_wxWindow - getting droptarget" << std::endl;
 #endif
   wxDropTarget* wx_droptarget = wx_win->GetDropTarget();
   if ( wx_droptarget )
   {
-#ifdef __WXRB_TRACE__
-    std::wcout << "* GC_mark_wxWindow - found droptarget" << std::endl;
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>2)
+      std::wcout << "* GC_mark_wxWindow - found droptarget" << std::endl;
 #endif
     VALUE rb_droptarget = SWIG_RubyInstanceFor(wx_droptarget);
 	rb_gc_mark(rb_droptarget);
   }
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "* GC_mark_wxWindow - getting validator" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>2)
+    std::wcout << "* GC_mark_wxWindow - getting validator" << std::endl;
 #endif
   wxValidator* wx_validator = wx_win->GetValidator();
   if ( wx_validator )
   {
-#ifdef __WXRB_TRACE__
-    std::wcout << "* GC_mark_wxWindow - found validator" << std::endl;
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>2)
+      std::wcout << "* GC_mark_wxWindow - found validator" << std::endl;
 #endif
 	  VALUE rb_validator = SWIG_RubyInstanceFor(wx_validator);
 	  rb_gc_mark(rb_validator);
   }
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "< GC_mark_wxWindow : " << ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "< GC_mark_wxWindow : " << ptr << std::endl;
 #endif
 }
 
 
 WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
 {
-#ifdef __WXRB_TRACE__
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
   std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
 #endif
 
   if ( GC_IsWindowDeleted(ptr) )
   {
-#ifdef __WXRB_TRACE__
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>1)
     std::wcout << "> GC_mark_wxFrame : deleted" << std::endl;
 #endif
     return;
@@ -285,8 +302,9 @@ WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
     GC_mark_MenuBarBelongingToFrame(menu_bar);
   }
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
 #endif
 }
 
@@ -298,14 +316,16 @@ WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
 // not a ruby object, and will thus crash.
 WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
 {
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
 #endif
 
   if ( ! ptr ) return;
   wxEvent* wx_event = (wxEvent*)ptr;
-#ifdef __WXRB_TRACE__
-  std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>2)
+    std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
 #endif
   if ( wx_event->GetEventType() > wxEVT_USER_FIRST &&
        wx_event->IsCommandEvent() )
@@ -315,8 +335,9 @@ WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
 	  rb_gc_mark(rb_client_data);
 	}
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
 #endif
 }
 
@@ -324,8 +345,9 @@ WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
 // Checks whether the C++ object is still around first...
 WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr)
 {
-#ifdef __WXRB_TRACE__
-  std::wcout << "> GC_mark_wxControlWithItems : " << ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "> GC_mark_wxControlWithItems : " << ptr << std::endl;
 #endif
 
   if ( GC_IsWindowDeleted(ptr) )
@@ -347,8 +369,9 @@ WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr)
 		rb_gc_mark(object);
 	}
 
-#ifdef __WXRB_TRACE__
-  std::wcout << "< GC_mark_wxControlWithItems : " << ptr << std::endl;
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
+    std::wcout << "< GC_mark_wxControlWithItems : " << ptr << std::endl;
 #endif
 }
 %}
