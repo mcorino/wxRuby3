@@ -111,7 +111,7 @@ module WXRuby3
     def do_run(*cmd, capture: nil)
       output = nil
       if capture
-        env_bup = Config.instance.exec_env.keys.inject({}) do |h, ev|
+        env_bup = exec_env.keys.inject({}) do |h, ev|
           h[ev] = ENV[ev] ? ENV[ev].dup : nil
           h
         end
@@ -139,7 +139,7 @@ module WXRuby3
           end
         end
       else
-        Rake.sh(Config.instance.exec_env, *cmd)
+        Rake.sh(exec_env, *cmd, verbose: verbose?)
       end
       output
     end
@@ -164,7 +164,7 @@ module WXRuby3
 
     def debug(*args, **options)
       args.unshift("-I#{File.join(Config.wxruby_root, 'lib')}")
-      Rake.sh(Config.instance.exec_env, debug_command(*args), **options)
+      Rake.sh(exec_env, debug_command(*args), **options)
     end
 
     def respawn_rake(argv = ARGV)
