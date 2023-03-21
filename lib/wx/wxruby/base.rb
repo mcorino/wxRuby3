@@ -5,6 +5,7 @@ require 'optparse'
 require "rbconfig"
 
 module WxRuby
+
   RUBY = ENV["RUBY"] || File.join(
     RbConfig::CONFIG["bindir"],
     RbConfig::CONFIG["ruby_install_name"] + RbConfig::CONFIG["EXEEXT"]).sub(/.*\s.*/m, '"\&"')
@@ -42,9 +43,10 @@ module WxRuby
       def describe_all
         puts "    wxruby commands:"
         commands.each do |id, cmd|
-          desc = cmd.call(:describe).split('\n')
-          puts "    #{id}\t\t#{desc.join('\t\t\t')}"
+          puts
+          puts cmd.call(:describe)
         end
+        puts
       end
 
       def run(cmdid, args)
@@ -53,8 +55,8 @@ module WxRuby
 
       def parse_args(args)
         opts = OptionParser.new
-        opts.banner = "Usage: wxruby [global options] command [command options]\n\n" +
-            "    command\t\tSpecifies wxruby command to execute."
+        opts.banner = "Usage: wxruby [global options] COMMAND [arguments]\n\n" +
+            "    COMMAND\t\t\tSpecifies wxruby command to execute."
         opts.separator ''
         opts.on('-v', '--verbose',
                 'Show verbose output') { |v| ::WxRuby::Commands.options[:verbose] = true }

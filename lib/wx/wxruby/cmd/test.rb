@@ -8,7 +8,7 @@ module WxRuby
   module Commands
     class Test
       def self.description
-        'Run wxRuby3 regression tests.'
+        "    test\t\t\tRun wxRuby3 regression tests."
       end
 
       def self.run(argv)
