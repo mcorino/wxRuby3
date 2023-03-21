@@ -42,15 +42,15 @@ module WXRuby3
           
               bool CanRead()  
               {
-                return ( ! RTEST( rb_funcall(m_rbio, rb_intern("closed?"), 0) ) );
+                return ( ! RTEST( wxRuby_Funcall(m_rbio, rb_intern("closed?"), 0) ) );
               }
               char GetC() 
               { 
-                return (char)NUM2INT( rb_funcall(m_rbio, rb_intern("getc"), 0) );
+                return (char)NUM2INT( wxRuby_Funcall(m_rbio, rb_intern("getc"), 0) );
               }
               bool Eof() 
               {
-                return RTEST( rb_funcall(m_rbio, rb_intern("eof"), 0) );
+                return RTEST( wxRuby_Funcall(m_rbio, rb_intern("eof"), 0) );
               }
               size_t LastRead() 
               {
@@ -58,7 +58,7 @@ module WXRuby3
               }
               size_t OnSysRead(void *buffer, size_t bufsize) 
               {
-                VALUE read_data = rb_funcall(m_rbio, rb_intern("read"), 
+                VALUE read_data = wxRuby_Funcall(m_rbio, rb_intern("read"), 
                                     1, INT2NUM(bufsize));
                 m_lastlength = RSTRING_LEN(read_data);
                 memcpy(buffer, RSTRING_PTR(read_data), m_lastlength);
@@ -66,7 +66,7 @@ module WXRuby3
               }
               wxRubyInputStream& Read(void *buffer, size_t size) 
               {
-                VALUE read_data = rb_funcall(m_rbio, rb_intern("read"), 
+                VALUE read_data = wxRuby_Funcall(m_rbio, rb_intern("read"), 
                                1, INT2NUM(size));
                   m_lastlength = RSTRING_LEN(read_data);
                 memcpy(buffer, RSTRING_PTR(read_data), m_lastlength);
@@ -75,13 +75,13 @@ module WXRuby3
               off_t SeekI(off_t pos, wxSeekMode mode = wxFromStart) 
               {
                 // Seek mode integers happily coincide in Wx and Ruby
-                rb_funcall(m_rbio, rb_intern("seek"), 2, 
+                wxRuby_Funcall(m_rbio, rb_intern("seek"), 2, 
                            INT2NUM(pos), INT2NUM(mode) );
                 return this->TellI();
               }
               off_t TellI() 
               {
-                return NUM2INT( rb_funcall( m_rbio, rb_intern("tell"), 0) );
+                return NUM2INT( wxRuby_Funcall( m_rbio, rb_intern("tell"), 0) );
               }
             protected:
               VALUE m_rbio; // Wrapped ruby object
@@ -113,7 +113,7 @@ module WXRuby3
             
               bool Close() 
               {
-                rb_funcall(m_rbio, rb_intern("close"), 0); // always returns nil
+                wxRuby_Funcall(m_rbio, rb_intern("close"), 0); // always returns nil
                 return true;
               }
               size_t LastWrite() 
@@ -122,13 +122,13 @@ module WXRuby3
               }
               void PutC(char c) 
               {
-                rb_funcall(m_rbio, rb_intern("putc"), 1, INT2NUM(c) );
+                wxRuby_Funcall(m_rbio, rb_intern("putc"), 1, INT2NUM(c) );
                 return;
               }
               size_t OnSysWrite(const void *buffer, size_t size) 
               {
                 VALUE write_data = rb_str_new((const char *)buffer, size);
-                VALUE ret_val = rb_funcall(m_rbio, rb_intern("write"), 1,
+                VALUE ret_val = wxRuby_Funcall(m_rbio, rb_intern("write"), 1,
                                            write_data);
                 m_lastlength = NUM2INT(ret_val);
                 return m_lastlength;
@@ -136,18 +136,18 @@ module WXRuby3
               off_t SeekO(off_t pos, wxSeekMode mode = wxFromStart) 
               {
                 // Seek mode integers happily coincide in Wx and Ruby
-                rb_funcall(m_rbio, rb_intern("seek"), 2, 
+                wxRuby_Funcall(m_rbio, rb_intern("seek"), 2, 
                            INT2NUM(pos), INT2NUM(mode) );
                 return this->TellO();
               }
               off_t TellO() 
               {
-                return NUM2INT( rb_funcall( m_rbio, rb_intern("tell"), 0) );
+                return NUM2INT( wxRuby_Funcall( m_rbio, rb_intern("tell"), 0) );
               }
               wxRubyOutputStream& Write(const void *buffer, size_t size) 
               {
                 VALUE write_data = rb_str_new((const char *)buffer, size);
-                VALUE ret_val = rb_funcall(m_rbio, rb_intern("write"), 1,
+                VALUE ret_val = wxRuby_Funcall(m_rbio, rb_intern("write"), 1,
                                            write_data);
                 m_lastlength = NUM2INT(ret_val);
                 return *this;
