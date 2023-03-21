@@ -223,7 +223,7 @@ module WxRuby
               @r_p.read_nonblock(4096) || ''
             rescue EOFError
               ''
-            rescue Errno::EAGAIN, Errno::EINTR
+            rescue Errno::EAGAIN, Errno::EINTR, IO::EWOULDBLOCKWaitReadable
               ''
             end
           else
