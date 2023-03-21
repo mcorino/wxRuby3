@@ -109,27 +109,39 @@ module WXRuby3
   module Config
 
     def do_run(*cmd, capture: nil)
-      r_p = nil
-      w_p = nil
-      case capture
-      when :out, :err, :all, :no_err
-        r_p, w_p = IO.pipe
+      output = nil
+      if capture
+        env_bup = Config.instance.exec_env.keys.inject({}) do |h, ev|
+          h[ev] = ENV[ev] ? ENV[ev].dup : nil
+          h
+        end
         case capture
         when :out
-          cmd << {out: w_p }
+          # default
         when :no_err
-          cmd << {out: w_p, err: windows? ? 'NULL' : '/dev/null' }
-        when :err
-          cmd << {err: w_p}
-        when :all
-          cmd << {out: w_p, :err=>[:child, :out]}
+          # redirect stderr to null sink
+          cmd << '2> ' << (windows? ? 'NULL' : '/dev/null')
+        when :err, :all
+          cmd << '2>&1'
         end
-      when :null
-        cmd << {[:err, :out] => windows? ? 'NULL' : '/dev/null' }
+        begin
+          # setup ENV for child execution
+          ENV.merge!(Config.instance.exec_env)
+          output = `#{cmd.join(' ')}`
+        ensure
+          # restore ENV
+          env_bup.each_pair do |k,v|
+            if v
+              ENV[k] = v
+            else
+              ENV.delete(k)
+            end
+          end
+        end
+      else
+        Rake.sh(Config.instance.exec_env, *cmd)
       end
-      spawn Config.instance.exec_env, *cmd
-      w_p.close if w_p
-      r_p.read if r_p
+      output
     end
     private :do_run
 
