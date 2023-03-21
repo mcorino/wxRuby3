@@ -116,7 +116,7 @@ Several years of development have passed for wxWidgets and Ruby respectively,
 improving code quality, adding new classes and new language features.
 In 2022 I finally found the time and the inspiration to pick up this project
 with the idea of reviving it to build some applications I had in mind.
-wxRuby 3 has intents to provide Ruby interfaces for all relevant (!) wxWidget
+wxRuby 3 intents to provide Ruby interfaces for all relevant (!) wxWidget
 classes of the latest version 3.2 and beyond. 
 Building on the experiences of the previous wxRuby (2) developments as well
 as the wxPython Phoenix project it is expected to provide a better and more
