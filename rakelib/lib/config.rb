@@ -154,6 +154,10 @@ module WXRuby3
     end
     private :make_ruby_cmd
 
+    def execute(*cmd)
+      do_run(*cmd.flatten)
+    end
+
     def run(*cmd, capture: nil)
       do_run(*make_ruby_cmd(cmd), capture: capture)
     end

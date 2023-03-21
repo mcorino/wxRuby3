@@ -29,6 +29,10 @@ namespace :wxruby do
     WXRuby3.config.irb
   end
 
+  task :exec => 'config:bootstrap' do |t, args|
+    WXRuby3.config.execute args.extras
+  end
+
 end
 
 desc "Run wxRuby tests"
