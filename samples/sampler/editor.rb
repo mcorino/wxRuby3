@@ -279,20 +279,20 @@ module WxRuby
 
       tb = create_tool_bar(Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT)
       tb.tool_bitmap_size = [ 16, 16 ]
-      tb.add_tool(ID::SAVE, 'Save', Wx::ArtProvider.get_bitmap(Wx::ART_FILE_SAVE, Wx::ART_TOOLBAR), 'Save the sample to a local folder')
-      tb.add_tool(ID::RUN, 'Run', Wx::ArtProvider.get_bitmap(Wx::ART_EXECUTABLE_FILE, Wx::ART_TOOLBAR), 'Run the (changed) sample')
+      tb.add_tool(ID::SAVE, 'Save', bitmap(:filesave), 'Save the sample to a local folder')
+      tb.add_tool(ID::RUN, 'Run', bitmap(:play), 'Run the (changed) sample')
       tb.add_separator
-      tb.add_tool(ID::UNDO, 'Undo', Wx::ArtProvider.get_bitmap(Wx::ART_UNDO, Wx::ART_TOOLBAR), 'Undo change')
-      tb.add_tool(ID::REDO, 'Redo', Wx::ArtProvider.get_bitmap(Wx::ART_REDO, Wx::ART_TOOLBAR), 'Redo change')
+      tb.add_tool(ID::UNDO, 'Undo', bitmap(:undo), 'Undo change')
+      tb.add_tool(ID::REDO, 'Redo', bitmap(:redo), 'Redo change')
       tb.add_separator
-      tb.add_tool(ID::COPY, 'Copy', Wx::ArtProvider.get_bitmap(Wx::ART_COPY, Wx::ART_TOOLBAR), 'Copy selection')
-      tb.add_tool(ID::CUT, 'Cut', Wx::ArtProvider.get_bitmap(Wx::ART_CUT, Wx::ART_TOOLBAR), 'Cut selection')
-      tb.add_tool(ID::PASTE, 'Paste', Wx::ArtProvider.get_bitmap(Wx::ART_PASTE, Wx::ART_TOOLBAR), 'Paste selection')
+      tb.add_tool(ID::COPY, 'Copy', bitmap(:copy), 'Copy selection')
+      tb.add_tool(ID::CUT, 'Cut', bitmap(:cut), 'Cut selection')
+      tb.add_tool(ID::PASTE, 'Paste', bitmap(:paste), 'Paste selection')
       tb.add_separator
-      tb.add_tool(ID::FIND, 'Find', Wx::ArtProvider.get_bitmap(Wx::ART_FIND, Wx::ART_TOOLBAR), 'Show Find Dialog')
-      tb.add_tool(ID::FIND_NEXT, 'FindNext', Wx::ArtProvider.get_bitmap(Wx::ART_GO_FORWARD, Wx::ART_TOOLBAR), 'Find next occurrence of the search phrase')
-      tb.add_tool(ID::FIND_PREV, 'FindPrev', Wx::ArtProvider.get_bitmap(Wx::ART_GO_BACK, Wx::ART_TOOLBAR), 'Find previous occurrence of the search phrase')
-      tb.add_tool(ID::REPLACE, 'Replace', Wx::ArtProvider.get_bitmap(Wx::ART_FIND_AND_REPLACE, Wx::ART_TOOLBAR), 'Show Replace Dialog')
+      tb.add_tool(ID::FIND, 'Find', bitmap(:find), 'Show Find Dialog')
+      tb.add_tool(ID::FIND_NEXT, 'FindNext', bitmap(:forward), 'Find next occurrence of the search phrase')
+      tb.add_tool(ID::FIND_PREV, 'FindPrev', bitmap(:back), 'Find previous occurrence of the search phrase')
+      tb.add_tool(ID::REPLACE, 'Replace', bitmap(:findrepl), 'Show Replace Dialog')
       tb.realize
 
       create_status_bar(1)
@@ -340,6 +340,10 @@ module WxRuby
       evt_menu(ID::FIND_PREV, :on_find_prev)
 
       layout
+    end
+
+    def bitmap(name)
+      Wx::Bitmap.new(File.join(__dir__, "#{name}.xpm"))
     end
 
     def update_undo_redo(f_undo, f_redo)
