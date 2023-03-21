@@ -35,7 +35,7 @@ module WxRuby
       log_sizer = Wx::VBoxSizer.new
       lbl_sizer = Wx::HBoxSizer.new
       lbl_sizer.add(Wx::StaticText.new(@log_panel, Wx::ID_ANY, 'Log'), 0, Wx::RIGHT, 5)
-      lbl_sizer.add(Wx::StaticLine.new(@log_panel, Wx::ID_ANY, [100,100], style: Wx::LI_HORIZONTAL|Wx::SIMPLE_BORDER), 1, Wx::EXPAND, 0)
+      lbl_sizer.add(Wx::StaticLine.new(@log_panel, Wx::ID_ANY, [2,2], style: Wx::LI_HORIZONTAL|Wx::SIMPLE_BORDER), 1, Wx::ALIGN_CENTER, 0)
       log_sizer.add(lbl_sizer, 0, Wx::EXPAND|Wx::ALL, 3)
       @log = Wx::TextCtrl.new(@log_panel, style: Wx::TE_MULTILINE | Wx::TE_READONLY | Wx::TE_NOHIDESEL | Wx::HSCROLL | Wx::VSCROLL)
       @log.set_max_length(0) unless Wx::PLATFORM == 'WXGTK'
@@ -45,8 +45,6 @@ module WxRuby
       @log_panel.hide
 
       @splitter.init(@edt_book)
-      # @splitter.split_horizontally(@edt_book,@log_panel, -1)
-      # @splitter.set_minimum_pane_size(0)
 
       @edt_book.evt_notebook_page_changed(@edt_book.id) { |evt| on_page_changed(evt) }
 
