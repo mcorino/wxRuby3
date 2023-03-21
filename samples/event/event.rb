@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # This sample demonstrates how to dynamically connect and disconnect
@@ -164,11 +163,11 @@ class TargetFrame < Wx::Frame
     msg =  sprintf("This is the About dialog of the event handling sample.\n" \
                    "Welcome to wxRuby, version %s", Wx::WXRUBY_VERSION)
 
-    about_dlg = Wx::MessageDialog.new( self, msg, 'About Event Handling',
-                                       Wx::OK|Wx::ICON_INFORMATION )
-    about_dlg.ok_label = Wx::ButtonLabel.new('Close')
-    about_dlg.show_modal
-
+    Wx::MessageDialog(self, msg, 'About Event Handling',
+                      Wx::OK | Wx::ICON_INFORMATION) do |about_dlg|
+      about_dlg.ok_label = Wx::ButtonLabel.new('Close')
+      about_dlg.show_modal
+    end
   end
 
   TOGGLE_LISTEN = 1001
@@ -192,15 +191,30 @@ class TargetFrame < Wx::Frame
   end
 end
 
-class TargetApp < Wx::App
-  def on_init
-    TargetFrame.new("Event Handling Sample").show
-    return true
-  end
-  def on_exit
-    STDERR.puts 'TargetApp#on_exit'
-  end
-end
+module EventSample
 
-a = TargetApp.new
-a.run
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby event handling example.',
+      description: <<~__TXT
+        wxRuby example demonstrating event handling.
+        This sample demonstrates how to dynamically connect and disconnect
+        event handlers, and how to create custom event types and listeners
+        associated with user-defined control classes.
+        __TXT
+     }
+  end
+
+  def self.activate
+    frame = TargetFrame.new("Event Handling Sample")
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run { EventSample.activate }
+  end
+
+end

@@ -1,16 +1,15 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # Basic Frame Class. This creates the dialog window
 class SimpleFrame < Wx::Frame 
   def initialize
-    super nil, :title => "Sample", :pos => [50, 50], :size => [300, 300]
+    super nil, :title => "Custom XRC Dialog Sample", :pos => [50, 50], :size => [300, 300]
 
     txt = "Choose 'Open Dialog' from the menu to see a dialog made with XRC"
     Wx::StaticText.new self, :label => txt, :pos => [20, 20]
@@ -23,7 +22,7 @@ class SimpleFrame < Wx::Frame
     menu_bar.append(menu,"File")
     
     # Assign the menu events
-    evt_menu(Wx::ID_OPEN) { $xml.load_dialog(self, 'SAMPLE_DIALOG').setup_dialog.show_modal }
+    evt_menu(Wx::ID_OPEN) { (dlg = $xml.load_dialog(self, 'SAMPLE_DIALOG').setup_dialog).show_modal; dlg.destroy }
     evt_menu(Wx::ID_EXIT) { close }
   end
 end
@@ -54,10 +53,18 @@ class CustomDialogXmlFactory < Wx::XmlSubclassFactory
   end
 end
 
-# Application class.
-class XrcApp < Wx::App
+module CustomXrcSample
 
-  def on_init
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby XRC custom class example.',
+      description: 'wxRuby example showcasing a custom dialog class using XRC and a custom XmlSubclassFactory.',
+      thumbnail: 'tn_xrc_sample' }
+  end
+
+  def self.activate
     # add the CustomDialog XML factory
     Wx::XmlResource.add_subclass_factory(CustomDialogXmlFactory.new)
     # Get a new resources object
@@ -65,9 +72,13 @@ class XrcApp < Wx::App
     $xml = Wx::XmlResource.new(xrc_file)
 
     # Show the main frame.
-    main = SimpleFrame.new()
+    main = SimpleFrame.new
     main.show(true)
+    main
   end
-end
 
-XrcApp.new.run()
+  if $0 == __FILE__
+    Wx::App.run { CustomXrcSample.activate }
+  end
+
+end

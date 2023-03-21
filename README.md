@@ -106,7 +106,7 @@ If you know of a feature in wxWidgets that you would like to see
 supported in wxRuby3 you are free to ask but do not **EXPECT** unconditional 
 agreement or immediate response. 
 
-### How does wxRuby3 relate to the wxRuby 2.0 (and even older  0.6.0 release)?
+### How does wxRuby3 relate to the wxRuby 2.0 (and even older 0.6.0 release)?
 
 wxRuby 0.6.0 was the last in a series of releases developed using a
 different approach in the early days of wxRuby. Work on this series
@@ -116,61 +116,13 @@ Several years of development have passed for wxWidgets and Ruby respectively,
 improving code quality, adding new classes and new language features.
 In 2022 I finally found the time and the inspiration to pick up this project
 with the idea of reviving it to build some applications I had in mind.
-Of course the wxRuby 2 code base was distinctly out of tune with current Ruby
-and wxWidget versions and most of it hand coded SWIG interface definitions
-(although there was the mention of XML extraction tools that did not seem
-be around anymore).
-After looking into the Phoenix project (wxPython) I decided to go their way,
-using the wxWidget doxygen generated XML interface specs to provide the input
-for code generation but keeping to SWIG instead of also building a customized
-wrapper generator.
-As a result I feel wxRuby3 is more complete than wxRuby 2 ever was and will 
-prove to be more maintainable for the future. 
+wxRuby 3 has intents to provide Ruby interfaces for all relevant (!) wxWidget
+classes of the latest version 3.2 and beyond. 
+Building on the experiences of the previous wxRuby (2) developments as well
+as the wxPython Phoenix project it is expected to provide a better and more
+maintainable solution.
 
 ### I am getting an error trying to install or compile wxRuby3
 
 Please double-check the INSTALL documents, and search issue archives. If 
 this doesn't help, please post your question using GitHub Issues.
-
-## Credits
-
-Martin Corino established the wxRuby3 project in 2022.
-
-In 2005 Kevin Smith established the wxRuby 2.0 project of which parts are still 
-integrated in wxRuby3. This project benefited from the input of dozens of 
-volunteers, who have contributed code, documentation, testing, bug reports and 
-feature requests.
-
-The alphabetic list shows (some of) those who've contributed code to
-wxRuby 2.0.
-
-Albin Holmgren
-Alex Fenton
-Artur Kuptel
-Cezar Espinola
-Chauk-Mean Proum
-Christophe Bludau
-Curt Hibbs
-Dale Edmons
-Daniel Savarese
-David Whetstone
-Dirk Traulsen
-Hawley Waldman
-Jani Monoses
-Joe Seeley
-Jonathan Maasland
-Kevin Smith
-Mario Steele
-Nic
-Pascal Hurni
-Robert Carlin
-Roy Sutton
-Ryuichi Sakamoto
-Sean Lindsay
-Sean Long
-Tobias Gruetzmacher
-Zach Dennis
-
-## Lead Maintainer
-
-Martin Corino: mcorino at m2c-software dot nl

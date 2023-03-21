@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 class GfxInfo
@@ -233,10 +232,24 @@ class GraphicsFrame < Wx::Frame
   end
 end
 
-class GraphicsApp < Wx::App
-  def on_init()
-    GraphicsFrame.new.show
-  end
-end
+module GraphicsSample
 
-GraphicsApp.new.run
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby graphics drawing example.',
+      description: 'wxRuby example demonstrating drawing text and geometrical shapes.' }
+  end
+
+  def self.activate
+    frame = GraphicsFrame.new
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run { GraphicsSample.activate }
+  end
+
+end

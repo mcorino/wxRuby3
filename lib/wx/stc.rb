@@ -10,4 +10,5 @@ require_relative './stc/require'
 
 ::Wx.include(WxRubyStyleAccessors)
 
+::Wx.include(::Wx::STC) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
 ::Wx::STC.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

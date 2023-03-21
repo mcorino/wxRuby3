@@ -11,16 +11,18 @@ require 'wx'
 
 module Demo
     def Demo.run(frame, nb, log)
-        dlg = Wx::ColourDialog.new(frame)
-        dlg.get_colour_data.set_choose_full(true)
+      cd = Wx::ColourData.new
+      cd.set_choose_full(true)
+      Wx.ColourDialog(frame, cd) do |dlg|
         if dlg.show_modal == Wx::ID_OK
             data = dlg.get_colour_data.get_colour
             log.write_text("You selected: (%d, %d, %d)" % [data.red, data.green, data.blue])
         end
+      end
     end
     
     def Demo.overview
-        return "Welcome to the wxRuby ColourDialog demo"
+      return "Welcome to the wxRuby ColourDialog demo"
     end
 end
 

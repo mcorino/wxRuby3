@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # Example demonstrating the use of Wx::ScrolledWindow and the
@@ -98,11 +97,24 @@ class ScrollFrame < Wx::Frame
 
 end
 
-class ScrollingApp < Wx::App
-  def on_init
+module ScrollwinSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby ScrolledWindow example.',
+      description: 'wxRuby example demonstrating the use of Wx::ScrolledWindow and the ScrollWinEvents.' }
+  end
+
+  def self.activate
     frame = ScrollFrame.new('')
     frame.show(true)
+    frame
   end
-end
 
-ScrollingApp.new.run
+  if $0 == __FILE__
+    Wx::App.run { ScrollwinSample.activate }
+  end
+
+end

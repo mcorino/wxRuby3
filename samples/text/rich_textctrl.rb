@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
+require 'wx'
 
 # RichTextCtrl sample by Chauk-Mean Proum
 #
@@ -18,12 +22,6 @@
 #
 # Icons are taken from the Tango Icon Theme.
 # Disabled icons are created at runtime as darkened grayscale versions.
-
-begin
-  require 'rubygems'
-rescue LoadError
-end
-require 'wx'
 
 class RichTextFrame < Wx::Frame
 
@@ -250,28 +248,31 @@ class RichTextFrame < Wx::Frame
     data.initial_font = @editor.font
 #    data.enable_effects(false)
 
-    dlg = Wx::FontDialog.new(self, data)
-    if dlg.show_modal == Wx::ID_OK
-      data = dlg.font_data
-      @editor.font = data.chosen_font
+    Wx::FontDialog(self, data) do |dlg|
+      if dlg.show_modal == Wx::ID_OK
+        data = dlg.font_data
+        @editor.font = data.chosen_font
+      end
     end
   end
 
   def open_file
-    dlg = Wx::FileDialog.new(self, "Open file", @cur_dir, @cur_file, @file_open_wildcard, Wx::FD_OPEN)
-    dlg.filter_index = @cur_filter_index
-    if dlg.show_modal == Wx::ID_OK
-      @editor.load_file(dlg.path, Wx::RICHTEXT_TYPE_ANY)
-      update_from_file dlg
+    Wx::FileDialog(self, "Open file", @cur_dir, @cur_file, @file_open_wildcard, Wx::FD_OPEN) do |dlg|
+      dlg.filter_index = @cur_filter_index
+      if dlg.show_modal == Wx::ID_OK
+        @editor.load_file(dlg.path, Wx::RICHTEXT_TYPE_ANY)
+        update_from_file dlg
+      end
     end
   end
 
   def save_file
-    dlg = Wx::FileDialog.new(self, "Save file as...", @cur_dir, @cur_file, @file_save_wildcard, Wx::FD_SAVE)
-    dlg.filter_index = @cur_filter_index
-    if dlg.show_modal == Wx::ID_OK
-      @editor.save_file(dlg.path, Wx::RICHTEXT_TYPE_ANY)
-      update_from_file dlg
+    Wx::FileDialog(self, "Save file as...", @cur_dir, @cur_file, @file_save_wildcard, Wx::FD_SAVE) do |dlg|
+      dlg.filter_index = @cur_filter_index
+      if dlg.show_modal == Wx::ID_OK
+        @editor.save_file(dlg.path, Wx::RICHTEXT_TYPE_ANY)
+        update_from_file dlg
+      end
     end
   end
 
@@ -284,11 +285,42 @@ class RichTextFrame < Wx::Frame
   end
 end
 
+module RichTextSample
 
-# The Application
-Wx::App.run do 
-  self.app_name = 'RichTextCtrl sample'
-  frame = RichTextFrame.new
-  frame.centre
-  frame.show
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby RichTextCtrl example.',
+      description: <<~__TXT 
+        wxRuby example displaying a frame window showcasing a RichTextCtrl.
+        RichTextCtrl is a sophisticated styled text editing component.
+        This sample illustrates a basic but functional rich editor featuring :
+        - file loading/saving
+        - text formatting
+        - change undo/redo
+        - selection copy/cut and clipboard paste
+        - font preferences
+        RichTextCtrl supports numerous other text characteristics (colour, super/subscript),
+        as well as paragraph alignment and spacing, and bullets.
+        It permits named text styles to be created and organised in stylesheets.
+        Facilities are also provided for printing.
+      __TXT
+    }
+  end
+
+  def self.activate
+    frame = RichTextFrame.new
+    frame.centre
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run do
+      self.app_name = 'RichTextCtrl sample'
+      RichTextSample.activate
+    end
+  end
+
 end

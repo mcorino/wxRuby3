@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 
@@ -110,20 +109,32 @@ class MySashFrame < Wx::Frame
 
   def on_about
     msg =  sprintf("This is the About dialog of the sash sample.\n" \
-                    "Welcome to %s", Wx::VERSION_STRING)
+                    "Welcome to %s", Wx::WXWIDGETS_VERSION)
     Wx::message_box(msg, "About Sash", Wx::OK|Wx::ICON_INFORMATION, self)
   end
 end
 
-class SashApp < Wx::App
-  def on_init
+module SashSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby SashLayoutWindow example.',
+      description: 'wxRuby example demonstrating the use of Wx::SashLayoutWindow.' }
+  end
+
+  def self.activate
     frame = MySashFrame.new("Sash Layout wxRuby App",
-                            Wx::Point.new(50, 50), 
+                            Wx::Point.new(50, 50),
                             Wx::Size.new(450, 340))
 
     frame.show(true)
-
+    frame
   end
-end
 
-SashApp.new.run
+  if $0 == __FILE__
+    Wx::App.run { SashSample.activate }
+  end
+
+end

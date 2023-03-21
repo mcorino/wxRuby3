@@ -37,7 +37,7 @@ end
 
 class TestBitmapData < Test::Unit::TestCase
   def test_bitmap_data
-    bmp = Wx::Bitmap.new('samples/minimal/mondrian.png')
+    bmp = Wx::Bitmap.new(File.join(__dir__, '../samples/minimal/mondrian.png'))
     height = bmp.height
     width  = bmp.width
     assert bmp.ok?, "Bitmap is OK"
@@ -70,7 +70,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
     d_obj = Wx::DataObjectComposite.new
     d_txt = Wx::TextDataObject.new
     d_obj.add( d_txt )
-    bmp = Wx::Bitmap.new('samples/minimal/mondrian.png')
+    bmp = Wx::Bitmap.new(File.join(__dir__, '../samples/minimal/mondrian.png'))
 
     d_obj.add( Wx::BitmapDataObject.new )
     if Wx::PLATFORM == 'WXMSW'

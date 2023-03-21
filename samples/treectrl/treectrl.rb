@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # This sample shows off the features of the TreeCtrl widget. The actual
@@ -1700,4 +1699,22 @@ class MyApp < Wx::App
   end
 end
 
-app = MyApp.new.run
+module TreeCtrlSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby TreeCtrl example.',
+      description: 'wxRuby example displaying use of TreeCtrl.' }
+  end
+
+  def self.run
+    execute(__FILE__)
+  end
+
+  if $0 == __FILE__
+    MyApp.run
+  end
+
+end

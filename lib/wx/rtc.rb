@@ -11,4 +11,5 @@ require 'wx/rtc/require'
 
 ::Wx.include(WxRubyStyleAccessors)
 
+::Wx.include(::Wx::RTC) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
 ::Wx::RTC.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

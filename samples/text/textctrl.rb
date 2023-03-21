@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 class InformativeTextCtrl < Wx::TextCtrl
@@ -95,14 +94,31 @@ class TextCtrlFrame < Wx::Frame
 
   def on_about
     msg =  sprintf("This is the About dialog of the textctrl sample.\n" \
-                    "Welcome to %s", Wx::VERSION_STRING)
+                    "Welcome to %s", Wx::WXWIDGETS_VERSION)
     message_box(msg, "About Minimal", Wx::OK|Wx::ICON_INFORMATION, self)
   end
 end
 
-Wx::App.run do
-  frame = TextCtrlFrame.new( :title => "TextCtrl demonstration",
-                             :pos => [ 50, 50 ],
-                             :size => [ 450, 340 ] )
-  frame.show
+module TextCtrlSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby TextCtrl example.',
+      description: 'wxRuby example displaying a frame window showcasing a TextCtrl.' }
+  end
+
+  def self.activate
+    frame = TextCtrlFrame.new( :title => "TextCtrl demonstration",
+                               :pos => [ 50, 50 ],
+                               :size => [ 450, 340 ] )
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run { TextCtrlSample.activate }
+  end
+
 end

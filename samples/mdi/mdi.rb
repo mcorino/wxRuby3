@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # Demonstrates a simple MDI (Multiple Document Interface) parent frame
@@ -78,7 +77,42 @@ class MDIFrame < Wx::MDIParentFrame
   end
 end
 
-Wx::App.run do
-  MDIFrame.new("MDI Application").show # may return false on OS X
-  true
+
+module MDISample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'Minimal wxRuby MDI example.',
+      description: <<~__TXT
+        Minimal wxRuby MDI example showcasing MDI framework.
+        Demonstrates a simple MDI (Multiple Document Interface) parent frame
+        with menus to create, cycle through and close child frames within in.
+        
+        Note that MDI is only properly natively implemented on Windows, and
+        even there it is deprecated by Microsoft as an application interface
+        style.
+        
+        On Linux/GTK, Wx simulates an MDI by using a Notebook. On OS X, MDI is
+        simulated simply by ordinary separate frames, and Next/Preview and
+        Tile/Cascade are unimplemented.
+        
+        For these reasons, MDI is not recommended for cross-platform
+        development. Alternative interface strategies include using separate
+        frames, or the AUI classes.
+        __TXT
+    }
+  end
+
+  def self.activate
+    frame = MDIFrame.new("MDI Application")
+    frame.show # may return false on OS X
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run { MDISample.activate }
+  end
+
 end

@@ -3,10 +3,6 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-begin
-  require 'rubygems'
-rescue LoadError
-end
 require 'wx'
 
 require_relative './propgrid_minimal'
@@ -2333,11 +2329,12 @@ class FormMain < Wx::Frame
     display_minimal_frame(self)
   end
 
-  private def iterate_message(prop)
+  def iterate_message(prop)
     s = "\"%s\" class = %s, valuetype = %s" % [prop.label,  prop.class.name, prop.value_type]
 
     Wx.message_box(s, "Iterating... (press CANCEL to end)", Wx::OK|Wx::CANCEL)
   end
+  private :iterate_message
 
   def on_iterate1_click(event)
     @propGridManager.get_current_page.each_property do |p|
@@ -2590,8 +2587,8 @@ class FormMain < Wx::Frame
     end +
     "\n\n" +
     "Programmed by %s\n\n" +
-    "Using wxRuby %s (%s; %s)\n\n") %
-      ["Martin Corino (C++ original by Jaakko Salli)", Wx::WXRUBY_VERSION, Wx::WXWIDGETS_VERSION_STRING, toolkit]
+    "Using wxRuby %s (wxWidgets %s; %s)\n\n") %
+      ["Martin Corino (C++ original by Jaakko Salli)", Wx::WXRUBY_VERSION, Wx::WXWIDGETS_VERSION, toolkit]
 
     Wx.message_box(msg, "About", Wx::OK | Wx::ICON_INFORMATION, self)
   end
@@ -2681,23 +2678,30 @@ class FormMain < Wx::Frame
 
 end
 
-Wx::App.run do
-  frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
-                           (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
-  frameSize.width = 500 if frameSize.width > 500
+module PropgridSample
 
-  self.gc_stress
+  include WxRuby::Sample if defined? WxRuby::Sample
 
-  frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
-  frame.show(true)
-
-  #
-  # Parse command-line
-  if ARGV.size>0 && ARGV[0] == '--run-tests'
-    #
-    # Run tests
-    return false if (testResult = frame.run_tests(true))
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby PropGrid example.',
+      description: 'wxRuby PropGrid example displaying frame showcasing PropgridManager.' }
   end
 
-  true
+  def self.activate
+    frameSize = Wx::Size.new((Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_X) / 10) * 4,
+                             (Wx::SystemSettings.get_metric(Wx::SYS_SCREEN_Y) / 10) * 8)
+    frameSize.width = 500 if frameSize.width > 500
+    frame = FormMain.new("wxPropertyGrid Sample", [0,0], frameSize)
+    frame.show(true)
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run do
+      gc_stress
+      PropgridSample.activate
+    end
+  end
+
 end

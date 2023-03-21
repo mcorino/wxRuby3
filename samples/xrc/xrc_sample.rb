@@ -1,16 +1,15 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # Basic Frame Class. This creates the dialog window
 class SimpleFrame < Wx::Frame 
   def initialize()
-    super nil, :title => "Sample", :pos => [50, 50], :size => [300, 300]
+    super nil, :title => "XRC Dialog Sample", :pos => [50, 50], :size => [300, 300]
 
     txt = "Choose 'Open Dialog' from the menu to see a dialog made with XRC"
     Wx::StaticText.new self, :label => txt, :pos => [20, 20]
@@ -23,7 +22,7 @@ class SimpleFrame < Wx::Frame
     menu_bar.append(menu,"File")
     
     # Assign the menu events
-    evt_menu(Wx::ID_OPEN) { SimpleDialog.new(self).show_modal }
+    evt_menu(Wx::ID_OPEN) { SimpleDialog(self) }
     evt_menu(Wx::ID_EXIT) { close }
   end
 end
@@ -59,10 +58,17 @@ class SimpleDialog < Wx::Dialog
   end
 end
 
-# Application class.
-class XrcApp < Wx::App
+module XrcSample
 
-  def on_init
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby XRC example.',
+      description: 'wxRuby example showcasing loading a dialog using XRC.' }
+  end
+
+  def self.activate
     # Get a new resources object
     xrc_file = File.join( File.dirname(__FILE__), 'samples.xrc' )
     $xml = Wx::XmlResource.new(xrc_file)
@@ -70,7 +76,11 @@ class XrcApp < Wx::App
     # Show the main frame.
     main = SimpleFrame.new()
     main.show(true)
+    main
   end
-end
 
-XrcApp.new.run()
+  if $0 == __FILE__
+    Wx::App.run { XrcSample.activate }
+  end
+
+end

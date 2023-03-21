@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
-
 # wxRuby2 Sample Code. Copyright (c) 2004-2009 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'wx'
 include Wx
-include Math
 
 # This sample was originally written by Alex Fenton as an answer to Ruby
 # Quiz #191, which challenged entrants to create an application which
@@ -114,9 +114,9 @@ end
 # A helper dialog for saving the image to a file
 class SaveImageDialog < FileDialog
   # The image file formats on offer
-  TYPES = [ [ "PNG file (*.png)|*.png", BITMAP_TYPE_PNG ],
-            [ "TIF file (*.tif)|*.tif", BITMAP_TYPE_TIF ],
-            [ "BMP file (*.bmp)|*.bmp", BITMAP_TYPE_BMP ] ]
+  TYPES = [ [ "PNG file (*.png)|*.png", Wx::BITMAP_TYPE_PNG ],
+            [ "TIF file (*.tif)|*.tif", Wx::BITMAP_TYPE_TIF ],
+            [ "BMP file (*.bmp)|*.bmp", Wx::BITMAP_TYPE_BMP ] ]
   
   WILDCARD = TYPES.map { | type | type.first }.join("|")
   
@@ -134,6 +134,8 @@ end
 
 # A Panel for displaying the image and controls to manipulate it
 class MathsPanel < Panel
+  include Math
+
   # Set functions to some nice initial values
   RED_INITIAL   = "cos(x)"
   GREEN_INITIAL = "cos(y ** x)"
@@ -208,9 +210,10 @@ class MathsPanel < Panel
 
   # Display a dialog to save the image to a file
   def on_save
-    dlg = SaveImageDialog.new(parent)
-    if dlg.show_modal == ID_OK
-      @drawing.img.save_file(dlg.path, dlg.image_type)
+    SaveImageDialog(parent) do |dlg|
+      if dlg.show_modal == ID_OK
+        @drawing.img.save_file(dlg.path, dlg.image_type)
+      end
     end
   end
 
@@ -260,6 +263,45 @@ class MathsFrame < Frame
   end
 end
 
-App.run do
-  MathsFrame.new.show
+module MathImagesSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby math images example.',
+      description: <<~__TXT
+        wxRuby example demonstrating drawing using math functions.
+        This sample was originally written by Alex Fenton as an answer to Ruby
+        Quiz #191, which challenged entrants to create an application which
+        could draw images based on mathematical functions:
+        
+        http://rubyquiz.strd6.com/quizzes/191/
+        
+        To use the application, enter functions which take input values of x
+        and y from 0 to 1, and return intensities of red, green and blue. If a
+        bad function is entered, a cross is displayed; hover over this to get
+        a hint on the problem.
+        
+        The sample demonstrates some uses of the Wx::Image class, a
+        platform-independent representation of an image which can be
+        manipulated (for example, resizing) and written to files in various
+        formats. It also shows how an image's rgb data can be written directly, by
+        using Array#pack.
+        __TXT
+    }
+  end
+
+  def self.activate
+    frame = MathsFrame.new
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run do
+      MathImagesSample.activate
+    end
+  end
+
 end

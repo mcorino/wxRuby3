@@ -1,9 +1,70 @@
 # WxRuby Extensions - Keyword Constructors for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
-
+# Adapted from wxRuby2.
 
 module Wx
   module KeywordConstructor
+
+    # This module defines an inheritable class attribute like the ones defined
+    # by the Rails #class_attribute method.
+    module ParamSpec
+      def self.included(mod)
+        mod.class_eval do
+          def self.param_spec
+            nil
+          end
+
+          def self.param_spec?
+            !!param_spec
+          end
+
+          def self.param_spec=(val)
+            singleton_class.class_eval do
+              if method_defined?(:param_spec) || private_method_defined?(:param_spec)
+                begin
+                  remove_method(:param_spec);
+                rescue NameError;
+                end
+              end
+              define_method(:param_spec) { val }
+            end
+
+            if singleton_class?
+              class_eval do
+                if method_defined?(:param_spec) || private_method_defined?(:param_spec)
+                  begin
+                    remove_method(:param_spec);
+                  rescue NameError;
+                  end
+                end
+
+                def param_spec
+                  defined?(@param_spec) ? @param_spec : singleton_class.param_spec
+                end
+              end
+            end
+            val
+          end
+
+          if method_defined?(:param_spec) || private_method_defined?(:param_spec)
+            begin
+              remove_method(:param_spec);
+            rescue NameError;
+            end
+          end
+
+          def param_spec
+            defined?(@param_spec) ? @param_spec : self.class.param_spec
+          end
+
+          def param_spec?
+            !!param_spec
+          end
+        end
+      end
+    end
+
+    # This module adds the class methods needed to define and use keyword ctors.
     module ClassMethods
 
       # Common Wx constructor argument keywords, with their default values.
@@ -17,11 +78,6 @@ module Wx
         :choices   => [] # for Choice, ComboBox etc
       }
 
-      attr_writer :param_spec
-      def param_spec
-        @param_spec ||= []
-      end
-      
       # Adds a list of named parameters *params* to the parameter
       # specification for this Wx class's constructor. Each parameter
       # should be specified as a either a common known symbol, such as
@@ -64,6 +120,8 @@ module Wx
 
     def self.included(klass)
       klass.extend ClassMethods
+
+      # This defines the overridden ctor that accepts and use the keyword param specs.
       klass.module_eval do
 
         alias :pre_wx_kwctor_init :initialize
@@ -74,7 +132,7 @@ module Wx
         def initialize(parent = :default_ctor, *mixed_args, &block)
           # allow zero-args ctor for use with XRC
           if parent == :default_ctor
-            pre_wx_kwctor_init()
+            pre_wx_kwctor_init
             return
           end
 
@@ -107,13 +165,7 @@ module Wx
           end
         end
       end
-      
-      # Any class inheriting from a class including this module must have
-      # its own copy of the param_spec
-      def klass.inherited(sub_klass)
-        sub_klass.instance_variable_set(:@param_spec, 
-                                        instance_variable_get(:@param_spec).dup )
-      end
     end
+
   end
 end

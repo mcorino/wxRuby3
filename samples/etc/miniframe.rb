@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 
@@ -63,18 +62,31 @@ class MyFrame < Wx::Frame
 
   def on_about
     msg =  sprintf("This is the About dialog of the miniframe sample.\n" \
-                    "Welcome to %s", Wx::VERSION_STRING)
+                    "Welcome to %s", Wx::WXWIDGETS_VERSION)
     Wx::message_box(msg, "About MiniFrame", Wx::OK|Wx::ICON_INFORMATION, self)
   end
 end
 
-class RbApp < Wx::App
-  def on_init
+module ActivationSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby MiniFrame example.',
+      description: 'wxRuby example demonstrating the use of Wx::MinFrame.' }
+  end
+
+  def self.activate
     frame = MyFrame.new("Mini Frame wxRuby App",
-                        Wx::Point.new(50, 50), 
+                        Wx::Point.new(50, 50),
                         Wx::Size.new(450, 340))
     frame.show
+    frame
   end
-end
 
-RbApp.new.run
+  if $0 == __FILE__
+    Wx::App.run { ActivationSample.activate }
+  end
+
+end

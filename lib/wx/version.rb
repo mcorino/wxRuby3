@@ -1,3 +1,3 @@
 module Wx
-  WXRUBY_VERSION    = '3.0.0'
+  WXRUBY_VERSION    = '0.9.0-beta'
 end

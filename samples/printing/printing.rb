@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 WXPRINT_QUIT = Wx::ID_EXIT
@@ -164,10 +163,11 @@ class MyFrame < Wx::Frame
   end
 
   def on_page_setup(event)
-    page_setup_dialog = Wx::PageSetupDialog.new(self, Wx::get_app.page_setup_data)
-    page_setup_dialog.show_modal
+    Wx::PRT.PageSetupDialog(self, Wx::get_app.page_setup_data) do |dlg|
+      dlg.show_modal
 
-    Wx::get_app.page_setup_data = page_setup_dialog.page_setup_data
+      Wx::get_app.page_setup_data = dlg.page_setup_data
+    end
   end
 
   def on_exit(event)
@@ -478,4 +478,22 @@ class MyApp < Wx::App
   end
 end
 
-MyApp.new.run
+module PrintingSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby Printing example.',
+      description: 'wxRuby example showcasing printing framework.' }
+  end
+
+  def self.run
+    execute(__FILE__)
+  end
+
+  if $0 == __FILE__
+    MyApp.run
+  end
+
+end

@@ -48,9 +48,13 @@ class Wx::App
   # in the passed block.
   # block 
   def self.run(&block)
-    app_klass = Class.new(self)
-    app_klass.class_eval do
-      define_method(:on_init, &block)
+    if block_given?
+      app_klass = Class.new(self)
+      app_klass.class_eval do
+        define_method(:on_init, &block)
+      end
+    else
+      app_klass = self
     end
     app_klass.new.run
   end

@@ -10,4 +10,5 @@ require_relative './prt/require'
 
 ::Wx.include(WxRubyStyleAccessors)
 
+::Wx.include(::Wx::PRT) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
 ::Wx::PRT.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS

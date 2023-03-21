@@ -1,0 +1,19 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        swig/wxruby.rc
+// Purpose:     wxRuby3 MSW standard resource file
+// Author:      Martin Corino
+/////////////////////////////////////////////////////////////////////////////
+
+// note that the icon used by the Explorer (i.e. the programs icon) is the
+// first icon in the executable and the icons are sorted both by their order
+// and alphabetically (!), so put this icon first and give it a name
+// starting with "a"
+aaaaaaaaWxRuby3 ICON "wxruby3/wxruby.ico"
+
+// To get DPI change events, we need to opt in into per monitor DPI support.
+#ifndef wxUSE_DPI_AWARE_MANIFEST
+#define wxUSE_DPI_AWARE_MANIFEST 2
+#endif
+
+// this file contains the standard icons, cursors, ...
+#include "wx/msw/wx.rc"

@@ -1,0 +1,20 @@
+require 'test/unit'
+require 'wx'
+
+class BasicTests < Test::Unit::TestCase
+
+  def test_versions
+    assert_equal(Wx::WXRUBY_VERSION, "#{Wx::WXRUBY_MAJOR}.#{Wx::WXRUBY_MINOR}.#{Wx::WXRUBY_RELEASE}-#{Wx::WXRUBY_RELEASE_TYPE}")
+    assert_equal(Wx::WXWIDGETS_VERSION, "#{Wx::WXWIDGETS_MAJOR_VERSION}.#{Wx::WXWIDGETS_MINOR_VERSION}.#{Wx::WXWIDGETS_RELEASE_NUMBER}")
+  end
+
+  def test_platform
+    assert(/WX[A-Z]+/ =~ Wx::PLATFORM)
+  end
+
+end
+
+if $0 == __FILE__
+  require 'test/unit/ui/console/testrunner'
+  Test::Unit::UI::Console::TestRunner.run(BasicTests)
+end

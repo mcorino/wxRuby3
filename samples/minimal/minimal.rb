@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # This sample shows a fairly minimal Wx::App using a Frame, with a
@@ -20,7 +19,7 @@ class MinimalFrame < Wx::Frame
 
     # Give the frame an icon. PNG is a good choice of format for
     # cross-platform images. Note that OS X doesn't have "Frame" icons.
-    icon_file = File.join( File.dirname(__FILE__)+"/../../art", "wxruby.png")
+    icon_file = File.join( File.dirname(__FILE__)+"/../art", "wxruby.png")
     self.icon = Wx::Icon.new(icon_file)
 
     menu_bar = Wx::MenuBar.new
@@ -66,12 +65,31 @@ class MinimalFrame < Wx::Frame
   end
 end
 
-# Wx::App is the container class for any wxRuby3 app. To start an
-# application, either create an app instance (from Wx::App or a class
-# derived from Wx::App) and call its run method OR simply call the
-# Wx::App.run class method as shown here.
-Wx::App.run do
-  self.app_name = 'Minimal'
-  frame = MinimalFrame.new("Minimal wxRuby App")
-  frame.show
+module MinimalSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'Minimal wxRuby example.',
+      description: 'Minimal wxRuby example displaying minimal frame window with menu.' }
+  end
+
+  def self.activate
+    frame = MinimalFrame.new("Minimal wxRuby App")
+    frame.show
+    frame
+  end
+
+  if $0 == __FILE__
+    # Wx::App is the container class for any wxRuby3 app. To start an
+    # application, either create an app instance (from Wx::App or a class
+    # derived from Wx::App) and call its run method OR simply call the
+    # Wx::App.run class method as shown here.
+    Wx::App.run do
+      self.app_name = 'Minimal'
+      MinimalSample.activate
+    end
+  end
+
 end

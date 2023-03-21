@@ -1,15 +1,10 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
-require 'wx'
-
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
 
 require 'wx'
-
 
 include Wx
 
@@ -41,8 +36,6 @@ DIALOGS_STYLED_BUSYINFO = 25
 DIALOGS_FIND = 26
 DIALOGS_REPLACE = 27
 DIALOGS_PREFS = 28
-
-$my_canvas = nil
 
 class MyTipProvider < TipProvider
   TIPS = [
@@ -293,7 +286,7 @@ class MyFrame < Frame
 
   def on_choose_colour(event)
 
-    col = $my_canvas.get_background_colour()
+    col = MyApp.canvas.get_background_colour()
 
     data = ColourData.new
     data.set_colour(col)
@@ -303,14 +296,15 @@ class MyFrame < Frame
       data.set_custom_colour(i, colour)
     end
 
-    dialog = ColourDialog.new(self, data)
-    dialog.set_title("Choose the background colour (not OS X)")
-    if dialog.show_modal() == ID_OK
-      retData = dialog.get_colour_data()
-      col = retData.get_colour()
-      $my_canvas.set_background_colour(col)
-      #$my_canvas.clear()
-      $my_canvas.refresh()
+    Wx::ColourDialog(self, data) do |dialog|
+      dialog.set_title("Choose the background colour (not OS X)")
+      if dialog.show_modal() == ID_OK
+        retData = dialog.get_colour_data()
+        col = retData.get_colour()
+        MyApp.canvas.set_background_colour(col)
+        #$my_canvas.clear()
+        MyApp.canvas.refresh()
+      end
     end
   end
 
@@ -320,20 +314,22 @@ class MyFrame < Frame
     data.set_initial_font(Wx::get_app.canvas_font)
     data.set_colour(Wx::get_app.canvas_text_colour)
 
-    dialog = FontDialog.new(self, data)
-
-    if dialog.show_modal() == ID_OK
-      ret_data = dialog.get_font_data()
-      Wx::get_app.canvas_font = ret_data.get_chosen_font()
-      Wx::get_app.canvas_text_colour = ret_data.get_colour()
-      font   = ret_data.get_chosen_font
-      msg = "Font = %s, %i pt" % [ font.get_face_name,
-                                   font.get_point_size ]
-      dialog2 = MessageDialog.new(self, msg, "Got font")
-      dialog2.show_modal()
-      # $my_canvas.refresh()
+    Wx::FontDialog(self, data) do |dialog|
+      if dialog.show_modal() == ID_OK
+        ret_data = dialog.get_font_data()
+        Wx::get_app.canvas_font = ret_data.get_chosen_font()
+        Wx::get_app.canvas_text_colour = ret_data.get_colour()
+        font   = ret_data.get_chosen_font
+        msg = "Font = %s, %i pt" % [ font.get_face_name,
+                                     font.get_point_size ]
+        # Using functors is not mandatory but to prevent memory leaks
+        # you MUST destroy the dialog yourself than at some point
+        dialog2 = MessageDialog.new(self, msg, "Got font")
+        dialog2.show_modal
+        dialog2.destroy
+      end
+      #else: cancelled by the user, don't change the font
     end
-    #else: cancelled by the user, don't change the font
   end
 
 
@@ -362,18 +358,18 @@ class MyFrame < Frame
 
   def on_message_box(event)
 
-    dialog = MessageDialog.new(nil, "This is a message box\nA long, long string to test out the message box properly",
-                               "Message box text", NO_DEFAULT|YES_NO|CANCEL|ICON_INFORMATION)
-
-    case dialog.show_modal()
-    when ID_YES
-      log_status("You pressed \"Yes\"")
-    when ID_NO
-      log_status("You pressed \"No\"")
-    when ID_CANCEL
-      log_status("You pressed \"Cancel\"")
-    else
-      log_error("Unexpected MessageDialog return code!")
+    Wx::MessageDialog(nil, "This is a message box\nA long, long string to test out the message box properly",
+                               "Message box text", NO_DEFAULT|YES_NO|CANCEL|ICON_INFORMATION) do |dialog|
+      case dialog.show_modal
+      when ID_YES
+        log_status("You pressed \"Yes\"")
+      when ID_NO
+        log_status("You pressed \"No\"")
+      when ID_CANCEL
+        log_status("You pressed \"Cancel\"")
+      else
+        log_error("Unexpected MessageDialog return code!")
+      end
     end
   end
 
@@ -410,34 +406,34 @@ class MyFrame < Frame
 
   def on_text_entry(event)
 
-    dialog = TextEntryDialog.new(self,
-                                 "This is a small sample\n" +
-                                                             "A long, long string to test out the text entrybox",
-                                 "Please enter a string",
-                                 "Default value",
-                                 OK | CANCEL)
-
-    if dialog.show_modal() == ID_OK
-      dialog2 = MessageDialog.new(self, dialog.get_value(), "Got string")
-      dialog2.show_modal()
+    Wx::TextEntryDialog(self,
+                        "This is a small sample\n" +
+                          "A long, long string to test out the text entrybox",
+                        "Please enter a string",
+                        "Default value",
+                        OK | CANCEL) do |dialog|
+      if dialog.show_modal() == ID_OK
+        dialog2 = MessageDialog.new(self, dialog.get_value(), "Got string")
+        dialog2.show_modal
+        dialog2.destroy
+      end
     end
   end
 
   def on_single_choice(event)
 
-    choices = ["One", "Two", "Three", "Four", "Five"]
+    choices = %w[One Two Three Four Five]
 
-    dialog = SingleChoiceDialog.new(self,
-                                    "This is a small sample\n" +
-                                                                "A single-choice convenience dialog",
-                                    "Please select a value",
-                                    choices, nil, OK | CANCEL)
+    Wx::SingleChoiceDialog(self,
+                           "This is a small sample\n" +
+                             "A single-choice convenience dialog",
+                           "Please select a value",
+                           choices, nil, OK | CANCEL) do |dialog|
+      dialog.set_selection(2)
 
-    dialog.set_selection(2)
-
-    if dialog.show_modal() == ID_OK
-      dialog2 = MessageDialog.new(self, dialog.get_string_selection(), "Got string")
-      dialog2.show_modal()
+      if dialog.show_modal == ID_OK
+        Wx::MessageDialog(self, dialog.get_string_selection, "Got string")
+      end
     end
   end
 
@@ -446,45 +442,41 @@ class MyFrame < Frame
 
     choices = %w[One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve Seventeen]
 
-    dialog = MultiChoiceDialog.new(self,
-                                    "This is a small sample\n" +
-                                      "A multi-choice convenience dialog",
-                                    "Please select a value",
-                                    choices, OK | CANCEL)
-    if dialog.show_modal() == ID_OK
-      selections = dialog.get_selections
-      if selections
-        msg = sprintf("You selected %d items:\n", selections.length)
-        for n in 0 ... selections.length
-          msg += sprintf("\t%d: %d (%s)\n", n, selections[n],
-                         choices[selections[n]])
+    Wx::MultiChoiceDialog(self,
+                          "This is a small sample\n" +
+                            "A multi-choice convenience dialog",
+                          "Please select a value",
+                          choices, OK | CANCEL) do |dialog|
+      if dialog.show_modal == ID_OK
+        selections = dialog.get_selections
+        if selections
+          msg = ("You selected %d items:\n" % selections.length) +
+            selections.length.times.collect { |n| "\t%d: %d (%s)\n" %  [n, selections[n], choices[selections[n]]] }.join
+          log_message(msg)
         end
-        log_message(msg)
       end
     end
   end
 
   def on_file_open(event)
 
-    dialog = FileDialog.new(
-                             self,
-                             "Testing open file dialog",
-                             "",
-                             "",
-                             "C++ files (*.h;*.cpp)|*.h;*.cpp"
-                           )
+    Wx::FileDialog(self,
+                   "Testing open file dialog",
+                   "",
+                   "",
+                   "C++ files (*.h;*.cpp)|*.h;*.cpp"
+    ) do |dialog|
+      dialog.set_directory(get_home_dir)
 
-    dialog.set_directory(get_home_dir())
-
-    if dialog.show_modal() == ID_OK
-      info = sprintf("Full file name: %s\n" +
-                                             "Path: %s\n" +
-                                             "Name: %s",
-                     dialog.get_path(),
-                     dialog.get_directory(),
-                     dialog.get_filename())
-      dialog2 = MessageDialog.new(self, info, "Selected file")
-      dialog2.show_modal()
+      if dialog.show_modal == ID_OK
+        info = sprintf("Full file name: %s\n" +
+                         "Path: %s\n" +
+                         "Name: %s",
+                       dialog.get_path,
+                       dialog.get_directory,
+                       dialog.get_filename)
+        Wx::MessageDialog(self, info, "Selected file")
+      end
     end
   end
 
@@ -516,45 +508,35 @@ class MyFrame < Frame
 
 
   def on_files_open(event)
+    Wx::FileDialog(self, "Testing open multiple file dialog",
+                   "", "", FILE_SELECTOR_DEFAULT_WILDCARD_STR,
+                   FD_MULTIPLE) do |dialog|
+      if dialog.show_modal == ID_OK
+        paths = dialog.get_paths
+        filenames = dialog.get_filenames
 
-    dialog = FileDialog.new(self, "Testing open multiple file dialog",
-                            "", "", FILE_SELECTOR_DEFAULT_WILDCARD_STR,
-                            FD_MULTIPLE)
-
-    if dialog.show_modal() == ID_OK
-
-      paths = dialog.get_paths()
-      filenames = dialog.get_filenames()
-
-      count = paths.length
-      msg = ""
-      for n in 0 ... count
-        s = sprintf("File %d: %s (%s)\n",
-                    n, paths[n], filenames[n])
-        msg += s
+        count = paths.length
+        msg = count.times.collect { |n| "File %d: %s (%s)\n" % [n, paths[n], filenames[n]] }.join
+        Wx::MessageDialog(self, msg, "Selected files")
       end
-
-      dialog2 = MessageDialog.new(self, msg, "Selected files")
-      dialog2.show_modal()
     end
   end
 
 
   def on_file_save(event)
+    Wx::FileDialog(self,
+                   "Testing save file dialog",
+                   "",
+                   "myletter.doc",
+                   "Text files (*.txt)|*.txt|Document files (*.doc)|*.doc",
+                   FD_SAVE | FD_OVERWRITE_PROMPT) do |dialog|
+      dialog.set_filter_index(1)
 
-    dialog = FileDialog.new(self,
-                            "Testing save file dialog",
-                            "",
-                            "myletter.doc",
-                            "Text files (*.txt)|*.txt|Document files (*.doc)|*.doc",
-                            FD_SAVE|FD_OVERWRITE_PROMPT)
+      if dialog.show_modal == ID_OK
 
-    dialog.set_filter_index(1)
-
-    if dialog.show_modal() == ID_OK
-
-      log_message("%s, filter %d",
-                  dialog.get_path(), dialog.get_filter_index())
+        log_message("%s, filter %d",
+                    dialog.get_path, dialog.get_filter_index)
+      end
     end
   end
 
@@ -563,17 +545,16 @@ class MyFrame < Frame
     # pass some initial dir to DirDialog
     dir_home = get_home_dir()
 
-    dialog = DirDialog.new(self, "Testing directory picker", dir_home)
-
-    if dialog.show_modal() == ID_OK
-      log_message("Selected path: %s", dialog.get_path())
+    Wx::DirDialog(self, "Testing directory picker", dir_home) do |dialog|
+      if dialog.show_modal == ID_OK
+        log_message("Selected path: %s", dialog.get_path)
+      end
     end
   end
 
 
   def on_modal_dlg(event)
-    dlg = MyModalDialog.new(self)
-    dlg.show_modal()
+    MyModalDialog(self)
   end
 
   def on_modeless_dlg(event)
@@ -584,7 +565,8 @@ class MyFrame < Frame
       end
       @dialog.show(true)
     else # hide
-      @dialog.hide()
+      @dialog.destroy
+      @dialog = nil
     end
   end
 
@@ -632,42 +614,40 @@ class MyFrame < Frame
 
 
   def on_show_prefs(event)
-    dialog = MyPrefsDialog.new(self)
-    dialog.show_modal
+    MyPrefsDialog(self)
   end
 
   def on_show_progress(event)
-
-    dialog = ProgressDialog.new("Progress dialog example",
-                                "An informative message",
-                                @max,    # range
-                                self,   # parent
-                                PD_CAN_ABORT|PD_APP_MODAL|
-                                PD_ELAPSED_TIME|PD_ESTIMATED_TIME|
-                                PD_REMAINING_TIME)
-
-    cont = true
-    for i in 0 .. @max
-      if i == @max
-        cont = dialog.update(i, "That's all, folks!")
-      elsif i == @max / 2
-        cont = dialog.update(i, "Only half of it left (very long message)!")
-      else
-        cont = dialog.update(i)
-      end
-
-      if !cont
-        if message_box("Do you really want to cancel?",
-                       "Progress dialog question",  # caption
-                       YES_NO | ICON_QUESTION) == YES
-          dialog.show(false)
-          break
+    cont = false
+    Wx::ProgressDialog("Progress dialog example",
+                       "An informative message",
+                       @max, # range
+                       self, # parent
+                       PD_CAN_ABORT | PD_APP_MODAL |
+                         PD_ELAPSED_TIME | PD_ESTIMATED_TIME |
+                         PD_REMAINING_TIME) do |dialog|
+      cont = true
+      (@max+1).times do |i|
+        if i == @max
+          cont = dialog.update(i, "That's all, folks!")
+        elsif i == @max / 2
+          cont = dialog.update(i, "Only half of it left (very long message)!")
+        else
+          cont = dialog.update(i)
         end
-        dialog.resume()
-      end
-      sleep(1)
-    end
 
+        if !cont
+          if message_box("Do you really want to cancel?",
+                         "Progress dialog question", # caption
+                         YES_NO | ICON_QUESTION) == YES
+            dialog.show(false)
+            break
+          end
+          dialog.resume
+        end
+        sleep(1)
+      end
+    end
 
     if !cont
       log_status("Progress dialog aborted!")
@@ -699,7 +679,7 @@ class MyFrame < Frame
 
   def on_show_styled_busy_info(event)
     result = nil
-    icon_file = File.join( File.dirname(__FILE__)+"/../../art", "wxruby.png")
+    icon_file = File.join( File.dirname(__FILE__)+"/../art", "wxruby.png")
     WindowDisabler.disable(self) do
       bif = BusyInfoFlags.new.parent(self).icon(Wx::Icon.new(icon_file)).title("Busy window").text("Working, please wait...")
       result = BusyInfo.busy(bif) do |bi|
@@ -723,7 +703,7 @@ class MyFrame < Frame
   def on_show_replace_dialog(event)
 
     if @dlg_replace
-      #@dlg_replace.destroy
+      @dlg_replace.destroy
       @dlg_replace = nil
     else
       @dlg_replace = FindReplaceDialog.new(
@@ -811,9 +791,14 @@ end
 
 
 class MyApp < App
+
+  class << self
+    attr_accessor :canvas
+  end
+
   attr_accessor :canvas_text_colour, :canvas_font
   
-  def on_init()
+  def on_init
     self.canvas_text_colour = Wx::Colour.new("BLACK")
     self.canvas_font        = Wx::NORMAL_FONT
     # Create the main frame window
@@ -859,17 +844,36 @@ class MyApp < App
     menu_bar.append(file_menu, "&File")
     frame.set_menu_bar(menu_bar)
 
-    $my_canvas = MyCanvas.new(frame)
-    $my_canvas.set_background_colour(WHITE)
+    MyApp.canvas = MyCanvas.new(frame)
+    MyApp.canvas.set_background_colour(WHITE)
 
     frame.centre(BOTH)
 
     # Show the frame
-    frame.show()
+    frame.show
+  end
+
+  def on_exit
+    MyApp.canvas = nil
   end
 end
 
-app = MyApp.new()
-app.run()
+module DialogsSample
 
-$my_canvas = nil
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby dialogs example.',
+      description: 'wxRuby example demonstrating various common dialogs.' }
+  end
+
+  def self.run
+    execute(__FILE__)
+  end
+
+  if $0 == __FILE__
+    MyApp.run
+  end
+
+end

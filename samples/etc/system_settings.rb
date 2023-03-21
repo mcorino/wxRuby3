@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # This example lists the various system settings that WxRuby knows
@@ -234,19 +233,31 @@ class SettingsFrame < Wx::Frame
 
   def on_about
     msg =  sprintf("This is the About dialog of the minimal sample.\n" \
-                    "Welcome to %s", Wx::VERSION_STRING)
+                    "Welcome to %s", Wx::WXWIDGETS_VERSION)
     Wx::message_box(msg, "About Minimal", Wx::OK|Wx::ICON_INFORMATION, self)
   end
 end
 
-class MyApp < Wx::App
-  def on_init
-    frame = SettingsFrame.new("System Settings", 
-                        Wx::DEFAULT_POSITION,
-                        Wx::Size.new(600, 400) )
-    frame.show(true)
-  end
-end
+module SystemSettingsSample
 
-# run the app
-MyApp.new.run
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby SystemSettings example.',
+      description: 'wxRuby example demonstrating using SystemSettings and displaying various system settings in a grid.' }
+  end
+
+  def self.activate
+    frame = SettingsFrame.new("System Settings",
+                              Wx::DEFAULT_POSITION,
+                              Wx::Size.new(600, 400) )
+    frame.show(true)
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run { SystemSettingsSample.activate }
+  end
+
+end

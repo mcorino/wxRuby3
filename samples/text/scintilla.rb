@@ -1,14 +1,12 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 include Wx
-
 
 Minimal_Quit = 1
 Minimal_About = ID_ABOUT
@@ -111,7 +109,7 @@ class MyFrame < Frame
   def onAbout
     GC.start
     msg =  sprintf("This is the About dialog of the scintilla sample.\n" \
-    		   "Welcome to %s", VERSION_STRING)
+    		   "Welcome to %s", WXWIDGETS_VERSION)
 
     message_box(msg, "About Scintilla", OK | ICON_INFORMATION, self)
 
@@ -153,17 +151,29 @@ class MyFrame < Frame
 
 end
 
-class RbApp < App
-  def on_init
-    frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
+module STCSample
 
-    frame.show(true)
+  include WxRuby::Sample if defined? WxRuby::Sample
 
+  def self.describe
+    { file: __FILE__,
+      summary: 'Scintilla editor wxRuby example.',
+      description: 'wxRuby example displaying frame window showcasing Scintilla editor control.' }
   end
-end
 
-a = RbApp.new
-a.run
-puts("back from run...") if Wx::RB_DEBUG
-GC.start
-puts("survived gc") if Wx::RB_DEBUG
+  def self.activate
+    frame = MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
+    frame.show(true)
+    frame
+  end
+
+  if $0 == __FILE__
+    Wx::App.run do
+      STCSample.activate
+    end
+    puts("back from run...") if Wx::RB_DEBUG
+    GC.start
+    puts("survived gc") if Wx::RB_DEBUG
+  end
+
+end

@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 require 'date'
 
@@ -239,17 +238,18 @@ class MyFrame < Frame
       dt = nil if get_menu_bar.is_checked(Calendar_DatePicker_StartWithNone)
     end
     
-    dlg = MyDialog.new(self, dt, style)
-    if dlg.show_modal == ID_OK
-      if dt = dlg.get_date
-        today = Time.now
-        if dt.day == today.day && dt.month == today.month
-          message_box("Happy birthday", "Calendar Sample")
+    MyDialog(self, dt, style) do |dlg|
+      if dlg.show_modal == ID_OK
+        if dt = dlg.get_date
+          today = Time.now
+          if dt.day == today.day && dt.month == today.month
+            message_box("Happy birthday", "Calendar Sample")
+          end
+          @calendar.set_date(dt)
+          log_status("Changed the date to your input")
+        else
+          log_status("No date entered")
         end
-        @calendar.set_date(dt)
-        log_status("Changed the date to your input")
-      else
-        log_status("No date entered")
       end
     end
   end
@@ -286,13 +286,13 @@ class MyFrame < Frame
       @calendar.reset_attr(29)
       # @calendar.reset_attr(13)
     end
-    @calendar.refresh()
+    @calendar.refresh
   end
 
   def set_date(d)
     str = "%s-%s-%s" % [ d.year, d.mon, d.day ]
-    Wx::MessageDialog.new( self, "The selected date is #{str}", 
-                           "Date chosen" ).show_modal
+    Wx.MessageDialog( self, "The selected date is #{str}",
+                           "Date chosen" ) { |dlg| dlg.show_modal }
   end
   alias :date= :set_date
   
@@ -342,11 +342,22 @@ class MyDialog < Dialog
 
 end
 
-class RbApp < App
-  def on_init()
-    frame = MyFrame.new("Calendar Windows sample")
-    frame.show(true)
-  end
-end
+module CalendarSample
 
-RbApp.new.run
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby Calendar example.',
+      description: 'wxRuby example demonstrating the Wx::CalendarCtrl and Wx::DatePickerCtrl.' }
+  end
+
+  def self.run
+    execute(__FILE__)
+  end
+
+  if $0 == __FILE__
+    Wx::App.run { MyFrame.new("Calendar Windows sample").show(true) }
+  end
+
+end

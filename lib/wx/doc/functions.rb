@@ -124,26 +124,97 @@ module Wx
 
   # @!group Dialog shortcuts
 
-  # @return [Integer] One of {Wx::YES}, {Wx::NO}, {Wx::CANCEL}, {Wx::OK} or {Wx::HELP}
-  def self.message_box(message, caption = 'Message', style = Wx::OK,
-                       parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD) end
-
   # @return [Array<Integer>] Selected choices
   def self.get_selected_choices(message, caption, choices,
                                 parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD,
                                 centre = true, width = Wx::CHOICE_WIDTH, height = Wx::CHOICE_HEIGHT) end
 
-  # Do not use if -1 is a valid number to enter.
-  # @return [Integer] Entered number or -1 if cancelled
-  def self.get_number_from_user(message, prompt, caption,
-                                value, min = 0, max = 100,
-                                parent = nil, pos = Wx::DEFAULT_POSITION) end
+  # Pops up a file selector box.
+  #
+  # In Windows, this is the common file selector dialog. In X, this is a file selector box with the same functionality.
+  # The path and filename are distinct elements of a full file pathname. If path is empty, the current directory will
+  # be used. If filename is empty, no default filename will be supplied. The wildcard determines what files are
+  # displayed in the file selector, and file extension supplies a type extension for the required filename. Flags may
+  # be a combination of Wx::FD_OPEN, Wx::FD_SAVE, Wx::FD_OVERWRITE_PROMPT or Wx::FD_FILE_MUST_EXIST.
+  #
+  # @note Wx::FD_MULTIPLE can only be used with Wx::FileDialog and not here since this function only returns a single file name.
+  #
+  # Both the Unix and Windows versions implement a wildcard filter. Typing a filename containing wildcards (*, ?) in
+  # the filename text item, and clicking on Ok, will result in only those files matching the pattern being displayed.
+  # The wildcard may be a specification for multiple types of file with a description for each, such as:
+  # <code>"BMP files (*.bmp)|*.bmp|GIF files (*.gif)|*.gif"</code>
+  #
+  # The application must check for an empty return value (the user pressed Cancel). For example:
+  # <code>
+  #   filename = Wx::file_selector("Choose a file to open")
+  #   unless filename.empty?
+  #     # work with the file
+  #     ...
+  #   end
+  #   # else: cancelled by user
+  # </code>
+  # @return [String] selected file name
+  def file_selector(message, default_path='', default_filename='', default_extension='', wildcard='',
+                    flags=0, parent=nil, x=Wx::DEFAULT_COORD, y=Wx::DEFAULT_COORD) end
 
-  # @return [String] Entered text.
-  def self.get_text_from_user(message, caption = 'Input Text', default_value = '', parent = nil) end
+  # An extended version of {Wx::file_selector}.
+  # @return [String] selected file name
+  def file_selector_ex(message='Select a file', default_path='', default_filename='', indexDefaultExtension=nil,
+                       wildcard='*', flags=0, parent=nil, x=Wx::DEFAULT_COORD, y=Wx::DEFAULT_COORD) end
 
-  # @return [String] Entered text.
-  def self.get_password_from_user(message, caption = 'Enter Password', default_value = '', parent = nil) end
+  # Shows a file dialog asking the user for a file name for saving a file.
+  # @see Wx::file_selector, Wx::FileDialog
+  def load_file_selector(what,  extension, default_name='', parent=nil) end
+
+  # Shows a file dialog asking the user for a file name for opening a file.
+  # @see Wx::file_selector, Wx::FileDialog
+  def save_file_selector(what, extension, default_name='', parent=nil) end
+
+  # @!endgroup
+
+  # @!group Managing stock IDs
+
+  # Returns true if the ID is in the list of recognized stock actions
+  # @param [Integer] id ID to check
+  # @return [true,false]
+  def is_stock_id(id) end
+
+  # Returns true if the label is empty or label of a stock button with
+  # given ID
+  # @param [Integer] id ID to check
+  # @param [String] label to check
+  # @return [true,false]
+  def is_stock_label(id, label) end
+
+  STOCK_NOFLAGS = 0
+
+  STOCK_WITH_MNEMONIC = 1
+
+  STOCK_WITH_ACCELERATOR = 2
+
+  STOCK_WITHOUT_ELLIPSIS = 4
+
+  STOCK_FOR_BUTTON = STOCK_WITHOUT_ELLIPSIS | STOCK_WITH_MNEMONIC
+
+  # Returns label that should be used for given id element.
+  # @param [Integer] id	Given id of the wxMenuItem, wxButton, wxToolBar tool, etc.
+  # @param [Integer] flags Combination of the elements of STOCK_xxx flags.
+  # @return [String]
+  def get_stock_label(id, flags = Wx::STOCK_WITH_MNEMONIC) end
+
+  # Returns the accelerator that should be used for given stock UI element
+  # (e.g. "Ctrl+X" for Wx::ID_CUT)
+  # @param [Integer] id stock UI element ID
+  # @return [Wx::AcceleratorEntry]
+  def get_stock_accelerator(id) end
+
+  STOCK_MENU = 0
+
+  # Returns a help string for the given stock UI element and for the given "context".
+  # @param [Integer] id stock UI element ID
+  # @param [Integer] client context (currently only STOCK_MENU)
+  # @return [String]
+  def get_stock_help_string(id, client = Wx::STOCK_MENU) end
 
   # @!endgroup
 

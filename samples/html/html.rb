@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems' 
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 require 'net/http'
@@ -209,10 +208,8 @@ class HtmlFrame < Wx::Frame
                    "Welcome to wxRuby, version %s", Wx::WXRUBY_VERSION)
 
     # create a simple message dialog with OK button
-    about_dlg = Wx::MessageDialog.new( self, msg, 'About WxRuby HTML',
-                                       Wx::OK|Wx::ICON_INFORMATION )
-    about_dlg.show_modal
-	about_dlg.destroy
+    Wx::MessageDialog(self, msg, 'About WxRuby HTML',
+                      Wx::OK | Wx::ICON_INFORMATION)
   end
 
   def on_html_link_clicked(event)
@@ -260,4 +257,22 @@ class HtmlApp < Wx::App
   end
 end
 
-HtmlApp.new.run
+module HTMLSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby HTML example.',
+      description: 'wxRuby example showcasing HTML framework.' }
+  end
+
+  def self.run
+    execute(__FILE__)
+  end
+
+  if $0 == __FILE__
+    HtmlApp.run
+  end
+
+end

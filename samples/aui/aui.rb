@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
-# Freely reusable code: see SAMPLES-LICENSE.TXT for details
-begin
-  require 'rubygems'
-rescue LoadError
-end
+# Adapted for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
+###
+
 require 'wx'
 
 # A resizable control that displays its current size, and, if an AUI
@@ -217,40 +216,41 @@ class SettingsPanel < Wx::Panel
   end
 
   def on_set_colour(event)
-    dlg = Wx::ColourDialog.new(@frame)
-    dlg.set_title("Colour Picker")
+    Wx.ColourDialog(@frame) do |dlg|
+      dlg.set_title("Colour Picker")
 
-    return unless dlg.show_modal == Wx::ID_OK
+      return unless dlg.show_modal == Wx::ID_OK
 
-    var = nil
-    case event.get_id()
-    when ID_BackgroundColour
-      var = Wx::AUI_DOCKART_BACKGROUND_COLOUR
-    when ID_SashColour
-      var = Wx::AUI_DOCKART_SASH_COLOUR
-    when ID_InactiveCaptionColour
-      var = Wx::AUI_DOCKART_INACTIVE_CAPTION_COLOUR
-    when ID_InactiveCaptionGradientColour
-      var = Wx::AUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR
-    when ID_InactiveCaptionTextColour
-      var = Wx::AUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR
-    when ID_ActiveCaptionColour
-      var = Wx::AUI_DOCKART_ACTIVE_CAPTION_COLOUR
-    when ID_ActiveCaptionGradientColour
-      var = Wx::AUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR
-    when ID_ActiveCaptionTextColour
-      var = Wx::AUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR
-    when ID_BorderColour
-      var = Wx::AUI_DOCKART_BORDER_COLOUR
-    when ID_GripperColour
-      var = Wx::AUI_DOCKART_GRIPPER_COLOUR
-    else
-      return
+      var = nil
+      case event.get_id()
+      when ID_BackgroundColour
+        var = Wx::AUI_DOCKART_BACKGROUND_COLOUR
+      when ID_SashColour
+        var = Wx::AUI_DOCKART_SASH_COLOUR
+      when ID_InactiveCaptionColour
+        var = Wx::AUI_DOCKART_INACTIVE_CAPTION_COLOUR
+      when ID_InactiveCaptionGradientColour
+        var = Wx::AUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR
+      when ID_InactiveCaptionTextColour
+        var = Wx::AUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR
+      when ID_ActiveCaptionColour
+        var = Wx::AUI_DOCKART_ACTIVE_CAPTION_COLOUR
+      when ID_ActiveCaptionGradientColour
+        var = Wx::AUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR
+      when ID_ActiveCaptionTextColour
+        var = Wx::AUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR
+      when ID_BorderColour
+        var = Wx::AUI_DOCKART_BORDER_COLOUR
+      when ID_GripperColour
+        var = Wx::AUI_DOCKART_GRIPPER_COLOUR
+      else
+        return
+      end
+
+      @frame.get_dock_art.set_colour(var, dlg.get_colour_data.get_colour)
+      @frame.do_update
+      update_colours
     end
-
-    @frame.get_dock_art.set_colour(var, dlg.get_colour_data.get_colour)
-    @frame.do_update
-    update_colours
   end
 
   private
@@ -1003,24 +1003,26 @@ class AuiFrame < Wx::Frame
   def on_pane_close(event)
     if event.get_pane.name == "test10"
       msg = "Are you sure you want to close/hide this pane?"
-      dlg = Wx::MessageDialog.new(self, msg, "Wx::AUI", Wx::YES_NO)
-      if dlg.show_modal != Wx::ID_YES
-        return event.veto
+      Wx.MessageDialog(self, msg, "Wx::AUI", Wx::YES_NO) do |dlg|
+        if dlg.show_modal != Wx::ID_YES
+          return event.veto
+        end
       end
     end
   end
 
   def on_create_perspective
     msg = "Enter a name for the new perspective:"
-    dlg = Wx::TextEntryDialog.new(self, msg, "Wx::AUI Test")
-    dlg.set_value("Perspective %d" % [@perspectives.length + 1])
-    return unless dlg.show_modal == Wx::ID_OK
-    if @perspectives.length.zero?
-      @perspectives_menu.append_separator
+    Wx.TextEntryDialog(self, msg, "Wx::AUI Test") do |dlg|
+      dlg.set_value("Perspective %d" % [@perspectives.length + 1])
+      return unless dlg.show_modal == Wx::ID_OK
+      if @perspectives.length.zero?
+        @perspectives_menu.append_separator
+      end
+      @perspectives_menu.append(ID_FirstPerspective + @perspectives.length,
+                                dlg.get_value)
+      @perspectives << @mgr.save_perspective
     end
-    @perspectives_menu.append(ID_FirstPerspective + @perspectives.length,
-                              dlg.get_value)
-    @perspectives << @mgr.save_perspective
   end
 
   def on_copy_perspective_code
@@ -1036,11 +1038,12 @@ class AuiFrame < Wx::Frame
     notebook = event.get_event_object
     if notebook.get_page(event.get_selection).kind_of?(Wx::HtmlWindow)
       msg = "Are you sure you want to close/hide this notebook page?"
-      dlg = Wx::MessageDialog.new(self, msg, "Wx::AUI", Wx::YES_NO)
-      if dlg.show_modal != Wx::ID_YES
-        event.veto
-      else
-        event.allow
+      Wx.MessageDialog(self, msg, "Wx::AUI", Wx::YES_NO) do |dlg|
+        if dlg.show_modal != Wx::ID_YES
+          event.veto
+        else
+          event.allow
+        end
       end
     end
   end
@@ -1120,8 +1123,9 @@ class AuiFrame < Wx::Frame
 
   def on_about
     msg = "Wx::AUI Demo\nAn advanced window management library for wxRuby\nAdapted by Alex Fenton from the wxWidgets AUI Demo\n which is (c) Copyright 2005-2006, Kirix Corporation"
-    dlg = Wx::MessageDialog.new(self, msg, "Wx::AUI", Wx::OK)
-    dlg.show_modal
+    Wx.MessageDialog(self, msg, "Wx::AUI", Wx::OK) do |dlg|
+      dlg.show_modal
+    end
   end
 
   def create_text_ctrl(text = "")
@@ -1180,7 +1184,28 @@ class AuiFrame < Wx::Frame
     ctrl = Wx::HtmlWindow.new(parent, Wx::ID_ANY,
                               Wx::DEFAULT_POSITION,
                               Wx::Size.new(400, 300))
-    ctrl.set_page(DATA.read)
+    ctrl.set_page <<~__HTML
+      <html>
+      <head><title>Test page</title></head>
+      <body background="pic.png" bgcolor="#ffffff">
+      
+      <B>wxString</B> <B>FindFirst</B>(was there a space between 'g' and 'F'?)<P>
+      
+      <font size="+2">Unbre</font>akable word<P>
+      
+      <pre width="50%">
+      &lt;pre&gt; text, 50% wide
+      </pre>
+      
+      
+      <script>
+      some meaningless script < is this > </is> FIXME: write real jscript here
+      </script>
+      text after script <b>in bold</b>
+      
+      </body>
+      </html>
+      __HTML
     ctrl
   end
 
@@ -1269,17 +1294,28 @@ class AuiFrame < Wx::Frame
   end
 end
 
-class AuiDemoApp < Wx::App
-  def on_init
+module AUISample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby AUI example.',
+      description: 'wxRuby example demonstrating the AUI framework.' }
+  end
+
+  def self.activate
     frame = AuiFrame.new(nil, Wx::ID_ANY, "Wx::AUI Sample Application",
                          Wx::DEFAULT_POSITION,
                          Wx::Size.new(800, 600))
-    set_top_window(frame)
     frame.show
-    return true
+    frame
   end
+
+  if $0 == __FILE__
+    Wx::App.run do
+      AUISample.activate
+    end
+  end
+
 end
-
-AuiDemoApp.new.run
-
-__END__

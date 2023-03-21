@@ -2,10 +2,6 @@
 # wxRuby Sample Code.
 # Copyright (c) M.J.N. Corino, The Netherlands
 
-begin
-  require 'rubygems'
-rescue LoadError
-end
 require 'wx'
 
 require_relative './sample_props'
@@ -81,11 +77,30 @@ def display_minimal_frame(parent = nil)
   frame.show
 end
 
-if __FILE__ == $0
-  Wx::App.run do
-    self.app_name = 'Minimal PropertyGrid'
-    Wx::Log::set_active_target(Wx::LogStderr.new)
-    gc_stress
-    display_minimal_frame
+unless (!defined? WxRuby::Sample) || WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__
+
+  module MinimalSample
+
+    include WxRuby::Sample if defined? WxRuby::Sample
+
+    def self.describe
+      { file: __FILE__,
+        summary: 'Minimal wxRuby PropGrid example.',
+        description: 'Minimal wxRuby example displaying frame window with a property grid.' }
+    end
+
+    def self.run
+      execute(__FILE__)
+    end
+
+    if $0 == __FILE__
+      Wx::App.run do
+        self.app_name = 'Minimal PropertyGrid'
+        Wx::Log::set_active_target(Wx::LogStderr.new)
+        gc_stress
+        display_minimal_frame
+      end
+    end
+
   end
 end

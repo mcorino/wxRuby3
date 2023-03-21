@@ -1,3 +1,5 @@
+# WxRuby Extensions - Dialog functors for wxRuby3
+# Copyright (c) M.J.N. Corino, The Netherlands
 
 class Wx::Dialog
 
@@ -9,7 +11,11 @@ class Wx::Dialog
         def #{functor_nm}(*args, &block)
           dlg = #{klass.name}.new(*args)
           begin
-            block.call(dlg) if block_given?
+            if block_given?
+              return block.call(dlg)
+            else
+              return dlg.show_modal
+            end
           rescue Exception
             Wx.log_debug "\#{$!}\\n\#{$!.backtrace.join("\\n")}"
             raise
@@ -18,7 +24,9 @@ class Wx::Dialog
           end
         end
         __CODE
-      unless scope.empty?
+      if scope.empty?
+        ::Kernel.module_eval code
+      else
         scope.inject(::Object) { |mod, nm| mod.const_get(nm) }.singleton_class.module_eval code
       end
       klass.class_eval do
