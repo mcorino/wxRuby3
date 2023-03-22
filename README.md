@@ -4,7 +4,7 @@ Reviving wxRuby
 
 ## Introduction
 
-wxRuby3 is a cross-platform GUI library for Ruby, based on the wxWidgets
+wxRuby3 is a cross-platform GUI library for Ruby, based on the [wxWidgets](https://wxwidgets.org)
 GUI toolkit for C++. It uses native widgets wherever possible, providing
 the correct look, feel and behaviour to GUI applications on Windows, OS
 X and Linux/GTK. wxRuby aims to provide a comprehensive solution to
@@ -14,7 +14,7 @@ developing professional-standard desktop applications in Ruby.
 
 wxRuby3 is free and open-source. It is distributed under the liberal
 MIT licence which is compatible with both free and commercial development.
-See LICENSE for more details.
+See [LICENSE](LICENSE) for more details.
 
 ### wxRuby3 and wxWidgets
 
@@ -36,6 +36,8 @@ retaining existing copyright notices. However, if you build your own
 custom wxWidgets library, there may be portions that require specific
 attributions or credits, such as TIFF or JPEG support. See the wxWidgets
 README and license files for details.
+See [here](CREDITS.md) for more details on and acknowledgement of the developers 
+of these products.
 
 ## FAQ
  
@@ -97,10 +99,10 @@ which may be relevant.
 ### What wxWidgets features are supported by wxRuby3?
 
 wxRuby supports almost all of the wxWidgets 3.x GUI API, providing over
-600 classes in total. wxWidgets classes that provide general programming
-support features, such as strings, networking, threading, database
+600 classes in total. wxWidgets classes that provide general and/or non-GUI 
+programming support features, such as strings, networking, threading, database
 access and such are not and will never be ported, as it's assumed that 
-in all these cases it's preferable to use a Ruby library.
+in all these cases it's preferable to use pure Ruby features.
 
 If you know of a feature in wxWidgets that you would like to see
 supported in wxRuby3 you are free to ask but do not **EXPECT** unconditional 
@@ -116,7 +118,7 @@ Several years of development have passed for wxWidgets and Ruby respectively,
 improving code quality, adding new classes and new language features.
 In 2022 I finally found the time and the inspiration to pick up this project
 with the idea of reviving it to build some applications I had in mind.
-wxRuby 3 has intents to provide Ruby interfaces for all relevant (!) wxWidget
+wxRuby 3 intents to provide Ruby interfaces for all relevant (!) wxWidget
 classes of the latest version 3.2 and beyond. 
 Building on the experiences of the previous wxRuby (2) developments as well
 as the wxPython Phoenix project it is expected to provide a better and more
@@ -124,5 +126,5 @@ maintainable solution.
 
 ### I am getting an error trying to install or compile wxRuby3
 
-Please double-check the INSTALL documents, and search issue archives. If 
+Please double-check the [INSTALL](INSTALL.md) documents, and search issue archives. If 
 this doesn't help, please post your question using GitHub Issues.

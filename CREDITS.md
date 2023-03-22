@@ -5,6 +5,10 @@
 
 Martin Corino established the wxRuby3 project in 2022.
 
+### Lead Maintainer
+
+Martin Corino: mcorino at m2c-software dot nl
+
 ## wxRuby 2
 
 In 2005 Kevin Smith established the wxRuby 2.0 project of which parts are still
@@ -42,6 +46,7 @@ Sean Long
 Tobias Gruetzmacher
 Zach Dennis
 
-## Lead Maintainer
+## wxWidgets
 
-Martin Corino: mcorino at m2c-software dot nl
+wxWidgets was started in 1992 by Julian Smart at the University of Edinburgh. 
+Many thanks go to him and the [wxWidgets development team](https://wxwidgets.org/about/team) for this marvellous GUI library.  
