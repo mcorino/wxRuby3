@@ -97,10 +97,10 @@ which may be relevant.
 ### What wxWidgets features are supported by wxRuby3?
 
 wxRuby supports almost all of the wxWidgets 3.x GUI API, providing over
-600 classes in total. wxWidgets classes that provide general programming
-support features, such as strings, networking, threading, database
+600 classes in total. wxWidgets classes that provide general and/or non-GUI 
+programming support features, such as strings, networking, threading, database
 access and such are not and will never be ported, as it's assumed that 
-in all these cases it's preferable to use a Ruby library.
+in all these cases it's preferable to use pure Ruby features.
 
 If you know of a feature in wxWidgets that you would like to see
 supported in wxRuby3 you are free to ask but do not **EXPECT** unconditional 
