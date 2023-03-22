@@ -82,7 +82,10 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+
+      - name: Setup Ruby gems
+        run: |
+          bundle install
 
       - name: Download Doxygen tool
         run: wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
