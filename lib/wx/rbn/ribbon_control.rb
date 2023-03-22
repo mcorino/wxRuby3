@@ -13,3 +13,13 @@ class Wx::RBN::RibbonControl
   alias :art_provider= :set_art_provider
 
 end
+
+module Wx
+  module RBN
+    # internally used specialized ribbon control without public exposure
+    # window* to these controls will surface (with the specialized wxWidgets
+    # class name) however so make them known to wxRuby mapped to the generic
+    # RibbonControl class
+    RibbonPageScrollButton = RibbonControl
+  end
+end
