@@ -92,7 +92,10 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
+
+    - name: Setup Ruby gems
+      run: |
+        bundle install
 
     - name: checkout wxWidgets
       uses: actions/checkout@v3
