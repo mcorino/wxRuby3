@@ -80,7 +80,7 @@ module WXRuby3
       if Dir[File.join('ext', 'wxruby_*.so')].empty? # Don't check for wxWidgets installation when executed for binary gem install
 
         if !get_config('with-wxwin')
-          # check if a user defined ACE/TAO location is specified or we're using a system standard install
+          # check if a user defined wxWidgets location is specified or we're using a system standard install
           if get_cfg_string('wxwin').empty?
             # assume system standard install; will be checked below
             set_config('wxwininstdir', get_cfg_string('libdir')) if get_cfg_string('wxwininstdir').empty?
@@ -123,20 +123,7 @@ module WXRuby3
           instance.check_doxygen
         end
 
-        # if is_osx
-        #   if system('which install_name_tool > /dev/null 2>&1')
-        #     @@rpath_patch = 'install_name_tool'
-        #   else
-        #     raise 'Building R2CORBA requires an installed version of the install_name_tool utility.'
-        #   end
-        # end
-
       end
-
-      # # check availability of RIDL; either as gem or in subdir
-      # unless File.exist?(File.join('ridl', 'lib', 'ridl', 'ridl.rb')) || (`gem search -i -q ridl`.strip) == 'true'
-      #   raise "Missing RIDL installation. R2CORBA requires RIDL installed either as gem or in subdirectory ridl."
-      # end
     end
 
   end
