@@ -4,8 +4,12 @@ source "https://rubygems.org"
 
 gem 'rake'
 gem 'nokogiri'
-gem 'ruby_memcheck'
-gem 'yard'
 gem 'minitest'
 gem 'test-unit'
-gem 'rmagick'
+group :develop, :optional => true do
+  gem 'ruby_memcheck'
+  gem 'yard'
+end
+group :samples, :optional => true do
+  gem 'rmagick'
+end
