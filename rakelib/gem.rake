@@ -35,6 +35,8 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
     gem.licenses = ['MIT']
     gem.add_dependency 'nokogiri', '~> 1.12'
     gem.add_dependency 'rake', '~> 12.0'
+    gem.add_dependency 'minitest', '~> 5.16'
+    gem.add_dependency 'test-unit', '~> 3.5'
     gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
     gem.metadata = {
       "bug_tracker_uri"   => "https://github.com/mcorino/wxruby3/issues",
@@ -84,6 +86,8 @@ if WXRuby3.is_bootstrapped?
                                     "< #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor+1}"
         gem.licenses = ['MIT']
         gem.add_dependency 'rake', '~> 12.0'
+        gem.add_dependency 'minitest', '~> 5.16'
+        gem.add_dependency 'test-unit', '~> 3.5'
         gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
       end
       WXRuby3::Gem.build_gem(gemspec)
