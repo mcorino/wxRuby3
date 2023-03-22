@@ -13,7 +13,6 @@ permissions:
 env:
   WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
   WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
-#  WXRUBY_RELEASE: 1
 
 jobs:
   build:
@@ -32,28 +31,28 @@ jobs:
             use_xvfb: true
             wxw_type: system
             wxr_type: develop
-#          - os: ubuntu-20.04
-#            gtk_version: 3
-#            CC: gcc-10
-#            CXX: g++-10
-#            ruby: '3.2'
-#            wxWidgets: '3.2.1'
-#            swig: '4'
-#            configure_flags:
-#            use_xvfb: true
-#            wxw_type: develop
-#            wxr_type: develop
-#          - os: ubuntu-22.04
-#            gtk_version: 3
-#            CC: gcc-11
-#            CXX: g++-11
-#            ruby: '3.0'
-#            wxWidgets: '3.2.1'
-#            swig: '4'
-#            configure_flags:
-#            use_xvfb: true
-#            wxw_type: develop
-#            wxr_type: develop
+          - os: ubuntu-20.04
+            gtk_version: 3
+            CC: gcc-10
+            CXX: g++-10
+            ruby: '3.2'
+            wxWidgets: '3.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-11
+            CXX: g++-11
+            ruby: '3.0'
+            wxWidgets: '3.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
@@ -86,8 +85,6 @@ jobs:
       WX_EXTRA_PACKAGES: doxygen chrpath
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
-      # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
-#      BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
