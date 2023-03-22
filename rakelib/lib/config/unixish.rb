@@ -63,7 +63,7 @@ module WXRuby3
               tag = if @wx_version
                       "v#{@wx_version}"
                     else
-                      expand('git tag').split("\n").select { |t| t.start_with?('v3.2') }.max
+                      expand('git tag').split("\n").select { |t| (/\Av3\.(\d+)/ =~ t) && $1.to_i >= 2  }.max
                     end
               # checkout the version we are building against
               rc = sh("git checkout #{tag}")
