@@ -13,51 +13,71 @@ permissions:
 
 env:
   DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-#  WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
-#  WXWIN_ROOT: ${{ github.workspace }}/ext/wxWidgets/install
+  WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
+  WXWIN_ROOT: ${{ github.workspace }}/ext/wxWidgets/install
 #  WXRUBY_RELEASE: 1
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    name: wxMSW ${{ matrix.os }} ${{ matrix.CXX }} Ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }} SWIG${{ matrix.swig }}
+    name: wxMSW wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     strategy:
       fail-fast: false
       matrix:
         include:
-#          - os: windows-2022
-#            platform: 'x64'
-#            ruby: '3.2'
-#            wxWidgets: '3.1.5'
-#            swig: '4'
-#          - os: windows-2022
-#            platform: 'x64'
-#            ruby: '2.7'
-#            wxWidgets: '3.1.5'
-#            swig: '4'
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
             ruby: '2.7'
-            wxWidgets: '3.2.1'
+            wxWidgets: '3.2.2.1'
             swig: '4'
+            wxw_type: embed
+            wxr_type: develop
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.1'
+            wxWidgets: '3.2.2.1'
             swig: '4'
+            wxw_type: embed
+            wxr_type: develop
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            wxw_type: develop
+            wxr_type: develop
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            wxw_type: develop
+            wxr_type: bingem
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            wxw_type: embed
+            wxr_type: gem
 
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v3
-#      - name: checkout wxWidgets
-#        uses: actions/checkout@v3
-#        with:
-#          repository: wxWidgets/wxWidgets
-#          path: ${{ env.WXWIDGETS_ROOT }}
-#          ref: v${{ matrix.wxWidgets }}
-#          submodules: 'recursive'
+
+      - name: checkout wxWidgets
+        if: matrix.wxw_type != 'embed'
+        uses: actions/checkout@v3
+        with:
+          repository: wxWidgets/wxWidgets
+          path: ${{ env.WXWIDGETS_ROOT }}
+          ref: v${{ matrix.wxWidgets }}
+          submodules: 'recursive'
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -80,26 +100,55 @@ jobs:
           ridk exec bash -c 'gcc -v'
           ridk exec bash -c 'g++ -v'
 
-#      - name: Configuring wxWidgets
-#        run: |
-#          Push-Location $env:WXWIDGETS_ROOT
-#          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
-#          Pop-Location
-#
-#      - name: Build wxWidgets
-#        run: |
-#          Push-Location $env:WXWIDGETS_ROOT
-#          ridk exec bash -c 'make && make install'
-#          Pop-Location
+      - name: Configuring wxWidgets
+        if: matrix.wxw_type != 'embed'
+        run: |
+          Push-Location $env:WXWIDGETS_ROOT
+          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
+          Pop-Location
+
+      - name: Build wxWidgets
+        if: matrix.wxw_type != 'embed'
+        run: |
+          Push-Location $env:WXWIDGETS_ROOT
+          ridk exec bash -c 'make && make install'
+          Pop-Location
 
       - name: Configure wxRuby3
+        if: matrix.wxr_type != 'gem'
         run: |
-          bundle exec rake configure[--with-wxwin]
+          If ("${{ matrix.wxw_type }}" -eq "embed") {
+            bundle exec rake configure[--with-wxwin]
+          }
+          Else {
+            bundle exec rake configure[--wxwin=$env:WXWIN_ROOT]
+          }
 
       - name: Build wxRuby3
+        if: matrix.wxr_type != 'gem'
         run: |
           bundle exec rake build
 
+      - name: Build wxRuby3 gem
+        if: matrix.wxr_type != 'develop'
+        run: |
+          bundle exec rake ${{ matrix.wxr_type }}
+
+      - name: Install wxRuby3 gem
+        if: matrix.wxr_type != 'develop'
+        run: |
+          If ("${{ matrix.wxw_type }}" -eq "embed") {
+            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- WITH_WXWIN=1 }
+          }
+          Else {
+            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f }
+          }
+
       - name: Run wxRuby3 regression tests
         run: |
-          bundle exec rake test
+          If ("${{ matrix.wxr_type }}" -eq "develop") {
+            bundle exec rake test
+          }
+          Else {
+            wxruby test
+          }
