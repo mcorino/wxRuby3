@@ -4,7 +4,7 @@ Reviving wxRuby
 
 ## Introduction
 
-wxRuby3 is a cross-platform GUI library for Ruby, based on the wxWidgets
+wxRuby3 is a cross-platform GUI library for Ruby, based on the [wxWidgets](https://wxwidgets.org)
 GUI toolkit for C++. It uses native widgets wherever possible, providing
 the correct look, feel and behaviour to GUI applications on Windows, OS
 X and Linux/GTK. wxRuby aims to provide a comprehensive solution to
@@ -124,5 +124,5 @@ maintainable solution.
 
 ### I am getting an error trying to install or compile wxRuby3
 
-Please double-check the INSTALL documents, and search issue archives. If 
+Please double-check the [INSTALL](INSTALL.md) documents, and search issue archives. If 
 this doesn't help, please post your question using GitHub Issues.
