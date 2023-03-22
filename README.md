@@ -36,6 +36,8 @@ retaining existing copyright notices. However, if you build your own
 custom wxWidgets library, there may be portions that require specific
 attributions or credits, such as TIFF or JPEG support. See the wxWidgets
 README and license files for details.
+See [here](CREDITS.md) for more details on and acknowledgement of the developers 
+of these products.
 
 ## FAQ
  
