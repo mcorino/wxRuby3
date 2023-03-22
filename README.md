@@ -14,7 +14,7 @@ developing professional-standard desktop applications in Ruby.
 
 wxRuby3 is free and open-source. It is distributed under the liberal
 MIT licence which is compatible with both free and commercial development.
-See LICENSE for more details.
+See [LICENSE](LICENSE) for more details.
 
 ### wxRuby3 and wxWidgets
 

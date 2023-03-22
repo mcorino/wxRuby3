@@ -31,7 +31,7 @@ Also a wxWidgets installation (version 3.2 or later) is required for which there
    The wxRuby build procedure will determine the availability and version of wxWidgets by locating and calling
    the `wx-config` utility script. In case no (compatible) wxWidgets version is found installation ends with an error.<br>
    Please note that even with this method a copy of the wxWidgets project will be checked out from GitHUb as the wxRuby3
-   build procedure requires access to the wxWidgets interface specification sources (see [here](...) for more details). 
+   build procedure requires access to the wxWidgets interface specification sources (see [here](TODO) for more details). 
    
 
 2. User installed wxWidgets version<br>
@@ -72,4 +72,4 @@ commands are executed using parallel task execution by default.
 
 When the build has finished without errors the regression tests can be run by calling `rake test`.
 
-For more details concerning the wxRuby3 development strategy and build options see [here](...). 
+For more details concerning the wxRuby3 development strategy and build options see [here](TODO). 
