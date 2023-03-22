@@ -2,14 +2,14 @@
 
 source "https://rubygems.org"
 
-gem 'rake'
-gem 'nokogiri'
-gem 'minitest'
-gem 'test-unit'
+gem 'rake', '~> 13.0'
+gem 'nokogiri', '~> 1.14'
+gem 'minitest', '~> 5.16'
+gem 'test-unit', '~> 3.5'
 group :develop, :optional => true do
-  gem 'ruby_memcheck'
-  gem 'yard'
+  gem 'ruby_memcheck', '~> 1.2'
+  gem 'yard', '~> 0.9'
 end
 group :samples, :optional => true do
-  gem 'rmagick'
+  gem 'rmagick', '~> 5.1'
 end
