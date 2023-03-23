@@ -14,7 +14,7 @@ permissions:
 env:
   DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
   WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
-  WXWIN_ROOT: ${{ github.workspace }}/ext/wxWidgets/install
+  WXWIN_ROOT: ${{ github.workspace }}\ext\wxWidgets\install
 #  WXRUBY_RELEASE: 1
 
 jobs:
