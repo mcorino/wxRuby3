@@ -33,9 +33,9 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
     gem.executables = WXRuby3::Bin.binaries
     gem.required_ruby_version = '>= 2.5'
     gem.licenses = ['MIT']
-    gem.add_dependency 'nokogiri', '~> 1.14'
-    gem.add_dependency 'rake', '~> 13.0'
-    gem.add_dependency 'minitest', '~> 5.16'
+    gem.add_dependency 'nokogiri', '>= 1.12'
+    gem.add_dependency 'rake', '>= 13.0'
+    gem.add_dependency 'minitest', '>= 5.15'
     gem.add_dependency 'test-unit', '~> 3.5'
     gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
     gem.metadata = {
@@ -85,9 +85,9 @@ if WXRuby3.is_bootstrapped?
         gem.required_ruby_version = ">= #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}",
                                     "< #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor+1}"
         gem.licenses = ['MIT']
-        gem.add_dependency 'rake', '~> 13.0'
-        gem.add_dependency 'minitest', '~> 5.16'
-        gem.add_dependency 'test-unit', '~> 3.5'
+        gem.add_dependency 'rake', '>= 13.0'
+        gem.add_dependency 'minitest', '>= 5.15'
+        gem.add_dependency 'test-unit', '>= 3.5'
         gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
       end
       WXRuby3::Gem.build_gem(gemspec)
