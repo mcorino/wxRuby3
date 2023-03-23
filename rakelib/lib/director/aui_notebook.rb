@@ -72,7 +72,7 @@ module WXRuby3
               VALUE rc = Qnil;
               if ($self->FindTab(page, &ctrl, &idx))
               {
-                VALUE rc = rb_ary_new();
+                rc = rb_ary_new();
                 rb_ary_push(rc, SWIG_NewPointerObj(SWIG_as_voidptr(ctrl), SWIGTYPE_p_wxAuiTabCtrl, 0));
                 rb_ary_push(rc, INT2NUM(idx));
               }
