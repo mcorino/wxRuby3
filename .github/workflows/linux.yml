@@ -181,7 +181,11 @@ jobs:
     - name: Install wxRuby3 gem
       if: matrix.wxr_type == 'gem'
       run: |
-        gem install `echo pkg/*.gem`
+        if [ "${{ matrix.wxw_type }}" == "system" ]; then
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/use/local/lib gem install `echo pkg/*.gem`
+        else
+          gem install `echo pkg/*.gem` -- WXWIN=$WXWIN_INSTALL
+        fi
 
     - name: Run wxRuby3 regression tests
       run: |
