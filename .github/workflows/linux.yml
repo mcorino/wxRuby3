@@ -182,10 +182,7 @@ jobs:
       if: matrix.wxr_type == 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "system" ]; then
-          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib WXRUBY_VERBOSE=1 gem install `echo pkg/*.gem` -- --trace || rc=$?
-          if [ -n "$rc" ]; then
-            cat /opt/hostedtoolcache/Ruby/3.2.1/x64/lib/ruby/gems/3.2.0/extensions/x86_64-linux/3.2.0/wxruby3-0.9.0.pre.beta/gem_make.out
-          fi
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib WXRUBY_VERBOSE=2 gem install `echo pkg/*.gem` -- --trace
         else
           gem install `echo pkg/*.gem` -- WXWIN=$WXWIN_INSTALL
         fi
