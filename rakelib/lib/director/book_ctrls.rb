@@ -26,6 +26,8 @@ module WXRuby3
           spec.ignore 'wxBookCtrl' # useless define in bookctrl.h doc
           spec.override_inheritance_chain('wxBookCtrlBase', %w[wxControl wxWindow wxEvtHandler wxObject])
           spec.no_proxy('wxBookCtrlBase')
+          # argout for HitTest
+          spec.map_apply 'long *OUTPUT' => 'long *flags'
           # mixin WithImages
           spec.include_mixin 'wxBookCtrlBase', 'Wx::WithImages'
         when 'wxNotebook'
