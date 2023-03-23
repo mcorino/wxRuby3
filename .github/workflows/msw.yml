@@ -124,7 +124,7 @@ jobs:
             bundle exec rake configure[--with-wxwin]
           }
           Else {
-            bundle exec rake configure[--wxwin=$env:WXWIN_ROOT]
+            bundle exec rake configure WXWIN=$env:WXWIN_ROOT WXRUBY_VERBOSE=1
           }
 
       - name: Build wxRuby3
