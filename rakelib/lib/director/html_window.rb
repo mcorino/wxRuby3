@@ -44,7 +44,7 @@ module WXRuby3
             $1 = &tmp;
             __CODE
         end
-        spec.map 'const int* sizes' => 'Array<Integer>' do
+        spec.map 'const int* sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer)' do
           # Deal with sizes argument to SetFonts
           map_in code: <<~__CODE
             if ( TYPE($input) != T_ARRAY || RARRAY_LEN($input) != 7 )

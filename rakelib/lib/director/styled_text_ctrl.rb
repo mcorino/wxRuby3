@@ -30,7 +30,7 @@ module WXRuby3
             }
             __CODE
         end
-        spec.map 'long *, long *', 'wxTextCoord *col, wxTextCoord *row', as: 'Array<Integer>' do
+        spec.map 'long *, long *', 'wxTextCoord *col, wxTextCoord *row', as: 'Array(Integer, Integer)' do
           map_in ignore: true, temp: '$*1_ltype a, $*2_ltype b', code: '$1 = &a; $2 = &b;'
           map_argout code: <<~__CODE
             if (TYPE($result) != T_ARRAY)

@@ -22,8 +22,8 @@ module WXRuby3
         spec.map_apply 'long * OUTPUT' => 'long *'
         spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
         # for PositionToXY
-        spec.map 'long pos, long *x, long *y' => 'Array<Integer>' do
-          map_in temp: 'long tmpX, long tmpY', code: <<~__CODE
+        spec.map 'long pos, long *x, long *y' do
+          map_in from: {name: 'pos', type: 'Integer'}, temp: 'long tmpX, long tmpY', code: <<~__CODE
             $1 = (long)NUM2INT($input);
             $2 = &tmpX;
             $3 = &tmpY;
@@ -32,7 +32,7 @@ module WXRuby3
           # ignore C defined return value entirely (also affects directorout)
           map_out ignore: 'bool'
 
-          map_argout code: <<~__CODE
+          map_argout as: 'Array(Integer, Integer), nil', code: <<~__CODE
             $result = Qnil;
             if (result)
             {

@@ -149,7 +149,7 @@ module WXRuby3
         when 1
           doclns << "@return [#{result.first}]"
         else
-          doclns << "@return [Array<(#{result.join(',')})>]"
+          doclns << "@return [Array(#{result.join(',')})]"
         end
         [rb_decl_name, paramlist, doclns]
       end
