@@ -64,6 +64,8 @@ module WXRuby3
           ]
           spec.suppress_warning(473,
                                 'wxExtHelpController::GetParentWindow')
+          # already generated with HelpController
+          spec.do_not_generate :variables, :enums, :defines, :functions
         end
       end
     end # class HelpController
