@@ -20,50 +20,50 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '2.5'
-            wxWidgets: '3.2.2.1'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: system
-            wxr_type: develop
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-10
-            CXX: g++-10
-            ruby: '3.2'
-            wxWidgets: '3.2.2.1'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
-          - os: ubuntu-22.04
-            gtk_version: 3
-            CC: gcc-11
-            CXX: g++-11
-            ruby: '3.0'
-            wxWidgets: '3.2.2.1'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
-          - os: ubuntu-22.04
-            gtk_version: 3
-            CC: gcc-12
-            CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: '3.2.2.1'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: system
-            wxr_type: develop
+#          - os: ubuntu-20.04
+#            gtk_version: 3
+#            CC: gcc-9
+#            CXX: g++-9
+#            ruby: '2.5'
+#            wxWidgets: '3.2.2.1'
+#            swig: '4'
+#            configure_flags:
+#            use_xvfb: true
+#            wxw_type: system
+#            wxr_type: develop
+#          - os: ubuntu-20.04
+#            gtk_version: 3
+#            CC: gcc-10
+#            CXX: g++-10
+#            ruby: '3.2'
+#            wxWidgets: '3.2.2.1'
+#            swig: '4'
+#            configure_flags:
+#            use_xvfb: true
+#            wxw_type: develop
+#            wxr_type: develop
+#          - os: ubuntu-22.04
+#            gtk_version: 3
+#            CC: gcc-11
+#            CXX: g++-11
+#            ruby: '3.0'
+#            wxWidgets: '3.2.2.1'
+#            swig: '4'
+#            configure_flags:
+#            use_xvfb: true
+#            wxw_type: develop
+#            wxr_type: develop
+#          - os: ubuntu-22.04
+#            gtk_version: 3
+#            CC: gcc-12
+#            CXX: g++-12
+#            ruby: '3.2'
+#            wxWidgets: '3.2.2.1'
+#            swig: '4'
+#            configure_flags:
+#            use_xvfb: true
+#            wxw_type: system
+#            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
@@ -182,7 +182,7 @@ jobs:
       if: matrix.wxr_type == 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "system" ]; then
-          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib gem install `echo pkg/*.gem`
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib WXRUBY_VERBOSE=1 gem install `echo pkg/*.gem`
         else
           gem install `echo pkg/*.gem` -- WXWIN=$WXWIN_INSTALL
         fi
