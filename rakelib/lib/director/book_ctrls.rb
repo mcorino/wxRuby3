@@ -16,6 +16,8 @@ module WXRuby3
         # Protect panels etc added as Toolbook pages from being GC'd by Ruby;
         # avoids double-free segfaults on exit on GTK
         spec.map_apply 'SWIGTYPE *DISOWN' => 'wxWindow* page'
+        # but not for const args (query methods)
+        spec.map_apply 'SWIGTYPE *' => 'const wxWindow* page'
 
         case spec.module_name
         when 'wxBookCtrlBase'
