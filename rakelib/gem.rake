@@ -33,7 +33,7 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
     gem.executables = WXRuby3::Bin.binaries
     gem.required_ruby_version = '>= 2.5'
     gem.licenses = ['MIT']
-    gem.add_dependency 'nokogiri', '~>= 1.12'
+    gem.add_dependency 'nokogiri', '~> 1.12'
     gem.add_dependency 'rake'
     gem.add_dependency 'minitest', '~> 5.15'
     gem.add_dependency 'test-unit', '~> 3.5'
