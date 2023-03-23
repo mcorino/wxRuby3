@@ -20,50 +20,50 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - os: ubuntu-20.04
-#            gtk_version: 3
-#            CC: gcc-9
-#            CXX: g++-9
-#            ruby: '2.5'
-#            wxWidgets: '3.2.2.1'
-#            swig: '4'
-#            configure_flags:
-#            use_xvfb: true
-#            wxw_type: system
-#            wxr_type: develop
-#          - os: ubuntu-20.04
-#            gtk_version: 3
-#            CC: gcc-10
-#            CXX: g++-10
-#            ruby: '3.2'
-#            wxWidgets: '3.2.2.1'
-#            swig: '4'
-#            configure_flags:
-#            use_xvfb: true
-#            wxw_type: develop
-#            wxr_type: develop
-#          - os: ubuntu-22.04
-#            gtk_version: 3
-#            CC: gcc-11
-#            CXX: g++-11
-#            ruby: '3.0'
-#            wxWidgets: '3.2.2.1'
-#            swig: '4'
-#            configure_flags:
-#            use_xvfb: true
-#            wxw_type: develop
-#            wxr_type: develop
-#          - os: ubuntu-22.04
-#            gtk_version: 3
-#            CC: gcc-12
-#            CXX: g++-12
-#            ruby: '3.2'
-#            wxWidgets: '3.2.2.1'
-#            swig: '4'
-#            configure_flags:
-#            use_xvfb: true
-#            wxw_type: system
-#            wxr_type: develop
+          - os: ubuntu-20.04
+            gtk_version: 3
+            CC: gcc-9
+            CXX: g++-9
+            ruby: '2.5'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: system
+            wxr_type: develop
+          - os: ubuntu-20.04
+            gtk_version: 3
+            CC: gcc-10
+            CXX: g++-10
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-11
+            CXX: g++-11
+            ruby: '3.0'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: system
+            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
@@ -75,6 +75,17 @@ jobs:
             use_xvfb: true
             wxw_type: system
             wxr_type: gem
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: bingem
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
@@ -174,17 +185,19 @@ jobs:
         bundle exec rake build
 
     - name: Build wxRuby3 gem
-      if: matrix.wxr_type == 'gem'
+      if: matrix.wxr_type != 'system'
       run: |
-        bundle exec rake gem
+        bundle exec rake ${{ matrix.wxr_type }}
 
     - name: Install wxRuby3 gem
-      if: matrix.wxr_type == 'gem'
+      if: matrix.wxr_type != 'develop'
       run: |
         if [ "${{ matrix.wxw_type }}" == "system" ]; then
           BUILD_CMD="gem install $(echo pkg/*.gem)"
-        else
+        elif [ "${{ matrix.wxr_type }}" == "gem" ]; then
           BUILD_CMD="gem install $(echo pkg/*.gem) -- WXWIN=$WXWIN_INSTALL"
+        else
+          BUILD_CMD="gem install $(echo pkg/*.gem)"
         fi
         /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $BUILD_CMD 2>&1 | tee -a gembuild.out" || rc=$?
         if [ -n "$rc" ]; then
