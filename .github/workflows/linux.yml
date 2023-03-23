@@ -182,7 +182,7 @@ jobs:
       if: matrix.wxr_type == 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "system" ]; then
-          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/use/local/lib gem install `echo pkg/*.gem`
+          LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib gem install `echo pkg/*.gem`
         else
           gem install `echo pkg/*.gem` -- WXWIN=$WXWIN_INSTALL
         fi
