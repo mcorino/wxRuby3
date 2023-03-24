@@ -84,7 +84,7 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
-            wxw_type: develop
+            wxw_type: embed
             wxr_type: bingem
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
@@ -93,7 +93,7 @@ jobs:
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
       wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
-      WX_EXTRA_PACKAGES: doxygen chrpath
+      WX_EXTRA_PACKAGES: doxygen patchelf
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
     steps:
@@ -133,7 +133,7 @@ jobs:
         g++ -v
 
     - name: Configuring wxWidgets
-      if: matrix.wxw_type != 'none'
+      if: matrix.wxw_type != 'embed'
       run: |
         wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
         if [ -n "${{ matrix.gtk_version }}" ]; then
@@ -155,7 +155,7 @@ jobs:
         fi
 
     - name: Build wxWidgets
-      if: matrix.wxw_type != 'none'
+      if: matrix.wxw_type != 'embed'
       run: |
         pushd $WXWIDGETS_ROOT
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
@@ -173,7 +173,9 @@ jobs:
     - name: Configure wxRuby3
       if: matrix.wxr_type != 'gem'
       run: |
-        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+        if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+          bundle exec rake configure[--with-wxwin]
+        elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure[--wxwin=$WXWIN_INSTALL,--wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml]
         else
           bundle exec rake configure
