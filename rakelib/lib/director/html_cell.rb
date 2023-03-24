@@ -22,6 +22,12 @@ module WXRuby3
         spec.make_abstract 'wxHtmlContainerCell'
         spec.gc_as_temporary 'wxHtmlLinkInfo' # no tracking
         spec.ignore 'wxHtmlCell::Find'
+        # not useful for wxRuby as we do not support customizing these
+        spec.ignore 'wxHtmlCell::AdjustPagebreak',
+                    'wxHtmlCell::Draw',
+                    'wxHtmlCell::DrawInvisible',
+                    'wxHtmlCell::Layout',
+                    'wxHtmlCell::ProcessMouseClick'
       end
     end # class HtmlCell
 
