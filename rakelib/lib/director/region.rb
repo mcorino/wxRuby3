@@ -7,9 +7,9 @@ module WXRuby3
 
   class Director
 
-    include Typemap::PointsList
-
     class Region < Director
+
+      include Typemap::PointsList
 
       def setup
         super
