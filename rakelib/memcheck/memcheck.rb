@@ -3,8 +3,8 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
+begin
 require 'ruby_memcheck'
-
 module WXRuby3
 
   module Config
@@ -33,4 +33,6 @@ module WXRuby3
 
   end
 
+end
+rescue LoadError
 end

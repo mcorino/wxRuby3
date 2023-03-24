@@ -205,8 +205,8 @@ module WXRuby3
         # wxRuby permits these common input parameters to be represented as
         # two-element arrays [x, y] or [width, height].
 
-        map 'wxSize&' => 'Array<Integer>, Wx::Size',
-            'wxPoint&' => 'Array<Integer>, Wx::Point' do
+        map 'wxSize&' => 'Array(Integer, Integer), Wx::Size',
+            'wxPoint&' => 'Array(Integer, Integer), Wx::Point' do
           map_in code: <<~__CODE
             if ( TYPE($input) == T_DATA )
             {

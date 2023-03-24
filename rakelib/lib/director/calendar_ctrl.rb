@@ -16,7 +16,7 @@ module WXRuby3
       def setup
         super
         # for GetDataRange
-        spec.map 'wxDateTime *lowerdate, wxDateTime *upperdate' => 'Array<Time>, nil' do
+        spec.map 'wxDateTime *lowerdate, wxDateTime *upperdate' => 'Array(Time, Time), nil' do
 
           map_in ignore: true, temp: 'wxDateTime lwrDt, wxDateTime hgrDt',
                  code: 'arg2 = &lwrDt; arg3 = &hgrDt;'

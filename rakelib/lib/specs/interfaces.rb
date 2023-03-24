@@ -166,6 +166,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxContextHelpButton', director: Director::Button, requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHelpProvider', requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHelpController', requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxExtHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxTaskBarIconEvent', director: Director::Event, requirements: %w[wxUSE_TASKBARICON])
     Director.Spec(pkg, 'wxTaskBarIcon', requirements: %w[wxUSE_TASKBARICON])
     Director.Spec(pkg, 'wxFSFile', requirements: %[wxUSE_FILESYSTEM])

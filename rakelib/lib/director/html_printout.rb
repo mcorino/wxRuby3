@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.override_inheritance_chain('wxHtmlPrintout', {'wxPrintout' => 'wxPrinter'}, 'wxObject')
-        spec.map 'const int* sizes' => 'Array<Integer>' do
+        spec.map 'const int* sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer)' do
           # Deal with sizes argument to SetFonts
           map_in code: <<~__CODE
             if ( TYPE($input) != T_ARRAY || RARRAY_LEN($input) != 7 )

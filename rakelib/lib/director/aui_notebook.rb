@@ -15,6 +15,9 @@ module WXRuby3
         super
         setup_book_ctrl_class(spec.module_name)
         if spec.module_name == 'wxAuiNotebook'
+          # reset type mapping done in BookCtrls as the non-const arg is used for query-ing here (FindTab)
+          # (wxWidgets should have made this a const arg)
+          spec.map_apply 'SWIGTYPE *' => 'wxWindow* page'
           spec.do_not_generate(:variables, :defines, :enums, :functions) # with AuiNotebookEvent
           # Any set AuiTabArt ruby object must be protected from GC once set,
           # even if it is no longer referenced anywhere else.
@@ -59,6 +62,23 @@ module WXRuby3
           ]
           spec.ignore('wxAuiNotebook::AddPage(wxWindow*,const wxString&, bool, int')
           spec.ignore('wxAuiNotebook::InsertPage(size_t, wxWindow*,const wxString&, bool, int')
+          # replace FindTab (easier than type mapping)
+          spec.ignore('wxAuiNotebook::FindTab')
+          spec.add_extend_code 'wxAuiNotebook', <<~__HEREDOC
+            VALUE FindTab(wxWindow *page)
+            {
+              wxAuiTabCtrl *ctrl = 0;
+              int idx = -1;
+              VALUE rc = Qnil;
+              if ($self->FindTab(page, &ctrl, &idx))
+              {
+                rc = rb_ary_new();
+                rb_ary_push(rc, SWIG_NewPointerObj(SWIG_as_voidptr(ctrl), SWIGTYPE_p_wxAuiTabCtrl, 0));
+                rb_ary_push(rc, INT2NUM(idx));
+              }
+              return rc;
+            }
+            __HEREDOC
         else
           spec.add_header_code <<~__HEREDOC
             // implemented in AuiNotebook.cpp

@@ -58,6 +58,10 @@ module WXRuby3
             end
           end
 
+          def respawn_rake(argv = ARGV)
+            Kernel.exec('rake', *argv)
+          end
+
           def expand(cmd)
             super("bash -c \"#{cmd}\"")
           end

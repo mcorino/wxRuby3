@@ -1,3 +1,6 @@
+![Linux CI](https://github.com/mcorino/wxRuby3/actions/workflows/linux.yml/badge.svg)
+![Windows CI](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml/badge.svg)
+
 # README for wxRuby3
 
 Reviving wxRuby

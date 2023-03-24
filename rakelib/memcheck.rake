@@ -6,13 +6,15 @@
 require_relative './configure'
 require_relative './memcheck/memcheck'
 
-namespace :wxruby do
+if defined? RubyMemcheck
+  namespace :wxruby do
 
-  task :memcheck, [:app] => 'config:bootstrap' do |t, args|
-    Rake::Task[:build].invoke
-    WXRuby3.config.memcheck args[:app], gensup: args.extras.include?(':gensup')
+    task :memcheck, [:app] => 'config:bootstrap' do |t, args|
+      Rake::Task[:build].invoke
+      WXRuby3.config.memcheck args[:app], gensup: args.extras.include?(':gensup')
+    end
+
   end
 
+  task :memcheck, [:app] => 'wxruby:memcheck'
 end
-
-task :memcheck, [:app] => 'wxruby:memcheck'
