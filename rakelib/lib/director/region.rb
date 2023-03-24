@@ -9,11 +9,14 @@ module WXRuby3
 
     class Region < Director
 
+      include Typemap::PointsList
+
       def setup
         super
         spec.require_app 'wxRegion'
         spec.disable_proxies
         spec.ignore 'wxNullRegion' # does not exist in code
+        spec.map_apply 'int n, wxPoint points[]' => [ 'size_t n, const wxPoint *points']
       end
     end # class Region
 

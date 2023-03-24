@@ -30,6 +30,9 @@ module WXRuby3
         spec.ignore 'wxGrid::MakeCellVisible(const wxGridCellCoords &)'
         spec.ignore 'wxGrid::SelectBlock(const wxGridCellCoords &,const wxGridCellCoords &,bool)'
         spec.ignore 'wxGrid::SetCellValue(const wxGridCellCoords &,const wxString &)'
+        # these have overloads that have more useful returns
+        spec.ignore 'wxGrid::CalcGridWindowUnscrolledPosition(int,int,int *,int *,const wxGridWindow *) const',
+                    'wxGrid::CalcGridWindowScrolledPosition(int,int,int *,int *,const wxGridWindow *) const'
         # deprecated
         spec.ignore 'wxGrid::SetCellAlignment(int,int,int)'
         spec.ignore 'wxGrid::SetCellTextColour(const wxColour &)'
@@ -44,8 +47,9 @@ module WXRuby3
           typedef wxGrid::CellSpan CellSpan;
           typedef wxGrid::TabBehaviour TabBehaviour;
           __HEREDOC
-        # Needed for methods that return cell and label alignments
-        spec.map_apply 'int *OUTPUT' => [ 'int *horiz', 'int *vert' ]
+        # Needed for methods that return cell and label alignments and other argout type mappings
+        spec.map_apply 'int *OUTPUT' => [ 'int *horiz', 'int *vert' ,
+                                          'int *num_rows', 'int *num_cols' ]
         # If invalid grid-cell co-ordinates are passed into wxWidgets,
         # segfaults may result, so check to avoid this.
         spec.map 'int row', 'int col' do

@@ -30,11 +30,9 @@ module WXRuby3
             unless @rpath_patch
               if system('which patchelf > /dev/null 2>&1')
                 @rpath_patch = 'patchelf --set-rpath'
-              elsif system('which chrpath > /dev/null 2>&1')
-                @rpath_patch = 'chrpath --replace'
               else
-                STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of either the patchelf OR chrpath utility.'
-                exit(1)
+                STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of either the patchelf utility.'
+                return false
               end
             end
             true
@@ -43,7 +41,9 @@ module WXRuby3
           def patch_rpath(shlib, rpath)
             if check_rpath_patch
               sh("#{@rpath_patch} '#{rpath}' #{shlib}", verbose: false)
+              return true
             end
+            false
           end
         end
       end

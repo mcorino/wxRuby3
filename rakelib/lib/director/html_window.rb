@@ -44,17 +44,31 @@ module WXRuby3
             $1 = &tmp;
             __CODE
         end
-        spec.map 'const int* sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer)' do
-          # Deal with sizes argument to SetFonts
-          map_in code: <<~__CODE
-            if ( TYPE($input) != T_ARRAY || RARRAY_LEN($input) != 7 )
-              rb_raise(rb_eTypeError, 
-                       "The 'font sizes' argument must be an array with 7 integers");
-            $1 = new int[7];
-            for ( size_t i = 0; i < 7; i++ )
-              ($1)[i] = NUM2INT(rb_ary_entry($input, i));
-            __CODE
-          map_freearg code: 'if ($1) delete[]($1);'
+        # Deal with sizes argument to SetFonts
+        spec.map 'const int *sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer), nil' do
+          map_in temp: 'int tmp[7]', code: <<~__CODE
+            if (NIL_P($input))
+            {
+              $1 = NULL;
+            }
+            else if (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 7)
+            {
+              tmp[0] = NUM2INT(rb_ary_entry($input, 0));
+              tmp[1] = NUM2INT(rb_ary_entry($input, 1));
+              tmp[2] = NUM2INT(rb_ary_entry($input, 2));
+              tmp[3] = NUM2INT(rb_ary_entry($input, 3));
+              tmp[4] = NUM2INT(rb_ary_entry($input, 4));
+              tmp[5] = NUM2INT(rb_ary_entry($input, 5));
+              tmp[6] = NUM2INT(rb_ary_entry($input, 6));
+              $1 = &tmp[0];
+            }
+            else
+            {
+              VALUE msg = rb_inspect($input);
+              rb_raise(rb_eArgError, "Expected nil or array of 7 integers for %d but got %s",
+                       $argnum-1, StringValuePtr(msg));
+            }
+          __CODE
         end
         spec.map 'const wxString &url, wxString *redirect' do
           # deal with OnOpeningURL's "wxString *redirect" argument

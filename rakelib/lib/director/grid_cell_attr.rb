@@ -38,6 +38,13 @@ module WXRuby3
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
+        # argout type mappings
+        spec.map_apply 'int* OUTPUT' => ['int *hAlign', 'int *vAlign', 'int *num_rows', 'int *num_cols']
+        # for docs only
+        spec.map ['int *hAlign', 'int *vAlign', 'int *num_rows', 'int *num_cols'] => 'Integer', swig: false do
+          map_in ignore: true
+          map_argout
+        end
       end
     end # class GridCellAttr
 

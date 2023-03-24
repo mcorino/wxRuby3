@@ -86,6 +86,10 @@ module WXRuby3
         end
         # required for hit_test, return flags as second part of array return value
         spec.map_apply 'int *OUTPUT' => 'int& flags'
+        # and ignore ptrSubItem argument (always pass NULL)
+        spec.map 'long *ptrSubItem' do
+          map_in ignore: true, code: ''
+        end
         spec.add_swig_code '%markfunc wxListCtrl "GC_mark_wxListCtrl";'
         spec.add_header_code <<~__HEREDOC
           // Helper code for SortItems - yields the two items being compared into
