@@ -7,11 +7,10 @@ module WXRuby3
 
   class Director
 
-    class HtmlPrintout < Director
+    class HtmlEasyPrinting < Director
 
       def setup
         super
-        spec.override_inheritance_chain('wxHtmlPrintout', {'wxPrintout' => 'wxPrinter'}, 'wxObject')
         # Deal with sizes argument to SetFonts
         spec.map 'const int *sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer), nil' do
           map_in temp: 'int tmp[7]', code: <<~__CODE
@@ -36,11 +35,10 @@ module WXRuby3
               rb_raise(rb_eArgError, "Expected nil or array of 7 integers for %d but got %s",
                        $argnum-1, StringValuePtr(msg));
             }
-          __CODE
+            __CODE
         end
-        spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
-    end # class HtmlPrintout
+    end # class HtmlEasyPrinting
 
   end # class Director
 
