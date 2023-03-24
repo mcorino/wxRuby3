@@ -60,7 +60,11 @@ module WXRuby3
               FileUtils.ln_s(File.join('.', File.basename(src_shlib)), File.join('ext', File.basename(shlib)))
             else
               FileUtils.cp(shlib, inshlib = File.join('ext', File.basename(shlib)))
-              WXRuby3.config.patch_rpath(inshlib, '$ORIGIN')
+              unless WXRuby3.config.patch_rpath(inshlib, '$ORIGIN')
+                # cleanup and exit
+                FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
+                exit(1)
+              end
             end
           end
           # prepare wxRuby shared libs
