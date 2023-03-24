@@ -43,6 +43,14 @@ module WXRuby3
           wxImage::InsertHandler
           wxImage::RemoveHandler
           ]
+        # argout type mapping for Rotate
+        spec.map 'wxPoint *offsetAfterRotation' => 'Wx::Point' do
+          map_in ignore: true, temp: 'wxPoint tmp', code: '$1 = &tmp;'
+          map_argout code: <<~__CODE
+             VALUE rb_pt = SWIG_NewPointerObj(new wxPoint(tmp$argnum), SWIGTYPE_p_wxPoint, SWIG_POINTER_OWN);
+             $result = SWIG_Ruby_AppendOutput($result, rb_pt);
+             __CODE
+        end
         # The GetRgbData and GetAlphaData methods require special handling using %extend;
         spec.ignore %w[wxImage::GetData wxImage::GetAlpha]
         # The SetRgbData and SetAlphaData are dealt with by typemaps (see below).
