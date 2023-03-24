@@ -185,7 +185,7 @@ jobs:
         bundle exec rake build
 
     - name: Build wxRuby3 gem
-      if: matrix.wxr_type != 'system'
+      if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
       run: |
         bundle exec rake ${{ matrix.wxr_type }}
 
