@@ -64,8 +64,10 @@ module WXRuby3
             end
           end
           # prepare wxRuby shared libs
-          Dir["lib/*.#{WXRuby3.config.dll_mask}"].each do |shlib|
-            WXRuby3.config.patch_rpath(shlib, '$ORIGIN:$ORIGIN/../ext')
+          unless Dir["lib/*.#{WXRuby3.config.dll_mask}"].all? { |shlib| WXRuby3.config.patch_rpath(shlib, '$ORIGIN:$ORIGIN/../ext') }
+            # cleanup and exit
+            FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
+            exit(1)
           end
         end
       end
