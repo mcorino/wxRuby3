@@ -249,6 +249,7 @@ module WXRuby3
     end
 
     def patch_rpath(_shlib, _rpath)
+      true
     end
 
     class AnyOf
