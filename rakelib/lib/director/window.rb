@@ -122,13 +122,16 @@ module WXRuby3
             'wxWindow::PopEventHandler',
             'wxWindow::SetConstraints',
             'wxWindow::GetHandle',
-            'wxWindow::GetSize(int *,int *) const',
-            'wxWindow::GetPosition(int *,int *) const',
-            'wxWindow::GetScreenPosition(int *,int *) const',
+            'wxWindow::GetSize(int *,int *) const', # no need; prefer the wxSize version
+            'wxWindow::GetClientSize(int *,int *) const', # no need; prefer the wxSize version
+            'wxWindow::GetVirtualSize(int *,int *) const', # no need; prefer the wxSize version
+            'wxWindow::GetPosition(int *,int *) const', # no need; prefer the wxPoint version
+            'wxWindow::GetScreenPosition(int *,int *) const', # no need; prefer the wxPoint version
             'wxWindow::FindWindow',
             'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)',
             'wxWindow::SendIdleEvents',
-            'wxWindow::ClientToScreen(int*,int*)' # no need; prefer the wxPoint version
+            'wxWindow::ClientToScreen(int*,int*)', # no need; prefer the wxPoint version
+            'wxWindow::ScreenToClient(int*,int*)' # no need; prefer the wxPoint version
           ]
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])

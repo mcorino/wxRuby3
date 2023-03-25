@@ -18,6 +18,25 @@ module WXRuby3
                               'wxRibbonArtProvider::Clone',
                               'wxRibbonMSWArtProvider::Clone',
                               'wxRibbonAUIArtProvider::Clone')
+        # argout type mappings
+        spec.map_apply 'int *OUTPUT' => ['int *ideal', 'int *small_begin_need_separator',
+                                         'int *small_must_have_separator', 'int *minimum']
+        # wxDirection argout type mapping
+        spec.map 'wxDirection *' => 'Wx::Direction' do
+          map_in ignore: true, temp: 'wxDirection tmp', code: '$1 = &tmp;'
+          map_argout code: <<~__CODE
+            $result = SWIG_Ruby_AppendOutput($result, wxRuby_GetEnumValueObject("wxDirection", static_cast<int>(tmp$argnum)));
+            __CODE
+
+          map_directorargout code: <<~__CODE
+            if ($1 && !NIL_P($result)) 
+            {
+              int eval;
+              wxRuby_GetEnumValue("wxDirection", $result, eval);
+              (*$1) = static_cast<wxDirection> (eval);
+            }
+            __CODE
+        end
         # add method for correctly wrapping RibbonArtProvider references
         spec.add_header_code <<~__CODE
             extern VALUE mWxRBN; // declare external module reference
