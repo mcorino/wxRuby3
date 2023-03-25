@@ -20,30 +20,20 @@ module WXRuby3
                               'virtual int ShowDropDown(wxWindow* wnd,const wxAuiNotebookPageArray& items,int activeIdx) = 0',
                               'virtual int GetBorderWidth(wxWindow* wnd) = 0',
                               'virtual int GetAdditionalBorderSpace(wxWindow* wnd) = 0')
-        # for DrawTab and GetTabSize
-        spec.map_apply('int * OUTPUT' => 'int * x_extent')
-        # for DrawButton and DrawTab
-        spec.map 'wxRect *' => 'Wx::Rect' do
-          map_in ignore: true, temp: 'wxRect tmpRect', code: '$1 = &tmpRect;'
-          map_argout code: <<~__CODE
-            if (TYPE($result) == T_ARRAY)
-            {
-              $result = SWIG_Ruby_AppendOutput($result, SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 0));
-            }
-            else
-            {
-              $result = SWIG_NewPointerObj($1, SWIGTYPE_p_wxRect, 0);
-            }
-            __CODE
-          map_directorargout code: <<~__CODE
-            void* ptr = 0;
-            int res$argnum = SWIG_ConvertPtr($result, &ptr, SWIGTYPE_p_wxRect,  0 );
-            if (!SWIG_IsOK(res$argnum)) {
-              Swig::DirectorTypeMismatchException::raise(rb_eTypeError, "Expected Wx::Rect result");
-            }
-            *$1 = *reinterpret_cast<wxRect*> (ptr);
-            __CODE
+        # ignore documented method (not it's docs)
+        spec.ignore 'wxAuiTabArt::DrawTab', ignore_doc: false
+        # and re-add with consistently named argument
+        spec.extend_interface 'wxAuiTabArt',
+                              'virtual void DrawTab(wxDC &dc, wxWindow *wnd, wxAuiNotebookPage const &page, wxRect const &rect, int close_button_state, wxRect *out_tab_rect, wxRect *out_button_rect, int *xExtent) = 0'
+        # for DrawTab (cannot simply apply 'int *OUTPUT' as that does not work well with a void method)
+        spec.map 'int *xExtent' => 'Integer' do
+          map_in ignore: true, temp: 'int tmp', code: '$1 = &tmp;'
+          map_argout code: '$result = INT2NUM(tmp$argnum);'
+          map_directorargout code: 'if (!NIL_P(result)) *xExtent = NUM2INT(result);'
         end
+        # for GetTabSize
+        spec.map_apply('int * OUTPUT' => 'int *x_extent')
+
         spec.suppress_warning(473,
                               'wxAuiTabArt::Clone',
                               'wxAuiDefaultTabArt::Clone',
