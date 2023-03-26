@@ -4,44 +4,64 @@ class Wx::Size
     "#<Wx::Size: (#{get_width}, #{get_height})>"
   end
 
-  # Compare with another size
+  # make Size usable for parallel assignments like `w, h = sz`
+  def to_ary
+    [width, height]
+  end
+
+  # Compare with another size value
   def ==(other)
-    unless other.kind_of?(Wx::Size)
+    if Wx::Size === other
+      width == other.width and height == other.height
+    elsif Array === other and other.size == 2
+      width.to_ary == other
+    else
       Kernel.raise TypeError, "Cannot compare Size to #{other}"
     end
-    width == other.width and height == other.height
+  end
+
+  def eql?
+    if Wx::Size === other
+      width == other.width and height == other.height
+    else
+      false
+    end
   end
 
   # Return a new Wx::Size with the width and height values both divided
-  # by parameter +div+, which should be a Numeric
-  def /(div)
-    self.class.new( (width / div).to_i, (height / div).to_i )
+  # by parameter +num+, which should be a Numeric
+  def /(num)
+    self.class.new((width / num).to_i, (height / num).to_i)
   end
 
   # Return a new Wx::Size with the width and height values both
-  # multiplied by parameter +mul+, which should be a Numeric
-  def *(mul)
-    self.class.new( (width * mul).to_i, (height * mul).to_i )
+  # multiplied by parameter +num+, which should be a Numeric
+  def *(num)
+    self.class.new((width * num).to_i, (height * num).to_i)
   end
 
   # Return a new Wx::Size with the width and height parameters both
-  # reduced by parameter +arg+. If +arg+ is another Wx::Size, reduce
+  # reduced by parameter +arg+. If +arg+ is another Wx::Size (or 2-element array), reduce
   # width by the other's width and height by the other's height; if
   # +arg+ is a numeric value, reduce both width and height by that
   # value.
   def -(arg)
     case arg
     when self.class
-      self.class.new( width - arg.width, height - arg.height )
+      self.class.new(width - arg.width, height - arg.height)
     when Numeric
-      self.class.new( (width - arg).to_i, (height - arg).to_i )
+      self.class.new((width - arg).to_i, (height - arg).to_i)
     else
-      Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
+      if Array === arg && arg.size == 2
+        self.class.new(width - arg[0].to_i, height - arg[1].to_i)
+      else
+        Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
+      end
     end
   end
 
   # Return a new Wx::Size with the width and height parameters both
-  # increased by parameter +arg+. If +arg+ is another Wx::Size, increase
+  # increased by parameter +arg+. If +arg+ is another Wx::Size (or 2-element array), increase
   # width by the other's width and height by the other's height; if
   # +arg+ is a numeric value, increase both width and height by that
   # value.
@@ -52,7 +72,11 @@ class Wx::Size
     when Numeric
       self.class.new( (width + arg).to_i, (height + arg).to_i )
     else
-      Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
+      if Array === arg && arg.size == 2
+        self.class.new(width + arg[0].to_i, height + arg[1].to_i)
+      else
+        Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
+      end
     end
   end
 end
