@@ -46,52 +46,6 @@ module WXRuby3
           wxStockCursor.wxCURSOR_BASED_ARROW_DOWN
         }
         spec.set_only_for '__WXMAC__', 'wxStockCursor.wxCURSOR_COPY_ARROW'
-        spec.add_extend_code 'wxPoint', <<~__HEREDOC
-          wxPoint add(const wxSize &sz) {
-            return *$self + sz;
-          }
-          wxPoint add(const wxPoint &pt) {
-            return *$self + pt;
-          }
-          wxPoint sub(const wxSize &sz) {
-            return *$self - sz;
-          }
-          wxPoint sub(const wxPoint &pt) {
-            return *$self - pt;
-          }
-          wxPoint div(int factor) {
-            return *$self / factor;
-          }
-          wxPoint mul(int factor) {
-            return *$self * factor;
-          }
-          bool eql(const wxPoint &pt) {
-            return *$self == pt;
-          }
-        __HEREDOC
-        spec.add_extend_code 'wxRealPoint', <<~__HEREDOC
-          wxRealPoint add(const wxSize &sz) {
-            return *$self + sz;
-          }
-          wxRealPoint add(const wxRealPoint &pt) {
-            return *$self + pt;
-          }
-          wxRealPoint sub(const wxSize &sz) {
-            return *$self - sz;
-          }
-          wxRealPoint sub(const wxRealPoint &pt) {
-            return *$self - pt;
-          }
-          wxRealPoint div(int factor) {
-            return *$self / factor;
-          }
-          wxRealPoint mul(int factor) {
-            return *$self * factor;
-          }
-          bool eql(const wxRealPoint &pt) {
-            return *$self == pt;
-          }
-        __HEREDOC
         spec.add_extend_code 'wxRect', <<~__HEREDOC
           wxRect add(const wxRect &r) {
             return *$self + r;
@@ -99,36 +53,8 @@ module WXRuby3
           wxRect mul(const wxRect &r) {
             return *$self * r;
           }
-          bool eql(const wxRect &r) {
-            return *$self == r;
-          }
         __HEREDOC
-        spec.add_extend_code 'wxSize', <<~__HEREDOC
-          wxSize add(const wxSize &sz) {
-            return *$self + sz;
-          }
-          wxSize sub(const wxSize &sz) {
-            return *$self - sz;
-          }
-          wxSize div(int factor) {
-            return *$self / factor;
-          }
-          wxSize mul(int factor) {
-            return *$self * factor;
-          }
-          wxSize mul(double factor) {
-            return *$self * factor;
-          }
-          bool eql(const wxSize &pt) {
-            return *$self == pt;
-          }
-        __HEREDOC
-        spec.add_extend_code 'wxSize', <<~__HEREDOC
-          wxSize div(double factor) {
-            return *$self / factor;
-          }
-        __HEREDOC
-          spec.swig_import 'swig/classes/include/wxDefs.h'
+        spec.swig_import 'swig/classes/include/wxDefs.h'
         super
       end
 
