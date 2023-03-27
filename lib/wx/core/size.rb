@@ -14,13 +14,13 @@ class Wx::Size
     if Wx::Size === other
       width == other.width and height == other.height
     elsif Array === other and other.size == 2
-      width.to_ary == other
+      to_ary == other
     else
       Kernel.raise TypeError, "Cannot compare Size to #{other}"
     end
   end
 
-  def eql?
+  def eql?(other)
     if Wx::Size === other
       width == other.width and height == other.height
     else
