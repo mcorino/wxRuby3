@@ -4,6 +4,10 @@ class Wx::Point
     "#<Wx::Point: (#{x}, #{y})>"
   end
 
+  def inspect
+    to_s
+  end
+
   # make Point usable for parallel assignments like `x, y = pt`
   def to_ary
     [x, y]

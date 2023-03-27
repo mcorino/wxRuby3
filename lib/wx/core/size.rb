@@ -1,7 +1,11 @@
 class Wx::Size
   # More informative output for inspect etc
   def to_s
-    "#<Wx::Size: (#{get_width}, #{get_height})>"
+    "#<Wx::Size: #{width}x#{height}>"
+  end
+
+  def inspect
+    to_s
   end
 
   # make Size usable for parallel assignments like `w, h = sz`

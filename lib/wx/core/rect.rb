@@ -2,20 +2,24 @@
 class Wx::Rect
   # Nicely readable inspect output for Rect
   def to_s
-    "#<Wx::Rect: (#{get_left}, #{get_top}) (#{get_right}, #{get_bottom})>"    
+    "#<Wx::Rect: (#{left}, #{top}) #{width}x#{height}>"
   end
 
-  # make Rect usable for parallel assignments like `left, top, right, bottom = rect`
+  def inspect
+    to_s
+  end
+
+  # make Rect usable for parallel assignments like `left, top, width, height = rect`
   def to_ary
-    [left, top, right, bottom]
+    [left, top, width, height]
   end
 
   # Correct comparison for Wx::Rect, are the same if have the same
   # position and the same size
   def ==(other)
     if Wx::Rect === other
-      get_left == other.get_left and get_top == other.get_top and
-        get_right == other.get_right and get_bottom == other.get_bottom
+      left == other.left and top == other.top and
+        width == other.width and height == other.height
     elsif Array === other && other.size == 4
       to_ary == other
     else
@@ -25,11 +29,22 @@ class Wx::Rect
 
   def eql?(other)
     if Wx::Rect === other
-      get_left == other.get_left and get_top == other.get_top and
-        get_right == other.get_right and get_bottom == other.get_bottom
+      left == other.left and top == other.top and
+        width == other.width and height == other.height
     else
       false
     end
+  end
+
+  # make sure union and intersect are constant operations, i.e. not changing self
+  wx_union = instance_method :union
+  define_method :union do |rect|
+    wx_union.bind(Wx::Rect.new(*self.to_ary)).call(rect)
+  end
+
+  wx_intersect = instance_method :intersect
+  define_method :intersect do |rect|
+    wx_intersect.bind(Wx::Rect.new(*self.to_ary)).call(rect)
   end
 
   alias :+ :add

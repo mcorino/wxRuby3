@@ -28,8 +28,8 @@ module WXRuby3
           'wxRect::Deflate(wxCoord,wxCoord)',
           'wxRect::Deflate(wxCoord,wxCoord) const',
           'wxRect::Offset(wxCoord,wxCoord)',
-          'wxRect::Intersect(const wxRect &) const',
-          'wxRect::Union(const wxRect &) const'
+          'wxRect::Intersect(const wxRect &)',
+          'wxRect::Union(const wxRect &)'
         ]
         spec.map 'wxRect&' => 'Wx::Rect', 'wxSize&' => 'Wx::Size' do
           map_out code: '$result = self; wxUnusedVar(result);'
@@ -47,11 +47,11 @@ module WXRuby3
         }
         spec.set_only_for '__WXMAC__', 'wxStockCursor.wxCURSOR_COPY_ARROW'
         spec.add_extend_code 'wxRect', <<~__HEREDOC
-          wxRect add(const wxRect &r) {
-            return *$self + r;
+          wxRect add(const wxRect &rect) const {
+            return (*(const wxRect*)$self) + rect;
           }
-          wxRect mul(const wxRect &r) {
-            return *$self * r;
+          wxRect mul(const wxRect &rect) const {
+            return (*(const wxRect*)$self) * rect;
           }
         __HEREDOC
         spec.swig_import 'swig/classes/include/wxDefs.h'
