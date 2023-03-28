@@ -12,4 +12,4 @@ require_relative './html/require'
 ::Wx.include(WxRubyStyleAccessors)
 
 ::Wx.include(::Wx::HTML) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
-::Wx::HTML.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx::HTML.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)

@@ -1,7 +1,6 @@
 # Global constant compatibility helper for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
-
 module WxGlobalConstants
 
   class << self
@@ -39,6 +38,33 @@ module WxGlobalConstants
       Wx.check_delayed_constant(self, sym)
       # check any nested modules and/or (enum) classes
       WxGlobalConstants.search_nested(self, sym) || super
+    end
+  end
+
+end
+
+module WxEnumConstants
+
+  class << self
+    def search_nested(mod, sym)
+      # check any nested enum classes
+      const_val = nil
+      mod.constants.each do |c|
+        if ::Class === (cv = mod.const_get(c)) && cv < Wx::Enum
+          # the only thing of interest in Enum classes are the enum values
+          const_val = cv[sym]
+        end
+        break if const_val
+      end
+      const_val
+    end
+  end
+
+  def self.included(mod)
+    # provides lookup for unscoped enum values
+    def mod.const_missing(sym)
+      # check any nested enum classes
+      WxEnumConstants.search_nested(self, sym) || super
     end
   end
 
