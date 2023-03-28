@@ -4,6 +4,10 @@ class Wx::RealPoint
     "#<Wx::RealPoint: (#{x}, #{y})>"
   end
 
+  def inspect
+    to_s
+  end
+
   # make RealPoint usable for parallel assignments like `x, y = pt`
   def to_ary
     [x, y]

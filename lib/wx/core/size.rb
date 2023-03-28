@@ -1,7 +1,11 @@
 class Wx::Size
   # More informative output for inspect etc
   def to_s
-    "#<Wx::Size: (#{get_width}, #{get_height})>"
+    "#<Wx::Size: #{width}x#{height}>"
+  end
+
+  def inspect
+    to_s
   end
 
   # make Size usable for parallel assignments like `w, h = sz`
@@ -14,13 +18,13 @@ class Wx::Size
     if Wx::Size === other
       width == other.width and height == other.height
     elsif Array === other and other.size == 2
-      width.to_ary == other
+      to_ary == other
     else
       Kernel.raise TypeError, "Cannot compare Size to #{other}"
     end
   end
 
-  def eql?
+  def eql?(other)
     if Wx::Size === other
       width == other.width and height == other.height
     else
