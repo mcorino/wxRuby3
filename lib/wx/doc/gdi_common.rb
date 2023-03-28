@@ -168,13 +168,13 @@ module Wx
 
     # Returns the overlap of the rectangle areas.
     # Does not check negative or zero overlap like #intersect.
-    # @param [Wx::Rect]
-    def *(arg) end
+    # @param [Wx::Rect] rect
+    def *(rect) end
 
     # Modifies the rectangle to contain the bounding box of this rectangle and the one passed in as parameter.
     # Does not ignore empty rectangles like #union
-    # @param [Wx::Rect]
-    def +(arg) end
+    # @param [Wx::Rect] rect
+    def +(rect) end
 
   end
 
