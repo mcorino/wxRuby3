@@ -1,5 +1,8 @@
-![Linux CI](https://github.com/mcorino/wxRuby3/actions/workflows/linux.yml/badge.svg)
-![Windows CI](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml/badge.svg)
+[![Linux CI](https://github.com/mcorino/wxRuby3/actions/workflows/linux.yml/badge.svg)](https://github.com/mcorino/wxRuby3/actions/workflows/linux.yml)
+[![Windows CI](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml/badge.svg)](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml)
+[![License](https://img.shields.io/badge/license-MIT-yellowgreen.svg)](LICENSE)
+
+[![Documentation](https://img.shields.io/badge/docs-rdoc.info-blue.svg)](http://rubydoc.org/gems/wxruby3/frames)
 
 # README for wxRuby3
 

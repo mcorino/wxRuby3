@@ -103,8 +103,22 @@ jobs:
         run: |
           bundle install
 
+      - name: Cache Doxygen
+        id: cache-doxygen
+        uses: actions/cache@v3
+        with:
+          path: doxygen-1.9.6.windows.x64.bin.zip
+          key: ${{ runner.os }}-doxygen
+
       - name: Download Doxygen tool
-        run: wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
+        if: steps.cache-doxygen.outputs.cache-hit != 'true'
+        run: |
+          wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
+          $hash = 'bdf1af97a733edd0a60fce2cf375c5c3'
+          if ((Get-FileHash doxygen-1.9.6.windows.x64.bin.zip -Algorithm MD5).Hash -ne $hash) {
+            del doxygen-1.9.6.windows.x64.bin.zip
+            throw "Doxygen Hash doesn't match!"
+          }
 
       - name: Install Doxygen package
         run: |
