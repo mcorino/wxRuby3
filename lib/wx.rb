@@ -1,7 +1,7 @@
 # Wx all-in-one loader for wxRuby3
 # Copyright (c) M.J.N. Corino, The Netherlands
 
-WX_GLOBAL_CONSTANTS=true
+WX_GLOBAL_CONSTANTS=true unless defined? WX_GLOBAL_CONSTANTS
 
 require 'wx/core'
 require 'wx/prt' if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)

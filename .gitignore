@@ -6,6 +6,7 @@ obj
 src
 bak
 doc
+rdoc
 pkg
 rakelib/deps
 ext/wxruby3/swig/classes

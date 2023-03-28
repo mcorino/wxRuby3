@@ -80,11 +80,14 @@ module WXRuby3
         #ifdef __WXGTK__
         #define wxPLATFORM "WXGTK"
         #endif
+        #ifdef __WXQT__
+        #define wxPLATFORM "WXQT"
+        #endif
         #ifdef __WXMSW__
         #define wxPLATFORM "WXMSW"
         #endif
-        #ifdef __WXMAC__
-        #define wxPLATFORM "WXMAC"
+        #ifdef __WXOSX__
+        #define wxPLATFORM "WXOSX"
         #endif
 
       __HEREDOC

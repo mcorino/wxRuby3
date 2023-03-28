@@ -86,7 +86,11 @@ module WXRuby3
             wxTopLevelWindow::UseNativeDecorations
             wxTopLevelWindow::UseNativeDecorationsByDefault
           }
-          spec.set_only_for '__WXMSW__', 'wxTopLevelWindow::MSWGetSystemMenu'
+          spec.set_only_for '__WXMSW__',
+                            'wxTopLevelWindow::MSWGetSystemMenu'
+          spec.set_only_for '__WXOSX__',
+                            'wxTopLevelWindow::OSXSetModified',
+                            'wxTopLevelWindow::OSXIsModified'
           spec.swig_import 'swig/classes/include/wxDefs.h'
           # incorrectly documented here
           spec.override_events 'wxTopLevelWindow',

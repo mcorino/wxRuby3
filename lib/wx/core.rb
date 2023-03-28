@@ -42,7 +42,7 @@ end
 
 ::Wx.include(WxRubyStyleAccessors)
 
-::Wx.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)
 
 # Load in syntax sweeteners
 require 'wx/keyword_ctors'

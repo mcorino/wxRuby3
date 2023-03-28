@@ -1,0 +1,11 @@
+--charset UTF-8
+--readme README.md
+--title "wxRuby3 API Documentation"
+--output-dir rdoc
+--protected
+lib/wx/doc/**/*.rb
+-
+CREDITS.md
+INSTALL.md
+LICENSE
+lib/wx/doc/**/*.md

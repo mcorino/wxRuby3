@@ -11,4 +11,4 @@ require_relative './pg/require'
 ::Wx.include(WxRubyStyleAccessors)
 
 ::Wx.include(::Wx::PG) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
-::Wx::PG.include(WxGlobalConstants) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
+::Wx::PG.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)

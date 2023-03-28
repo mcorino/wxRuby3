@@ -39,7 +39,7 @@ module WXRuby3
         manifest.include 'rakelib/**/*'
         manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.* rakelib/bin.* rakelib/memcheck.* rakelib/memcheck/**/*]
       end
-      manifest.include %w{LICENSE README.md CREDITS.md}
+      manifest.include %w{LICENSE README.md CREDITS.md .yardopts}
       manifest
     end
 

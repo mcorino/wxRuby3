@@ -110,6 +110,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxScrolledWindow', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxScrolledCanvas', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxScrolledControl', director: Director::ScrolledT)
+    Director.Spec(pkg, 'wxVScrolledWindow')
+    Director.Spec(pkg, 'wxVListBox')
     Director.Spec(pkg, 'wxFindReplaceData', requirements: %w[wxUSE_FINDREPLDLG])
     Director.Spec(pkg, 'wxFindReplaceDialog', director: Director::Dialog, requirements: %w[wxUSE_FINDREPLDLG])
     Director.Spec(pkg, 'wxFindDialogEvent', requirements: %w[wxUSE_FINDREPLDLG])
@@ -256,6 +258,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlCell')
     Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxHtmlListBox')
   }
 
   Director.Package('Wx::AUI', 'wxUSE_AUI') { |pkg|
