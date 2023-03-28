@@ -19,6 +19,7 @@ module WXRuby3
       def get_constants_db
         script = <<~__SCRIPT
           require 'json'
+          WX_GLOBAL_CONSTANTS=false
           require 'wx'
           def handle_module(mod, table)
             mod.constants.each do |c|
