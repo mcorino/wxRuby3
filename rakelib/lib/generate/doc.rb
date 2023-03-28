@@ -140,6 +140,12 @@ module WXRuby3
 
       def text_to_doc(node)
         text = node.text
+        # handle left-over doxygen tags
+        text.gsub!(/@(end)?code/, '')
+        text.gsub!('@subsection', '==')
+        text.gsub!('@remarks', '')
+        text.gsub!(/@see.*\n/, '')
+        text.gsub!('@ref', '')
         unless no_ref?
           # auto create references for any ids explicitly declared such
           text.gsub!(/\W?(wx\w+(::\w+)?(\(.*\))?)/) do |s|
