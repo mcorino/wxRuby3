@@ -18,6 +18,10 @@ on:
       - '.github/workflows/**'
       - 'lib/wx/doc/**'
       - '**.md'
+      - 'Gemfile'
+      - '.yardopts'
+      - '.gitignore'
+      - 'LICENSE'
   workflow_dispatch:
 
 concurrency:
