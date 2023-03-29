@@ -39,6 +39,7 @@ jobs:
 
       - name: Setup Ruby gems
         run: |
+          bundle config set --local with documentation
           bundle install
 
       - name: checkout wxWidgets
