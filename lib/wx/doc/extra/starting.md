@@ -1,9 +1,59 @@
 <!--
 # @markup markdown
-# @title Starting with wxRuby
+# @title 0. Overview of wxRuby
 -->
 
-# Starting with wxRuby
+# 0. Overview of wxRuby
+
+## What is wxRuby?
+
+wxRuby3 is a cross-platform GUI library for Ruby, based on the popular [wxWidgets](https://wxwidgets.org)
+cross platform GUI toolkit for C++. It uses native widgets wherever possible, providing
+the correct look, feel and behaviour to GUI applications on Windows, OS
+X and Linux/GTK. wxRuby aims to provide a comprehensive solution to
+developing professional-standard desktop applications in Ruby.
+
+Like Ruby and wxWidgets, wxRuby is Open Source, which means that it is free for anyone to use and the source code 
+is available for anyone to look at and use in any way they like. Also, anyone can contribute (tested) fixes, additions 
+and enhancements to the project.
+
+Like wxWidgets wxRuby is a cross platform toolkit. This means that the same program will run on multiple platforms 
+without modification. Currently Supported platforms are Microsoft Windows and Linux or other 
+unix-like systems with GTK2 or GTK3 libraries. As wxWidgets also has stable releases for Mac OSX and Linux QT platforms
+it should not be to hard to support these. Contributions to achieve this are appreciated.
+
+Since the programming language is Ruby, wxRuby programs are simple and easy to write and understand. To accomplish the
+full Ruby experience wxRuby has not ported the wxWidgets API 1 on 1 to Ruby but has made an effort to make the wxRuby
+API typically Ruby-ish. This means all method signatures (names, arguments) have been transformed to conform to common
+Ruby naming rules as well as other Ruby programming practices. Also does wxRuby introduce iterators in favor of getters
+returning arrays or lists.
+Check out the samples and the documentation for details.
+
+## What is wxRuby3?
+
+The wxRuby3 project is a new, rebooted, implementation of wxRuby (as compared to wxRuby2 and earlier versions) with the
+clear intent to make this implementation better maintainable and extensible.
+
+To this end wxRuby3 adopted much of the approach of the wxPython Phoenix project in that the wxRuby API is generated 
+from the wxWidgets XML interface definitions. Unlike the Phoenix project however, wxRuby does not use a home-grown
+interface code generator but rather still relies on SWIG for that (with Ruby tooling to configure and post-process).
+The wxRuby generation process more or less conforms to: 
+
+1. build wxWidgets interface XML
+2. parse interface XML
+3. generate SWIG interface definitions
+4. generate Ruby extension code with SWIG
+5. post-process Ruby extension code
+
+As the wxRuby tooling is already parsing the full wxWidgets interface specs (from which wxWidgets generates it's own 
+reference documentation) it also uses the parsed information to generate matching reference documentation for the 
+wxRuby API. This documentation is not (yet) perfect but should go a long way in helping people using wxRuby to build
+GUI applications.
+
+The wxRuby3 API is largely compatible with the earlier wxRuby incarnations but not 100% mostly due to more 
+modularization and more explicit typing of (especially) enums. Also wxRuby3 exclusively targets a lot more modern 
+versions of wxWidgets (>= 3.2) and Ruby (>= 2.5) so there are some shifts from that as well. All in all though,
+people that once took a stab at looking at wxRuby(2) should not have much problems getting up to speed again. 
 
 ## Quick start
 
