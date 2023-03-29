@@ -1,15 +1,17 @@
 <!--
 # @markup markdown
-# @title WxRuby Extensions
+# @title 7. wxRuby Extensions
 -->
 
-# WxRuby Extensions - Keyword Constructors
+# 7. wxRuby Extensions
+
+## Keyword Constructors
 
 The **Keyword Constructors** extension allows the use of Ruby hash-style
 keyword arguments in constructors of common WxWidgets Windows, Frame,
 Dialog and Control classes.
 
-## Introduction
+### Introduction
 
 Building a GUI in WxWidgets involves lots of calls to +new+, but
 these methods often have long parameter lists. Often the default
@@ -23,7 +25,7 @@ just to create a standard TreeCtrl with the 'no buttons' style. If you
 want to specify the 'NO BUTTONS' style, you can't avoid all the typing
 of DEFAULT_POSITION etc.
 
-## Basic Keyword Constructors
+### Basic Keyword Constructors
 
 With keyword_constructors, you could write the above as
 
@@ -49,7 +51,7 @@ You can have multiple keyword arguments:
 
     TreeCtrl.new(parent, :pos => [5, 25], :size => [100, 300] )
 
-## No ID required
+### No ID required
 
 As with position and size, you usually don't want to deal with
 assigning unique ids to every widget and frame you create - it's a C++
@@ -66,7 +68,7 @@ standard 'preview' button
 
     Wx::Button.new(parent, :id => Wx::ID_PREVIEW)
 
-## Class-specific arguments
+### Class-specific arguments
 
 The arguments `:size`, `:pos` and `:style` are common to many WxWidgets
 window classes. The `new` methods of these classes also have
@@ -86,7 +88,7 @@ within Ruby by doing:
 This will print a list of the argument names expected by the class's
 +new+ method, and the correct type for them.
 
-## Mixing positional and keyword arguments
+### Mixing positional and keyword arguments
 
 To support existing code, and to avoid forcing the use of more verbose
 keyword-style arguments where they're not desired, you can mix
@@ -95,7 +97,7 @@ desired.
 
     Wx::Button.new(parent, 'press me', :style => Wx::BU_RIGHT)
 
-## Handling complex defaults or version differences
+### Handling complex defaults or version differences
 
 To support complex (context dependent) defaults and/or auto conversion
 of arguments for backwards compatibility the keyword constructors
