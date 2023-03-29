@@ -23,6 +23,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
       wxGTK_VERSION: 3
       WX_EXTRA_PACKAGES: doxygen patchelf
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
