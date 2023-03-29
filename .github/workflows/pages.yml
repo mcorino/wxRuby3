@@ -23,6 +23,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+      wxGTK_VERSION: 3
+      WX_EXTRA_PACKAGES: doxygen patchelf
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +33,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
+          ruby-version: '3.2'
 
       - name: Setup Ruby gems
         run: |
