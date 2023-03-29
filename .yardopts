@@ -1,3 +1,4 @@
+--load rakelib/yard/yard-relative_markdown_links.rb
 --charset UTF-8
 --readme README.md
 --title "wxRuby3 API Documentation"
