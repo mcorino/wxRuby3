@@ -13,6 +13,3 @@ end
 group :samples, optional: true do
   gem 'rmagick', '~> 5.1'
 end
-group :documentation, optional: true do
-  gem "yard-relative_markdown_links", '~> 0.4'
-end
