@@ -1,0 +1,92 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup Ruby gems
+        run: |
+          bundle install
+
+      - name: checkout wxWidgets
+        uses: actions/checkout@v3
+        with:
+          repository: wxWidgets/wxWidgets
+          path: ${{ env.WXWIDGETS_ROOT }}
+          submodules: 'recursive'
+
+      - name: Set up build environment
+        run: |
+          # Install locales used by our tests to run all the tests instead of
+          # skipping them.
+          sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
+          
+          $WXWIDGETS_ROOT/build/tools/before_install.sh
+
+      - name: Display build environment
+        run: |
+          echo $PATH
+          ruby -v
+          doxygen -v
+          gcc -v
+          g++ -v
+
+      - name: Remove wxWidgets
+        run: rm -rf $WXWIDGETS_ROOT
+
+      - name: Configure wxRuby3
+        run: |
+          bundle exec rake configure[--with-wxwin]
+
+      - name: Build wxRuby3
+        run: |
+          bundle exec rake build
+
+      - name: Generate wxRuby3 docs
+        run: |
+          bundle exec rake doc
+
+      - name: Build wxRuby3 HTML docs
+        run: |
+          bundle exec yardoc
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload Yard output only
+          path: 'rdoc'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
