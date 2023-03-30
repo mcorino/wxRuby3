@@ -2,7 +2,7 @@
 [![Windows CI](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml/badge.svg)](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml)
 [![License](https://img.shields.io/badge/license-MIT-yellowgreen.svg)](LICENSE)
 
-[![Documentation](https://img.shields.io/badge/docs-rdoc.info-blue.svg)](http://rubydoc.org/gems/wxruby3/frames)
+[![Documentation](https://img.shields.io/badge/docs-pages-blue.svg)](https://mcorino.github.io/wxRuby3)
 
 # README for wxRuby3
 
