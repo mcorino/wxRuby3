@@ -143,33 +143,12 @@ calling `Wx.get_app`.
 ## wxRuby modules
 
 The toplevel module of the wxRuby library is the `Wx` module and when using `require 'wx'` to load the wxRuby library
-**all** constants and classes are loaded and can be accessed from that scope like `Wx::Frame` like previous versions of wxRuby provided.
+**all** constants and classes are loaded and can be accessed from that scope like `Wx::Frame` or `Wx::RichTextCtrl` 
+like previous versions of wxRuby supported.
 
 With the current wxRuby library however a more modular approach has been used similar to wxWidgets itself which
 distributes implementations over various sub-modules. These sub-modules can be loaded separately to provide more control.
 The core module still provides the toplevel `Wx` namespace and all classes and constants declared in that namespace.
 All other modules add to that (and **all** require the core module).
-
-This way only part of the wxRuby library can be loaded like:
-
-```ruby
-require 'wx/core' # load wxRuby core Wx module
-require 'wx/grid' # load wxRuby Wx::GRID module - provides Grid control
-require 'wx/rtc'  # load wxRuby Wx::RTC module - provides RichText control 
-```
-
-However, when loading the library like this scoping rules change by default. Specifically the constants and classes
-from the loaded sub-modules will **not** be accessible from the `Wx` scope anymore (like `Wx::Grid`) but must instead be
-explicitly scoped from the sub-module (like `Wx::GRID::Grid`).
-
-It is possible to revert the 'global scope' resolution behaviour by setting the toplevel constant `WX_GLOBAL_CONSTANTS` to
-`true` before the require statements like:
-
-```ruby
-WX_GLOBAL_CONSTANTS=true
-require 'wx/core' # load wxRuby core Wx module
-require 'wx/grid' # load wxRuby Wx::GRID module - provides Grid control
-require 'wx/rtc'  # load wxRuby Wx::RTC module - provides RichText control 
-```
 
 See [here](packages.md) for more details on wxRuby sub-modules.
