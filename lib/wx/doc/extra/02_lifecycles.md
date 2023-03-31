@@ -110,7 +110,7 @@ In case it concerns a fairly simple application which creates one or two of thes
 around for most or all of the lifetime of the application this is not really an issue as the window will be cleaned up
 at application exit eventually. If however it concerns a more complex application which potentially could create a large
 number of these sub windows (probably each only used for limited purposes) it would be advisable to track instances and
-destroy these on a regular basis when not used (closed).
+destroy these on a regular basis when not used (closed) possibly re-creating them as needed.
 
 Dialogs are special cases of toplevel windows which are not automatically destroyed when closed. The wxRuby library
 therefor provides special support to ease handling the destruction of these. See [here](03_dialogs.md) for more details.
