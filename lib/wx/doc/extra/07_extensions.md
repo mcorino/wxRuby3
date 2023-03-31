@@ -103,3 +103,42 @@ To support complex (context dependent) defaults and/or auto conversion
 of arguments for backwards compatibility the keyword constructors
 extension allows the definition of lambdas or procs to be associated
 with a parameter specification.
+
+## Ruby-style accessors
+
+The wxWidgets API, in typical C++ style, has lots of accessor methods like
+
+- `GetPosition()`
+- `SetSize(a_size)`
+- `IsChecked()`
+- `CanUndo()`
+- `HasStyle(a_style)`
+
+which in wxRuby are mapped to Ruby methods like `get_position`, `set_size` etc.
+
+In Ruby however these kind methods that set, get or query attributes or state are normally simply called
+by the attribute name or, in other cases, by a predicate method like:
+
+```ruby
+pos = frame.position
+frame.size = a_size
+item.checked?
+control.can_do?
+window.has_style?(a_style)
+```
+
+With wxRuby3 (most of) the API methods that begin with *get_*, *set_*, *is_*, *can_* and *has_* are identified 
+and the wxRuby API will have Ruby-style accessor aliases defined for those (appropriately decorated as needed).
+Note that if you are calling a *'setter'* method on `self`, you must explicitly send the message to `self` like:
+
+```ruby
+# set's self size to be 100px by 100px
+self.size = Wx::Size.new(100, 100)
+```
+
+since this will not work as you expect it to:
+
+```ruby
+# only sets the value of a local variable 'size'
+size = Wx::Size.new
+```
