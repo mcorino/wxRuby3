@@ -107,7 +107,7 @@ owned (i.e. not child windows). Closing these windows will not automatically des
 these are often re-shown after renewed events from the toplevel window) and will also not be automatically destroyed 
 when any parent window is destroyed. This means they pose a threat for potential memory leaks.<br>
 In case it concerns a fairly simple application which creates one or two of these sub-windows and needs to keep these
-around for most or all of the duration of the application this is not really an issue as the window will be cleaned up
+around for most or all of the lifetime of the application this is not really an issue as the window will be cleaned up
 at application exit eventually. If however it concerns a more complex application which potentially could create a large
 number of these sub windows (probably each only used for limited purposes) it would be advisable to track instances and
 destroy these on a regular basis when not used (closed).
