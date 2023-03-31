@@ -116,14 +116,14 @@ The wxWidgets API, in typical C++ style, has lots of accessor methods like
 
 which in wxRuby are mapped to Ruby methods like `get_position`, `set_size` etc.
 
-In Ruby however these kind methods that set, get or query attributes or state are normally simply called
+In Ruby however these kind of methods that set, get or query attributes or state are normally simply called
 by the attribute name or, in other cases, by a predicate method like:
 
 ```ruby
 pos = frame.position
 frame.size = a_size
 item.checked?
-control.can_do?
+control.can_undo?
 window.has_style?(a_style)
 ```
 
