@@ -165,8 +165,8 @@ The wxRuby STC package providing the `Wx::STC` module.
 This package includes all classes, constants and enum definitions that are associated with the
 wxWidgets wxStyledTextCtrl control (Scintilla integration) like:
 
-- `Wx::RTC::StyledTextCtrl`
-- `Wx::RTC::StyledTextEvent`
+- `Wx::STC::StyledTextCtrl`
+- `Wx::STC::StyledTextEvent`
 
 ## Feature dependencies
 
