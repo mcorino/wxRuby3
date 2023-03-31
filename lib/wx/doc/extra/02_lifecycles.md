@@ -78,7 +78,7 @@ your application should not attempt to access any of these resources (windows, f
 
 Also, largely because of the way the wxWidgets framework is designed but also because of that way this meshes with Ruby 
 GC, there is no safe way to re-initialize the framework after an application instance ends it run. This means you 
-**cannot** safely attempt to start another application instance after another (first) has ended. 
+**cannot** safely attempt to start another application instance after a previous (first) one has ended. 
 
 ## Windows
 
@@ -107,10 +107,10 @@ owned (i.e. not child windows). Closing these windows will not automatically des
 these are often re-shown after renewed events from the toplevel window) and will also not be automatically destroyed 
 when any parent window is destroyed. This means they pose a threat for potential memory leaks.<br>
 In case it concerns a fairly simple application which creates one or two of these sub-windows and needs to keep these
-around for most or all of the duration of the application this is not really an issue as the window will be cleaned up
+around for most or all of the lifetime of the application this is not really an issue as the window will be cleaned up
 at application exit eventually. If however it concerns a more complex application which potentially could create a large
 number of these sub windows (probably each only used for limited purposes) it would be advisable to track instances and
-destroy these on a regular basis when not used (closed).
+destroy these on a regular basis when not used (closed) possibly re-creating them as needed.
 
 Dialogs are special cases of toplevel windows which are not automatically destroyed when closed. The wxRuby library
 therefor provides special support to ease handling the destruction of these. See [here](03_dialogs.md) for more details.
