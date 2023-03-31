@@ -87,6 +87,8 @@ complete wxRuby3 build. This tends to focus on providing a reference
 of all available modules, classes ad methods and how to use specific 
 classes and methods, rather than on how to construct an application 
 overall.
+This documentation (for the latest release) is also available online
+[here](https://mcorino.github.io/wxRuby3/file.00_starting.html).
 
 One of the advantages of wxRuby3 is the much larger ecosystem of
 wxWidgets and wxPython resources out there. There is a book for
