@@ -78,7 +78,7 @@ your application should not attempt to access any of these resources (windows, f
 
 Also, largely because of the way the wxWidgets framework is designed but also because of that way this meshes with Ruby 
 GC, there is no safe way to re-initialize the framework after an application instance ends it run. This means you 
-**cannot** safely attempt to start another application instance after another (first) has ended. 
+**cannot** safely attempt to start another application instance after a previous (first) one has ended. 
 
 ## Windows
 
