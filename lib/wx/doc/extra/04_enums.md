@@ -9,12 +9,12 @@ The wxWidget library liberally mixes integer constants and enum values for thing
 and option flags and such without much consistency.<br>
 In previous wxRuby versions these were all mapped to integer constants which had 2 distinct disadvantages.
 
-loss of scoping
-: Integer constants for enum values would all be declared in the enclosing scope for the enum declaration loosing
+- **loss of scoping**<br>
+Integer constants for enum values would all be declared in the enclosing scope for the enum declaration loosing
 the naming scope which originally existed in C++ (excepting anonymous enums).
 
-loss of type-safety
-: Constants for enum values with identical integer values are indistinguishable from each other.
+- **loss of type-safety**<br>
+Constants for enum values with identical integer values are indistinguishable from each other.
 
 The wxRuby3 project attempts to provide a solution to that by introducing the `Wx::Enum` class which
 is used as a base class for mapping all (named) wxWidget enums to Ruby.
@@ -122,23 +122,17 @@ Wx::Font.new(36, Wx::FONTFAMILY_SWISS, Wx::FONTSTYLE_NORMAL, Wx::FONTWEIGHT_NORM
 
 where the `Wx::Font` constructor definition is:
 
-> #initialize(pointSize, family, style, weight, underline = false, faceName = Wx::EMPTY_STRING, encoding = Wx::FONTENCODING_DEFAULT) ⇒ Font
+> initialize(pointSize, family, style, weight, underline = false, faceName = `Wx::EMPTY_STRING`, encoding = `Wx::FONTENCODING_DEFAULT`) ⇒ `Wx::Font`
 
 with the following parameter specification:
 
-> pointSize (Integer)
->
-> family (Wx::FontFamily)
->
-> style (Wx::FontStyle)
-> 
-> weight (Wx::FontWeight)
->
-> underline (true, false) (defaults to: false)
->
-> faceName (String) (defaults to: Wx::EMPTY_STRING)
-> 
-> encoding (Wx::FontEncoding) (defaults to: Wx::FONTENCODING_DEFAULT)
+> - pointSize (`Integer`)
+> - family (`Wx::FontFamily`)
+> - style (`Wx::FontStyle`)
+> - weight (`Wx::FontWeight`)
+> - underline (`true`, `false`) (defaults to: `false`)
+> - faceName (`String`) (defaults to: `Wx::EMPTY_STRING`)
+> - encoding (`Wx::FontEncoding`) (defaults to: `Wx::FONTENCODING_DEFAULT`)
 
 In this case the constructor explicitly expects specific enum value types for *family*, *style* and *weigth* and
 providing the integer literal value `74` instead of `Wx::FONTFAMILY_SWISS` (or any other constant representing the same 

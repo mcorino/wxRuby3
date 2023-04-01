@@ -1,3 +1,7 @@
+<!--
+# @markup markdown
+-->
+
 # Installation of wxRuby3
 
 ## Installation of a wxRuby3 Gem
@@ -5,7 +9,9 @@
 The wxRuby3 project provides gems on [RubyGems](https://rubygems.org) which can be installed with the
 standard `gem install` command line this:
 
-    gem install wxruby3
+```sh
+gem install wxruby3
+ ```
 
 On Linux systems this will install the source based gem which will automatically build the native wxruby3 extension
 for the platform on which wxRuby3 is being installed.
@@ -13,7 +19,9 @@ On Windows systems a prebuilt binary gem is available for the latest stable rele
 installed rubies that will be installed by default if installing for that platform. Alternatively the source gem can be
 installed on Windows by installing with explicit platform specification like this:
 
-    gem install wxruby3 --platform=ruby
+```sh
+gem install wxruby3 --platform=ruby
+```
 
 When installing the source gem the following basic requirements apply:
 
@@ -40,9 +48,9 @@ Also a wxWidgets installation (version 3.2 or later) is required for which there
    wxWidgets version is required the source gem can be installed using a user installed version like this (where the 
    `WXWIN` path should provide the location where the wxWidgets binaries are installed under `<wxwin path>/bin`):<br>
 
-
-      gem install wxruby3 -- WXWIN=/path/to/wx/install 
-
+```sh
+   gem install wxruby3 -- WXWIN=/path/to/wx/install 
+```
    
 3. Automatic installed wxWidgets version<br>
    <br>
@@ -51,9 +59,11 @@ Also a wxWidgets installation (version 3.2 or later) is required for which there
    cause automatic checkout and building of the latest wxWidgets release (>= 3.2) from GitHub:
 
 
-      gem install wxruby3 -- WITH_WXWIN=1
-   
-> **NOTE** Be patient when installing the source gem. Building wxRuby3 takes a while and when wxWidgets is included event more. 
+```sh
+   gem install wxruby3 -- WITH_WXWIN=1
+```
+
+> **NOTE:** Be patient when installing the source gem. Building wxRuby3 takes a while and when wxWidgets is included event more. 
 
 ## Building from source
 
