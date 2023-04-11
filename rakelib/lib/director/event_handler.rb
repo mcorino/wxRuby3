@@ -77,19 +77,6 @@ module WXRuby3
             class wxRbCallback : public wxObject 
             {
             private:
-                static ID c_call_id;
-                static bool c_init_done;
-              
-                static ID call_id ()
-                {
-                  if (!c_init_done)
-                  {
-                    c_init_done = true;
-                    c_call_id = rb_intern("call");
-                  }
-                  return c_call_id;
-                }
-
                 static VALUE rescue(VALUE, VALUE error)
                 { 
                   return error;
@@ -97,6 +84,8 @@ module WXRuby3
   
                 static VALUE do_call_back(VALUE rb_cb_data)
                 {
+                  static WxRuby_ID call_id("call");
+
                   rb_funcall(rb_ary_entry(rb_cb_data, 0), call_id (), 1, rb_ary_entry(rb_cb_data, 1));
                   return Qnil;
                 }
@@ -149,9 +138,6 @@ module WXRuby3
                 VALUE m_func;
                 void* m_evh;
             };
-  
-            ID wxRbCallback::c_call_id = 0;
-            bool wxRbCallback::c_init_done = false;
   
             // Internally, all event handlers are anonymous ruby Proc objects,
             // created by EvtHandler#connect. These need to be preserved from Ruby's
@@ -218,33 +204,10 @@ module WXRuby3
               }
             }
 
-            static ID __wxrb_method_id()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("method");
-              return __id;
-            }
-
-            static ID __wxrb_try_before_id()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("try_before");
-              return __id;
-            }
-
-            static ID __wxrb_try_after_id()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("try_after");
-              return __id;
-            }
-
-            static ID __wxrb_source_location_id()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("source_location");
-              return __id;
-            }
+            static WxRuby_ID __wxrb_method_id("method");
+            static WxRuby_ID __wxrb_try_before_id("try_before");
+            static WxRuby_ID __wxrb_try_after_id("try_after");
+            static WxRuby_ID __wxrb_source_location_id("source_location");
 
             WXRUBY_EXPORT bool wxRuby_IsNativeMethod(VALUE object, ID method_id)
             {
@@ -385,20 +348,9 @@ module WXRuby3
             spec.no_proxy("#{spec.class_name(itm)}::ProcessEvent") unless /\.h\Z/ =~ itm
           end
           spec.add_header_code <<~__HEREDOC
-              static ID __wxrb_try_before_id()
-              {
-                static ID __id = 0;
-                if (__id == 0) __id = rb_intern("try_before");
-                return __id;
-              }
-  
-              static ID __wxrb_try_after_id()
-              {
-                static ID __id = 0;
-                if (__id == 0) __id = rb_intern("try_after");
-                return __id;
-              }
-          __HEREDOC
+            static WxRuby_ID __wxrb_try_before_id("try_before");
+            static WxRuby_ID __wxrb_try_after_id("try_after");
+            __HEREDOC
         end
       end
     end # class EvtHandler

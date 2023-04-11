@@ -217,12 +217,7 @@ module WXRuby3
         end
         # helper for all Window modules
         spec.add_header_code <<~__HEREDOC
-          static ID __wxrb_on_internal_idle_id()
-          {
-            static ID __id = 0;
-            if (__id == 0) __id = rb_intern("on_internal_idle");
-            return __id;
-          }
+          static WxRuby_ID __wxrb_on_internal_idle_id("on_internal_idle");
           __HEREDOC
         # update generated code for all windows
         spec.post_processors << :update_window

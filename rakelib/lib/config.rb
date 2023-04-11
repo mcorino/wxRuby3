@@ -413,12 +413,12 @@ module WXRuby3
             @no_deprecate = !(!!ENV['WX_KEEP_DEPRECATE'])
 
 
-            includes = [ RB_CONFIG["rubyhdrdir"],
-                         RB_CONFIG["sitehdrdir"],
-                         RB_CONFIG["vendorhdrdir"],
-                         File.join(RB_CONFIG["rubyhdrdir"],
-                                   RB_CONFIG['arch']) ].compact
-            @ruby_includes    = ['-I.', *includes.collect { |inc| "-I#{inc}" }]
+            @ruby_includes = [ RB_CONFIG["rubyhdrdir"],
+                               RB_CONFIG["sitehdrdir"],
+                               RB_CONFIG["vendorhdrdir"],
+                               File.join(RB_CONFIG["rubyhdrdir"],
+                               RB_CONFIG['arch']) ].compact
+            @ruby_includes << File.join(@wxruby_path, 'include')
 
             @ruby_cppflags    = [RB_CONFIG["CFLAGS"]].compact
             @ruby_ldflags     = [RB_CONFIG['LDFLAGS'], RB_CONFIG['DLDFLAGS'], RB_CONFIG['ARCHFLAG']].compact
@@ -456,8 +456,7 @@ module WXRuby3
             # SIXTH: Putting it all together
 
             # Flags to be passed to the C++ compiler
-            @cxxflags = [@wx_cppflags, @ruby_cppflags, @extra_cflags,
-                         @extra_cppflags, @ruby_includes ].flatten.join(' ')
+            @cxxflags = [@wx_cppflags, @ruby_cppflags, @extra_cflags, @extra_cppflags ].flatten.join(' ')
 
             # Flags to be passed to the linker
             @ldflags  = [ @ruby_ldflags, @extra_ldflags ].flatten.join(' ')

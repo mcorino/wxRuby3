@@ -72,16 +72,17 @@ module WXRuby3
 
           wxObject *WxRuby_XmlSubclassFactory::Create(wxString const &className)
           {
+            static WxRuby_ID create_id("create");
+
             wxObject *c_result ;
             VALUE rb_classname = Qnil ;
             VALUE SWIGUNUSED result;
             void *result_ptr;
             
-            ID create_id = rb_intern("create");
-            if (rb_respond_to(this->self_, create_id))
+            if (rb_respond_to(this->self_, create_id()))
             {
               rb_classname = WXSTR_TO_RSTR(className);
-              result = rb_funcall(this->self_, create_id, 1, rb_classname);
+              result = rb_funcall(this->self_, create_id(), 1, rb_classname);
               if (result != Qnil)
               {
                 if (TYPE(result) != T_DATA || !rb_obj_is_kind_of(result, ((swig_class *) (SWIGTYPE_p_wxObject->clientdata))->klass))
