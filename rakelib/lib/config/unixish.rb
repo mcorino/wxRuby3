@@ -151,6 +151,8 @@ module WXRuby3
           @ruby_cppflags = @ruby_cppflags.collect { |flags| flags.split(' ') }.flatten.
             select { |o| !o.start_with?('-W') || o.start_with?('-Wl,') }
           @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
+          # add include flags
+          @ruby_cppflags.concat ['-I.', *@ruby_includes.collect { |inc| "-I#{inc}" }]
           @ruby_ldflags << '-s' if @release_build                         # strip debug symbols for release build
           @ruby_ldflags << "-Wl,-rpath,\\$ORIGIN/../lib"                  # add default rpath
           @ruby_libs <<  "-L#{RB_CONFIG['libdir']}"                       # add ruby lib dir

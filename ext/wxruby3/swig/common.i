@@ -78,23 +78,7 @@
 #  undef Connect
 #  undef connect
 
-// flag type to keep track of stuff like typemap arg allocations that need to be freed in freearg typemaps
-// by default always 'false'
-struct wxrb_flag
-{
-  bool flag_ {};
-  wxrb_flag() = default;
-  wxrb_flag(const wxrb_flag&) = default;
-  wxrb_flag(wxrb_flag&&) = default;
-  operator bool () const { return flag_; }
-  bool operator! () const { return !flag_; }
-  wxrb_flag& operator =(const wxrb_flag&) = default;
-  wxrb_flag& operator =(wxrb_flag&&) = default;
-  wxrb_flag& operator =(bool f) { flag_ = f; return *this; }
-};
-
-// Different string conversions for ruby 2.5+
-
+// string conversions
 #define WXSTR_TO_RSTR(wx_str) rb_utf8_str_new_cstr((const char *)wx_str.utf8_str())
 #define WXSTR_PTR_TO_RSTR(wx_str) (wx_str ? rb_utf8_str_new_cstr((const char *)wx_str->utf8_str()) : Qnil)
 
@@ -119,57 +103,7 @@ struct wxrb_flag
 #error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
 #endif
 
-#ifdef __WXRB_DEBUG__
-WXRUBY_EXPORT int wxRuby_TraceLevel();
-#endif
-
-WXRUBY_EXPORT VALUE wxRuby_Funcall(VALUE rcvr, ID func, int argc, ...);
-
-WXRUBY_EXPORT bool wxRuby_IsAppRunning();
-typedef void (*WXRBMarkFunction)();
-WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker);
-
-WXRUBY_EXPORT VALUE wxRuby_GetTopLevelWindowClass(); // used for wxWindow typemap in typemap.i
-WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr);
-
-// Defined in wx.i; getting, setting and using swig_type <-> ruby class
-// mappings
-WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls);
-WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty);
-
-// Common wrapping functions
-WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject* obj);
-#ifdef __WXRB_DEBUG__
-WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent* event);
-#else
-WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent* event);
-#endif
-
-// event handling helpers
-WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
-WXRUBY_EXPORT VALUE wxRuby_GetDefaultEventClass ();
-WXRUBY_EXPORT void wxRuby_ReleaseEvtHandlerProcs(void* evt_handler);
-
-WXRUBY_EXPORT bool wxRuby_IsNativeMethod(VALUE object, ID method_id);
-
-WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
-WXRUBY_EXPORT VALUE wxRuby_GetDialogClass();
-
-// Enum helpers
-WXRUBY_EXPORT VALUE wxRuby_GetEnumClass(const char* enum_class_name_cstr);
-WXRUBY_EXPORT VALUE wxRuby_CreateEnumClass(const char* enum_class_name_cstr);
-WXRUBY_EXPORT VALUE wxRuby_AddEnumValue(VALUE enum_klass, const char* enum_value_name_cstr, VALUE enum_value_num);
-WXRUBY_EXPORT VALUE wxRuby_GetEnumValueObject(const char* enum_wx_class_name_cstr, int enum_val);
-WXRUBY_EXPORT bool wxRuby_GetEnumValue(const char* enum_class_name_cstr, VALUE rb_enum_val, int &c_eval);
-WXRUBY_EXPORT bool wxRuby_IsAnEnum(VALUE rb_val);
-WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val);
-
-#if wxUSE_VARIANT
-// Variant support
-WXRUBY_EXPORT VALUE& operator << (VALUE &value, const wxVariant &variant);
-WXRUBY_EXPORT wxVariant& operator << (wxVariant &variant, const VALUE &value);
-WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval);
-#endif
+#include "wxruby-runtime.h"
 %}
 
 %include "typedefs.i"

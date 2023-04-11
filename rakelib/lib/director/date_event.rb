@@ -22,48 +22,12 @@ module WXRuby3
   
             #include <wx/datetime.h>
             
-            static ID __wxrb_local()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("local");
-              return __id;
-            }
-            
-            static ID __wxrb_utc_offset()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("utc_offset");
-              return __id;
-            }
-            
-            static ID __wxrb_Rational()
-            {
-              static ID __id = 0;
-              const char *Rational = "Rational";
-              if (__id == 0) __id = rb_intern(Rational);
-              return __id;
-            }
-            
-            static ID __wxrb_civil()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("civil");
-              return __id;
-            }
-
-            static ID __wxrb_to_time()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("to_time");
-              return __id;
-            }
-
-            static ID __wxrb_round()
-            {
-              static ID __id = 0;
-              if (__id == 0) __id = rb_intern("round");
-              return __id;
-            }
+            static WxRuby_ID __wxrb_local("local");
+            static WxRuby_ID __wxrb_utc_offset("utc_offset");
+            static WxRuby_ID __wxrb_Rational("Rational");
+            static WxRuby_ID __wxrb_civil("civil");
+            static WxRuby_ID __wxrb_to_time("to_time");
+            static WxRuby_ID __wxrb_round("round");
 
             static VALUE rescue(VALUE, VALUE)
             { 
@@ -122,6 +86,14 @@ module WXRuby3
                 return ruby_value;
             }
         
+            static WxRuby_ID __wxrb_year("year");
+            static WxRuby_ID __wxrb_month("month");
+            static WxRuby_ID __wxrb_mday("mday");
+            static WxRuby_ID __wxrb_hour("hour");
+            static WxRuby_ID __wxrb_min("min");
+            static WxRuby_ID __wxrb_sec("sec");
+            static WxRuby_ID __wxrb_usec("usec");
+
             WXRB_EXPORT_FLAG wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value)
             {
                 if (ruby_value == Qnil)
@@ -136,13 +108,13 @@ module WXRuby3
                     }
                     ruby_value = rb_funcall(ruby_value, __wxrb_round(), 1, INT2NUM(3));
 
-                    int y       = NUM2INT(rb_funcall(ruby_value, rb_intern("year"), 0));
-                    int rMonth  = NUM2INT(rb_funcall(ruby_value, rb_intern("month"), 0));
-                    int rDay    = NUM2INT(rb_funcall(ruby_value, rb_intern("mday"), 0));
-                    int rHour   = NUM2INT(rb_funcall(ruby_value, rb_intern("hour"), 0));
-                    int rMinute = NUM2INT(rb_funcall(ruby_value, rb_intern("min"), 0));
-                    int rSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("sec"), 0));
-                    int rUSecond = NUM2INT(rb_funcall(ruby_value, rb_intern("usec"), 0));
+                    int y       = NUM2INT(rb_funcall(ruby_value, __wxrb_year(), 0));
+                    int rMonth  = NUM2INT(rb_funcall(ruby_value, __wxrb_month(), 0));
+                    int rDay    = NUM2INT(rb_funcall(ruby_value, __wxrb_mday(), 0));
+                    int rHour   = NUM2INT(rb_funcall(ruby_value, __wxrb_hour(), 0));
+                    int rMinute = NUM2INT(rb_funcall(ruby_value, __wxrb_min(), 0));
+                    int rSecond = NUM2INT(rb_funcall(ruby_value, __wxrb_sec(), 0));
+                    int rUSecond = NUM2INT(rb_funcall(ruby_value, __wxrb_usec(), 0));
                     int rMSecond = rUSecond / 1000;
                 
                     wxDateTime::Month mon        = (wxDateTime::Month)(rMonth-1);
