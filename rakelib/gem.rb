@@ -33,7 +33,7 @@ module WXRuby3
         manifest.include WXRuby3::BUILD_CFG
       else
         manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
-        manifest.include 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*'
+        manifest.include 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*', 'ext/wxruby3/include/**/*'
         manifest.exclude 'ext/wxruby3/swig/classes/**/*'
         manifest.include 'ext/mkrf_conf_srcgem.rb'
         manifest.include 'rakelib/**/*'
