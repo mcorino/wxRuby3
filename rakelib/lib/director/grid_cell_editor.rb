@@ -157,6 +157,13 @@ module WXRuby3
       # in wxGridCellEditor::TryActivate as SWIG cannot handle the, admittedly seriously flawed,
       # wxWidgets interface
       WRAPPER_HELPERS = <<~__HEREDOC
+            static WxRuby_ID ga_ignore_id("ignore");
+            static WxRuby_ID ga_show_editor_id("show_editor");
+            static WxRuby_ID ga_change_id("change");
+            static WxRuby_ID ga_program_id("program");
+            static WxRuby_ID ga_key_id("key");
+            static WxRuby_ID ga_mouse_id("mouse");
+
             inline wxGridActivationResult
             array_to_wxGridActivationResult(VALUE rbarr)
             {
@@ -168,9 +175,9 @@ module WXRuby3
               }
               if (TYPE(rbarr) == T_SYMBOL)
               {
-                if (SYM2ID(rbarr) == rb_intern("ignore"))
+                if (SYM2ID(rbarr) == ga_ignore_id())
                   return wxGridActivationResult::DoNothing();
-                else if (SYM2ID(rbarr) == rb_intern("show_editor"))
+                else if (SYM2ID(rbarr) == ga_show_editor_id())
                   return wxGridActivationResult::DoEdit();
                 else
                   Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
@@ -185,15 +192,15 @@ module WXRuby3
                   Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
                                                              "in output value of type 'wxGridActivationResult'");
                 }
-                else if (SYM2ID(rbAction) == rb_intern("change") && rbStr != Qnil)
+                else if (SYM2ID(rbAction) == ga_change_id() && rbStr != Qnil)
                 {
                   return wxGridActivationResult::DoChange(RSTR_TO_WXSTR(rbStr));
                 }
                 else
                 {
-                  if (SYM2ID(rbAction) == rb_intern("ignore"))
+                  if (SYM2ID(rbAction) == ga_ignore_id())
                     return wxGridActivationResult::DoNothing();
-                  else if (SYM2ID(rbAction) == rb_intern("show_editor"))
+                  else if (SYM2ID(rbAction) == ga_show_editor_id())
                     return wxGridActivationResult::DoEdit();
                   else
                     Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
@@ -211,14 +218,14 @@ module WXRuby3
               wxGridActivationResult::Action act = result.GetAction ();
               switch (act) {
               case wxGridActivationResult::Ignore:
-                rb_ary_push(rbresult, ID2SYM(rb_intern("ignore")));
+                rb_ary_push(rbresult, ga_ignore_id.get_sym());
                 break;
               case wxGridActivationResult::Change:
-                rb_ary_push(rbresult, ID2SYM(rb_intern("change")));
+                rb_ary_push(rbresult, ga_change_id.get_sym());
                 rb_ary_push(rbresult, WXSTR_TO_RSTR(result.GetNewValue()));
                 break;
               case wxGridActivationResult::ShowEditor:
-                rb_ary_push(rbresult, ID2SYM(rb_intern("show_editor")));
+                rb_ary_push(rbresult, ga_show_editor_id.get_sym());
                 break;
               }
               return rbresult;
@@ -235,7 +242,7 @@ module WXRuby3
               }
               if (TYPE(rbarr) == T_SYMBOL)
               {
-                if (SYM2ID(rbarr) != rb_intern("program"))
+                if (SYM2ID(rbarr) != ga_program_id())
                   rb_raise(rb_eArgError, 
                     ":key or :mouse activation sources need an event for %d.", argnum);
                 else
@@ -250,16 +257,16 @@ module WXRuby3
                   rb_raise(rb_eArgError, 
                     "expected Symbol or Array of Symbol and optional event for %d.", argnum);
                 }
-                else if (SYM2ID(rbOrg) == rb_intern("program"))
+                else if (SYM2ID(rbOrg) == ga_program_id())
                 {
                   return wxGridActivationSource::FromProgram();
                 }
                 else if (rbEvt != Qnil)
                 {
                   const wxEvent* evt = (const wxEvent*)DATA_PTR(rbEvt);
-                  if (SYM2ID(rbOrg) == rb_intern("key"))
+                  if (SYM2ID(rbOrg) == ga_key_id())
                     return wxGridActivationSource::From(*(const wxKeyEvent*)evt);
-                  else if (SYM2ID(rbOrg) == rb_intern("mouse"))
+                  else if (SYM2ID(rbOrg) == ga_mouse_id())
                     return wxGridActivationSource::From(*(const wxMouseEvent*)evt);
                   rb_raise(rb_eArgError, 
                     "unknown activation source for %d.", argnum);
@@ -279,10 +286,10 @@ module WXRuby3
               wxGridActivationSource::Origin org = arg.GetOrigin ();
               switch (org) {
               case wxGridActivationSource::Program:
-                rb_ary_push(rbresult, ID2SYM(rb_intern("program")));
+                rb_ary_push(rbresult, ga_program_id.get_sym());
                 break;
               case wxGridActivationSource::Key:
-                rb_ary_push(rbresult, ID2SYM(rb_intern("key")));
+                rb_ary_push(rbresult, ga_key_id.get_sym());
             #ifdef __WXRB_DEBUG__
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(0, const_cast<wxKeyEvent*> (&arg.GetKeyEvent())));
             #else 
@@ -290,7 +297,7 @@ module WXRuby3
             #endif 
                 break;
               case wxGridActivationSource::Mouse:
-                rb_ary_push(rbresult, ID2SYM(rb_intern("mouse")));
+                rb_ary_push(rbresult, ga_mouse_id.get_sym());
             #ifdef __WXRB_DEBUG__
                 rb_ary_push(rbresult, wxRuby_WrapWxEventInRuby(0, const_cast<wxMouseEvent*> (&arg.GetMouseEvent()))); 
             #else 
@@ -329,6 +336,8 @@ module WXRuby3
               skip_lines = true
               # append new method implementation
               line << <<~__METHOD__
+                static WxRuby_ID try_activate_id("try_activate");
+
                 VALUE obj0 = Qnil ;
                 VALUE obj1 = Qnil ;
                 VALUE obj2 = Qnil ;
@@ -339,7 +348,7 @@ module WXRuby3
                 obj1 = SWIG_From_int(static_cast< int >(col));
                 obj2 = SWIG_NewPointerObj(SWIG_as_voidptr(grid), SWIGTYPE_p_wxGrid,  0 );
                 obj3 = wxGridActivationSource_to_array(actSource); 
-                result = rb_funcall(swig_get_self(), rb_intern("try_activate"), 4,obj0,obj1,obj2,obj3);
+                result = rb_funcall(swig_get_self(), try_activate_id(), 4,obj0,obj1,obj2,obj3);
                 return array_to_wxGridActivationResult(result);
                 __METHOD__
             elsif !helpers_added && line["SwigDirector_#{module_name}::SwigDirector_#{module_name}(VALUE self"]

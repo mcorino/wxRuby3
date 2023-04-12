@@ -105,6 +105,14 @@ module WXRuby3
                 // into the ruby proc for handling on the ruby side
                 void EventThunker(wxEvent &event)
                 {
+                  static WxRuby_ID THE_APP_id("THE_APP");
+                  static WxRuby_ID message_id("message");
+                  static WxRuby_ID class_id("class");
+                  static WxRuby_ID name_id("name");
+                  static WxRuby_ID backtrace_id("backtrace");
+                  static WxRuby_ID join_id("join");
+                  static WxRuby_ID exit_main_loop_id("exit_main_loop");
+
             #ifdef __WXRB_DEBUG__                
                   VALUE rb_event = wxRuby_WrapWxEventInRuby(0, &event);
             #else
@@ -117,21 +125,21 @@ module WXRuby3
                   VALUE err = rb_rescue2(VALUEFUNC(do_call_back), rb_cb_args, VALUEFUNC(rescue), Qnil, rb_eException, 0);
                   if (!NIL_P(err))
                   {
-                    VALUE rb_app = rb_const_get(wxRuby_Core(), rb_intern("THE_APP"));
+                    VALUE rb_app = rb_const_get(wxRuby_Core(), THE_APP_id());
                     rb_iv_set(rb_app, "@exception", err);
             #ifdef __WXRB_DEBUG__                
                     if (!rb_obj_is_kind_of(err, rb_eSystemExit) && wxRuby_TraceLevel()>0)
                     {
-                      VALUE msg = rb_funcall(err, rb_intern("message"), 0);
-                      VALUE err_name = rb_funcall(rb_funcall(err, rb_intern("class"), 0), rb_intern("name"), 0);
-                      VALUE bt = rb_funcall(err, rb_intern("backtrace"), 0);
-                      bt = rb_funcall(bt, rb_intern("join"), 1, rb_str_new2("\\n"));
+                      VALUE msg = rb_funcall(err, message_id(), 0);
+                      VALUE err_name = rb_funcall(rb_funcall(err, class_id(), 0), name_id(), 0);
+                      VALUE bt = rb_funcall(err, backtrace_id(), 0);
+                      bt = rb_funcall(bt, join_id(), 1, rb_str_new2("\\n"));
                       std::cerr << std::endl
                                 << ' ' << StringValuePtr(err_name) << ": " << StringValuePtr(msg) << std::endl
                                 << StringValuePtr(bt) << std::endl;
                     }
             #endif
-                    rb_funcall(rb_app, rb_intern("exit_main_loop"), 0);
+                    rb_funcall(rb_app, exit_main_loop_id(), 0);
                   }
                 }
             
@@ -239,26 +247,28 @@ module WXRuby3
   
               virtual wxEvent *Clone() const wxOVERRIDE
               {
-                  return new RbAsyncProcCallEvent(*this);
+                return new RbAsyncProcCallEvent(*this);
               }
           
               virtual void Execute() wxOVERRIDE
               {
-                  if (TYPE(m_rb_call) == T_ARRAY)
+                static WxRuby_ID call_id("call");
+    
+                if (TYPE(m_rb_call) == T_ARRAY)
+                {
+                  VALUE proc = rb_ary_entry(m_rb_call, 0);
+                  int argc = RARRAY_LEN(m_rb_call)-1;
+                  std::unique_ptr<VALUE> safe_args (new VALUE[argc]);
+                  for (int i=0; i<argc ;i++)
                   {
-                    VALUE proc = rb_ary_entry(m_rb_call, 0);
-                    int argc = RARRAY_LEN(m_rb_call)-1;
-                    std::unique_ptr<VALUE> safe_args (new VALUE[argc]);
-                    for (int i=0; i<argc ;i++)
-                    {
-                      safe_args.get()[i] = rb_ary_entry(m_rb_call, i+1);
-                    }
-                    rb_funcall2(proc, rb_intern("call"), argc, safe_args.get());
+                    safe_args.get()[i] = rb_ary_entry(m_rb_call, i+1);
                   }
-                  else
-                  {
-                    rb_funcall(m_rb_call, rb_intern("call"), 0, 0);
-                  }
+                  rb_funcall2(proc, call_id(), argc, safe_args.get());
+                }
+                else
+                {
+                  rb_funcall(m_rb_call, call_id(), 0, 0);
+                }
               }
           
             private:
@@ -284,6 +294,8 @@ module WXRuby3
                      int lastId = wxID_ANY, 
                      VALUE evtSpecifier = Qnil)
             {
+              static WxRuby_ID event_type_for_name_id("event_type_for_name");
+
               wxEventType event_type;
             
               if ( TYPE(evtSpecifier) == T_FIXNUM ) // simply an Integer id
@@ -293,8 +305,8 @@ module WXRuby3
               else if ( TYPE(evtSpecifier) == T_SYMBOL ) // Symbol handler method
               {
                 VALUE rb_evt_type = rb_funcall(wxRuby_GetSwigClassWxEvtHandler().klass, 
-                                 rb_intern("event_type_for_name"),
-                                 1, evtSpecifier);
+                                               event_type_for_name_id(),
+                                               1, evtSpecifier);
                 if ( rb_evt_type != Qnil )
                   event_type = NUM2INT( rb_evt_type );
                 else

@@ -34,7 +34,7 @@ module WXRuby3
         # name in SWIG, but we will fix that with some pure Ruby overrides)
         spec.map 'wxWindow* parent' => 'Wx::Window' do
           map_check code: <<~__CODE
-            if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP") ) )
+            if ( !wxRuby_IsAppRunning() )
             { 
               rb_raise(rb_eRuntimeError,
                        "Cannot create a Window before App.main_loop has been called");

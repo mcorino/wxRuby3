@@ -150,6 +150,9 @@ module WXRuby3
         spec.include 'wx/propgrid/manager.h'
         spec.add_header_code <<~__CODE
           extern VALUE mWxPG; // declare external module reference
+
+          static WxRuby_ID pgi_PropertyGridPageState_id("PropertyGridPageState");
+          static WxRuby_ID pgi_PropertyGridPage_id("PropertyGridPage");
           __CODE
         spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
           VALUE get_state()
@@ -163,7 +166,7 @@ module WXRuby3
             else
             {
               wxPropertyGridPageState* wx_pgps = self->GetState();
-              VALUE klass = rb_const_get(mWxPG, rb_intern("PropertyGridPageState"));
+              VALUE klass = rb_const_get(mWxPG, pgi_PropertyGridPageState_id());
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass); 
               return SWIG_NewPointerObj(SWIG_as_voidptr(wx_pgps), swig_type, 0);
             } 
@@ -182,7 +185,7 @@ module WXRuby3
             wxPropertyGridPageState *state = 0;
             if (!NIL_P(rb_state))
             {
-              VALUE klass = rb_const_get(mWxPG, rb_intern("PropertyGridPageState"));
+              VALUE klass = rb_const_get(mWxPG, pgi_PropertyGridPageState_id());
               if (rb_obj_is_kind_of(rb_state, klass))
               {
                 swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass); 
@@ -196,7 +199,7 @@ module WXRuby3
               else
               {
                 wxPropertyGridPage *wx_pg = 0;
-                VALUE klass = rb_const_get(mWxPG, rb_intern("PropertyGridPage"));
+                VALUE klass = rb_const_get(mWxPG, pgi_PropertyGridPage_id());
                 swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass); 
                 int res = SWIG_ConvertPtr(rb_state, SWIG_as_voidptrptr(&wx_pg), swig_type, 0);
                 if (!SWIG_IsOK(res)) {

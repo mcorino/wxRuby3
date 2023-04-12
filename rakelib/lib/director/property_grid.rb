@@ -38,6 +38,8 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           static int wxRuby_PropertyGridSortFunction(wxPropertyGrid* pg, wxPGProperty* pp1, wxPGProperty* pp2)
           {
+            static WxRuby_ID call_id("call");
+
             VALUE rb_pg = SWIG_RubyInstanceFor(pg);
             VALUE rb_pp1 = SWIG_NewPointerObj(SWIG_as_voidptr(pp1), SWIGTYPE_p_wxPGProperty, 0);
             VALUE rb_pp2 = SWIG_NewPointerObj(SWIG_as_voidptr(pp2), SWIGTYPE_p_wxPGProperty, 0);
@@ -48,7 +50,7 @@ module WXRuby3
               rb_raise(rb_eRuntimeError, "Nil @__sorter for %s",
                                          StringValuePtr(msg));
             }
-            return INT2NUM(rb_funcall(rb_sorter, rb_intern("call"), 3, rb_pg, rb_pp1, rb_pp2));
+            return INT2NUM(rb_funcall(rb_sorter, call_id(), 3, rb_pg, rb_pp1, rb_pp2));
           }
           __HEREDOC
         spec.add_extend_code 'wxPropertyGrid', <<~__HEREDOC
