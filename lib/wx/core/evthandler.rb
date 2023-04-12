@@ -162,16 +162,21 @@ class Wx::EvtHandler
   private :acquire_id, :acquire_handler
 
   wx_call_after = instance_method(:call_after)
-  define_method(:call_after) do |meth = nil, *args, &block|
-    async_proc = if block and not meth
+  define_method(:call_after) do |*args, &block|
+    async_proc = if block
                    block
-                 elsif meth and not block
-                   case meth
-                   when Symbol, String then self.method(meth)
-                   when Proc then meth
-                   when Method then meth
+                 elsif !args.empty?
+                   case args.first
+                   when Symbol, String then self.method(args.shift)
+                   when Proc then args.shift
+                   when Method then args.shift
+                   else
+                     nil
                    end
+                 else
+                   nil
                  end
+    Kernel.raise ArgumentError, 'Missing async call handler' unless async_proc
     wx_call_after.bind(self).call(args.unshift(async_proc))
   end
 
