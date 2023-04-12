@@ -25,7 +25,7 @@ module WXRuby3
         # not inherit from TopLevelWindow - so special typemap for this class.
         spec.map 'wxWindow* parent' do
           map_check code: <<~__CODE
-            if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP")) )
+            if ( !wxRuby_IsAppRunning() )
             { 
               rb_raise(rb_eRuntimeError,
                    "Cannot create BusyInfo before App.main_loop has been called");

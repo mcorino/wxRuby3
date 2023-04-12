@@ -20,13 +20,15 @@ module WXRuby3
           // Ruby string.
           int wxRuby_RubyStringOrIntToKeyCode(VALUE rb_key) 
           {
+            static WxRuby_ID ord_id("ord");
+
             if (TYPE(rb_key) == T_FIXNUM || wxRuby_IsAnEnum(rb_key)) 
             {
               return NUM2INT(rb_key);
             }
             else if (TYPE(rb_key) == T_STRING) 
             {
-              return NUM2INT(rb_funcall(rb_key, rb_intern("ord"), 0));
+              return NUM2INT(rb_funcall(rb_key, ord_id(), 0));
             }
             else 
             {

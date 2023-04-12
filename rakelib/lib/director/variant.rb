@@ -28,16 +28,25 @@ module WXRuby3
           #include <wx/datetime.h>
           WXRB_EXPORT_FLAG wxDateTime* wxRuby_wxDateTimeFromRuby(VALUE ruby_value);
           #endif
+
+          static WxRuby_ID var_to_time_id("to_time");
+          static WxRuby_ID var_Variant_id("Variant");
+          static WxRuby_ID var_Font_id("Font");
+          static WxRuby_ID var_Colour_id("Colour");
+          static WxRuby_ID var_ColourPropertyValue_id("ColourPropertyValue");
+          static WxRuby_ID var_PG_id("PG");
+
           __HEREDOC
         # add Ruby to Variant auto converter
         spec.add_wrapper_code <<~__HEREDOC
+
           WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval)
           {
             if (!NIL_P(rbval))
             {
               long lval;
               double dval;
-              if (rb_obj_is_kind_of(rbval, rb_cTime) || rb_respond_to(rbval, rb_intern ("to_time")))
+              if (rb_obj_is_kind_of(rbval, rb_cTime) || rb_respond_to(rbval, var_to_time_id()))
               {
                 wxDateTime* wxdt = wxRuby_wxDateTimeFromRuby(rbval);
                 wxVariant var(*wxdt);
@@ -48,7 +57,7 @@ module WXRuby3
               {
                 void *ptr;
                 VALUE klass;
-                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Variant"))))
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, var_Variant_id())))
                 {
                   int res = SWIG_ConvertPtr(rbval, &ptr, SWIGTYPE_p_wxVariant, 0);
                   if (!SWIG_IsOK(res)) {
@@ -56,7 +65,7 @@ module WXRuby3
                   }
                   return wxVariant(*static_cast<wxVariant*> (ptr));
                 }
-                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Font"))))
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, var_Font_id())))
                 {
                   swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
                   int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
@@ -66,7 +75,7 @@ module WXRuby3
                   wxVariant var; var << *static_cast<wxFont*> (ptr); 
                   return var;
                 }
-                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("Colour"))))
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, var_Colour_id())))
                 {
                   swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
                   int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
@@ -77,7 +86,7 @@ module WXRuby3
                   return var;
                 }
           #ifdef wxUSE_PROPGRID
-                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, rb_intern("ColourPropertyValue"))))
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, var_ColourPropertyValue_id())))
                 {
                   swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
                   int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
@@ -102,7 +111,8 @@ module WXRuby3
                   }
                   return wxVariant(arrs);
                 }
-                if (RARRAY_LEN(rbval) == 0 || rb_obj_is_kind_of(rb_ary_entry(rbval, 0), rb_const_get(mWxCore, rb_intern("Variant"))))
+                if (RARRAY_LEN(rbval) == 0 || 
+                      rb_obj_is_kind_of(rb_ary_entry(rbval, 0), rb_const_get(mWxCore, var_Variant_id())))
                 {
                   wxVariantList vlist;
                   for (int i = 0; i < RARRAY_LEN(rbval); i++)
@@ -195,23 +205,23 @@ module WXRuby3
         # need type checks to prevent clashing with Time
         spec.map 'const wxVariant&' do
           map_typecheck precedence: 1, code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Variant")));
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, var_Variant_id()));
             __CODE
         end
         spec.map 'const wxFont&' do
           map_typecheck precedence: 2, code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Font")));
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, var_Font_id()));
           __CODE
         end
         spec.map 'const wxColour&' do
           map_typecheck precedence: 3, code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, rb_intern("Colour")));
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxCore, var_Colour_id()));
           __CODE
         end
         spec.map 'const wxColourPropertyValue&' do
           map_typecheck precedence: 4, code: <<~__CODE
-            VALUE mWxPG = rb_const_get(mWxCore, rb_intern("PG"));
-            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxPG, rb_intern("ColourPropertyValue")));
+            VALUE mWxPG = rb_const_get(mWxCore, var_PG_id());
+            $1 = rb_obj_is_kind_of($input, rb_const_get(mWxPG, var_ColourPropertyValue_id()));
           __CODE
         end
         if Config.instance.features_set?('wxUSE_LONGLONG')
@@ -318,7 +328,7 @@ module WXRuby3
           map_typecheck precedence: 'OBJECT_ARRAY',
                         code: <<~__CODE
                           $1 = ((TYPE($input) == T_ARRAY) && 
-                                ((RARRAY_LEN($input) == 0) || rb_obj_is_kind_of(rb_ary_entry($input, 0), rb_const_get(mWxCore, rb_intern("Variant")))));
+                                ((RARRAY_LEN($input) == 0) || rb_obj_is_kind_of(rb_ary_entry($input, 0), rb_const_get(mWxCore, var_Variant_id()))));
             __CODE
         end
         # ignore void* support
@@ -420,7 +430,9 @@ module WXRuby3
 
               virtual bool Write(wxString& str) const wxOVERRIDE
               {
-                VALUE s = rb_funcall(m_value, rb_intern("to_s"), 0);
+                static WxRuby_ID to_s_id("to_s");
+
+                VALUE s = rb_funcall(m_value, to_s_id(), 0);
                 str = RSTR_TO_WXSTR(s);
                 return true;
               }

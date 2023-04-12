@@ -155,7 +155,9 @@ module WXRuby3
           // Returns the global app object
           static VALUE get_app(VALUE self)
           {
-            return rb_const_get(wxRuby_Core(), rb_intern("THE_APP"));
+            static WxRuby_ID THE_APP_id("THE_APP");
+
+            return rb_const_get(wxRuby_Core(), THE_APP_id());
           }
           
           // Converts a string XRC id into a Wx id
@@ -173,8 +175,10 @@ module WXRuby3
           static VALUE
           cpp_ptr_addr(VALUE self, VALUE obj)
           {
+            static WxRuby_ID sprintf_id("sprintf");
+
             size_t ptr = (size_t)DATA_PTR(obj);
-            return rb_funcall( rb_mKernel, rb_intern("sprintf"), 2,
+            return rb_funcall( rb_mKernel, sprintf_id(), 2,
                                rb_str_new2("0x%x"), OFFT2NUM(ptr) );
           }
           __HEREDOC
@@ -185,7 +189,7 @@ module WXRuby3
         # typemap and just check that the App has been started.
         spec.map 'wxWindow* parent' do
           map_check code: <<~__CODE
-            if ( ! rb_const_defined(wxRuby_Core(), rb_intern("THE_APP") ) )
+            if ( !wxRuby_IsAppRunning() )
             { 
                 rb_raise(rb_eRuntimeError,
                        "Cannot display dialog before App.main_loop has been called");

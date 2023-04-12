@@ -29,10 +29,12 @@ module WXRuby3
             // implementation is provided
             wxString GetHelp(const wxWindowBase* window)
             {
+              static WxRuby_ID get_help_id("get_help");
+
               VALUE rb_win = wxRuby_WrapWxObjectInRuby( (wxWindow*)window );
               VALUE self = SWIG_RubyInstanceFor(this);
               
-              VALUE rb_help_str = rb_funcall(self, rb_intern("get_help"), 1, rb_win);
+              VALUE rb_help_str = rb_funcall(self, get_help_id(), 1, rb_win);
           
               wxString result;
               if ( TYPE(rb_help_str) == T_STRING )
@@ -50,11 +52,13 @@ module WXRuby3
             // object, which will cause rapid segfaults when it is later marked.
             void RemoveHelp(wxWindowBase* window) 
             {
+              static WxRuby_ID remove_help_id("remove_help");
+
               VALUE rb_win = SWIG_RubyInstanceFor( (void *)window );
               if ( ! NIL_P(rb_win) )
                 {
                   VALUE self   = SWIG_RubyInstanceFor(this);
-                  rb_funcall(self, rb_intern("remove_help"), 1, rb_win);
+                  rb_funcall(self, remove_help_id(), 1, rb_win);
                 }
             }
           };

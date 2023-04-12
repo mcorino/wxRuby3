@@ -157,6 +157,8 @@ module WXRuby3
             // (recommended) or else a ClientDC.
             VALUE paint()
             {  
+              static WxRuby_ID painting_id("@__painting__");
+
               if ( ! rb_block_given_p() )
               rb_raise(rb_eArgError, "No block given for Window#paint");
           
@@ -164,7 +166,7 @@ module WXRuby3
               VALUE rb_win = SWIG_RubyInstanceFor(ptr);
               // see if within an evt_paint block - see classes/window.rb
               // if so, supply a PaintDC to the block
-              if ( rb_ivar_defined(rb_win, rb_intern("@__painting__") ) == Qtrue ) 
+              if ( rb_ivar_defined(rb_win, painting_id()) == Qtrue ) 
               {
                 wxPaintDC dc(ptr);
                 VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxPaintDC, 0);

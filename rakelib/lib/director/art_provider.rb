@@ -36,12 +36,13 @@ module WXRuby3
           public:
             wxSize DoGetSizeHint (const wxArtClient &client) override
             {
+              static WxRuby_ID do_get_size_hint_id("do_get_size_hint");
+
               VALUE v_client, v_ret;
-          
               VALUE self = SWIG_RubyInstanceFor(this);
 
               v_client = WXSTR_TO_RSTR(client);
-              v_ret = rb_funcall(self,rb_intern("do_get_size_hint"),1, v_client);
+              v_ret = rb_funcall(self, do_get_size_hint_id(), 1, v_client);
               if ( TYPE(v_ret) == T_DATA )
               {
                 void* ptr;
@@ -61,14 +62,15 @@ module WXRuby3
 
             wxBitmap CreateBitmap(const wxArtID& id, const wxArtClient& client, const wxSize& size) override
             {
+              static WxRuby_ID create_bitmap_id("create_bitmap");
+
               VALUE v_id,v_client,v_size,v_ret;
-          
               VALUE self = SWIG_RubyInstanceFor(this);
           
               v_id     = WXSTR_TO_RSTR(id);
               v_client = WXSTR_TO_RSTR(client);
               v_size = SWIG_NewPointerObj(SWIG_as_voidptr(&size), SWIGTYPE_p_wxSize, 0);
-              v_ret = rb_funcall(self,rb_intern("create_bitmap"),3,v_id,v_client,v_size);
+              v_ret = rb_funcall(self, create_bitmap_id(), 3, v_id, v_client, v_size);
           
               if (v_ret != Qnil) 
                 return *((wxBitmap *)DATA_PTR(v_ret));
@@ -78,14 +80,15 @@ module WXRuby3
 
             wxBitmapBundle CreateBitmapBundle(const wxArtID& id, const wxArtClient& client, const wxSize& size) override
             {
-              VALUE v_id,v_client,v_size,v_ret;
-          
+              static WxRuby_ID create_bitmap_bundle_id("create_bitmap_bundle");
+
+              VALUE v_id,v_client,v_size,v_ret;          
               VALUE self = SWIG_RubyInstanceFor(this);
           
               v_id     = WXSTR_TO_RSTR(id);
               v_client = WXSTR_TO_RSTR(client);
               v_size = SWIG_NewPointerObj(SWIG_as_voidptr(&size), SWIGTYPE_p_wxSize, 0);
-              v_ret = rb_funcall(self,rb_intern("create_bitmap_bundle"),3,v_id,v_client,v_size);
+              v_ret = rb_funcall(self, create_bitmap_bundle_id(), 3, v_id, v_client, v_size);
           
               if (v_ret != Qnil) 
                 return *((wxBitmapBundle *)DATA_PTR(v_ret));
@@ -95,14 +98,15 @@ module WXRuby3
 
             wxIconBundle CreateIconBundle(const wxArtID &id, const wxArtClient &client) override
             {
-              VALUE v_id,v_client,v_ret;
-          
+              static WxRuby_ID create_icon_bundle_id("create_icon_bundle");
+
+              VALUE v_id,v_client,v_ret;          
               VALUE self = SWIG_RubyInstanceFor(this);
           
               v_id     = WXSTR_TO_RSTR(id);
               v_client = WXSTR_TO_RSTR(client);
             
-              v_ret = rb_funcall(self,rb_intern("create_icon_bundle"),2,v_id,v_client);
+              v_ret = rb_funcall(self, create_icon_bundle_id(), 2, v_id, v_client);
           
               if (v_ret != Qnil) 
                 return *((wxIconBundle *)DATA_PTR(v_ret));
