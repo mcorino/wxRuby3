@@ -11,3 +11,11 @@ class Wx::PRT::PreviewFrame
     @__preview = args[0]
   end
 end
+
+module Wx::PRT
+  # internally used Canvas derivatives which we do not need to
+  # publicly expose; these declarations prevent warnings from
+  # the generic wxWindow* wrapping code
+  PreviewCanvas = Wx::Panel
+  PreviewControlBar = Wx::Panel
+end
