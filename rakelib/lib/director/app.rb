@@ -380,6 +380,36 @@ module WXRuby3
           {
             return wxRubyApp::GetInstance() != 0 && wxRubyApp::GetInstance()->IsRunning();  
           }
+
+          WXRUBY_EXPORT void wxRuby_ExitMainLoop(VALUE exception)
+          {
+            if (wxRubyApp::GetInstance() != 0 && wxRubyApp::GetInstance()->IsRunning())
+            {
+              if (!NIL_P(exception))
+              {
+                VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
+                rb_iv_set(the_app, "@exception", exception);
+              }
+              wxRubyApp::GetInstance()->ExitMainLoop();
+            }  
+          }
+
+          WXRUBY_EXPORT void wxRuby_PrintException(VALUE err)
+          {
+            static WxRuby_ID message_id("message");
+            static WxRuby_ID class_id("class");
+            static WxRuby_ID name_id("name");
+            static WxRuby_ID backtrace_id("backtrace");
+            static WxRuby_ID join_id("join");
+          
+            VALUE msg = rb_funcall(err, message_id(), 0);
+            VALUE err_name = rb_funcall(rb_funcall(err, class_id(), 0), name_id(), 0);
+            VALUE bt = rb_funcall(err, backtrace_id(), 0);
+            bt = rb_funcall(bt, join_id(), 1, rb_str_new2("\\n"));
+            std::cerr << std::endl
+                      << ' ' << StringValuePtr(err_name) << ": " << StringValuePtr(msg) << std::endl
+                      << StringValuePtr(bt) << std::endl;
+          }
           __HEREDOC
         super
       end

@@ -96,6 +96,8 @@ public:
 
   bool has_caught_exception () { return this->ex_caught_; }
 
+  VALUE get_exception () { return rb_gv_get ("$!"); }
+
   ID id () { return this->fn_id_; }
 
 protected:
@@ -119,7 +121,7 @@ protected:
       if (this->throw_on_ex_)
       {
         // handle exception
-        VALUE rexc = rb_gv_get ("$!");
+        VALUE rexc = this->get_exception ();
         VALUE msg = rb_eval_string ("$!.message+\"\\n\"+$!.backtrace.join(\"\\n\")");
         const char *exc_name = rb_obj_classname(rexc);
         wxLogDebug("%s : %s", exc_name, StringValuePtr(msg));
@@ -218,4 +220,58 @@ WXRB_EXPORT_FLAG VALUE wxRuby_Funcall(VALUE rcvr, ID func, int argc, ...)
       argv = 0;
   }
   return WXRuby_RBFuncall(func).invoke(rcvr, argc, argv);
+}
+
+WXRB_EXPORT_FLAG VALUE wxRuby_Funcall(bool& ex_caught, VALUE rcvr, ID func, int argc, ...)
+{
+  VALUE *argv;
+  va_list ar;
+
+  if (argc > 0)
+  {
+      long i;
+
+      va_start(ar, argc);
+
+      argv = ALLOCA_N(VALUE, argc);
+
+      for (i = 0; i < argc; i++)
+      {
+          argv[i] = va_arg(ar, VALUE);
+      }
+      va_end(ar);
+  }
+  else
+  {
+      argv = 0;
+  }
+  WXRuby_RBFuncall wxrb_fn(func, false);
+  VALUE rc = wxrb_fn.invoke(rcvr, argc, argv);
+  if ((ex_caught = wxrb_fn.has_caught_exception ()))
+  {
+    return wxrb_fn.get_exception ();
+  }
+  else
+  {
+    return rc;
+  }
+}
+
+WXRB_EXPORT_FLAG VALUE wxRuby_Funcall(VALUE rcvr, ID func, VALUE args)
+{
+  return WXRuby_RBFuncall(func).invoke(rcvr, args);
+}
+
+WXRB_EXPORT_FLAG VALUE wxRuby_Funcall(bool& ex_caught, VALUE rcvr, ID func, VALUE args)
+{
+  WXRuby_RBFuncall wxrb_fn(func, false);
+  VALUE rc = wxrb_fn.invoke(rcvr, args);
+  if ((ex_caught = wxrb_fn.has_caught_exception ()))
+  {
+    return wxrb_fn.get_exception ();
+  }
+  else
+  {
+    return rc;
+  }
 }
