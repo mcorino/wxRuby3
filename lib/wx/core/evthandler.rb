@@ -44,7 +44,7 @@ class Wx::EvtHandler
   # Given the Integer constant Wx::EVT_XXX, returns the convenience
   # handler method name associated with that type of event.
   def self.event_name_for_type(name)
-    EVENT_NAME_TYPE_MAP.index(name)
+    EVENT_NAME_TYPE_MAP.key(name)
   end
 
   # Given an integer value +int_val+, returns the name of the EVT_xxx
