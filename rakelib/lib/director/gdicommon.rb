@@ -31,6 +31,27 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &)',
           'wxRect::Union(const wxRect &)'
         ]
+        # overrule common wxPoint mapping for wxRect ctor to fix ctor ambiguities here wrt wxSize
+        spec.map 'const wxPoint& topLeft', 'const wxPoint& bottomRight', as: 'Wx::Point' do
+          map_in code: <<~__CODE
+            if ( TYPE($input) == T_DATA )
+            {
+              void* argp$argnum;
+              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 1 );
+              $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
+            }
+            else
+            {
+              rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter");
+            }
+          __CODE
+          map_typecheck precedence: 'POINTER', code: <<~__CODE
+            void *vptr = 0;
+            $1 = 0;
+            if (TYPE($input) == T_DATA && SWIG_CheckState (SWIG_ConvertPtr ($input, &vptr, $1_descriptor, 0)))
+              $1 = 1;
+          __CODE
+        end
         spec.map 'wxRect&' => 'Wx::Rect', 'wxSize&' => 'Wx::Size' do
           map_out code: '$result = self; wxUnusedVar(result);'
         end
