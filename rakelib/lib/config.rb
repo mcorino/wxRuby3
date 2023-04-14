@@ -149,8 +149,9 @@ module WXRuby3
       [
         FileUtils::RUBY,
         '-I', rb_lib_path,
+        (verbose? ? '-v' : nil),
         *cmd.flatten
-      ]
+      ].compact
     end
     private :make_ruby_cmd
 

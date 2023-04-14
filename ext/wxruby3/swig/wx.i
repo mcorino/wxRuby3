@@ -114,6 +114,8 @@ WXRUBY_EXPORT void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) ) {
 // complete Windows are created in C++ without ruby code.
 WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 {
+  static WxRuby_ID window_id("Window");
+
   // If no object was passed to be wrapped; this could be a normal state
   // (eg if get_sizer was called on a Window with no sizer set), or
   // could be an error, eg if calling get_window_by_id and no window
@@ -147,13 +149,24 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
     }
   }
 
-  // If the class is loadable from XML, but not yet supported in wxRuby,
-  // raise an error because class-specific methods won't be accessible
+  // Handle classes (currently) unknown in wxRuby.
+  // (could cause problems because class-specific methods won't be accessible).
   if ( r_class == Qnil )
   {
-    rb_warn("Error wrapping object; class `%s' is not (yet) supported in wxRuby",
-            (const char *)class_name.mb_str() );
-    return Qnil;
+    // map unknown wxWindow derivatives as basic window
+    if (wxIsKindOf(wx_obj, wxWindow))
+    {
+      r_class = rb_const_get(mWxCore, window_id());
+      // issue warning if $VERBOSE is true
+      rb_warning("Cannot wrap exact window class as '%s' is not (yet) known in wxRuby; wrapping as base Window object.",
+                 (const char *)class_name.mb_str());
+    }
+    else
+    {
+      rb_warn("Error wrapping object; class '%s' is not (yet) supported in wxRuby",
+              (const char *)class_name.mb_str());
+      return Qnil;
+    }
   }
 
   // Otherwise, retrieve the swig type info for this class and wrap it
@@ -200,7 +213,8 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   if ( NIL_P(rb_event_class) )
   {
     rb_event_class = wxRuby_GetDefaultEventClass ();
-    rb_warning("Unmapped event type %i", wx_event->GetEventType());
+    wxString class_name( wx_event->GetClassInfo()->GetClassName() );
+    rb_warning("Unmapped event type %i (%s)", wx_event->GetEventType(), (const char *)class_name.mb_str());
   }
 
   // Now, see if we have a tracked instance of this object already

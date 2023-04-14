@@ -137,6 +137,8 @@ module WXRuby3
           spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
           # make sure this event constant definition exists
           spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
+          # add event type constant missing from interface defs
+          spec.add_swig_code %Q{%constant wxEventType wxEVT_NC_PAINT = wxEVT_NC_PAINT;}
         end
         super
       end

@@ -54,8 +54,13 @@ WXRUBY_EXPORT int wxRuby_TraceLevel();
 #endif
 
 WXRUBY_EXPORT VALUE wxRuby_Funcall(VALUE rcvr, ID func, int argc, ...);
+WXRUBY_EXPORT VALUE wxRuby_Funcall(bool& ex_caught, VALUE rcvr, ID func, int argc, ...);
+WXRUBY_EXPORT VALUE wxRuby_Funcall(VALUE rcvr, ID func, VALUE args);
+WXRUBY_EXPORT VALUE wxRuby_Funcall(bool& ex_caught, VALUE rcvr, ID func, VALUE args);
 
 WXRUBY_EXPORT bool wxRuby_IsAppRunning();
+WXRUBY_EXPORT void wxRuby_ExitMainLoop(VALUE exception = Qnil);
+WXRUBY_EXPORT void wxRuby_PrintException(VALUE err);
 typedef void (*WXRBMarkFunction)();
 WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker);
 

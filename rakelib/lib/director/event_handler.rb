@@ -76,20 +76,6 @@ module WXRuby3
             // handlers which are called many times (eg evt_motion)
             class wxRbCallback : public wxObject 
             {
-            private:
-                static VALUE rescue(VALUE, VALUE error)
-                { 
-                  return error;
-                }
-  
-                static VALUE do_call_back(VALUE rb_cb_data)
-                {
-                  static WxRuby_ID call_id("call");
-
-                  rb_funcall(rb_ary_entry(rb_cb_data, 0), call_id (), 1, rb_ary_entry(rb_cb_data, 1));
-                  return Qnil;
-                }
-
             public:
                 wxRbCallback(VALUE func, void* evh) 
                   : m_func(func), m_evh(evh) {}
@@ -105,13 +91,7 @@ module WXRuby3
                 // into the ruby proc for handling on the ruby side
                 void EventThunker(wxEvent &event)
                 {
-                  static WxRuby_ID THE_APP_id("THE_APP");
-                  static WxRuby_ID message_id("message");
-                  static WxRuby_ID class_id("class");
-                  static WxRuby_ID name_id("name");
-                  static WxRuby_ID backtrace_id("backtrace");
-                  static WxRuby_ID join_id("join");
-                  static WxRuby_ID exit_main_loop_id("exit_main_loop");
+                  static WxRuby_ID call_id("call");
 
             #ifdef __WXRB_DEBUG__                
                   VALUE rb_event = wxRuby_WrapWxEventInRuby(0, &event);
@@ -119,27 +99,17 @@ module WXRuby3
                   VALUE rb_event = wxRuby_WrapWxEventInRuby(&event);
             #endif
                   wxRbCallback *cb = (wxRbCallback *)event.m_callbackUserData;
-                  VALUE rb_cb_args = rb_ary_new();
-                  rb_ary_push(rb_cb_args, cb->m_func);
-                  rb_ary_push(rb_cb_args, rb_event);
-                  VALUE err = rb_rescue2(VALUEFUNC(do_call_back), rb_cb_args, VALUEFUNC(rescue), Qnil, rb_eException, 0);
-                  if (!NIL_P(err))
+                  bool ex_caught = false;
+                  VALUE rc = wxRuby_Funcall(ex_caught, cb->m_func, call_id(), 1, rb_event);
+                  if (ex_caught)
                   {
-                    VALUE rb_app = rb_const_get(wxRuby_Core(), THE_APP_id());
-                    rb_iv_set(rb_app, "@exception", err);
             #ifdef __WXRB_DEBUG__                
-                    if (!rb_obj_is_kind_of(err, rb_eSystemExit) && wxRuby_TraceLevel()>0)
+                    if (!rb_obj_is_kind_of(rc, rb_eSystemExit) && wxRuby_TraceLevel()>0)
                     {
-                      VALUE msg = rb_funcall(err, message_id(), 0);
-                      VALUE err_name = rb_funcall(rb_funcall(err, class_id(), 0), name_id(), 0);
-                      VALUE bt = rb_funcall(err, backtrace_id(), 0);
-                      bt = rb_funcall(bt, join_id(), 1, rb_str_new2("\\n"));
-                      std::cerr << std::endl
-                                << ' ' << StringValuePtr(err_name) << ": " << StringValuePtr(msg) << std::endl
-                                << StringValuePtr(bt) << std::endl;
+                      wxRuby_PrintException(rc);
                     }
             #endif
-                    rb_funcall(rb_app, exit_main_loop_id(), 0);
+                    wxRuby_ExitMainLoop(rc);
                   }
                 }
             
@@ -254,20 +224,27 @@ module WXRuby3
               {
                 static WxRuby_ID call_id("call");
     
+                bool ex_caught = false;
+                VALUE rc;
                 if (TYPE(m_rb_call) == T_ARRAY)
                 {
                   VALUE proc = rb_ary_entry(m_rb_call, 0);
-                  int argc = RARRAY_LEN(m_rb_call)-1;
-                  std::unique_ptr<VALUE> safe_args (new VALUE[argc]);
-                  for (int i=0; i<argc ;i++)
-                  {
-                    safe_args.get()[i] = rb_ary_entry(m_rb_call, i+1);
-                  }
-                  rb_funcall2(proc, call_id(), argc, safe_args.get());
+                  VALUE args = rb_ary_subseq(m_rb_call, 1, RARRAY_LEN(m_rb_call)-1);
+                  rc = wxRuby_Funcall(ex_caught, proc, call_id(), args);
                 }
                 else
                 {
-                  rb_funcall(m_rb_call, call_id(), 0, 0);
+                  rc = wxRuby_Funcall(ex_caught, m_rb_call, call_id(), (int)0);
+                }
+                if (ex_caught)
+                {
+            #ifdef __WXRB_DEBUG__                
+                  if (!rb_obj_is_kind_of(rc, rb_eSystemExit) && wxRuby_TraceLevel()>0)
+                  {
+                    wxRuby_PrintException(rc);
+                  }
+            #endif
+                  wxRuby_ExitMainLoop(rc);
                 }
               }
           
