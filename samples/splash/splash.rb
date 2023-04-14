@@ -112,35 +112,33 @@ class SplashApp < Wx::App
 
   def decorate_splash_screen(bmp)
     # use a memory DC to draw directly onto the bitmap
-    memDc = Wx::MemoryDC.new(bmp)
+    bmp.draw do |memDc|
+      # draw an orange box (with black outline) at the bottom of the splashscreen.
+      # this box will be 8% of the height of the bitmap, and be at the bottom.
+      bannerRect = Wx::Rect.new(Wx::Point.new(0, ((bmp.height / 10)*9.2).to_i),
+                                Wx::Point.new(bmp.width, bmp.height))
+      memDc.with_brush Wx::Brush.new(Wx::Colour.new(255, 102, 0)) do
+        memDc.draw_rectangle(bannerRect)
+        memDc.draw_line(bannerRect.top_left, bannerRect.top_right)
 
-    # draw an orange box (with black outline) at the bottom of the splashscreen.
-    # this box will be 8% of the height of the bitmap, and be at the bottom.
-    bannerRect = Wx::Rect.new(Wx::Point.new(0, ((bmp.height / 10)*9.2).to_i),
-                              Wx::Point.new(bmp.width, bmp.height))
-    old_brush = memDc.brush
-    memDc.brush = Wx::Brush.new(Wx::Colour.new(255, 102, 0))
-    memDc.draw_rectangle(bannerRect)
-    memDc.draw_line(bannerRect.top_left, bannerRect.top_right)
+        # dynamically get the wxWidgets version to display
+        description = "wxRuby %s" % Wx::WXRUBY_VERSION
+        # create a copyright notice that uses the year that this file is run
+        copyrightLabel = "%s%s wxWidgets. %s" % ["\xc2\xa9", Time.now.year.to_s, "All rights reserved."]
 
-    # dynamically get the wxWidgets version to display
-    description = "wxRuby %s" % Wx::WXRUBY_VERSION
-    # create a copyright notice that uses the year that this file is run
-    copyrightLabel = "%s%s wxWidgets. %s" % ["\xc2\xa9", Time.now.year.to_s, "All rights reserved."]
+        # draw the (white) labels inside of our orange box (at the bottom of the splashscreen)
+        memDc.set_text_foreground(Wx::WHITE)
+        # draw the "wxRuby" label on the left side, vertically centered.
+        # note that we deflate the banner rect a little bit horizontally
+        # so that the text has some padding to its left.
+        labelRect = bannerRect.deflate([5, 0])
+        memDc.draw_label(description, labelRect, Wx::ALIGN_CENTRE_VERTICAL | Wx::ALIGN_LEFT)
 
-    # draw the (white) labels inside of our orange box (at the bottom of the splashscreen)
-    memDc.set_text_foreground(Wx::WHITE)
-    # draw the "wxRuby" label on the left side, vertically centered.
-    # note that we deflate the banner rect a little bit horizontally
-    # so that the text has some padding to its left.
-    labelRect = bannerRect.deflate([5, 0])
-    memDc.draw_label(description, labelRect, Wx::ALIGN_CENTRE_VERTICAL | Wx::ALIGN_LEFT)
-
-    # draw the copyright label on the right side
-    memDc.font = Wx::Font.new(Wx::FontInfo.new(8))
-    memDc.draw_label(copyrightLabel, labelRect, Wx::ALIGN_CENTRE_VERTICAL | Wx::ALIGN_RIGHT)
-
-    memDc.select_object_as_source(Wx::NULL_BITMAP)
+        # draw the copyright label on the right side
+        memDc.font = Wx::Font.new(Wx::FontInfo.new(8))
+        memDc.draw_label(copyrightLabel, labelRect, Wx::ALIGN_CENTRE_VERTICAL | Wx::ALIGN_RIGHT)
+      end
+    end
   end
 
 end
