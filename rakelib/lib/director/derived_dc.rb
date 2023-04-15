@@ -50,6 +50,8 @@ module WXRuby3
                       'wxSVGFileDC::EndDoc',
                       'wxSVGFileDC::StartPage',
                       'wxSVGFileDC::EndPage'
+        elsif spec.module_name == 'wxGCDC'
+          spec.ignore 'wxGCDC::wxGCDC(const wxEnhMetaFileDC &)'
         else
           # ctors of all other derived DC require a running App
           spec.require_app spec.module_name
