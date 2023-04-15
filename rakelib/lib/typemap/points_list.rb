@@ -80,7 +80,7 @@ module WXRuby3
         map_apply 'int n, wxPoint points[]' => [ 'int n, wxPoint* points', 'int nItems, wxPoint *points' ]
 
         # For draw_poly_polygon only
-        map 'int n, int count[], wxPoint points[]' do
+        map 'int n, const int count[], const wxPoint points[]' do
 
           map_in from: {type: 'Array<Array<Wx::Point>>,Array<Array<Array<Integer>>>', index: 2},
                  temp: 'wxPoint *point_arr', code: <<~__CODE
