@@ -26,6 +26,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxBufferedPaintDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxAutoBufferedPaintDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxMirrorDC', director: Director::DerivedDC)
+    Director.Spec(pkg, 'wxScreenDC', director: Director::DerivedDC)
+    Director.Spec(pkg, 'wxSVGFileDC', director: Director::DerivedDC, requirements: %w[wxUSE_SVG])
     Director.Spec(pkg, 'wxWindow')
     Director.Spec(pkg, 'wxNonOwnedWindow', director: Director::Window)
     Director.Spec(pkg, 'wxPopupWindow')

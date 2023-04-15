@@ -32,6 +32,9 @@ require 'wx/accessors'
 # Global constant compatibility helper
 require 'wx/global_const'
 
+# ctor syntax sweeteners support
+require 'wx/keyword_ctors'
+
 # Load in all the class extension methods written in ruby
 # evthandler must be required first b/c it sets up methods modified elsewhere
 require 'wx/core/evthandler.rb'
@@ -45,7 +48,6 @@ end
 ::Wx.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)
 
 # Load in syntax sweeteners
-require 'wx/keyword_ctors'
 require 'wx/keyword_defs'
 
 # If a program is ended by ruby's exit, it can bypass doing the proper

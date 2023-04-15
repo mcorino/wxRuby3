@@ -3,6 +3,61 @@
 # Adapted from wxRuby2.
 
 module Wx
+  # = WxSugar - Keyword Constructors Classes
+  #
+  # This extension defines the keyword parameters for +new+ methods for
+  # widgets, windows and frames. It's for use with *Keyword Constructors*
+  # and is no use on its own - except if you are looking for a bug or want
+  # to add a  missing class.
+  #
+  # For each class, the parameters *must* be declared in the order that
+  # they are supplied to wxRuby. A parameter is specified by a symbol
+  # name, and, optionally, a default argument which will be of whatever type
+  # the wxRuby core library accepts.
+  # To support complex (context dependent) defaults and/or autoconversion
+  # of arguments for backwards the specified default can also be a lambda
+  # or  a proc accepting a single argument. This argument will be the
+  # value of the specified parameter (or nil) and the lambda or proc
+  # should return the constructed or converted argument value to be used.
+  #
+  # Some common parameters to constructors such as size, position, title,
+  # id and so forth always have a standard default argumnet, which is
+  # defined in keyword_ctors. In these cases, it is not necessary to
+  # supply the default argument in the definition.
+  @defined_kw_classes = {}
+
+  # accepts a string unadorned name of a WxWidgets class, and block, which
+  # defines the constructor parameters and style flags for that class.
+  # If the named class exists in the available WxRuby, the block is run and
+  # the class may use keyword constructors. If the class is not available, the
+  # block is ignored.
+  def self.define_keyword_ctors(klass, &block)
+    klass_name = ::String === klass ? klass : klass.name
+    # check this class hasn't already been defined
+    if @defined_kw_classes[klass_name]
+      raise ArgumentError, "Keyword ctor for #{klass_name} already defined"
+    else
+      @defined_kw_classes[klass_name] = true
+    end
+
+    begin
+      klass =  Wx::const_get(klass_name)
+    rescue NameError
+      STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx.RB_DEBUG
+      return nil
+    end if ::String === klass
+    # If the klass inherited from a class which already has keyword ctor defined
+    # it will already have a param_spec class attribute defined.
+    # We need to clear it here because we're going to define a new param_spec for
+    # this specific derivative.
+    unless klass.respond_to?(:param_spec)
+      klass.include Wx::KeywordConstructor::ParamSpec
+    end
+    klass.param_spec = []
+    klass.include Wx::KeywordConstructor
+    klass.instance_eval(&block)
+  end
+
   module KeywordConstructor
 
     # This module defines an inheritable class attribute like the ones defined
@@ -69,7 +124,7 @@ module Wx
 
       # Common Wx constructor argument keywords, with their default values.
       STANDARD_DEFAULTS = {
-        :id        => Wx::ID_ANY,
+        :id        => Wx::StandardID::ID_ANY,
         :size      => Wx::DEFAULT_SIZE,
         :pos       => Wx::DEFAULT_POSITION,
         :style     => 0,
@@ -107,8 +162,8 @@ module Wx
         kwa 
       end
       
-      def describe_constructor
-        param_spec.inject("") do | desc, param |
+      def describe_constructor(txt = '')
+        param_spec.inject(txt) do | desc, param |
           if Proc === param.default_or_proc
             desc << ":#{param.name} => (#{param.default_or_proc.call(nil).class.name})\n"
           else
