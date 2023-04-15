@@ -61,8 +61,8 @@ class MyFrame < Wx::Frame
 
       splash = Wx::SplashScreen.new(bitmap,
                                     Wx::SPLASH_CENTRE_ON_PARENT | Wx::SPLASH_NO_TIMEOUT,
-                          0, self, Wx::ID_ANY, Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
-                                    Wx::SIMPLE_BORDER|Wx::STAY_ON_TOP)
+                          0, self,
+                                    style: Wx::SIMPLE_BORDER|Wx::STAY_ON_TOP)
 
       win = splash.get_splash_window
       text = Wx::StaticText.new(win,
@@ -94,8 +94,8 @@ class SplashApp < Wx::App
       # show the splashscreen
       Wx::SplashScreen.new(bitmap,
                            Wx::SPLASH_CENTRE_ON_SCREEN|Wx::SPLASH_TIMEOUT,
-                 6000, frame, Wx::ID_ANY, Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
-                           Wx::SIMPLE_BORDER|Wx::STAY_ON_TOP)
+                 6000, frame,
+                           style: Wx::SIMPLE_BORDER|Wx::STAY_ON_TOP)
     end
 
     self.yield
