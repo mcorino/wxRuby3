@@ -99,6 +99,10 @@ WXRUBY_EXPORT bool wxRuby_GetEnumValue(const char* enum_class_name_cstr, VALUE r
 WXRUBY_EXPORT bool wxRuby_IsAnEnum(VALUE rb_val);
 WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val);
 
+WXRUBY_EXPORT bool wxRuby_IsRubyColour(VALUE rbcol);
+WXRUBY_EXPORT wxColour wxRuby_ColourFromRuby(VALUE rbcol);
+WXRUBY_EXPORT VALUE wxRuby_ColourToRuby(const wxColour& col, bool own = false);
+
 #if wxUSE_VARIANT
 // Variant support
 WXRUBY_EXPORT VALUE& operator << (VALUE &value, const wxVariant &variant);

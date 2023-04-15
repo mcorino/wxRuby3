@@ -76,10 +76,10 @@ class SVGPage < Wx::ScrolledWindow
       dc.set_brush(Wx::CYAN_BRUSH)
       dc.set_pen(Wx::RED_PEN)
       dc.draw_rectangle(10, 10, 100, 70)
-      wB = Wx::Brush.new(Wx::Colour.new('DARK ORCHID'), Wx::BRUSHSTYLE_TRANSPARENT)
+      wB = Wx::Brush.new('DARK ORCHID', Wx::BRUSHSTYLE_TRANSPARENT)
       dc.set_brush(wB)
       dc.draw_rounded_rectangle(50, 50, 100, 70, 20)
-      dc.set_brush(Wx::Brush.new(Wx::Colour.new('GOLDENROD')))
+      dc.set_brush(Wx::Brush.new('GOLDENROD'))
       dc.draw_ellipse(100, 100, 100, 50)
 
       points = [
@@ -98,9 +98,9 @@ class SVGPage < Wx::ScrolledWindow
       dc.draw_line(50,25,50,35)
       dc.draw_line(45,30,55,30)
       dc.draw_text('This is a Swiss-style string', 50, 30)
-      dc.with_text_foreground(Wx::Colour.new('FIREBRICK')) do
+      dc.with_text_foreground(:FIREBRICK) do
         # no effect in msw ??
-        dc.set_text_background(Wx::Colour.new('wheat'))
+        dc.set_text_background(:wheat)
         dc.draw_text('This is a Red string', 50, 200)
         dc.draw_rotated_text('This is a 45 deg string', 50, 200, 45)
         dc.draw_rotated_text('This is a 90 deg string', 50, 200, 90)
@@ -121,11 +121,11 @@ class SVGPage < Wx::ScrolledWindow
       dc.draw_arc(270-50, 270-86, 270-86, 270-50, 270,270)
       dc.set_device_origin(0,0)
 
-      wP = Wx::Pen.new(Wx::Colour.new('CADET BLUE'))
+      wP = Wx::Pen.new('CADET BLUE')
       dc.set_pen(wP)
       dc.draw_arc(75,125, 110, 40, 75, 75)
 
-      wP.set_colour(Wx::Colour.new('SALMON'))
+      wP.set_colour(:SALMON)
       dc.set_pen(wP)
       dc.set_brush(Wx::RED_BRUSH)
       # top left corner, width and height, start and end angle
@@ -135,7 +135,7 @@ class SVGPage < Wx::ScrolledWindow
       wP = Wx::Pen.new(Wx::CYAN_PEN)
       wP.set_width(3)
       dc.set_pen(wP)
-      dc.set_brush(Wx::Brush.new(Wx::Colour.new('SALMON')))
+      dc.set_brush(Wx::Brush.new('SALMON'))
       dc.draw_elliptic_arc(300,  0,200,100, 0.0,145.0)
       # same end point
       dc.draw_elliptic_arc(300, 50,200,100,90.0,145.0)
@@ -143,7 +143,7 @@ class SVGPage < Wx::ScrolledWindow
 
     when PAGE_Checkmarks
       dc.draw_check_mark( 30,30,25,25)
-      dc.set_brush(Wx::Brush.new(Wx::Colour.new('SALMON'),Wx::BRUSHSTYLE_TRANSPARENT))
+      dc.set_brush(Wx::Brush.new('SALMON',Wx::BRUSHSTYLE_TRANSPARENT))
       dc.draw_check_mark( 80,50,75,75)
       dc.draw_rectangle( 80,50,75,75)
 
@@ -182,15 +182,15 @@ class SVGPage < Wx::ScrolledWindow
       dc.draw_bitmap(Wx::Bitmap.new(File.join(__dir__, 'SVGlogo24.xpm')), 50,15)
 
     when PAGE_Clipping
-      dc.set_text_foreground(Wx::Colour.new('RED'))
+      dc.set_text_foreground('RED')
       dc.draw_text('Red = Clipping Off', 30, 5)
-      dc.set_text_foreground(Wx::Colour.new('GREEN'))
+      dc.set_text_foreground('GREEN')
       dc.draw_text('Green = Clipping On', 30, 25)
 
-      dc.set_text_foreground(Wx::Colour.new('BLACK'))
+      dc.set_text_foreground(:BLACK)
 
       dc.set_pen(Wx::RED_PEN)
-      dc.set_brush(Wx::Brush.new(Wx::Colour.new('SALMON'), Wx::BRUSHSTYLE_TRANSPARENT))
+      dc.set_brush(Wx::Brush.new('SALMON', Wx::BRUSHSTYLE_TRANSPARENT))
       dc.draw_check_mark(80,50,75,75)
       dc.draw_rectangle(80,50,75,75)
 

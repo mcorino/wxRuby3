@@ -492,6 +492,22 @@ module WXRuby3
             __CODE
         end
 
+        # typemap to allow String or Symbol for wxColour in args
+        map 'const wxColour&', 'const wxColour*', as: 'Wx::Colour,String,Symbol' do
+          map_in temp: 'wxColour tmpcol', code: <<~__CODE
+            tmpcol = wxRuby_ColourFromRuby($input);
+            if ((TYPE($input) == T_STRING || TYPE($input) == T_SYMBOL) && !tmpcol.IsOk())
+            {
+              rb_raise(rb_eArgError, "Invalid Colour value for %i", $argnum-1);
+            }
+            $1 = &tmpcol;
+            __CODE
+          map_out code: '$result = wxRuby_ColourToRuby(*$1, true);'
+          map_typecheck code: <<~__CODE
+            $1 = wxRuby_IsRubyColour($input);
+            __CODE
+        end
+
         # typemap to provide backward compatibility for BitmapBundle
         map 'const wxBitmapBundle&' do
           add_header_code <<~__CODE
@@ -550,7 +566,7 @@ module WXRuby3
 
         # output typemaps for common reference counted objects like wxColour, wxFont,
         # making sure to ALWAYS create managed copies
-        %w[wxColour wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
+        %w[wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
           map "const #{klass}&", "const #{klass}*" do
             map_out code: <<~__CODE
               $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);
