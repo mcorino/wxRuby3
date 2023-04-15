@@ -1,63 +1,6 @@
-# Wx core package loader for wxRuby3
+# Wx keyword ctor definitions for core classes
 # Copyright (c) M.J.N. Corino, The Netherlands
 # Adapted from wxRuby2.
-
-module Wx
-  # = WxSugar - Keyword Constructors Classes
-  #
-  # This extension defines the keyword parameters for +new+ methods for
-  # widgets, windows and frames. It's for use with *Keyword Constructors*
-  # and is no use on its own - except if you are looking for a bug or want
-  # to add a  missing class.
-  #
-  # For each class, the parameters *must* be declared in the order that
-  # they are supplied to wxRuby. A parameter is specified by a symbol
-  # name, and, optionally, a default argument which will be of whatever type
-  # the wxRuby core library accepts.
-  # To support complex (context dependent) defaults and/or autoconversion
-  # of arguments for backwards the specified default can also be a lambda
-  # or  a proc accepting a single argument. This argument will be the
-  # value of the specified parameter (or nil) and the lambda or proc
-  # should return the constructed or converted argument value to be used.
-  #
-  # Some common parameters to constructors such as size, position, title,
-  # id and so forth always have a standard default argumnet, which is
-  # defined in keyword_ctors. In these cases, it is not necessary to
-  # supply the default argument in the definition.
-  @defined_kw_classes = {}
-
-  # accepts a string unadorned name of a WxWidgets class, and block, which 
-  # defines the constructor parameters and style flags for that class.
-  # If the named class exists in the available WxRuby, the block is run and 
-  # the class may use keyword constructors. If the class is not available, the
-  # block is ignored.
-  def self.define_keyword_ctors(klass, &block)
-    klass_name = ::String === klass ? klass : klass.name
-    # check this class hasn't already been defined
-    if @defined_kw_classes[klass_name]
-      raise ArgumentError, "Keyword ctor for #{klass_name} already defined"
-    else
-      @defined_kw_classes[klass_name] = true
-    end
-
-    begin
-      klass =  Wx::const_get(klass_name)
-    rescue NameError
-      STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx.RB_DEBUG
-      return nil
-    end if ::String === klass
-    # If the klass inherited from a class which already has keyword ctor defined
-    # it will already have a param_spec class attribute defined.
-    # We need to clear it here because we're going to define a new param_spec for
-    # this specific derivative.
-    unless klass.respond_to?(:param_spec)
-      klass.include Wx::KeywordConstructor::ParamSpec
-    end
-    klass.param_spec = []
-    klass.include Wx::KeywordConstructor
-    klass.instance_eval(&block)
-  end
-end
 
 # Window : base class for all widgets and frames
 Wx::define_keyword_ctors('Window') do
@@ -94,19 +37,6 @@ Wx::define_keyword_ctors('MiniFrame') do
   wx_ctor_params :style =>  Wx::DEFAULT_FRAME_STYLE
   wx_ctor_params :name => 'frame'
 end
-
-# wxSplashScreen 	Splash screen class
-# FIXME - this probably won't work at present because the 'parent' arg
-# comes in a funny place in this class's ctor
-#
-# Wx::define_keyword_ctors('SplashScreen') do
-#   wx_ctor_params :bitmap => Wx::NULL_BITMAP
-#   wx_ctor_params :splashstyle, :milliseconds, :id => 1
-#   wx_ctor_params :parent => nil
-#   wx_ctor_params :title => ''
-#   wx_ctor_params :pos, :size
-#   wx_ctor_params :style => Wx::SIMPLE_BORDER|Wx::FRAME_NO_TASKBAR|Wx::STAY_ON_TOP
-# end
 
 # wxPropertySheetDialog 	Property sheet dialog
 # wxTipWindow 	Shows text in a small window
