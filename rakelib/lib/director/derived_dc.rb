@@ -34,6 +34,22 @@ module WXRuby3
           spec.ignore 'wxScreenDC::StartDrawingOnTop',
                       'wxScreenDC::EndDrawingOnTop',
                       'wxScreenDC::wxScreenDC'
+        elsif spec.module_name == 'wxSVGFileDC'
+          spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler]
+          spec.disown 'wxSVGBitmapHandler *handler'
+          # all inherited from wxDC; only documented since they are not implemented for this DC class
+          spec.ignore 'wxSVGFileDC::DestroyClippingRegion',
+                      'wxSVGFileDC::CrossHair',
+                      'wxSVGFileDC::FloodFill',
+                      'wxSVGFileDC::GetPixel',
+                      'wxSVGFileDC::SetPalette',
+                      'wxSVGFileDC::GetDepth',
+                      'wxSVGFileDC::SetLogicalFunction',
+                      'wxSVGFileDC::GetLogicalFunction',
+                      'wxSVGFileDC::StartDoc',
+                      'wxSVGFileDC::EndDoc',
+                      'wxSVGFileDC::StartPage',
+                      'wxSVGFileDC::EndPage'
         else
           # ctors of all other derived DC require a running App
           spec.require_app spec.module_name
