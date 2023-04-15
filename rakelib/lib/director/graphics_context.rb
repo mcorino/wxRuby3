@@ -37,9 +37,11 @@ module WXRuby3
             }
             __CODE
         end
-        spec.map 'size_t n, const wxPoint2DDouble *beginPoints, const wxPoint2DDouble *endPoints' => 'Array<Array<Float,Float>,Array<Float,Float>>' do
+        spec.map 'size_t n, const wxPoint2DDouble *beginPoints, const wxPoint2DDouble *endPoints' do
           add_header_code '#include <memory>'
-          map_in temp: ['std::unique_ptr<wxPoint2DDouble> tmp_begin', 'std::unique_ptr<wxPoint2DDouble> tmp_end'], code: <<~__CODE
+          map_in from: {type: 'Array<Array<Array<Float,Float>,Array<Float,Float>>>', index: 0},
+                 temp: ['std::unique_ptr<wxPoint2DDouble> tmp_begin', 'std::unique_ptr<wxPoint2DDouble> tmp_end'],
+                 code: <<~__CODE
             bool ok = false;
             if (TYPE($input) == T_ARRAY)
             {
@@ -91,7 +93,9 @@ module WXRuby3
             __CODE
         end
         spec.map 'size_t n, const wxPoint2DDouble *points' => 'Array<Array<Float,Float>>' do
-          map_in temp: 'std::unique_ptr<wxPoint2DDouble> tmp_pts', code: <<~__CODE
+          map_in from: {type: 'Array<Array<Float,Float>>', index: 1},
+                 temp: 'std::unique_ptr<wxPoint2DDouble> tmp_pts',
+                 code: <<~__CODE
             bool ok = false;
             if (TYPE($input) == T_ARRAY)
             {
