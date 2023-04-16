@@ -502,10 +502,22 @@ module WXRuby3
             }
             $1 = &tmpcol;
             __CODE
-          map_out code: '$result = wxRuby_ColourToRuby(*$1, true);'
+          map_out code: '$result = wxRuby_ColourToRuby(*$1);'
           map_typecheck code: <<~__CODE
             $1 = wxRuby_IsRubyColour($input);
             __CODE
+        end
+
+        # typemap to allow wxFontInfo for wxFont in args
+        map 'const wxFont&', 'const wxFont*', as: 'Wx::Font,Wx::FontInfo' do
+          map_in temp: 'wxFont tmpfnt', code: <<~__CODE
+            tmpfnt = wxRuby_FontFromRuby($input);
+            $1 = &tmpfnt;
+          __CODE
+          map_out code: '$result = wxRuby_FontToRuby(*$1);'
+          map_typecheck code: <<~__CODE
+            $1 = wxRuby_IsRubyFont($input);
+          __CODE
         end
 
         # typemap to provide backward compatibility for BitmapBundle
@@ -564,9 +576,9 @@ module WXRuby3
             __CODE
         end
 
-        # output typemaps for common reference counted objects like wxColour, wxFont,
+        # output typemaps for common reference counted objects like wxPen, wxBrush,
         # making sure to ALWAYS create managed copies
-        %w[wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
+        %w[wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
           map "const #{klass}&", "const #{klass}*" do
             map_out code: <<~__CODE
               $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);

@@ -135,7 +135,7 @@ class SplashApp < Wx::App
         memDc.draw_label(description, labelRect, Wx::ALIGN_CENTRE_VERTICAL | Wx::ALIGN_LEFT)
 
         # draw the copyright label on the right side
-        memDc.font = Wx::Font.new(Wx::FontInfo.new(8))
+        memDc.font = Wx::FontInfo.new(8)
         memDc.draw_label(copyrightLabel, labelRect, Wx::ALIGN_CENTRE_VERTICAL | Wx::ALIGN_RIGHT)
       end
     end

@@ -104,10 +104,10 @@ class SVGPage < Wx::ScrolledWindow
         dc.draw_text('This is a Red string', 50, 200)
         dc.draw_rotated_text('This is a 45 deg string', 50, 200, 45)
         dc.draw_rotated_text('This is a 90 deg string', 50, 200, 90)
-        dc.set_font(Wx::Font.new(Wx::FontInfo.new(18)
-                                  .face_name('Times New Roman')
-                                  .family(Wx::FONTFAMILY_ROMAN)
-                                  .italic.bold))
+        dc.set_font(Wx::FontInfo.new(18)
+                                .face_name('Times New Roman')
+                                .family(Wx::FONTFAMILY_ROMAN)
+                                .italic.bold)
       end
       dc.draw_text('This is a Times-style string', 50, 60)
 
@@ -148,10 +148,10 @@ class SVGPage < Wx::ScrolledWindow
       dc.draw_rectangle( 80,50,75,75)
 
     when PAGE_ScaledText
-      dc.set_font(Wx::Font.new(Wx::FontInfo.new(18)
+      dc.set_font(Wx::FontInfo.new(18)
                               .face_name('Times New Roman')
                               .family(Wx::FONTFAMILY_ROMAN)
-                              .italic.bold))
+                              .italic.bold)
       dc.draw_line(0, 0, 200, 200)
       dc.draw_line(200, 0, 0, 200)
       dc.draw_text('This is an 18pt string', 50, 60)

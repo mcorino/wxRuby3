@@ -50,12 +50,9 @@ module WXRuby3
             }
             return wxColour();
           }
-          WXRUBY_EXPORT VALUE wxRuby_ColourToRuby(const wxColour& col, bool own)
+          WXRUBY_EXPORT VALUE wxRuby_ColourToRuby(const wxColour& col)
           {
-            if (own)
-              return SWIG_NewPointerObj(new wxColour(col), SWIGTYPE_p_wxColour, SWIG_POINTER_OWN);
-            else
-              return SWIG_NewPointerObj(SWIG_as_voidptr(&col), SWIGTYPE_p_wxColour, 0);
+            return SWIG_NewPointerObj(new wxColour(col), SWIGTYPE_p_wxColour, SWIG_POINTER_OWN);
           }
           __HEREDOC
         super
