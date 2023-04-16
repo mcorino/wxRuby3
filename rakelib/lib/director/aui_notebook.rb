@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        setup_book_ctrl_class(spec.module_name)
+        spec.override_inheritance_chain(spec.module_name, %w[wxBookCtrlBase wxControl wxWindow wxEvtHandler wxObject])
         if spec.module_name == 'wxAuiNotebook'
           # reset type mapping done in BookCtrls as the non-const arg is used for query-ing here (FindTab)
           # (wxWidgets should have made this a const arg)
@@ -45,23 +45,6 @@ module WXRuby3
           void use_simple_art()
           { $self->SetArtProvider(new wxAuiSimpleTabArt); }
           __HEREDOC
-          # ignore these overridden base methods which are not proxied in base
-          spec.ignore %w[
-          wxAuiNotebook::GetPageImage
-          wxAuiNotebook::GetPageText
-          wxAuiNotebook::GetSelection
-          wxAuiNotebook::SetPageImage
-          wxAuiNotebook::SetPageText
-          wxAuiNotebook::SetSelection
-          wxAuiNotebook::ChangeSelection
-          wxAuiNotebook::DeleteAllPages
-          wxAuiNotebook::DeletePage
-          wxAuiNotebook::RemovePage
-          wxAuiNotebook::GetPageCount
-          wxAuiNotebook::SetFont
-          ]
-          spec.ignore('wxAuiNotebook::AddPage(wxWindow*,const wxString&, bool, int')
-          spec.ignore('wxAuiNotebook::InsertPage(size_t, wxWindow*,const wxString&, bool, int')
           # replace FindTab (easier than type mapping)
           spec.ignore('wxAuiNotebook::FindTab')
           spec.add_extend_code 'wxAuiNotebook', <<~__HEREDOC
