@@ -43,6 +43,45 @@ module WXRuby3
         spec.map 'wxFontInfo &' => 'Wx::FontInfo' do
           map_out code: '$result = self; wxUnusedVar($1);'
         end
+        spec.add_wrapper_code <<~__HEREDOC
+          WXRUBY_EXPORT bool wxRuby_IsRubyFont(VALUE rbfont)
+          {
+            swig_class *sklass_font = (swig_class *) SWIGTYPE_p_wxFont->clientdata;
+            swig_class *sklass_font_info = (swig_class *) SWIGTYPE_p_wxFontInfo->clientdata;
+            return TYPE(rbfont) == T_DATA && 
+                    (rb_obj_is_kind_of(rbfont, sklass_font->klass) || 
+                     rb_obj_is_kind_of(rbfont, sklass_font_info->klass));
+          }
+          WXRUBY_EXPORT wxFont wxRuby_FontFromRuby(VALUE rbfont)
+          {
+            if (TYPE(rbfont) == T_DATA)
+            {
+              void *ptr;
+              swig_class *sklass_font_info = (swig_class *) SWIGTYPE_p_wxFontInfo->clientdata;
+              if (rb_obj_is_kind_of(rbfont, sklass_font_info->klass))
+              {
+                int res = SWIG_ConvertPtr(rbfont, &ptr, SWIGTYPE_p_wxFontInfo, 0);
+                if (SWIG_IsOK(res) && ptr) 
+                {
+                  return wxFont(*reinterpret_cast<wxFontInfo *>(ptr));
+                }
+              }
+              else
+              {
+                int res = SWIG_ConvertPtr(rbfont, &ptr, SWIGTYPE_p_wxFont, 0);
+                if (SWIG_IsOK(res) && ptr) 
+                {
+                  return *reinterpret_cast<wxFont *>(ptr);
+                }
+              }
+            }
+            return wxFont();
+          }
+          WXRUBY_EXPORT VALUE wxRuby_FontToRuby(const wxFont& font)
+          {
+            return SWIG_NewPointerObj(new wxFont(font), SWIGTYPE_p_wxFont, SWIG_POINTER_OWN);
+          }
+          __HEREDOC
         spec.do_not_generate :functions
       end
 

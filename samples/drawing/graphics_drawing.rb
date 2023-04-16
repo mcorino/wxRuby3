@@ -206,8 +206,10 @@ class GraphicsFrame < Wx::Frame
     @win.rect = Wx::CheckBox.new(status_bar,:label=>"Draw Rectangles")
     @win.corner = Wx::CheckBox.new(status_bar,:label=>"Draw Corners")
 
-    Wx::Timer.every(1000) { fps_display }
+    @fps_timer = Wx::Timer.every(1000) { fps_display }
+
     evt_size :on_size
+    evt_close { |evt| @fps_timer.stop; evt.skip }
 
     centre
   end

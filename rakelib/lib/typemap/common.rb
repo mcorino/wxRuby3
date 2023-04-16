@@ -492,6 +492,34 @@ module WXRuby3
             __CODE
         end
 
+        # typemap to allow String or Symbol for wxColour in args
+        map 'const wxColour&', 'const wxColour*', as: 'Wx::Colour,String,Symbol' do
+          map_in temp: 'wxColour tmpcol', code: <<~__CODE
+            tmpcol = wxRuby_ColourFromRuby($input);
+            if ((TYPE($input) == T_STRING || TYPE($input) == T_SYMBOL) && !tmpcol.IsOk())
+            {
+              rb_raise(rb_eArgError, "Invalid Colour value for %i", $argnum-1);
+            }
+            $1 = &tmpcol;
+            __CODE
+          map_out code: '$result = wxRuby_ColourToRuby(*$1);'
+          map_typecheck code: <<~__CODE
+            $1 = wxRuby_IsRubyColour($input);
+            __CODE
+        end
+
+        # typemap to allow wxFontInfo for wxFont in args
+        map 'const wxFont&', 'const wxFont*', as: 'Wx::Font,Wx::FontInfo' do
+          map_in temp: 'wxFont tmpfnt', code: <<~__CODE
+            tmpfnt = wxRuby_FontFromRuby($input);
+            $1 = &tmpfnt;
+          __CODE
+          map_out code: '$result = wxRuby_FontToRuby(*$1);'
+          map_typecheck code: <<~__CODE
+            $1 = wxRuby_IsRubyFont($input);
+          __CODE
+        end
+
         # typemap to provide backward compatibility for BitmapBundle
         map 'const wxBitmapBundle&' do
           add_header_code <<~__CODE
@@ -548,15 +576,17 @@ module WXRuby3
             __CODE
         end
 
-        # output typemaps for common reference counted objects like wxColour, wxFont,
+        # output typemaps for common reference counted objects like wxPen, wxBrush,
         # making sure to ALWAYS create managed copies
-        %w[wxColour wxFont wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
+        # (wxColour and wxFont are handled in separate typemaps above)
+        %w[wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
           map "const #{klass}&", "const #{klass}*" do
             map_out code: <<~__CODE
               $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);
               __CODE
           end
         end
+
         # special case bc SWIG causes trouble in Window.cpp
         map 'const wxRegion&', 'const wxRegion*' do
           map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'

@@ -82,6 +82,8 @@ module WXRuby3
         spec.map 'wxPenInfo &' => 'Wx::PenInfo' do
           map_out code: '$result = self; wxUnusedVar($1);'
         end
+        # for SetColour
+        spec.map_apply 'const wxColour&' => ['wxColour&']
         # these are defined and loaded in RubyStockObjects.i
         spec.ignore %w[
           wxRED_PEN wxBLUE_PEN wxCYAN_PEN wxGREEN_PEN wxYELLOW_PEN wxBLACK_PEN wxWHITE_PEN

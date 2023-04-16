@@ -23,6 +23,23 @@ module WXRuby3
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
                                              'wxDouble *tx' , 'wxDouble *ty' ]
+        # type mapping for GraphicsPath wxPoint2DDouble args
+        spec.map 'const wxPoint2DDouble&' => 'Array<Float,Float>' do
+          map_in temp: 'wxPoint2DDouble tmp_pt', code: <<~__CODE
+            if (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 2)
+            {
+              tmp_pt = wxPoint2DDouble(NUM2DBL(rb_ary_entry($input, 0)),
+                                       NUM2DBL(rb_ary_entry($input, 1)));
+              $1 = &tmp_pt;
+            }
+            else
+            {
+              rb_raise(rb_eTypeError, "Wrong type for %i", $argnum-1);
+            }
+            __CODE
+        end
+        spec.ignore 'wxGraphicsPath::GetBox() const',
+                    'wxGraphicsPath::GetCurrentPoint() const'
         if Config.platform == :mingw
           # it seems for WXMSW there is a problem cleaning up GraphicsObjects in GC after
           # the wxApp has ended (probably because some other wxWidgets cleanup already
