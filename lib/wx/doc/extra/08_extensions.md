@@ -1,9 +1,9 @@
 <!--
 # @markup markdown
-# @title 7. wxRuby Extensions
+# @title 8. wxRuby Extensions
 -->
 
-# 7. wxRuby Extensions
+# 8. wxRuby Extensions
 
 ## Keyword Constructors
 
