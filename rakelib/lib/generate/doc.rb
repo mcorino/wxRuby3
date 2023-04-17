@@ -692,7 +692,8 @@ module WXRuby3
           # but for doc gen we need the head item (and only that, so keep track and skip the rest)
           unless cm.is_dtor || mtd_done.include?(cm.name)
             # get method head item
-            get_method_doc(get_method_head(clsdef, cm)).each_pair do |name, docs|
+            mtd_head = get_method_head(clsdef, cm)
+            get_method_doc(mtd_head).each_pair do |name, docs|
               if docs.size>1 # method with overloads?
                 docs.each do |params, ovl_doc|
                   fdoc.doc.puts "@overload #{name}(#{params})"
@@ -707,22 +708,33 @@ module WXRuby3
                 else
                   fdoc.puts "def #{name}(#{params}) end"
                 end
-                # check for SWIG generated aliases
-                if alias_methods.has_key?(cm.name)
-                  fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{name}"
-                else
-                  # check for aliases that will be available from WxRubyStyleAccessors at runtime
-                  # and document these as well
-                  case name
-                  when /\Aget_(\w+)/
-                    fdoc.puts "alias_method :#{$1}, :#{name}"
-                  when /\Aset_(\w+)/
-                    fdoc.puts "alias_method :#{$1}=, :#{name}"
-                  when /\Ais_(\w+)/
-                    fdoc.puts "alias_method :#{$1}?, :#{name}"
-                  when /\A(has_|can_)/
-                    fdoc.puts "alias_method :#{name}?, :#{name}"
-                  end
+              end
+              # check for SWIG generated aliases
+              if alias_methods.has_key?(cm.name)
+                fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{name}"
+              else
+                # check for aliases that will be available from WxRubyStyleAccessors at runtime
+                # and document these as well
+                alias_name = case name
+                             when /\Aget_(\w+)/
+                               $1
+                             when /\Aset_(\w+)/
+                               if mtd_head.all.any? { |ovl| ovl.parameter_count > 0 && ovl.required_param_count < 2 }
+                                 "#{$1}="
+                               else
+                                 nil
+                               end
+                             when /\Ais_(\w+)/
+                               "#{$1}?"
+                             when /\A(has_|can_)/
+                               "#{name}?"
+                             else
+                               nil
+                             end
+                # only consider alias if no other method matching alias_name exists as WxRubyStyleAccessors
+                # aliases rely on method_missing being called
+                if alias_name && !cls_members.any? { |m| Extractor::MethodDef === m && !m.ignored && m.name == alias_name }
+                  fdoc.puts "alias_method :#{alias_name}, :#{name}"
                 end
               end
               fdoc.puts
