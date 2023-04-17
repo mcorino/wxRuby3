@@ -338,7 +338,7 @@ module WXRuby3
                     # since getters have no decoration ('=' or '?') a C++ method with the same
                     # name could exist already; check this and exclude if so
                     alias_name = mtd_name.sub(/\A(Get|get_)/, '')
-                    rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
+                    rc = !methods.any? { |m| !m.ignored && rb_method_name(alias_name) == m.rb_decl_name }
                   elsif /\A(Set[A-Z]|set_\w)/ =~ mtd_name
                     # only consider setter aliases (xxx=) in case at least one method overload
                     # accepts only a single argument

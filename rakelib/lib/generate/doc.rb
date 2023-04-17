@@ -733,7 +733,8 @@ module WXRuby3
                              end
                 # only consider alias if no other method matching alias_name exists as WxRubyStyleAccessors
                 # aliases rely on method_missing being called
-                if alias_name && !cls_members.any? { |m| Extractor::MethodDef === m && !m.ignored && m.name == alias_name }
+                if alias_name &&
+                  !cls_members.any? { |m| Extractor::MethodDef === m && !m.ignored && m.rb_decl_name == alias_name }
                   fdoc.puts "alias_method :#{alias_name}, :#{name}"
                 end
               end
