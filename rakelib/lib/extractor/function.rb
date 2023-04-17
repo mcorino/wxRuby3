@@ -61,7 +61,7 @@ module WXRuby3
       end
 
       def parameter_count
-        items.inject(0) { |c, i| c += 1 if ParamDef === i; c }
+        parameters.size
       end
 
       def required_param_count

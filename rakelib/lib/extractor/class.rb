@@ -330,20 +330,19 @@ module WXRuby3
                 mtd_ovls.all? { |ovl| !ovl.rb_name } ||
                 mtd_ovls.inject(::Set.new) { |set, ovl| set << ovl.rb_name }.size==1)
             if rc
-              mtd = mtd_ovls.shift
+              mtd = mtd_ovls.first
               mtd_name = mtd.rb_name || mtd.name
-              unless (rc = (/\A(Is|Has|Can|Set)[A-Z]/ =~ mtd_name))
-                if /\AGet[A-Z]/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.required_param_count==0 }
-                  # since getters have no decoration ('=' or '?') a C++ method with the same
-                  # name could exist already; check this and exclude if so
-                  alias_name = mtd_name.sub(/\AGet/, '')
-                  rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
-                elsif !(rc = (/\A(is|has|can|set)_\w+\Z/ =~ mtd_name))
-                  if /\Aget_\w+/ =~ mtd_name && mtd_ovls.all? { |ovl| ovl.required_param_count==0 }
+              unless (rc = (/\A(Is|Has|Can)[A-Z]/ =~ mtd_name))
+                unless (rc = (/\A(is|has|can)_\w+\Z/ =~ mtd_name))
+                  if /\A(Get[A-Z]|get_\w)/ =~ mtd_name
                     # since getters have no decoration ('=' or '?') a C++ method with the same
                     # name could exist already; check this and exclude if so
-                    alias_name = mtd_name.sub(/\Aget_/, '')
-                    rc = !methods.any? { |m| !m.ignored && m.name == alias_name}
+                    alias_name = mtd_name.sub(/\A(Get|get_)/, '')
+                    rc = !methods.any? { |m| !m.ignored && rb_method_name(alias_name) == m.rb_decl_name }
+                  elsif /\A(Set[A-Z]|set_\w)/ =~ mtd_name
+                    # only consider setter aliases (xxx=) in case at least one method overload
+                    # accepts only a single argument
+                    rc = mtd_ovls.any? { |ovl| ovl.parameter_count>0 && ovl.required_param_count<2 }
                   end
                 end
               end
