@@ -1,9 +1,9 @@
 <!--
 # @markup markdown
-# @title 8. wxRuby Exception Handling
+# @title 9. wxRuby Exception Handling
 -->
 
-# 8. wxRuby Exception Handling
+# 9. wxRuby Exception Handling
 
 The wxRuby library should (!) be completely exception safe, i.e. Ruby code raising an exception should not leak into
 the wrapped wxWidgets C++ code and cause unexpected exception handling or (worse) segmentation faults and should be 

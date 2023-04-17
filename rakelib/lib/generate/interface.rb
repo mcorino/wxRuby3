@@ -168,6 +168,9 @@ module WXRuby3
           unless cls.ignored || cls.is_template? || has_virtuals?(cls) || forced_proxy?(cls.name)
             fout.puts "%feature(\"nodirector\") #{class_name(cls)};"
           end
+          if forced_proxy?(cls.name) && !cls.ignored && !cls.is_template?
+            fout.puts "%feature(\"notabstract\") #{class_name(cls)};"
+          end
         end
       end
       unless no_proxies.empty?

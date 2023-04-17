@@ -12,7 +12,7 @@ module WXRuby3
     class ListCtrl < Window
 
       def setup
-        spec.items << 'wxListItem' << 'wxItemAttr'
+        spec.items << 'wxListItem' << 'wxItemAttr' << 'wxListView'
         spec.gc_as_object('wxItemAttr')
         spec.include 'wx/imaglist.h'
 
@@ -91,6 +91,7 @@ module WXRuby3
           map_in ignore: true, code: ''
         end
         spec.add_swig_code '%markfunc wxListCtrl "GC_mark_wxListCtrl";'
+        spec.add_swig_code '%markfunc wxListView "GC_mark_wxListCtrl";'
         spec.add_header_code <<~__HEREDOC
           // Helper code for SortItems - yields the two items being compared into
           // the associated block, and get an integer return value
