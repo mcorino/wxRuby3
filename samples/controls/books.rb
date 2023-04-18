@@ -131,6 +131,9 @@ class BooksFrame < Wx::Frame
   def show_treebook
     clear_book
     @book_ctrl = Wx::Treebook.new(@main_panel)
+    style = @book_ctrl.tree_ctrl.window_style
+    style &= ~Wx::TR_NO_LINES
+    @book_ctrl.tree_ctrl.window_style = style
     @main_panel.sizer.add(@book_ctrl, 1, Wx::GROW|Wx::ALL, 1)
     setup_book('Wx::Treebook', true)
     @main_panel.layout
