@@ -45,7 +45,7 @@ module WXRuby3
                 wxSize size;
             };
 
-            class WXRUBY_EXPORT wxRubyRibbonToolBar : public wxRibbonToolBar
+            class wxRubyRibbonToolBar : public wxRibbonToolBar
             {
             public:
               wxRubyRibbonToolBar() : wxRibbonToolBar() {}
