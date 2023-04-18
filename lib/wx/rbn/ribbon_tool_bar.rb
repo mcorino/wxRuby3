@@ -15,4 +15,12 @@ class Wx::RBN::RibbonToolBar
   end
   alias :tool_client_data :get_tool_client_data
 
+  def tools
+    if block_given?
+      tool_count.times { |i| yield tool_by_pos(i) }
+    else
+      ::Enumerator.new { |y| tool_count.times { |i| y << tool_by_pos(i) } }
+    end
+  end
+
 end
