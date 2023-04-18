@@ -40,7 +40,7 @@ module WxRuby
       def image
         if (img_file = image_file)
           img = Wx::Image.new(img_file)
-          scale = 320.0 / img.height
+          scale = 250.0 / img.height
           img = img.copy.rescale((img.width*scale).to_i, (img.height*scale).to_i)
           img.to_bitmap
         else
