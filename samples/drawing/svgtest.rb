@@ -334,7 +334,8 @@ class SVGFrame < Wx::Frame
 
   def on_about(event)
     Wx.message_box(
-      "wxWidgets SVG sample\n" +
+      "wxRuby SVG sample\n" +
+      "(converted from wxWidgets)\n" +
       "Authors:\n" +
       "   Chris Elliott (c) 2002-2009\n" +
       "   Prashant Kumar Nirmal (c) 2017\n" +
