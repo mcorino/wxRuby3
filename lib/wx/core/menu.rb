@@ -1,6 +1,22 @@
 # A single labelled list within a drop-down menu, or a popup menu
 class Wx::Menu
 
+  alias :wx_initialize :initialize
+
+  def initialize(*args, &block)
+    wx_initialize(*args)
+    if block
+      if block.arity == -1 or block.arity == 0
+        self.instance_eval(&block)
+      elsif block.arity == 1
+        block.call(self)
+      else
+        Kernel.raise ArgumentError,
+                     "Block to initialize should accept a single argument or none"
+      end
+    end
+  end
+
   # In the standard WxWidgets API, the methods append, prepend, insert
   # (and their variants) require a constant integer id as the identifier
   # of the menu item. This is then used in event handling. 
