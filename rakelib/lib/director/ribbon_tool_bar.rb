@@ -13,6 +13,109 @@ module WXRuby3
 
       def setup
         super
+        if Config.instance.wx_version <= '3.2.2.1'
+          # In older versions a bug exists in wxRibbonToolBar::GetToolByPos and wxRibbonToolBar::DeleteToolByPos
+          # so we use a wxRuby custom derived class
+          spec.add_header_code <<~__HEREDOC
+            class wxRibbonToolBarToolBase
+            {
+            public:
+                wxString help_string;
+                wxBitmap bitmap;
+                wxBitmap bitmap_disabled;
+                wxRect dropdown;
+                wxPoint position;
+                wxSize size;
+                wxObject* client_data;
+                int id;
+                wxRibbonButtonKind kind;
+                long state;
+            };
+            
+            WX_DEFINE_ARRAY_PTR(wxRibbonToolBarToolBase*, wxArrayRibbonToolBarToolBase);
+            
+            class wxRibbonToolBarToolGroup
+            {
+            public:
+                // To identify the group as a wxRibbonToolBarToolBase*
+                wxRibbonToolBarToolBase dummy_tool;
+            
+                wxArrayRibbonToolBarToolBase tools;
+                wxPoint position;
+                wxSize size;
+            };
+
+            class WXRUBY_EXPORT wxRubyRibbonToolBar : public wxRibbonToolBar
+            {
+            public:
+              wxRubyRibbonToolBar() : wxRibbonToolBar() {}
+          
+              wxRubyRibbonToolBar(wxWindow* parent,
+                                  wxWindowID id = wxID_ANY,
+                                  const wxPoint& pos = wxDefaultPosition,
+                                  const wxSize& size = wxDefaultSize,
+                                  long style = 0)
+                : wxRibbonToolBar(parent, id, pos, size, style)
+              {}
+              virtual ~wxRubyRibbonToolBar() {}
+
+              virtual bool DeleteToolByPos(size_t pos)
+              {
+                size_t group_count = m_groups.GetCount();
+                size_t g, t;
+                for(g = 0; g < group_count; ++g)
+                {
+                    wxRibbonToolBarToolGroup* group = m_groups.Item(g);
+                    size_t tool_count = group->tools.GetCount();
+                    if(pos<tool_count)
+                    {
+                        // Remove tool
+                        wxRibbonToolBarToolBase* tool = group->tools.Item(pos);
+                        group->tools.RemoveAt(pos);
+                        delete tool;
+                        return true;
+                    }
+                    else if(pos==tool_count)
+                    {
+                        // Remove separator
+                        if(g < group_count - 1)
+                        {
+                            wxRibbonToolBarToolGroup* next_group = m_groups.Item(g+1);
+                            for(t = 0; t < next_group->tools.GetCount(); ++t)
+                                group->tools.Add(next_group->tools[t]);
+                            m_groups.RemoveAt(g+1);
+                            delete next_group;
+                        }
+                        return true;
+                    }
+                    pos -= tool_count+1;
+                }
+                return false;
+              }
+              virtual wxRibbonToolBarToolBase* GetToolByPos(size_t pos) const
+              {
+                size_t group_count = m_groups.GetCount();
+                size_t g;
+                for(g = 0; g < group_count; ++g)
+                {
+                    wxRibbonToolBarToolGroup* group = m_groups.Item(g);
+                    size_t tool_count = group->tools.GetCount();
+                    if(pos<tool_count)
+                    {
+                        return group->tools[pos];
+                    }
+                    else if(pos==tool_count)
+                    {
+                        return NULL;
+                    }
+                    pos -= tool_count+1;
+                }
+                return NULL;
+              }
+            };
+            __HEREDOC
+          spec.use_class_implementation('wxRibbonToolBar', 'wxRubyRibbonToolBar')
+        end
         # exclude these; far better done in pure Ruby
         spec.ignore 'wxRibbonToolBar::SetToolClientData',
                     'wxRibbonToolBar::GetToolClientData', ignore_doc: false
