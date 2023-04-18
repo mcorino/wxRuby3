@@ -76,6 +76,8 @@ module WXRuby3
         when 'wxTreebook'
           setup_book_ctrl_class(spec.module_name)
           spec.force_proxy(spec.module_name)
+          # add public API missing from docs (essential for better control of tree control)
+          spec.extend_interface 'wxTreebook', 'wxTreeCtrl* GetTreeCtrl() const'
         end
       end
       

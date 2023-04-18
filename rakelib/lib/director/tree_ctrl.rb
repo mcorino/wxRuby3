@@ -143,11 +143,11 @@ module WXRuby3
               return;
             rec_func(tree_ctrl, base_id);
             // recurse through children
-            if ( tree_ctrl->ItemHasChildren(base_id) )
+            if (tree_ctrl->ItemHasChildren(base_id))
             {
               wxTreeItemIdValue cookie;
               wxTreeItemId child = tree_ctrl->GetFirstChild(base_id, cookie);
-              while ( child.IsOk() )
+              while (child.IsOk())
               {
                 RecurseOverTreeIds(tree_ctrl, child, *rec_func);
                 child = tree_ctrl->GetNextChild(base_id, cookie);
@@ -159,18 +159,21 @@ module WXRuby3
           // root-like item.
           static wxTreeItemId FindFirstRoot(wxTreeCtrl *tree_ctrl) {
             wxTreeItemId base_id = tree_ctrl->GetFirstVisibleItem();
-            wxTreeItemId prev_id = tree_ctrl->GetItemParent(base_id);
-            wxTreeItemId root_id = tree_ctrl->GetRootItem();
-            while ( prev_id.IsOk() && prev_id != root_id )
-            {
-              base_id = prev_id;
-              prev_id = tree_ctrl->GetItemParent(base_id);
-            }
-            prev_id = tree_ctrl->GetPrevSibling(base_id);
-            while ( prev_id.IsOk()  )
-            {
-              base_id = prev_id;
+            if (base_id.IsOk())
+            { 
+              wxTreeItemId prev_id = tree_ctrl->GetItemParent(base_id);
+              wxTreeItemId root_id = tree_ctrl->GetRootItem();
+              while ( prev_id.IsOk() && prev_id != root_id )
+              {
+                base_id = prev_id;
+                prev_id = tree_ctrl->GetItemParent(base_id);
+              }
               prev_id = tree_ctrl->GetPrevSibling(base_id);
+              while ( prev_id.IsOk()  )
+              {
+                base_id = prev_id;
+                prev_id = tree_ctrl->GetPrevSibling(base_id);
+              }
             }
             return base_id;
           }
@@ -183,19 +186,17 @@ module WXRuby3
                         void(*rec_func)(void *, const wxTreeItemId&) )
           {
             // straightforward
-            if ( ! ( tree_ctrl->GetWindowStyle() & wxTR_HIDE_ROOT ) )
+            if ((tree_ctrl->GetWindowStyle() & wxTR_HIDE_ROOT) != wxTR_HIDE_ROOT)
             {
               RecurseOverTreeIds(tree_ctrl, tree_ctrl->GetRootItem(), *rec_func);
               return;
             }
-            // Find the top-left most item, then recurse over it and siblings
-            else
+            else // Find the top-left most item, then recurse over it and siblings
             {
               wxTreeItemId base_id = FindFirstRoot(tree_ctrl);
               // now do recursion
               RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
-              while ( ( base_id = tree_ctrl->GetNextSibling(base_id) ) &&
-                  base_id.IsOk() )
+              while ((base_id = tree_ctrl->GetNextSibling(base_id)).IsOk())
                 RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
               return;
             }
@@ -215,7 +216,7 @@ module WXRuby3
             wxTreeCtrl* tree_ctrl = (wxTreeCtrl*) ptr;
             // check if there's item data, and mark it
             wxRbTreeItemData* ruby_item_data = (wxRbTreeItemData *)tree_ctrl->GetItemData(item_id);
-            if ( ruby_item_data != NULL )
+            if (ruby_item_data != NULL)
             {
               VALUE ruby_obj = ruby_item_data->GetRubyObject();
               rb_gc_mark(ruby_obj);

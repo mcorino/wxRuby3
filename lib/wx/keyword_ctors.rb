@@ -215,7 +215,7 @@ module Wx
               block.call(self)
             else
               Kernel.raise ArgumentError,
-                           "Block to initialize accepts zero or one arg"
+                           "Block to initialize should accept a single argument or none"
             end
           end
         end
