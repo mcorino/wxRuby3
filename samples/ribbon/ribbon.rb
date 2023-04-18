@@ -94,9 +94,15 @@ class MyFrame < Wx::Frame
     toolbar.add_hybrid_tool(ID::POSITION_TOP, bitmap_(:position_top_xpm),
                            "Align the ribbonbar horizontally\nat the top\nfor demonstration purposes")
     toolbar.add_separator
-    toolbar.add_hybrid_tool(Wx::ID_PRINT, Wx::ArtProvider.get_bitmap(Wx::ART_PRINT, Wx::ART_OTHER, Wx::Size.new(16, 15)),
-                           "This is the Print button tooltip\ndemonstrating a tooltip")
+    prt_tool = toolbar.add_hybrid_tool(Wx::ID_PRINT, Wx::ArtProvider.get_bitmap(Wx::ART_PRINT, Wx::ART_OTHER, Wx::Size.new(16, 15)),
+                                       "This is the Print button tooltip\ndemonstrating a tooltip")
     toolbar.set_rows(2, 3)
+
+    if toolbar.tool_count != (toolbar.tool_pos(prt_tool)+1)
+      Wx.log_error('Wx::RibbonToolBar::get_tool_count or Wx::RibbonToolBar::get_tool_pos is broken')
+    elsif Wx::ID_PRINT != toolbar.tool_by_pos(toolbar.tool_pos(prt_tool))
+      Wx.log_error('Wx::RibbonToolBar::get_tool_by_pos is broken')
+    end
 
     selection_panel = Wx::RBN::RibbonPanel.new(home, Wx::ID_ANY, "Selection", bitmap_(:selection_panel_xpm))
     selection = Wx::RBN::RibbonButtonBar.new(selection_panel)
