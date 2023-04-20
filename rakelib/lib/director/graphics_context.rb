@@ -39,14 +39,14 @@ module WXRuby3
         end
         spec.map 'size_t n, const wxPoint2DDouble *beginPoints, const wxPoint2DDouble *endPoints' do
           map_in from: {type: 'Array<Array<Array<Float,Float>,Array<Float,Float>>>', index: 0},
-                 temp: ['std::unique_ptr<wxPoint2DDouble> tmp_begin', 'std::unique_ptr<wxPoint2DDouble> tmp_end'],
+                 temp: ['std::unique_ptr<wxPoint2DDouble[]> tmp_begin', 'std::unique_ptr<wxPoint2DDouble[]> tmp_end'],
                  code: <<~__CODE
             bool ok = false;
             if (TYPE($input) == T_ARRAY)
             {
               ok = true;
-              tmp_begin.reset(new wxPoint2DDouble[RARRAY_LEN($input)]);
-              tmp_end.reset(new wxPoint2DDouble[RARRAY_LEN($input)]);
+              tmp_begin = std::make_unique<wxPoint2DDouble[]>(RARRAY_LEN($input));
+              tmp_end = std::make_unique<wxPoint2DDouble[]>(RARRAY_LEN($input));
               for (int i=0; i<RARRAY_LEN($input) ;++i)
               {
                 VALUE el = rb_ary_entry($input, i);
@@ -56,8 +56,8 @@ module WXRuby3
                   VALUE end_pt = rb_ary_entry(el, 1);
                   if (TYPE(begin_pt) == T_ARRAY && RARRAY_LEN(begin_pt) == 2 && TYPE(end_pt) == T_ARRAY && RARRAY_LEN(end_pt) == 2)
                   {
-                    tmp_begin.get()[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(begin_pt, 0)), NUM2DBL(rb_ary_entry(begin_pt, 1)));
-                    tmp_end.get()[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(end_pt, 0)), NUM2DBL(rb_ary_entry(end_pt, 1)));
+                    tmp_begin[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(begin_pt, 0)), NUM2DBL(rb_ary_entry(begin_pt, 1)));
+                    tmp_end[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(end_pt, 0)), NUM2DBL(rb_ary_entry(end_pt, 1)));
                   }
                   else
                   { ok = false; }
@@ -93,19 +93,19 @@ module WXRuby3
         end
         spec.map 'size_t n, const wxPoint2DDouble *points' => 'Array<Array<Float,Float>>' do
           map_in from: {type: 'Array<Array<Float,Float>>', index: 1},
-                 temp: 'std::unique_ptr<wxPoint2DDouble> tmp_pts',
+                 temp: 'std::unique_ptr<wxPoint2DDouble[]> tmp_pts',
                  code: <<~__CODE
             bool ok = false;
             if (TYPE($input) == T_ARRAY)
             {
               ok = true;
-              tmp_pts.reset(new wxPoint2DDouble[RARRAY_LEN($input)]);
+              tmp_pts = std::make_unique<wxPoint2DDouble[]>(RARRAY_LEN($input));
               for (int i=0; i<RARRAY_LEN($input) ;++i)
               {
                 VALUE el = rb_ary_entry($input, i);
                 if (TYPE(el) == T_ARRAY && RARRAY_LEN(el) == 2)
                 {
-                  tmp_pts.get()[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(el, 0)), NUM2DBL(rb_ary_entry(el, 1)));
+                  tmp_pts[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(el, 0)), NUM2DBL(rb_ary_entry(el, 1)));
                 }
                 else
                 { ok = false; }

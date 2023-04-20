@@ -25,11 +25,11 @@ module WXRuby3
           # "misuse" the 'check' typemap to initialize the ignored argument
           # since this is inserted after any non-ignored arguments have been converted we can use these
           # here
-          map_check temp: 'std::unique_ptr<wxDataFormat> fmts, size_t nfmt', code: <<~__CODE
+          map_check temp: 'std::unique_ptr<wxDataFormat[]> fmts, size_t nfmt', code: <<~__CODE
             nfmt = arg1->GetFormatCount(arg3);
             if (nfmt > 0)
             {
-              fmts.reset(new wxDataFormat[nfmt]);
+              fmts = std::make_unique<wxDataFormat[]>(nfmt);
             }
             $1 = fmts.get ();
             __CODE

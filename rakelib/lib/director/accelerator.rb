@@ -51,7 +51,7 @@ module WXRuby3
         # Type mapping for constructor, accepts an array of Wx::AcceleratorEntry objects
         spec.map 'int n, wxAcceleratorEntry entries[]' do
           map_in from: {type: 'Array<Wx::AcceleratorEntry>', index: 1},
-                 temp: 'wxAcceleratorEntry *arr', code: <<~__CODE
+                 temp: 'std::unique_ptr<wxAcceleratorEntry[]> arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;
@@ -60,7 +60,7 @@ module WXRuby3
             else
             {
               wxAcceleratorEntry *wx_acc_ent;
-              arr = new wxAcceleratorEntry[ RARRAY_LEN($input) ];
+              arr = std::make_unique<wxAcceleratorEntry[]>(RARRAY_LEN($input));
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
                 SWIG_ConvertPtr(rb_ary_entry($input,i), (void **) &wx_acc_ent, 
@@ -70,14 +70,13 @@ module WXRuby3
                 arr[i] = *wx_acc_ent;
               }
               $1 = RARRAY_LEN($input);
-              $2 = arr;
+              $2 = arr.get();
             }
             __CODE
           map_default code: <<~__CODE
             $1 = 0;
             $2 = NULL;
             __CODE
-          map_freearg code: 'if ($2 != NULL) delete [] $2;'
           map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
         super

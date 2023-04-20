@@ -54,7 +54,7 @@ module WXRuby3
 
           # Set of typemaps for draw_lines, draw_polygon etc
           map_in from: {type: 'Array<Wx::Point>,Array<Array<Integer>>', index: 1},
-                 temp: 'wxPoint *arr', code: <<~__CODE
+                 temp: 'std::unique_ptr<wxPoint[]> arr', code: <<~__CODE
             if ( ($input == Qnil) || (TYPE($input) != T_ARRAY) )
             {
               $1 = 0;
@@ -63,15 +63,13 @@ module WXRuby3
             else
             {
               $1 = RARRAY_LEN($input);
-              arr = new wxPoint[ RARRAY_LEN($input)];
-              wxRuby_PointArrayRubyToC($input, arr);
-              $2 = arr;
+              arr = std::make_unique<wxPoint[]>(RARRAY_LEN($input));
+              wxRuby_PointArrayRubyToC($input, arr.get());
+              $2 = arr.get();
             }
            __CODE
 
          map_default code: '$1 = 0; $2 = NULL;'
-
-         map_freearg code: 'if ($2 != NULL) delete [] $2;'
 
          map_typecheck code: '$1 = (TYPE($input) == T_ARRAY);'
 
@@ -83,7 +81,7 @@ module WXRuby3
         map 'int n, const int count[], const wxPoint points[]' do
 
           map_in from: {type: 'Array<Array<Wx::Point>>,Array<Array<Array<Integer>>>', index: 2},
-                 temp: 'wxPoint *point_arr', code: <<~__CODE
+                 temp: 'std::unique_ptr<int[]> count_arr, std::unique_ptr<wxPoint[]> point_arr', code: <<~__CODE
             if ( ($input == Qnil) || (TYPE($input) != T_ARRAY) )
             {
               $1 = 0;
@@ -94,15 +92,16 @@ module WXRuby3
             {
               // total number of polygons
               $1 = RARRAY_LEN($input);
-              $2 = (int*)malloc($1 * sizeof(int));
+              count_arr = std::make_unique<int[]>($1);
               // number of points in each polygon
               for ( int i = 0; i < RARRAY_LEN($input); i++ )
-                $2[i] = RARRAY_LEN( rb_ary_entry($input, i) );
+                count_arr[i] = RARRAY_LEN( rb_ary_entry($input, i) );
+              $2 = count_arr.get();
               // array of all the points
               VALUE all_points = rb_funcall($input, rb_intern("flatten"), 0);
-              point_arr = new wxPoint[ RARRAY_LEN(all_points) ];
-              wxRuby_PointArrayRubyToC(all_points, point_arr);
-              $3 = point_arr;
+              point_arr = std::make_unique<wxPoint[]>(RARRAY_LEN(all_points));
+              wxRuby_PointArrayRubyToC(all_points, point_arr.get());
+              $3 = point_arr.get();
             }
             __CODE
 
@@ -110,11 +109,6 @@ module WXRuby3
             $1 = 0;
             $2 = NULL;
             $3 = NULL;
-            __CODE
-
-          map_freearg code: <<~__CODE
-            if ($2 != NULL) delete [] $2;
-            if ($3 != NULL) delete [] $3;
             __CODE
 
           map_typecheck code: '$1 = (TYPE($input) == T_ARRAY);'
