@@ -26,7 +26,9 @@ class ImageFrame < Wx::Frame
     @image = Wx::Image.new(img_file)
     @mirrored_image = Wx::Image.new(img_file).mirror
     @greyscaled_image = Wx::Image.new(img_file).convert_to_greyscale
-    @blurred_image = Wx::Image.new(img_file).blur(15)
+    @blurred_image = Wx::Image.new
+    @blurred_image.load_stream(File.open(img_file), 'image/jpeg')
+    @blurred_image = @blurred_image.blur(15)
 
     # Create the corresponding bitmaps
     compute_bitmaps
