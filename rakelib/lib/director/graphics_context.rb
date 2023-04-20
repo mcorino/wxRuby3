@@ -38,7 +38,6 @@ module WXRuby3
             __CODE
         end
         spec.map 'size_t n, const wxPoint2DDouble *beginPoints, const wxPoint2DDouble *endPoints' do
-          add_header_code '#include <memory>'
           map_in from: {type: 'Array<Array<Array<Float,Float>,Array<Float,Float>>>', index: 0},
                  temp: ['std::unique_ptr<wxPoint2DDouble> tmp_begin', 'std::unique_ptr<wxPoint2DDouble> tmp_end'],
                  code: <<~__CODE

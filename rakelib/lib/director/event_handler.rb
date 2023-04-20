@@ -195,8 +195,6 @@ module WXRuby3
             }
             __HEREDOC
           spec.add_header_code <<~__HEREDOC
-            #include <memory> // for std::unique_ptr<>
-  
             class RbAsyncProcCallEvent : public wxAsyncMethodCallEvent
             {
             public:

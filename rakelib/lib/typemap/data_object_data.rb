@@ -22,8 +22,6 @@ module WXRuby3
         map 'const wxDataFormat &format, void *buf' do
           # this is needed for this and all other mappings
           add_header '#include <wx/dataobj.h>'
-          # add include for unique_ptr<>
-          add_header '#include <memory>'
 
           map_in from: {type: 'Wx::DataFormat', index: 0}, temp: 'std::unique_ptr<char> data_buf, size_t data_size', code: <<~__CODE
             void* argp$argnum = NULL;

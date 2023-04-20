@@ -3,6 +3,8 @@
  * Copyright (c) M.J.N. Corino, The Netherlands
  */
 
+#include <memory>
+
 // flag type to keep track of stuff like typemap arg allocations that need to be freed in freearg typemaps
 // by default always 'false'
 struct wxrb_flag
