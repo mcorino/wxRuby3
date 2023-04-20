@@ -30,15 +30,13 @@ module WXRuby3
             __CODE
 
           # Accepts any Time-like object from Ruby and creates a wxDateTime
-          map_in temp: 'wxrb_flag dtalloc',
-                 code: '$1 = wxRuby_wxDateTimeFromRuby($input); dtalloc = true;'
+          map_in temp: 'std::unique_ptr<wxDateTime> tmp_dt',
+                 code: 'tmp_dt.reset(wxRuby_wxDateTimeFromRuby($input)); $1 = tmp_dt.get();'
 
           # Converts a return value of wxDateTime& to a Ruby Time object
           map_out code: '$result = wxRuby_wxDateTimeToRuby(*$1);'
 
           map_directorin code: '$input = wxRuby_wxDateTimeToRuby($1);'
-
-          map_freearg code: 'if (dtalloc$argnum) delete $1;'
 
           map_typecheck precedence: 'SWIGOBJECT', code: <<~__CODE
             $1 = rb_obj_is_kind_of($input, rb_cTime) || rb_respond_to($input, rb_intern ("to_time"));
@@ -50,10 +48,9 @@ module WXRuby3
           # Converts a return value of wxDateTime to a Ruby Time object
           map_out code: '$result = wxRuby_wxDateTimeToRuby($1);'
 
-          map_directorout temp: 'wxrb_flag dtalloc', code: <<~__CODE
-            wxDateTime* tmp = wxRuby_wxDateTimeFromRuby($input);
-            $result = *tmp;
-            delete tmp;
+          map_directorout temp: 'std::unique_ptr<wxDateTime> tmp_dt', code: <<~__CODE
+            tmp_dt.reset(wxRuby_wxDateTimeFromRuby($input));
+            $result = *tmp_dt.get();
             __CODE
 
         end
