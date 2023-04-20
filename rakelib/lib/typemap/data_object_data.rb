@@ -22,10 +22,8 @@ module WXRuby3
         map 'const wxDataFormat &format, void *buf' do
           # this is needed for this and all other mappings
           add_header '#include <wx/dataobj.h>'
-          # add include for unique_ptr<>
-          add_header '#include <memory>'
 
-          map_in from: {type: 'Wx::DataFormat', index: 0}, temp: 'std::unique_ptr<char> data_buf, size_t data_size', code: <<~__CODE
+          map_in from: {type: 'Wx::DataFormat', index: 0}, temp: 'std::unique_ptr<char[]> data_buf, size_t data_size', code: <<~__CODE
             void* argp$argnum = NULL;
             if ( TYPE($input) == T_DATA )
             {
@@ -39,7 +37,7 @@ module WXRuby3
               rb_raise(rb_eTypeError, "Expected Wx::DataFormat instance.");
             }
             data_size = arg1->GetDataSize(*$1);
-            data_buf.reset(new char[data_size]);
+            data_buf = std::make_unique<char[]>(data_size);
             $2 = data_buf.get ();
             __CODE
 

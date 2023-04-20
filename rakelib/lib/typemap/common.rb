@@ -254,7 +254,8 @@ module WXRuby3
         map 'int n, const wxString choices []',
             'int n, const wxString* choices',
             'int nItems, const wxString *items' do
-          map_in from: { type: 'Array<String>', index: 1 }, temp: 'wxString *arr', code: <<~__CODE
+          map_in from: { type: 'Array<String>', index: 1 },
+                 temp: 'std::unique_ptr<wxString[]> arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
             {
               $1 = 0;
@@ -262,14 +263,14 @@ module WXRuby3
             }
             else
             {
-              arr = new wxString[ RARRAY_LEN($input) ];
+              arr = std::make_unique<wxString[]>(RARRAY_LEN($input));
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
                 VALUE str = rb_ary_entry($input,i);
                 arr[i] = wxString(StringValuePtr(str), wxConvUTF8);
               }
               $1 = RARRAY_LEN($input);
-              $2 = arr;
+              $2 = arr.get();
             }
             __CODE
           map_default code: <<~__CODE
@@ -278,7 +279,6 @@ module WXRuby3
               $2 = NULL;
             }
             __CODE
-          map_freearg code: 'if ($2 != NULL) delete [] $2;'
           map_typecheck precedence: 'STRING_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
@@ -503,7 +503,7 @@ module WXRuby3
             $1 = &tmpcol;
             __CODE
           map_out code: '$result = wxRuby_ColourToRuby(*$1);'
-          map_typecheck code: <<~__CODE
+          map_typecheck precedence: 'POINTER', code: <<~__CODE
             $1 = wxRuby_IsRubyColour($input);
             __CODE
         end
@@ -515,7 +515,7 @@ module WXRuby3
             $1 = &tmpfnt;
           __CODE
           map_out code: '$result = wxRuby_FontToRuby(*$1);'
-          map_typecheck code: <<~__CODE
+          map_typecheck precedence: 'POINTER', code: <<~__CODE
             $1 = wxRuby_IsRubyFont($input);
           __CODE
         end

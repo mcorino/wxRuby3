@@ -26,144 +26,124 @@ module WXRuby3
 
       define do
 
-        map 'wxInputStream&' => 'IO' do
+        map 'wxInputStream &' => 'IO,Wx::InputStream' do
 
           add_header_code <<~__CODE
-            // Allows a ruby IO-like object to be treated as a wxInputStream
-            class wxRubyInputStream : public wxInputStream
+            WXRUBY_EXPORT bool wxRuby_IsInputStream(VALUE);
+            WXRUBY_EXPORT wxInputStream* wxRuby_RubyToInputStream(VALUE);
+            WXRUBY_EXPORT VALUE wxRuby_RubyFromInputStream(wxInputStream&);
+
+            class WXRUBY_EXPORT wxRubyInputStream : public wxInputStream
             {
             public:
               // Initialize with the readable ruby IO-like object
-              wxRubyInputStream(VALUE rb_io) 
-              { 
-                  m_rbio = rb_io; 
-                  m_lastlength = 0;
-              }
+              wxRubyInputStream(VALUE rb_io);
+              virtual ~wxRubyInputStream();
           
-              bool CanRead()  
-              {
-                return ( ! RTEST( wxRuby_Funcall(m_rbio, rb_intern("closed?"), 0) ) );
-              }
-              char GetC() 
-              { 
-                return (char)NUM2INT( wxRuby_Funcall(m_rbio, rb_intern("getc"), 0) );
-              }
-              bool Eof() 
-              {
-                return RTEST( wxRuby_Funcall(m_rbio, rb_intern("eof"), 0) );
-              }
-              size_t LastRead() 
-              {
-                return m_lastlength;
-              }
-              size_t OnSysRead(void *buffer, size_t bufsize) 
-              {
-                VALUE read_data = wxRuby_Funcall(m_rbio, rb_intern("read"), 
-                                    1, INT2NUM(bufsize));
-                m_lastlength = RSTRING_LEN(read_data);
-                memcpy(buffer, RSTRING_PTR(read_data), m_lastlength);
-                return m_lastlength;
-              }
-              wxRubyInputStream& Read(void *buffer, size_t size) 
-              {
-                VALUE read_data = wxRuby_Funcall(m_rbio, rb_intern("read"), 
-                               1, INT2NUM(size));
-                  m_lastlength = RSTRING_LEN(read_data);
-                memcpy(buffer, RSTRING_PTR(read_data), m_lastlength);
-                return *this;
-              }
-              off_t SeekI(off_t pos, wxSeekMode mode = wxFromStart) 
-              {
-                // Seek mode integers happily coincide in Wx and Ruby
-                wxRuby_Funcall(m_rbio, rb_intern("seek"), 2, 
-                           INT2NUM(pos), INT2NUM(mode) );
-                return this->TellI();
-              }
-              off_t TellI() 
-              {
-                return NUM2INT( wxRuby_Funcall( m_rbio, rb_intern("tell"), 0) );
-              }
+              wxFileOffset GetLength() const wxOVERRIDE;
+
+              bool CanRead() const wxOVERRIDE;  
+              bool Eof() const wxOVERRIDE; 
+              bool Ok() const { return IsOk(); }
+              bool IsOk() const wxOVERRIDE;
+              bool IsSeekable() const wxOVERRIDE;
+
+              VALUE GetRubyIO () { return m_rbio; }
+
             protected:
+              size_t OnSysRead(void *buffer, size_t bufsize) wxOVERRIDE; 
+              wxFileOffset OnSysSeek(wxFileOffset seek, wxSeekMode mode) wxOVERRIDE;
+              wxFileOffset OnSysTell() const wxOVERRIDE;
+  
               VALUE m_rbio; // Wrapped ruby object
-              int m_lastlength; // Length of last read data
             };
             __CODE
 
-          map_in code: '$1 = new wxRubyInputStream($input);'
-          map_typecheck precedence: 1, code: <<~__CODE
-            $1 = (RTEST(rb_respond_to ($input, rb_intern ("read"))));
+          map_in temp: 'std::unique_ptr<wxRubyInputStream> tmp_ris',
+                 code: <<~__CODE
+            if (rb_obj_is_kind_of($input, rb_cIO))
+            {
+              tmp_ris = std::make_unique<wxRubyInputStream>($input); 
+              $1 = tmp_ris.get();
+            }
+            else
+            {
+              $1 = wxRuby_RubyToInputStream($input);
+              if (!$1)
+              {
+                rb_raise(rb_eArgError, "Invalid value for %d expected IO or Wx::InputStream", $argnum-1);
+              }
+            }
           __CODE
-          map_freearg code: 'delete $1;'
+
+          map_directorin code: <<~__CODE
+            $input = wxRuby_RubyFromInputStream($1);
+            __CODE
+
+          map_typecheck precedence: 1, code: <<~__CODE
+            $1 = rb_obj_is_kind_of($input, rb_cIO) || wxRuby_IsInputStream($input);
+            __CODE
 
         end
 
-        map 'wxOutputStream&' => 'IO' do
+        map 'wxOutputStream &' => 'IO' do
 
           add_header_code <<~__CODE
+            WXRUBY_EXPORT bool wxRuby_IsOutputStream(VALUE);
+            WXRUBY_EXPORT wxOutputStream* wxRuby_RubyToOutputStream(VALUE);
+            WXRUBY_EXPORT VALUE wxRuby_RubyFromOutputStream(wxOutputStream&);
+
             // Allows a ruby IO-like object to be used as a wxOutputStream
-            class wxRubyOutputStream : public wxOutputStream
+            class WXRUBY_EXPORT wxRubyOutputStream : public wxOutputStream
             {
             public:
               // Initialize with the writeable ruby IO-like object
-              wxRubyOutputStream(VALUE rb_io) 
-              { 
-                m_rbio = rb_io; 
-                m_lastlength = 0;
-              }
+              wxRubyOutputStream(VALUE rb_io);
+              virtual ~wxRubyOutputStream(); 
+          
+              wxFileOffset GetLength() const wxOVERRIDE;
             
-              bool Close() 
-              {
-                wxRuby_Funcall(m_rbio, rb_intern("close"), 0); // always returns nil
-                return true;
-              }
-              size_t LastWrite() 
-              { 
-                return m_lastlength;
-              }
-              void PutC(char c) 
-              {
-                wxRuby_Funcall(m_rbio, rb_intern("putc"), 1, INT2NUM(c) );
-                return;
-              }
-              size_t OnSysWrite(const void *buffer, size_t size) 
-              {
-                VALUE write_data = rb_str_new((const char *)buffer, size);
-                VALUE ret_val = wxRuby_Funcall(m_rbio, rb_intern("write"), 1,
-                                           write_data);
-                m_lastlength = NUM2INT(ret_val);
-                return m_lastlength;
-              }
-              off_t SeekO(off_t pos, wxSeekMode mode = wxFromStart) 
-              {
-                // Seek mode integers happily coincide in Wx and Ruby
-                wxRuby_Funcall(m_rbio, rb_intern("seek"), 2, 
-                           INT2NUM(pos), INT2NUM(mode) );
-                return this->TellO();
-              }
-              off_t TellO() 
-              {
-                return NUM2INT( wxRuby_Funcall( m_rbio, rb_intern("tell"), 0) );
-              }
-              wxRubyOutputStream& Write(const void *buffer, size_t size) 
-              {
-                VALUE write_data = rb_str_new((const char *)buffer, size);
-                VALUE ret_val = wxRuby_Funcall(m_rbio, rb_intern("write"), 1,
-                                           write_data);
-                m_lastlength = NUM2INT(ret_val);
-                return *this;
-              }
+              void Sync() wxOVERRIDE;
+              bool Close() wxOVERRIDE; 
+              bool Ok() const { return IsOk(); }
+              bool IsOk() const wxOVERRIDE;
+              bool IsSeekable() const wxOVERRIDE;
+
+              VALUE GetRubyIO () { return m_rbio; }
             
             protected:
+              size_t OnSysWrite(const void *buffer, size_t size) wxOVERRIDE; 
+              wxFileOffset OnSysSeek(wxFileOffset seek, wxSeekMode mode) wxOVERRIDE;
+              wxFileOffset OnSysTell() const wxOVERRIDE;
+
               VALUE m_rbio; // Wrapped ruby object
-              int m_lastlength; // Length of last write
             };
             __CODE
 
-          map_in code: '$1 = new wxRubyOutputStream($input);'
+          map_in temp: 'std::unique_ptr<wxRubyOutputStream> tmp_ros',
+                 code: <<~__CODE
+            if (rb_obj_is_kind_of($input, rb_cIO))
+            {
+              tmp_ros = std::make_unique<wxRubyOutputStream>($input); 
+              $1 = tmp_ros.get();
+            }
+            else
+            {
+              $1 = wxRuby_RubyToOutputStream($input);
+              if (!$1)
+              {
+                rb_raise(rb_eArgError, "Invalid value for %d expected IO or Wx::OutputStream", $argnum-1);
+              }
+            }
+          __CODE
+
+          map_directorin code: <<~__CODE
+            $input = wxRuby_RubyFromOutputStream($1);
+          __CODE
+
           map_typecheck precedence: 1, code: <<~__CODE
-            $1 = (RTEST(rb_respond_to ($input, rb_intern ("write"))));
+            $1 = rb_obj_is_kind_of($input, rb_cIO) || wxRuby_IsOutputStream($input);
             __CODE
-          map_freearg code: 'delete $1;'
 
         end
 

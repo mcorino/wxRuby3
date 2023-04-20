@@ -34,17 +34,16 @@ module WXRuby3
           spec.disown 'wxMenuBar *'
           spec.map 'int n, int * widths' do
             map_in from: {type: 'Array<Integer>', index: 1},
-                   temp: 'int size, int i, int *arr', code: <<~__CODE
+                   temp: 'int size, int i, std::unique_ptr<int[]> arr', code: <<~__CODE
               size = RARRAY_LEN($input);
-              arr = new int[size];
+              arr.reset(new int[size]);
               for(i = 0; i < size; i++)
               {
-                arr[i] = NUM2INT(rb_ary_entry($input,i));
+                arr.get()[i] = NUM2INT(rb_ary_entry($input,i));
               }
               $1 = size;
-              $2 = arr;
+              $2 = arr.get();
               __CODE
-            map_freearg code: 'delete[]($2);'
           end
           # handled; can be suppressed
           spec.suppress_warning(473,

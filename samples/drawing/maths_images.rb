@@ -212,7 +212,13 @@ class MathsPanel < Panel
   def on_save
     SaveImageDialog(parent) do |dlg|
       if dlg.show_modal == ID_OK
-        @drawing.img.save_file(dlg.path, dlg.image_type)
+        if dlg.image_type == Wx::BitmapType::BITMAP_TYPE_PNG
+          File.open(dlg.path, 'w') do |f|
+            @drawing.img.write(f, dlg.image_type)
+          end
+        else
+          @drawing.img.save_file(dlg.path, dlg.image_type)
+        end
       end
     end
   end

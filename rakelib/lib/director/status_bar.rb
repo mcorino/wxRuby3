@@ -34,7 +34,7 @@ module WXRuby3
         # For SetStatusWidths, SetStatusStyles
         spec.map 'int n, const int *widths_field', 'int n, const int *styles' do
           map_in from: {type: 'Array<Integer>', index: 1},
-                 temp: 'int *arr', code: <<~__CODE
+                 temp: 'std::unique_ptr<int[]> tmp_arr', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY) || (RARRAY_LEN($input) == 0))
             {
               $1 = 0;
@@ -42,23 +42,19 @@ module WXRuby3
             }
             else
             {
-              arr = new int[ RARRAY_LEN($input) ];
+              tmp_arr = std::make_unique<int[]>(RARRAY_LEN($input));
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
-                  arr[i] = NUM2INT(rb_ary_entry($input,i));
+                  tmp_arr[i] = NUM2INT(rb_ary_entry($input,i));
               }
               $1 = RARRAY_LEN($input);
-              $2 = arr;
+              $2 = tmp_arr.get();
             }
-            __CODE
-          map_freearg code: <<~__CODE
-            if ($2 != NULL)
-              delete [] $2;
             __CODE
         end
         # SetFieldsCount
         spec.map 'const int *widths' => 'Array<Integer>' do
-          map_in temp: 'int *arr', code: <<~__CODE
+          map_in temp: 'std::unique_ptr<int[]> tmp_arr', code: <<~__CODE
             if ($input == Qnil || (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 0))
             {
               $1 = NULL;
@@ -69,21 +65,17 @@ module WXRuby3
               {
                 rb_raise(rb_eArgError, "the number of widths does not match the number of fields");
               }
-              arr = new int[ RARRAY_LEN($input) ];
+              tmp_arr = std::make_unique<int[]>(RARRAY_LEN($input));
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
-                  arr[i] = NUM2INT(rb_ary_entry($input,i));
+                  tmp_arr[i] = NUM2INT(rb_ary_entry($input,i));
               }
-              $1 = arr;
+              $1 = tmp_arr.get();
             }
             else
             {
               rb_raise(rb_eArgError, "expected integer array for $argnum");
             }
-          __CODE
-          map_freearg code: <<~__CODE
-            if ($1 != NULL)
-              delete [] $1;
           __CODE
         end
       end

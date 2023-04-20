@@ -79,7 +79,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxListBox')
     Director.Spec(pkg, 'wxChoice')
     Director.Spec(pkg, 'wxStaticBox', director: Director::Window)
-    Director.Spec(pkg, 'wxCollapsiblePane', director: Director::Window, requirements: %w[wxUSE_COLLPANE])
+    Director.Spec(pkg, 'wxCollapsiblePane', requirements: %w[wxUSE_COLLPANE])
     Director.Spec(pkg, 'wxCollapsiblePaneEvent', requirements: %w[wxUSE_COLLPANE])
     Director.Spec(pkg, 'wxStaticLine', director: Director::Window)
     Director.Spec(pkg, 'wxGauge', director: Director::Window)
