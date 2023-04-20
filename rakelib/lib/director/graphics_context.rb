@@ -37,7 +37,51 @@ module WXRuby3
             }
             __CODE
         end
-        spec.map 'size_t n, const wxPoint2DDouble *beginPoints, const wxPoint2DDouble *endPoints' do
+        spec.map 'size_t, const wxPoint2DDouble *' => 'Array<Array<Float,Float>>' do
+          map_in from: {type: 'Array<Array<Float,Float>>', index: 1},
+                 temp: 'std::unique_ptr<wxPoint2DDouble[]> tmp_pts',
+                 code: <<~__CODE
+            bool ok = false;
+            if (TYPE($input) == T_ARRAY)
+            {
+              ok = true;
+              tmp_pts = std::make_unique<wxPoint2DDouble[]>(RARRAY_LEN($input));
+              for (int i=0; i<RARRAY_LEN($input) ;++i)
+              {
+                VALUE el = rb_ary_entry($input, i);
+                if (TYPE(el) == T_ARRAY && RARRAY_LEN(el) == 2)
+                {
+                  tmp_pts[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(el, 0)), NUM2DBL(rb_ary_entry(el, 1)));
+                }
+                else
+                { ok = false; }
+              }
+              if (ok)
+              {
+                $1 = RARRAY_LEN($input);
+                $2 = tmp_pts.get();
+              }
+            }
+            if (!ok)
+            {
+              rb_raise(rb_eArgError, "Invalid value for %i", $argnum-1);
+            }
+          __CODE
+          map_default code: '$1 = 0; $2 = NULL;'
+          map_typecheck precedence: 5, code: <<~__CODE
+            $1 = false; 
+            if (TYPE($input) == T_ARRAY && RARRAY_LEN($input)>0)
+            {
+              VALUE el = rb_ary_entry($input, 0);
+              if (TYPE(el) == T_ARRAY && RARRAY_LEN(el) == 2)
+              {
+                VALUE pt = rb_ary_entry(el, 0);
+                $1 = TYPE(pt) != T_ARRAY;
+              }
+            }
+          __CODE
+        end
+        spec.map 'size_t, const wxPoint2DDouble *, const wxPoint2DDouble *' do
           map_in from: {type: 'Array<Array<Array<Float,Float>,Array<Float,Float>>>', index: 0},
                  temp: ['std::unique_ptr<wxPoint2DDouble[]> tmp_begin', 'std::unique_ptr<wxPoint2DDouble[]> tmp_end'],
                  code: <<~__CODE
@@ -78,7 +122,7 @@ module WXRuby3
             }
             __CODE
           map_default code: '$1 = 0; $2 = NULL; $3 = NULL;'
-          map_typecheck code: <<~__CODE
+          map_typecheck precedence: 10, code: <<~__CODE
             $1 = false; 
             if (TYPE($input) == T_ARRAY && RARRAY_LEN($input)>0)
             {
@@ -90,50 +134,6 @@ module WXRuby3
               }
             }
             __CODE
-        end
-        spec.map 'size_t n, const wxPoint2DDouble *points' => 'Array<Array<Float,Float>>' do
-          map_in from: {type: 'Array<Array<Float,Float>>', index: 1},
-                 temp: 'std::unique_ptr<wxPoint2DDouble[]> tmp_pts',
-                 code: <<~__CODE
-            bool ok = false;
-            if (TYPE($input) == T_ARRAY)
-            {
-              ok = true;
-              tmp_pts = std::make_unique<wxPoint2DDouble[]>(RARRAY_LEN($input));
-              for (int i=0; i<RARRAY_LEN($input) ;++i)
-              {
-                VALUE el = rb_ary_entry($input, i);
-                if (TYPE(el) == T_ARRAY && RARRAY_LEN(el) == 2)
-                {
-                  tmp_pts[i] = wxPoint2DDouble(NUM2DBL(rb_ary_entry(el, 0)), NUM2DBL(rb_ary_entry(el, 1)));
-                }
-                else
-                { ok = false; }
-              }
-              if (ok)
-              {
-                $1 = RARRAY_LEN($input);
-                $2 = tmp_pts.get();
-              }
-            }
-            if (!ok)
-            {
-              rb_raise(rb_eArgError, "Invalid value for %i", $argnum-1);
-            }
-          __CODE
-          map_default code: '$1 = 0; $2 = NULL;'
-          map_typecheck code: <<~__CODE
-            $1 = false; 
-            if (TYPE($input) == T_ARRAY && RARRAY_LEN($input)>0)
-            {
-              VALUE el = rb_ary_entry($input, 0);
-              if (TYPE(el) == T_ARRAY && RARRAY_LEN(el) == 2)
-              {
-                VALUE pt = rb_ary_entry(el, 0);
-                $1 = TYPE(pt) != T_ARRAY;
-              }
-            }
-          __CODE
         end
       end
     end # class GraphicsContext
