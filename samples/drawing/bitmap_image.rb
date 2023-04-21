@@ -25,9 +25,21 @@ class ImageFrame < Wx::Frame
     img_file = File.join( File.dirname(__FILE__), 'ruby-logo.jpg')
     @image = Wx::Image.new(img_file)
     @mirrored_image = Wx::Image.new(img_file).mirror
-    @greyscaled_image = Wx::Image.new(img_file).convert_to_greyscale
+    # load from Ruby IO (File)
+    @greyscaled_image = Wx::Image.new
+    File.open(img_file) { |f| @greyscaled_image.load_stream(f) }
+    @greyscaled_image = @greyscaled_image.convert_to_greyscale
+    # load from Ruby IO-like (at least #read) object
+    klass = Class.new do
+      def initialize(io)
+        @io = io
+      end
+      def read(size)
+        @io.read(size)
+      end
+    end
     @blurred_image = Wx::Image.new
-    @blurred_image.load_stream(File.open(img_file), 'image/jpeg')
+    @blurred_image.load_stream(klass.new(File.open(img_file)), 'image/jpeg')
     @blurred_image = @blurred_image.blur(15)
 
     # Create the corresponding bitmaps
