@@ -60,8 +60,8 @@ module WXRuby3
           # create a .so binary
           @extra_ldflags << '-shared'
 
-          # This class is not available on WXGTK
-          exclude_module('PrinterDC')
+          # This class is not available on linux ports (wxGTK/wxQT/wxX11/wxMotif)
+          exclude_module('wxPrinterDC')
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
