@@ -212,9 +212,23 @@ class MathsPanel < Panel
   def on_save
     SaveImageDialog(parent) do |dlg|
       if dlg.show_modal == ID_OK
-        if dlg.image_type == Wx::BitmapType::BITMAP_TYPE_PNG
+        if dlg.image_type == Wx::BITMAP_TYPE_PNG
+          # test writing to IO
           File.open(dlg.path, 'w') do |f|
             @drawing.img.write(f, dlg.image_type)
+          end
+        elsif dlg.image_type == Wx::BITMAP_TYPE_BMP
+          # test writing to arbitrary IO-like (at least #write) object
+          klass = Class.new do
+            def initialize(io)
+              @io = io
+            end
+            def write(buf)
+              @io.write(buf)
+            end
+          end
+          File.open(dlg.path, 'w') do |f|
+            @drawing.img.write(klass.new(f), dlg.image_type)
           end
         else
           @drawing.img.save_file(dlg.path, dlg.image_type)
