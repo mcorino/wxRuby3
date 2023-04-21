@@ -21,13 +21,13 @@ module WXRuby3
         # for FSFile ctor
         spec.map 'wxInputStream *stream' => 'IO' do
           map_in code: <<~__CODE
-            if (rb_obj_is_kind_of($input, rb_cIO))
+            if (wxRuby_IsCompatibleInput($input))
             {
               $1 = new wxRubyInputStream($input);
             }
             else
             {
-              rb_raise(rb_eArgError, "Invalid value for %d expected IO", $argnum-1);
+              rb_raise(rb_eArgError, "Invalid value for %d expected IO-like", $argnum-1);
             }
           __CODE
         end
@@ -146,8 +146,10 @@ module WXRuby3
           wxRubyInputStream::wxRubyInputStream(VALUE rb_io) 
             : wxInputStream()
           { 
-              m_rbio = rb_io; 
-              wxRuby_RegisterStream(this, m_rbio);
+            m_rbio = rb_io; 
+            m_isIO = rb_obj_is_kind_of(m_rbio, rb_cIO);
+            m_isSeekable = m_isIO || (rb_respond_to(m_rbio, ios_seek_id()) && rb_respond_to(m_rbio, ios_tell_id()));
+            wxRuby_RegisterStream(this, m_rbio);
           }
           wxRubyInputStream::~wxRubyInputStream() 
           {
@@ -156,6 +158,8 @@ module WXRuby3
         
           wxFileOffset wxRubyInputStream::GetLength() const
           {
+            if (!m_isSeekable) return wxInvalidOffset;
+
             wxFileOffset curpos = this->OnSysTell();
             wxFileOffset endpos = const_cast<wxRubyInputStream*> (this)->OnSysSeek(0, wxFromEnd);
             const_cast<wxRubyInputStream*> (this)->OnSysSeek(curpos, wxFromStart);
@@ -164,16 +168,16 @@ module WXRuby3
 
           bool wxRubyInputStream::CanRead() const 
           {
-            return !(RTEST(wxRuby_Funcall(m_rbio, ios_closed_id(),0)) || Eof());
+            return !( (m_isIO && RTEST(wxRuby_Funcall(m_rbio, ios_closed_id(),0))) || Eof() );
           }
           bool wxRubyInputStream::Eof() const 
           {
-            return RTEST(wxRuby_Funcall(m_rbio, ios_eof_id(), 0));
+            return m_isIO ? RTEST(wxRuby_Funcall(m_rbio, ios_eof_id(), 0)) : wxInputStream::Eof();
           }
-          bool wxRubyInputStream::IsSeekable() const { return true; }
+          bool wxRubyInputStream::IsSeekable() const { return m_isSeekable; }
           bool wxRubyInputStream::IsOk() const
           {
-            return wxInputStream::IsOk() && !RTEST(wxRuby_Funcall(m_rbio, ios_closed_id(),0));
+            return wxInputStream::IsOk() && !(m_isIO && RTEST(wxRuby_Funcall(m_rbio, ios_closed_id(),0)));
           }
           size_t wxRubyInputStream::OnSysRead(void *buffer, size_t bufsize) 
           {
@@ -189,6 +193,8 @@ module WXRuby3
           }
           wxFileOffset wxRubyInputStream::OnSysSeek(wxFileOffset seek, wxSeekMode mode)
           {
+            if (!m_isSeekable) return wxInvalidOffset;
+            
             // Seek mode integers happily coincide in Wx and Ruby
             wxRuby_Funcall(m_rbio, ios_seek_id(), 2, 
                            INT2NUM(seek), INT2NUM(mode));
@@ -196,6 +202,8 @@ module WXRuby3
           }
           wxFileOffset wxRubyInputStream::OnSysTell() const
           {
+            if (!m_isSeekable) return wxInvalidOffset;
+
             return NUM2INT(wxRuby_Funcall(m_rbio, ios_tell_id(), 0));
           }
 
@@ -205,6 +213,8 @@ module WXRuby3
             : wxOutputStream() 
           { 
             m_rbio = rb_io; 
+            m_isIO = rb_obj_is_kind_of(m_rbio, rb_cIO);
+            m_isSeekable = m_isIO || (rb_respond_to(m_rbio, ios_seek_id()) && rb_respond_to(m_rbio, ios_tell_id()));
             wxRuby_RegisterStream(this, m_rbio);
           }
           wxRubyOutputStream::~wxRubyOutputStream() 
@@ -214,6 +224,8 @@ module WXRuby3
         
           wxFileOffset wxRubyOutputStream::GetLength() const
           {
+            if (!m_isSeekable) return wxInvalidOffset;
+
             wxFileOffset curpos = this->OnSysTell();
             wxFileOffset endpos = const_cast<wxRubyOutputStream*> (this)->OnSysSeek(0, wxFromEnd);
             const_cast<wxRubyOutputStream*> (this)->OnSysSeek(curpos, wxFromStart);
@@ -223,17 +235,17 @@ module WXRuby3
           void wxRubyOutputStream::Sync()
           {
             wxOutputStream::Sync();
-            wxRuby_Funcall(m_rbio, ios_flush_id(), 0);
+            if (m_isIO) wxRuby_Funcall(m_rbio, ios_flush_id(), 0);
           }
           bool wxRubyOutputStream::Close() 
           {
-            wxRuby_Funcall(m_rbio, ios_close_id(), 0); // always returns nil
+            if (m_isIO) wxRuby_Funcall(m_rbio, ios_close_id(), 0); // always returns nil
             return true;
           }
-          bool wxRubyOutputStream::IsSeekable() const { return true; }
+          bool wxRubyOutputStream::IsSeekable() const { return m_isSeekable; }
           bool wxRubyOutputStream::IsOk() const
           {
-            return wxOutputStream::IsOk() && !RTEST(wxRuby_Funcall(m_rbio, ios_closed_id(),0));
+            return wxOutputStream::IsOk() && !(m_isIO && RTEST(wxRuby_Funcall(m_rbio, ios_closed_id(),0)));
           }
 
           size_t wxRubyOutputStream::OnSysWrite(const void *buffer, size_t size) 
@@ -245,6 +257,8 @@ module WXRuby3
           }
           wxFileOffset wxRubyOutputStream::OnSysSeek(wxFileOffset seek, wxSeekMode mode)
           {
+            if (!m_isSeekable) return wxInvalidOffset;
+            
             // Seek mode integers happily coincide in Wx and Ruby
             wxRuby_Funcall(m_rbio, ios_seek_id(), 2, 
                            INT2NUM(seek), INT2NUM(mode));
@@ -252,6 +266,8 @@ module WXRuby3
           }
           wxFileOffset wxRubyOutputStream::OnSysTell() const
           {
+            if (!m_isSeekable) return wxInvalidOffset;
+            
             return NUM2INT(wxRuby_Funcall(m_rbio, ios_tell_id(), 0));
           }
 
@@ -259,6 +275,12 @@ module WXRuby3
           {
             swig_class *sklass = (swig_class *)SWIGTYPE_p_wxInputStream->clientdata;
             return (TYPE(rbis) == T_DATA && rb_obj_is_kind_of(rbis, sklass->klass));
+          }
+
+          WXRUBY_EXPORT bool wxRuby_IsCompatibleInput(VALUE rbis)
+          {
+            return rb_obj_is_kind_of(rbis, rb_cIO) || 
+              (!wxRuby_IsInputStream(rbis) && rb_respond_to(rbis, ios_read_id()));
           }
           
           WXRUBY_EXPORT wxInputStream* wxRuby_RubyToInputStream(VALUE rbis)
@@ -289,6 +311,12 @@ module WXRuby3
           {
             swig_class *sklass = (swig_class *)SWIGTYPE_p_wxOutputStream->clientdata;
             return (TYPE(rbos) == T_DATA && rb_obj_is_kind_of(rbos, sklass->klass));
+          }
+
+          WXRUBY_EXPORT bool wxRuby_IsCompatibleOutput(VALUE rbos)
+          {
+            return rb_obj_is_kind_of(rbos, rb_cIO) || 
+              (!wxRuby_IsOutputStream(rbos) && rb_respond_to(rbos, ios_write_id()));
           }
           
           WXRUBY_EXPORT wxOutputStream* wxRuby_RubyToOutputStream(VALUE rbos)

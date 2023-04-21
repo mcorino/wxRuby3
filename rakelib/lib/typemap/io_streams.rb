@@ -30,6 +30,7 @@ module WXRuby3
 
           add_header_code <<~__CODE
             WXRUBY_EXPORT bool wxRuby_IsInputStream(VALUE);
+            WXRUBY_EXPORT bool wxRuby_IsCompatibleInput(VALUE rbis);
             WXRUBY_EXPORT wxInputStream* wxRuby_RubyToInputStream(VALUE);
             WXRUBY_EXPORT VALUE wxRuby_RubyFromInputStream(wxInputStream&);
 
@@ -56,12 +57,14 @@ module WXRuby3
               wxFileOffset OnSysTell() const wxOVERRIDE;
   
               VALUE m_rbio; // Wrapped ruby object
+              bool m_isIO;
+              bool m_isSeekable;
             };
             __CODE
 
           map_in temp: 'std::unique_ptr<wxRubyInputStream> tmp_ris',
                  code: <<~__CODE
-            if (rb_obj_is_kind_of($input, rb_cIO))
+            if (wxRuby_IsCompatibleInput($input))
             {
               tmp_ris = std::make_unique<wxRubyInputStream>($input); 
               $1 = tmp_ris.get();
@@ -71,7 +74,7 @@ module WXRuby3
               $1 = wxRuby_RubyToInputStream($input);
               if (!$1)
               {
-                rb_raise(rb_eArgError, "Invalid value for %d expected IO or Wx::InputStream", $argnum-1);
+                rb_raise(rb_eArgError, "Invalid value for %d expected IO(-like) or Wx::InputStream", $argnum-1);
               }
             }
           __CODE
@@ -81,15 +84,16 @@ module WXRuby3
             __CODE
 
           map_typecheck precedence: 1, code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_cIO) || wxRuby_IsInputStream($input);
+            $1 = wxRuby_IsCompatibleInput($input) || wxRuby_IsInputStream($input);
             __CODE
 
         end
 
-        map 'wxOutputStream &' => 'IO' do
+        map 'wxOutputStream &' => 'IO,Wx::OutputStream' do
 
           add_header_code <<~__CODE
             WXRUBY_EXPORT bool wxRuby_IsOutputStream(VALUE);
+            WXRUBY_EXPORT bool wxRuby_IsCompatibleOutput(VALUE rbos);
             WXRUBY_EXPORT wxOutputStream* wxRuby_RubyToOutputStream(VALUE);
             WXRUBY_EXPORT VALUE wxRuby_RubyFromOutputStream(wxOutputStream&);
 
@@ -117,12 +121,14 @@ module WXRuby3
               wxFileOffset OnSysTell() const wxOVERRIDE;
 
               VALUE m_rbio; // Wrapped ruby object
+              bool m_isIO;
+              bool m_isSeekable;
             };
             __CODE
 
           map_in temp: 'std::unique_ptr<wxRubyOutputStream> tmp_ros',
                  code: <<~__CODE
-            if (rb_obj_is_kind_of($input, rb_cIO))
+            if (wxRuby_IsCompatibleOutput($input))
             {
               tmp_ros = std::make_unique<wxRubyOutputStream>($input); 
               $1 = tmp_ros.get();
@@ -132,7 +138,7 @@ module WXRuby3
               $1 = wxRuby_RubyToOutputStream($input);
               if (!$1)
               {
-                rb_raise(rb_eArgError, "Invalid value for %d expected IO or Wx::OutputStream", $argnum-1);
+                rb_raise(rb_eArgError, "Invalid value for %d expected IO(-like) or Wx::OutputStream", $argnum-1);
               }
             }
           __CODE
@@ -142,7 +148,7 @@ module WXRuby3
           __CODE
 
           map_typecheck precedence: 1, code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_cIO) || wxRuby_IsOutputStream($input);
+            $1 = wxRuby_IsCompatibleOutput($input) || wxRuby_IsOutputStream($input);
             __CODE
 
         end
