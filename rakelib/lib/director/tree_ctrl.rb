@@ -73,7 +73,7 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
           __HEREDOC
-        if Config.platform == :mingw
+        if [:wxMSW, :wxQT].include?(Config.instance.wx_port)
           spec.ignore('wxTreeCtrl::SetButtonsImageList')
           spec.ignore('wxTreeCtrl::GetButtonsImageList')
         end
@@ -238,7 +238,7 @@ module WXRuby3
             // First check if there's ImageLists and mark if found
             img_list = tree_ctrl->GetImageList();
             if ( img_list ) rb_gc_mark(SWIG_RubyInstanceFor(img_list));
-          #if !defined(__WXMSW__)
+          #if !defined(__WXMSW__) && !defined(__WXQT__)
             img_list = tree_ctrl->GetButtonsImageList();
             if ( img_list ) rb_gc_mark(SWIG_RubyInstanceFor(img_list));
           #endif

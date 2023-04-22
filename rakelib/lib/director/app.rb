@@ -252,9 +252,9 @@ module WXRuby3
                       (wxCmdLineArgType)"",
                       (int)true);
           #else
-              int argc = 0;
-              char** argv = 0;
-              wxEntry(argc, argv);
+              int argc = 1;
+              const char* argv[2] = { "ruby", 0 };
+              wxEntry(argc, const_cast<char**>(&argv[0]));
           #endif
           
               rb_const_remove(#{spec.package.module_variable}, rb_intern("THE_APP"));

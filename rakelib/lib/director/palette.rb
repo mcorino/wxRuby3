@@ -12,6 +12,11 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
+        if Config.instance.wx_port == :wxQT
+          # mismatched implementation which does nothing anyway
+          spec.ignore 'wxPalette::wxPalette(int, const unsigned char *, const unsigned char *, const unsigned char *)'
+          spec.ignore 'wxPalette::Create(int, const unsigned char *, const unsigned char *, const unsigned char *)'
+        end
       end
     end # class Palette
 
