@@ -10,6 +10,7 @@ module WXRuby3
     class RichTextBuffer < Director
 
       include Typemap::RichText
+      include Typemap::IOStreams
 
       def setup
         spec.disable_proxies

@@ -11,6 +11,8 @@ module WXRuby3
 
     class AnimationCtrl < Window
 
+      include Typemap::IOStreams
+
       def setup
         super
         spec.do_not_generate :variables, :enums, :defines, :functions

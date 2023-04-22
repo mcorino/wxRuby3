@@ -9,6 +9,8 @@ module WXRuby3
 
     class Icon < Director
 
+      include Typemap::IOStreams
+
       def setup
         spec.items << 'wxIconBundle'
         spec.disable_proxies
