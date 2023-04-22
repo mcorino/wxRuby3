@@ -130,8 +130,24 @@ module WXRuby3
 
         if check_wx_config
           # Now actually run the program to fill in some variables
-          @wx_version  = wx_config("--version")
-          @wx_cppflags = wx_config("--cppflags").split(' ')
+          @wx_version  = wx_config('--version')
+          @wx_port = case wx_config('--selected-config')
+                     when /\Agtk/
+                       :wxGTK
+                     when /\Aqt/
+                       :wxQT
+                     when /\Ax11/
+                       :wxX11
+                     when /\Amotif/
+                       :wxMOTIF
+                     when /\Amsw/
+                       :wxMSW
+                     when /\Aosx/
+                       :wxOSX
+                     else
+                       nil
+                     end
+          @wx_cppflags = wx_config('--cppflags').split(' ')
 
           # Find out where the wxWidgets setup.h file being used is located
           setup_inc_dir = @wx_cppflags.find { |flag| flag =~ /^-I\S+/ }[2..-1]

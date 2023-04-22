@@ -68,7 +68,8 @@ module WXRuby3
                         "#{itm}::GetWindowStyleFlag",
                         "#{itm}::GetDropTarget",
                         "#{itm}::GetValidator",
-                        "#{itm}::IsTopLevel") unless /\.h\Z/ =~ itm
+                        "#{itm}::IsTopLevel",
+                        "#{itm}::EnableTouchEvents") unless /\.h\Z/ =~ itm
         end
 
         case spec.module_name
@@ -133,6 +134,10 @@ module WXRuby3
             'wxWindow::ClientToScreen(int*,int*)', # no need; prefer the wxPoint version
             'wxWindow::ScreenToClient(int*,int*)' # no need; prefer the wxPoint version
           ]
+          if Config.instance.wx_port == :wxQT
+            # protected for wxQT; ignore for now
+            spec.ignore 'wxWindow::EnableTouchEvents'
+          end
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.ignore('wxWindow::SetSize(int, int)') # not useful as the wxSize variant will also accept an array
