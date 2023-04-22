@@ -1,5 +1,5 @@
 # CI workflow building wxRuby3 under Windows.
-name: MSW builds
+name: Windows wxMSW builds
 
 on:
   push:

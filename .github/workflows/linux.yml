@@ -1,4 +1,4 @@
-name: Linux builds
+name: Linux wxGTK builds
 
 on:
   push:
