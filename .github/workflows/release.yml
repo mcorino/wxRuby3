@@ -1,0 +1,54 @@
+name: Release build
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+  id-token: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            ruby: '3.2'
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby(release ${{ github.ref_name }})
+    steps:
+    - name: Checkout wxRuby3
+      uses: actions/checkout@v3
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: Setup Ruby gems
+      run: |
+        bundle install
+
+    - name: Build wxRuby3 gem
+      run: |
+        bundle exec rake gem
+
+    - name: Build wxRuby3 package
+      run: |
+        bundle exec rake package
+
+    - name: Publish release
+      uses: eloquent/github-release-action@v3
+      with:
+        assets: |
+          - path: pkg/*.gem
+          - path: pkg/*.tar.gz
+          - path: pkg/*.zip
