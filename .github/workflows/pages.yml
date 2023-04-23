@@ -2,6 +2,9 @@
 name: Deploy wxRuby Pages
 
 on:
+  push:
+    tags:
+      - v*
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
