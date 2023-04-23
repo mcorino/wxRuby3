@@ -60,8 +60,6 @@ jobs:
     name: ${{ matrix.os }} wxRuby bingem (release ${{ github.ref_name }})
     env:
       DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-      WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
-      WXWIN_ROOT: ${{ github.workspace }}\ext\wxWidgets\install
       GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     strategy:
       fail-fast: false
@@ -77,14 +75,6 @@ jobs:
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v3
-
-      - name: checkout wxWidgets
-        uses: actions/checkout@v3
-        with:
-          repository: wxWidgets/wxWidgets
-          path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
-          submodules: 'recursive'
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -124,21 +114,9 @@ jobs:
           ridk exec bash -c 'gcc -v'
           ridk exec bash -c 'g++ -v'
 
-      - name: Configuring wxWidgets
-        run: |
-          Push-Location $env:WXWIDGETS_ROOT
-          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
-          Pop-Location
-
-      - name: Build wxWidgets
-        run: |
-          Push-Location $env:WXWIDGETS_ROOT
-          ridk exec bash -c 'make && make install'
-          Pop-Location
-
       - name: Configure wxRuby3
         run: |
-          bundle exec rake configure WXWIN=$env:WXWIN_ROOT WXRUBY_VERBOSE=1
+          bundle exec rake configure[--with-wxwin]
 
       - name: Build wxRuby3
         run: |
