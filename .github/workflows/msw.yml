@@ -75,7 +75,7 @@ jobs:
             ruby: '3.2'
             wxWidgets: '3.2.2.1'
             swig: '4'
-            wxw_type: develop
+            wxw_type: embed
             wxr_type: bingem
           - os: windows-2022
             platform: 'x64'
