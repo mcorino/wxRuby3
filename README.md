@@ -1,6 +1,7 @@
 [![Linux wxGTK](https://github.com/mcorino/wxRuby3/actions/workflows/linux.yml/badge.svg)](https://github.com/mcorino/wxRuby3/actions/workflows/linux.yml)
 [![Windows wxMSW](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml/badge.svg)](https://github.com/mcorino/wxRuby3/actions/workflows/msw.yml)
 [![License](https://img.shields.io/badge/license-MIT-yellowgreen.svg)](LICENSE)
+[![Gem Version](https://badge.fury.io/rb/wxruby3.svg)](https://badge.fury.io/rb/wxruby3)
 
 [![Documentation](https://img.shields.io/badge/docs-pages-blue.svg)](https://mcorino.github.io/wxRuby3)
 
