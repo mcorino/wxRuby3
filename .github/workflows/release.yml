@@ -16,7 +16,7 @@ permissions:
   id-token: read
 
 jobs:
-  build:
+  release:
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +24,9 @@ jobs:
           - os: ubuntu-22.04
             ruby: '3.2'
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby(release ${{ github.ref_name }})
+    name: ${{ matrix.os }} wxRuby (release ${{ github.ref_name }})
+    env:
+      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
@@ -52,3 +54,105 @@ jobs:
           - path: pkg/*.gem
           - path: pkg/*.tar.gz
           - path: pkg/*.zip
+
+    - name: Publish Gem on RubyGems
+      run: |
+        gem push pkg/*.gem 
+
+  release-bingem:
+    needs: release
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby bingem (release ${{ github.ref_name }})
+    env:
+      DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
+      WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
+      WXWIN_ROOT: ${{ github.workspace }}\ext\wxWidgets\install
+      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.2.1'
+            swig: '4'
+
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v3
+
+      - name: checkout wxWidgets
+        uses: actions/checkout@v3
+        with:
+          repository: wxWidgets/wxWidgets
+          path: ${{ env.WXWIDGETS_ROOT }}
+          ref: v${{ matrix.wxWidgets }}
+          submodules: 'recursive'
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup Ruby gems
+        run: |
+          bundle install
+
+      - name: Cache Doxygen
+        id: cache-doxygen
+        uses: actions/cache@v3
+        with:
+          path: doxygen-1.9.6.windows.x64.bin.zip
+          key: ${{ runner.os }}-doxygen
+
+      - name: Download Doxygen tool
+        if: steps.cache-doxygen.outputs.cache-hit != 'true'
+        run: |
+          wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
+          $hash = 'bdf1af97a733edd0a60fce2cf375c5c3'
+          if ((Get-FileHash doxygen-1.9.6.windows.x64.bin.zip -Algorithm MD5).Hash -ne $hash) {
+            del doxygen-1.9.6.windows.x64.bin.zip
+            throw "Doxygen Hash doesn't match!"
+          }
+
+      - name: Install Doxygen package
+        run: |
+          Expand-Archive -LiteralPath '.\doxygen-1.9.6.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
+          echo "$env:DOXYGEN_ROOT" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Display build environment
+        run: |
+          echo "$env:PATH"
+          ruby -v
+          doxygen -v
+          ridk exec bash -c 'gcc -v'
+          ridk exec bash -c 'g++ -v'
+
+      - name: Configuring wxWidgets
+        run: |
+          Push-Location $env:WXWIDGETS_ROOT
+          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
+          Pop-Location
+
+      - name: Build wxWidgets
+        run: |
+          Push-Location $env:WXWIDGETS_ROOT
+          ridk exec bash -c 'make && make install'
+          Pop-Location
+
+      - name: Configure wxRuby3
+        run: |
+          bundle exec rake configure WXWIN=$env:WXWIN_ROOT WXRUBY_VERBOSE=1
+
+      - name: Build wxRuby3
+        run: |
+          bundle exec rake build
+
+      - name: Build wxRuby3 gem
+        run: |
+          bundle exec rake bingem
+
+      - name: Publish Gem on RubyGems
+        run: |
+          gem push pkg/*.gem 
