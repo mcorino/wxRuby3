@@ -11,8 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  packages: write
+  contents: write
 
 jobs:
   release:
@@ -46,13 +45,32 @@ jobs:
       run: |
         bundle exec rake package
 
-    - name: Publish release
-      uses: eloquent/github-release-action@v3
+    - name: Upload gem to release
+      uses: svenstaro/upload-release-action@v2
       with:
-        assets: |
-          - path: pkg/*.gem
-          - path: pkg/*.tar.gz
-          - path: pkg/*.zip
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: pkg/*.gem
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+    - name: Upload tar to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: pkg/*.tar.gz
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+    - name: Upload zip to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: pkg/*.zip
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
 
     - name: Publish Gem on RubyGems
       run: |
