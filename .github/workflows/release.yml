@@ -3,8 +3,6 @@ name: Release build
 
 on:
   push:
-    branches-ignore:
-      - *
     tags:
       - v*
   workflow_dispatch:
