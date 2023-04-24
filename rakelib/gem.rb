@@ -47,10 +47,10 @@ module WXRuby3
       gemspec = ::Gem::Specification.new(name, version)
       if gemtype == :bin
         platform = ::Gem::Platform.local.to_s
-        platform << "-#{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}"
-        if WXRuby3.config.get_config('with-wxwin')
-          platform << "-#{WXRuby3.config.wx_version}"
-        end
+        # platform << "-#{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}"
+        # if WXRuby3.config.get_config('with-wxwin')
+        #   platform << "-#{WXRuby3.config.wx_version}"
+        # end
         gemspec.platform = platform
       end
       gemspec.required_rubygems_version = ::Gem::Requirement.new(">= 0") if gemspec.respond_to? :required_rubygems_version=
