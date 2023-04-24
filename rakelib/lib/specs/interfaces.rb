@@ -221,7 +221,7 @@ module WXRuby3
   }
 
   Director.Package('Wx::STC', 'wxUSE_STC') { |pkg|
-    Director.Spec(pkg, 'wxStyledTextEvent', director: Director::Event)
+    Director.Spec(pkg, 'wxStyledTextEvent')
     Director.Spec(pkg, 'wxStyledTextCtrl')
   }
 
