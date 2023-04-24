@@ -148,7 +148,8 @@ jobs:
           popd
 
       - name: Remove wxWidgets
-        run: rm -rf $WXWIDGETS_ROOT
+        run: |
+          rm -rf $WXWIDGETS_ROOT
 
       - name: Install wxRuby3 gem
         run: |
