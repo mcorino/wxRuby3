@@ -86,6 +86,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
