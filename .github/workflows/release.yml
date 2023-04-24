@@ -61,11 +61,11 @@ jobs:
     - name: Set version variables
       id: version_var
       run: |
-        echo "WXRUBY_VERSION=${GITHUB_REF_NAME/#v/}"
+        echo "WXRUBY_VERSION=${GITHUB_REF_NAME/#v/}" >> "$GITHUB_OUTPUT"
         if grep -q "\-[a-zA-Z]" <<< "$GITHUB_REF_NAME" ; then
-          echo "WXRUBY_PRERELEASE=1"
+          echo "WXRUBY_PRERELEASE=1" >> "$GITHUB_OUTPUT"
         else
-          echo "WXRUBY_PRERELEASE=0"
+          echo "WXRUBY_PRERELEASE=0" >> "$GITHUB_OUTPUT"
         fi
 
   verify-gem:
