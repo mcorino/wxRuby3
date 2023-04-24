@@ -120,7 +120,8 @@ jobs:
     - name: Checkout wxRuby3
       uses: actions/checkout@v3
 
-    - uses: ruby/setup-ruby@v1
+    - name: Install Ruby
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
 

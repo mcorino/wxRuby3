@@ -99,7 +99,8 @@ jobs:
           ref: v${{ matrix.wxWidgets }}
           submodules: 'recursive'
 
-      - uses: ruby/setup-ruby@v1
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
 
