@@ -1,3 +1,4 @@
+# CI wxRuby release workflow
 name: Release build
 
 on:
