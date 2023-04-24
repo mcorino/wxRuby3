@@ -2,6 +2,8 @@ name: Release build
 
 on:
   push:
+    branches-ignore:
+      - *
     tags:
       - v*
   workflow_dispatch:
@@ -153,19 +155,18 @@ jobs:
 
       - name: Install wxRuby3 gem
         run: |
-            if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-              BUILD_CMD="gem install wxruby -v $WXRUBY_VERSION --pre"
-            else
-              BUILD_CMD="gem install wxruby -v $WXRUBY_VERSION"
+          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
+            BUILD_CMD="gem install wxruby -v $WXRUBY_VERSION --pre"
+          else
+            BUILD_CMD="gem install wxruby -v $WXRUBY_VERSION"
+          fi
+          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $BUILD_CMD 2>&1 | tee -a gembuild.out" || rc=$?
+          if [ -n "$rc" ]; then
+            if fgrep -q '(core dumped)' gembuild.out; then
+              echo '*** Test crashed, trying to get more information ***'
+              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $BUILD_CMD
             fi
-            /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $BUILD_CMD 2>&1 | tee -a gembuild.out" || rc=$?
-            if [ -n "$rc" ]; then
-              if fgrep -q '(core dumped)' gembuild.out; then
-                echo '*** Test crashed, trying to get more information ***'
-                gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $BUILD_CMD
-              fi
-              exit $rc
-            fi
+            exit $rc
           fi
 
       - name: Run wxRuby3 regression tests
