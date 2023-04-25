@@ -138,6 +138,9 @@ module WXRuby3
             # protected for wxQT; ignore for now
             spec.ignore 'wxWindow::EnableTouchEvents'
           end
+          if Config.instance.wx_version >= '3.3.0'
+            spec.set_only_for('__WXMSW__', 'wxWindow::MSWDisableComposited')
+          end
           spec.set_only_for('wxUSE_ACCESSIBILITY', 'wxWindow::SetAccessible')
           spec.set_only_for('wxUSE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.ignore('wxWindow::SetSize(int, int)') # not useful as the wxSize variant will also accept an array
