@@ -555,7 +555,7 @@ module WXRuby3
           item.items.each do |e|
             unless e.ignored
               gen_only_for(fout, e) do
-                fout.puts "%constant int #{e.name} = #{e.name};"
+                fout.puts "%constant int #{e.name} = #{e.fqn};"
               end
             end
           end

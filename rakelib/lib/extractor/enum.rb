@@ -31,32 +31,33 @@ module WXRuby3
 
       def initialize(element = nil, **kwargs)
         super()
-        if element
-          prot = element['prot']
-          if prot
-            @protection = prot
-            unless %w[public protected].include?(@protection)
-              raise ExtractorError.new("Invalid protection [#{@protection}")
-            end
-            # TODO: Should protected items be ignored by default or should we
-            #       leave that up to the tweaker code or the generators?
-            ignore if @protection == 'protected'
-          end
-          extract(element)
-        end
+        @strong = false
+        @protection = 'public'
+        extract(element) if element
         @scope = ''
         @no_type = false
         update_attributes(**kwargs)
         EnumDef.register(self) unless is_anonymous
       end
 
-      attr_accessor :is_anonymous, :protection, :scope
+      attr_accessor :is_anonymous, :protection, :scope, :strong
 
       def extract(element)
         super
+        prot = element['prot']
+        if prot
+          @protection = prot
+          unless %w[public protected].include?(@protection)
+            raise ExtractorError.new("Invalid protection [#{@protection}")
+          end
+          # TODO: Should protected items be ignored by default or should we
+          #       leave that up to the tweaker code or the generators?
+          ignore if @protection == 'protected'
+        end
         @is_anonymous = name.start_with?('@') || name.empty?
+        @strong = (element['strong'] == 'yes') unless @is_anonymous
         element.xpath('enumvalue').each do |node|
-          value = EnumValueDef.new(node)
+          value = EnumValueDef.new(node, enum: self)
           items << value
         end
       end
@@ -81,6 +82,10 @@ module WXRuby3
       end
 
       attr_reader :value
+
+      def fqn
+        enum.strong ? "#{enum.name}::#{name}" : name
+      end
 
     end # class EnumValueDef
 
