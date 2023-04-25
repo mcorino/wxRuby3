@@ -13,7 +13,9 @@ module WXRuby3
         super
         spec.items << 'propgrid/propgrid.h'
         spec.gc_as_temporary 'wxPGValidationInfo'
-        spec.ignore 'wxPGVFBFlags' # not a constant but a rather a clumsy typedef
+        if Config.instance.wx_version < '3.3.0'
+          spec.ignore 'wxPGVFBFlags' # not a constant but a rather a clumsy typedef
+        end
       end
     end # class PGValidationInfo
 
