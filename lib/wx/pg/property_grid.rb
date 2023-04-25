@@ -3,6 +3,17 @@
 
 module Wx::PG
 
+  # since wxWidgets 3.3.0
+  PG_VFB_NULL = PGVFBFlags::Null unless const_defined?(:PG_VFB_NULL)
+  PG_VFB_STAY_IN_PROPERTY = PGVFBFlags::StayInProperty unless const_defined?(:PG_VFB_STAY_IN_PROPERTY)
+  PG_VFB_BEEP = PGVFBFlags::Beep unless const_defined?(:PG_VFB_BEEP)
+  PG_VFB_MARK_CELL = PGVFBFlags::MarkCell unless const_defined?(:PG_VFB_MARK_CELL)
+  PG_VFB_SHOW_MESSAGE = PGVFBFlags::ShowMessage unless const_defined?(:PG_VFB_SHOW_MESSAGE)
+  PG_VFB_SHOW_MESSAGEBOX = PGVFBFlags::ShowMessageBox unless const_defined?(:PG_VFB_SHOW_MESSAGEBOX)
+  PG_VFB_SHOW_MESSAGE_ON_STATUSBAR = PGVFBFlags::ShowMessageOnStatusBar unless const_defined?(:PG_VFB_SHOW_MESSAGE_ON_STATUSBAR)
+  PG_VFB_DEFAULT = PGVFBFlags::Default unless const_defined?(:PG_VFB_DEFAULT)
+  PG_VFB_UNDEFINED = PGVFBFlags::Undefined unless const_defined?(:PG_VFB_UNDEFINED)
+
   class PropertyGrid
     class << self
       def property_editors
