@@ -117,13 +117,8 @@ module WxRuby
     def show_eol(f = true)
     end
 
-    def update_ui
-      @owner.update_undo_redo(self.id, self.can_undo, self.can_redo)
-      @owner.update_paste(self.id, self.can_paste)
-    end
-
     def on_change(_)
-      update_ui
+      @owner.update_ui(self.id)
       unless @find_replace
         find_close
       end
