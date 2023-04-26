@@ -313,7 +313,7 @@ module WxRuby
                   @loading_sample = nil
                 end
               end
-              block.call(categories.size) if last_size<categories.size
+              block.call(categories.size-1) if last_size<categories.size
               last_size = categories.size
             end
           end

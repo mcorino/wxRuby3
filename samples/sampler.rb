@@ -109,6 +109,23 @@ module WxRuby
     end
   end
 
+  class SampleLoadEvent < Wx::CommandEvent
+    # Create a new unique constant identifier, associate this class
+    # with events of that identifier, and create a shortcut 'evt_load_sample'
+    # method for setting up this handler.
+    EVT_LOAD_SAMPLE = Wx::EvtHandler.register_class(self, nil, 'evt_load_sample', 0)
+
+    def initialize(loading: true, category: 0)
+      # The constant id is the arg to super
+      super(EVT_LOAD_SAMPLE)
+      # simply use instance variables to store custom event associated data
+      @loading = loading
+      @category = category
+    end
+
+    attr_reader :loading, :category
+  end
+
   class SamplerFrame < Wx::Frame
 
     def initialize(title)
@@ -194,17 +211,28 @@ module WxRuby
 
       evt_button Wx::ID_ANY, :on_sample_button
 
+      evt_load_sample :on_load_sample
+
       @main_panel.layout
     end
 
     attr_reader :running_sample
     attr_accessor :sample_editor
 
+    def on_load_sample(evt)
+      if evt.loading
+        add_category(evt.category)
+      else
+        show_samples
+        self.event_handler.disconnect(Wx::ID_ANY, Wx::ID_ANY, SampleLoadEvent::EVT_LOAD_SAMPLE)
+      end
+    end
+
     def add_category(cat)
-      @gauge.value = cat
+      @gauge.value = cat+1
       @main_panel.update
-      cat_id = Sample.categories.keys[cat-1]
-      create_category_pane(@scroll_panel.sizer, cat_id, cat-1)
+      cat_id = Sample.categories.keys[cat]
+      create_category_pane(@scroll_panel.sizer, cat_id, cat)
     end
 
     def show_samples
@@ -374,9 +402,9 @@ Wx::App.run do
 
   Thread.new do
     WxRuby::Sample.collect_samples do |cat|
-      @frame.add_category(cat)
+      @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(category: cat))
     end
-    @frame.show_samples
+    @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(loading: false))
     load_timer.stop
   end
 
