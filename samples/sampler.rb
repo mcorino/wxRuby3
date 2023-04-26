@@ -149,7 +149,7 @@ module WxRuby
       startup_sizer.add(txt,  0, Wx::ALL|Wx::ALIGN_CENTER, 30)
       txt = Wx::StaticText.new(@startup_panel, Wx::ID_ANY, 'Loading samples, please wait...')
       startup_sizer.add(txt,  0, Wx::ALL|Wx::ALIGN_CENTER, 10)
-      @gauge = Wx::Gauge.new(@startup_panel, Wx::ID_ANY, Sample.max_categories)
+      @gauge = Wx::Gauge.new(@startup_panel, Wx::ID_ANY, Sample.max_collection)
       startup_sizer.add(@gauge, 0, Wx::ALIGN_CENTER|Wx::ALL, 5)
       @startup_panel.sizer = startup_sizer
       main_sizer.add(@startup_panel, 1, Wx::EXPAND, 0)
@@ -200,12 +200,29 @@ module WxRuby
     attr_reader :running_sample
     attr_accessor :sample_editor
 
-    def add_category(cat)
-      @gauge.value = cat
-      @main_panel.update
-      cat_id = Sample.categories.keys[cat-1]
-      create_category_pane(@scroll_panel.sizer, cat_id, cat-1)
+    def load_samples
+      read_count = 0
+      WxRuby::Sample.collect_samples do |count|
+        read_count = count
+        @gauge.value = read_count
+        Wx.get_app.yield
+        sleep 0.05
+      end
+
+      WxRuby::Sample.categories.size.times do |ix|
+        add_category(read_count+1, ix)
+        Wx.get_app.yield
+      end
+      show_samples
     end
+
+    def add_category(offset, cat)
+      @gauge.value = offset + cat
+      @main_panel.update
+      cat_id = Sample.categories.keys[cat]
+      create_category_pane(@scroll_panel.sizer, cat_id, cat)
+    end
+    private :add_category
 
     def show_samples
       @main_panel.sizer.remove(0)
@@ -216,6 +233,7 @@ module WxRuby
       @main_panel.sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
       @main_panel.layout
     end
+    private :show_samples
 
     def create_category_pane(scroll_sizer, cat, cat_ix)
       category_panel = Wx::Panel.new(@scroll_panel, Wx::ID_ANY, style: Wx::RAISED_BORDER)
@@ -265,6 +283,7 @@ module WxRuby
 
       scroll_sizer.add(category_panel, 0, Wx::EXPAND|Wx::ALL, 3)
     end
+    private :create_category_pane
 
     def run_sample(sample)
       @running_sample.close if @running_sample
@@ -367,18 +386,10 @@ Wx::App.run do
     evt.skip
   end
 
-  load_timer = Wx::Timer.every(20) { Thread.pass }
-
   @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
   @frame.show
 
-  Thread.new do
-    WxRuby::Sample.collect_samples do |cat|
-      @frame.add_category(cat)
-    end
-    @frame.show_samples
-    load_timer.stop
-  end
+  @frame.load_samples
 
   true
 end
