@@ -17,6 +17,22 @@ module WxRuby
     EDT_MIN_ID = Wx::ID_HIGHEST + 1000
   end
 
+  class UpdateEditorUIEvent < Wx::CommandEvent
+    # Create a new unique constant identifier, associate this class
+    # with events of that identifier, and create a shortcut 'evt_update_editor_ui'
+    # method for setting up this handler.
+    EVT_UPDATE_EDITOR_UI = Wx::EvtHandler.register_class(self, nil, 'evt_update_editor_ui', 0)
+
+    def initialize(editor_id=0)
+      # The constant id is the arg to super
+      super(EVT_UPDATE_EDITOR_UI)
+      # simply use instance variables to store custom event associated data
+      @editor_id = editor_id
+    end
+
+    attr_reader :editor_id
+  end
+
   class SampleEditPanel
     def initialize(parent, sample)
       @frame = parent
@@ -168,20 +184,19 @@ module WxRuby
     end
     private :page_from_id
 
-    def update_undo_redo(id, f_undo, f_redo)
-      if (pgnr = page_from_id(id))
-        if @edt_book.selection == pgnr
-          @frame.update_undo_redo(f_undo, f_redo)
-        end
-      end
+    def active_editor?(id)
+      @edt_book.selection == page_from_id(id)
     end
 
-    def update_paste(id, f_paste)
+    def editor(id)
       if (pgnr = page_from_id(id))
-        if @edt_book.selection == pgnr
-          @frame.update_paste(f_paste)
-        end
+        return @editors[pgnr]
       end
+      nil
+    end
+
+    def update_ui(id)
+      @frame.queue_event(UpdateEditorUIEvent.new(id))
     end
 
     def update_modify(id, modify)
@@ -193,7 +208,7 @@ module WxRuby
 
     def on_page_changed(evt)
       find_close
-      @editors[evt.selection].update_ui
+      update_ui(@editors[evt.selection].id)
     end
 
   end
@@ -301,6 +316,8 @@ module WxRuby
 
       evt_idle(:on_idle)
 
+      evt_update_editor_ui(:on_update_editor_ui)
+
       evt_menu(ID::RUN, :on_run)
       evt_menu(ID::SAVE, :on_save)
 
@@ -351,6 +368,7 @@ module WxRuby
       self.tool_bar.enable_tool(ID::REDO, f_redo)
       set_status_text('')
     end
+    private :update_undo_redo
 
     def update_paste(f_paste)
       @m_paste.enable(f_paste)
@@ -361,6 +379,14 @@ module WxRuby
     def update_modify(modify)
       @modified = modify
       set_status_text('')
+    end
+
+    def on_update_editor_ui(evt)
+      if @editors.active_editor?(evt.editor_id)
+        edt = @editors.editor(evt.editor_id)
+        update_undo_redo(edt.can_undo, edt.can_redo)
+        update_paste(edt.can_paste)
+      end
     end
 
     def on_run

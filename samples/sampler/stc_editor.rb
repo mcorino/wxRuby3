@@ -280,13 +280,8 @@ module WxRuby
       set_view_eol(f)
     end
 
-    def update_ui
-      @owner.update_undo_redo(self.id, self.can_undo, self.can_redo)
-      @owner.update_paste(self.id, self.can_paste)
-    end
-
     def on_update_ui(_evt)
-      update_ui
+      @owner.update_ui(self.id)
       unless @find_replace
         find_close
       end
