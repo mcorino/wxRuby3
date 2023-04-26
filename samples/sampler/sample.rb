@@ -277,7 +277,15 @@ module WxRuby
       end
       private :sample_captures
 
-      def collect_samples
+      # determine max number of categories (doesn't need to be exact)
+      def max_categories
+        Dir[File.join(ROOT, '*')].select do |entry|
+          'bigdemo' !=  (category = File.basename(entry)) && 'sampler' != category
+        end.size
+      end
+
+      def collect_samples(&block)
+        last_size = categories.size
         Dir[File.join(ROOT, '*')].each do |entry|
           if File.directory?(entry)
             category = File.basename(entry)
@@ -305,6 +313,8 @@ module WxRuby
                   @loading_sample = nil
                 end
               end
+              block.call(categories.size) if last_size<categories.size
+              last_size = categories.size
             end
           end
         end
