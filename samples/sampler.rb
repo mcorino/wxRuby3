@@ -109,24 +109,6 @@ module WxRuby
     end
   end
 
-  class SampleLoadEvent < Wx::CommandEvent
-    # Create a new unique constant identifier, associate this class
-    # with events of that identifier, and create a shortcut 'evt_load_sample'
-    # method for setting up this handler.
-    EVT_LOAD_SAMPLE = Wx::EvtHandler.register_class(self, nil, 'evt_load_sample', 0)
-
-    def initialize(count = nil, loading: false, category: 0)
-      # The constant id is the arg to super
-      super(EVT_LOAD_SAMPLE)
-      # simply use instance variables to store custom event associated data
-      @count = count
-      @loading = loading
-      @category = category
-    end
-
-    attr_reader :count, :loading, :category
-  end
-
   class SamplerFrame < Wx::Frame
 
     def initialize(title)
@@ -212,23 +194,26 @@ module WxRuby
 
       evt_button Wx::ID_ANY, :on_sample_button
 
-      evt_load_sample :on_load_sample
-
       @main_panel.layout
     end
 
     attr_reader :running_sample
     attr_accessor :sample_editor
 
-    def on_load_sample(evt)
-      if evt.loading
-        add_category(evt.count+1, evt.category)
-      elsif evt.count
-        @gauge.value = evt.count
-      else
-        show_samples
-        self.event_handler.disconnect(Wx::ID_ANY, Wx::ID_ANY, SampleLoadEvent::EVT_LOAD_SAMPLE)
+    def load_samples
+      read_count = 0
+      WxRuby::Sample.collect_samples do |count|
+        read_count = count
+        @gauge.value = read_count
+        Wx.get_app.yield
+        sleep 0.05
       end
+
+      WxRuby::Sample.categories.size.times do |ix|
+        add_category(read_count+1, ix)
+        Wx.get_app.yield
+      end
+      show_samples
     end
 
     def add_category(offset, cat)
@@ -237,6 +222,7 @@ module WxRuby
       cat_id = Sample.categories.keys[cat]
       create_category_pane(@scroll_panel.sizer, cat_id, cat)
     end
+    private :add_category
 
     def show_samples
       @main_panel.sizer.remove(0)
@@ -247,6 +233,7 @@ module WxRuby
       @main_panel.sizer.add(@scroll_panel, 1, Wx::GROW|Wx::ALL, 4)
       @main_panel.layout
     end
+    private :show_samples
 
     def create_category_pane(scroll_sizer, cat, cat_ix)
       category_panel = Wx::Panel.new(@scroll_panel, Wx::ID_ANY, style: Wx::RAISED_BORDER)
@@ -296,6 +283,7 @@ module WxRuby
 
       scroll_sizer.add(category_panel, 0, Wx::EXPAND|Wx::ALL, 3)
     end
+    private :create_category_pane
 
     def run_sample(sample)
       @running_sample.close if @running_sample
@@ -398,23 +386,10 @@ Wx::App.run do
     evt.skip
   end
 
-  load_timer = Wx::Timer.every(25) { Thread.pass }
-
   @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
   @frame.show
 
-  Thread.new do
-    read_count = 0
-    WxRuby::Sample.collect_samples do |count|
-      read_count = count
-      @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(read_count))
-    end
-    WxRuby::Sample.categories.size.times do |ix|
-      @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(read_count, loading: true, category: ix))
-    end
-    @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(loading: false))
-    load_timer.stop
-  end
+  @frame.load_samples
 
   true
 end
