@@ -54,16 +54,6 @@ module WXRuby3
         spec.ignore 'wxPropertyGridInterface::SetPropertyImage', ignore_doc: false # ignore non-const BitmapBundle arg decl
         # and add correct decl
         spec.extend_interface 'wxPropertyGridInterface', 'void SetPropertyImage(wxPGPropArg id, const wxBitmapBundle &bmp)'
-        if Config.instance.wx_version >= '3.3.0'
-          # work around the, disputable, use of strong enums here
-          spec.ignore 'wxPropertyGridInterface::SetValidationFailureBehavior', ignore_doc: false
-          spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
-            void SetValidationFailureBehavior(int vfb_flags)
-            {
-              $self->SetValidationFailureBehavior(static_cast<wxPGVFBFlags> (vfb_flags));
-            }
-            __HEREDOC
-        end
         # don't expose property grid iterators; add a more Ruby-like extension
         spec.ignore 'wxPropertyGridInterface::GetIterator', 'wxPropertyGridInterface::GetVIterator'
         # add basic property enumerator; will wrap this in pure Ruby still for improved argument handling
