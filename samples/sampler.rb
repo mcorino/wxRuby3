@@ -115,15 +115,16 @@ module WxRuby
     # method for setting up this handler.
     EVT_LOAD_SAMPLE = Wx::EvtHandler.register_class(self, nil, 'evt_load_sample', 0)
 
-    def initialize(loading: true, category: 0)
+    def initialize(count = nil, loading: false, category: 0)
       # The constant id is the arg to super
       super(EVT_LOAD_SAMPLE)
       # simply use instance variables to store custom event associated data
+      @count = count
       @loading = loading
       @category = category
     end
 
-    attr_reader :loading, :category
+    attr_reader :count, :loading, :category
   end
 
   class SamplerFrame < Wx::Frame
@@ -166,7 +167,7 @@ module WxRuby
       startup_sizer.add(txt,  0, Wx::ALL|Wx::ALIGN_CENTER, 30)
       txt = Wx::StaticText.new(@startup_panel, Wx::ID_ANY, 'Loading samples, please wait...')
       startup_sizer.add(txt,  0, Wx::ALL|Wx::ALIGN_CENTER, 10)
-      @gauge = Wx::Gauge.new(@startup_panel, Wx::ID_ANY, Sample.max_categories)
+      @gauge = Wx::Gauge.new(@startup_panel, Wx::ID_ANY, Sample.max_collection)
       startup_sizer.add(@gauge, 0, Wx::ALIGN_CENTER|Wx::ALL, 5)
       @startup_panel.sizer = startup_sizer
       main_sizer.add(@startup_panel, 1, Wx::EXPAND, 0)
@@ -221,15 +222,17 @@ module WxRuby
 
     def on_load_sample(evt)
       if evt.loading
-        add_category(evt.category)
+        add_category(evt.count+1, evt.category)
+      elsif evt.count
+        @gauge.value = evt.count
       else
         show_samples
         self.event_handler.disconnect(Wx::ID_ANY, Wx::ID_ANY, SampleLoadEvent::EVT_LOAD_SAMPLE)
       end
     end
 
-    def add_category(cat)
-      @gauge.value = cat+1
+    def add_category(offset, cat)
+      @gauge.value = offset + cat
       @main_panel.update
       cat_id = Sample.categories.keys[cat]
       create_category_pane(@scroll_panel.sizer, cat_id, cat)
@@ -395,14 +398,19 @@ Wx::App.run do
     evt.skip
   end
 
-  load_timer = Wx::Timer.every(20) { Thread.pass }
+  load_timer = Wx::Timer.every(25) { Thread.pass }
 
   @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
   @frame.show
 
   Thread.new do
-    WxRuby::Sample.collect_samples do |cat|
-      @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(category: cat))
+    read_count = 0
+    WxRuby::Sample.collect_samples do |count|
+      read_count = count
+      @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(read_count))
+    end
+    WxRuby::Sample.categories.size.times do |ix|
+      @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(read_count, loading: true, category: ix))
     end
     @frame.event_handler.queue_event(WxRuby::SampleLoadEvent.new(loading: false))
     load_timer.stop
