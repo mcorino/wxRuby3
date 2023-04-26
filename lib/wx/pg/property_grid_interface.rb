@@ -2,13 +2,17 @@
 module Wx::PG
 
   # since wxWidgets 3.3.0
-  PG_DONT_RECURSE = PGPropertyValuesFlags::DontRecurse unless const_defined?(:PG_DONT_RECURSE)
-  PG_KEEP_STRUCTURE = PGPropertyValuesFlags::KeepStructure unless const_defined?(:PG_KEEP_STRUCTURE)
-  PG_RECURSE = PGPropertyValuesFlags::Recurse unless const_defined?(:PG_RECURSE)
-  PG_INC_ATTRIBUTES = PGPropertyValuesFlags::IncAttributes unless const_defined?(:PG_INC_ATTRIBUTES)
-  PG_RECURSE_STARTS = PGPropertyValuesFlags::RecurseStarts unless const_defined?(:PG_RECURSE_STARTS)
-  PG_FORCE = PGPropertyValuesFlags::Force unless const_defined?(:PG_FORCE)
-  PG_SORT_TOP_LEVEL_ONLY = PGPropertyValuesFlags::SortTopLevelOnly unless const_defined?(:PG_SORT_TOP_LEVEL_ONLY)
+  unless const_defined?(:PG_GETPROPERTYVALUES_FLAGS)
+    module PG_GETPROPERTYVALUES_FLAGS
+      PG_DONT_RECURSE = PGPropertyValuesFlags::DontRecurse
+      PG_KEEP_STRUCTURE = PGPropertyValuesFlags::KeepStructure
+      PG_RECURSE = PGPropertyValuesFlags::Recurse
+      PG_INC_ATTRIBUTES = PGPropertyValuesFlags::IncAttributes
+      PG_RECURSE_STARTS = PGPropertyValuesFlags::RecurseStarts
+      PG_FORCE = PGPropertyValuesFlags::Force
+      PG_SORT_TOP_LEVEL_ONLY = PGPropertyValuesFlags::SortTopLevelOnly
+    end
+  end
   
   module PropertyGridInterface
 
