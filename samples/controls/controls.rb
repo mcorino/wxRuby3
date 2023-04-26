@@ -408,25 +408,25 @@ class MyPanel < Panel
     sizer = BoxSizer.new( VERTICAL )
 
     csizer =
-      StaticBoxSizer.new(StaticBox.new(panel, -1, "Show Buttons"),
+      StaticBoxSizer.new(sbox = StaticBox.new(panel, -1, "Show Buttons"),
                           HORIZONTAL )
 
-    check1 = CheckBox.new(panel, ID_SIZER_CHECK1, "1")
+    check1 = CheckBox.new(sbox, ID_SIZER_CHECK1, "1")
     check1.set_value(true)
     csizer.add(check1)
-    check2 = CheckBox.new(panel, ID_SIZER_CHECK2, "2")
+    check2 = CheckBox.new(sbox, ID_SIZER_CHECK2, "2")
     check2.set_value(true)
     csizer.add(check2)
-    check3 = CheckBox.new(panel, ID_SIZER_CHECK3, "3")
+    check3 = CheckBox.new(sbox, ID_SIZER_CHECK3, "3")
     check3.set_value(true)
     csizer.add(check3)
-    check4 = CheckBox.new(panel, ID_SIZER_CHECK4, "4")
+    check4 = CheckBox.new(sbox, ID_SIZER_CHECK4, "4")
     check4.set_value(true)
     csizer.add(check4)
-    check14 = CheckBox.new(panel, ID_SIZER_CHECK14, "1-4")
+    check14 = CheckBox.new(sbox, ID_SIZER_CHECK14, "1-4")
     check14.set_value(true)
     csizer.add(check14)
-    checkBig = CheckBox.new(panel, ID_SIZER_CHECKBIG, "Big")
+    checkBig = CheckBox.new(sbox, ID_SIZER_CHECKBIG, "Big")
     checkBig.set_value(true)
     csizer.add(checkBig)
 
@@ -523,7 +523,7 @@ class MyPanel < Panel
 
   # utility function to find an icon relative to this ruby script
   def local_icon_file(icon_name)
-    File.join( File.dirname(__FILE__), 'icons', icon_name) 
+    File.join( __dir__, icon_name)
   end
 
 
@@ -1137,7 +1137,7 @@ module ControlsSample
   end
 
   if $0 == __FILE__
-    ControlsSample.activate
+    Wx::App.run { !!ControlsSample.activate }
   end
 
 end
