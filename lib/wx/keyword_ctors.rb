@@ -43,7 +43,7 @@ module Wx
     begin
       klass =  Wx::const_get(klass_name)
     rescue NameError
-      STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx.RB_DEBUG
+      STDERR.puts "WARNING: cannot define keyword ctor for #{klass_name}" if Wx::RB_DEBUG
       return nil
     end if ::String === klass
     # If the klass inherited from a class which already has keyword ctor defined
