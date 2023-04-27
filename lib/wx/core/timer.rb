@@ -86,7 +86,6 @@ class Wx::Timer
             if evt.get_event_object == self
               @__owned_timers__.each { | timer | timer.stop }
             end
-            evt.skip
           end
         end
       end

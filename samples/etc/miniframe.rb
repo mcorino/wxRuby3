@@ -49,7 +49,7 @@ class MyFrame < Wx::Frame
     sizer.add(text, 0, Wx::ALL, 2)
     mini.set_sizer(sizer)
 
-    mini.evt_window_destroy { |evt| @mini_destroyed = true; evt.skip }
+    mini.evt_window_destroy { |evt| @mini_destroyed = true }
 
     mini.show
     mini.raise
