@@ -23,8 +23,6 @@ Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
                                        Wx::WXWIDGETS_MINOR_VERSION,
                                        Wx::WXWIDGETS_RELEASE_NUMBER ]
 
-Wx::RB_DEBUG = Wx.wxrb_debug
-
 # Helper functions
 require 'wx/helpers'
 

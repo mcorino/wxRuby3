@@ -2580,7 +2580,7 @@ class FormMain < Wx::Frame
     else
       " <ansi>"
     end +
-    if Wx::RB_DEBUG
+    if Wx::DEBUG
       " <debug>"
     else
       " <release>"
