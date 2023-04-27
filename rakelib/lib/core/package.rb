@@ -426,8 +426,12 @@ module WXRuby3
           included_directors.each do |dir|
             dir.defmod.items.each do |item|
               if Extractor::ClassDef === item && item.event
-                if item.name == 'wxCommandEvent'
-                  command_event = item # skip for now
+                case item.name
+                when 'wxCommandEvent'
+                  command_event = item # skip for now; generate further on
+                when item.name == 'wxWindowDestroyEvent'
+                  # do not generate; special case, see core/evthandler.rb
+                  # (seems to be missing from XML anyway but just in case)
                 else
                   generate_event_types(fout, item, evts_handled)
                 end

@@ -21,6 +21,12 @@ module WXRuby3
         spec.set_only_for 'wxUSE_ACCEL', 'wxMenuItem::GetAccel'
         spec.no_proxy 'wxMenuItem::GetAccel'
         spec.ignore 'wxMenuItem::GetBitmap(bool)' # not portable
+        if Config.instance.wx_version >= '3.3.0'
+          spec.set_only_for '__WXMSW__',
+                            'wxMenuItem::SetBackgroundColour',
+                            'wxMenuItem::SetFont',
+                            'wxMenuItem::SetTextColour'
+        end
         super
       end
     end # class MenuItem

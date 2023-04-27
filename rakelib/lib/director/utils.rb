@@ -24,7 +24,6 @@ module WXRuby3
           wxSetDisplayName
           wxGetDiskSpace
           wxLoadUserResource
-          wxPostDelete
           wxQsort
           wxGetOsVersion
           wxGetLinuxDistributionInfo
@@ -41,6 +40,7 @@ module WXRuby3
           wxHexToDec
           wxStripMenuCodes
           ]
+        spec.ignore 'wxPostDelete'  unless Config.instance.wx_version >= '3.3.0'
         spec.ignore 'wxGetEmailAddress(char *,int)',
                     'wxGetUserId(char *,int)',
                     'wxGetUserName(char *,int)'

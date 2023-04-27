@@ -35,7 +35,11 @@ module WXRuby3
           __HEREDOC
         spec.use_class_implementation 'wxPropertyGridPage', 'WXRubyPropertyGridPage'
         spec.ignore 'wxPropertyGridPage::GetStatePtr'
-        spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition'
+        if Config.instance.wx_version >= '3.3.0'
+          spec.ignore 'wxPropertyGridPageState::DoSetSplitter'
+        else
+          spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition'
+        end
         # mixin PropertyGridInterface
         spec.include_mixin 'wxPropertyGridPage', 'Wx::PG::PropertyGridInterface'
         # these are ambiguous bc inherited from both PropertyGridInterface and wxPropertyGridPageState

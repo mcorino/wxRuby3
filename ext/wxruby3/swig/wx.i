@@ -253,11 +253,9 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 
 %inline %{
 #ifdef __WXRB_DEBUG__
-const bool wxRB_DEBUG = true;
-int wxRB_TRACE = 0;
+int wxrb_trace_level = 0;
 #else
-const bool wxRB_DEBUG = false;
-const int wxRB_TRACE = 0;
+const int wxrb_trace_level = 0;
 #endif
 %}
 
@@ -265,7 +263,7 @@ const int wxRB_TRACE = 0;
 #ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT int wxRuby_TraceLevel()
 {
-  return wxRB_TRACE;
+  return _wxrb_trace_level;
 }
 #endif
 %}

@@ -1242,7 +1242,7 @@ class AuiFrame < Wx::Frame
     flex.add(Wx::StaticText.new(panel, -1, "Wx::SpinCtrl:"),
              0, Wx::ALL | Wx::ALIGN_CENTRE, 5)
     flex.add(Wx::SpinCtrl.new(panel, -1, "5",
-                              Wx::DEFAULT_POSITION, Wx::Size.new(100, -1),
+                              Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
                               Wx::SP_ARROW_KEYS, 5, 50, 5),
              1, Wx::ALL | Wx::ALIGN_CENTRE, 5)
 

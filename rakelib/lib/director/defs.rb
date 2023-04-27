@@ -26,6 +26,9 @@ module WXRuby3
           wxUINT64_MAX
           wxVaCopy
         }
+        if Config.instance.wx_version >= '3.3.0'
+          spec.ignore 'wxOVERRIDE'
+        end
         super
       end
 

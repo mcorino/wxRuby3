@@ -16,9 +16,13 @@ module WXRuby3
         spec.gc_as_temporary 'wxPropertyGridHitTestResult'
         spec.make_abstract 'wxPropertyGridPageState'
         spec.disable_proxies
-        spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition',
-                    'wxPropertyGridPageState::DoDelete',
+        spec.ignore 'wxPropertyGridPageState::DoDelete',
                     'wxPropertyGridPageState::DoInsert'
+        if Config.instance.wx_version >= '3.3.0'
+          spec.ignore 'wxPropertyGridPageState::DoSetSplitter'
+        else
+          spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition'
+        end
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class PropertyGridPageState

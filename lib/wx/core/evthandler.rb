@@ -223,12 +223,25 @@ class Wx::EvtHandler
     evt_scrollwin_thumbrelease(&block)
   end
 
-  # missing from XML docs so we add this here manually
-  self.register_event_type EventType[
-    'evt_window_destroy', 0,
-    Wx::EVT_DESTROY,
-    Wx::WindowDestroyEvent
-  ] if Wx.const_defined?(:EVT_DESTROY)
+  if Wx.const_defined?(:EVT_DESTROY)
+
+    # evt_window_destroy is a special case in that evt.skip
+    # should always be called when handling the event
+    # as otherwise the OnWindowDestroy handler of Wx::App will not
+    # be called to deregister the windows on destruction which
+    # may lead to segfaults during the GC marking phase.
+    # Thus we register the event here explicitly as well as the
+    # event hook method.
+
+    EVENT_TYPE_CLASS_MAP[Wx::EVT_DESTROY] = Wx::WindowDestroyEvent
+    EVENT_NAME_TYPE_MAP['evt_window_destroy'.intern] = Wx::EVT_DESTROY
+
+    def evt_window_destroy(meth = nil, &block)
+      handler = acquire_handler(meth, block)
+      connect(Wx::ID_ANY, Wx::ID_ANY, Wx::EVT_DESTROY, Proc.new { |evt| handler.call(evt); evt.skip })
+    end
+
+  end
 end
 
 if Wx.const_defined?(:EVT_SASH_DRAGGED) && !Wx.const_defined?(:EVT_SASH_DRAGGED_RANGE)

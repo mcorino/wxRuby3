@@ -1646,7 +1646,11 @@ class FormMain < Wx::Frame
     _ADD_WX_LIB_CONF.call(:USE_ON_FATAL_EXCEPTION)
 
     _ADD_WX_LIB_CONF_GROUP.call("Unicode Support")
-    _ADD_WX_LIB_CONF.call(:USE_UNICODE)
+    # From wxWidgets 3.3.0 Unicode is the fixed default and the setup macro 'wxUSE_UNICODE' removed
+    if Wx::WXWIDGETS_VERSION < '3.3.0'
+      _ADD_WX_LIB_CONF.call(:USE_UNICODE)
+    end
+    _ADD_WX_LIB_CONF.call(:USE_UNICODE_UTF8)
 
     _ADD_WX_LIB_CONF_GROUP.call("Global Features")
     _ADD_WX_LIB_CONF.call(:USE_EXCEPTIONS)
@@ -2571,7 +2575,7 @@ class FormMain < Wx::Frame
                                Wx::PlatformInfo.get_toolkit_minor_version,
                                Wx::PlatformInfo.get_toolkit_micro_version]
     msg = ("wxRuby PropertyGrid Sample" +
-    if Wx.has_feature? :USE_UNICODE
+    if Wx::WXWIDGETS_VERSION >= '3.3.0' || Wx.has_feature?(:USE_UNICODE)
       if Wx.has_feature?(:USE_UNICODE_UTF8) && Wx.has_feature?(:USE_UNICODE_UTF8)
         " <utf-8>"
       else
@@ -2580,7 +2584,7 @@ class FormMain < Wx::Frame
     else
       " <ansi>"
     end +
-    if Wx::RB_DEBUG
+    if Wx::DEBUG
       " <debug>"
     else
       " <release>"
