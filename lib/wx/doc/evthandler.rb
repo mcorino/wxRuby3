@@ -72,6 +72,9 @@ class Wx::EvtHandler
   def evt_scrollwin(&block) end
 
   # Processes Wx::WindowDestroyEvent events.
+  # In wxRuby Wx::Event#skipped will be forced to true after the provided
+  # handler has finished to make sure the event is propagated as it is
+  # required that Wx::App gets to handle the event in the end.
   # @yieldparam [Wx::WindowDestroyEvent] event event to handle
   def evt_window_destroy(&block) end
 

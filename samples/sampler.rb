@@ -383,7 +383,6 @@ Wx::App.run do
         @frame.running_sample.close_window(evt.window) if @frame.running_sample
       end
     end
-    evt.skip
   end
 
   @frame = WxRuby::SamplerFrame.new('wxRuby Sampler Application')
