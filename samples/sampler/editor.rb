@@ -175,6 +175,19 @@ module WxRuby
       @editors.each { |e| e.find_close }
     end
 
+    def goto
+      res = Wx.get_number_from_user('Enter line number to go to.',
+                                    'Line:',
+                                    'Goto Line',
+                                    @editors[@edt_book.selection].current_line+1,
+                                    1,
+                                    @editors[@edt_book.selection].line_count,
+                                    @frame)
+      if res >= 1
+        @editors[@edt_book.selection].goto_line(res-1)
+      end
+    end
+
     def page_from_id(id)
       if id >= ID::EDT_MIN_ID && id < (ID::EDT_MIN_ID+@edt_book.page_count)
         id - ID::EDT_MIN_ID
@@ -231,6 +244,7 @@ module WxRuby
       FIND_NEXT = Wx::ID_FORWARD
       FIND_PREV = Wx::ID_BACKWARD
       REPLACE = Wx::ID_REPLACE
+      GOTO = Wx::ID_JUMP_TO
       %i[
         RUN
         TOGGLE_THEME
@@ -268,6 +282,8 @@ module WxRuby
       menuEdit.append(ID::FIND_NEXT, "Find Next\tF3", 'Find next occurrence of the search phrase')
       menuEdit.append(ID::FIND_PREV, "Find Previous\tShift-F3", 'Find previous occurrence of the search phrase')
       menuEdit.append(ID::REPLACE, "Replace...\tCtrl-R", 'Show Replace Dialog')
+      menuEdit.append_separator
+      menuEdit.append(ID::GOTO, "Got to line...\tCtrl-G", 'Move to line number')
 
       menuView = Wx::Menu.new
       menuView.append(ID::TOGGLE_THEME, 'Display dark theme', 'Display dark theme', Wx::ITEM_CHECK)
@@ -353,6 +369,8 @@ module WxRuby
 
       evt_menu(ID::FIND_NEXT, :on_find_next)
       evt_menu(ID::FIND_PREV, :on_find_prev)
+
+      evt_menu(ID::GOTO, :on_goto)
 
       layout
     end
@@ -553,6 +571,10 @@ module WxRuby
       @find_dialog = nil
       @editors.find_close
       set_status_text('')
+    end
+
+    def on_goto(_evt)
+      @editors.goto
     end
 
   end

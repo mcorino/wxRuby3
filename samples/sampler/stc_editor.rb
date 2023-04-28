@@ -133,17 +133,18 @@ module WxRuby
       style_set_foreground(SCE_RB_CHARACTER, Wx::RED)
       style_set_foreground(SCE_RB_SYMBOL, Wx::Colour.new('DARKBLUE'))
       style_set_bold(SCE_RB_SYMBOL, true)
-      # current wxWidgets Scintilla (Ruby lexer) version does not support these correctly
-      # style_set_foreground(SCE_RB_HERE_DELIM, Wx::BLACK)
-      # style_set_bold(SCE_RB_HERE_DELIM, true)
-      # style_set_foreground(SCE_RB_HERE_Q, c_maroon)
-      # style_set_foreground(SCE_RB_HERE_QQ, c_maroon)
-      # style_set_foreground(SCE_RB_HERE_QX, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_Q, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QQ, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QX, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QR, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QW, c_maroon)
+      if Wx::WXWIDGETS_VERSION >= '3.3.0'
+        style_set_foreground(SCE_RB_HERE_DELIM, Wx::BLACK)
+        style_set_bold(SCE_RB_HERE_DELIM, true)
+        style_set_foreground(SCE_RB_HERE_Q, c_maroon)
+        style_set_foreground(SCE_RB_HERE_QQ, c_maroon)
+        style_set_foreground(SCE_RB_HERE_QX, c_maroon)
+        style_set_foreground(SCE_RB_STRING_Q, c_maroon)
+        style_set_foreground(SCE_RB_STRING_QQ, c_maroon)
+        style_set_foreground(SCE_RB_STRING_QX, c_maroon)
+        style_set_foreground(SCE_RB_STRING_QR, c_maroon)
+        style_set_foreground(SCE_RB_STRING_QW, c_maroon)
+      end
       bg = Wx::Colour.new('LightGray')
       fg = Wx::Colour.new('DarkCyan')
       set_fold_margin_colour(true, bg)
@@ -156,6 +157,7 @@ module WxRuby
 
     def dark_theme
       bg = Wx::Colour.new('DarkSlateGray')
+      c_str = Wx::Colour.new('LimeGreen')
       style_set_background(Wx::STC::STC_STYLE_DEFAULT, bg)
       style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE)
       style_clear_all
@@ -177,24 +179,25 @@ module WxRuby
       style_set_background(SCE_RB_POD, bg)
       style_set_foreground(SCE_RB_NUMBER, Wx::Colour.new('DeepSkyBlue'))
       style_set_background(SCE_RB_NUMBER, bg)
-      style_set_foreground(SCE_RB_STRING, Wx::Colour.new('LimeGreen'))
+      style_set_foreground(SCE_RB_STRING, c_str)
       style_set_background(SCE_RB_STRING, bg)
       style_set_foreground(SCE_RB_CHARACTER, Wx::Colour.new('YellowGreen'))
       style_set_background(SCE_RB_CHARACTER, bg)
       style_set_foreground(SCE_RB_SYMBOL, Wx::Colour.new('Gold'))
       style_set_background(SCE_RB_SYMBOL, bg)
       style_set_bold(SCE_RB_SYMBOL, true)
-      # current wxWidgets Scintilla (Ruby lexer) version does not support these correctly
-      # style_set_foreground(SCE_RB_HERE_DELIM, Wx::BLACK)
-      # style_set_bold(SCE_RB_HERE_DELIM, true)
-      # style_set_foreground(SCE_RB_HERE_Q, c_maroon)
-      # style_set_foreground(SCE_RB_HERE_QQ, c_maroon)
-      # style_set_foreground(SCE_RB_HERE_QX, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_Q, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QQ, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QX, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QR, c_maroon)
-      # style_set_foreground(SCE_RB_STRING_QW, c_maroon)
+      if Wx::WXWIDGETS_VERSION >= '3.3.0'
+        style_set_foreground(SCE_RB_HERE_DELIM, Wx::Colour.new('Chocolate'))
+        style_set_bold(SCE_RB_HERE_DELIM, true)
+        style_set_foreground(SCE_RB_HERE_Q, c_str)
+        style_set_foreground(SCE_RB_HERE_QQ, c_str)
+        style_set_foreground(SCE_RB_HERE_QX, c_str)
+        style_set_foreground(SCE_RB_STRING_Q, c_str)
+        style_set_foreground(SCE_RB_STRING_QQ, c_str)
+        style_set_foreground(SCE_RB_STRING_QX, c_str)
+        style_set_foreground(SCE_RB_STRING_QR, c_str)
+        style_set_foreground(SCE_RB_STRING_QW, c_str)
+      end
       bg = Wx::Colour.new('CadetBlue')
       fg = Wx::Colour.new('Chocolate')
       set_fold_margin_colour(true, bg)
@@ -212,7 +215,7 @@ module WxRuby
         start_pos = current_pos
         end_pos = length-1
       else
-        start_pos = current_pos
+        start_pos = [0, current_pos - (@search_indicator ? @search_indicator.last : 0)].max
         end_pos = 0
       end
       pos, end_pos = find_text(start_pos, end_pos, txt, flags)

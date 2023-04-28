@@ -45,6 +45,24 @@ module WxRuby
       clear
     end
 
+    def get_line_count
+      number_of_lines
+    end
+    alias :line_count :get_line_count
+
+    def get_current_line
+      pos = insertion_point
+      _, line = position_to_xy(pos)
+      line
+    end
+    alias :current_line :get_current_line
+
+    def goto_line(line)
+      pos = xy_to_position(0, line)
+      self.show_position(pos)
+      self.insertion_point = pos
+    end
+
     def do_find(txt, forward, whole_word, match_case)
       options = (match_case ? 0 : Regexp::IGNORECASE)
       pattern = if whole_word
@@ -52,7 +70,12 @@ module WxRuby
                 else
                   ::Regexp.new(txt, options)
                 end
-      forward ? self.value.index(pattern, self.insertion_point) : self.value.rindex(pattern, self.insertion_point)
+      if forward
+        self.value.index(pattern, insertion_point)
+      else
+        start_pos = [0, insertion_point - (@search_indicator ? @search_indicator.last+1 : 0)].max
+        self.value.rindex(pattern, start_pos)
+      end
     end
 
     def indicator_clear_range(pos, len)
