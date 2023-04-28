@@ -48,6 +48,14 @@ module WXRuby3
                              'modified_' => 'wxPGArrayStringEditorDialog::m_modified',
                              'has_custom_new_action_' => 'wxPGArrayStringEditorDialog::m_hasCustomNewAction'
         spec.suppress_warning(473, 'wxPGArrayEditorDialog::GetTextCtrlValidator')
+        # make sure SWIG knows this type is an enum
+        spec.add_swig_code 'enum wxPGPropertyFlags;'
+        if Config.instance.wx_version >= '3.3.0'
+          # internal use only
+          spec.ignore 'wxPG_PROP_PASSWORD',
+                      'wxPG_PROP_USE_CHECKBOX',
+                      'wxPG_PROP_USE_DCC'
+        end
       end
     end # class PGArrayEditorDialog
 

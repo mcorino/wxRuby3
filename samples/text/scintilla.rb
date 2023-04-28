@@ -171,9 +171,9 @@ module STCSample
     Wx::App.run do
       STCSample.activate
     end
-    puts("back from run...") if Wx::RB_DEBUG
+    puts("back from run...") if Wx::DEBUG
     GC.start
-    puts("survived gc") if Wx::RB_DEBUG
+    puts("survived gc") if Wx::DEBUG
   end
 
 end

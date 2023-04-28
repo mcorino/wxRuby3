@@ -6,6 +6,7 @@ module Wx::PG
   NullProperty = nil
   PGChoicesEmptyData = nil
 
+  PG_LABEL_STRING = '@!' unless self.const_defined?(:PG_LABEL_STRING) # disappeared >= wxWidgets 3.3.0
   PG_LABEL = Wx::PG::PG_LABEL_STRING
 
   PG_DEFAULT_IMAGE_SIZE = Wx::DEFAULT_SIZE

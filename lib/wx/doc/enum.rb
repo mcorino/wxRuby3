@@ -39,6 +39,28 @@ module Wx
     # @return [-1,0,1]
     def <=>(o) end
 
+    # Returns bitwise or-ed value.
+    # In case other is same class as self an enum instance of that class is returned
+    # otherwise an Integer value.
+    # @param [Wx::Enum,Integer] other
+    # @return [Wx::Enum,Integer]
+    def |(other) end
+
+    # Returns bitwise and-ed value.
+    # In case other is same class as self an enum instance of that class is returned
+    # otherwise an Integer value.
+    # @param [Wx::Enum,Integer] other
+    # @return [Wx::Enum,Integer]
+    def &(other) end
+
+    # Returns an enum instance of the complement value (same class as self).
+    # @return [Wx::Enum]
+    def ~; end
+
+    # Returns true if value is 0 otherwise false.
+    # @return [Boolean]
+    def !; end
+
     # Return next integer value from enum's value.
     # @return [Integer] next integer value
     def succ; end

@@ -1,6 +1,19 @@
 
 module Wx::PG
 
+  # since wxWidgets 3.3.0
+  unless const_defined?(:PG_GETPROPERTYVALUES_FLAGS)
+    module PG_GETPROPERTYVALUES_FLAGS
+      PG_DONT_RECURSE = PGPropertyValuesFlags::DontRecurse
+      PG_KEEP_STRUCTURE = PGPropertyValuesFlags::KeepStructure
+      PG_RECURSE = PGPropertyValuesFlags::Recurse
+      PG_INC_ATTRIBUTES = PGPropertyValuesFlags::IncAttributes
+      PG_RECURSE_STARTS = PGPropertyValuesFlags::RecurseStarts
+      PG_FORCE = PGPropertyValuesFlags::Force
+      PG_SORT_TOP_LEVEL_ONLY = PGPropertyValuesFlags::SortTopLevelOnly
+    end
+  end
+  
   module PropertyGridInterface
 
     wx_each_property = instance_method :each_property

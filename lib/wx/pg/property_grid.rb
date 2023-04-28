@@ -3,6 +3,21 @@
 
 module Wx::PG
 
+  # since wxWidgets 3.3.0
+  unless const_defined?(:PG_VALIDATION_FAILURE_BEHAVIOR_FLAGS)
+    module PG_VALIDATION_FAILURE_BEHAVIOR_FLAGS
+      PG_VFB_NULL = PGVFBFlags::Null
+      PG_VFB_STAY_IN_PROPERTY = PGVFBFlags::StayInProperty
+      PG_VFB_BEEP = PGVFBFlags::Beep
+      PG_VFB_MARK_CELL = PGVFBFlags::MarkCell
+      PG_VFB_SHOW_MESSAGE = PGVFBFlags::ShowMessage
+      PG_VFB_SHOW_MESSAGEBOX = PGVFBFlags::ShowMessageBox
+      PG_VFB_SHOW_MESSAGE_ON_STATUSBAR = PGVFBFlags::ShowMessageOnStatusBar
+      PG_VFB_DEFAULT = PGVFBFlags::Default
+      PG_VFB_UNDEFINED = PGVFBFlags::Undefined
+    end
+  end
+
   class PropertyGrid
     class << self
       def property_editors

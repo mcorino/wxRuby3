@@ -77,7 +77,7 @@ def display_minimal_frame(parent = nil)
   frame.show
 end
 
-unless (!defined? WxRuby::Sample) || WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__
+if (!defined? WxRuby::Sample) || (WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__)
 
   module MinimalSample
 
@@ -99,6 +99,7 @@ unless (!defined? WxRuby::Sample) || WxRuby::Sample.loading_sample && WxRuby::Sa
         Wx::Log::set_active_target(Wx::LogStderr.new)
         gc_stress
         display_minimal_frame
+        true
       end
     end
 

@@ -128,7 +128,8 @@ module WXRuby3
                                 'wxVariant m_value',
                                 visibility: 'protected'
           spec.rename_for_ruby 'value_' => 'wxPGProperty::m_value'
-          spec.ignore %w[wxPG_LABEL wxPG_NULL_BITMAP wxPG_COLOUR_BLACK wxPG_DEFAULT_IMAGE_SIZE]
+          spec.ignore %w[wxPG_LABEL wxPG_DEFAULT_IMAGE_SIZE]
+          spec.ignore %w[wxPG_NULL_BITMAP wxPG_COLOUR_BLACK] unless Config.instance.wx_version >= '3.3.0'
           # define in Ruby
           spec.ignore %w[wxNullProperty wxPGChoicesEmptyData], ignore_doc: false
           # add method for correctly wrapping PGProperty output references

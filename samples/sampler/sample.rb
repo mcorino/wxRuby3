@@ -277,7 +277,15 @@ module WxRuby
       end
       private :sample_captures
 
-      def collect_samples
+      # determine max number of progress events (doesn't need to be exact)
+      def max_collection
+        Dir[File.join(ROOT, '*')].select do |entry|
+          'bigdemo' !=  (category = File.basename(entry)) && 'sampler' != category
+        end.size*2
+      end
+
+      def collect_samples(&block)
+        read_count = 0
         Dir[File.join(ROOT, '*')].each do |entry|
           if File.directory?(entry)
             category = File.basename(entry)
@@ -305,6 +313,8 @@ module WxRuby
                   @loading_sample = nil
                 end
               end
+              read_count += 1
+              block.call(read_count)
             end
           end
         end

@@ -26,10 +26,6 @@ module WXRuby3
                     'wxEnumProperty::wxEnumProperty(const wxString &, const wxString &, const wxChar *const *, const long *, wxPGChoices *, int)'
         spec.ignore 'wxEditEnumProperty::wxEditEnumProperty(const wxString &, const wxString &, const wxChar *const *, const long *, const wxString&)',
                     'wxEditEnumProperty::wxEditEnumProperty(const wxString &, const wxString &, const wxChar *const *, const long *, wxPGChoices *, const wxString&)'
-        spec.regard 'wxEnumProperty::GetIndex',
-                    'wxEnumProperty::SetIndex',
-                    'wxEnumProperty::ValueFromString_',
-                    'wxEnumProperty::ValueFromInt_'
         spec.gc_as_temporary 'wxColourPropertyValue'
         spec.regard 'wxColourPropertyValue::m_type',
                     'wxColourPropertyValue::m_colour'
@@ -51,8 +47,6 @@ module WXRuby3
                     'wxEditorDialogProperty::m_dlgStyle',
                     'wxEnumProperty::GetIndex',
                     'wxEnumProperty::SetIndex',
-                    'wxEnumProperty::ValueFromString_',
-                    'wxEnumProperty::ValueFromInt_',
                     'wxFileProperty::m_wildcard',
                     'wxFileProperty::m_basePath',
                     'wxFileProperty::m_initialPath',
@@ -68,6 +62,16 @@ module WXRuby3
                     'wxUIntProperty::m_prefix',
                     'wxDateProperty::m_format',
                     'wxDateProperty::m_dpStyle'
+        if Config.instance.wx_version >= '3.3.0'
+          # currently missing from interface docs
+          spec.extend_interface 'wxEnumProperty',
+                                'bool ValueFromString_(wxVariant& value, int* pIndex, const wxString& text,int argFlags) const',
+                                'bool ValueFromInt_(wxVariant& value, int* pIndex, int intVal, int argFlags) const',
+                                visibility: 'protected'
+        else
+          spec.regard 'wxEnumProperty::ValueFromString_',
+                      'wxEnumProperty::ValueFromInt_'
+        end
         spec.rename_for_ruby 'min_val_' => 'wxNumericProperty::m_minVal',
                              'max_val_' => 'wxNumericProperty::m_maxVal',
                              'spin_motion_' => 'wxNumericProperty::m_spinMotion',
@@ -104,12 +108,22 @@ module WXRuby3
         end
         # make sure the derived Enum property classes provide the protected accessors too
         %w[wxCursorProperty wxEditEnumProperty wxSystemColourProperty wxColourProperty].each do |kls|
-          spec.extend_interface kls,
-                                'int GetIndex() const',
-                                'void SetIndex(int index)',
-                                'bool ValueFromString_ (wxVariant &value, const wxString &text, int argFlags) const',
-                                'bool ValueFromInt_ (wxVariant &value, int intVal, int argFlags) const',
-                                visibility: 'protected'
+          if Config.instance.wx_version >= '3.3.0'
+            # currently missing from interface docs
+            spec.extend_interface kls,
+                                  'int GetIndex() const',
+                                  'void SetIndex(int index)',
+                                  'bool ValueFromString_(wxVariant& value, int* pIndex, const wxString& text,int argFlags) const',
+                                  'bool ValueFromInt_(wxVariant& value, int* pIndex, int intVal, int argFlags) const',
+                                  visibility: 'protected'
+          else
+            spec.extend_interface kls,
+                                  'int GetIndex() const',
+                                  'void SetIndex(int index)',
+                                  'bool ValueFromString_ (wxVariant &value, const wxString &text, int argFlags) const',
+                                  'bool ValueFromInt_ (wxVariant &value, int intVal, int argFlags) const',
+                                  visibility: 'protected'
+          end
         end
         spec.regard 'wxEditorDialogProperty::wxEditorDialogProperty',
                     'wxEditorDialogProperty::DisplayEditorDialog',
@@ -119,6 +133,10 @@ module WXRuby3
                     'wxLongStringProperty::DisplayEditorDialog',
                     'wxMultiChoiceProperty::DisplayEditorDialog',
                     'wxFontProperty::DisplayEditorDialog'
+        if Config.instance.wx_version >= '3.3.0'
+          # for wxEnumProperty and derivatives ValueFromString_/ValueFromInt_
+          spec.map_apply 'int * OUTPUT' => 'int* pIndex'
+        end
         # for UIntProperty and IntProperty
         if Config.instance.features_set?('wxUSE_LONGLONG')
           # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
