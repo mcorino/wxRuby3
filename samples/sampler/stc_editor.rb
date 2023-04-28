@@ -215,7 +215,7 @@ module WxRuby
         start_pos = current_pos
         end_pos = length-1
       else
-        start_pos = current_pos
+        start_pos = [0, current_pos - (@search_indicator ? @search_indicator.last : 0)].max
         end_pos = 0
       end
       pos, end_pos = find_text(start_pos, end_pos, txt, flags)

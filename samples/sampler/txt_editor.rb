@@ -70,7 +70,12 @@ module WxRuby
                 else
                   ::Regexp.new(txt, options)
                 end
-      forward ? self.value.index(pattern, self.insertion_point) : self.value.rindex(pattern, self.insertion_point)
+      if forward
+        self.value.index(pattern, insertion_point)
+      else
+        start_pos = [0, insertion_point - (@search_indicator ? @search_indicator.last+1 : 0)].max
+        self.value.rindex(pattern, start_pos)
+      end
     end
 
     def indicator_clear_range(pos, len)
