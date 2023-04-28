@@ -283,6 +283,10 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
+      - name: Wait for RubyGems
+        run: |
+          Start-Sleep -Seconds 300
+
       - name: Install wxRuby3 gem
         if: matrix.wxr_type != 'develop'
         run: |
