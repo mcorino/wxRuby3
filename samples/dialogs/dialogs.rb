@@ -247,7 +247,7 @@ class MyFrame < Frame
     @index = -1
     @index_2 = -1
 
-    @max = 10
+    @max = 100
 
     create_status_bar()
 
@@ -620,20 +620,31 @@ class MyFrame < Frame
   def on_show_progress(event)
     cont = false
     Wx::ProgressDialog("Progress dialog example",
-                       "An informative message",
+                       "An informative message\n"+"#{' '*100}\n\n\n\n",
                        @max, # range
                        self, # parent
-                       PD_CAN_ABORT | PD_APP_MODAL |
+                       PD_CAN_ABORT | PD_CAN_SKIP | PD_APP_MODAL |
                          PD_ELAPSED_TIME | PD_ESTIMATED_TIME |
                          PD_REMAINING_TIME) do |dialog|
       cont = true
-      (@max+1).times do |i|
-        if i == @max
-          cont = dialog.update(i, "That's all, folks!")
-        elsif i == @max / 2
-          cont = dialog.update(i, "Only half of it left (very long message)!")
-        else
+      i = 0
+      while i <= @max
+        if i == 0
           cont = dialog.update(i)
+        elsif i == @max
+          cont = dialog.update(i, "That's all, folks!\n\nNothing more to see here any more.")
+        elsif i <= (@max / 2)
+          cont = dialog.pulse("Testing indeterminate mode\n" +
+                              "\n" +
+                              "This mode allows you to show to the user\n" +
+                              "that something is going on even if you don't know\n" +
+                              "when exactly will you finish.")
+        else
+          cont = dialog.update(i, "Now in standard determinate mode\n" +
+                                  "\n" +
+                                  "This is the standard usage mode in which you\n" +
+                                  "update the dialog after performing each new step of work.\n" +
+                                  "It requires knowing the total number of steps in advance.")
         end
 
         if !cont
@@ -644,8 +655,12 @@ class MyFrame < Frame
             break
           end
           dialog.resume
+        elsif cont == :skipped
+          i += (@max / 4)
+          i = @max-1 if i >= @max
         end
-        sleep(1)
+        sleep(i == 0 ? 1 : 0.15)
+        i += 1
       end
     end
 
