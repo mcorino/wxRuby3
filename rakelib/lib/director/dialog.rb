@@ -107,72 +107,48 @@ module WXRuby3
           spec.do_not_generate(:functions, :enums, :defines)
         when 'wxDirDialog'
         when 'wxProgressDialog'
-          # These two have problematic arguments; they accept a bool pointer
-          # which will be set to true if "skip" was pressed since the last
-          # update. Dealt with below.
           spec.make_concrete 'wxProgressDialog'
           spec.items << 'wxGenericProgressDialog'
           spec.fold_bases('wxProgressDialog' => 'wxGenericProgressDialog')
-          spec.ignore(%w[wxGenericProgressDialog::Pulse wxGenericProgressDialog::Update], ignore_doc: false) # keep docs
-          # TODO : add docs for Ruby specials
+          if Config.instance.windows?
+            # The native dialog implementation for WXMSW is not usable with wxRuby because
+            # of it's multi-threaded nature so we explicitly use the generic implementation here
+            # (on most or all other platforms that is implicitly so).
+            spec.use_class_implementation 'wxProgressDialog', 'wxGenericProgressDialog'
+          end
+          # These two have problematic arguments; they accept a bool pointer
+          # which will be set to true if "skip" was pressed since the last
+          # update. Dealt with below.
+          spec.ignore(%w[wxGenericProgressDialog::Pulse wxGenericProgressDialog::Update])
           spec.add_extend_code 'wxProgressDialog', <<~__HEREDOC
-            // In wxRuby there are two versions of each of these methods, the
-            // standard one which returns just true/false depending on whether it
-            // has been aborted, and a special one which returns a pair of values,
-            // true/false for "aborted" and then true/false for "skipped"
+            // In wxRuby we change the return value for these methods to be either:
+            // - false if canceled
+            // - true if not canceled nor skipped
+            // - :skipped if skipped
             VALUE pulse(VALUE rb_msg = Qnil)
             {
+              static WxRuby_ID skipped_id("skipped"); 
+
               wxString new_msg;
               if ( rb_msg == Qnil )
                 new_msg = wxEmptyString;
               else
                 new_msg = wxString( StringValuePtr(rb_msg), wxConvUTF8 );
           
-              if ( $self->Pulse(new_msg) )
-                return Qtrue;
-              else
-                return Qfalse;
-            }
-          
-            VALUE pulse_and_check(VALUE rb_msg = Qnil)
-            {
-              VALUE ret = rb_ary_new();
-          
-              wxString new_msg;
-              if ( rb_msg == Qnil )
-                new_msg = wxEmptyString;
-              else
-                new_msg = wxString( StringValuePtr(rb_msg), wxConvUTF8 );
-              
               bool skip = false;
               if ( $self->Pulse(new_msg, &skip) )
-                rb_ary_push(ret, Qtrue);
-              else 
-                rb_ary_push(ret, Qfalse);
-              
-              rb_ary_push(ret, ( skip ? Qtrue : Qfalse) );
-          
-              return ret;
+              {
+                if (skip) return ID2SYM(skipped_id());
+                else      return Qtrue;
+              }
+              else
+                return Qfalse;
             }
           
             VALUE update(int value, VALUE rb_msg = Qnil)
             {
-              wxString new_msg;
-              if ( rb_msg == Qnil )
-                new_msg = wxEmptyString;
-              else
-                new_msg = wxString( StringValuePtr(rb_msg), wxConvUTF8 );
-          
-              if ( $self->Update(value, new_msg) )
-                return Qtrue;
-              else
-                return Qfalse;
-            }
-          
-            VALUE update_and_check(int value, VALUE rb_msg = Qnil)
-            {
-              VALUE ret = rb_ary_new();
-          
+              static WxRuby_ID skipped_id("skipped");
+ 
               wxString new_msg;
               if ( rb_msg == Qnil )
                 new_msg = wxEmptyString;
@@ -181,13 +157,12 @@ module WXRuby3
           
               bool skip = false;
               if ( $self->Update(value, new_msg, &skip) )
-                rb_ary_push(ret, Qtrue);
-              else 
-                rb_ary_push(ret, Qfalse);
-          
-              rb_ary_push(ret, ( skip ? Qtrue : Qfalse) );
-          
-              return ret;
+              {
+                if (skip) return ID2SYM(skipped_id());
+                else      return Qtrue;
+              }
+              else
+                return Qfalse;
             }
             __HEREDOC
         when 'wxWizard'
