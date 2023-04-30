@@ -36,6 +36,7 @@ DIALOGS_STYLED_BUSYINFO = 25
 DIALOGS_FIND = 26
 DIALOGS_REPLACE = 27
 DIALOGS_PREFS = 28
+DIALOGS_PREFS_TOOLBOOK = 29
 
 class MyTipProvider < TipProvider
   TIPS = [
@@ -147,16 +148,18 @@ end
 # PropertySheetDialog is specialised for doing preferences dialogs; it
 # contains a BookCtrl of some sort
 class MyPrefsDialog < Wx::PropertySheetDialog
-  def initialize(parent)
+  def initialize(parent, pref_type)
     # Using Book type other than Notebook needs two-step construction
     super()
-    self.sheet_style = Wx::PROPSHEET_BUTTONTOOLBOOK
-    self.sheet_outer_border = 1
-    self.sheet_inner_border = 2
-    img_list = Wx::ImageList.new(32, 32)
-    img_list << std_bitmap(Wx::ART_NORMAL_FILE)
-    img_list << std_bitmap(Wx::ART_CDROM)
-    img_list << std_bitmap(Wx::ART_REPORT_VIEW)
+    if pref_type == DIALOGS_PREFS_TOOLBOOK
+      self.sheet_style = Wx::PROPSHEET_BUTTONTOOLBOOK
+      self.sheet_outer_border = 1
+      self.sheet_inner_border = 2
+      img_list = Wx::ImageList.new(32, 32)
+      img_list << std_bitmap(Wx::ART_NORMAL_FILE)
+      img_list << std_bitmap(Wx::ART_CDROM)
+      img_list << std_bitmap(Wx::ART_REPORT_VIEW)
+    end
 
     create(parent, -1, "Preferences")
     create_buttons(Wx::ID_OK|Wx::ID_CANCEL)
@@ -251,36 +254,37 @@ class MyFrame < Frame
 
     create_status_bar()
 
-    evt_menu(DIALOGS_CHOOSE_COLOUR) {|event| on_choose_colour(event) }
-    evt_menu(DIALOGS_CHOOSE_FONT) {|event| on_choose_font(event) }
-    evt_menu(DIALOGS_LOG_DIALOG) {|event| on_log_dialog(event) }
-    evt_menu(DIALOGS_MESSAGE_BOX) {|event| on_message_box(event) }
-    evt_menu(DIALOGS_TEXT_ENTRY) {|event| on_text_entry(event) }
-    evt_menu(DIALOGS_PASSWORD_ENTRY) {|event| on_password_entry(event) }
-    evt_menu(DIALOGS_NUM_ENTRY) {|event| on_numeric_entry(event) }
-    evt_menu(DIALOGS_SINGLE_CHOICE) {|event| on_single_choice(event) }
-    evt_menu(DIALOGS_MULTI_CHOICE) {|event| on_multi_choice(event) }
-    evt_menu(DIALOGS_FILE_OPEN) {|event| on_file_open(event) }
-    evt_menu(DIALOGS_FILE_OPEN2) {|event| on_file_open2(event) }
-    evt_menu(DIALOGS_FILES_OPEN) {|event| on_files_open(event) }
-    evt_menu(DIALOGS_FILE_SAVE) {|event| on_file_save(event) }
-    evt_menu(DIALOGS_DIR_CHOOSE) {|event| on_dir_choose(event) }
-    evt_menu(DIALOGS_MODAL) {|event| on_modal_dlg(event) }
-    evt_menu(DIALOGS_MODELESS) {|event| on_modeless_dlg(event) }
-    evt_menu(DIALOGS_TIP) {|event| on_show_tip(event) }
-    evt_menu(DIALOGS_CUSTOM_TIP) {|event| on_show_custom_tip(event) }
-    evt_menu(DIALOGS_PROGRESS) {|event| on_show_progress(event) }
-    evt_menu(DIALOGS_BUSYINFO) {|event| on_show_busy_info(event) }
-    evt_menu(DIALOGS_STYLED_BUSYINFO) {|event| on_show_styled_busy_info(event) }
-    evt_menu(DIALOGS_PREFS) {|event| on_show_prefs(event) }
-    evt_menu(DIALOGS_FIND) {|event| on_show_find_dialog(event) }
-    evt_menu(DIALOGS_REPLACE) {|event| on_show_replace_dialog(event) }
-    evt_find(-1) {|event| on_find_dialog(event) }
-    evt_find_next(-1) {|event| on_find_dialog(event) }
-    evt_find_replace(-1) {|event| on_find_dialog(event) }
-    evt_find_replace_all(-1) {|event| on_find_dialog(event) }
-    evt_find_close(-1) {|event| on_find_dialog(event) }
-    evt_menu(ID_EXIT) {|event| on_exit(event) }
+    evt_menu(DIALOGS_CHOOSE_COLOUR, :on_choose_colour)
+    evt_menu(DIALOGS_CHOOSE_FONT, :on_choose_font)
+    evt_menu(DIALOGS_LOG_DIALOG, :on_log_dialog)
+    evt_menu(DIALOGS_MESSAGE_BOX, :on_message_box)
+    evt_menu(DIALOGS_TEXT_ENTRY, :on_text_entry)
+    evt_menu(DIALOGS_PASSWORD_ENTRY, :on_password_entry)
+    evt_menu(DIALOGS_NUM_ENTRY, :on_numeric_entry)
+    evt_menu(DIALOGS_SINGLE_CHOICE, :on_single_choice)
+    evt_menu(DIALOGS_MULTI_CHOICE, :on_multi_choice)
+    evt_menu(DIALOGS_FILE_OPEN, :on_file_open)
+    evt_menu(DIALOGS_FILE_OPEN2, :on_file_open2)
+    evt_menu(DIALOGS_FILES_OPEN, :on_files_open)
+    evt_menu(DIALOGS_FILE_SAVE, :on_file_save)
+    evt_menu(DIALOGS_DIR_CHOOSE, :on_dir_choose)
+    evt_menu(DIALOGS_MODAL, :on_modal_dlg)
+    evt_menu(DIALOGS_MODELESS, :on_modeless_dlg)
+    evt_menu(DIALOGS_TIP, :on_show_tip)
+    evt_menu(DIALOGS_CUSTOM_TIP, :on_show_custom_tip)
+    evt_menu(DIALOGS_PROGRESS, :on_show_progress)
+    evt_menu(DIALOGS_BUSYINFO, :on_show_busy_info)
+    evt_menu(DIALOGS_STYLED_BUSYINFO, :on_show_styled_busy_info)
+    evt_menu(DIALOGS_PREFS, :on_show_prefs)
+    evt_menu(DIALOGS_PREFS_TOOLBOOK,:on_show_prefs)
+    evt_menu(DIALOGS_FIND, :on_show_find_dialog)
+    evt_menu(DIALOGS_REPLACE, :on_show_replace_dialog)
+    evt_find(-1, :on_find_dialog)
+    evt_find_next(-1, :on_find_dialog)
+    evt_find_replace(-1, :on_find_dialog)
+    evt_find_replace_all(-1, :on_find_dialog)
+    evt_find_close(-1, :on_find_dialog)
+    evt_menu(ID_EXIT, :on_exit)
 
   end
 
@@ -614,7 +618,7 @@ class MyFrame < Frame
 
 
   def on_show_prefs(event)
-    MyPrefsDialog(self)
+    MyPrefsDialog(self, event.id)
   end
 
   def on_show_progress(event)
@@ -846,7 +850,8 @@ class MyApp < App
     file_menu.append(DIALOGS_PROGRESS, "Pro&gress dialog\tCtrl-G")
     file_menu.append(DIALOGS_BUSYINFO, "&Busy info dialog\tCtrl-B")
     file_menu.append(DIALOGS_STYLED_BUSYINFO, "Styled BusyInfo dialog")
-    file_menu.append(DIALOGS_PREFS, "Propert&y sheet dialog\tCtrl-Y")
+    file_menu.append(DIALOGS_PREFS, "Standard propert&y sheet dialog\tCtrl-Y")
+    file_menu.append(DIALOGS_PREFS_TOOLBOOK, "&Toolbook property sheet dialog\tShift-Ctrl-Y")
     file_menu.append(DIALOGS_FIND, "&Find dialog\tCtrl-F", "", ITEM_CHECK)
     file_menu.append(DIALOGS_REPLACE, "Find and &replace dialog\tShift-Ctrl-F", "", ITEM_CHECK)
 
