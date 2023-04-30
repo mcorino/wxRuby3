@@ -25,6 +25,13 @@ class Wx::Bitmap
     new(img, depth)
   end
 
+  # Create a new bitmap from an icon
+  def self.from_icon(icon)
+    bmp = self.new
+    bmp.copy_from_icon(icon)
+    bmp
+  end
+
   # Ruby methods that switch class are conventionally named to_foo
   alias :to_image :convert_to_image
 
