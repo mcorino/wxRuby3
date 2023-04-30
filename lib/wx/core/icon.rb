@@ -14,10 +14,16 @@ class Wx::Icon
 
   def to_bitmap
     # for WXMSW platform Icon is not derived from Bitmap
-    return self unless Wx::PLATFORM == 'WXMSW'
+    return self unless Wx::PLATFORM == 'WXMSW' || Wx::PLATFORM == 'WXOSX'
     bm = Wx::Bitmap.new
     bm.copy_from_icon(self)
     bm
+  end
+
+  if Wx::PLATFORM == 'WXMSW' || Wx::PLATFORM == 'WXOSX'
+    def convert_to_image
+      to_bitmap.convert_to_image
+    end
   end
 
   # Redefine the initialize method so it raises an exception if a

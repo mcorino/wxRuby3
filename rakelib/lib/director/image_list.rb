@@ -11,7 +11,9 @@ module WXRuby3
 
       def setup
         spec.require_app 'wxImageList'
-        spec.rename_for_ruby('AddIcon' => 'wxImageList::Add(const wxIcon &)')
+        if Config.instance.windows? || Config.instance.macosx?
+          spec.ignore('wxImageList::Add(const wxIcon &)', ignore_doc: false)
+        end
         super
       end
     end # class ImageList

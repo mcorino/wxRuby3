@@ -13,6 +13,41 @@ module WXRuby3
 
       def setup
         super
+        # we need access to the wxPrintPreview maintained in the frame
+        # for GC marking so define a derived class for that.
+        spec.add_header_code <<~__HEREDOC
+          class WxRubyPreviewFrame : public wxPreviewFrame
+          {
+          public:
+            WxRubyPreviewFrame(wxPrintPreviewBase *preview,
+                               wxWindow *parent,
+                               const wxString& title = wxGetTranslation(wxASCII_STR("Print Preview")),
+                               const wxPoint& pos = wxDefaultPosition,
+                               const wxSize& size = wxDefaultSize,
+                               long style = wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT,
+                               const wxString& name = wxASCII_STR(wxFrameNameStr))
+              : wxPreviewFrame(preview, parent, title, pos, size, style, name)
+            {}
+            virtual ~WxRubyPreviewFrame() {}
+
+            const wxPrintPreview* get_print_preview() const 
+            {
+              return dynamic_cast<const wxPrintPreview*> (this->m_printPreview); 
+            }
+          };
+
+          static void GC_mark_wxPreviewFrame(void *ptr)
+          {
+            WxRubyPreviewFrame* preview_frame = dynamic_cast<WxRubyPreviewFrame*>((wxPreviewFrame*)ptr);
+            if (preview_frame)
+            {
+              const void* ptr = (const void*)preview_frame->get_print_preview();
+              rb_gc_mark(SWIG_RubyInstanceFor(const_cast<void*> (ptr)));              
+            }
+          }
+        __HEREDOC
+        spec.use_class_implementation 'wxPreviewFrame', 'WxRubyPreviewFrame'
+        spec.add_swig_code '%markfunc wxPreviewFrame "GC_mark_wxPreviewFrame";'
         spec.rename_for_ruby('init' => 'wxPreviewFrame::Initialize')
         # We do not wrap the (undocumented) wxPrintPreviewBase so map this to wxPrintPreview what
         # in all cases will be the actual base being used.

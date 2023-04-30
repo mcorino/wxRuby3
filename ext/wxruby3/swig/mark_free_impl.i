@@ -340,38 +340,4 @@ WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
     std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
 #endif
 }
-
-// Prevents Ruby's GC sweeping up items that are stored as client data
-// Checks whether the C++ object is still around first...
-WXRUBY_EXPORT void GC_mark_wxControlWithItems(void* ptr)
-{
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_wxControlWithItems : " << ptr << std::endl;
-#endif
-
-  if ( GC_IsWindowDeleted(ptr) )
-	return;
-
-  GC_mark_wxWindow(ptr);
-
-  wxControlWithItems* wx_cwi = (wxControlWithItems*) ptr;
-  int count = wx_cwi->GetCount();
-  if ( count == 0 )
-	return; // Empty control
-  if ( ! wx_cwi->HasClientObjectData() && ! wx_cwi->HasClientUntypedData() )
-	return; // Control containing only strings
-
-  for (int i = 0; i < count; ++i)
-	{
-	  VALUE object = (VALUE) wx_cwi->GetClientData(i);
-	  if ( object && object != Qnil )
-		rb_gc_mark(object);
-	}
-
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "< GC_mark_wxControlWithItems : " << ptr << std::endl;
-#endif
-}
 %}

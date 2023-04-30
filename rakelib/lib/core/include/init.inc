@@ -70,7 +70,7 @@ static void wxRuby_SetActivationContext()
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             (LPTSTR) &lpMsgBuf,
             0, NULL );
-        ::fprintf(stderr, "Error in CreateActCtx : %s\n", lpMsgBuf);
+        std::wcerr << "Error in CreateActCtx : " << lpMsgBuf << std::endl;
         return;
     }
 
@@ -88,7 +88,7 @@ static void wxRuby_SetActivationContext()
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             (LPTSTR) &lpMsgBuf,
             0, NULL );
-        ::fprintf(stderr, "Error in ActivateActCtx : %s\n", lpMsgBuf);
+        std::wcerr << "Error in ActivateActCtx : " << lpMsgBuf << std::endl;
     }
 }
 

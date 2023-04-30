@@ -263,7 +263,7 @@ const int wxrb_trace_level = 0;
 #ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT int wxRuby_TraceLevel()
 {
-  return _wxrb_trace_level;
+  return wxrb_trace_level;
 }
 #endif
 %}

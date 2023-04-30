@@ -117,21 +117,21 @@ module WxRuby
       style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::BLACK);
       style_set_background(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE);
       style_clear_all
-      style_set_foreground(Wx::STC::STC_STYLE_LINENUMBER, Wx::Colour.new('SlateGray'))
+      style_set_foreground(Wx::STC::STC_STYLE_LINENUMBER, Wx::Colour.new('Dark Grey'))
       style_set_background(Wx::STC::STC_STYLE_LINENUMBER, Wx::WHITE);
       style_set_foreground(Wx::STC::STC_STYLE_INDENTGUIDE, Wx::LIGHT_GREY);
-      set_whitespace_background(false, Wx::Colour.new('DarkSlateGray'))
-      style_set_foreground(SCE_RB_COMMENTLINE, Wx::Colour.new('DARKGREEN'))
+      set_whitespace_background(false, Wx::Colour.new('Dark Slate Grey'))
+      style_set_foreground(SCE_RB_COMMENTLINE, Wx::Colour.new('Dark Green'))
       style_set_bold(SCE_RB_COMMENTLINE, true)
       style_set_foreground(SCE_RB_WORD, Wx::BLACK)
       style_set_bold(SCE_RB_WORD, true)
-      style_set_foreground(SCE_RB_OPERATOR, Wx::Colour.new('Teal'))
+      style_set_foreground(SCE_RB_OPERATOR, Wx::Colour.new('Dark Olive Green'))
       style_set_bold(SCE_RB_OPERATOR, true)
-      style_set_foreground(SCE_RB_POD, Wx::Colour.new('GREY'))
+      style_set_foreground(SCE_RB_POD, Wx::Colour.new('Grey'))
       style_set_foreground(SCE_RB_NUMBER, Wx::BLUE)
       style_set_foreground(SCE_RB_STRING, c_maroon)
       style_set_foreground(SCE_RB_CHARACTER, Wx::RED)
-      style_set_foreground(SCE_RB_SYMBOL, Wx::Colour.new('DARKBLUE'))
+      style_set_foreground(SCE_RB_SYMBOL, Wx::Colour.new('Navy'))
       style_set_bold(SCE_RB_SYMBOL, true)
       if Wx::WXWIDGETS_VERSION >= '3.3.0'
         style_set_foreground(SCE_RB_HERE_DELIM, Wx::BLACK)
@@ -145,8 +145,8 @@ module WxRuby
         style_set_foreground(SCE_RB_STRING_QR, c_maroon)
         style_set_foreground(SCE_RB_STRING_QW, c_maroon)
       end
-      bg = Wx::Colour.new('LightGray')
-      fg = Wx::Colour.new('DarkCyan')
+      bg = Wx::Colour.new('Light Grey')
+      fg = Wx::Colour.new('Cadet Blue')
       set_fold_margin_colour(true, bg)
       set_fold_margin_hi_colour(true, bg)
       marker_set_foreground(Wx::STC::STC_MARKNUM_FOLDER, fg)
@@ -156,8 +156,8 @@ module WxRuby
     end
 
     def dark_theme
-      bg = Wx::Colour.new('DarkSlateGray')
-      c_str = Wx::Colour.new('LimeGreen')
+      bg = Wx::Colour.new('Dark Slate Grey')
+      c_str = Wx::Colour.new('Lime Green')
       style_set_background(Wx::STC::STC_STYLE_DEFAULT, bg)
       style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE)
       style_clear_all
@@ -166,28 +166,28 @@ module WxRuby
       style_set_foreground(Wx::STC::STC_STYLE_INDENTGUIDE, bg);
       set_whitespace_background(true, bg)
       style_set_eol_filled(SCE_RB_DEFAULT, true)
-      style_set_foreground(SCE_RB_COMMENTLINE, Wx::Colour.new('Silver'))
+      style_set_foreground(SCE_RB_COMMENTLINE, Wx::Colour.new('Light Grey'))
       style_set_background(SCE_RB_COMMENTLINE, bg)
       style_set_bold(SCE_RB_COMMENTLINE, true)
-      style_set_foreground(SCE_RB_WORD, Wx::Colour.new('Chocolate'))
+      style_set_foreground(SCE_RB_WORD, Wx::Colour.new('Coral'))
       style_set_background(SCE_RB_WORD, bg)
       style_set_bold(SCE_RB_WORD, true)
-      style_set_foreground(SCE_RB_OPERATOR, Wx::Colour.new('LightCyan'))
+      style_set_foreground(SCE_RB_OPERATOR, Wx::Colour.new('Light Grey'))
       style_set_background(SCE_RB_OPERATOR, bg)
       style_set_bold(SCE_RB_OPERATOR, true)
-      style_set_foreground(SCE_RB_POD, Wx::Colour.new('Gray'))
+      style_set_foreground(SCE_RB_POD, Wx::Colour.new('Grey'))
       style_set_background(SCE_RB_POD, bg)
-      style_set_foreground(SCE_RB_NUMBER, Wx::Colour.new('DeepSkyBlue'))
+      style_set_foreground(SCE_RB_NUMBER, Wx::Colour.new('Cyan'))
       style_set_background(SCE_RB_NUMBER, bg)
       style_set_foreground(SCE_RB_STRING, c_str)
       style_set_background(SCE_RB_STRING, bg)
-      style_set_foreground(SCE_RB_CHARACTER, Wx::Colour.new('YellowGreen'))
+      style_set_foreground(SCE_RB_CHARACTER, Wx::Colour.new('Yellow Green'))
       style_set_background(SCE_RB_CHARACTER, bg)
       style_set_foreground(SCE_RB_SYMBOL, Wx::Colour.new('Gold'))
       style_set_background(SCE_RB_SYMBOL, bg)
       style_set_bold(SCE_RB_SYMBOL, true)
       if Wx::WXWIDGETS_VERSION >= '3.3.0'
-        style_set_foreground(SCE_RB_HERE_DELIM, Wx::Colour.new('Chocolate'))
+        style_set_foreground(SCE_RB_HERE_DELIM, Wx::Colour.new('Coral'))
         style_set_bold(SCE_RB_HERE_DELIM, true)
         style_set_foreground(SCE_RB_HERE_Q, c_str)
         style_set_foreground(SCE_RB_HERE_QQ, c_str)
@@ -198,8 +198,8 @@ module WxRuby
         style_set_foreground(SCE_RB_STRING_QR, c_str)
         style_set_foreground(SCE_RB_STRING_QW, c_str)
       end
-      bg = Wx::Colour.new('CadetBlue')
-      fg = Wx::Colour.new('Chocolate')
+      bg = Wx::Colour.new('Cadet Blue')
+      fg = Wx::Colour.new('Coral')
       set_fold_margin_colour(true, bg)
       set_fold_margin_hi_colour(true, bg)
       marker_set_foreground(Wx::STC::STC_MARKNUM_FOLDER, fg)

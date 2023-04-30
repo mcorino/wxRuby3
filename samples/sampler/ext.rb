@@ -38,12 +38,12 @@ end
 # otherwise samples using 'include Wx' (or other modules) will fail on referencing
 # a (module) method unscoped from one of these included modules
 module ::Kernel
-  def method_missing(name, *args)
+  def method_missing(name, *args, &block)
     if self.class.name.start_with?('WxRuby::Sample::SampleLoader_') && (scope = self.class.name.split('::')).size > 3
       top_mod = Object.const_get(scope[0,3].join('::'))
-      return top_mod.__send__(name, *args) if top_mod.respond_to?(name)
+      return top_mod.__send__(name, *args, &block) if top_mod.respond_to?(name)
       top_mod.included_modules.each do |imod|
-        return imod.__send__(name, *args) if imod.respond_to?(name)
+        return imod.__send__(name, *args, &block) if imod.respond_to?(name)
       end
     end
     super

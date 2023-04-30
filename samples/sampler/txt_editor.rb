@@ -35,9 +35,9 @@ module WxRuby
     end
 
     def dark_theme
-      self.background_colour = Wx::Colour.new('DarkSlateGray')
+      self.background_colour = Wx::Colour.new('Dark Slate Grey')
       self.foreground_colour = Wx::WHITE
-      self.set_default_style(txtatt = Wx::TextAttr.new(Wx::WHITE, Wx::Colour.new('DarkSlateGray'), self.font))
+      self.set_default_style(txtatt = Wx::TextAttr.new(Wx::WHITE, Wx::Colour.new('Dark Slate Grey'), self.font))
       self.set_style(0, self.get_last_position, txtatt)
     end
 
