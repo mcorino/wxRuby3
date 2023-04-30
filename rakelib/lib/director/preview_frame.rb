@@ -38,6 +38,12 @@ module WXRuby3
 
           static void GC_mark_wxPreviewFrame(void *ptr)
           {
+            if ( GC_IsWindowDeleted(ptr) )
+              return;
+        
+            // Do standard marking routines as for all wxWindows
+            GC_mark_wxWindow(ptr);
+
             WxRubyPreviewFrame* preview_frame = dynamic_cast<WxRubyPreviewFrame*>((wxPreviewFrame*)ptr);
             if (preview_frame)
             {
