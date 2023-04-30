@@ -262,39 +262,41 @@ class MyTreeCtrl < Wx::TreeCtrl
   end
 
   def create_buttons_image_list(size)
-    if size < 0
-      self.buttons_image_list = nil
-      return
-    end
-
-    # Make an image list containing small icons
-    images = Wx::ImageList.new(size, size, true)
-
-    # should correspond to TreeCtrlIcon_xxx enum
-    Wx::BusyCursor.busy do
-      icons = if @alternate_images
-                [Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon3.xpm'), Wx::BITMAP_TYPE_XPM),
-                 Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon3.xpm'), Wx::BITMAP_TYPE_XPM),
-                 Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon5.xpm'), Wx::BITMAP_TYPE_XPM),
-                 Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon5.xpm'), Wx::BITMAP_TYPE_XPM)
-                ]
-              else
-                icon_size = Wx::Size.new(@image_size, @image_size)
-                ic1 = Wx::ArtProvider::get_icon(Wx::ART_FOLDER, Wx::ART_LIST, icon_size)
-                ic2 = Wx::ArtProvider::get_icon(Wx::ART_FOLDER_OPEN, Wx::ART_LIST, icon_size)
-                [ic1, ic1, ic2, ic2]
-              end
-
-      icons.each do |ic|
-        if ic.width == size
-          images.add(ic)
-        else
-          resized = ic.convert_to_image.rescale(size, size)
-          images.add(Wx::Bitmap.new(resized))
-        end
+    unless Wx::PLATFORM == 'WXMSW'
+      if size < 0
+        self.buttons_image_list = nil
+        return
       end
 
-      self.buttons_image_list = images
+      # Make an image list containing small icons
+      images = Wx::ImageList.new(size, size, true)
+
+      # should correspond to TreeCtrlIcon_xxx enum
+      Wx::BusyCursor.busy do
+        icons = if @alternate_images
+                  [Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon3.xpm'), Wx::BITMAP_TYPE_XPM),
+                   Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon3.xpm'), Wx::BITMAP_TYPE_XPM),
+                   Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon5.xpm'), Wx::BITMAP_TYPE_XPM),
+                   Wx::Icon.new(File.join(File.dirname(__FILE__), 'icon5.xpm'), Wx::BITMAP_TYPE_XPM)
+                  ]
+                else
+                  icon_size = Wx::Size.new(@image_size, @image_size)
+                  ic1 = Wx::ArtProvider::get_icon(Wx::ART_FOLDER, Wx::ART_LIST, icon_size)
+                  ic2 = Wx::ArtProvider::get_icon(Wx::ART_FOLDER_OPEN, Wx::ART_LIST, icon_size)
+                  [ic1, ic1, ic2, ic2]
+                end
+
+        icons.each do |ic|
+          if ic.width == size
+            images.add(ic)
+          else
+            resized = ic.convert_to_image.rescale(size, size)
+            images.add(Wx::Bitmap.new(resized))
+          end
+        end
+
+        self.buttons_image_list = images
+      end
     end
   end
 
@@ -1454,7 +1456,7 @@ class MyFrame < Wx::Frame
   end
 
   def on_toggle_buttons(event)
-    unless Wx.has_feature?(:WXMSW)
+    unless Wx::PLATFORM == 'WXMSW'
       if Wx::THE_APP.show_buttons
         @treectrl.create_buttons_image_list(-1)
         Wx::get_app.show_buttons = false
