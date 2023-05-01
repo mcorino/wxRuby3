@@ -208,7 +208,7 @@ module WXRuby3
         # next initialize all modules without classes (keeping only those with classes)
         inc_dirs.select! do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if modreg.nil? || modreg.empty?
+          if !dir.spec.initialize_at_end && (modreg.nil? || modreg.empty?)
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
             init_fn << "  #{init};"
@@ -222,7 +222,7 @@ module WXRuby3
         cls_set = ::Set.new
         inc_dirs.select! do |dir|
           modreg = Spec.module_registry[dir.spec.module_name]
-          if modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || modreg.has_key?(base) }
+          if !dir.spec.initialize_at_end && modreg && !modreg.empty? && modreg.values.all? {|base| base.nil? || modreg.has_key?(base) }
             cls_set.merge modreg.keys # remember classes
             init = "Init_#{dir.spec.module_name}()"
             decls << "extern \"C\" void #{init};"
@@ -235,7 +235,7 @@ module WXRuby3
 
         # next initialize all modules with classes depending (bases AND mixins) on classes in any modules already
         # selected until there are no more modules left or none that are left depend on any selected ones
-        while dir_inx = inc_dirs.find_index { |dir| is_dir_with_fulfilled_deps?(dir, cls_set) }
+        while dir_inx = inc_dirs.find_index { |dir| !dir.spec.initialize_at_end && is_dir_with_fulfilled_deps?(dir, cls_set) }
           dir = inc_dirs[dir_inx]
           modreg = Spec.module_registry[dir.spec.module_name]
           cls_set.merge modreg.keys # remember classes

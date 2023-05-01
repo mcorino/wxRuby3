@@ -29,6 +29,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxScreenDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxSVGFileDC', director: Director::DerivedDC, requirements: %w[wxUSE_SVG])
     Director.Spec(pkg, 'wxGCDC', director: Director::DerivedDC, requirements: %w[wxUSE_GRAPHICS_CONTEXT])
+    Director.Spec(pkg, 'wxScaledDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxWindow')
     Director.Spec(pkg, 'wxNonOwnedWindow', director: Director::Window)
     Director.Spec(pkg, 'wxPopupWindow')
