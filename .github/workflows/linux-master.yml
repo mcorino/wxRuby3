@@ -72,7 +72,7 @@ jobs:
       with:
         repository: wxWidgets/wxWidgets
         path: ${{ env.WXWIDGETS_ROOT }}
-        ref: v${{ matrix.wxWidgets }}
+        ref: ${{ matrix.wxWidgets }}
         submodules: 'recursive'
 
     - name: Set up build environment
