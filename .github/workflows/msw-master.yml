@@ -35,14 +35,6 @@ jobs:
             swig: '4'
             wxw_type: develop
             wxr_type: develop
-          - os: windows-2022
-            platform: 'x64'
-            CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: 'master'
-            swig: '4'
-            wxw_type: embed
-            wxr_type: gem
 
     steps:
       - name: Checkout wxRuby3
