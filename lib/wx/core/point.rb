@@ -89,4 +89,9 @@ class Wx::Point
       end
     end
   end
+
+  def to_real_point
+    Wx::RealPoint.new(self.x.to_f, self.y.to_f)
+  end
+  alias :to_real :to_real_point
 end

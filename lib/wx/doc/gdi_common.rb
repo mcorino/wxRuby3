@@ -97,7 +97,12 @@ module Wx
     # @param [Wx::Point,Wx::Size,Array(Integer,Integer),Numeric] arg
     # @return [Wx::Point]
     def +(arg) end
-    
+
+    # Converts point to Wx::RealPoint
+    # @return [Wx::RealPoint] Wx::RealPoint instance from point coordinates
+    def to_real_point; end
+    alias :to_real :to_real_point
+
   end
 
   class RealPoint
@@ -143,6 +148,10 @@ module Wx
     # @param [Wx::RealPoint,Wx::Point,Wx::Size,Array(Float,Float),Numeric] arg
     # @return [Wx::RealPoint]
     def +(arg) end
+
+    # Converts real point to Wx::Point
+    # @return [Wx::Point] Wx::Point instance from real point coordinates
+    def to_point; end
 
   end
 
