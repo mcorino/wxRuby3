@@ -1,4 +1,7 @@
 class Wx::Point
+
+  include Comparable
+
   # More informative output when converted to string
   def to_s
     "#<Wx::Point: (#{x}, #{y})>"
@@ -16,23 +19,26 @@ class Wx::Point
   alias :get_x :x
   alias :get_y :y
 
-  # Compare point values
-  def ==(other)
-    if Wx::Point === other
-      x == other.x and y == other.y
-    elsif Array === other && other.size == 2
-      to_ary == other
-    else
-      Kernel.raise TypeError, "Cannot compare Point to #{other}"
-    end
-  end
-
   # Correct comparison for Points - same if same x and y
   def eql?(other)
-    if Wx::Point === other
+    if other.instance_of?(self.class)
       x == other.x and y == other.y
     else
       false
+    end
+  end
+
+  def hash
+    to_ary.hash
+  end
+
+  def <=>(other)
+    if Wx::Point === other
+      (x*y) <=> (other.x*other.y)
+    elsif Array === other && other.size == 2
+      (x*y) <=> (other.first.to_i*other.last.to_i)
+    else
+      nil
     end
   end
 

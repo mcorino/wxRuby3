@@ -23,12 +23,12 @@ class Wx::Rect
     elsif Array === other && other.size == 4
       to_ary == other
     else
-      Kernel.raise TypeError, "Cannot compare Rect to #{other}"
+      false
     end
   end
 
   def eql?(other)
-    if Wx::Rect === other
+    if other.instance_of?(self.class)
       left == other.left and top == other.top and
         width == other.width and height == other.height
     else

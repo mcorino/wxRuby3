@@ -56,19 +56,26 @@ module Wx
 
   class Point
 
+    include Comparable
+
     # Returns point array (`[x, y]`)
     # @return [Array(Integer,Integer)] point as array
     def to_ary; end
 
-    # Compare point values (Wx::Point or point array). Throws exception if incompatible.
+    # Compare point values (Wx::Point or point array). Returns -1,0 or 1 to indicate if this point
+    # is smaller, equal or greater than other (comparing <code>x*y</code> with <code>other.x*other.y</code>).
+    # Returns nil if incompatible.
     # @param [Wx::Point,Array(Integer,Integer)] other
-    # @return [Boolean]
-    def ==(other)end
+    # @return [Boolean,nil]
+    def <=>(other)end
 
     # Compare points.
     # @param [Wx::Point] other
     # @return [Boolean]
     def eql?(other)end
+
+    # Returns hash for point
+    def hash; end
 
     # Return a new Wx::Point with the x and y parameters both divided by
     # parameter +num+, which should be a Numeric
@@ -107,6 +114,8 @@ module Wx
 
   class RealPoint
 
+    include Comparable
+
     # Returns point array (`[x, y]`)
     # @return [Array(Float,Float)] point as array
     def to_ary; end
@@ -116,10 +125,20 @@ module Wx
     # @return [Boolean]
     def ==(other)end
 
+    # Compare point values (Wx::RealPoint or point array). Returns -1,0 or 1 to indicate if this point
+    # is smaller, equal or greater than other (comparing <code>x*y</code> with <code>other.x*other.y</code>).
+    # Returns nil if incompatible.
+    # @param [Wx::RealPoint,Array(Float,Float)] other
+    # @return [Boolean,nil]
+    def <=>(other)end
+
     # Compare points.
     # @param [Wx::RealPoint] other
     # @return [Boolean]
     def eql?(other)end
+
+    # Returns hash for point
+    def hash; end
 
     # Return a new Wx::RealPoint with the x and y parameters both divided by
     # parameter +num+, which should be a Numeric
@@ -161,7 +180,7 @@ module Wx
     # @return [Array(Integer,Integer,Integer,Integer)] rect as array
     def to_ary; end
 
-    # Compare area values (Wx::Rect or 4-element array). Throws exception if incompatible.
+    # Compare area values (Wx::Rect or 4-element array). Returns false if incompatible.
     # @param [Wx::Rect,Array(Integer,Integer,Integer,Integer)] other
     # @return [Boolean]
     def ==(other)end
