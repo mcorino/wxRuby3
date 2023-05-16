@@ -52,6 +52,44 @@ module WXRuby3
                       'wxSVGFileDC::EndPage'
         elsif spec.module_name == 'wxGCDC'
           spec.ignore 'wxGCDC::wxGCDC(const wxEnhMetaFileDC &)'
+        elsif spec.module_name == 'wxScaledDC'
+          spec.items.clear # wxRuby extension; no XML docs
+          spec.override_inheritance_chain('wxScaledDC', %w[wxDC wxObject])
+          # as there are no dependencies parsed from XML make sure we're initialized after Wx::DC
+          spec.initialize_at_end = true
+          spec.gc_as_temporary 'wxScaledDC'
+          spec.no_proxy 'wxScaledDC'
+          spec.include 'wxruby-ScaledDC.h'
+          # wxScaledDc should ever only be used in a restricted scope
+          # to be destructed directly after use therefor we make it abstract
+          # and provide a class factory method #draw_on with accepts a block.
+          # (as we there no classes defined in XML we cannot use add_extend_code
+          #  so we use a workaround here)
+          spec.add_swig_code <<~__HEREDOC
+            %extend wxScaledDC {
+            static void draw_on(wxDC& target, double scale)
+            {
+              if (rb_block_given_p())
+              {
+                wxScaledDC scaled_dc(target, scale);
+                wxScaledDC* p_scaled_dc = &scaled_dc;                        
+                VALUE rb_scaled_dc = SWIG_NewPointerObj(SWIG_as_voidptr(p_scaled_dc), SWIGTYPE_p_wxScaledDC, 0);
+                rb_yield(rb_scaled_dc);
+              }
+              return ;
+            }
+            };
+            __HEREDOC
+          spec.swig_import %w[ext/wxruby3/swig/classes/include/wxObject.h
+                              ext/wxruby3/swig/classes/include/wxDC.h]
+          spec.add_interface_code <<~__HEREDOC
+            class wxScaledDC : public wxDC
+            {
+            public:
+              wxScaledDC(wxDC& target, double scale);
+              virtual ~wxScaledDC() = 0;
+            };
+            __HEREDOC
         else
           # ctors of all other derived DC require a running App
           spec.require_app spec.module_name

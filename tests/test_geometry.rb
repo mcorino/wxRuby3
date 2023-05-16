@@ -12,9 +12,9 @@ class GeometryTests < Test::Unit::TestCase
     assert_equal(10, w)
     assert_equal(20, h)
 
-    assert(sz == Wx::Size.new(w,h))
-    assert(sz == [w,h])
-    assert_raise(TypeError) { sz == '10, 20' }
+    assert_equal(sz, Wx::Size.new(w,h))
+    assert_equal(sz, [w,h])
+    assert_not_equal(sz,'10, 20' )
 
     assert(sz.eql? Wx::Size.new(w,h))
     refute(sz.eql?([w,h]))
@@ -30,6 +30,20 @@ class GeometryTests < Test::Unit::TestCase
     assert(Wx::Size.new(12,22).eql?(sz + 2))
     assert(Wx::Size.new(12,23).eql?(sz + Wx::Size.new(2,3)))
     assert(Wx::Size.new(12,23).eql?(sz + [2,3]))
+
+    small_sz = Wx::Size.new(10, 10)
+    medium_sz = Wx::Size.new(20, 20)
+    large_sz = Wx::Size.new(30, 30)
+    a = [large_sz, small_sz, medium_sz]
+    a.sort!
+    assert_equal(a[0], small_sz)
+    assert_equal(a[1], medium_sz)
+    assert_equal(a[2], large_sz)
+
+    h = {large_sz => 'Large', small_sz => 'Small', medium_sz => 'Medium'}
+    assert_equal(h[Wx::Size.new(10, 10)], 'Small')
+    assert_equal(h[Wx::Size.new(20, 20)], 'Medium')
+    assert_equal(h[Wx::Size.new(30, 30)], 'Large')
   end
 
   def test_point
@@ -41,9 +55,9 @@ class GeometryTests < Test::Unit::TestCase
     assert_equal(10, x)
     assert_equal(20, y)
 
-    assert(pt == Wx::Point.new(x,y))
-    assert(pt == [x,y])
-    assert_raise(TypeError) { pt == '10, 20' }
+    assert_equal(pt, Wx::Point.new(x,y))
+    assert_equal(pt, [x,y])
+    assert_not_equal(pt, '10, 20')
 
     assert(pt.eql? Wx::Point.new(x,y))
     refute(pt.eql?([x,y]))
@@ -61,6 +75,20 @@ class GeometryTests < Test::Unit::TestCase
     assert(Wx::Point.new(12,23).eql?(pt + Wx::Point.new(2,3)))
     assert(Wx::Point.new(12,23).eql?(pt + Wx::Size.new(2,3)))
     assert(Wx::Point.new(12,23).eql?(pt + [2,3]))
+
+    nearest_pt = Wx::Point.new(10, 10)
+    mid_pt = Wx::Point.new(10, 20)
+    furthest_pt = Wx::Point.new(10, 30)
+    a = [furthest_pt, nearest_pt, mid_pt]
+    a.sort!
+    assert_equal(a[0], nearest_pt)
+    assert_equal(a[1], mid_pt)
+    assert_equal(a[2], furthest_pt)
+
+    h = {furthest_pt => 'Far', nearest_pt => 'Near', mid_pt => 'Mid'}
+    assert_equal(h[Wx::Point.new(10, 10)], 'Near')
+    assert_equal(h[Wx::Point.new(10, 20)], 'Mid')
+    assert_equal(h[Wx::Point.new(10, 30)], 'Far')
   end
 
   def test_real_point
@@ -72,9 +100,9 @@ class GeometryTests < Test::Unit::TestCase
     assert_equal(10.0, x)
     assert_equal(20.0, y)
 
-    assert(pt == Wx::RealPoint.new(x,y))
-    assert(pt == [x,y])
-    assert_raise(TypeError) { pt == '10.0, 20.0' }
+    assert_equal(pt, Wx::RealPoint.new(x,y))
+    assert_equal(pt, [x,y])
+    assert_not_equal(pt, '10.0, 20.0')
 
     assert(pt.eql? Wx::RealPoint.new(x,y))
     refute(pt.eql?([x,y]))
@@ -94,6 +122,20 @@ class GeometryTests < Test::Unit::TestCase
     assert(Wx::RealPoint.new(12.0,23.0).eql?(pt + Wx::Point.new(2,3)))
     assert(Wx::RealPoint.new(12.0,23.0).eql?(pt + Wx::Size.new(2,3)))
     assert(Wx::RealPoint.new(12.0,23.0).eql?(pt + [2,3]))
+
+    nearest_pt = Wx::RealPoint.new(10, 10)
+    mid_pt = Wx::RealPoint.new(10, 20)
+    furthest_pt = Wx::RealPoint.new(10, 30)
+    a = [furthest_pt, nearest_pt, mid_pt]
+    a.sort!
+    assert_equal(a[0], nearest_pt)
+    assert_equal(a[1], mid_pt)
+    assert_equal(a[2], furthest_pt)
+
+    h = {furthest_pt => 'Far', nearest_pt => 'Near', mid_pt => 'Mid'}
+    assert_equal(h[Wx::RealPoint.new(10, 10)], 'Near')
+    assert_equal(h[Wx::RealPoint.new(10, 20)], 'Mid')
+    assert_equal(h[Wx::RealPoint.new(10, 30)], 'Far')
   end
 
   def test_rect
@@ -113,9 +155,9 @@ class GeometryTests < Test::Unit::TestCase
     assert_equal(100, w)
     assert_equal(300, h)
 
-    assert(rect == Wx::Rect.new(x,y,w,h))
-    assert(rect == [x,y,w,h])
-    assert_raise(TypeError) { rect == '10,0,20,0' }
+    assert_equal(rect, Wx::Rect.new(x,y,w,h))
+    assert_equal(rect, [x,y,w,h])
+    assert_not_equal(rect, '10,0,20,0')
 
     assert(rect.eql? Wx::Rect.new(x,y,w,h))
     refute(rect.eql?([x,y,w,h]))

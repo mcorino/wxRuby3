@@ -77,6 +77,7 @@ module WXRuby3
         @post_processors = processors || [:rename, :fixmodule, :fix_protected_access]
         @requirements = [requirements].flatten
         @type_maps = Typemap::Collection.new
+        @initialize_at_end = false
       end
 
       attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly, :contracts, :event_overrides,
@@ -85,6 +86,7 @@ module WXRuby3
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements, :type_maps
       attr_writer :interface_file
+      attr_accessor :initialize_at_end
 
       def interface_file
         @interface_file || File.join(Config.instance.classes_path, @name + '.i')

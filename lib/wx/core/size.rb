@@ -1,4 +1,7 @@
 class Wx::Size
+
+  include Comparable
+
   # More informative output for inspect etc
   def to_s
     "#<Wx::Size: #{width}x#{height}>"
@@ -14,22 +17,26 @@ class Wx::Size
   end
 
   # Compare with another size value
-  def ==(other)
+  def <=>(other)
     if Wx::Size === other
-      width == other.width and height == other.height
+      (width*height) <=> (other.width*other.height)
     elsif Array === other and other.size == 2
-      to_ary == other
+      (width*height) <=> (other.first*other.last)
     else
-      Kernel.raise TypeError, "Cannot compare Size to #{other}"
+      nil
     end
   end
 
   def eql?(other)
-    if Wx::Size === other
+    if other.instance_of?(self.class)
       width == other.width and height == other.height
     else
       false
     end
+  end
+
+  def hash
+    to_ary.hash
   end
 
   # Return a new Wx::Size with the width and height values both divided

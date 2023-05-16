@@ -1,4 +1,7 @@
 class Wx::RealPoint
+
+  include Comparable
+
   # More informative output when converted to string
   def to_s
     "#<Wx::RealPoint: (#{x}, #{y})>"
@@ -16,23 +19,26 @@ class Wx::RealPoint
   alias :get_x :x
   alias :get_y :y
 
-  # Compare point values
-  def ==(other)
-    if Wx::RealPoint === other
-      x == other.x and y == other.y
-    elsif Array === other && other.size == 2
-      to_ary == other
-    else
-      Kernel.raise TypeError, "Cannot compare RealPoint to #{other}"
-    end
-  end
-
   # Correct comparison for RealPoints - same if same x and y
   def eql?(other)
-    if Wx::RealPoint === other
+    if other.instance_of?(self.class)
       x == other.x and y == other.y
     else
       false
+    end
+  end
+
+  def hash
+    to_ary.hash
+  end
+
+  def <=>(other)
+    if Wx::RealPoint === other
+      (x*y) <=> (other.x*other.y)
+    elsif Array === other && other.size == 2
+      (x*y) <=> (other.first.to_f*other.last.to_f)
+    else
+      nil
     end
   end
 
@@ -88,5 +94,10 @@ class Wx::RealPoint
         Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
       end
     end
+  end
+
+
+  def to_point
+    Wx::Point.new(self.x.to_i, self.y.to_i)
   end
 end
