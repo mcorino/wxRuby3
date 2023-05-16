@@ -1,6 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
+
+require_relative './lib/wxapp_runner'
 
 class EventTests < Test::Unit::TestCase
 
@@ -40,6 +39,3 @@ class TestApp < Wx::App
     false
   end
 end
-
-app = TestApp.new
-app.run

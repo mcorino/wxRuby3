@@ -1,14 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
 
-class TestApp < Wx::App
-  attr_accessor :test_class
-  def on_init
-    Test::Unit::UI::Console::TestRunner.run(self.test_class)
-    false
-  end
-end
+require_relative './lib/wxapp_runner'
 
 class CtrlContainerFrame < Wx::Frame
   attr_accessor :control
@@ -181,7 +172,3 @@ class TestItemData < Test::Unit::TestCase
      f.close(true)
    end
 end
-
-app = TestApp.new
-app.test_class = TestItemData
-app.run

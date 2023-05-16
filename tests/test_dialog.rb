@@ -1,6 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
+
+require_relative './lib/wxapp_runner'
 
 class DialogTests < Test::Unit::TestCase
 
@@ -16,13 +15,3 @@ class DialogTests < Test::Unit::TestCase
     assert_kind_of(Wx::Window, dlg)
   end
 end
-
-class TestApp < Wx::App
-  def on_init
-    Test::Unit::UI::Console::TestRunner.run(DialogTests)
-    false
-  end
-end
-
-app = TestApp.new
-app.run

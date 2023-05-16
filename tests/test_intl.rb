@@ -1,14 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
 
-class TestApp < Wx::App
-  attr_accessor :test_class
-  def on_init
-    Test::Unit::UI::Console::TestRunner.run(self.test_class)
-    false # exit after tests
-  end
-end
+require_relative './lib/wxapp_runner'
 
 class TestInternationalisation < Test::Unit::TestCase
   def test_encodings
@@ -101,7 +92,3 @@ class TestInternationalisation < Test::Unit::TestCase
     locale = Wx::Locale.new(Wx::LANGUAGE_DEFAULT)
   end
 end
-
-app = TestApp.new
-app.test_class = TestInternationalisation
-app.run

@@ -1,15 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
 
-class TestApp < Wx::App
-  attr_accessor :test_class
-  def on_init
-    Test::Unit::UI::Console::TestRunner.run(self.test_class)
-    GC.start
-    false # exit after tests
-  end
-end
+require_relative './lib/wxapp_runner'
 
 class TestVariant < Test::Unit::TestCase
 
@@ -145,7 +135,3 @@ class TestVariant < Test::Unit::TestCase
  end
 
 end
-
-app = TestApp.new
-app.test_class = TestVariant
-app.run
