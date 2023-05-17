@@ -1,6 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
+
+require_relative './lib/wxapp_runner'
 
 class EventHandlingTests < Test::Unit::TestCase
 
@@ -91,13 +90,3 @@ class EventHandlingTests < Test::Unit::TestCase
     assert_boolean(!win.child.test_cmd_event)
   end
 end
-
-class TestApp < Wx::App
-  def on_init
-    Test::Unit::UI::Console::TestRunner.run(EventHandlingTests)
-    false
-  end
-end
-
-app = TestApp.new
-app.run

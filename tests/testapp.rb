@@ -33,8 +33,3 @@ class TestApp < Test::Unit::TestCase
     assert(o.did_call_on_exit, "didn't call on_exit?")
   end
 end
-
-if $0 == __FILE__
-  require 'test/unit/ui/console/testrunner'
-  Test::Unit::UI::Console::TestRunner.run(TestApp)
-end

@@ -1,6 +1,5 @@
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
-require 'wx'
+
+require_relative './lib/wxapp_runner'
 
 class TestTextData < Test::Unit::TestCase
   # Using an in-built class
@@ -229,13 +228,4 @@ class TestDataObject < Test::Unit::TestCase
 
     assert_equal('HELLO', d_obj_2.get_data_here(Wx::DF_TEXT) )
   end
-end
-
-Wx::App.run do
-  # Must run whilst App is alive
-  Test::Unit::UI::Console::TestRunner.run(TestTextData)
-  Test::Unit::UI::Console::TestRunner.run(TestBitmapData)
-  Test::Unit::UI::Console::TestRunner.run(TestDataObjectComposite)
-  Test::Unit::UI::Console::TestRunner.run(TestDataObject)
-  false
 end
