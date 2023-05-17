@@ -4,7 +4,7 @@
 module WxGlobalConstants
 
   class << self
-    def search_nested(mod, sym)
+    def search_nested(mod, sym, path = [])
       # check any nested modules and/or (enum) classes
       const_val = nil
       mod.constants.each do |c|
@@ -16,11 +16,12 @@ module WxGlobalConstants
           elsif cv.name.start_with?('Wx::') # only search Wx namespace
             # prevent const_missing being triggered here since that may lead to unexpected results
             const_val = cv.const_get(sym) if cv.constants.include?(sym)
-            const_val = search_nested(cv, sym) unless const_val
+            const_val = search_nested(cv, sym, path+[mod]) unless const_val || path.include?(cv)
           end
         when ::Module
           if cv.name.start_with?('Wx::') # only search Wx namespace
-            const_val = cv.const_get(sym) rescue nil
+            const_val = cv.const_get(sym)  if cv.constants.include?(sym)
+            const_val = search_nested(cv, sym, path+[mod]) unless const_val || path.include?(cv)
           end
         end unless mod == cv # watch out for infinite recursion
         break if const_val
