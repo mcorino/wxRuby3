@@ -30,7 +30,7 @@ class TestTextData < Test::Unit::TestCase
     Wx::Clipboard.open do | clip |
       clip.fetch td_3
     end
-    assert_equal("", td_3.text)
+    assert_equal("", td_3.get_data_here)
   end
 end
 
@@ -137,6 +137,26 @@ end
 class TestDataObject < Test::Unit::TestCase
   MY_CUSTOM_FORMAT = Wx::DataFormat.new('text/custom_format')
 
+  class MySimpleDataObject < Wx::DataObjectSimpleBase
+    def initialize
+      super(Wx::DF_TEXT)
+      @data = nil
+    end
+
+    def _get_data_size
+      @data.to_s.size
+    end
+
+    def _get_data
+      @data
+    end
+
+    def _set_data(data)
+      @data = data
+      true
+    end
+  end
+
   class MyBasicDataObject < Wx::DataObject
     attr_reader :my_data
 
@@ -207,10 +227,28 @@ class TestDataObject < Test::Unit::TestCase
     end
   end
 
+  def test_simple_data_obj
+    d_obj = MySimpleDataObject.new
+    d_obj.set_data('Simple Data')
+    assert_equal( 1, d_obj.get_format_count )
+    assert_equal('Simple Data', d_obj.get_data_here )
+
+    Wx::Clipboard.open do | clip |
+      clip.place d_obj
+    end
+
+    d_obj2 = MySimpleDataObject.new
+    Wx::Clipboard.open do | clip |
+      assert clip.supported?( d_obj2.get_format )
+      clip.fetch d_obj2
+    end
+    assert_equal('Simple Data', d_obj2.get_data_here )
+  end
+
   def test_data_obj
     d_obj = MyBasicDataObject.new
     d_obj.set_data(Wx::DF_TEXT, 'HELLO')
-    assert_equal( 2, d_obj.get_format_count(0) )
+    assert_equal( 2, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     assert_equal('HELLO', d_obj.get_data_here(Wx::DF_TEXT) )
     assert_equal('<b>HELLO</b>', d_obj.get_data_here(MY_CUSTOM_FORMAT) )
 
