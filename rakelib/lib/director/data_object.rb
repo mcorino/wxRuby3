@@ -77,7 +77,7 @@ module WXRuby3
           #ifdef __WXRB_DEBUG__
                 if (wxRuby_TraceLevel()>1)
                 {
-                  void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(data_obj) : 0);
+                  void *c_ptr = (TYPE(data_obj) == T_DATA ? DATA_PTR(data_obj) : 0);
                   std::wcout << "**** wxRuby_markCompositeDataObjects : " << it->first << "|" << (void*)c_ptr << std::endl;
                 }
           #endif               
