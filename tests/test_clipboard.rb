@@ -82,7 +82,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
     end
 
     def _get_data_size
-      @arr ? @arr.pack('i*').size : 0
+      @arr ? @arr.size : 0
     end
 
     def _get_data
@@ -199,15 +199,16 @@ end
 
 class TestDataObject < Test::Unit::TestCase
   MY_CUSTOM_FORMAT = Wx::DataFormat.new('text/custom_format')
+  MY_CUSTOM_TEXT = Wx::DataFormat.new('text/custom_text')
 
   class MySimpleDataObject < Wx::DataObjectSimpleBase
     def initialize
-      super(Wx::DF_TEXT)
-      @data = nil
+      super(MY_CUSTOM_TEXT)
+      @data = ''
     end
 
     def _get_data_size
-      @data.to_s.size
+      @data.bytesize
     end
 
     def _get_data
@@ -215,7 +216,7 @@ class TestDataObject < Test::Unit::TestCase
     end
 
     def _set_data(data)
-      @data = data
+      @data = data ? data : ''
       true
     end
   end
@@ -269,9 +270,9 @@ class TestDataObject < Test::Unit::TestCase
     def get_data_size(format)
       case format.get_type
       when Wx::DataFormatId::DF_TEXT
-        get_as_text.to_s.size
+        get_as_text.to_s.bytesize
       when MY_CUSTOM_FORMAT.get_type
-        get_formatted.to_s.size
+        get_formatted.to_s.bytesize
       else
         0
       end
@@ -318,7 +319,7 @@ class TestDataObject < Test::Unit::TestCase
     Wx::Clipboard.open do | clip |
       clip.place d_obj
     end
-    
+
     d_obj_2 = MyBasicDataObject.new
     Wx::Clipboard.open do | clip |
       assert clip.supported?( Wx::DF_TEXT )
