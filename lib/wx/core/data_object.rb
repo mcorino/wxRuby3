@@ -1,10 +1,43 @@
-# Provide some default implementations of these to make life easier
-class Wx::DataObject
-  def get_preferred_format(direction)
-    get_all_formats(direction).first
+
+module Wx
+
+  # Provide some default implementations of these to make life easier
+  class DataObject
+    def get_preferred_format(direction)
+      get_all_formats(direction).first
+    end
+
+    def get_format_count(direction)
+      get_all_formats(direction).size
+    end
   end
 
-  def get_format_count(direction)
-    get_all_formats(direction).size
+  class DataObjectSimple
+
+    # implement the overloads which do not require the format arg
+    # using pure Ruby
+
+    wx_get_data_size = instance_method :get_data_size
+    define_method :get_data_size do |format = nil|
+      wx_get_data_size.bind(self).call(format || self.get_format)
+    end
+
+    wx_get_data_here = instance_method :get_data_here
+    define_method :get_data_here do |format = nil|
+      wx_get_data_here.bind(self).call(format || self.get_format)
+    end
+
+    wx_set_data = instance_method :set_data
+    define_method :set_data do |*args|
+      if args.size>1
+        format, buf = args
+      else
+        format = nil
+        buf = args.first
+      end
+      wx_set_data.bind(self).call(format || self.get_format, buf)
+    end
+
   end
+
 end

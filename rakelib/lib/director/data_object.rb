@@ -59,6 +59,22 @@ module WXRuby3
       end
     end # class DataObject
 
+    def doc_generator
+      DataObjectDocGenerator.new(self)
+    end
+
   end # class Director
+
+  class DataObjectDocGenerator < DocGenerator
+
+    protected def get_class_doc(clsdef)
+      if clsdef.name == 'wxDataObjectSimple'
+        []
+      else
+        super
+      end
+    end
+
+  end
 
 end # module WXRuby3
