@@ -47,7 +47,7 @@ module WXRuby3
           map_argout as: {type: 'String', index: 1}, code: <<~__CODE
             if (result)
             {
-              $result = rb_str_new( (const char*)data_buf$argnum.get(), data_size$argnum);
+              $result = rb_utf8_str_new( (const char*)data_buf$argnum.get(), data_size$argnum);
             }
             else
               $result = Qnil;
@@ -83,11 +83,18 @@ module WXRuby3
         map 'size_t len, const void* buf' do
 
           map_in from: {type: 'String', index: 1}, code: <<~__CODE
-            $1 = RSTRING_LEN($input);
-            $2 = (void*)StringValuePtr($input);
+            if (RTEST($input) && TYPE($input) == T_STRING)
+            {
+              $1 = RSTRING_LEN($input);
+              $2 = (void*)StringValuePtr($input);
+            }
+            else
+            {
+              $1 = 0; $2 = NULL;
+            }
             __CODE
 
-          map_directorin code: '$input = rb_external_str_new( (const char *)buf, len );'
+          map_directorin code: '$input = rb_utf8_str_new( (const char *)buf, len );'
 
           map_typecheck precedence: 'pointer', code: '$1 = (TYPE($input) == T_STRING);'
         end
