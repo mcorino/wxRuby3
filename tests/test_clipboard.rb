@@ -65,6 +65,36 @@ class TestBitmapData < Test::Unit::TestCase
 end
 
 class TestDataObjectComposite < Test::Unit::TestCase
+  MY_INT_ARRAY_FORMAT = Wx::DataFormat.new('application/int_array_format')
+
+  class MySimpleIntArrayObject < Wx::DataObjectSimpleBase
+    def initialize(arr = nil)
+      super(MY_INT_ARRAY_FORMAT)
+      self.array = arr
+    end
+
+    def array
+      @arr
+    end
+
+    def array=(arr)
+      @arr = (arr || []).collect { |e| e.to_i }
+    end
+
+    def _get_data_size
+      @arr ? @arr.pack('i*').size : 0
+    end
+
+    def _get_data
+      @arr ? @arr.pack('i*') : nil
+    end
+
+    def _set_data(data)
+      @arr = data ? data.unpack('i*') : []
+      true
+    end
+  end
+
   def test_data_object_composite
     d_obj = Wx::DataObjectComposite.new
     d_txt = Wx::TextDataObject.new
@@ -79,6 +109,9 @@ class TestDataObjectComposite < Test::Unit::TestCase
       assert_equal( 2, d_txt.get_format_count(Wx::DataObject::Direction::Get) )
       assert_equal( 3, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     end
+    d_txt = nil
+
+    GC.start
 
     d_bmp = Wx::BitmapDataObject.new(bmp)
     Wx::Clipboard.open do | clip |
@@ -86,12 +119,16 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.place d_bmp
     end
 
+    GC.start
+
     Wx::Clipboard.open do | clip |
       assert !clip.supported?( Wx::DF_TEXT )
       assert clip.supported?( Wx::DF_BITMAP )
 
       clip.fetch d_obj
     end
+
+    GC.start
 
     if Wx::PLATFORM == 'WXMSW'
       assert_equal d_obj.received_format.get_type, Wx::DF_DIB.get_type
@@ -111,6 +148,8 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.place d_txt
     end
 
+    GC.start
+
     d_obj_2 = Wx::DataObjectComposite.new
     d_txt = Wx::TextDataObject.new
     d_obj_2.add d_txt
@@ -124,6 +163,8 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.fetch d_obj_2
     end
 
+    GC.start
+
     assert_equal d_obj_2.received_format.get_type, d_txt.get_preferred_format(Wx::DataObject::Direction::Set).get_type
     if Wx::PLATFORM == 'WXMSW'
       d_txt = d_obj_2.get_object(Wx::DF_UNICODETEXT)
@@ -131,6 +172,28 @@ class TestDataObjectComposite < Test::Unit::TestCase
       d_txt = d_obj_2.get_object(Wx::DF_TEXT)
     end
     assert_equal d_txt.text, 'THE TEXT'
+
+    GC.start
+
+    d_obj_2 = Wx::DataObjectComposite.new
+    d_obj_2.add Wx::BitmapDataObject.new
+    d_obj_2.add MySimpleIntArrayObject.new([1,2,3,4,5])
+    assert_equal( 2, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
+
+    Wx::Clipboard.open do | clip |
+      clip.clear
+      clip.place d_obj_2
+    end
+
+    GC.start
+
+    d_iarr = MySimpleIntArrayObject.new
+    Wx::Clipboard.open do | clip |
+      assert clip.supported?(MY_INT_ARRAY_FORMAT)
+      clip.fetch d_iarr
+    end
+
+    assert_equal([1,2,3,4,5], d_iarr.array)
   end
 end
 
