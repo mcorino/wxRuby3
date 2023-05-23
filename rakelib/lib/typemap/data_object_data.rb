@@ -88,6 +88,8 @@ module WXRuby3
             __CODE
 
           map_directorin code: '$input = rb_external_str_new( (const char *)buf, len );'
+
+          map_typecheck precedence: 'pointer', code: '$1 = (TYPE($input) == T_STRING);'
         end
 
       end # define
