@@ -40,4 +40,34 @@ module Wx
 
   end
 
+  class DataObjectSimpleBase
+
+    # implement these in pure Ruby for optimization
+    def get_data_size(*)
+      self._get_data_size
+    end
+    def get_data_here(*)
+      self._get_data
+    end
+
+    def set_data(*args)
+      if args.size>1
+        _, buf = args
+      else
+        buf = args.first
+      end
+      self._set_data(buf)
+    end
+
+  end
+
+  class TextDataObject
+
+    # override this to loose the extra terminating 0 we otherwise get
+    def get_data_here(*)
+      self.get_text
+    end
+
+  end
+
 end

@@ -47,13 +47,6 @@ module WXRuby3
           public:
             wxDataObjectSimpleBase(const wxDataFormat &format=wxFormatInvalid);
           
-            virtual size_t GetDataSize() const;
-            virtual size_t GetDataSize(const wxDataFormat &format) const;
-            %feature("numoutputs", "0") GetDataHere;
-            virtual VOID_BOOL GetDataHere(const wxDataFormat &format, void *buf) const;
-            virtual VOID_BOOL GetDataHere(void *data_buffer) const;
-            virtual bool SetData(const wxDataFormat &format, size_t len, const void *buf);
-            virtual bool SetData(size_t len, const void *buf);
             virtual void GetAllFormats(wxDataFormat *formats, Direction dir=Get) const;
             virtual size_t GetFormatCount(Direction dir=Get) const;
             virtual wxDataFormat GetPreferredFormat(Direction dir=Get) const;
@@ -88,7 +81,7 @@ module WXRuby3
           map_argout as: {type: 'String', index: 1}, code: <<~__CODE
             if (result)
             {
-              $result = rb_str_new( (const char*)data_buf$argnum.get(), data_size$argnum);
+              $result = rb_utf8_str_new( (const char*)data_buf$argnum.get(), data_size$argnum);
             }
             else
               $result = Qnil;
