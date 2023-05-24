@@ -86,21 +86,21 @@ module WXRuby3
             }
           }
 
-          static void GC_free_DataObjectComposite(void *ptr)
+          // custom implementation for wxRuby so we can handle de-registering composites
+          class WxRuby_DataObjectComposite : public wxDataObjectComposite
           {
-            wxDataObjectComposite *composite = static_cast<wxDataObjectComposite*>(ptr);
-            // remove registration of composite and all assigned simple objects
-            CompositeDataObject_Map.erase(composite);
-            // remove tracking
-            SWIG_RubyRemoveTracking(composite);
-
-            delete composite;            
-          }
+          public:
+            WxRuby_DataObjectComposite() : wxDataObjectComposite() {}
+            virtual ~WxRuby_DataObjectComposite()
+            {
+              CompositeDataObject_Map.erase(this);
+            } 
+          };
           __HEREDOC
         # install GC marker
         spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markCompositeDataObjects);'
-        # install custom freefunc
-        spec.add_swig_code '%feature("freefunc") wxDataObjectComposite "GC_free_DataObjectComposite";'
+        # use custom implementation class
+        spec.use_class_implementation 'wxDataObjectComposite', 'WxRuby_DataObjectComposite'
 
         # disable generating the default Add method (keep docs)
         spec.ignore 'wxDataObjectComposite::Add', ignore_doc: false
@@ -116,16 +116,8 @@ module WXRuby3
               rb_raise(rb_eArgError, "Expected Wx::DataObjectSimple for 1");
             }
 
-            // find registration list for this composite (if any)
-            composite_data_object_map_t::iterator it = CompositeDataObject_Map.find($self);
-            if (it == CompositeDataObject_Map.end())
-            {
-              // create entry
-              CompositeDataObject_Map[$self] = data_object_list_t();
-            }
             // add new simple instance to registration for this composite
-            data_object_list_t &do_list = CompositeDataObject_Map[$self];
-            do_list.push_back(rb_dataObject);
+            CompositeDataObject_Map[$self].push_back(rb_dataObject);
 
             // add to composite
             $self->Add(simple_do);

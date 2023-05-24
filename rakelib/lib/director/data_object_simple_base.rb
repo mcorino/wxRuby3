@@ -15,7 +15,8 @@ module WXRuby3
       def setup
         super
         spec.items.clear
-        spec.gc_as_object
+        # insert literal code as #gc_as_xx does not work without parsed class items
+        spec.add_swig_code 'GC_MANAGE_AS_OBJECT(wxDataObjectSimpleBase);'
         spec.initialize_at_end = true
 
         spec.swig_import 'ext/wxruby3/swig/classes/include/wxDataObject.h'
@@ -26,6 +27,7 @@ module WXRuby3
           public:
             wxDataObjectSimpleBase(const wxDataFormat &format=wxFormatInvalid)
               : wxDataObjectSimple(format) {}
+            virtual ~wxDataObjectSimpleBase() { }
           
             virtual size_t GetDataSize() const { return _GetDataSize(); }
             virtual size_t GetDataSize(const wxDataFormat &) const { return _GetDataSize(); }
