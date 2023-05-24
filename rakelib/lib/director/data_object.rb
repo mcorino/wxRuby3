@@ -135,13 +135,23 @@ module WXRuby3
 
   class DataObjectDocGenerator < DocGenerator
 
-    protected def get_class_doc(clsdef)
+    def get_class_doc(clsdef)
       if clsdef.name == 'wxDataObjectSimple'
         []
       else
         super
       end
     end
+    protected :get_class_doc
+
+    def get_method_doc(mtd)
+      if Extractor::MethodDef === mtd && mtd.class_name == 'wxDataObject' && mtd.name == 'GetDataSize'
+        {}
+      else
+        super
+      end
+    end
+    protected :get_method_doc
 
   end
 
