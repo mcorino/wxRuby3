@@ -59,6 +59,11 @@ module Wx
       self._set_data(buf)
     end
 
+    def _get_data_size
+      (_get_data || '').bytesize
+    end
+    protected :_get_data_size
+
   end
 
   class TextDataObject
