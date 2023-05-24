@@ -56,9 +56,103 @@ module WXRuby3
         # Once a DataObject has been added, it belongs to the wxDataObjectComposite object,
         # and will be freed by it on destruction.
         spec.disown 'wxDataObjectSimple* dataObject'
+
+        # Add GC management for the DataObjectSimple instances added to a DataObjectComposite instance.
+        spec.add_header_code <<~__HEREDOC
+          #include <vector>
+          #include <map>
+
+          typedef std::vector<VALUE> data_object_list_t;
+          typedef std::map<wxDataObjectComposite*, data_object_list_t> composite_data_object_map_t;
+          static composite_data_object_map_t CompositeDataObject_Map;
+
+          static void wxRuby_markCompositeDataObjects()
+          {
+            composite_data_object_map_t::iterator it;
+            for( it = CompositeDataObject_Map.begin(); it != CompositeDataObject_Map.end(); ++it )
+            {
+              data_object_list_t &do_list = it->second;
+              for (VALUE data_obj : do_list)
+              {
+          #ifdef __WXRB_DEBUG__
+                if (wxRuby_TraceLevel()>1)
+                {
+                  void *c_ptr = (TYPE(data_obj) == T_DATA ? DATA_PTR(data_obj) : 0);
+                  std::wcout << "**** wxRuby_markCompositeDataObjects : " << it->first << "|" << (void*)c_ptr << std::endl;
+                }
+          #endif               
+                rb_gc_mark(data_obj);
+              }
+            }
+          }
+
+          // custom implementation for wxRuby so we can handle de-registering composites
+          class WxRuby_DataObjectComposite : public wxDataObjectComposite
+          {
+          public:
+            WxRuby_DataObjectComposite() : wxDataObjectComposite() {}
+            virtual ~WxRuby_DataObjectComposite()
+            {
+              CompositeDataObject_Map.erase(this);
+            } 
+          };
+          __HEREDOC
+        # install GC marker
+        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markCompositeDataObjects);'
+        # use custom implementation class
+        spec.use_class_implementation 'wxDataObjectComposite', 'WxRuby_DataObjectComposite'
+
+        # disable generating the default Add method (keep docs)
+        spec.ignore 'wxDataObjectComposite::Add', ignore_doc: false
+        # Add custom Add implementation
+        spec.add_extend_code 'wxDataObjectComposite', <<~__HEREDOC
+          void add(VALUE rb_dataObject, bool preferred=false)
+          {
+            // convert simple object
+            wxDataObjectSimple *simple_do;
+            int res = SWIG_ConvertPtr(rb_dataObject, SWIG_as_voidptrptr(&simple_do), SWIGTYPE_p_wxDataObjectSimple, SWIG_POINTER_DISOWN);
+            if (!SWIG_IsOK(res)) 
+            {
+              rb_raise(rb_eArgError, "Expected Wx::DataObjectSimple for 1");
+            }
+
+            // add new simple instance to registration for this composite
+            CompositeDataObject_Map[$self].push_back(rb_dataObject);
+
+            // add to composite
+            $self->Add(simple_do);
+          }
+          __HEREDOC
+
       end
     end # class DataObject
 
+    def doc_generator
+      DataObjectDocGenerator.new(self)
+    end
+
   end # class Director
+
+  class DataObjectDocGenerator < DocGenerator
+
+    def get_class_doc(clsdef)
+      if clsdef.name == 'wxDataObjectSimple'
+        []
+      else
+        super
+      end
+    end
+    protected :get_class_doc
+
+    def get_method_doc(mtd)
+      if Extractor::MethodDef === mtd && mtd.class_name == 'wxDataObject' && mtd.name == 'GetDataSize'
+        {}
+      else
+        super
+      end
+    end
+    protected :get_method_doc
+
+  end
 
 end # module WXRuby3

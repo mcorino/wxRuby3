@@ -30,7 +30,7 @@ class TestTextData < Test::Unit::TestCase
     Wx::Clipboard.open do | clip |
       clip.fetch td_3
     end
-    assert_equal("", td_3.text)
+    assert_equal("", td_3.get_data_here)
   end
 end
 
@@ -65,6 +65,37 @@ class TestBitmapData < Test::Unit::TestCase
 end
 
 class TestDataObjectComposite < Test::Unit::TestCase
+  MY_INT_ARRAY_FORMAT = Wx::DataFormat.new('application/int_array_format')
+
+  class MySimpleIntArrayObject < Wx::DataObjectSimpleBase
+    def initialize(arr = nil)
+      super(MY_INT_ARRAY_FORMAT)
+      self.array = arr
+    end
+
+    def array
+      @arr
+    end
+
+    def array=(arr)
+      @arr = (arr || []).collect { |e| e.to_i }
+    end
+
+    # The default will do in this case but otherwise something like this:
+    # def _get_data_size
+    #   @arr ? @arr.pack('i*').bytesize : 0
+    # end
+
+    def _get_data
+      @arr ? @arr.pack('i*') : nil
+    end
+
+    def _set_data(data)
+      @arr = data ? data.unpack('i*') : []
+      true
+    end
+  end
+
   def test_data_object_composite
     d_obj = Wx::DataObjectComposite.new
     d_txt = Wx::TextDataObject.new
@@ -79,6 +110,9 @@ class TestDataObjectComposite < Test::Unit::TestCase
       assert_equal( 2, d_txt.get_format_count(Wx::DataObject::Direction::Get) )
       assert_equal( 3, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     end
+    d_txt = nil
+
+    GC.start
 
     d_bmp = Wx::BitmapDataObject.new(bmp)
     Wx::Clipboard.open do | clip |
@@ -86,12 +120,16 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.place d_bmp
     end
 
+    GC.start
+
     Wx::Clipboard.open do | clip |
       assert !clip.supported?( Wx::DF_TEXT )
       assert clip.supported?( Wx::DF_BITMAP )
 
       clip.fetch d_obj
     end
+
+    GC.start
 
     if Wx::PLATFORM == 'WXMSW'
       assert_equal d_obj.received_format.get_type, Wx::DF_DIB.get_type
@@ -111,6 +149,8 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.place d_txt
     end
 
+    GC.start
+
     d_obj_2 = Wx::DataObjectComposite.new
     d_txt = Wx::TextDataObject.new
     d_obj_2.add d_txt
@@ -124,6 +164,8 @@ class TestDataObjectComposite < Test::Unit::TestCase
       clip.fetch d_obj_2
     end
 
+    GC.start
+
     assert_equal d_obj_2.received_format.get_type, d_txt.get_preferred_format(Wx::DataObject::Direction::Set).get_type
     if Wx::PLATFORM == 'WXMSW'
       d_txt = d_obj_2.get_object(Wx::DF_UNICODETEXT)
@@ -131,11 +173,58 @@ class TestDataObjectComposite < Test::Unit::TestCase
       d_txt = d_obj_2.get_object(Wx::DF_TEXT)
     end
     assert_equal d_txt.text, 'THE TEXT'
+
+    GC.start
+
+    d_obj_2 = Wx::DataObjectComposite.new
+    d_obj_2.add Wx::TextDataObject.new
+    d_obj_2.add MySimpleIntArrayObject.new([1,2,3,4,5])
+    if Wx::PLATFORM == 'WXMSW'
+      assert_equal( 2, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
+    else
+      assert_equal( 3, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
+    end
+
+    Wx::Clipboard.open do | clip |
+      clip.clear
+      clip.place d_obj_2
+    end
+
+    GC.start
+
+    d_iarr = MySimpleIntArrayObject.new
+    Wx::Clipboard.open do | clip |
+      assert clip.supported?(MY_INT_ARRAY_FORMAT)
+      clip.fetch d_iarr
+    end
+
+    assert_equal([1,2,3,4,5], d_iarr.array)
   end
 end
 
 class TestDataObject < Test::Unit::TestCase
   MY_CUSTOM_FORMAT = Wx::DataFormat.new('text/custom_format')
+  MY_CUSTOM_TEXT = Wx::DataFormat.new('text/custom_text')
+
+  class MySimpleDataObject < Wx::DataObjectSimpleBase
+    def initialize
+      super(MY_CUSTOM_TEXT)
+      @data = ''
+    end
+
+    def _get_data_size
+      @data.bytesize
+    end
+
+    def _get_data
+      @data
+    end
+
+    def _set_data(data)
+      @data = data ? data : ''
+      true
+    end
+  end
 
   class MyBasicDataObject < Wx::DataObject
     attr_reader :my_data
@@ -186,9 +275,9 @@ class TestDataObject < Test::Unit::TestCase
     def get_data_size(format)
       case format.get_type
       when Wx::DataFormatId::DF_TEXT
-        get_as_text.to_s.size
+        get_as_text.to_s.bytesize
       when MY_CUSTOM_FORMAT.get_type
-        get_formatted.to_s.size
+        get_formatted.to_s.bytesize
       else
         0
       end
@@ -207,17 +296,35 @@ class TestDataObject < Test::Unit::TestCase
     end
   end
 
+  def test_simple_data_obj
+    d_obj = MySimpleDataObject.new
+    d_obj.set_data('Simple Data')
+    assert_equal( 1, d_obj.get_format_count )
+    assert_equal('Simple Data', d_obj.get_data_here )
+
+    Wx::Clipboard.open do | clip |
+      clip.place d_obj
+    end
+
+    d_obj2 = MySimpleDataObject.new
+    Wx::Clipboard.open do | clip |
+      assert clip.supported?( d_obj2.get_format )
+      clip.fetch d_obj2
+    end
+    assert_equal('Simple Data', d_obj2.get_data_here )
+  end
+
   def test_data_obj
     d_obj = MyBasicDataObject.new
     d_obj.set_data(Wx::DF_TEXT, 'HELLO')
-    assert_equal( 2, d_obj.get_format_count(0) )
+    assert_equal( 2, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     assert_equal('HELLO', d_obj.get_data_here(Wx::DF_TEXT) )
     assert_equal('<b>HELLO</b>', d_obj.get_data_here(MY_CUSTOM_FORMAT) )
 
     Wx::Clipboard.open do | clip |
       clip.place d_obj
     end
-    
+
     d_obj_2 = MyBasicDataObject.new
     Wx::Clipboard.open do | clip |
       assert clip.supported?( Wx::DF_TEXT )

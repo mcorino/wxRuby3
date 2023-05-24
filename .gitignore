@@ -5,7 +5,6 @@ bin
 obj
 src
 bak
-doc
 rdoc
 pkg
 rakelib/deps
