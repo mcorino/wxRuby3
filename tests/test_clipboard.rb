@@ -81,9 +81,10 @@ class TestDataObjectComposite < Test::Unit::TestCase
       @arr = (arr || []).collect { |e| e.to_i }
     end
 
-    def _get_data_size
-      @arr ? @arr.pack('i*').bytesize : 0
-    end
+    # The default will do in this case but otherwise something like this:
+    # def _get_data_size
+    #   @arr ? @arr.pack('i*').bytesize : 0
+    # end
 
     def _get_data
       @arr ? @arr.pack('i*') : nil
