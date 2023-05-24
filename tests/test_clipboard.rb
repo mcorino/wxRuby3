@@ -82,7 +82,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
     end
 
     def _get_data_size
-      @arr ? @arr.size : 0
+      @arr ? @arr.pack('i*').bytesize : 0
     end
 
     def _get_data
