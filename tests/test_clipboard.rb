@@ -177,7 +177,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
     GC.start
 
     d_obj_2 = Wx::DataObjectComposite.new
-    d_obj_2.add Wx::BitmapDataObject.new
+    d_obj_2.add Wx::TextDataObject.new
     d_obj_2.add MySimpleIntArrayObject.new([1,2,3,4,5])
     assert_equal( 2, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
 
