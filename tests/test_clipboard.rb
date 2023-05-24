@@ -179,7 +179,11 @@ class TestDataObjectComposite < Test::Unit::TestCase
     d_obj_2 = Wx::DataObjectComposite.new
     d_obj_2.add Wx::TextDataObject.new
     d_obj_2.add MySimpleIntArrayObject.new([1,2,3,4,5])
-    assert_equal( 2, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
+    if Wx::PLATFORM == 'WXMSW'
+      assert_equal( 2, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
+    else
+      assert_equal( 3, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
+    end
 
     Wx::Clipboard.open do | clip |
       clip.clear
