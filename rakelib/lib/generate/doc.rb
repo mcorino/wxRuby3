@@ -298,6 +298,8 @@ module WXRuby3
               ["#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}", true]
             elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
               ["Wx::#{rb_constant_name(nm_str)}", true]
+            elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str, false))
+              ["Wx::#{rb_constant_name(nm_str, false)}", true]
             elsif !_is_method?(nm_str, ref_scope)
               ["Wx::#{constnm}", true]
             else
@@ -328,6 +330,9 @@ module WXRuby3
             constnm = "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
           elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
             cnm = rb_constant_name(nm_str)
+            constnm = "#{DocGenerator.constants_xref_db[cnm]['mod']}::#{cnm}"
+          elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str, false))
+            cnm = rb_constant_name(nm_str, false)
             constnm = "#{DocGenerator.constants_xref_db[cnm]['mod']}::#{cnm}"
           elsif nm_str.start_with?('wx')
             known = false
@@ -514,6 +519,14 @@ module WXRuby3
         doc
       end
 
+      def constants_db
+        DocGenerator.constants_db
+      end
+
+      def constants_xref_db
+        DocGenerator.constants_xref_db
+      end
+
     end
 
     def run
@@ -616,7 +629,7 @@ module WXRuby3
               end
             else
               item.items.each do |e|
-                const_name = rb_constant_name(e.name)
+                const_name = rb_constant_name(e.name, false)
                 if xref_table.has_key?(const_name)
                   gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(e))
                 end
