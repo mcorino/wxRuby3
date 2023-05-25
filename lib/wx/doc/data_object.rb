@@ -80,8 +80,7 @@ module Wx
     # The default implementation calls #_get_data and determines the size of the returned data string (if any).
     # As this is not very optimal for more complex (and larger data objects) very often this method will be
     # overridden in derived classes.
-    # @note **IMPORTANT** Please note that it is necessary to return the **size in bytes** of the data string
-    # returned by #_get_data (not the size in characters).
+    # @note **IMPORTANT** Please note that it is necessary to return the **size in bytes** of the data string returned by #_get_data (not the size in characters).
     # @return [Integer]
     def _get_data_size; end
     protected :_get_data_size
