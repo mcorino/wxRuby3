@@ -46,12 +46,17 @@ module WXRuby3
           tmpfile << script
           tmpfile.close(false)
           result = if Director.trace?
-                     Config.instance.run(ftmp_name, capture: :out)
+                     Config.instance.run(ftmp_name, capture: :out, verbose: false)
                    else
-                     Config.instance.run(ftmp_name, capture: :no_err)
+                     Config.instance.run(ftmp_name, capture: :no_err, verbose: false)
                    end
           STDERR.puts "* got constants collection output:\n#{result}" if Director.trace?
-          db = JSON.load(result)
+          begin
+            db = JSON.load(result)
+          rescue Exception
+            File.open('constants_raw.json', "w") { |f| f << result } if Director.verbose?
+            ::Kernel.raise RuntimeError, "Exception loading constants collection result: #{$!.message.slice(0, 512)}", cause: nil
+          end
           File.open('constants.json', "w") { |f| f << JSON.pretty_generate(db) } if Director.verbose?
           return db
         ensure
