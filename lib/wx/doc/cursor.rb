@@ -1,0 +1,16 @@
+
+class Wx::Cursor
+
+  # Searches for an art file with basename 'name' and creates a Cursor if found.
+  # Raises an ArgumentError if not found.
+  # Wx::ArtLocator::find_art is used to look up the art file using ::Kernel#caller_locations to
+  # determine the values for the 'art_path' and 'art_owner' arguments ('art_path' is set to the
+  # absolute path to the folder holding the caller's code and 'art_owner' to the basename of the
+  # caller's source file). The 'art_type' argument is set to <code>:icon</code>.
+  # @param [String,Symbol] name base name of art file
+  # @param [Wx::BitmapType] bmp_type bitmap type for art file
+  # @return [Wx::Cursor]
+  # @see Wx::ArtLocator::find_art
+  def self.Cursor(name, bmp_type = Wx::CURSOR_DEFAULT_TYPE); end
+
+end
