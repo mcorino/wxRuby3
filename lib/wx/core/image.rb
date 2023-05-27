@@ -68,7 +68,7 @@ module Wx
     end
   end
 
-  def self.Image(name, bmp_type = Wx::BitmapType::BITMAP_TYPE_ANY, *rest)
+  def self.Image(name, bmp_type = nil, *rest)
     art_path = File.dirname(caller_path = caller_locations(1).first.absolute_path)
     art_owner = File.basename(caller_path, '.*')
     art_file = ArtLocator.find_art(name, :image, art_path: art_path, art_owner: art_owner, bmp_type: bmp_type)

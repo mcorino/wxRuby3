@@ -22,11 +22,11 @@ module Wx
     # absolute path to the folder holding the caller's code and 'art_owner' to the basename of the
     # caller's source file). The 'art_type' argument is set to <code>:icon</code>.
     # @param [String,Symbol] name base name of art file
-    # @param [Wx::BitmapType,nil] bmp_type bitmap type for art file (default means any supported type as does passing <code>nil</code>)
+    # @param [Wx::BitmapType,nil] bmp_type bitmap type for art file (nil means any supported type)
     # @param [Integer] index  Index of the image to load in the case that the image file contains multiple images. This is only used by GIF, ICO and TIFF handlers. The default value (-1) means "choose the default image" and is interpreted as the first image (index=0) by the GIF and TIFF handler and as the largest and most colourful one by the ICO handler.
     # @return [Wx::Image]
     # @see Wx::ArtLocator::find_art
-    def self.Image(name, bmp_type = Wx::BitmapType::BITMAP_TYPE_ANY, index=-1); end
+    def self.Image(name, bmp_type = nil, index=-1); end
 
   end
 

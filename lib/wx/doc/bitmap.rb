@@ -17,10 +17,10 @@ module Wx
     # absolute path to the folder holding the caller's code and 'art_owner' to the basename of the
     # caller's source file). The 'art_type' argument is set to <code>:icon</code>.
     # @param [String,Symbol] name base name of art file
-    # @param [Wx::BitmapType] bmp_type bitmap type for art file
+    # @param [Wx::BitmapType,nil] bmp_type bitmap type for art file (nil means any supported type)
     # @return [Wx::Bitmap]
     # @see Wx::ArtLocator::find_art
-    def self.Bitmap(name, bmp_type = Wx::BITMAP_DEFAULT_TYPE); end
+    def self.Bitmap(name, bmp_type = nil); end
 
   end
 

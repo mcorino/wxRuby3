@@ -13,6 +13,6 @@ class Wx::Icon
   # @param [Integer] desired_height
   # @return [Wx::Icon]
   # @see Wx::ArtLocator::find_art
-  def self.Icon(name, bmp_type = Wx::ICON_DEFAULT_TYPE, desired_width=-1, desired_height=-1); end
+  def self.Icon(name, bmp_type = nil, desired_width=-1, desired_height=-1); end
 
 end
