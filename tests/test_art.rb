@@ -79,7 +79,7 @@ class TestArt < Test::Unit::TestCase
   def test_art
     art = nil
     assert_nothing_raised do
-      art = Wx::ArtLocator.find_art(:sample, art_owner: 'my_art')
+      art = Wx::ArtLocator.find_art(:sample, art_section: 'my_art')
     end
     assert_not_nil(art)
     assert { File.exist?(art) }

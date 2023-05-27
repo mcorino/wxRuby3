@@ -27,19 +27,20 @@ module Wx::ArtLocator
 
     # Searches for the an art file for the given 'art_name'.
     # By default the search will be performed at the following locations (in order):
-    # 1. <art_path>/<#art_folder>/<art_type>/<art_owner>/
-    # 2. <art_path>/<#art_folder>/<art_type>/
+    # 1. <art_path>/<#art_folder>/<art_section>/<art_type>/
+    # 2. <art_path>/<#art_folder>/<art_section>/
     # 3. <art_path>/<#art_folder>/
     # 4. <art_path>/
     # Where 'art_type' is any of <code>:icon</code>, <code>:bitmap</code>, <code>:cursor</code>,
-    # <code>:image</code> or <code>nil</code> (equivalent to :image).
+    # <code>:image</code> or <code>nil</code>. If 'art_type' is nil the first location will be skipped.
     # In case 'art_path' == <code>nil</code> the absolute path to the folder holding the caller's
     # code will be used which is determined through ::Kernel#caller_locations.
-    # If 'art_owner' is also <code>nil</code> the basename of the caller's source file will be used.
+    # If 'art_section' is also <code>nil</code> the basename of the caller's source file will be used.
     # At each location the existence of a file with base name 'art_name' and each of the supported
-    # extensions for the given 'art_type' (see wxWidgets documentation) will be tested.
+    # extensions for the given 'art_type' (see wxWidgets documentation) will be tested. If 'art_type' is nil
+    # all extensions for all supported bitmap types will be tested (similar to when 'art_type' is :image).
     # If an optional Wx::BitmapType is specified through 'bmp_type' the tested extensions will
-    # be restricted to the extensions supported for the bitmap type.
+    # be restricted to the extensions supported for specified the bitmap type.
     #
     # In case additional search paths have been specified through #add_search_path these will be
     # searched after the lookup at 'art_path' fails. For each search path the same lookups
@@ -47,9 +48,9 @@ module Wx::ArtLocator
     # @param [String,Symbol] art_name base name for art file
     # @param [Symbol,nil] art_type type of art to look for (:icon, :bitmap, :cursor, :image)
     # @param [String,nil] art_path base path to look up the art file
-    # @param [String,nil] art_owner optional owner folder name for art files
+    # @param [String,nil] art_section optional owner folder name for art files
     # @param [Wx::BitmapType,nil] bmp_type bitmap type of art file
-    def find_art(art_name, art_type = nil, art_path: nil, art_owner: nil, bmp_type: nil) end
+    def find_art(art_name, art_type: nil, art_path: nil, art_section: nil, bmp_type: nil) end
 
   end
 

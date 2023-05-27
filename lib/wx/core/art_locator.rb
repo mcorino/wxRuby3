@@ -58,10 +58,10 @@ module Wx
       end
       alias :add_search_paths :add_search_path
 
-      def _find_art(art_name, art_type, art_path, art_owner, bmp_type)
+      def _find_art(art_name, art_type, art_path, art_section, bmp_type)
         art_paths = [art_path, File.join(art_path, art_folder)]
+        art_paths << File.join(art_paths.last, art_section) if art_section
         art_paths << File.join(art_paths.last, art_type.to_s) if art_type
-        art_paths << File.join(art_paths.last, art_owner) if art_owner
         art_paths.reverse_each do |sp|
           (bmp_type ? (Image.handler_extensions[bmp_type] || []) : art_extensions(art_type)).each do |ext|
             fp = File.join(sp, "#{art_name}.#{ext}")
@@ -72,15 +72,15 @@ module Wx
       end
       private :_find_art
 
-      def find_art(art_name, art_type = nil, art_path: nil, art_owner: nil, bmp_type: nil)
+      def find_art(art_name, art_type: nil, art_path: nil, art_section: nil, bmp_type: nil)
         unless art_path
           caller_path = caller_locations(1).first.absolute_path
           art_path = File.dirname(caller_path)
-          art_owner ||= File.basename(caller_path, '.*')
+          art_section ||= File.basename(caller_path, '.*')
         end
         bmp_type = nil if bmp_type == Wx::BitmapType::BITMAP_TYPE_ANY
-        unless fp = _find_art(art_name.to_s, art_type, art_path, art_owner, bmp_type)
-          search_paths.find { |sp| fp = _find_art(art_name.to_s, art_type, sp, art_owner, bmp_type) }
+        unless fp = _find_art(art_name.to_s, art_type, art_path, art_section, bmp_type)
+          search_paths.find { |sp| fp = _find_art(art_name.to_s, art_type, sp, art_section, bmp_type) }
         end
         fp
       end

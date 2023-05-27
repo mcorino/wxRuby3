@@ -96,7 +96,7 @@ module Wx
   def self.Bitmap(name, bmp_type = nil)
     art_path = File.dirname(caller_path = caller_locations(1).first.absolute_path)
     art_owner = File.basename(caller_path, '.*')
-    art_file = ArtLocator.find_art(name, :bitmap, art_path: art_path, art_owner: art_owner, bmp_type: bmp_type)
+    art_file = ArtLocator.find_art(name, art_type: :bitmap, art_path: art_path, art_section: art_owner, bmp_type: bmp_type)
     ::Kernel.raise ArgumentError, "Cannot locate art file for #{name}:Bitmap" unless art_file
     Bitmap.new(art_file, bmp_type)
   end
