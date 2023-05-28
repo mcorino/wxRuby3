@@ -43,6 +43,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPen')
     Director.Spec(pkg, 'wxPalette')
     Director.Spec(pkg, 'wxRegion')
+    Director.Spec(pkg, 'wxRegionIterator')
     Director.Spec(pkg, 'wxIconLocation')
     Director.Spec(pkg, 'wxBitmap')
     Director.Spec(pkg, 'wxIcon')
