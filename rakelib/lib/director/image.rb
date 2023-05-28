@@ -43,6 +43,61 @@ module WXRuby3
           wxImage::InsertHandler
           wxImage::RemoveHandler
           ]
+        # add convenience class methods
+        spec.add_extend_code 'wxImage', <<~__HEREDOC
+          static VALUE handlers()
+          {
+            VALUE hnd_ary = rb_ary_new();
+            wxList& hnd_lst = wxImage::GetHandlers();
+            for (wxList::compatibility_iterator node = hnd_lst.GetFirst();
+                    node; node = node->GetNext())
+            {
+              wxImageHandler *handler = (wxImageHandler *) node->GetData();
+              wxBitmapType bmp_type = handler->GetType();
+              rb_ary_push(hnd_ary, wxRuby_GetEnumValueObject("wxBitmapType", (int)bmp_type));
+            }
+            return hnd_ary;
+          }
+
+          static VALUE extensions()
+          {
+            VALUE ext_ary = rb_ary_new();
+            wxList& hnd_lst = wxImage::GetHandlers();
+            for (wxList::compatibility_iterator node = hnd_lst.GetFirst();
+                    node; node = node->GetNext())
+            {
+              wxImageHandler *handler = (wxImageHandler *) node->GetData();
+              rb_ary_push(ext_ary, WXSTR_TO_RSTR(handler->GetExtension()));
+              const wxArrayString& alt_ext = handler->GetAltExtensions();
+              for (wxArrayString::const_iterator it = alt_ext.begin(); it!=alt_ext.end() ;++it)
+              {
+                rb_ary_push(ext_ary, WXSTR_TO_RSTR((*it)));
+              }
+            }
+            return ext_ary;
+          }
+
+          static VALUE handler_extensions()
+          {
+            VALUE ext_hash = rb_hash_new();
+            wxList& hnd_lst = wxImage::GetHandlers();
+            for (wxList::compatibility_iterator node = hnd_lst.GetFirst();
+                    node; node = node->GetNext())
+            {
+              wxImageHandler *handler = (wxImageHandler *) node->GetData();
+              VALUE ext_ary = rb_ary_new();
+              rb_ary_push(ext_ary, WXSTR_TO_RSTR(handler->GetExtension()));
+              const wxArrayString& alt_ext = handler->GetAltExtensions();
+              for (wxArrayString::const_iterator it = alt_ext.begin(); it!=alt_ext.end() ;++it)
+              {
+                rb_ary_push(ext_ary, WXSTR_TO_RSTR((*it)));
+              }
+              wxBitmapType bmp_type = handler->GetType();
+              rb_hash_aset(ext_hash, wxRuby_GetEnumValueObject("wxBitmapType", (int)bmp_type), ext_ary);
+            }
+            return ext_hash;
+          }
+          __HEREDOC
         # The GetRgbData and GetAlphaData methods require special handling using %extend;
         spec.ignore %w[wxImage::GetData wxImage::GetAlpha]
         # The SetRgbData and SetAlphaData are dealt with by typemaps (see below).

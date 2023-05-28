@@ -111,7 +111,7 @@ module WXRuby3
                   end
             params << { name: pnm, type: arg.type }
             if paramdef.default
-              defexp = rb_constant_expression(paramdef.default)
+              defexp = rb_constant_expression(paramdef.default, xml_trans.constants_xref_db)
               # in case the default expression dereferences a pointer or passes an address clean it up
               defexp.sub!(/\A\s*[\*\&]/, '')
               # in case the default expression contains anything else but simple numbers or identifiers, wrap in ()

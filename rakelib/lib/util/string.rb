@@ -62,10 +62,13 @@ module WXRuby3
         rbnm
       end
 
-      def rb_constant_name(name)
-        rbnm = underscore(name)
+      def rb_constant_name(name, do_transform = true)
+        rbnm = do_transform ? underscore(name) : name.dup
         rbnm.sub!(/\Awx_/, '')
-        rbnm.upcase!
+        unless do_transform
+          rbnm.sub!(/\Awx([A-Z])/, '\1')
+        end
+        rbnm.upcase! if do_transform
         rbnm
       end
 
@@ -85,10 +88,17 @@ module WXRuby3
 
       def rb_constant_value(name)
         val = name.sub(/\Awx/, 'Wx::')
-        val == 'NULL' ? 'nil' : val
+        case val
+        when /NULL|nullptr/
+          'nil'
+        when /EmptyString/
+          %q['']
+        else
+          val
+        end
       end
 
-      def rb_constant_expression(exp)
+      def rb_constant_expression(exp, const_xref)
         exp.gsub(/(\w+(::\w+)*)(\s*\()?/) do |s|
           idstr = $1
           is_call = !!$3
@@ -119,15 +129,26 @@ module WXRuby3
           else
             if is_scoped
               # nested identifier
+              if const_xref.has_key?(rb_constant_name(idstr))
+                "#{scoped_name}::#{rb_constant_name(idstr)}"
+              elsif const_xref.has_key?(rb_constant_name(idstr, false))
+                "#{scoped_name}::#{rb_constant_name(idstr, false)}"
+              end
               "#{scoped_name}::#{idstr}"
             else
               # constant
               if /[\-\+\.\d]+/ =~ idstr
                 idstr # numeric constant
-              elsif /\A(true|false|NULL)/ =~ idstr
-                $1 == 'NULL' ? 'nil' : $1
+              elsif /\A(true|false|NULL|nullptr)/ =~ idstr
+                ($1 == 'NULL' || $1 == 'nullptr') ? 'nil' : $1
               else
-                "Wx::#{rb_constant_name(idstr)}"
+                if const_xref.has_key?(rb_constant_name(idstr))
+                  "#{const_xref[rb_constant_name(idstr)]['mod']}::#{rb_constant_name(idstr)}"
+                elsif const_xref.has_key?(rb_constant_name(idstr, false))
+                  "#{const_xref[rb_constant_name(idstr, false)]['mod']}::#{rb_constant_name(idstr, false)}"
+                else
+                  rb_constant_value(idstr)
+                end
               end
             end
           end

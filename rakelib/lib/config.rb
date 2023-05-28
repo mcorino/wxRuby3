@@ -145,11 +145,11 @@ module WXRuby3
     end
     private :do_run
 
-    def make_ruby_cmd(*cmd)
+    def make_ruby_cmd(*cmd, verbose: true)
       [
         FileUtils::RUBY,
         '-I', rb_lib_path,
-        (verbose? ? '-v' : nil),
+        (verbose && verbose? ? '-v' : nil),
         *cmd.flatten
       ].compact
     end
@@ -159,8 +159,8 @@ module WXRuby3
       do_run(*cmd.flatten)
     end
 
-    def run(*cmd, capture: nil)
-      do_run(*make_ruby_cmd(cmd), capture: capture)
+    def run(*cmd, capture: nil, verbose: true)
+      do_run(*make_ruby_cmd(cmd, verbose: verbose), capture: capture)
     end
 
     def debug_command(*args)
