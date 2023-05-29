@@ -588,7 +588,7 @@ module WXRuby3
         end
 
         # special case bc SWIG causes trouble in Window.cpp
-        map 'const wxRegion&', 'const wxRegion*' do
+        map 'const wxRegion&', 'const wxRegion*', as: 'Wx::Region' do
           map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'
         end
 
