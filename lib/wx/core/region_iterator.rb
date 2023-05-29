@@ -11,12 +11,16 @@ class Wx::RegionIterator
         next
       end
     else
-      ::Enumerator.new do |y|
-        while has_more?
-          y << get_rect
-          next
-        end
+      # The region iterator instance cannot be allowed to exist beyond the outer
+      # Wx::RegionIterator.for_region block as it is a temporary instance that
+      # will stop to exist when the outer block finishes, so we collect the rectangles
+      # here and return an enumerator on that
+      arr = []
+      while has_more?
+        arr << get_rect
+        next
       end
+      arr.each
     end
   end
 
