@@ -54,4 +54,8 @@ class Wx::Rect
 
   # More ruby-ish names
   alias :contains? :contains
+
+  def dup
+    Wx::Rect.new(self.x, self.y, self.width, self.height)
+  end
 end

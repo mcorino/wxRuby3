@@ -96,8 +96,12 @@ class Wx::RealPoint
     end
   end
 
-
   def to_point
     Wx::Point.new(self.x.to_i, self.y.to_i)
   end
+
+  def dup
+    Wx::RealPoint.new(self.x, self.y)
+  end
+
 end

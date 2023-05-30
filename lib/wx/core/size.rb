@@ -90,4 +90,8 @@ class Wx::Size
       end
     end
   end
+
+  def dup
+    Wx::Size.new(self.width, self.height)
+  end
 end
