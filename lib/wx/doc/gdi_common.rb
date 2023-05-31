@@ -52,6 +52,11 @@ module Wx
     # @return [Wx::Size]
     def +(arg) end
 
+    alias :get_x :get_width
+    alias :x :get_width
+    alias :get_y :get_height
+    alias :y :get_height
+
   end
 
   class Point
