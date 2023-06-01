@@ -19,12 +19,7 @@ module WXRuby3
                     'wxRegionIterator::operator bool'
         # add iteration control methods
         spec.add_extend_code 'wxRegionIterator', <<~__HEREDOC
-          VALUE has_more()
-          {
-            return ((bool)*$self) ? Qtrue : Qfalse;
-          }
-
-          void next()
+          void next_rect()
           {
             (*$self)++;
           }

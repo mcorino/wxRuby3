@@ -13,14 +13,11 @@ class Wx::RegionIterator
   # @yieldparam [Wx::RegionIterator] region_it
   def self.iterate(region) end
 
-  # Returns true if there are rectangles left in the iterated region.
-  # @return [Boolean]
-  def has_more; end
-  alias :has_more? :has_more
+  alias :have_rects? :have_rects
 
   # Moves to the next rectangle of the iterated region.
   # @return [void]
-  def next; end
+  def next_rect; end
 
   # If a block is given the given block is called for each rectangle in the region passing the rectangle.
   # If no block is given an Enumerator is returned.
