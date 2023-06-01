@@ -2,6 +2,12 @@ class Wx::Size
 
   include Comparable
 
+  # provide compatibility methods
+  alias :get_x :get_width
+  alias :x :get_width
+  alias :get_y :get_height
+  alias :y :get_height
+
   # More informative output for inspect etc
   def to_s
     "#<Wx::Size: #{width}x#{height}>"
@@ -89,5 +95,9 @@ class Wx::Size
         Kernel.raise TypeError, "Cannot add #{arg} to #{self.inspect}"
       end
     end
+  end
+
+  def dup
+    Wx::Size.new(self.width, self.height)
   end
 end
