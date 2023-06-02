@@ -34,6 +34,8 @@ module WXRuby3
               wxRegionIterator *p_region_it = &region_it;
               VALUE rb_region_it = SWIG_NewPointerObj(SWIG_as_voidptr(p_region_it), SWIGTYPE_p_wxRegionIterator, 0);
               rb_yield(rb_region_it);
+              SWIG_RubyRemoveTracking((void *)p_region_it);
+              DATA_PTR(rb_region_it) = NULL;
             }
           }
           __HEREDOC
