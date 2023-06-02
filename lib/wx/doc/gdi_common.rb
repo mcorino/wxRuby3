@@ -195,6 +195,16 @@ module Wx
     # @return [Boolean]
     def eql?(other)end
 
+    # Update this rectangle to the union with 'rect'
+    # @param [Wx::Rect] rect
+    # @return [self]
+    def union!(rect) end
+
+    # Update this rectangle to the intersection with 'rect'
+    # @param [Wx::Rect] rect
+    # @return [self]
+    def intersect!(rect) end
+
     alias :& :intersect
 
     alias :| :union
@@ -202,11 +212,13 @@ module Wx
     # Returns the overlap of the rectangle areas.
     # Does not check negative or zero overlap like #intersect.
     # @param [Wx::Rect] rect
+    # @return [Wx::Rect]
     def *(rect) end
 
-    # Modifies the rectangle to contain the bounding box of this rectangle and the one passed in as parameter.
+    # Returns a rectangle containing the bounding box of this rectangle and the one passed in as parameter.
     # Does not ignore empty rectangles like #union
     # @param [Wx::Rect] rect
+    # @return [Wx::Rect]
     def +(rect) end
 
   end
