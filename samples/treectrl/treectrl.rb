@@ -1190,7 +1190,7 @@ class MyFrame < Wx::Frame
   def create_tree(style)
     @treectrl = MyTreeCtrl.new(@panel, :style => style)
 
-    menu_bar.enable(Wx::TreeTest_SelectRoot, (style & Wx::TR_HIDE_ROOT) == 0)
+    menu_bar.enable(TreeTest_SelectRoot, (style & Wx::TR_HIDE_ROOT) == 0)
 
     resize
   end
