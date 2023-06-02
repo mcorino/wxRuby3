@@ -21,7 +21,7 @@ module WXRuby3
         spec.add_extend_code 'wxRegionIterator', <<~__HEREDOC
           void next_rect()
           {
-            (*$self)++;
+            $self->operator ++();
           }
           __HEREDOC
         # add custom factory method
