@@ -162,6 +162,8 @@ class GeometryTests < Test::Unit::TestCase
     assert(rect.eql? Wx::Rect.new(x,y,w,h))
     refute(rect.eql?([x,y,w,h]))
 
+    assert_equal(Wx::Rect.new(5,5,10,10).inflate([2,2]), [3,3,14,14])
+
     assert_equal(Wx::Rect.new(1, 10, 101, 310), (rect | Wx::Rect.new(2, 20, 100, 300)))
     assert_equal(Wx::Rect.new(1, 10, 101, 310), (rect + Wx::Rect.new(2, 20, 100, 300)))
     assert_equal(Wx::Rect.new(1, 10, 100, 300), (rect | Wx::Rect.new(2, 20, 0, 300)))
