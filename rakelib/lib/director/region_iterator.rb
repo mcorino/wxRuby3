@@ -19,14 +19,9 @@ module WXRuby3
                     'wxRegionIterator::operator bool'
         # add iteration control methods
         spec.add_extend_code 'wxRegionIterator', <<~__HEREDOC
-          VALUE has_more()
+          void next_rect()
           {
-            return ((bool)*$self) ? Qtrue : Qfalse;
-          }
-
-          void next()
-          {
-            (*$self)++;
+            $self->operator ++();
           }
           __HEREDOC
         # add custom factory method
@@ -39,6 +34,8 @@ module WXRuby3
               wxRegionIterator *p_region_it = &region_it;
               VALUE rb_region_it = SWIG_NewPointerObj(SWIG_as_voidptr(p_region_it), SWIGTYPE_p_wxRegionIterator, 0);
               rb_yield(rb_region_it);
+              SWIG_RubyRemoveTracking((void *)p_region_it);
+              DATA_PTR(rb_region_it) = NULL;
             }
           }
           __HEREDOC

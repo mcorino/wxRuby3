@@ -1,14 +1,14 @@
 
 class Wx::RegionIterator
 
-  alias :has_more? :has_more
+  alias :have_rects? :have_rects
 
   # Ruby like enumeration
   def each
     if block_given?
-      while has_more?
+      while have_rects
         yield get_rect
-        next
+        next_rect
       end
     else
       # The region iterator instance cannot be allowed to exist beyond the outer
@@ -16,9 +16,9 @@ class Wx::RegionIterator
       # will stop to exist when the outer block finishes, so we collect the rectangles
       # here and return an enumerator on that
       arr = []
-      while has_more?
+      while has_rects
         arr << get_rect
-        next
+        next_rect
       end
       arr.each
     end
@@ -27,9 +27,9 @@ class Wx::RegionIterator
   def self.iterate(region, &block)
     return unless block
     for_region(region) do |ri|
-      while ri.has_more?
+      while ri.have_rects
         block.call(ri)
-        ri.next
+        ri.next_rect
       end
     end
   end

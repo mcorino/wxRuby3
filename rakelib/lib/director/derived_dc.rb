@@ -26,6 +26,8 @@ module WXRuby3
                 wxDC* dc_ptr = &screen_dc;
                 VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxScreenDC, 0);
                 return rb_yield(rb_dc);
+                SWIG_RubyRemoveTracking((void *)dc_ptr);
+                DATA_PTR(rb_dc) = NULL;
               }
               return Qnil;
             }
@@ -75,6 +77,8 @@ module WXRuby3
                 wxScaledDC* p_scaled_dc = &scaled_dc;                        
                 VALUE rb_scaled_dc = SWIG_NewPointerObj(SWIG_as_voidptr(p_scaled_dc), SWIGTYPE_p_wxScaledDC, 0);
                 rb_yield(rb_scaled_dc);
+                SWIG_RubyRemoveTracking((void *)p_scaled_dc);
+                DATA_PTR(rb_scaled_dc) = NULL;
               }
               return ;
             }

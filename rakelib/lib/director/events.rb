@@ -24,7 +24,7 @@ module WXRuby3
           wxPaletteChangedEvent wxQueryNewPaletteEvent wxNavigationKeyEvent wxWindowCreateEvent
           wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent wxChildFocusEvent
           ])
-        spec.fold_bases('wxMouseEvent' => 'wxMouseState', 'wxKeyEvent' => 'wxKeyboardState')
+        spec.fold_bases('wxMouseEvent' => %w[wxMouseState wxKeyboardState], 'wxKeyEvent' => 'wxKeyboardState')
         spec.set_only_for 'WXWIN_COMPATIBILITY_2_8', 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
         spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
         spec.ignore 'wxMouseState::GetPosition(int *,int *)'

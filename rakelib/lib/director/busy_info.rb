@@ -43,6 +43,8 @@ module WXRuby3
               p_busyinfo = &disabler;
               rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0 |  0 );
               return rb_yield(rb_busyinfo);
+              SWIG_RubyRemoveTracking((void *)p_busyinfo);
+              DATA_PTR(rb_busyinfo) = NULL;
             }
             return Qnil;
           }
@@ -56,6 +58,8 @@ module WXRuby3
               p_busyinfo = &disabler;
               rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0 |  0 );
               return rb_yield(rb_busyinfo);
+              SWIG_RubyRemoveTracking((void *)p_busyinfo);
+              DATA_PTR(rb_busyinfo) = NULL;
             }
             return Qnil;
           }

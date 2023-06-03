@@ -36,15 +36,19 @@ class Wx::Rect
     end
   end
 
-  # make sure union and intersect are constant operations, i.e. not changing self
-  wx_union = instance_method :union
-  define_method :union do |rect|
-    wx_union.bind(Wx::Rect.new(*self.to_ary)).call(rect)
+  # provide both constant and non-constant versions of union/intersect
+
+  # first alias the wrapped (non-constant) versions with correct names
+  alias :union! :union
+  alias :intersect! :intersect
+
+  # next provide new constant versions
+  def union(rect)
+    self.dup.union!(rect)
   end
 
-  wx_intersect = instance_method :intersect
-  define_method :intersect do |rect|
-    wx_intersect.bind(Wx::Rect.new(*self.to_ary)).call(rect)
+  def intersect(rect)
+    self.dup.intersect!(rect)
   end
 
   alias :+ :add
