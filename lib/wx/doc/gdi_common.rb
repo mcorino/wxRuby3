@@ -57,6 +57,11 @@ module Wx
     alias :get_y :get_height
     alias :y :get_height
 
+    # Set this size to the given size's width,height values
+    # @param [Wx::Size] sz
+    # @return [self]
+    def assign(sz) end
+
   end
 
   class Point
@@ -114,6 +119,11 @@ module Wx
     # @return [Wx::RealPoint] Wx::RealPoint instance from point coordinates
     def to_real_point; end
     alias :to_real :to_real_point
+
+    # Set this point to the given point's x,y values
+    # @param [Wx::Point] pt
+    # @return [self]
+    def assign(pt) end
 
   end
 
@@ -177,6 +187,11 @@ module Wx
     # @return [Wx::Point] Wx::Point instance from real point coordinates
     def to_point; end
 
+    # Set this point to the given point's x,y values
+    # @param [Wx::RealPoint] pt
+    # @return [self]
+    def assign(pt) end
+
   end
 
   class Rect
@@ -220,6 +235,11 @@ module Wx
     # @param [Wx::Rect] rect
     # @return [Wx::Rect]
     def +(rect) end
+
+    # Set this rectangle to the given rectangle's position & size values
+    # @param [Wx::Rect] rct
+    # @return [self]
+    def assign(rct) end
 
   end
 

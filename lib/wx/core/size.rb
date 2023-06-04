@@ -100,4 +100,10 @@ class Wx::Size
   def dup
     Wx::Size.new(self.width, self.height)
   end
+
+  def assign(sz)
+    self.width = sz.width
+    self.height = sz.height
+    self
+  end
 end

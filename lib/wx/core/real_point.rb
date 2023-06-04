@@ -104,4 +104,10 @@ class Wx::RealPoint
     Wx::RealPoint.new(self.x, self.y)
   end
 
+  def assign(pt)
+    self.x = pt.x
+    self.y = pt.y
+    self
+  end
+
 end
