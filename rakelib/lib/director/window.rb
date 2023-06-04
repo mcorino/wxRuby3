@@ -167,9 +167,9 @@ module WXRuby3
             {  
               static WxRuby_ID painting_id("@__painting__");
 
-              if ( ! rb_block_given_p() )
-              rb_raise(rb_eArgError, "No block given for Window#paint");
+              if (!rb_block_given_p()) rb_raise(rb_eArgError, "No block given for Window#paint");
           
+              VALUE rc = Qnil;
               wxWindow *ptr = self;
               VALUE rb_win = SWIG_RubyInstanceFor(ptr);
               // see if within an evt_paint block - see classes/window.rb
@@ -178,7 +178,7 @@ module WXRuby3
               {
                 wxPaintDC dc(ptr);
                 VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxPaintDC, 0);
-                rb_yield(dcVal);
+                rc = rb_yield(dcVal);
                 SWIG_RubyRemoveTracking((void *) &dc);
                 DATA_PTR(dcVal) = NULL;
               }
@@ -186,12 +186,31 @@ module WXRuby3
               {
                 wxClientDC dc(ptr);
                 VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxClientDC, 0);
-                rb_yield(dcVal);
+                rc = rb_yield(dcVal);
                 SWIG_RubyRemoveTracking((void *) &dc);
                 DATA_PTR(dcVal) = NULL;
               }
           
-              return Qnil;
+              return rc;
+            }
+
+            // similar to the paint() method but now for buffered painting
+            // we do not check __painting__ here, instead we do that in pure Ruby
+            VALUE paint_buffered()
+            {
+              if (!rb_block_given_p()) rb_raise(rb_eArgError, "No block given for Window#paint_buffered");
+          
+              VALUE rc = Qnil;
+              wxWindow *ptr = self;
+              wxAutoBufferedPaintDC dc(ptr);
+              VALUE r_class = rb_const_get(mWxCore, rb_intern("MemoryDC"));
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
+              VALUE rb_dc = SWIG_NewPointerObj((void *) &dc, swig_type, 0);
+              rc = rb_yield(rb_dc);
+              SWIG_RubyRemoveTracking((void *) &dc);
+              DATA_PTR(rb_dc) = NULL;
+
+              return rc;
             }
           
             // Return a window handle as a platform-specific ruby integer

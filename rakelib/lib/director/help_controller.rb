@@ -43,8 +43,8 @@ module WXRuby3
             {
               rc = rb_ary_new();
               rb_ary_push(rc, wxRuby_WrapWxObjectInRuby(result));
-              rb_ary_push(rc, SWIG_NewPointerObj(SWIG_as_voidptr(&size), SWIGTYPE_p_wxSize, 0));
-              rb_ary_push(rc, SWIG_NewPointerObj(SWIG_as_voidptr(&pos), SWIGTYPE_p_wxPoint, 0));
+              rb_ary_push(rc, SWIG_NewPointerObj(new wxSize(size), SWIGTYPE_p_wxSize, 1));
+              rb_ary_push(rc, SWIG_NewPointerObj(new wxPoint(pos), SWIGTYPE_p_wxPoint, 1));
               rb_ary_push(rc, newFrameEachTime ? Qtrue : Qfalse);
             }
             return rc;

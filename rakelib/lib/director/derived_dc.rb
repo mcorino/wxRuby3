@@ -14,22 +14,24 @@ module WXRuby3
         spec.disable_proxies
         if spec.module_name == 'wxScreenDC'
           spec.make_abstract 'wxScreenDC'
+          spec.gc_never 'wxScreenDC'
           # as a ScreenDC should always be a temporary stack object
           # we do not allow creation in Ruby but rather provide a class
           # method for block execution on a temp dc
           spec.add_extend_code 'wxScreenDC', <<~__HEREDOC
             static VALUE paint(VALUE proc)
             {
+              VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
                 wxScreenDC screen_dc;
                 wxDC* dc_ptr = &screen_dc;
                 VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxScreenDC, 0);
-                return rb_yield(rb_dc);
+                rc = rb_yield(rb_dc);
                 SWIG_RubyRemoveTracking((void *)dc_ptr);
                 DATA_PTR(rb_dc) = NULL;
               }
-              return Qnil;
+              return rc;
             }
             __HEREDOC
           # not relevant anymore
@@ -53,13 +55,100 @@ module WXRuby3
                       'wxSVGFileDC::StartPage',
                       'wxSVGFileDC::EndPage'
         elsif spec.module_name == 'wxGCDC'
+          spec.make_abstract 'wxGCDC'
+          spec.gc_never 'wxGCDC'
+          # as a GCDC should always be a temporary stack object
+          # we do not allow creation in Ruby but rather provide class
+          # methods for block execution on a temp dc
+          spec.add_extend_code 'wxGCDC', <<~__HEREDOC
+            static VALUE draw_on(const wxWindowDC& dc)
+            {
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                // Somehow there seems to be a problem with the Ruby GCDC value 
+                // being GC-ed unless we block GC for the duration of the block
+                // execution. Unclear why. We have similar code for other objects
+                // where this issue does not come up.
+                VALUE gc_on = rb_gc_disable();
+                wxGCDC gc_dc(dc);
+                wxGCDC* dc_ptr = &gc_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
+                rc = rb_yield(rb_dc);
+                SWIG_RubyRemoveTracking((void *)dc_ptr);
+                DATA_PTR(rb_dc) = NULL;
+                if (gc_on == Qtrue) rb_gc_enable();
+              }
+              return rc;
+            }
+            static VALUE draw_on(const wxMemoryDC& dc)
+            {
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                // Somehow there seems to be a problem with the Ruby GCDC value 
+                // being GC-ed unless we block GC for the duration of the block
+                // execution. Unclear why. We have similar code for other objects
+                // where this issue does not come up.
+                VALUE gc_on = rb_gc_disable();
+                wxGCDC gc_dc(dc);
+                wxGCDC* dc_ptr = &gc_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
+                rc = rb_yield(rb_dc);
+                SWIG_RubyRemoveTracking((void *)dc_ptr);
+                DATA_PTR(rb_dc) = NULL;
+                if (gc_on == Qtrue) rb_gc_enable();
+              }
+              return rc;
+            }
+            static VALUE draw_on(const wxPrinterDC& dc)
+            {
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                // Somehow there seems to be a problem with the Ruby GCDC value 
+                // being GC-ed unless we block GC for the duration of the block
+                // execution. Unclear why. We have similar code for other objects
+                // where this issue does not come up.
+                VALUE gc_on = rb_gc_disable();
+                wxGCDC gc_dc(dc);
+                wxGCDC* dc_ptr = &gc_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
+                rc = rb_yield(rb_dc);
+                SWIG_RubyRemoveTracking((void *)dc_ptr);
+                DATA_PTR(rb_dc) = NULL;
+                if (gc_on == Qtrue) rb_gc_enable();
+              }
+              return rc;
+            }
+            static VALUE draw_on(wxGraphicsContext* gc)
+            {
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                // Somehow there seems to be a problem with the Ruby GCDC value 
+                // being GC-ed unless we block GC for the duration of the block
+                // execution. Unclear why. We have similar code for other objects
+                // where this issue does not come up.
+                VALUE gc_on = rb_gc_disable();
+                wxGCDC gc_dc(gc);
+                wxGCDC* dc_ptr = &gc_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
+                rc = rb_yield(rb_dc);
+                SWIG_RubyRemoveTracking((void *)dc_ptr);
+                DATA_PTR(rb_dc) = NULL;
+                if (gc_on == Qtrue) rb_gc_enable();
+              }
+              return rc;
+            }
+          __HEREDOC
           spec.ignore 'wxGCDC::wxGCDC(const wxEnhMetaFileDC &)'
         elsif spec.module_name == 'wxScaledDC'
           spec.items.clear # wxRuby extension; no XML docs
           spec.override_inheritance_chain('wxScaledDC', %w[wxDC wxObject])
           # as there are no dependencies parsed from XML make sure we're initialized after Wx::DC
           spec.initialize_at_end = true
-          spec.gc_as_temporary 'wxScaledDC'
+          spec.gc_never 'wxScaledDC'
           spec.no_proxy 'wxScaledDC'
           spec.include 'wxruby-ScaledDC.h'
           # wxScaledDc should ever only be used in a restricted scope
@@ -69,18 +158,19 @@ module WXRuby3
           #  so we use a workaround here)
           spec.add_swig_code <<~__HEREDOC
             %extend wxScaledDC {
-            static void draw_on(wxDC& target, double scale)
+            static VALUE draw_on(wxDC& target, double scale)
             {
+              VALUE rc = Qnil;
               if (rb_block_given_p())
               {
                 wxScaledDC scaled_dc(target, scale);
                 wxScaledDC* p_scaled_dc = &scaled_dc;                        
                 VALUE rb_scaled_dc = SWIG_NewPointerObj(SWIG_as_voidptr(p_scaled_dc), SWIGTYPE_p_wxScaledDC, 0);
-                rb_yield(rb_scaled_dc);
+                rc = rb_yield(rb_scaled_dc);
                 SWIG_RubyRemoveTracking((void *)p_scaled_dc);
                 DATA_PTR(rb_scaled_dc) = NULL;
               }
-              return ;
+              return rc;
             }
             };
             __HEREDOC

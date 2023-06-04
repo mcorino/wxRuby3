@@ -35,33 +35,35 @@ module WXRuby3
         spec.add_extend_code 'wxBusyInfo', <<~__HEREDOC
           static VALUE busy(const wxString& message, wxWindow *parent = NULL)
           {
+            VALUE rc = Qnil;
             VALUE rb_busyinfo = Qnil;
             wxBusyInfo *p_busyinfo = 0 ;
             if (rb_block_given_p())
             {
               wxBusyInfo disabler(message,parent);
               p_busyinfo = &disabler;
-              rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0 |  0 );
-              return rb_yield(rb_busyinfo);
+              rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0);
+              rc = rb_yield(rb_busyinfo);
               SWIG_RubyRemoveTracking((void *)p_busyinfo);
               DATA_PTR(rb_busyinfo) = NULL;
             }
-            return Qnil;
+            return rc;
           }
           static VALUE busy(const wxBusyInfoFlags &flags)
           {
+            VALUE rc = Qnil;
             VALUE rb_busyinfo = Qnil;
             wxBusyInfo *p_busyinfo = 0 ;
             if (rb_block_given_p())
             {
               wxBusyInfo disabler(flags);
               p_busyinfo = &disabler;
-              rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0 |  0 );
-              return rb_yield(rb_busyinfo);
+              rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0);
+              rc = rb_yield(rb_busyinfo);
               SWIG_RubyRemoveTracking((void *)p_busyinfo);
               DATA_PTR(rb_busyinfo) = NULL;
             }
-            return Qnil;
+            return rc;
           }
           __HEREDOC
         spec.map 'wxBusyInfoFlags &' => 'Wx::BusyInfoFlags' do

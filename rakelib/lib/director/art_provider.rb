@@ -69,7 +69,7 @@ module WXRuby3
           
               v_id     = WXSTR_TO_RSTR(id);
               v_client = WXSTR_TO_RSTR(client);
-              v_size = SWIG_NewPointerObj(SWIG_as_voidptr(&size), SWIGTYPE_p_wxSize, 0);
+              v_size = SWIG_NewPointerObj(new wxSize(size), SWIGTYPE_p_wxSize, 1);
               v_ret = rb_funcall(self, create_bitmap_id(), 3, v_id, v_client, v_size);
           
               if (v_ret != Qnil) 
@@ -87,7 +87,7 @@ module WXRuby3
           
               v_id     = WXSTR_TO_RSTR(id);
               v_client = WXSTR_TO_RSTR(client);
-              v_size = SWIG_NewPointerObj(SWIG_as_voidptr(&size), SWIGTYPE_p_wxSize, 0);
+              v_size = SWIG_NewPointerObj(new wxSize(size), SWIGTYPE_p_wxSize, 1);
               v_ret = rb_funcall(self, create_bitmap_bundle_id(), 3, v_id, v_client, v_size);
           
               if (v_ret != Qnil) 

@@ -62,4 +62,10 @@ class Wx::Rect
   def dup
     Wx::Rect.new(self.x, self.y, self.width, self.height)
   end
+
+  def assign(rct)
+    self.position = rct.position
+    self.size = rct.size
+    self
+  end
 end

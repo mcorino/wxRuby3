@@ -53,43 +53,20 @@ class Wx::Window
   def evt_paint(meth = nil, &block)
     paint_proc = acquire_handler(meth, block)
     wrapped_block = proc do | event |
-      instance_variable_set("@__painting__", true)
+      instance_variable_set('@__painting__', true)
       paint_proc.call(event)
-      remove_instance_variable("@__painting__")
+      remove_instance_variable('@__painting__')
     end
     __old_evt_paint(&wrapped_block)
   end
 
-  # Provides bufferd drawing facility to reduce flicker for complex
-  # drawing commands. Works similar to BufferedDC and BufferedPaintDC in
-  # the wxWidgets API, by doing drawing on an in-memory Bitmap, then
-  # copying the result in bulk to the screen.
-  #
-  # The method may be passed an existing Wx::Bitmap as the +buffer+,
-  # otherwise one will be created.
-  #
-  # Works like wxAutoBufferedDC in that additional buffering will only
-  # be done on platforms that do not already natively support buffering
-  # for the standard PaintDC / ClientDC - Windows, in particular.
-  def paint_buffered(buffer = nil)
-    # OS X and GTK do double-buffering natively
-    if self.double_buffered?
-      paint { | dc | yield dc }
+  # Overload the wrapper method to check for @__painting__
+  wx_paint_buffered = instance_method :paint_buffered
+  define_method :paint_buffered do |&block|
+    if instance_variable_defined?('@__painting__')
+      wx_paint_buffered.bind(self).call(&block)
     else
-      # client_size is the window area available for drawing upon
-      c_size = client_size
-      # Create an in-memory buffer if none supplied
-      buffer ||= Wx::Bitmap.new(c_size.width, c_size.height)
-      buffer.draw do | mem_dc |
-        mem_dc.background = Wx::TRANSPARENT_BRUSH
-        mem_dc.clear
-        # Yield the bitmap for the user code to draw upon
-        yield mem_dc
-        paint do | dc |
-          # Copy the buffer to the window
-          dc.blit(0, 0, c_size.width, c_size.height, mem_dc, 0, 0)
-        end
-      end
+      self.paint(&block)
     end
   end
 end
