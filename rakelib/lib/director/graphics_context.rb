@@ -135,6 +135,95 @@ module WXRuby3
             }
             __CODE
         end
+        spec.new_object 'wxGraphicsContext::Create',
+                        'wxGraphicsContext::CreateFromUnknownDC'
+        # add convenience method providing efficient gc memory management
+        spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
+          static VALUE draw_on(wxWindow* win)
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGraphicsContext* p_gc = wxGraphicsContext::Create(win);
+              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+              rc = rb_yield(rb_gc);
+              SWIG_RubyRemoveTracking((void *)p_gc);
+              DATA_PTR(rb_gc) = NULL;
+              delete p_gc;
+            }
+            return rc;
+          }
+          static VALUE draw_on(const wxWindowDC& dc)
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGraphicsContext* p_gc = wxGraphicsContext::Create(dc);
+              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+              rc = rb_yield(rb_gc);
+              SWIG_RubyRemoveTracking((void *)p_gc);
+              DATA_PTR(rb_gc) = NULL;
+              delete p_gc;
+            }
+            return rc;
+          }
+          static VALUE draw_on(const wxMemoryDC& dc)
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGraphicsContext* p_gc = wxGraphicsContext::Create(dc);
+              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+              rc = rb_yield(rb_gc);
+              SWIG_RubyRemoveTracking((void *)p_gc);
+              DATA_PTR(rb_gc) = NULL;
+              delete p_gc;
+            }
+            return rc;
+          }
+          static VALUE draw_on(const wxPrinterDC& dc)
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGraphicsContext* p_gc = wxGraphicsContext::Create(dc);
+              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+              rc = rb_yield(rb_gc);
+              SWIG_RubyRemoveTracking((void *)p_gc);
+              DATA_PTR(rb_gc) = NULL;
+              delete p_gc;
+            }
+            return rc;
+          }
+          static VALUE draw_on(wxImage& img)
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGraphicsContext* p_gc = wxGraphicsContext::Create(img);
+              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+              rc = rb_yield(rb_gc);
+              SWIG_RubyRemoveTracking((void *)p_gc);
+              DATA_PTR(rb_gc) = NULL;
+              delete p_gc;
+            }
+            return rc;
+          }
+          static VALUE draw_on()
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGraphicsContext* p_gc = wxGraphicsContext::Create();
+              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+              rc = rb_yield(rb_gc);
+              SWIG_RubyRemoveTracking((void *)p_gc);
+              DATA_PTR(rb_gc) = NULL;
+              delete p_gc;
+            }
+            return rc;
+          }
+          __HEREDOC
       end
     end # class GraphicsContext
 
