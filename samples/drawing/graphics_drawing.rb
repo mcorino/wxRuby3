@@ -155,8 +155,7 @@ class GraphicsWindow < Wx::Window
   def on_paint
     # We do our drawing now
     rect = self.get_client_size
-    paint do |dc|
-      gdc = Wx::GraphicsContext.create(dc)
+    Wx::GraphicsContext.draw_on(self) do |gdc|
       unless @rtxt
         create_resources(gdc)
       end
