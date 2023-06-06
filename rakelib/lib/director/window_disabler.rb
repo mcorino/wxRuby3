@@ -28,13 +28,6 @@ module WXRuby3
             return ;
           }
           __HEREDOC
-        spec.ignore %w[
-          wxFindWindowByLabel
-          wxFindWindowByName
-          wxNewId
-          wxUsleep
-          ]
-        spec.ignore 'wxPostDelete' unless Config.instance.wx_version >= '3.3.0'
         spec.do_not_generate(:variables, :enums, :defines, :functions)
       end
     end # class WindowDisabler
