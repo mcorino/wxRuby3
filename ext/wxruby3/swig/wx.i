@@ -235,7 +235,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   }
 
   // No existing Ruby instance found, so a transitory event object; wrap
-  // without mark or free functions as Wx will deals with deletion
+  // without mark or free functions as Wx will deal with deletion
   rb_event = Data_Wrap_Struct(rb_event_class, 0, 0, 0);
   DATA_PTR(rb_event) = wx_event;
   // do not forget to mark the instance with the mangled swig type name

@@ -24,11 +24,68 @@ module WXRuby3
           # make Ruby director and wrappers use custom implementation
           spec.use_class_implementation('wxEvent', 'wxRubyEvent')
           spec.extend_interface('wxEvent', 'wxEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
-          spec.extend_interface('wxEvent', 'virtual wxEvent* Clone() const')
-          spec.ignore %w[wxEvent::Clone wxEvent::GetEventUserData]
+          spec.ignore %w[wxEvent::GetEventUserData]
           spec.ignore 'wxEvent::wxEvent(int,wxEventType)'
           spec.no_proxy 'wxEvent::Clone'
+          spec.regard 'wxEvent::Clone', regard_doc: false # need updated doc
+          # need this to force alloc func
+          spec.add_swig_code '%feature("notabstract") wxEvent;'
+          # type mapping for result #clone
+          spec.map 'wxEvent*' => 'Wx::Event' do
+            map_out code: <<~__CODE
+              $result = wxRuby_WrapClonedWxEvent($1);
+              __CODE
+          end
           spec.add_header_code <<~__HEREDOC
+            static VALUE Evt_Type_Map = NULL;
+            static VALUE wxRuby_WrapClonedWxEvent(wxEvent* wx_evt)
+            {
+              wxString class_name( wx_evt->GetClassInfo()->GetClassName() );
+              if (class_name == "wxEvent" || class_name == "wxCommandEvent")
+              {
+                // special clones for Ruby derived events are already managed and tracked
+                return SWIG_RubyInstanceFor((void *)wx_evt);
+              }
+
+              // otherwise
+
+              // Get the mapping of event types to classes
+              if ( ! Evt_Type_Map )
+              {
+                Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
+              }
+            
+              // Then, look up the event type in this hash (MUCH faster than calling
+              // EvtHandler.evt_class_for_type method)
+              VALUE rb_event_type_id =  INT2NUM( wx_evt->GetEventType() );
+              VALUE rb_event_class = rb_hash_aref(Evt_Type_Map, rb_event_type_id);
+
+              if ( NIL_P(rb_event_class) )
+              {
+                rb_event_class = wxRuby_GetDefaultEventClass();
+                rb_warning("Unmapped event type %i (%s)", wx_evt->GetEventType(), (const char *)class_name.mb_str());
+              }
+
+              // Wrap as owned object as this is a user code factory function.
+              swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
+              swig_class* class_info = (swig_class*)type->clientdata;
+              // Create a new (owned) Ruby event object 
+              VALUE rb_evt = Data_Wrap_Struct(class_info->klass, VOIDFUNC(class_info->mark), 
+                                                                 VOIDFUNC(class_info->destroy), 
+                                                                 wx_evt);
+              // track new event object
+              SWIG_RubyAddTracking(wx_evt, rb_evt);
+              // do not forget to mark the instance with the mangled swig type name
+              rb_iv_set(rb_evt, "@__swigtype__", rb_str_new2(type->name));
+            
+            #if __WXRB_DEBUG__
+              if (wxRuby_TraceLevel()>1)
+                std::wcout << "* wxRuby_WrapClonedWxEvent - wrapped cloned event " << wx_evt << "{" << type->name << "}" << std::endl;
+            #endif
+            
+              return rb_evt;
+            }
+
             // Custom subclass implementation. Provide a constructor, destructor and
             // clone functions to allow proper linking to a Ruby object.
             class WXRUBY_EXPORT wxRubyEvent : public wxEvent
@@ -85,8 +142,8 @@ module WXRuby3
             wxCommandEvent::SetClientObject
             wxCommandEvent::GetExtraLong
           }
-          spec.extend_interface('wxCommandEvent', 'virtual wxCommandEvent* Clone() const')
-          spec.no_proxy 'wxCommandEvent::Clone'
+          # need this to force alloc func
+          spec.add_swig_code '%feature("notabstract") wxCommandEvent;'
           spec.add_header_code <<~__HEREDOC
             // Cf wxEvent - has to be written as a C+++ subclass to ensure correct
             // GC/thread protection of Ruby instance variables when user-written
@@ -129,7 +186,8 @@ module WXRuby3
             };
             __HEREDOC
           spec.add_wrapper_code <<~__HEREDOC
-            extern VALUE wxRuby_GetDefaultEventClass () {
+            extern VALUE wxRuby_GetDefaultEventClass() 
+            {
               return SwigClassWxEvent.klass;
             }
             __HEREDOC
@@ -145,8 +203,8 @@ module WXRuby3
 
       def process(gendoc: false)
         defmod = super
-        spec.items.each do |citem|
-          unless citem == 'wxEvent'
+        unless spec.module_name == 'wxEvent'
+          spec.items.each do |citem|
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item
               if def_item.hierarchy.has_key?('wxEvent')
@@ -158,7 +216,14 @@ module WXRuby3
               elsif def_item.hierarchy.has_key?('wxNotifyEvent')
                 spec.override_inheritance_chain(citem, {'wxNotifyEvent' => 'wxEvents'}, {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject')
               end
-              spec.make_abstract(citem) if citem == 'wxPaintEvent' # doc flaw
+              case citem
+              when 'wxNotifyEvent', 'wxPaintEvent'
+                # keep these abstract in wxRuby
+                spec.make_abstract(citem)
+              else
+                # need this to force alloc func
+                spec.add_swig_code "%feature(\"notabstract\") #{citem};"
+              end
             end
           end
         end
