@@ -78,6 +78,12 @@ class Wx::EvtHandler
   # @yieldparam [Wx::WindowDestroyEvent] event event to handle
   def evt_window_destroy(&block) end
 
+  # Processes {Wx::EVT_TIMER} events. See {Wx::TimerEvent}.
+  # @param [Integer,Wx::Enum,Wx::Timer] id timer id
+  # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc
+  # @yieldparam [Wx::TimerEvent] event the event to handle
+  def evt_timer(id, meth = nil, &block) end
+
   # Schedule a call for asynchronous execution (at idle time).
   # @param meth [Symbol,String,Method,Proc] (name of) method or proc to call
   # @param args [Array<Object>] optional arguments to pass to the call
