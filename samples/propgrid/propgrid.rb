@@ -286,75 +286,75 @@ class MyColourProperty < Wx::PG::ColourProperty
 end
 
 module ID
-  %i[
-    PGID
-    ABOUT
-    QUIT
-    APPENDPROP
-    APPENDCAT
-    INSERTPROP
-    INSERTCAT
-    ENABLE
-    SETREADONLY
-    HIDE
-    BOOL_CHECKBOX
-    DELETE
-    DELETER
-    DELETEALL
-    UNSPECIFY
-    ITERATE1
-    ITERATE2
-    ITERATE3
-    ITERATE4
-    CLEARMODIF
-    FREEZE
-    DUMPLIST
-    COLOURSCHEME1
-    COLOURSCHEME2
-    COLOURSCHEME3
-    CATCOLOURS
-    SETBGCOLOUR
-    SETBGCOLOURRECUR
-    STATICLAYOUT
-    POPULATE1
-    POPULATE2
-    COLLAPSE
-    COLLAPSEALL
-    GETVALUES
-    SETVALUES
-    SETVALUES2
-    RUNTESTFULL
-    RUNTESTPARTIAL
-    FITCOLUMNS
-    CHANGEFLAGSITEMS
-    TESTINSERTCHOICE
-    TESTDELETECHOICE
-    INSERTPAGE
-    REMOVEPAGE
-    SETSPINCTRLEDITOR
-    SETPROPERTYVALUE
-    TESTREPLACE
-    SETCOLUMNS
-    SETVIRTWIDTH
-    SETPGDISABLED
-    TESTXRC
-    ENABLECOMMONVALUES
-    SELECTSTYLE
-    SAVESTATE
-    RESTORESTATE
-    RUNMINIMAL
-    ENABLELABELEDITING
-    VETOCOLDRAG
-    ONEXTENDEDKEYNAV
-    SHOWPOPUP
-    POPUPGRID
-  ].each_with_index { |sym, ix| self.const_set(sym, ix+1) }
+  include Wx::IDHelper
+
+  PGID = self.next_id
+  ABOUT = self.next_id
+  QUIT = self.next_id
+  APPENDPROP = self.next_id
+  APPENDCAT = self.next_id
+  INSERTPROP = self.next_id
+  INSERTCAT = self.next_id
+  ENABLE = self.next_id
+  SETREADONLY = self.next_id
+  HIDE = self.next_id
+  BOOL_CHECKBOX = self.next_id
+  DELETE = self.next_id
+  DELETER = self.next_id
+  DELETEALL = self.next_id
+  UNSPECIFY = self.next_id
+  ITERATE1 = self.next_id
+  ITERATE2 = self.next_id
+  ITERATE3 = self.next_id
+  ITERATE4 = self.next_id
+  CLEARMODIF = self.next_id
+  FREEZE = self.next_id
+  DUMPLIST = self.next_id
+  COLOURSCHEME1 = self.next_id
+  COLOURSCHEME2 = self.next_id
+  COLOURSCHEME3 = self.next_id
+  CATCOLOURS = self.next_id
+  SETBGCOLOUR = self.next_id
+  SETBGCOLOURRECUR = self.next_id
+  STATICLAYOUT = self.next_id
+  POPULATE1 = self.next_id
+  POPULATE2 = self.next_id
+  COLLAPSE = self.next_id
+  COLLAPSEALL = self.next_id
+  GETVALUES = self.next_id
+  SETVALUES = self.next_id
+  SETVALUES2 = self.next_id
+  RUNTESTFULL = self.next_id
+  RUNTESTPARTIAL = self.next_id
+  FITCOLUMNS = self.next_id
+  CHANGEFLAGSITEMS = self.next_id
+  TESTINSERTCHOICE = self.next_id
+  TESTDELETECHOICE = self.next_id
+  INSERTPAGE = self.next_id
+  REMOVEPAGE = self.next_id
+  SETSPINCTRLEDITOR = self.next_id
+  SETPROPERTYVALUE = self.next_id
+  TESTREPLACE = self.next_id
+  SETCOLUMNS = self.next_id
+  SETVIRTWIDTH = self.next_id
+  SETPGDISABLED = self.next_id
+  TESTXRC = self.next_id
+  ENABLECOMMONVALUES = self.next_id
+  SELECTSTYLE = self.next_id
+  SAVESTATE = self.next_id
+  RESTORESTATE = self.next_id
+  RUNMINIMAL = self.next_id
+  ENABLELABELEDITING = self.next_id
+  VETOCOLDRAG = self.next_id
+  ONEXTENDEDKEYNAV = self.next_id
+  SHOWPOPUP = self.next_id
+  POPUPGRID = self.next_id
 
   if Wx.has_feature?(:USE_HEADERCTRL)
-    SHOWHEADER = POPUPGRID+1
+    SHOWHEADER = self.next_id
   end
 
-  COLOURSCHEME4 = 100
+  COLOURSCHEME4 = self.next_id
 end
 
 #
