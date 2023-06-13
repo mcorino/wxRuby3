@@ -62,6 +62,10 @@ module Wx
     # @return [self]
     def assign(sz) end
 
+    # Returns self.
+    # @return [self]
+    def to_size; end
+
   end
 
   class Point
@@ -119,6 +123,10 @@ module Wx
     # @return [Wx::RealPoint] Wx::RealPoint instance from point coordinates
     def to_real_point; end
     alias :to_real :to_real_point
+
+    # Returns self.
+    # @return [self]
+    def to_point; end
 
     # Set this point to the given point's x,y values
     # @param [Wx::Point] pt
@@ -186,6 +194,10 @@ module Wx
     # Converts real point to Wx::Point
     # @return [Wx::Point] Wx::Point instance from real point coordinates
     def to_point; end
+
+    # Returns self.
+    # @return [self]
+    def to_real_point; end
 
     # Set this point to the given point's x,y values
     # @param [Wx::RealPoint] pt

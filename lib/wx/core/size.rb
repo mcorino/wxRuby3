@@ -101,6 +101,10 @@ class Wx::Size
     Wx::Size.new(self.width, self.height)
   end
 
+  def to_size
+    self
+  end
+
   def assign(sz)
     self.width = sz.width
     self.height = sz.height

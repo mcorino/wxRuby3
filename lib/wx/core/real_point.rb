@@ -100,6 +100,10 @@ class Wx::RealPoint
     Wx::Point.new(self.x.to_i, self.y.to_i)
   end
 
+  def to_real_point
+    self
+  end
+
   def dup
     Wx::RealPoint.new(self.x, self.y)
   end
