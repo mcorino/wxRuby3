@@ -249,6 +249,21 @@ class Wx::EvtHandler
     evt_command_scroll_changed(id, meth, &block)
   end
 
+  # add missing constants (these are redefinitions of other constants which are not documented themselves)
+  %i[EVT_COMMAND_SCROLL_TOP
+     EVT_COMMAND_SCROLL_BOTTOM
+     EVT_COMMAND_SCROLL_LINEUP
+     EVT_COMMAND_SCROLL_LINEDOWN
+     EVT_COMMAND_SCROLL_PAGEUP
+     EVT_COMMAND_SCROLL_PAGEDOWN
+     EVT_COMMAND_SCROLL_THUMBTRACK
+     EVT_COMMAND_SCROLL_THUMBRELEASE
+     EVT_COMMAND_SCROLL_CHANGED].each do |const|
+    unless Wx.const_defined?(const)
+      Wx.const_set(const, Wx.const_get(const.to_s.sub('EVT_COMMAND_', 'EVT_').to_sym))
+    end
+  end
+
   if Wx.const_defined?(:EVT_DESTROY)
 
     # evt_window_destroy is a special case in that evt.skip
