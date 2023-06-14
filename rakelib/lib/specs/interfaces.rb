@@ -86,6 +86,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxStaticLine', director: Director::Window)
     Director.Spec(pkg, 'wxGauge', director: Director::Window)
     Director.Spec(pkg, 'wxSlider')
+    Director.Spec(pkg, 'wxScrollBar')
     Director.Spec(pkg, 'wxStaticText', director: Director::Window)
     Director.Spec(pkg, 'wxSpinButton', director: Director::Window, requirements: %w[wxUSE_SPINBTN])
     Director.Spec(pkg, 'wxSpinEvent', director: Director::Event, requirements: Director.AnyOf(*%w[wxUSE_SPINBTN wxUSE_SPINCTRL]))
