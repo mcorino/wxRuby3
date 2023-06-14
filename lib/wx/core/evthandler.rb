@@ -195,32 +195,73 @@ class Wx::EvtHandler
   end
 
   # Convenience evt_handler to listen to all mouse events.
-  def evt_mouse_events(&block)
-    evt_left_down(&block)
-    evt_left_up(&block)
-    evt_middle_down(&block)
-    evt_middle_up(&block)
-    evt_right_down(&block)
-    evt_right_up(&block)
-    evt_motion(&block)
-    evt_left_dclick(&block)
-    evt_middle_dclick(&block)
-    evt_right_dclick(&block)
-    evt_leave_window(&block)
-    evt_enter_window(&block)
-    evt_mousewheel(&block)
+  def evt_mouse_events(*args, &block)
+    evt_left_down(*args, &block)
+    evt_left_up(*args, &block)
+    evt_middle_down(*args, &block)
+    evt_middle_up(*args, &block)
+    evt_right_down(*args, &block)
+    evt_right_up(*args, &block)
+    evt_motion(*args, &block)
+    evt_left_dclick(*args, &block)
+    evt_middle_dclick(*args, &block)
+    evt_right_dclick(*args, &block)
+    evt_leave_window(*args, &block)
+    evt_enter_window(*args, &block)
+    evt_mousewheel(*args, &block)
   end
 
   # Convenience evt handler to listen to all scrollwin events.
-  def evt_scrollwin(&block)
-    evt_scrollwin_top(&block)
-    evt_scrollwin_bottom(&block)
-    evt_scrollwin_lineup(&block)
-    evt_scrollwin_linedown(&block)
-    evt_scrollwin_pageup(&block)
-    evt_scrollwin_pagedown(&block)
-    evt_scrollwin_thumbtrack(&block)
-    evt_scrollwin_thumbrelease(&block)
+  def evt_scrollwin(meth = nil, &block)
+    evt_scrollwin_top(meth, &block)
+    evt_scrollwin_bottom(meth, &block)
+    evt_scrollwin_lineup(meth, &block)
+    evt_scrollwin_linedown(meth, &block)
+    evt_scrollwin_pageup(meth, &block)
+    evt_scrollwin_pagedown(meth, &block)
+    evt_scrollwin_thumbtrack(meth, &block)
+    evt_scrollwin_thumbrelease(meth, &block)
+  end
+
+  # Convenience evt handler to listen to all scroll events (Wx::Slider and Wx::ScrollBar)
+  def evt_scroll(meth = nil, &block)
+    evt_scroll_top(meth, &block)
+    evt_scroll_bottom(meth, &block)
+    evt_scroll_lineup(meth, &block)
+    evt_scroll_linedown(meth, &block)
+    evt_scroll_pageup(meth, &block)
+    evt_scroll_pagedown(meth, &block)
+    evt_scroll_thumbtrack(meth, &block)
+    evt_scroll_thumbrelease(meth, &block)
+    evt_scroll_changed(meth, &block)
+  end
+
+  # Convenience evt handler to listen to all scroll command events.
+  def evt_command_scroll(id, meth = nil, &block)
+    evt_command_scroll_top(id, meth, &block)
+    evt_command_scroll_bottom(id, meth, &block)
+    evt_command_scroll_lineup(id, meth, &block)
+    evt_command_scroll_linedown(id, meth, &block)
+    evt_command_scroll_pageup(id, meth, &block)
+    evt_command_scroll_pagedown(id, meth, &block)
+    evt_command_scroll_thumbtrack(id, meth, &block)
+    evt_command_scroll_thumbrelease(id, meth, &block)
+    evt_command_scroll_changed(id, meth, &block)
+  end
+
+  # add missing constants (these are redefinitions of other constants which are not documented themselves)
+  %i[EVT_COMMAND_SCROLL_TOP
+     EVT_COMMAND_SCROLL_BOTTOM
+     EVT_COMMAND_SCROLL_LINEUP
+     EVT_COMMAND_SCROLL_LINEDOWN
+     EVT_COMMAND_SCROLL_PAGEUP
+     EVT_COMMAND_SCROLL_PAGEDOWN
+     EVT_COMMAND_SCROLL_THUMBTRACK
+     EVT_COMMAND_SCROLL_THUMBRELEASE
+     EVT_COMMAND_SCROLL_CHANGED].each do |const|
+    unless Wx.const_defined?(const)
+      Wx.const_set(const, Wx.const_get(const.to_s.sub('EVT_COMMAND_', 'EVT_').to_sym))
+    end
   end
 
   if Wx.const_defined?(:EVT_DESTROY)

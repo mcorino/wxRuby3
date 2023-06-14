@@ -13,6 +13,7 @@ module WXRuby3
 
       def setup
         super
+        spec.add_swig_code '%feature("notabstract") wxFontPickerCtrl;'
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with FontPickerEvent
       end
     end # class FontPickerCtrl
