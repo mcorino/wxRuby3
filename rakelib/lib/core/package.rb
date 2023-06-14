@@ -389,7 +389,7 @@ module WXRuby3
 
       def generate_event_types(fout, item, evts_handled)
         fout.puts "  # from #{item.name}"
-        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
+        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass, _|
           evh_name = evt_hnd.downcase
           unless evts_handled.include?(evh_name)
             evt_klass ||= item.name
