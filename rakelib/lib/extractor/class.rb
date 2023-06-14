@@ -227,7 +227,7 @@ module WXRuby3
                                end
                     # record event handler (macro) name, event type handled and the number of event id arguments
                     evt_arity = args.inject(0) {|c, a| c += 1 if a.start_with?('id'); c }
-                    @event_types << [evt_handler, evt_type, evt_arity, evt_klass]
+                    @event_types << [evt_handler, evt_type, evt_arity, evt_klass, false]
                   end
                 end
               end

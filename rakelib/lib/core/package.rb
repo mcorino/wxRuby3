@@ -463,11 +463,11 @@ module WXRuby3
       end
 
       def generate_event_doc(fdoc, item, evts_handled)
-        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass|
+        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass, evt_nodoc|
           evh_name = evt_hnd.downcase
           unless evts_handled.include?(evh_name)
             evt_klass ||= item.name
-            evh_args, evh_docstr = find_event_doc(evh_name)
+            evh_args, evh_docstr = evt_nodoc ? nil : find_event_doc(evh_name)
             fdoc.doc.puts evh_docstr if evh_docstr
             fdoc.doc.puts "Processes a {#{fullname}::#{evt_type}} event." unless /Process.*\s(event|command)/ =~ evh_docstr
             case evt_arity
