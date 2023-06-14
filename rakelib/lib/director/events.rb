@@ -32,6 +32,24 @@ module WXRuby3
         spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
 
+      def process(gendoc: false)
+        defmod = super
+        # fix documentation errors for wxScrollEvent
+        def_item = defmod.find_item('wxScrollEvent')
+        if def_item
+          def_item.event_types.each do |evt_spec|
+            case evt_spec.first
+            when 'EVT_COMMAND_SCROLL_THUMBRELEASE', 'EVT_COMMAND_SCROLL_CHANGED'
+              if evt_spec[2] == 0
+                evt_spec[2] = 1       # incorrectly documented without 'id' argument
+                evt_spec[4] = true    # ignore extracted docs
+              end
+            end
+          end
+        end
+        defmod
+      end
+
     end # class Events
 
   end # class Director
