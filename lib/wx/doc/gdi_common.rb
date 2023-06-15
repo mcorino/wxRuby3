@@ -232,6 +232,52 @@ module Wx
     # @return [self]
     def intersect!(rect) end
 
+    # @overload deflate!(dx, dy)
+    #   Decrease the rectangle size.
+    #   This method is the opposite from {inflate!}: deflate!(a, b) is equivalent to inflate!(-a, -b). Please refer to {inflate!} for full description.
+    #   @param dx [Integer]
+    #   @param dy [Integer]
+    #   @return [self]
+    # @overload deflate!(diff)
+    #   Decrease the rectangle size.
+    #   This method is the opposite from {inflate!}: deflate!(a, b) is equivalent to inflate!(-a, -b). Please refer to {inflate!} for full description.
+    #   @param diff [Array(Integer, Integer), Wx::Size]
+    #   @return [self]
+    # @overload deflate!(diff)
+    #   Decrease the rectangle size.
+    #   This method is the opposite from {inflate!}: deflate!(a, b) is equivalent to inflate!(-a, -b). Please refer to {inflate!} for full description.
+    #   @param diff [Integer]
+    #   @return [self]
+    def deflate!(*args) end
+
+    # @overload inflate!(dx, dy)
+    #   Increases the size of the rectangle.
+    #   The left border is moved farther left and the right border is moved farther right by dx. The upper border is moved farther up and the bottom border is moved farther down by dy. (Note that the width and height of the rectangle thus change by 2*dx and 2*dy, respectively.) If one or both of dx and dy are negative, the opposite happens: the rectangle size decreases in the respective direction.
+    #   Inflating and deflating behaves "naturally". Defined more precisely, that means:
+    #   - "Real" inflates (that is, dx and/or dy = 0) are not constrained. Thus inflating a rectangle can cause its upper left corner to move into the negative numbers. (2.5.4 and older forced the top left coordinate to not fall below (0, 0), which implied a forced move of the rectangle.)- Deflates are clamped to not reduce the width or height of the rectangle below zero. In such cases, the top-left corner is nonetheless handled properly. For example, a rectangle at (10, 10) with size (20, 40) that is inflated by (-15, -15) will become located at (20, 25) at size (0, 10). Finally, observe that the width and height are treated independently. In the above example, the width is reduced by 20, whereas the height is reduced by the full 30 (rather than also stopping at 20, when the width reached zero).
+    #   @see #inflate
+    #   @see #deflate!
+    #   @param dx [Integer]
+    #   @param dy [Integer]
+    #   @return [self]
+    # @overload inflate!(diff)
+    #   Increases the size of the rectangle.
+    #   The left border is moved farther left and the right border is moved farther right by dx. The upper border is moved farther up and the bottom border is moved farther down by dy. (Note that the width and height of the rectangle thus change by 2*dx and 2*dy, respectively.) If one or both of dx and dy are negative, the opposite happens: the rectangle size decreases in the respective direction.
+    #   Inflating and deflating behaves "naturally". Defined more precisely, that means:
+    #   - "Real" inflates (that is, dx and/or dy = 0) are not constrained. Thus inflating a rectangle can cause its upper left corner to move into the negative numbers. (2.5.4 and older forced the top left coordinate to not fall below (0, 0), which implied a forced move of the rectangle.)- Deflates are clamped to not reduce the width or height of the rectangle below zero. In such cases, the top-left corner is nonetheless handled properly. For example, a rectangle at (10, 10) with size (20, 40) that is inflated by (-15, -15) will become located at (20, 25) at size (0, 10). Finally, observe that the width and height are treated independently. In the above example, the width is reduced by 20, whereas the height is reduced by the full 30 (rather than also stopping at 20, when the width reached zero).
+    #   @see deflate
+    #   @param diff [Array(Integer, Integer), Wx::Size]
+    #   @return [self]
+    # @overload inflate!(diff)
+    #   Increases the size of the rectangle.
+    #   The left border is moved farther left and the right border is moved farther right by dx. The upper border is moved farther up and the bottom border is moved farther down by dy. (Note that the width and height of the rectangle thus change by 2*dx and 2*dy, respectively.) If one or both of dx and dy are negative, the opposite happens: the rectangle size decreases in the respective direction.
+    #   Inflating and deflating behaves "naturally". Defined more precisely, that means:
+    #   - "Real" inflates (that is, dx and/or dy = 0) are not constrained. Thus inflating a rectangle can cause its upper left corner to move into the negative numbers. (2.5.4 and older forced the top left coordinate to not fall below (0, 0), which implied a forced move of the rectangle.)- Deflates are clamped to not reduce the width or height of the rectangle below zero. In such cases, the top-left corner is nonetheless handled properly. For example, a rectangle at (10, 10) with size (20, 40) that is inflated by (-15, -15) will become located at (20, 25) at size (0, 10). Finally, observe that the width and height are treated independently. In the above example, the width is reduced by 20, whereas the height is reduced by the full 30 (rather than also stopping at 20, when the width reached zero).
+    #   @see deflate
+    #   @param diff [Integer]
+    #   @return [self]
+    def inflate!(*args) end
+
     alias :& :intersect
 
     alias :| :union

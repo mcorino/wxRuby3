@@ -36,11 +36,13 @@ class Wx::Rect
     end
   end
 
-  # provide both constant and non-constant versions of union/intersect
+  # provide both constant and non-constant versions of union/intersect/inflate/deflate
 
   # first alias the wrapped (non-constant) versions with correct names
   alias :union! :union
   alias :intersect! :intersect
+  alias :inflate! :inflate
+  alias :deflate! :deflate
 
   # next provide new constant versions
   def union(rect)
@@ -49,6 +51,14 @@ class Wx::Rect
 
   def intersect(rect)
     self.dup.intersect!(rect)
+  end
+
+  def inflate(*args)
+    self.dup.inflate!(*args)
+  end
+
+  def deflate(*args)
+    self.dup.deflate!(*args)
   end
 
   alias :+ :add

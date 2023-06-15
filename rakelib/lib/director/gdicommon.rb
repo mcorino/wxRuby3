@@ -23,11 +23,8 @@ module WXRuby3
           'wxClientDisplayRect(int *,int *,int *,int *)',
           'wxDisplaySize(int *,int *)',
           'wxDisplaySizeMM(int *,int *)',
-          'wxRect::Inflate(wxCoord,wxCoord)',
           'wxRect::Inflate(wxCoord,wxCoord) const',
-          'wxRect::Deflate(wxCoord,wxCoord)',
           'wxRect::Deflate(wxCoord,wxCoord) const',
-          'wxRect::Offset(wxCoord,wxCoord)',
           'wxRect::Intersect(const wxRect &)',
           'wxRect::Union(const wxRect &)'
         ]
