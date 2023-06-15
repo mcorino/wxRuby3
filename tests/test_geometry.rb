@@ -162,8 +162,6 @@ class GeometryTests < Test::Unit::TestCase
     assert(rect.eql? Wx::Rect.new(x,y,w,h))
     refute(rect.eql?([x,y,w,h]))
 
-    assert_equal(Wx::Rect.new(5,5,10,10).inflate([2,2]), [3,3,14,14])
-
     assert_equal(Wx::Rect.new(1, 10, 101, 310), (rect | Wx::Rect.new(2, 20, 100, 300)))
     assert_equal(Wx::Rect.new(1, 10, 101, 310), (rect + Wx::Rect.new(2, 20, 100, 300)))
     assert_equal(Wx::Rect.new(1, 10, 100, 300), (rect | Wx::Rect.new(2, 20, 0, 300)))
@@ -175,6 +173,19 @@ class GeometryTests < Test::Unit::TestCase
     assert_equal(Wx::Rect.new(2, 20, 0, 290), (rect * Wx::Rect.new(2, 20, 0, 300)))
     assert_equal(Wx::Rect.new(102, 20, 0, 0), (rect & Wx::Rect.new(102, 20, 100, 300)))
     assert_equal(Wx::Rect.new(102, 20, -1, 290), (rect * Wx::Rect.new(102, 20, 100, 300)))
+
+    rect = Wx::Rect.new(5,5,10,10)
+    assert_equal([3,3,14,14], rect.inflate([2,2]))
+    assert_not_equal(rect.object_id, rect.inflate(2,2))
+    assert_equal([3,3,14,14], rect.inflate!(2))
+    assert_equal([3,3,14,14], rect)
+    assert_equal([5,5,10,10], rect.deflate([2,2]))
+    assert_not_equal(rect.object_id, rect.deflate(2,2))
+    assert_equal([5,5,10,10], rect.deflate!(2))
+    assert_equal([5,5,10,10], rect)
+    assert_equal([6,7,10,10], rect.offset(1,2))
+    assert_equal([6,7,10,10], rect.offset!(Wx::Point.new(1,2)))
+    assert_equal([6,7,10,10], rect)
   end
 
 end
