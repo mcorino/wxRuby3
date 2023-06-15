@@ -278,6 +278,32 @@ module Wx
     #   @return [self]
     def inflate!(*args) end
 
+    # @overload offset(dx, dy)
+    #   Moves the rectangle by the specified offset.
+    #   If dx is positive, the rectangle is moved to the right, if dy is positive, it is moved to the bottom, otherwise it is moved to the left or top respectively.
+    #   @param dx [Integer]
+    #   @param dy [Integer]
+    #   @return [Wx::Rect]
+    # @overload offset(pt)
+    #   Moves the rectangle by the specified offset.
+    #   If dx is positive, the rectangle is moved to the right, if dy is positive, it is moved to the bottom, otherwise it is moved to the left or top respectively.
+    #   @param pt [Array(Integer, Integer), Wx::Point]
+    #   @return [Wx::Rect]
+    def offset(*args) end
+
+    # @overload offset!(dx, dy)
+    #   Moves the rectangle by the specified offset.
+    #   If dx is positive, the rectangle is moved to the right, if dy is positive, it is moved to the bottom, otherwise it is moved to the left or top respectively.
+    #   @param dx [Integer]
+    #   @param dy [Integer]
+    #   @return [self]
+    # @overload offset!(pt)
+    #   Moves the rectangle by the specified offset.
+    #   If dx is positive, the rectangle is moved to the right, if dy is positive, it is moved to the bottom, otherwise it is moved to the left or top respectively.
+    #   @param pt [Array(Integer, Integer), Wx::Point]
+    #   @return [self]
+    def offset!(*args) end
+
     alias :& :intersect
 
     alias :| :union

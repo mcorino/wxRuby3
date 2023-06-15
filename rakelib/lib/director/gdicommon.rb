@@ -28,6 +28,7 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &)',
           'wxRect::Union(const wxRect &)'
         ]
+        spec.regard 'wxRect::Offset', regard_doc: false
         # overrule common wxPoint mapping for wxRect ctor to fix ctor ambiguities here wrt wxSize
         spec.map 'const wxPoint& topLeft', 'const wxPoint& bottomRight', as: 'Wx::Point' do
           map_in code: <<~__CODE
