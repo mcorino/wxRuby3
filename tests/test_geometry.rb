@@ -183,6 +183,9 @@ class GeometryTests < Test::Unit::TestCase
     assert_not_equal(rect.object_id, rect.deflate(2,2))
     assert_equal([5,5,10,10], rect.deflate!(2))
     assert_equal([5,5,10,10], rect)
+    assert_equal([6,7,10,10], rect.offset(1,2))
+    assert_equal([6,7,10,10], rect.offset!(Wx::Point.new(1,2)))
+    assert_equal([6,7,10,10], rect)
   end
 
 end

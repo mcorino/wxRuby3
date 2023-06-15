@@ -36,7 +36,7 @@ class Wx::Rect
     end
   end
 
-  # provide both constant and non-constant versions of union/intersect/inflate/deflate
+  # provide both constant and non-constant versions of union/intersect/inflate/deflate/offset
 
   # first alias the wrapped (non-constant) versions with correct names
   alias :union! :union
@@ -44,7 +44,18 @@ class Wx::Rect
   alias :inflate! :inflate
   alias :deflate! :deflate
 
+  # redefine offset as offset! returning self
+  wx_offset = instance_method :offset
+  define_method :offset! do |*args|
+    wx_offset.bind(self).call(*args)
+    self
+  end
+
   # next provide new constant versions
+  def offset(*args)
+    self.dup.offset!(*args)
+  end
+
   def union(rect)
     self.dup.union!(rect)
   end
