@@ -151,4 +151,4 @@ distributes implementations over various sub-modules. These sub-modules can be l
 The core module still provides the toplevel `Wx` namespace and all classes and constants declared in that namespace.
 All other modules add to that (and **all** require the core module).
 
-See [here](packages.md) for more details on wxRuby sub-modules.
+See [here](01_packages.md) for more details on wxRuby sub-modules.
