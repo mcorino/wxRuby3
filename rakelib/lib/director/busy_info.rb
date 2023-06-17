@@ -13,7 +13,7 @@ module WXRuby3
         super
         spec.items << 'wxBusyInfoFlags'
         spec.disable_proxies
-        spec.gc_as_temporary 'wxBusyInfoFlags'
+        spec.gc_as_temporary 'wxBusyInfo', 'wxBusyInfoFlags'
         # again C++ type guards do not work with Ruby
         # need to Rubify this
         spec.make_abstract 'wxBusyInfo'
@@ -44,8 +44,6 @@ module WXRuby3
               p_busyinfo = &disabler;
               rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0);
               rc = rb_yield(rb_busyinfo);
-              SWIG_RubyRemoveTracking((void *)p_busyinfo);
-              DATA_PTR(rb_busyinfo) = NULL;
             }
             return rc;
           }
@@ -60,8 +58,6 @@ module WXRuby3
               p_busyinfo = &disabler;
               rb_busyinfo = SWIG_NewPointerObj(SWIG_as_voidptr(p_busyinfo), SWIGTYPE_p_wxBusyInfo, 0);
               rc = rb_yield(rb_busyinfo);
-              SWIG_RubyRemoveTracking((void *)p_busyinfo);
-              DATA_PTR(rb_busyinfo) = NULL;
             }
             return rc;
           }
