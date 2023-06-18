@@ -7,6 +7,8 @@
 
 # README for wxRuby3
 
+![Logo](https://github.com/mcorino/wxRuby3/blob/master/logo.svg "wxRuby3")
+
 Reviving wxRuby
 
 ## Introduction
