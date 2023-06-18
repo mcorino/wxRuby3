@@ -96,6 +96,10 @@ jobs:
         run: |
           bundle exec yardoc
 
+      - name: Copy assets into HTML output folder
+        run: |
+          cp -r assets rdoc
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
