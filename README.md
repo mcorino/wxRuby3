@@ -7,7 +7,7 @@
 
 # README for wxRuby3
 
-![Logo](/assets/logo.svg "wxRuby3")
+![Logo](assets/logo.svg "wxRuby3")
 
 Reviving wxRuby
 
