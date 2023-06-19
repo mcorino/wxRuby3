@@ -23,7 +23,7 @@ module WXRuby3
       manifest = Rake::FileList.new
       manifest.include %w[bin/*] # *nix executables in bin/
       manifest.exclude %w[bin/*.bat] unless WXRuby3.config.windows?
-      manifest.include %w[lib/**/* samples/**/* tests/**/*]
+      manifest.include %w[assets/**/* lib/**/* samples/**/* tests/**/*]
       if gemtype == :bin
         if WXRuby3.config.get_config('with-wxwin')
           manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
