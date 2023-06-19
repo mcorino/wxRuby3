@@ -37,7 +37,7 @@ module WxRuby
                 exit(1)
               end
               Dir[File.join(WxRuby::ROOT, 'samples', '*')].each do |fp|
-                FileUtils.cp_r(fp, dest, verbose: true, noop: true)
+                FileUtils.cp_r(fp, dest, verbose: true)
               end
             end
           end
