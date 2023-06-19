@@ -25,4 +25,8 @@ class Wx::Enum
     self.to_i == 0
   end
 
+  def hash
+    @value.hash
+  end
+
 end
