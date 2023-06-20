@@ -44,10 +44,10 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
       '--exclude=lib/wx/*.rb' <<
       "'--exclude=lib/wx/(aui|core|grid|html|pg|prt|rbn|rtc|stc|wxruby)/.*'"
     gem.metadata = {
-      "bug_tracker_uri"   => "https://github.com/mcorino/wxruby3/issues",
-      "source_code_uri"   => "https://github.com/mcorino/wxruby3",
+      "bug_tracker_uri"   => "https://github.com/mcorino/wxRuby3/issues",
+      "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
       "documentation_uri" => "https://mcorino.github.io/wxRuby3",
-      "homepage_uri"      => "https://github.com/mcorino/wxruby3",
+      "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
     }
     gem.post_install_message = <<~__MSG
 
@@ -97,10 +97,10 @@ if WXRuby3.is_bootstrapped?
         gem.add_dependency 'test-unit', '~> 3.5'
         gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
         gem.metadata = {
-          "bug_tracker_uri"   => "https://github.com/mcorino/wxruby3/issues",
-          "source_code_uri"   => "https://github.com/mcorino/wxruby3",
+          "bug_tracker_uri"   => "https://github.com/mcorino/wxRuby3/issues",
+          "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
           "documentation_uri" => "https://mcorino.github.io/wxRuby3",
-          "homepage_uri"      => "https://github.com/mcorino/wxruby3",
+          "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
         }
       end
       WXRuby3::Gem.build_gem(gemspec)

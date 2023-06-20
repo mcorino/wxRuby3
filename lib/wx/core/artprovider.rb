@@ -24,7 +24,7 @@ class Wx::ArtProvider
 
     wx_delete = instance_method(:delete)
     define_method(:delete) do | art_prov |
-      wx_push.bind(self).call(art_prov)
+      wx_delete.bind(self).call(art_prov)
       @__art_provs.delete(art_prov)
     end
   end
