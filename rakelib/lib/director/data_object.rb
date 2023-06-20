@@ -66,10 +66,10 @@ module WXRuby3
           typedef std::map<wxDataObjectComposite*, data_object_list_t> composite_data_object_map_t;
           static composite_data_object_map_t CompositeDataObject_Map;
 
-          static void wxRuby_markCompositeDataObjects()
+          static void GC_mark_wxCompositeDataObject(void* ptr)
           {
-            composite_data_object_map_t::iterator it;
-            for( it = CompositeDataObject_Map.begin(); it != CompositeDataObject_Map.end(); ++it )
+            composite_data_object_map_t::iterator it = CompositeDataObject_Map.find(static_cast<wxDataObjectComposite*> (ptr));
+            if (it != CompositeDataObject_Map.end())
             {
               data_object_list_t &do_list = it->second;
               for (VALUE data_obj : do_list)
@@ -160,7 +160,8 @@ module WXRuby3
           }
           __HEREDOC
         # install GC marker
-        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markCompositeDataObjects);'
+        spec.add_swig_code '%markfunc wxDataObjectComposite "GC_mark_wxCompositeDataObject";'
+
         # use custom implementation class
         spec.use_class_implementation 'wxDataObjectComposite', 'WxRuby_DataObjectComposite'
 
