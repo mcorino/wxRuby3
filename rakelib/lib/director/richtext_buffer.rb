@@ -22,7 +22,7 @@ module WXRuby3
           wxRichTextBuffer
           ]
         spec.gc_as_object 'wxRichTextAttr'
-        spec.gc_never 'wxRichTextBuffer'
+        spec.gc_as_object 'wxRichTextBuffer'
         spec.override_inheritance_chain('wxRichTextBuffer', %w[wxObject])
         spec.ignore %w[
           wxRichTextBuffer::GetBatchedCommand

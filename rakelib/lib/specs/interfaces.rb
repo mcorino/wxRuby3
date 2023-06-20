@@ -222,6 +222,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxRichTextHeaderFooterData', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxRichTextPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxSymbolPickerDialog', director: Director::Dialog)
+    # need to look into special needs
+    # Director.Spec(pkg, 'wxRichTextBufferDataObject')
   }
 
   Director.Package('Wx::STC', 'wxUSE_STC') { |pkg|
@@ -272,6 +274,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlListBox')
+    # defer; something not right here
+    # Director.Spec(pkg, 'wxHTMLDataObject')
   }
 
   Director.Package('Wx::AUI', 'wxUSE_AUI') { |pkg|
