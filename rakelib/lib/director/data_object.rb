@@ -96,11 +96,76 @@ module WXRuby3
               CompositeDataObject_Map.erase(this);
             } 
           };
+
+          #if wxUSE_RICHTEXT 
+          #include <wx/richtext/richtextbuffer.h>
+          #endif
+
+          // Add custom object wrapper for DataObjectComposite#get_object result
+          static VALUE wxRuby_WrapDataObjectSimple(wxDataObjectSimple* d_obj)
+          {
+            if (!d_obj)
+              return Qnil;
+
+            // check if we have this object tracked
+            VALUE r_obj = SWIG_RubyInstanceFor(d_obj);
+            if (r_obj != Qnil)
+            {
+              swig_class* sklass = (swig_class *) SWIGTYPE_p_wxDataObjectSimple->clientdata;
+              if (rb_obj_is_kind_of(r_obj, sklass->klass))
+                return r_obj; 
+            }      
+            
+            // Otherwise check the returned type and create a new object wrapper
+            void* do_ptr;
+            if ((do_ptr = dynamic_cast<wxBitmapDataObject*> (d_obj)))
+            {
+              return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxBitmapDataObject, 0);
+            }
+            if ((do_ptr = dynamic_cast<wxImageDataObject*> (d_obj)))
+            {
+              return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxImageDataObject, 0);
+            }
+            if ((do_ptr = dynamic_cast<wxCustomDataObject*> (d_obj)))
+            {
+              return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxCustomDataObject, 0);
+            }
+            if ((do_ptr = dynamic_cast<wxFileDataObject*> (d_obj)))
+            {
+              return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxFileDataObject, 0);
+            }
+            if ((do_ptr = dynamic_cast<wxTextDataObject*> (d_obj)))
+            {
+              return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxTextDataObject, 0);
+            }
+          #if wxUSE_HTML
+            if ((do_ptr = dynamic_cast<wxHTMLDataObject*> (d_obj)))
+            {
+              VALUE r_class = rb_eval_string("Wx::HTML::HTMLDataObject");
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
+              return SWIG_NewPointerObj(do_ptr, swig_type, 0);
+            }
+          #endif
+          #if wxUSE_RICHTEXT 
+            if ((do_ptr = dynamic_cast<wxRichTextBufferDataObject*> (d_obj)))
+            {
+              VALUE r_class = rb_eval_string("Wx::RTC::RichTextBufferDataObject");
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
+              return SWIG_NewPointerObj(do_ptr, swig_type, 0);
+            }
+          #endif
+            return Qnil;
+          }
           __HEREDOC
         # install GC marker
         spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markCompositeDataObjects);'
         # use custom implementation class
         spec.use_class_implementation 'wxDataObjectComposite', 'WxRuby_DataObjectComposite'
+
+        # make sure to return the right derived type
+        spec.map 'wxDataObjectSimple*' => 'Wx::DataObjectSimple' do
+          map_out code: '$result = wxRuby_WrapDataObjectSimple($1);'
+        end
 
         # disable generating the default Add method (keep docs)
         spec.ignore 'wxDataObjectComposite::Add', ignore_doc: false
