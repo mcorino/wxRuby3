@@ -156,7 +156,29 @@ module WXRuby3
             extern VALUE wxRuby_GetWindowClass() {
               return SwigClassWxWindow.klass;
             }
+            // we need this static method here because we do not want SWIG to parse the preprocessor 
+            // statements (#if/#else/#endif) which it does in %extend blocks
+            static VALUE do_paint_buffered(wxWindow* ptr)
+            {
+              VALUE rc = Qnil;
+              wxAutoBufferedPaintDC dc(ptr);
+            #if wxALWAYS_NATIVE_DOUBLE_BUFFER
+              wxPaintDC* ptr_dc = &dc;
+              VALUE r_class = rb_const_get(mWxCore, rb_intern("PaintDC"));
+            #else
+              wxMemoryDC* ptr_dc = &dc;
+              VALUE r_class = rb_const_get(mWxCore, rb_intern("MemoryDC"));
+            #endif
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
+              VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ptr_dc), swig_type, 0);
+              rc = rb_yield(rb_dc);
+              SWIG_RubyRemoveTracking((void *)ptr_dc);
+              DATA_PTR(rb_dc) = NULL;
+
+              return rc;
+            }
             __HEREDOC
+          spec.add_header_code 'static VALUE do_paint_buffered(wxWindow* ptr);'
           spec.add_extend_code 'wxWindow', <<~__HEREDOC
             // passes a DC for drawing on Window into a passed ruby block, and
             // ensure that the DC is correctly deleted when drawing is
@@ -200,17 +222,7 @@ module WXRuby3
             {
               if (!rb_block_given_p()) rb_raise(rb_eArgError, "No block given for Window#paint_buffered");
           
-              VALUE rc = Qnil;
-              wxWindow *ptr = self;
-              wxAutoBufferedPaintDC dc(ptr);
-              VALUE r_class = rb_const_get(mWxCore, rb_intern("MemoryDC"));
-              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-              VALUE rb_dc = SWIG_NewPointerObj((void *) &dc, swig_type, 0);
-              rc = rb_yield(rb_dc);
-              SWIG_RubyRemoveTracking((void *) &dc);
-              DATA_PTR(rb_dc) = NULL;
-
-              return rc;
+              return do_paint_buffered(self);
             }
           
             // Return a window handle as a platform-specific ruby integer
