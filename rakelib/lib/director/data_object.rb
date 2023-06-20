@@ -138,6 +138,7 @@ module WXRuby3
             {
               return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxTextDataObject, 0);
             }
+          /** Leave these for now. Something fishy going on with HTML and RichText has special needs
           #if wxUSE_HTML
             if ((do_ptr = dynamic_cast<wxHTMLDataObject*> (d_obj)))
             {
@@ -154,7 +155,8 @@ module WXRuby3
               return SWIG_NewPointerObj(do_ptr, swig_type, 0);
             }
           #endif
-            return Qnil;
+          **/
+            return SWIG_NewPointerObj(SWIG_as_voidptr(d_obj), SWIGTYPE_p_wxDataObjectSimple, 0);
           }
           __HEREDOC
         # install GC marker
