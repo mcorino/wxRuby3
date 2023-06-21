@@ -34,6 +34,41 @@ class TestTextData < Test::Unit::TestCase
   end
 end
 
+if Wx.has_feature?(:USE_HTML) && Wx::WXWIDGETS_VERSION >= '3.3'
+  class TestHtmlData < Test::Unit::TestCase
+    # Using an in-built class
+    def test_text_data
+      td = Wx::HTMLDataObject.new('<html><body><h1>Header</h1></body></html>')
+      assert_equal('<html><body><h1>Header</h1></body></html>', td.html)
+
+      Wx::Clipboard.open do | clip |
+        assert clip.opened?
+        clip.clear
+        assert !clip.supported?(Wx::DF_BITMAP)
+        clip.place td
+        assert clip.supported?(Wx::DF_HTML)
+        assert !clip.supported?(Wx::DF_BITMAP)
+      end
+
+      td_2 = Wx::HTMLDataObject.new
+      Wx::Clipboard.open do | clip |
+        clip.fetch td_2
+      end
+      assert_equal('<html><body><h1>Header</h1></body></html>', td_2.html)
+
+      Wx::Clipboard.open do | clip |
+        clip.clear
+      end
+
+      td_3 = Wx::HTMLDataObject.new
+      Wx::Clipboard.open do | clip |
+        clip.fetch td_3
+      end
+      assert_equal('', td_3.get_data_here)
+    end
+  end
+end
+
 class TestBitmapData < Test::Unit::TestCase
   def test_bitmap_data
     bmp = Wx::Bitmap.new(File.join(__dir__, '../samples/minimal/mondrian.png'))

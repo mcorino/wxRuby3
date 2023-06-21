@@ -421,10 +421,12 @@ module WXRuby3
         para = node_to_doc(node)
         # loose specific notes paragraphs
         case para
-        when /\A\s*wxPerl Note:/,   # wxPerl note
-          /\A\s*Library:/        # Library note
+        when /\A(\<b\>)?wxPerl Note:/,  # wxPerl note
+             /\A\s*Library:/,           # Library note
+             /\A\s*Include\s+file:/     # Include file note
           ''
         else
+          para.sub!(/Include\s+file:\s+\#include\s+\<[^>]+\>\s*\Z/, '')
           if event_section?
             case para
             when /The following event handler macros redirect.*(\{.*})/
