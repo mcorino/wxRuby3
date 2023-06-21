@@ -274,8 +274,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlListBox')
-    # defer; something not right here
-    # Director.Spec(pkg, 'wxHTMLDataObject')
+    Director.Spec(pkg, 'wxHTMLDataObject') if Config.instance.wx_version >= '3.3'
   }
 
   Director.Package('Wx::AUI', 'wxUSE_AUI') { |pkg|

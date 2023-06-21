@@ -138,8 +138,7 @@ module WXRuby3
             {
               return SWIG_NewPointerObj(do_ptr, SWIGTYPE_p_wxTextDataObject, 0);
             }
-          /** Leave these for now. Something fishy going on with HTML and RichText has special needs
-          #if wxUSE_HTML
+          #if wxUSE_HTML && (wxVERSION_NUMBER >= 3300)
             if ((do_ptr = dynamic_cast<wxHTMLDataObject*> (d_obj)))
             {
               VALUE r_class = rb_eval_string("Wx::HTML::HTMLDataObject");
@@ -147,6 +146,7 @@ module WXRuby3
               return SWIG_NewPointerObj(do_ptr, swig_type, 0);
             }
           #endif
+          /** Leave these for now. RichText has special needs
           #if wxUSE_RICHTEXT 
             if ((do_ptr = dynamic_cast<wxRichTextBufferDataObject*> (d_obj)))
             {

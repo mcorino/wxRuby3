@@ -22,5 +22,7 @@ module Wx
   end
   DF_FILENAME    = DataFormat.new( Wx::DataFormatId::DF_FILENAME )
   DF_UNICODETEXT = DataFormat.new( Wx::DataFormatId::DF_UNICODETEXT )
-  # DF_HTML is only supported on Windows + MSVC, so don't offer it
+  if Wx.has_feature?(:USE_HTML) && Wx::WXWIDGETS_VERSION >= '3.3'
+    DF_HTML        = DataFormat.new( Wx::DataFormatId::DF_HTML )
+  end
 end
