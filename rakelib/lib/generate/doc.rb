@@ -4,6 +4,7 @@
 ###
 
 require 'set'
+require 'yaml'
 
 require_relative './base'
 require_relative './analyzer'
@@ -404,6 +405,8 @@ module WXRuby3
       end
 
       def node_to_doc(xmlnode)
+        xmlnode = preprocess_node(xmlnode)
+        return xmlnode unless xmlnode.is_a?(Nokogiri::XML::Node)
         xmlnode.children.inject('') do |docstr, node|
           docstr << self.__send__("#{node.name}_to_doc", node)
         end
@@ -475,6 +478,24 @@ module WXRuby3
         end
       end
 
+      def preprocess_node(node)
+        if @item_doc_ovr[:pre] && @item_doc_ovr[:pre][node.name.to_sym]
+          @item_doc_ovr[:pre][node.name.to_sym].each do |ovr|
+            if ovr[:replace]
+              return ovr[:replace] if ovr[:pattern] =~ node.inner_html
+            elsif ovr[:subst]
+              if ovr[:global]
+                node.inner_html = node.inner_html.gsub(ovr[:pattern], ovr[:subst])
+              else
+                node.inner_html = node.inner_html.sub(ovr[:pattern], ovr[:subst])
+              end
+            end
+          end
+        end
+        node
+      end
+      private :preprocess_node
+
       def method_missing(mtd, *args, &block)
         if /\A\w+_to_doc\Z/ =~ mtd.to_s && args.size==1
           node_to_doc(*args)
@@ -487,6 +508,15 @@ module WXRuby3
 
       def initialize(director)
         @director = director
+        @doc_overrides = if File.exist?(doc_override_file =  File.join(__dir__, 'doc', underscore(name)+ '.yaml'))
+                           if ::Psych::VERSION >= '3.1.0'
+                            ::Psych.safe_load(File.read(doc_override_file), permitted_classes: [::Regexp, ::Symbol])
+                           else
+                             ::Psych.safe_load(File.read(doc_override_file), [::Regexp, ::Symbol])
+                           end
+                         else
+                           {}
+                         end
         @classdef = nil
         @see_list = []
       end
@@ -503,15 +533,25 @@ module WXRuby3
         end
       end
 
-      def to_doc(xmlnode_or_set)
+      def to_doc(xmlnode_or_set, item: nil, desc: :brief)
         return '' unless xmlnode_or_set
         @see_list.clear
+        @item_doc_ovr = item && @doc_overrides.has_key?(item.name.to_sym) ? @doc_overrides[item.name.to_sym][desc] || {} : {}
         doc = if Nokogiri::XML::NodeSet === xmlnode_or_set
                 xmlnode_or_set.inject('') { |s, n| s << node_to_doc(n) }
               else
                 node_to_doc(xmlnode_or_set)
               end
         event_section(false)
+        if @item_doc_ovr.has_key?(:post)
+          @item_doc_ovr[:post].each do |ovr|
+            if ovr[:global]
+              doc.gsub!(ovr[:pattern], ovr[:subst])
+            else
+              doc.sub!(ovr[:pattern], ovr[:subst])
+            end
+          end
+        end
         doc.strip!
         # reduce triple(or more) newlines to max 2
         doc << "\n" # always end with a NL without following whitespace
@@ -562,7 +602,7 @@ module WXRuby3
     protected
 
     def get_constant_doc(const)
-      @xml_trans.to_doc(const.brief_doc)
+      @xml_trans.to_doc(const.brief_doc, item: const)
     end
 
     def gen_constant_value(val)
@@ -589,9 +629,9 @@ module WXRuby3
     end
 
     def get_enum_doc(enumdef)
-      doc = @xml_trans.to_doc(enumdef.brief_doc)
+      doc = @xml_trans.to_doc(enumdef.brief_doc, item: enumdef)
       doc << "\n" if enumdef.detailed_doc
-      doc << @xml_trans.to_doc(enumdef.detailed_doc) if enumdef.detailed_doc
+      doc << @xml_trans.to_doc(enumdef.detailed_doc, item: enumdef, desc: :detail) if enumdef.detailed_doc
       doc
     end
 
@@ -681,8 +721,8 @@ module WXRuby3
     end
 
     def get_class_doc(cls)
-      doc = @xml_trans.to_doc(cls.brief_doc)
-      doc << @xml_trans.to_doc(cls.detailed_doc) if cls.detailed_doc
+      doc = @xml_trans.to_doc(cls.brief_doc, item: cls)
+      doc << @xml_trans.to_doc(cls.detailed_doc, item: cls, desc: :detail) if cls.detailed_doc
       doc
     end
 
