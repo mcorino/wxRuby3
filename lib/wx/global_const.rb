@@ -7,24 +7,30 @@ module WxGlobalConstants
     def search_nested(mod, sym, path = [])
       # check any nested modules and/or (enum) classes
       const_val = nil
-      mod.constants.each do |c|
-        case cv = mod.const_get(c)
-        when ::Class
-          if cv < Wx::Enum
-            # the only thing of interest in Enum classes are the enum values
-            const_val = cv[sym]
-          elsif cv.name.start_with?('Wx::') # only search Wx namespace
-            # prevent const_missing being triggered here since that may lead to unexpected results
-            const_val = cv.const_get(sym) if cv.constants.include?(sym)
-            const_val = search_nested(cv, sym, path+[mod]) unless const_val || path.include?(cv)
-          end
-        when ::Module
-          if cv.name.start_with?('Wx::') # only search Wx namespace
-            const_val = cv.const_get(sym)  if cv.constants.include?(sym)
-            const_val = search_nested(cv, sym, path+[mod]) unless const_val || path.include?(cv)
-          end
-        end unless mod == cv # watch out for infinite recursion
-        break if const_val
+      org_verbose = $VERBOSE
+      begin
+        $VERBOSE = nil
+        mod.constants.each do |c|
+          case cv = mod.const_get(c)
+          when ::Class
+            if cv < Wx::Enum
+              # the only thing of interest in Enum classes are the enum values
+              const_val = cv[sym]
+            elsif cv.name.start_with?('Wx::') # only search Wx namespace
+              # prevent const_missing being triggered here since that may lead to unexpected results
+              const_val = cv.const_get(sym) if cv.constants.include?(sym)
+              const_val = search_nested(cv, sym, path+[mod]) unless const_val || path.include?(cv)
+            end
+          when ::Module
+            if cv.name.start_with?('Wx::') # only search Wx namespace
+              const_val = cv.const_get(sym)  if cv.constants.include?(sym)
+              const_val = search_nested(cv, sym, path+[mod]) unless const_val || path.include?(cv)
+            end
+          end unless mod == cv # watch out for infinite recursion
+          break if const_val
+        end
+      ensure
+        $VERBOSE = org_verbose
       end
       const_val
     end
