@@ -24,7 +24,7 @@ module WXRuby3
           def handle_module(mod, table)
             mod.constants.each do |c|
               a_const = mod.const_get(c)
-              if ::Module === a_const || ::Class === a_const  # Package submodule or Class (possibly Enum)
+              if (::Module === a_const || ::Class === a_const) && a_const.name.start_with?('Wx::')  # Wx:: Package submodule or Class (possibly Enum)
                 handle_module(a_const, table[c.to_s] = {})
               elsif Wx::Enum === a_const
                 table[c.to_s] = { type: a_const.class.name.split('::').last, value: "\#{a_const.class}.new(\#{a_const.to_i})" } 
