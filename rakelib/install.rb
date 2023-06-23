@@ -34,7 +34,9 @@ module WXRuby3
                   grp_id = m[1]
                   lib_id = m[2]
                   ver = m[3].sub('.', '')
-                  lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}u#{lib_id}"
+                  # as of wxw 3.3 there seems to be an additional digit added to the version part of the dll name
+                  # so add a wildcard ('*') in that spot to match older and newer versions
+                  lib = "wx#{grp_id.sub(/u\Z/, '')}#{ver}*u#{lib_id}"
                   @wxwin_shlibs.include File.join(libdir, "#{lib}*.#{WXRuby3.config.dll_mask}")
                 end
               else
