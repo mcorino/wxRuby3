@@ -54,7 +54,12 @@ if Wx.has_feature?(:USE_HTML) && Wx::WXWIDGETS_VERSION >= '3.3'
       Wx::Clipboard.open do | clip |
         clip.fetch td_2
       end
-      assert_equal('<html><body><h1>Header</h1></body></html>', td_2.html)
+      if Wx::PLATFORM == 'WXMSW'
+        # WXMSW/Windows seems to add '\r\n' around returned data!?
+        assert_equal('<html><body><h1>Header</h1></body></html>', td_2.html.strip)
+      else
+        assert_equal('<html><body><h1>Header</h1></body></html>', td_2.html)
+      end
 
       Wx::Clipboard.open do | clip |
         clip.clear
