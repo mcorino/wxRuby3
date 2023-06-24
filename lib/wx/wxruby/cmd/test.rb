@@ -16,7 +16,7 @@ module WxRuby
           description
         else
           Dir[File.join(WxRuby::ROOT, 'tests', '*.rb')].each do |test|
-            system(RUBY, test)
+            exit(1) unless system(RUBY, test)
           end
         end
       end
