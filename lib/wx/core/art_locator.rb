@@ -54,7 +54,7 @@ module Wx
       private :search_paths
 
       def add_search_path(*paths)
-        paths.flatten.each { |p| paths << s.to_s unless paths.include?(s.to_s) }
+        paths.flatten.each { |p| search_paths << p.to_s unless search_paths.include?(p.to_s) }
       end
       alias :add_search_paths :add_search_path
 
