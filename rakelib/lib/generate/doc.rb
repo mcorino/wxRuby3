@@ -536,7 +536,21 @@ module WXRuby3
       def to_doc(xmlnode_or_set, item: nil, desc: :brief)
         return '' unless xmlnode_or_set
         @see_list.clear
-        @item_doc_ovr = item && @doc_overrides.has_key?(item.name.to_sym) ? @doc_overrides[item.name.to_sym][desc] || {} : {}
+        @item_doc_ovr = if item
+                          item_key = if item.is_a?(Extractor::BaseDef)
+                                       if item.is_a?(Extractor::ClassDef) || @classdef.nil?
+                                         item.name
+                                       else
+                                         "#{@classdef.name}.#{item.name}"
+                                       end
+                                     else
+                                       @classdef ? "#{@classdef.name}.#{item}" : item.to_s
+                                     end
+                          item_key = item_key.to_sym
+                          @doc_overrides.has_key?(item_key) ? @doc_overrides[item_key][desc] || {} : {}
+                        else
+                          {}
+                        end
         doc = if Nokogiri::XML::NodeSet === xmlnode_or_set
                 xmlnode_or_set.inject('') { |s, n| s << node_to_doc(n) }
               else
