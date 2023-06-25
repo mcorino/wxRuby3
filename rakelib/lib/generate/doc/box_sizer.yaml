@@ -1,0 +1,15 @@
+---
+:wxBoxSizer.AddSpacer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxBoxSizer::IsVertical/
+          :replace: |
+            
+            ```ruby
+              if box_sizer.vertical?
+                box_sizer.add(0, size, 0)
+              else
+                box_size.add(size, 0, 0)
+              end
+            ```
