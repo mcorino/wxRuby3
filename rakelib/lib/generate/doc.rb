@@ -168,6 +168,7 @@ module WXRuby3
               end
             end
           end
+          text.gsub!(/WX(K_[A-Z]+)/) { "{Wx::#{$1}}"}
         end
         if event_section?
           case text
