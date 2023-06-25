@@ -38,6 +38,31 @@ module WXRuby3
         __HEREDOC
         # make Ruby director and wrappers use custom implementation
         spec.use_class_implementation('wxVListBox', 'wxRubyVListBox')
+        # make sure protected methods are included
+        spec.regard 'wxVListBox::OnDrawItem',
+                    'wxVListBox::OnMeasureItem',
+                    'wxVListBox::OnDrawSeparator',
+                    'wxVListBox::OnDrawBackground'
+        # ignore these very un-Ruby methods
+        spec.ignore 'wxVListBox::GetFirstSelected',
+                    'wxVListBox::GetNextSelected'
+        # add rubified API (finish in pure Ruby)
+        spec.add_extend_code 'wxVListBox', <<~__HEREDOC
+          VALUE each_selected()
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              unsigned long cookie;
+              int sel = $self->GetFirstSelected(cookie);
+              for (; sel != wxNOT_FOUND ;sel = $self->GetNextSelected(cookie))
+              {
+                rc = rb_yield (INT2NUM(sel));
+              }
+            }
+            return rc;  
+          }
+          __HEREDOC
       end
     end # class VListBox
 

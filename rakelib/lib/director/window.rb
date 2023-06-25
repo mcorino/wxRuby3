@@ -172,8 +172,6 @@ module WXRuby3
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
               VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ptr_dc), swig_type, 0);
               rc = rb_yield(rb_dc);
-              SWIG_RubyRemoveTracking((void *)ptr_dc);
-              DATA_PTR(rb_dc) = NULL;
 
               return rc;
             }
@@ -201,16 +199,12 @@ module WXRuby3
                 wxPaintDC dc(ptr);
                 VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxPaintDC, 0);
                 rc = rb_yield(dcVal);
-                SWIG_RubyRemoveTracking((void *) &dc);
-                DATA_PTR(dcVal) = NULL;
               }
               else // supply a ClientDC
               {
                 wxClientDC dc(ptr);
                 VALUE dcVal = SWIG_NewPointerObj((void *) &dc,SWIGTYPE_p_wxClientDC, 0);
                 rc = rb_yield(dcVal);
-                SWIG_RubyRemoveTracking((void *) &dc);
-                DATA_PTR(dcVal) = NULL;
               }
           
               return rc;
