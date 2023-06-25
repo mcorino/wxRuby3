@@ -1,0 +1,40 @@
+---
+:wxCursor:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            As with icons, cursors in X and MS Windows are created in a different manner. Therefore, separate cursors 
+            will be created for the different environments. Platform-specific methods for creating a {Wx::Cursor} object 
+            are catered for, and this is an occasion where conditional compilation will probably be required 
+            (see {Wx::Icon} for an example).
+            A single cursor object may be used in many windows (any subwindow type). The wxWidgets convention is to set 
+            the cursor for a window, as in X, rather than to set it globally as in MS Windows, although a global 
+            {set_cursor} function is also available for MS Windows use.
+            
+            === 
+            
+            Category:  Graphics Device Interface (GDI)
+            Predefined objects/pointers:
+            - {Wx::NULL_CURSOR}
+            - {Wx::STANDARD_CURSOR}
+            - {Wx::HOURGLASS_CURSOR}
+            - {Wx::CROSS_CURSOR}
+            @see Wx::Bitmap
+            @see  Wx::Icon
+            @see  Wx::Window#set_cursor
+            @see  Wx.set_cursor
+            @see  Wx::StockCursor 
+
+:wxCursor.wxCursor:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              image.set_option(Wx::IMAGE_OPTION_CUR_HOTSPOT_X, hotSpotX)
+              image.set_option(Wx::IMAGE_OPTION_CUR_HOTSPOT_X, hotSpotY)
+            ```

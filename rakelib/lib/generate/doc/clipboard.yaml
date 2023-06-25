@@ -1,0 +1,43 @@
+---
+:wxClipboard:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            To use the clipboard, you call member functions of the global {Wx::Clipboard} object passed to the block for {Wx::Clipboard.open}.
+            See the {Wx::DataObject} Overview for further information.
+            Call {Wx::Clipboard.open} to get ownership of the (global) clipboard and execute the given block. You now 
+            own the clipboard passed to the given block. Call {Wx::Clipboard#set_data} to put data on the clipboard, or 
+            {Wx::Clipboard#get_data} to retrieve data from the clipboard. The clipboard is closed and ownership 
+            relinquished when the block returns. You should keep the clipboard open only momentarily.
+            For example:
+            
+            ```ruby
+              # Write some text to the clipboard
+              Wx::Clipboard.open do |clip|
+                # This data object is held by the clipboard
+                clip.place(Wx::TextDataObject.new("Some text"))
+                # or alternatively
+                # clip.set_data(Wx::TextDataObject.new("Some text"))
+              end
+            
+              # Read some text
+              data = Wx::TextDataObject.new
+              Wx::Clipboard.open do |clip|
+                 if clip.supported?(Wx::DF_TEXT)
+                   clip.fetch(data) # or clip.get_data(data)
+                 end
+              end
+              Wx.message_box(data.get_text)
+            ```
+            
+            On GTK, the clipboard behavior can vary depending on the configuration of the end-user's machine. In order 
+            for the clipboard data to persist after the window closes, a clipboard manager must be installed. Some 
+            clipboard managers will automatically flush the clipboard after each new piece of data is added, while others 
+            will not. The {Wx::Clipboard#flush} function will force the clipboard manager to flush the data.
+            
+            === 
+            
+            Category:  Clipboard and Drag & Drop
+            @see  Wx::DataObject 

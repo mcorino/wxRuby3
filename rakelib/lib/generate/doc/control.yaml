@@ -1,0 +1,46 @@
+---
+:wxControl.GetSizeFromTextSize:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # Create a control for post code entry.
+              postcode = Wx::TextCtrl.new(self, ...)
+              
+              # And set its initial and minimal size to be big enough for
+              # entering 5 digits.
+              postcode.set_initial_size(
+                 postcode.get_size_from_text_size(
+                     postcode.get_text_extent("99999")))
+            ```
+
+:wxControl.GetSizeFromText:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def get_size_from_text(text)
+                 get_size_from_text_size(get_text_extent(text))
+              end
+            ```
+
+:wxControl.SetLabelMarkup:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              text = Wx::StaticText.new
+              ...
+              text.set_label_markup("<b>&amp;Bed</b> &amp;mp; "+
+                                    "<span foreground='red'>breakfast</span> "+
+                                    "available <big>HERE</big>")
+            ```

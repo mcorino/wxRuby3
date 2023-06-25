@@ -1,0 +1,55 @@
+---
+:wxDataObjectComposite:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyDropTarget < Wx::DropTarget
+            
+                def initialize
+                  dataobj = Wx::DataObjectComposite.new
+                  dataobj.add(Wx::BitmapDataObject.new, true)
+                  dataobj.add(Wx::FileDataObject.new)
+                  set_data_object(dataobj)
+                end
+              
+                def on_data(x, y, defaultDragResult)
+                  return Wx::DragNone unless get_data
+              
+                  dataobj_comp = get_data_object
+              
+                  format = dataobj_comp.get_received_format
+                  dataobj = dataobj_comp.get_object(format)
+                  case format.get_type
+                  when Wx::DataFormatId::DF_BITMAP
+                    # dataobj is Wx::BitmapDataObject
+      
+                    ... use dataobj.get_bitmap ...
+            
+                  when Wx::DataFormatId::DF_FILENAME
+                    # dataobj is Wx::FileDataObject
+      
+                     ... use dataobj->GetFilenames() ...
+            
+                  else
+                    Wx.log_error("unexpected data object format")
+                  end
+              
+                  defaultDragResult
+                end
+            
+              end
+            ```
+:wxURLDataObject:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::Clipboard.open { |clip| clip.place(Wx::URLDataObject.new(url))
+            ```
