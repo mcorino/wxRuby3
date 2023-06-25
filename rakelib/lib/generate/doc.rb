@@ -215,7 +215,7 @@ module WXRuby3
 
       def programlisting_to_doc(node)
         no_idents do
-          "\n\n  #{node_to_doc(node).split("\n").join("\n  ")}\n"
+          "\n```\n  #{node_to_doc(node).split("\n").join("\n  ")}\n```\n"
         end
       end
 
@@ -405,10 +405,9 @@ module WXRuby3
       end
 
       def node_to_doc(xmlnode)
-        xmlnode = preprocess_node(xmlnode)
-        return xmlnode unless xmlnode.is_a?(Nokogiri::XML::Node)
         xmlnode.children.inject('') do |docstr, node|
-          docstr << self.__send__("#{node.name}_to_doc", node)
+          node = preprocess_node(node)
+          docstr << (node.is_a?(Nokogiri::XML::Node) ? self.__send__("#{node.name}_to_doc", node) : node.to_s)
         end
       end
 

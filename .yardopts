@@ -1,6 +1,7 @@
 --load rakelib/yard/yard-relative_markdown_links.rb
 --load rakelib/yard/yard-custom-templates.rb
 --charset UTF-8
+--markup markdown
 --readme README.md
 --title "wxRuby3 API Documentation"
 --output-dir rdoc
