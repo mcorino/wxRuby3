@@ -117,8 +117,8 @@ class MyComboBox < ComboBox
   end
 
   def onChar(event)
-    log_message("MyComboBox::OnChar")
-    if event.key_code() == ?w
+    log_message("MyComboBox::OnChar : [#{event.get_unicode_key ? event.get_unicode_key.ord : 0}]")
+    if event.get_unicode_key == ?w
       log_message("MyComboBox: 'w' will be ignored.")
     else
       event.skip()
