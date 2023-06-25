@@ -546,14 +546,18 @@ module WXRuby3
                                        @classdef ? "#{@classdef.name}.#{item}" : item.to_s
                                      end
                           item_key = item_key.to_sym
-                          @doc_overrides.has_key?(item_key) ? @doc_overrides[item_key][desc] || {} : {}
+                          @doc_overrides[item_key] ? @doc_overrides[item_key][desc] || {} : {}
                         else
                           {}
                         end
         doc = if Nokogiri::XML::NodeSet === xmlnode_or_set
-                xmlnode_or_set.inject('') { |s, n| s << node_to_doc(n) }
+                xmlnode_or_set.inject('') do |s, n|
+                  n = preprocess_node(n)
+                  s << (n.is_a?(Nokogiri::XML::Node) ? node_to_doc(n) : n.to_s)
+                end
               else
-                node_to_doc(xmlnode_or_set)
+                xmlnode_or_set = preprocess_node(xmlnode_or_set)
+                xmlnode_or_set.is_a?(Nokogiri::XML::Node) ? node_to_doc(xmlnode_or_set) : xmlnode_or_set.to_s
               end
         event_section(false)
         if @item_doc_ovr.has_key?(:post)
