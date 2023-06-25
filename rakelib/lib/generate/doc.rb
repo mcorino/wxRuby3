@@ -423,9 +423,9 @@ module WXRuby3
         para = node_to_doc(node)
         # loose specific notes paragraphs
         case para
-        when /\A(\<b\>)?wxPerl Note:/,  # wxPerl note
-             /\A\s*Library:/,           # Library note
-             /\A\s*Include\s+file:/     # Include file note
+        when /\A(\<(b)\>)?(wxPerl|\{Wx::Perl\}) Note:/, # wxPerl note
+             /\A\s*Library:/,                 # Library note
+             /\A\s*Include\s+file:/           # Include file note
           ''
         else
           para.sub!(/Include\s+file:\s+\#include\s+\<[^>]+\>\s*\Z/, '')
@@ -569,6 +569,7 @@ module WXRuby3
             end
           end
         end
+        doc.sub!(/\<b\>\{Wx::Perl.*/, '')
         doc.strip!
         # reduce triple(or more) newlines to max 2
         doc << "\n" # always end with a NL without following whitespace
