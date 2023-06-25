@@ -19,7 +19,7 @@ module WXRuby3
           # we do not allow creation in Ruby but rather provide a class
           # method for block execution on a temp dc
           spec.add_extend_code 'wxScreenDC', <<~__HEREDOC
-            static VALUE paint(VALUE proc)
+            static VALUE draw_on()
             {
               VALUE rc = Qnil;
               if (rb_block_given_p ())
@@ -36,6 +36,26 @@ module WXRuby3
           spec.ignore 'wxScreenDC::StartDrawingOnTop',
                       'wxScreenDC::EndDrawingOnTop',
                       'wxScreenDC::wxScreenDC'
+        elsif spec.module_name == 'wxClientDC'
+          spec.make_abstract 'wxClientDC'
+          spec.ignore 'wxClientDC::wxClientDC'
+          # as a ClientDC should best always be a temporary stack object
+          # we do not allow creation in Ruby but rather provide a class
+          # method for block execution on a temp dc
+          spec.add_extend_code 'wxClientDC', <<~__HEREDOC
+            static VALUE draw_on(wxWindow* win)
+            {
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                wxClientDC client_dc(win);
+                wxDC* dc_ptr = &client_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxClientDC, 0);
+                rc = rb_yield(rb_dc);
+              }
+              return rc;
+            }
+          __HEREDOC
         elsif spec.module_name == 'wxSVGFileDC'
           spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler]
           spec.disown 'wxSVGBitmapHandler *handler'
