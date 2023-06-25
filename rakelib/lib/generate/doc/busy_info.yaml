@@ -1,0 +1,75 @@
+---
+:wxBusyInfo:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            This class makes it easy to tell your user that the program is temporarily busy.
+            Normally the main thread should always return to the main loop to continue dispatching events as quickly as possible,
+            hence this class shouldn't be needed. However if the main thread does need to block, this class provides a simple
+            way to at least show this to the user: just call {Wx::BusyInfo.busy} with a block and for the duration of the
+            execution of the block a message window will be shown.
+            For example:
+            ```ruby
+              BusyInfo.busy('Working, please wait...') do
+                100000.times { do_a_calculation }
+              end
+            ```
+          
+            The displayed window is rather plain by default but can be customized by passing {Wx::BusyInfo.busy} an object of
+            {Wx::BusyInfoFlags} class instead of a simple message. Here is an example:
+          
+            ```ruby
+              Wx::BusyInfo.busy(
+                Wx::BusyInfoFlags.new
+                  .parent(self)
+                  .icon(Wx::ArtProvider.get_icon(Wx::ART_PRINT,Wx::ART_OTHER, [128, 128]))
+                  .title("<b>Printing your document</b>")
+                  .text("Please wait...")
+                  .foreground(Wx::WHITE)
+                  .background(Wx::BLACK)
+                  .transparency(4*Wx::ALPHA_OPAQUE/5)) do |bi|
+              end
+            ```
+          
+            This shows that separate title and text can be set, and that simple markup ({Wx::Control#set_label_markup}) can be used in them, and that it's also possible to add an icon and customize the colours and transparency of the window.
+            You may also want to call `Wx.get_app.yield` to refresh the window periodically (in case it had been obscured by other windows, for example) like this:
+            ```ruby
+              Wx::WindowDisabler.disable do
+                BusyInfo.busy('Working, please wait...') do
+                  100000.times do |i| 
+                    do_a_calculation }
+                    Wx.get_app.yield if (i % 1000) == 0
+                  end
+                end
+              end
+            ```
+          
+            but take care to not cause undesirable re-entrance when doing it (see {Wx::App#yield} for more details). The simplest way to do it is to use {Wx::WindowDisabler} class as illustrated in the above example.
+            Note that a {Wx::BusyInfo} is always built with the {Wx::STAY_ON_TOP} window style (see {Wx::Frame} window styles for more info).
+            
+            ===
+          
+            Category:  Common Dialogs
+          
+
+:wxBusyInfoFlags:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::BusyInfo.busy(
+                Wx::BusyInfoFlags.new
+                  .parent(self)
+                  .icon(Wx::ArtProvider.get_icon(Wx::ART_PRINT,Wx::ART_OTHER, [128, 128]))
+                  .title("<b>Printing your document</b>")
+                  .text("Please wait...")
+                  .foreground(Wx::WHITE)
+                  .background(Wx::BLACK)
+                  .transparency(4*Wx::ALPHA_OPAQUE/5)) do |bi|
+              end
+            ```

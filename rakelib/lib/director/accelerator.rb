@@ -37,7 +37,7 @@ module WXRuby3
             }
           }
           __HEREDOC
-        spec.map 'int keyCode' => 'Integer' do
+        spec.map 'int keyCode' => 'Integer,String' do
           map_in code: '$1 = wxRuby_RubyStringOrIntToKeyCode($input);'
           map_typecheck precedence: 'INT32', code: <<~__CODE
             $1 = ( (TYPE($input) == T_FIXNUM) || wxRuby_IsAnEnum($input) ||

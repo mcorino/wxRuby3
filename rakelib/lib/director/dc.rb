@@ -13,6 +13,11 @@ module WXRuby3
 
       def setup
         super
+        # it's not safe to track DC objects as these are often created on the stack in C++
+        # before being passed to Ruby methods
+        # as we cannot capture their deletion in anyway this would leave the tracked items
+        # registered and reused when future stack allocated DC's happen to have the same address
+        spec.gc_as_temporary
         spec.ignore [
           'wxDC::StartPage',
           'wxDC::GetPartialTextExtents',

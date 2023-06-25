@@ -54,7 +54,7 @@ module Wx
       private :search_paths
 
       def add_search_path(*paths)
-        paths.flatten.each { |p| paths << s.to_s unless paths.include?(s.to_s) }
+        paths.flatten.each { |p| search_paths << p.to_s unless search_paths.include?(p.to_s) }
       end
       alias :add_search_paths :add_search_path
 
@@ -74,7 +74,7 @@ module Wx
 
       def find_art(art_name, art_type: nil, art_path: nil, art_section: nil, bmp_type: nil)
         unless art_path
-          caller_path = caller_locations(1).first.absolute_path
+          caller_path = caller_locations(1).first.absolute_path || caller_locations(1).first.path
           art_path = File.dirname(caller_path)
           art_section ||= File.basename(caller_path, '.*')
         end

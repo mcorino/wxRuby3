@@ -296,6 +296,13 @@ Wx::define_keyword_ctors('CheckBox') do
   wx_ctor_params :validator, :name => 'checkBox'
 end
 
+# wxListBox 	A list of strings for single or multiple selection
+Wx::define_keyword_ctors('ListBox') do
+  wx_ctor_params :id, :pos, :size, :choices => []
+  wx_ctor_params :style
+  wx_ctor_params :validator, :name => 'listBox'
+end
+
 # A listbox with a checkbox to the left of each item
 Wx::define_keyword_ctors('CheckListBox') do
   wx_ctor_params :id, :pos, :size, :choices, :style

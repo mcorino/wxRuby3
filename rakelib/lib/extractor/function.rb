@@ -91,9 +91,9 @@ module WXRuby3
         # unlink params_doc if any
         params_doc.unlink if params_doc
         # get brief doc
-        doc = xml_trans.to_doc(@brief_doc)
+        doc = xml_trans.to_doc(@brief_doc, item: self)
         # add detailed doc text without params doc
-        doc << xml_trans.to_doc(@detailed_doc)
+        doc << xml_trans.to_doc(@detailed_doc, item: self, desc: :detail)
         # get mapped ruby parameter list
         params = []
         mapped_ret_args = nil
@@ -130,7 +130,9 @@ module WXRuby3
             # look up matching mapped param entry
             if (param = params.detect { |p| p[:name] == pinm })
               # add doc
-              param[:doc] = xml_trans.to_doc(pi.xpath('parameterdescription')).lstrip
+              param[:doc] = xml_trans.to_doc(pi.xpath('parameterdescription'),
+                                             item: "#{name}.#{param[:name]}",
+                                             desc: :brief).lstrip
             end
           end
         end if params_doc

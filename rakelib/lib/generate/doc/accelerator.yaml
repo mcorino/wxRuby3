@@ -1,0 +1,22 @@
+---
+:wxAcceleratorTable:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /<programlisting>.*/
+          :replace: |
+            ```ruby
+              entries = [
+                  Wx::AcceleratorEntry.new(Wx::ACCEL_CTRL, 'N', ID_NEW_WINDOW),
+                  Wx::AcceleratorEntry.new(Wx::ACCEL_CTRL, 'X', Wx::ID_EXIT),
+                  Wx::AcceleratorEntry.new(Wx::ACCEL_CTRL, 'A', Wx::ID_ABOUT),
+                  Wx::AcceleratorEntry.new(Wx::ACCEL_CTRL, 'N', Wx::ID_CUT)
+                ]
+              frame.accelerator_table = Wx::AcceleratorTable[entries]
+            ```
+
+:wxAcceleratorEntry.wxAcceleratorEntry.keyCode:
+  :brief:
+    :post:
+      - :pattern: !ruby/regexp /The\s+keycode\s+to\s+be\s+detected/
+        :subst: 'The keycode (or character) to be detected'

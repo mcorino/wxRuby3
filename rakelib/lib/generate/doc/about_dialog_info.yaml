@@ -1,0 +1,46 @@
+---
+:wxAboutBox:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /<programlisting>.*MyFrame::ShowSimpleAboutDialog/
+          :replace: |
+            ```ruby
+              def show_simple_about_dialog(event)
+                info = Wx::AboutDialogInfo.new
+                info.name = 'My Program'
+                info.version = '1.2.3 Beta'
+                info.description = 'This program does something great.'
+                info.copyright = '(C) 2007 Me <my@email.addre.ss>'
+                   
+                Wx.about_box(info)
+              end
+            ```
+
+:wxAboutDialogInfo:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Example of usage:/
+          :replace: |
+            
+            Example of usage:
+            
+            ```ruby
+              def on_about(event)
+                info = Wx::AboutDialogInfo.new
+                info.name = 'MyApp'
+                info.version = MY_APP_VERSION_STRING
+                info.description = 'My wxWidgets-based application!'
+                info.copyright = '(C) 1992-2023'
+                info.add_developer('My Self')
+                   
+                Wx.about_box(info)
+              end
+            ```
+
+    :post:
+      - :pattern: !ruby/regexp /Example of appearance of a simple about dialog:(.|\s)+\<\/table>\<\/div>/
+        :subst: ''
+      - :pattern: !ruby/regexp /And that of a dialog using a web site link,(.|\s)+\<\/table>\<\/div>/
+        :subst: ''

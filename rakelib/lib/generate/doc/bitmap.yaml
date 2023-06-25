@@ -1,0 +1,37 @@
+---
+:wxBitmap.wxBitmap:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /<programlisting>.*GetSubBitmap/
+          :replace: |
+            ```ruby
+              newBitmap = oldBitmap.get_sub_bitmap(
+                              Wx::Rect.new(0, 0, oldBitmap.width, oldBitmap.height))
+            ```
+:wxBitmapBundle:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /<programlisting>.*MyFrame::MyFrame/
+          :replace: |
+            ```ruby
+              class MyFrame < Wx::Frame
+                
+                def initialize
+                  super(nil, Wx::ID_ANY, "My frame")
+                  # ...
+                  tool_bar = create_toolBar
+               
+                  bitmaps = [
+                      Wx::Bitmap(:open_32x32, Wx::BitmapType::BITMAP_TYPE_PNG),
+                      Wx::Bitmap(:open_48x48, Wx::BitmapType::BITMAP_TYPE_PNG),
+                      Wx::Bitmap(:open_64x64, Wx::BitmapType::BITMAP_TYPE_PNG)
+                    ]
+             
+                  tool_bar.add_tool(Wx::ID_OPEN, "Open", Wx::BitmapBundle.from_bitmaps(bitmaps))
+                end
+            ```
+
+        - :pattern: !ruby/regexp /For\s+the\s+platforms\s+with\s+resources\s+support/
+          :replace: ''

@@ -15,7 +15,11 @@ module WXRuby3
         spec.use_class_implementation('wxArtProvider', 'wxRubyArtProvider')
         spec.ignore('wxArtProvider::Insert') # deprecated and problematic
         spec.ignore('wxArtProvider::Remove') # problematic as adding disowns the art provider, use Delete
-        spec.no_proxy('wxArtProvider')
+        # regard protected methods
+        spec.regard 'wxArtProvider::DoGetSizeHint',
+                    'wxArtProvider::CreateBitmap',
+                    'wxArtProvider::CreateBitmapBundle',
+                    'wxArtProvider::CreateIconBundle'
         spec.include('wx/artprov.h')
         spec.add_swig_code <<~__HEREDOC
           // ArtId and ArtClient are basically just strings ...

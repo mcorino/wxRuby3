@@ -20,7 +20,11 @@ module YARD # rubocop:disable Style/Documentation
     def resolve_links(text)
       html = Nokogiri::HTML.fragment(text)
       html.css("a[href]").each do |link|
-        href = URI(link["href"])
+        begin
+          href = URI(link["href"])
+        rescue
+          return super(text)
+        end
 
         if href.relative? && options.files
           fnames = options.files.map(&:filename)
