@@ -3,11 +3,9 @@
   :detail:
     :pre:
       :para:
-        - :pattern: !ruby/regexp /Here is an example.*/
-          :replace: ''
         - :pattern: !ruby/regexp /<programlisting>.*MyFrame::ShowSimpleAboutDialog/
           :replace: |
-            @example Here is an example of how this function may be used:
+            ```ruby
               def show_simple_about_dialog(event)
                 info = Wx::AboutDialogInfo.new
                 info.name = 'My Program'
@@ -17,6 +15,7 @@
                    
                 Wx.about_box(info)
               end
+            ```
 
 :wxAboutDialogInfo:
   :detail:
@@ -24,7 +23,10 @@
       :para:
         - :pattern: !ruby/regexp /Example of usage:/
           :replace: |
-            @example Example of usage:
+            
+            Example of usage:
+            
+            ```ruby
               def on_about(event)
                 info = Wx::AboutDialogInfo.new
                 info.name = 'MyApp'
@@ -35,6 +37,7 @@
                    
                 Wx.about_box(info)
               end
+            ```
 
     :post:
       - :pattern: !ruby/regexp /Example of appearance of a simple about dialog:(.|\s)+\<\/table>\<\/div>/

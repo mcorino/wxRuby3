@@ -5,7 +5,10 @@
       :para:
         - :pattern: !ruby/regexp /<programlisting>.*MyProvider/
           :replace: |
-            @example Example:
+            
+            Example:
+            
+            ```ruby
               class MyArtProvider < Wx::ArtProvider
                 
                 def create_bitmap(id, client, size)
@@ -15,6 +18,7 @@
               end
             
               Wx::ArtProvider.push(MyArtProvider.new)
+            ```
 
         - :pattern: !ruby/regexp /Note\s+that,\s+as\s+usual\s+in\s+wxWidgets\s+API.*/
           :replace: ''
@@ -23,7 +27,9 @@
       :programlisting:
         - :pattern: !ruby/regexp /ifdef.*__WXGTK__/
           :replace: |
-            @example
+            
+            ```ruby
               if Wx::PLATFORM == 'WXGTK'
                 bmp = Wx::ArtProvider.get_bitmap("gtk-cdrom", Wx::ART_MENU)
               end
+            ```
