@@ -74,7 +74,7 @@ module Wx
 
       def find_art(art_name, art_type: nil, art_path: nil, art_section: nil, bmp_type: nil)
         unless art_path
-          caller_path = caller_locations(1).first.absolute_path
+          caller_path = caller_locations(1).first.absolute_path || caller_locations(1).first.path
           art_path = File.dirname(caller_path)
           art_section ||= File.basename(caller_path, '.*')
         end
