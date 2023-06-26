@@ -1,0 +1,59 @@
+---
+:wxKeyEvent.GetKeyCode:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def on_char(event)
+                 uc = event.get_unicode_key
+                 if uc
+                   # It's a "normal" character. Notice that this includes
+                   # control characters in 1..31 range, e.g. Wx::K_RETURN or
+                   # Wx::K_BACK, so check for them explicitly.
+                   if uc.ord >= 32
+                     Wx.log_message("You pressed '#{uc}'")
+                   else
+                     # It's a control character
+                     ...
+                   end
+                 else # No Unicode equivalent.
+                   # It's a special key, deal with all the known ones:
+                   case event.get_key_code
+                   when Wx::K_LEFT, Wx::K_RIGHT
+                       ... move cursor ...
+        
+                   when Wx::K_F1:
+                       ... give help ...
+                   end
+                 end
+              end
+            ```
+    :post:
+      - :pattern: !ruby/regexp /returns\s+\{Wx::K_NONE\}\)/
+        :subst: 'returns nil)'
+:wxKeyEvent.GetUnicodeKey:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /return\s+\{Wx::K_NONE\}\./
+        :subst: 'return nil.'
+:wxKeyEvent.GetModifiers:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /ControlDown/
+          :replace: |
+            
+            ```ruby
+              if event.control_down && !event.alt_down && !event.shift_down && !event.meta_down
+                # ... handle Ctrl-XXX ...
+            ```
+        - :pattern: !ruby/regexp /GetModifiers/
+          :replace: |
+            
+            ```ruby
+              if event.get_modifiers == Wx::KeyModifier::MOD_CONTROL
+                # ... handle Ctrl-XXX ...
+            ```
