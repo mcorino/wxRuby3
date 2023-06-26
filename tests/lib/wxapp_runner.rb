@@ -3,7 +3,7 @@ require 'test/unit'
 require 'test/unit/ui/console/testrunner'
 require 'wx'
 
-module Wx::SF
+module WxRuby
 
   module Test
 
@@ -33,7 +33,7 @@ module Wx::SF
 
       org_start_mtd = instance_method :start
       define_method :start do
-        (app = Wx::SF::Test::App.new(self, org_start_mtd)).run
+        (app = WxRuby::Test::App.new(self, org_start_mtd)).run
         app.result
       end
 
@@ -46,7 +46,7 @@ end
 module Test
   module Unit
     AutoRunner.register_runner(:wxapp) do |auto_runner|
-      Wx::SF::Test::Runner
+      WxRuby::Test::Runner
     end
     AutoRunner.default_runner = :wxapp
     if defined? ::IntelliJ
