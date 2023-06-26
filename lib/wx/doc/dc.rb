@@ -49,18 +49,4 @@ module Wx
 
   end
 
-  class MemoryDC
-
-    # Creates a Memory DC and passes that to the given block to draw on.
-    # Automatically unselects any source object of the MemoryDC after the block finishes.
-    # @overload self.draw_on(bitmap)
-    #   @param [Wx::Bitmap]
-    #   @yieldparam [WxMemoryDC] dc
-    # @overload self.draw_on(dc)
-    #   @param [Wx::DC]
-    #   @yieldparam [WxMemoryDC] dc
-    def self.draw_on(arg, &block) end
-
-  end
-
 end
