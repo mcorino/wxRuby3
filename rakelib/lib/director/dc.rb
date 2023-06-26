@@ -19,7 +19,6 @@ module WXRuby3
         # registered and reused when future stack allocated DC's happen to have the same address
         spec.gc_as_temporary
         spec.ignore [
-          'wxDC::StartPage',
           'wxDC::GetPartialTextExtents',
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
           'wxDC::DrawPolygon(const wxPointList *,wxCoord,wxCoord,wxPolygonFillMode)',
