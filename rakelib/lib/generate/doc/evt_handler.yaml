@@ -1,0 +1,63 @@
+---
+:wxEvtHandler.QueueEvent:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+    :post:
+      - :pattern: !ruby/regexp /This\s+implies\s+that\s+the\s+event\s+should\s+be\s+allocated\s+on\s+the\s+heap\s+and/
+        :subst: 'This implies'
+      - :pattern: !ruby/regexp /\{Wx::EvtHandler#queue_event\}.*For\s+example:/
+        :subst: ''
+      - :pattern: !ruby/regexp /Note.*problem:/
+        :subst: ''
+:wxEvtHandler.SetNextHandler:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              handlerA.set_next_handler(handlerB)
+              handlerB.set_previous_handler(handlerA)
+            ```
+:wxEvtHandler.TryBefore:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyClass < BaseClass # inheriting from Wx::EvtHandler
+              ...
+              protected
+                def try_before(event)
+                  if my_pre_process(event)
+                    return true
+              
+                  super
+                end
+              end
+            ```
+:wxEvtHandler.TryAfter:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyClass < BaseClass # inheriting from Wx::EvtHandler
+              ...
+              protected
+                def try_after(event)
+                  if super
+                    return true
+            
+                  my_post_process(event)
+                end
+              end
+            ```

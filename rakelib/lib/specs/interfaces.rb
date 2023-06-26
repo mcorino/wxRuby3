@@ -16,6 +16,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxEvent')
     Director.Spec(pkg, 'wxEvtHandler')
     Director.Spec(pkg, 'wxEvents')
+    Director.Spec(pkg, 'wxEventFilter')
     Director.Spec(pkg, 'wxApp')
     Director.Spec(pkg, 'wxDC')
     Director.Spec(pkg, 'wxWindowDC', director: Director::DerivedDC)

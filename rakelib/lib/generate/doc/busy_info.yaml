@@ -5,7 +5,6 @@
       :detaileddescription:
         - :pattern: !ruby/regexp /.*/
           :replace: |
-            This class makes it easy to tell your user that the program is temporarily busy.
             Normally the main thread should always return to the main loop to continue dispatching events as quickly as possible,
             hence this class shouldn't be needed. However if the main thread does need to block, this class provides a simple
             way to at least show this to the user: just call {Wx::BusyInfo.busy} with a block and for the duration of the

@@ -1,0 +1,25 @@
+---
+:wxDirSelector:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              dir = Wx.dir_selector('Choose a folder')
+              unless dir.empty?
+                ...
+              end
+            ```
+:wxDirDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::DirDialog(nil, 'Choose input directory', '',
+                            Wx::DD_DEFAULT_STYLE | Wx::DD_DIR_MUST_EXIST)  
+            ```

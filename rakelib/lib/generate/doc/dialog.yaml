@@ -1,0 +1,36 @@
+---
+:wxDialog:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Note\s+that\s+the\s+modal\s+dialog\s+is\s+one\s+of\s+the\s+very\s+few\s+examples/
+          :replace: |
+            Note that dialogs need to be explicitly destroyed when closed and not used anymore. The traditional code for this would be like:
+      :programlisting:
+        - :pattern: !ruby/regexp /MyAskDialog.*\*dlg/
+          :replace: |
+            
+            ```ruby
+              def ask_user
+                dlg = MyAskDialog.new(...)
+                if dlg.show_modal == Wx::ID_OK
+                  # ...
+                #else: dialog was cancelled or some another button pressed
+                end  
+              
+                dlg.destroy
+              end
+            ```
+        - :pattern: !ruby/regexp /dlg\.ShowModal\(\)/
+          :replace: |
+            
+            ```ruby
+              def ask_user
+                MyAskDialog(...) do |dlg|
+                  if dlg.show_modal == Wx::ID_OK
+                    # ...
+                  #else: dialog was cancelled or some another button pressed
+                  end  
+                end
+              end
+            ```

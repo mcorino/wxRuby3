@@ -74,6 +74,7 @@ module WXRuby3
 
       def rb_param_name(name)
         rbnm = name.dup
+        rbnm[0] = rbnm[0].downcase # make sure name conforms to Ruby naming rules
         rbnm << '_' if RBKW.include?(name)
         rbnm
       end

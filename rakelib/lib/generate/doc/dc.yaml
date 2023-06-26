@@ -1,0 +1,14 @@
+---
+:wxDC.GetSize:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              sz = dc.get_dimensions
+              scaleX = (maxX.to_f / sz.width)
+              scaleY = (maxY.to_f / sz.height);
+              dc.set_user_scale([scaleX, scaleY].min,[scaleX, scaleY].min)
+            ```

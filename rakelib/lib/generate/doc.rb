@@ -153,6 +153,7 @@ module WXRuby3
         text.gsub!('@remarks', '')
         text.gsub!(/@see.*\n/, '')
         text.gsub!('@ref', '')
+        text.gsub!(/(\W|\A)nullptr(\W|\Z)/, '\1nil\2')
         unless no_ref?
           # auto create references for any ids explicitly declared such
           text.gsub!(/\W?(wx\w+(::\w+)?(\(.*\))?)/) do |s|
@@ -168,6 +169,7 @@ module WXRuby3
               end
             end
           end
+          text.gsub!(/WX(K_[A-Z]+)/) { "{Wx::#{$1}}"}
         end
         if event_section?
           case text
@@ -423,9 +425,9 @@ module WXRuby3
         para = node_to_doc(node)
         # loose specific notes paragraphs
         case para
-        when /\A(\<b\>)?wxPerl Note:/,  # wxPerl note
-             /\A\s*Library:/,           # Library note
-             /\A\s*Include\s+file:/     # Include file note
+        when /\A(\<(b)\>)?(wxPerl|\{Wx::Perl\}) Note:/, # wxPerl note
+             /\A\s*Library:/,                 # Library note
+             /\A\s*Include\s+file:/           # Include file note
           ''
         else
           para.sub!(/Include\s+file:\s+\#include\s+\<[^>]+\>\s*\Z/, '')
@@ -569,6 +571,7 @@ module WXRuby3
             end
           end
         end
+        doc.sub!(/\<b\>\{Wx::Perl.*/, '')
         doc.strip!
         # reduce triple(or more) newlines to max 2
         doc << "\n" # always end with a NL without following whitespace
@@ -877,6 +880,8 @@ module WXRuby3
                       const_name = rb_constant_name(e.name)
                       if xref_table.has_key?(const_name)
                         gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(e))
+                      elsif xref_table.has_key?(e.name)
+                        gen_constant_doc(fdoc, e.name, xref_table[e.name], get_constant_doc(e))
                       end
                     end
                   else

@@ -25,6 +25,9 @@ module WXRuby3
           wxINT64_MAX
           wxUINT64_MAX
           wxVaCopy
+          wxDELETE
+          wxDELETEA
+          wxSwap
         }
         if Config.instance.wx_version >= '3.3.0'
           spec.ignore 'wxOVERRIDE'

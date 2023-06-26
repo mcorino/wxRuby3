@@ -1,0 +1,152 @@
+---
+:wxKeyEvent.GetKeyCode:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def on_char(event)
+                 uc = event.get_unicode_key
+                 if uc
+                   # It's a "normal" character. Notice that this includes
+                   # control characters in 1..31 range, e.g. Wx::K_RETURN or
+                   # Wx::K_BACK, so check for them explicitly.
+                   if uc.ord >= 32
+                     Wx.log_message("You pressed '#{uc}'")
+                   else
+                     # It's a control character
+                     ...
+                   end
+                 else # No Unicode equivalent.
+                   # It's a special key, deal with all the known ones:
+                   case event.get_key_code
+                   when Wx::K_LEFT, Wx::K_RIGHT
+                       ... move cursor ...
+        
+                   when Wx::K_F1:
+                       ... give help ...
+                   end
+                 end
+              end
+            ```
+    :post:
+      - :pattern: !ruby/regexp /returns\s+\{Wx::K_NONE\}\)/
+        :subst: 'returns nil)'
+:wxKeyEvent.GetUnicodeKey:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /return\s+\{Wx::K_NONE\}\./
+        :subst: 'return nil.'
+:wxKeyEvent.GetModifiers:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /ControlDown/
+          :replace: |
+            
+            ```ruby
+              if event.control_down && !event.alt_down && !event.shift_down && !event.meta_down
+                # ... handle Ctrl-XXX ...
+            ```
+        - :pattern: !ruby/regexp /GetModifiers/
+          :replace: |
+            
+            ```ruby
+              if event.get_modifiers == Wx::KeyModifier::MOD_CONTROL
+                # ... handle Ctrl-XXX ...
+            ```
+:wxMouseEvent.GetModifiers:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /ControlDown/
+          :replace: |
+            
+            ```ruby
+              if event.control_down && !event.alt_down && !event.shift_down && !event.meta_down
+                # ... handle Ctrl-XXX ...
+            ```
+        - :pattern: !ruby/regexp /GetModifiers/
+          :replace: |
+            
+            ```ruby
+              if event.get_modifiers == Wx::KeyModifier::MOD_CONTROL
+                # ... handle Ctrl-XXX ...
+            ```
+:wxUpdateUIEvent.IsCheckable:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def on_update_ui(event)
+                ....
+                if event.is_checkable
+                  event.check(...some condition...)
+              end
+            ```
+:wxPaintEvent:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /DrawMyDocument/
+          :replace: |
+            
+            ```ruby
+              def on_paint(event)
+                self.pain do |dc|
+                   draw_my_document(dc)
+                end
+              end
+            ```
+        - :pattern: !ruby/regexp /GetViewStart/
+          :replace: |
+            
+            ```ruby
+              # Called when window needs to be repainted.
+              def on_paint(event)
+                self.paint do |dc|
+                  # Find Out where the window has scrolled to
+                  vb_pt = get_view_start # Top left corner of client
+                
+                  Wx::RegionIterator.for_region(get_update_region) do |region_it|
+            
+                    int vX,vY,vW,vH                 
+                    wxRegionIterator upd(GetUpdateRegion()) # get the update rect list
+                
+                    region_it.each do |rct|
+                      # rct == Dimensions of client area to repaint in pixels
+                
+                       # Repaint this rectangle
+                       ...some code...
+                    end
+                  end
+                end
+              end
+            ```
+:wxCloseEvent:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def on_close(event)
+                if event.can_veto? && @file_not_saved
+                  if Wx.message_box("The file has not been saved... continue closing?",
+                                    "Please confirm",
+                                    Wx::ICON_QUESTION | Wx::YES_NO) != Wx::YES)
+                    event.veto
+                    return
+                  end
+                end
+              
+                destroy  # you may also do:  event.skip
+                         # since the default event handler does call #destroy too
+              end
+            ```
