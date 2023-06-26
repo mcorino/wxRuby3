@@ -3,7 +3,7 @@
 # @title 10. wxRuby Locating and loading art
 -->
 
-# 9. wxRuby Locating and loading art
+# 10. wxRuby Locating and loading art
 
 ## Introduction
 
