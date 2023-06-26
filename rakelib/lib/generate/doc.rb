@@ -880,6 +880,8 @@ module WXRuby3
                       const_name = rb_constant_name(e.name)
                       if xref_table.has_key?(const_name)
                         gen_constant_doc(fdoc, const_name, xref_table[const_name], get_constant_doc(e))
+                      elsif xref_table.has_key?(e.name)
+                        gen_constant_doc(fdoc, e.name, xref_table[e.name], get_constant_doc(e))
                       end
                     end
                   else
