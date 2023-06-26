@@ -49,7 +49,7 @@ class Wx::Window
   # This modified version of evt_paint sets a variable indicating that a
   # paint event is being handled just before running the event
   # handler. This ensures that any call to Window#paint within the
-  # handler will supply a Wx::PaintDC (see swig/Window.i).
+  # handler will supply a Wx::PaintDC (see Window SWIG director).
   def evt_paint(meth = nil, &block)
     paint_proc = acquire_handler(meth, block)
     wrapped_block = proc do | event |
