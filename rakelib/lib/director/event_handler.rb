@@ -64,6 +64,32 @@ module WXRuby3
               $1 = wx_ev;
               __CODE
           end
+          # add special mapping for event filters so we can accept the app instance as well
+          # although Wx::App is not derived from Wx::EventFilter in wxRuby (no multiple inheritance)
+          spec.map 'wxEventFilter*' => 'Wx::EventFilter,Wx::App' do
+            map_in code: <<~__CODE
+              int res = SWIG_ERROR; 
+              void *argp = 0;
+              if (rb_obj_is_kind_of($input, ((swig_class*)SWIGTYPE_p_wxEventFilter->clientdata)->klass))
+              {
+                res = SWIG_ConvertPtr($input, &argp, SWIGTYPE_p_wxEventFilter, 0);  
+                if (SWIG_IsOK(res)) $1 = reinterpret_cast< wxEventFilter * >(argp);
+              }
+              else
+              {
+                VALUE app_klass = rb_eval_string("Wx::App");
+                if (rb_obj_is_kind_of($input, app_klass))
+                {
+                  res = SWIG_ConvertPtr($input, &argp, wxRuby_GetSwigTypeForClass(app_klass), 0);
+                  if (SWIG_IsOK(res)) $1 = reinterpret_cast< wxApp * >(argp);
+                }
+              }
+              if (!SWIG_IsOK(res)) 
+              {
+                SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxEventFilter *","wxEvtHandler::$symname", 1, $input)); 
+              }
+              __CODE
+          end
           spec.add_runtime_code <<~__HEREDOC
             static swig_class wxRuby_GetSwigClassWxEvtHandler();
             WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
@@ -324,8 +350,9 @@ module WXRuby3
             }     
   
             WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap() {
-              VALUE map_name = rb_str_new2("EVENT_TYPE_CLASS_MAP");
-              return rb_const_get(wxRuby_GetSwigClassWxEvtHandler().klass, rb_to_id(map_name)); 
+              return rb_funcall(wxRuby_GetSwigClassWxEvtHandler().klass, 
+                                rb_intern("send"), 
+                                1, ID2SYM(rb_intern("get_event_type_class_map")), 0);
             }
             __HEREDOC
           spec.do_not_generate :typedefs, :variables, :enums, :defines, :functions

@@ -12,8 +12,8 @@ module WXRuby3
     class App < EvtHandler
 
       def setup
-        spec.items << 'wxAppConsole'
-        spec.fold_bases('wxApp' => 'wxAppConsole')
+        spec.items << 'wxAppConsole' << 'wxEventFilter'
+        spec.fold_bases('wxApp' => 'wxAppConsole', 'wxAppConsole' => 'wxEventFilter')
         spec.override_inheritance_chain('wxApp', %w[wxEvtHandler wxObject])
         spec.ignore %w{
           wxApp.ProcessMessage

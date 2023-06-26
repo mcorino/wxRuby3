@@ -17,9 +17,45 @@ class Wx::EvtHandler
 
   # Fast look-up hash to map event type ids to ruby event classes
   EVENT_TYPE_CLASS_MAP = {}
+  private_constant :EVENT_TYPE_CLASS_MAP
   # Hash to look up EVT constants from symbol names of evt handler
   # methods; used internally by disconnect (see EvtHandler.i)
   EVENT_NAME_TYPE_MAP = {}
+  private_constant :EVENT_NAME_TYPE_MAP
+
+  class << self
+
+    def get_event_type_class_map
+      EVENT_TYPE_CLASS_MAP
+    end
+    private :get_event_type_class_map
+
+    # Add caching for added event filters as we need to keep these alive
+    # for as long as they are registered
+
+    def event_filters
+      @event_filters ||= []
+    end
+    private :event_filters
+
+    wx_add_filter = instance_method :add_filter
+    define_method :add_filter do |filter|
+      wx_add_filter.bind(self).call(filter)
+      event_filters << filter
+    end
+
+    wx_remove_filter = instance_method :remove_filter
+    define_method :remove_filter do |filter|
+      wx_remove_filter.bind(self).call(filter)
+      event_filters.delete(filter)
+    end
+
+    def clear_filters
+      event_filters.each { |f| remove_filter(f) }
+      event_filters.clear
+    end
+
+  end
 
   # Given a Wx EventType id (eg Wx::EVT_MENU), returns a WxRuby Event
   # class which should be passed to event handler blocks. The actual
