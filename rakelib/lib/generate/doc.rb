@@ -153,6 +153,7 @@ module WXRuby3
         text.gsub!('@remarks', '')
         text.gsub!(/@see.*\n/, '')
         text.gsub!('@ref', '')
+        text.gsub!(/(\W|\A)nullptr(\W|\Z)/, '\1nil\2')
         unless no_ref?
           # auto create references for any ids explicitly declared such
           text.gsub!(/\W?(wx\w+(::\w+)?(\(.*\))?)/) do |s|
