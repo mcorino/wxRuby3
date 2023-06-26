@@ -3,6 +3,10 @@
 
 class Wx::EvtHandler
 
+  # Removes all (Ruby) installed EventFilter-s.
+  # @return [void]
+  def self.clear_filters; end
+
   # Public method to register the mapping of a custom event type
   # +konstant+ (which should be a unique integer; one will be created if
   # not supplied) to a custom event class +klass+. If +meth+ and +arity+
