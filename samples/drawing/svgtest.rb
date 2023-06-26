@@ -41,9 +41,10 @@ class SVGPage < Wx::ScrolledWindow
   end
 
   def on_save(filename)
-    svgDC = Wx::SVGFileDC.new(filename, 600, 650)
-    on_draw(svgDC)
-    svgDC.ok?
+    Wx::SVGFileDC.draw_on(filename, 600, 650) do |svgDC|
+      on_draw(svgDC)
+      svgDC.ok?
+    end
   end
 
   def on_paint
