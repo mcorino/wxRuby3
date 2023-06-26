@@ -4,7 +4,7 @@
 
 require 'wx'
 
-class SVGPage < Wx::ScrolledWindow
+class ImagePage < Wx::ScrolledWindow
 
   PAGES = [
     'Lines',
@@ -41,9 +41,35 @@ class SVGPage < Wx::ScrolledWindow
   end
 
   def on_save(filename)
-    Wx::SVGFileDC.draw_on(filename, 600, 650) do |svgDC|
-      on_draw(svgDC)
-      svgDC.ok?
+    case File.extname(filename)
+    when '.svg'
+      Wx::SVGFileDC.draw_on(filename, 600, 650) do |svgDC|
+        on_draw(svgDC)
+        svgDC.ok?
+      end
+    when '.ps'
+      print_data = Wx::PRT::PrintData.new
+      print_data.set_print_mode(Wx::PRINT_MODE_FILE)
+      print_data.set_filename(filename)
+      print_data.set_orientation(Wx::PrintOrientation::PORTRAIT)
+      print_data.set_paper_id(Wx::PaperSize::PAPER_A4)
+      screen_ppi = printer_ppi = nil
+      Wx::ScreenDC.draw_on do |dc|
+        screen_ppi = dc.get_ppi
+      end
+      Wx::PRT::PostScriptDC.draw_on(print_data) do |dc|
+        printer_ppi = dc.get_ppi
+        scale = printer_ppi.x.to_f / screen_ppi.x.to_f
+        dc.start_doc("Drawing sample")
+        # Define default font.
+        dc.set_font(Wx::FontInfo.new(10).family(Wx::FontFamily::FONTFAMILY_MODERN))
+        dc.start_page
+        Wx::ScaledDC.draw_on(dc, scale) do |sdc|
+          on_draw(sdc)
+        end
+        dc.end_page
+        dc.end_doc
+      end
     end
   end
 
@@ -279,10 +305,10 @@ class SVGPage < Wx::ScrolledWindow
   
 end
 
-class SVGFrame < Wx::Frame
+class ImageFrame < Wx::Frame
 
   def initialize
-    super(nil, title: 'SVG Demo', size: [500, 400])
+    super(nil, title: 'ImagePrint Demo', size: [500, 400])
 
     icon_file = File.join(__dir__,'..', 'art', "wxruby.png")
     self.icon = Wx::Icon.new(icon_file)
@@ -311,8 +337,8 @@ class SVGFrame < Wx::Frame
     @notebook = Wx::Notebook.new(self, style: Wx::BK_TOP)
 
     # Add SVG Windows to a notebook
-    SVGPage::PAGES.each_with_index do |title, index|
-      @notebook.add_page(SVGPage.new(@notebook, index), title)
+    ImagePage::PAGES.each_with_index do |title, index|
+      @notebook.add_page(ImagePage.new(@notebook, index), title)
     end
 
     evt_menu Wx::ID_SAVE, :file_save_picture
@@ -323,9 +349,13 @@ class SVGFrame < Wx::Frame
   def file_save_picture(event)
     page = @notebook.current_page
 
+    wildcard = 'SVG vector picture files (*.svg)|*.svg'
+    if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)
+      wildcard << '|PostScript files (*.ps)|*.ps'
+    end
     Wx::FileDialog(self, 'Save Picture as', '',
                    @notebook.get_page_text(@notebook.get_selection),
-                   'SVG vector picture files (*.svg)|*.svg',
+                   wildcard,
                    Wx::FD_SAVE|Wx::FD_OVERWRITE_PROMPT) do |dlg|
       if dlg.show_modal == Wx::ID_OK
         page.on_save(dlg.get_path)
@@ -335,14 +365,14 @@ class SVGFrame < Wx::Frame
 
   def on_about(event)
     Wx.message_box(
-      "wxRuby SVG sample\n" +
-      "(converted from wxWidgets)\n" +
+      "wxRuby ImagePrint sample\n" +
+      "(converted from wxWidgets SVGTest)\n" +
       "Authors:\n" +
       "   Chris Elliott (c) 2002-2009\n" +
       "   Prashant Kumar Nirmal (c) 2017\n" +
       "   Martin Corino (c) 2023\n" +
-      'Usage: click File|Save to Save the Selected SVG Test',
-      'About SVG Test')
+      'Usage: click File|Save to Save the Selected Image page',
+      'About ImagePrint Test')
   end
 
   def on_quit(event)
@@ -351,24 +381,24 @@ class SVGFrame < Wx::Frame
 
 end
 
-module SVGTestSample
+module ImagePrintSample
 
   include WxRuby::Sample if defined? WxRuby::Sample
 
   def self.describe
     { file: __FILE__,
-      summary: 'wxRuby SVGFileDC example.',
-      description: 'wxRuby example showcasing Wx::SVGFileDC to create SVG files.' }
+      summary: 'wxRuby Image printing example.',
+      description: 'wxRuby example showcasing Wx::SVGFileDC/Wx::PostScriptDC to create SVG/PS files.' }
   end
 
   def self.activate
-    frame = SVGFrame.new
+    frame = ImageFrame.new
     frame.show
     frame
   end
 
   if $0 == __FILE__
-    Wx::App.run { SVGTestSample.activate }
+    Wx::App.run { ImagePrintSample.activate }
   end
 
 end
