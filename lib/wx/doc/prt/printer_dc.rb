@@ -1,5 +1,5 @@
 
-module Wx
+module Wx::PRT
 
   class PrinterDC < Wx::DC
 
