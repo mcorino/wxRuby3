@@ -505,8 +505,10 @@ class MyFrame < Wx::Frame
 
         # Colour not in gallery - add it
         unless item
-          item = add_colour_to_gallery(gallery,
-                                       clr.get_as_string(Wx::C2S_HTML_SYNTAX), clr)
+          Wx::MemoryDC.draw_on do |dc|
+            item = add_colour_to_gallery(gallery,
+                                         clr.get_as_string(Wx::C2S_HTML_SYNTAX), dc, clr)
+          end
           gallery.realise
         end
 
@@ -735,45 +737,47 @@ class MyFrame < Wx::Frame
     else
       gallery = Wx::RBN::RibbonGallery.new(panel, gallery_id)
     end
-    def_item = add_colour_to_gallery(gallery, "Default", defclr)
-    gallery.set_selection(def_item)
-    add_colour_to_gallery(gallery, "BLUE")
-    add_colour_to_gallery(gallery, "BLUE VIOLET")
-    add_colour_to_gallery(gallery, "BROWN")
-    add_colour_to_gallery(gallery, "CADET BLUE")
-    add_colour_to_gallery(gallery, "CORAL")
-    add_colour_to_gallery(gallery, "CYAN")
-    add_colour_to_gallery(gallery, "DARK GREEN")
-    add_colour_to_gallery(gallery, "DARK ORCHID")
-    add_colour_to_gallery(gallery, "FIREBRICK")
-    add_colour_to_gallery(gallery, "GOLD")
-    add_colour_to_gallery(gallery, "GOLDENROD")
-    add_colour_to_gallery(gallery, "GREEN")
-    add_colour_to_gallery(gallery, "INDIAN RED")
-    add_colour_to_gallery(gallery, "KHAKI")
-    add_colour_to_gallery(gallery, "LIGHT BLUE")
-    add_colour_to_gallery(gallery, "LIME GREEN")
-    add_colour_to_gallery(gallery, "MAGENTA")
-    add_colour_to_gallery(gallery, "MAROON")
-    add_colour_to_gallery(gallery, "NAVY")
-    add_colour_to_gallery(gallery, "ORANGE")
-    add_colour_to_gallery(gallery, "ORCHID")
-    add_colour_to_gallery(gallery, "PINK")
-    add_colour_to_gallery(gallery, "PLUM")
-    add_colour_to_gallery(gallery, "PURPLE")
-    add_colour_to_gallery(gallery, "RED")
-    add_colour_to_gallery(gallery, "SALMON")
-    add_colour_to_gallery(gallery, "SEA GREEN")
-    add_colour_to_gallery(gallery, "SIENNA")
-    add_colour_to_gallery(gallery, "SKY BLUE")
-    add_colour_to_gallery(gallery, "TAN")
-    add_colour_to_gallery(gallery, "THISTLE")
-    add_colour_to_gallery(gallery, "TURQUOISE")
-    add_colour_to_gallery(gallery, "VIOLET")
-    add_colour_to_gallery(gallery, "VIOLET RED")
-    add_colour_to_gallery(gallery, "WHEAT")
-    add_colour_to_gallery(gallery, "WHITE")
-    add_colour_to_gallery(gallery, "YELLOW")
+    Wx::MemoryDC.draw_on do |dc|
+      def_item = add_colour_to_gallery(gallery, "Default", dc, defclr)
+      gallery.set_selection(def_item)
+      add_colour_to_gallery(gallery, "BLUE", dc)
+      add_colour_to_gallery(gallery, "BLUE VIOLET", dc)
+      add_colour_to_gallery(gallery, "BROWN", dc)
+      add_colour_to_gallery(gallery, "CADET BLUE", dc)
+      add_colour_to_gallery(gallery, "CORAL", dc)
+      add_colour_to_gallery(gallery, "CYAN", dc)
+      add_colour_to_gallery(gallery, "DARK GREEN", dc)
+      add_colour_to_gallery(gallery, "DARK ORCHID", dc)
+      add_colour_to_gallery(gallery, "FIREBRICK", dc)
+      add_colour_to_gallery(gallery, "GOLD", dc)
+      add_colour_to_gallery(gallery, "GOLDENROD", dc)
+      add_colour_to_gallery(gallery, "GREEN", dc)
+      add_colour_to_gallery(gallery, "INDIAN RED", dc)
+      add_colour_to_gallery(gallery, "KHAKI", dc)
+      add_colour_to_gallery(gallery, "LIGHT BLUE", dc)
+      add_colour_to_gallery(gallery, "LIME GREEN", dc)
+      add_colour_to_gallery(gallery, "MAGENTA", dc)
+      add_colour_to_gallery(gallery, "MAROON", dc)
+      add_colour_to_gallery(gallery, "NAVY", dc)
+      add_colour_to_gallery(gallery, "ORANGE", dc)
+      add_colour_to_gallery(gallery, "ORCHID", dc)
+      add_colour_to_gallery(gallery, "PINK", dc)
+      add_colour_to_gallery(gallery, "PLUM", dc)
+      add_colour_to_gallery(gallery, "PURPLE", dc)
+      add_colour_to_gallery(gallery, "RED", dc)
+      add_colour_to_gallery(gallery, "SALMON", dc)
+      add_colour_to_gallery(gallery, "SEA GREEN", dc)
+      add_colour_to_gallery(gallery, "SIENNA", dc)
+      add_colour_to_gallery(gallery, "SKY BLUE", dc)
+      add_colour_to_gallery(gallery, "TAN", dc)
+      add_colour_to_gallery(gallery, "THISTLE", dc)
+      add_colour_to_gallery(gallery, "TURQUOISE", dc)
+      add_colour_to_gallery(gallery, "VIOLET", dc)
+      add_colour_to_gallery(gallery, "VIOLET RED", dc)
+      add_colour_to_gallery(gallery, "WHEAT", dc)
+      add_colour_to_gallery(gallery, "WHITE", dc)
+      add_colour_to_gallery(gallery, "YELLOW", dc)
+    end
 
     gallery
   end
@@ -784,7 +788,7 @@ class MyFrame < Wx::Frame
     @ribbon.dismiss_expanded_panel
   end
 
-  def add_colour_to_gallery(gallery, colour, value = nil)
+  def add_colour_to_gallery(gallery, colour, dc, value = nil)
     item = nil
 
     c = nil
@@ -797,27 +801,26 @@ class MyFrame < Wx::Frame
       iHeight = 40
 
       bitmap = Wx::Bitmap.new(iWidth, iHeight)
-      Wx::MemoryDC.draw_on(bitmap) do |dc|
-        dc.set_font(@label_font)
-        b = Wx::Brush.new (c)
-        dc.set_pen(Wx::BLACK_PEN)
-        dc.set_brush(b)
-        dc.draw_rectangle(0, 0, iWidth, iHeight)
+      dc.select_object(bitmap)
+      dc.set_font(@label_font)
+      b = Wx::Brush.new (c)
+      dc.set_pen(Wx::BLACK_PEN)
+      dc.set_brush(b)
+      dc.draw_rectangle(0, 0, iWidth, iHeight)
 
-        colour = colour[0] + colour[1,colour.size].downcase
-        size = dc.get_text_extent(colour)
-        foreground = Wx::Colour.new(~c.red, ~c.green, ~c.blue)
-        if ((foreground.red - c.red).abs +
-            (foreground.blue - c.blue).abs +
-            (foreground.green - c.green).abs) < 64
-          # Foreground too similar to background - use a different
-          # strategy to find a contrasting colour
-          foreground = Wx::Colour.new((c.red + 64) % 256, 255 - c.green, (c.blue + 192) % 256)
-        end
-        dc.set_text_foreground(foreground)
-        dc.draw_text(colour, (iWidth - size[0] + 1).div(2), (iHeight - size[1]).div(2))
-        dc.select_object_as_source(Wx::NULL_BITMAP)
+      colour = colour[0] + colour[1,colour.size].downcase
+      size = dc.get_text_extent(colour)
+      foreground = Wx::Colour.new(~c.red, ~c.green, ~c.blue)
+      if ((foreground.red - c.red).abs +
+          (foreground.blue - c.blue).abs +
+          (foreground.green - c.green).abs) < 64
+        # Foreground too similar to background - use a different
+        # strategy to find a contrasting colour
+        foreground = Wx::Colour.new((c.red + 64) % 256, 255 - c.green, (c.blue + 192) % 256)
       end
+      dc.set_text_foreground(foreground)
+      dc.draw_text(colour, (iWidth - size[0] + 1).div(2), (iHeight - size[1]).div(2))
+      dc.select_object_as_source(Wx::NULL_BITMAP)
 
       item = gallery.append(bitmap, Wx::ID_ANY)
       gallery.set_item_client_data(item, [colour, c])
