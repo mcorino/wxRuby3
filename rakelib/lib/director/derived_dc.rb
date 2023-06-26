@@ -21,6 +21,8 @@ module WXRuby3
           spec.add_extend_code 'wxScreenDC', <<~__HEREDOC
             static VALUE draw_on()
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -45,6 +47,8 @@ module WXRuby3
           spec.add_extend_code 'wxClientDC', <<~__HEREDOC
             static VALUE draw_on(wxWindow* win)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -75,6 +79,8 @@ module WXRuby3
           spec.add_extend_code 'wxMemoryDC', <<~__HEREDOC
             static VALUE draw_on()
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -87,6 +93,8 @@ module WXRuby3
             }
             static VALUE draw_on(wxDC* tgt)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -99,6 +107,8 @@ module WXRuby3
             }
             static VALUE draw_on(wxBitmap& tgt)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -113,6 +123,8 @@ module WXRuby3
           spec.add_extend_code 'wxBufferedDC', <<~__HEREDOC
             static VALUE draw_on()
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -125,6 +137,8 @@ module WXRuby3
             }
             static VALUE draw_on(wxDC* tgt, const wxSize &area, int style=wxBUFFER_CLIENT_AREA)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -137,6 +151,8 @@ module WXRuby3
             }
             static VALUE draw_on(wxDC* tgt, wxBitmap &buffer=wxNullBitmap, int style=wxBUFFER_CLIENT_AREA)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -151,6 +167,8 @@ module WXRuby3
           spec.add_extend_code 'wxBufferedPaintDC', <<~__HEREDOC
             static VALUE draw_on(wxWindow* tgt, int style=wxBUFFER_CLIENT_AREA)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -163,6 +181,8 @@ module WXRuby3
             }
             static VALUE draw_on(wxWindow* tgt, wxBitmap &buffer=wxNullBitmap, int style=wxBUFFER_CLIENT_AREA)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -177,6 +197,8 @@ module WXRuby3
           spec.add_extend_code 'wxAutoBufferedPaintDC', <<~__HEREDOC
             static VALUE draw_on(wxWindow* tgt)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -197,6 +219,8 @@ module WXRuby3
           spec.add_extend_code 'wxMirrorDC', <<~__HEREDOC
             static VALUE draw_on(wxDC* dc, bool mirror)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -218,6 +242,8 @@ module WXRuby3
           spec.add_extend_code 'wxSVGFileDC', <<~__HEREDOC
             static VALUE draw_on(const wxString &filename, int width=320, int height=240, double dpi=72, const wxString &title=wxString())
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -252,6 +278,8 @@ module WXRuby3
           spec.add_extend_code 'wxGCDC', <<~__HEREDOC
             static VALUE draw_on(const wxWindowDC& dc)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -268,6 +296,8 @@ module WXRuby3
             }
             static VALUE draw_on(const wxMemoryDC& dc)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -284,6 +314,8 @@ module WXRuby3
             }
             static VALUE draw_on(const wxPrinterDC& dc)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -300,6 +332,8 @@ module WXRuby3
             }
             static VALUE draw_on(wxGraphicsContext* gc)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p ())
               {
@@ -332,6 +366,8 @@ module WXRuby3
             %extend wxScaledDC {
             static VALUE draw_on(wxDC& target, double scale)
             {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
               VALUE rc = Qnil;
               if (rb_block_given_p())
               {
@@ -355,6 +391,50 @@ module WXRuby3
               wxScaledDC(wxDC& target, double scale);
             };
             __HEREDOC
+        elsif spec.module_name == 'wxPrinterDC'
+          spec.make_abstract 'wxPrinterDC'
+          spec.ignore 'wxPrinterDC::wxPrinterDC'
+          # as a PrinterDC should best always be a temporary stack object
+          # we do not allow creation in Ruby but rather provide a class
+          # method for block execution on a temp dc
+          spec.add_extend_code 'wxPrinterDC', <<~__HEREDOC
+            static VALUE draw_on(const wxPrintData &printData)
+            {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                wxPrinterDC dc(printData);
+                wxPrinterDC* dc_ptr = &dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxPrinterDC, 0);
+                rc = rb_yield(rb_dc);
+              }
+              return rc;
+            }
+          __HEREDOC
+        elsif spec.module_name == 'wxPostScriptDC'
+          spec.make_abstract 'wxPostScriptDC'
+          spec.ignore 'wxPostScriptDC::wxPostScriptDC'
+          # as a PostScriptDC should best always be a temporary stack object
+          # we do not allow creation in Ruby but rather provide a class
+          # method for block execution on a temp dc
+          spec.add_extend_code 'wxPostScriptDC', <<~__HEREDOC
+            static VALUE draw_on(const wxPrintData &printData)
+            {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                wxPostScriptDC dc(printData);
+                wxPostScriptDC* dc_ptr = &dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxPostScriptDC, 0);
+                rc = rb_yield(rb_dc);
+              }
+              return rc;
+            }
+          __HEREDOC
         else
           # ctors of all other derived DC require a running App
           spec.require_app spec.module_name
