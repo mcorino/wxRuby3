@@ -211,7 +211,7 @@ module WXRuby3
           update_source do |line|
             case line
               # defined method names
-            when /(rb_define_method|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*")/
+            when /(rb_define_method|rb_define_module_function|rb_define_protected_method).*("[_a-zA-Z0-9]*[=\?\!]?")/
               name = $2
               unless name == '"THE_APP"'
                 line[name] = '"%s"' % rb_method_name(name[1..-2])
@@ -222,7 +222,7 @@ module WXRuby3
               line['rb_funcall'] = 'wxRuby_Funcall'
               line[name] = '"%s"' % rb_method_name(name[1..-2])
               # defined alias methods (original method name)
-            when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*")/
+            when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*[=\?\!]?")/
               name = $1
               line[name] = '"%s"' % rb_method_name(name[1..-2])
               # defined class names
@@ -234,7 +234,7 @@ module WXRuby3
               name = $1
               line[name] = '"%s"' % rb_wx_name(name[1..-2])
               # defined class/global methods
-            when /rb_define_singleton_method.*("[_a-zA-Z0-9]*")/
+            when /rb_define_singleton_method.*("[_a-zA-Z0-9]*[=\?\!]?")/
               name = $1
               no_wx_name = name[1..-2].sub(/\Awx_?/i, '')
               if no_wx_name == no_wx_name.upcase
