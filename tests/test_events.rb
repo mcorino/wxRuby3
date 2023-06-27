@@ -44,10 +44,3 @@ class EventTests < Test::Unit::TestCase
     assert_equal(evt.position, evt_dup.position)
   end
 end
-
-class TestApp < Wx::App
-  def on_init
-    Test::Unit::UI::Console::TestRunner.run(EventTests)
-    false
-  end
-end
