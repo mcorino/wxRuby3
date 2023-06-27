@@ -69,24 +69,4 @@ module Wx
 
   end
 
-  class MemoryDC
-
-    # convenience method for drawing on a temporary memory DC
-    def self.draw_on(arg)
-      dc = case arg
-           when Wx::Bitmap, Wx::DC
-             self.new(arg)
-           else
-             ::Kernel.raise ArgumentError, 'Expected Wx::Bitmap or Wx::DC'
-           end
-      begin
-        yield(dc) if block_given?
-      ensure
-        dc.select_object(Wx::NULL_BITMAP)
-      end
-      nil
-    end
-
-  end
-
 end

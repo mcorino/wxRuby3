@@ -153,9 +153,7 @@ class MyFrame < Wx::Frame
     sizer_panelsizer_h.add(sizer_panelsizer_v, 0)
     sizer_panel.set_sizer(sizer_panelsizer_h)
 
-    label_font = Wx::Font.new(Wx::FontInfo.new(8).light)
-    @bitmap_creation_dc = Wx::MemoryDC.new
-    @bitmap_creation_dc.set_font(label_font)
+    @label_font = Wx::Font.new(Wx::FontInfo.new(8).light)
 
     scheme = Wx::RBN::RibbonPage.new(@ribbon, Wx::ID_ANY, "Appearance", bitmap_(:eye_xpm))
     @default_primary = Wx::Colour.new
@@ -507,9 +505,10 @@ class MyFrame < Wx::Frame
 
         # Colour not in gallery - add it
         unless item
-          item = add_colour_to_gallery(gallery,
-                                       clr.get_as_string(Wx::C2S_HTML_SYNTAX), @bitmap_creation_dc,
-                                       clr)
+          Wx::MemoryDC.draw_on do |dc|
+            item = add_colour_to_gallery(gallery,
+                                         clr.get_as_string(Wx::C2S_HTML_SYNTAX), dc, clr)
+          end
           gallery.realise
         end
 
@@ -738,46 +737,47 @@ class MyFrame < Wx::Frame
     else
       gallery = Wx::RBN::RibbonGallery.new(panel, gallery_id)
     end
-    dc = @bitmap_creation_dc
-    def_item = add_colour_to_gallery(gallery, "Default", dc, defclr)
-    gallery.set_selection(def_item)
-    add_colour_to_gallery(gallery, "BLUE", dc)
-    add_colour_to_gallery(gallery, "BLUE VIOLET", dc)
-    add_colour_to_gallery(gallery, "BROWN", dc)
-    add_colour_to_gallery(gallery, "CADET BLUE", dc)
-    add_colour_to_gallery(gallery, "CORAL", dc)
-    add_colour_to_gallery(gallery, "CYAN", dc)
-    add_colour_to_gallery(gallery, "DARK GREEN", dc)
-    add_colour_to_gallery(gallery, "DARK ORCHID", dc)
-    add_colour_to_gallery(gallery, "FIREBRICK", dc)
-    add_colour_to_gallery(gallery, "GOLD", dc)
-    add_colour_to_gallery(gallery, "GOLDENROD", dc)
-    add_colour_to_gallery(gallery, "GREEN", dc)
-    add_colour_to_gallery(gallery, "INDIAN RED", dc)
-    add_colour_to_gallery(gallery, "KHAKI", dc)
-    add_colour_to_gallery(gallery, "LIGHT BLUE", dc)
-    add_colour_to_gallery(gallery, "LIME GREEN", dc)
-    add_colour_to_gallery(gallery, "MAGENTA", dc)
-    add_colour_to_gallery(gallery, "MAROON", dc)
-    add_colour_to_gallery(gallery, "NAVY", dc)
-    add_colour_to_gallery(gallery, "ORANGE", dc)
-    add_colour_to_gallery(gallery, "ORCHID", dc)
-    add_colour_to_gallery(gallery, "PINK", dc)
-    add_colour_to_gallery(gallery, "PLUM", dc)
-    add_colour_to_gallery(gallery, "PURPLE", dc)
-    add_colour_to_gallery(gallery, "RED", dc)
-    add_colour_to_gallery(gallery, "SALMON", dc)
-    add_colour_to_gallery(gallery, "SEA GREEN", dc)
-    add_colour_to_gallery(gallery, "SIENNA", dc)
-    add_colour_to_gallery(gallery, "SKY BLUE", dc)
-    add_colour_to_gallery(gallery, "TAN", dc)
-    add_colour_to_gallery(gallery, "THISTLE", dc)
-    add_colour_to_gallery(gallery, "TURQUOISE", dc)
-    add_colour_to_gallery(gallery, "VIOLET", dc)
-    add_colour_to_gallery(gallery, "VIOLET RED", dc)
-    add_colour_to_gallery(gallery, "WHEAT", dc)
-    add_colour_to_gallery(gallery, "WHITE", dc)
-    add_colour_to_gallery(gallery, "YELLOW", dc)
+    Wx::MemoryDC.draw_on do |dc|
+      def_item = add_colour_to_gallery(gallery, "Default", dc, defclr)
+      gallery.set_selection(def_item)
+      add_colour_to_gallery(gallery, "BLUE", dc)
+      add_colour_to_gallery(gallery, "BLUE VIOLET", dc)
+      add_colour_to_gallery(gallery, "BROWN", dc)
+      add_colour_to_gallery(gallery, "CADET BLUE", dc)
+      add_colour_to_gallery(gallery, "CORAL", dc)
+      add_colour_to_gallery(gallery, "CYAN", dc)
+      add_colour_to_gallery(gallery, "DARK GREEN", dc)
+      add_colour_to_gallery(gallery, "DARK ORCHID", dc)
+      add_colour_to_gallery(gallery, "FIREBRICK", dc)
+      add_colour_to_gallery(gallery, "GOLD", dc)
+      add_colour_to_gallery(gallery, "GOLDENROD", dc)
+      add_colour_to_gallery(gallery, "GREEN", dc)
+      add_colour_to_gallery(gallery, "INDIAN RED", dc)
+      add_colour_to_gallery(gallery, "KHAKI", dc)
+      add_colour_to_gallery(gallery, "LIGHT BLUE", dc)
+      add_colour_to_gallery(gallery, "LIME GREEN", dc)
+      add_colour_to_gallery(gallery, "MAGENTA", dc)
+      add_colour_to_gallery(gallery, "MAROON", dc)
+      add_colour_to_gallery(gallery, "NAVY", dc)
+      add_colour_to_gallery(gallery, "ORANGE", dc)
+      add_colour_to_gallery(gallery, "ORCHID", dc)
+      add_colour_to_gallery(gallery, "PINK", dc)
+      add_colour_to_gallery(gallery, "PLUM", dc)
+      add_colour_to_gallery(gallery, "PURPLE", dc)
+      add_colour_to_gallery(gallery, "RED", dc)
+      add_colour_to_gallery(gallery, "SALMON", dc)
+      add_colour_to_gallery(gallery, "SEA GREEN", dc)
+      add_colour_to_gallery(gallery, "SIENNA", dc)
+      add_colour_to_gallery(gallery, "SKY BLUE", dc)
+      add_colour_to_gallery(gallery, "TAN", dc)
+      add_colour_to_gallery(gallery, "THISTLE", dc)
+      add_colour_to_gallery(gallery, "TURQUOISE", dc)
+      add_colour_to_gallery(gallery, "VIOLET", dc)
+      add_colour_to_gallery(gallery, "VIOLET RED", dc)
+      add_colour_to_gallery(gallery, "WHEAT", dc)
+      add_colour_to_gallery(gallery, "WHITE", dc)
+      add_colour_to_gallery(gallery, "YELLOW", dc)
+    end
 
     gallery
   end
@@ -802,6 +802,7 @@ class MyFrame < Wx::Frame
 
       bitmap = Wx::Bitmap.new(iWidth, iHeight)
       dc.select_object(bitmap)
+      dc.set_font(@label_font)
       b = Wx::Brush.new (c)
       dc.set_pen(Wx::BLACK_PEN)
       dc.set_brush(b)

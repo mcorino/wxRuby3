@@ -242,10 +242,11 @@ class TestPanel < Wx::Panel
 
 
     def clear_bmp(bmp)
-        dc = Wx::MemoryDC.new
-        dc.select_object(bmp)
-        dc.set_background(Wx::WHITE_BRUSH)
-        dc.clear
+        Wx::MemoryDC.draw_on do |dc|
+          dc.select_object(bmp)
+          dc.set_background(Wx::WHITE_BRUSH)
+          dc.clear
+        end
     end
 end
 

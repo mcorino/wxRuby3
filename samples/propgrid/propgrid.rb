@@ -1384,29 +1384,31 @@ class FormMain < Wx::Frame
                                       Wx::PG::PG_LABEL,
                                       "Test Text"))
     myTestBitmap1x = Wx::Bitmap.new(60, 15, 32)
-    mdc = Wx::MemoryDC.new(myTestBitmap1x)
-    mdc.set_background(Wx::WHITE_BRUSH)
-    mdc.clear
-    mdc.set_pen(Wx::BLACK_PEN)
-    mdc.set_brush(Wx::WHITE_BRUSH)
-    mdc.draw_rectangle(0, 0, 60, 15)
-    mdc.draw_line(0, 0, 59, 14)
-    mdc.set_text_foreground(Wx::BLACK)
-    mdc.draw_text("x1", 0, 0)
+    Wx::MemoryDC.draw_on(myTestBitmap1x) do |mdc|
+      mdc.set_background(Wx::WHITE_BRUSH)
+      mdc.clear
+      mdc.set_pen(Wx::BLACK_PEN)
+      mdc.set_brush(Wx::WHITE_BRUSH)
+      mdc.draw_rectangle(0, 0, 60, 15)
+      mdc.draw_line(0, 0, 59, 14)
+      mdc.set_text_foreground(Wx::BLACK)
+      mdc.draw_text("x1", 0, 0)
+    end
 
     myTestBitmap2x = Wx::Bitmap.new(120, 30, 32)
-    mdc = Wx::MemoryDC.new(myTestBitmap2x)
-    mdc.set_background(Wx::WHITE_BRUSH)
-    mdc.clear
-    mdc.set_pen(Wx::Pen.new(Wx::BLUE, 2))
-    mdc.set_brush(Wx::WHITE_BRUSH)
-    mdc.draw_rectangle(0, 0, 120, 30)
-    mdc.draw_line(0, 0, 119, 31)
-    mdc.set_text_foreground(Wx::BLUE)
-    f = mdc.font
-    f.set_pixel_size(f.get_pixel_size * 2)
-    mdc.set_font(f)
-    mdc.draw_text("x2", 0, 0)
+    Wx::MemoryDC.draw_on(myTestBitmap2x) do |mdc|
+      mdc.set_background(Wx::WHITE_BRUSH)
+      mdc.clear
+      mdc.set_pen(Wx::Pen.new(Wx::BLUE, 2))
+      mdc.set_brush(Wx::WHITE_BRUSH)
+      mdc.draw_rectangle(0, 0, 120, 30)
+      mdc.draw_line(0, 0, 119, 31)
+      mdc.set_text_foreground(Wx::BLUE)
+      f = mdc.font
+      f.set_pixel_size(f.get_pixel_size * 2)
+      mdc.set_font(f)
+      mdc.draw_text("x2", 0, 0)
+    end
 
     myTestBitmap2x.set_scale_factor(2)
     pg.set_property_image("StringPropertyWithBitmap", Wx::BitmapBundle.from_bitmaps(myTestBitmap1x, myTestBitmap2x))
