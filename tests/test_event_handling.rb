@@ -177,6 +177,34 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
   end
 
+  def test_event_blocker
+    win = TestFrame.new
+    assert(!win.test_event)
+    win.event_handler.process_event(TestEvent.new)
+    assert(win.test_event)
+    win.reset
+    Wx::EventBlocker.blocked_for(win) do |blkr|
+      win.event_handler.process_event(TestEvent.new(1))
+    end
+    assert(!win.test_event)
+    win.event_handler.process_event(TestEvent.new)
+    assert(win.test_event)
+    win.reset
+    Wx::EventBlocker.blocked_for(win, TestEvent::EVT_TEST_EVENT) do |blkr|
+      win.event_handler.process_event(TestEvent.new(1))
+    end
+    assert(!win.test_event)
+    win.event_handler.process_event(TestEvent.new)
+    assert(win.test_event)
+    win.reset
+    Wx::EventBlocker.blocked_for(win, Wx::EVT_ACTIVATE) do |blkr|
+      win.event_handler.process_event(TestEvent.new(1))
+    end
+    assert(win.test_event)
+    win.destroy
+    Wx.get_app.yield
+  end
+
   class MyEventFilter < Wx::EventFilter
     def initialize
       super
