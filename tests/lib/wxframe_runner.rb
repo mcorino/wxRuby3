@@ -5,21 +5,30 @@ module WxRuby
 
   module Test
 
+    class App < Wx::App
+      def on_init
+        @tests_have_run = false
+        evt_idle :on_idle
+        @frame = Wx::Frame.new(nil, size: [600,400])
+        @frame.show
+      end
+
+      def on_idle(_evt)
+        done = @tests_have_run
+        @tests_have_run = true
+        @result = @start_mtd.bind(@test_runner).call unless done
+      end
+
+      attr_reader :frame
+    end
+
     class GUITests < ::Test::Unit::TestCase
 
       class << self
 
-        def startup
-          super
-          @frame = Wx::Frame.new(nil, size: [600,400])
-          @frame.show
-          Wx.get_app.yield
-        end
-
         def shutdown
-          @frame.hide
-          @frame.destroy
-          Wx.get_app.yield
+          Wx.get_app.frame.hide
+          Wx.get_app.frame.destroy
           super
         end
 
@@ -28,7 +37,7 @@ module WxRuby
       end
 
       def test_frame
-        GUITests.frame
+        Wx.get_app.frame
       end
 
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)
