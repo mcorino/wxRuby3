@@ -29,6 +29,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxGCDC', director: Director::DerivedDC, requirements: %w[wxUSE_GRAPHICS_CONTEXT])
     Director.Spec(pkg, 'wxScaledDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxWindow')
+    Director.Spec(pkg, 'wxEventBlocker')
     Director.Spec(pkg, 'wxNonOwnedWindow', director: Director::Window)
     Director.Spec(pkg, 'wxPopupWindow')
     Director.Spec(pkg, 'wxTopLevelWindow')
@@ -197,6 +198,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxVariant', requirements: %w[wxUSE_VARIANT])
     Director.Spec(pkg, 'wxPlatformInfo')
     Director.Spec(pkg, 'wxSplashScreen', requirements: %w[wxUSE_SPLASH])
+    Director.Spec(pkg, 'wxUIActionSimulator', requirements: %w[wxUSE_UIACTIONSIMULATOR])
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|

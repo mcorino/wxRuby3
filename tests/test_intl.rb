@@ -35,20 +35,17 @@ class TestInternationalisation < Test::Unit::TestCase
     assert_nil( Wx::Locale.find_language_info('xx') )
   end
   
-  # def test_add_language_info
-  #   flunk 'Wx::Locale.add_language is not yet implemented'
-  #   # FIXME - typemaps for wxString are not picked up when SWIG converts
-  #   # the struct definition; so maybe do an %extend for this method that
-  #   # accepts string canonical name and description and Win32
-  #   # identifiers, and returns an integer id. See Locale.i
-  #   language_marain = Wx::Locale.add_language('ma_MA', 'Marain',
-  #                                              0, 0)
-  #   assert_kind_of(Integer, language_marain)
-  #   lang_info = Wx::Locale.find_language_info('ma_MA')
-  #   assert_equal(Wx::LANGUAGE_MARAIN, lang_info.language)
-  #   assert_equal('ma_MA', lang_info.canonical_name)
-  #   assert_equal('Marain', lang_info.description)
-  # end
+  def test_add_language_info
+    new_lang_info = Wx::LanguageInfo.new
+    new_lang_info.canonical_name = 'ma_MA'
+    new_lang_info.description = 'Marain'
+    new_lang_info.language = 1000
+    Wx::Locale.add_language(new_lang_info)
+    lang_info = Wx::Locale.find_language_info('ma_MA')
+    assert_equal(1000, lang_info.language)
+    assert_equal('ma_MA', lang_info.canonical_name)
+    assert_equal('Marain', lang_info.description)
+  end
 
   def test_get_system_language
     sys_lang = Wx::Locale.get_system_language
