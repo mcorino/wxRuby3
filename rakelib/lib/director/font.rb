@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxFontInfo'
-        spec.gc_as_temporary 'wxFontInfo'
+        spec.gc_as_untracked 'wxFontInfo'
         # all but the default ctor require a running App
         spec.require_app 'wxFont::wxFont(const wxFont &)',
                          'wxFont::wxFont(const wxFontInfo &)',

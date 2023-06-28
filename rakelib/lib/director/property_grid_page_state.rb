@@ -13,7 +13,7 @@ module WXRuby3
         super
         spec.items << 'wxPropertyGridHitTestResult'
         spec.gc_never 'wxPropertyGridPageState'
-        spec.gc_as_temporary 'wxPropertyGridHitTestResult'
+        spec.gc_as_untracked 'wxPropertyGridHitTestResult'
         spec.make_abstract 'wxPropertyGridPageState'
         spec.disable_proxies
         spec.ignore 'wxPropertyGridPageState::DoDelete',

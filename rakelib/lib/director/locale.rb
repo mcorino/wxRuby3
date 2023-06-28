@@ -14,7 +14,7 @@ module WXRuby3
         spec.disable_proxies
         spec.items << 'wxLanguageInfo' << 'language.h'
         spec.gc_as_object('wxLocale')
-        spec.gc_as_temporary('wxLanguageInfo')
+        spec.gc_as_untracked('wxLanguageInfo')
         spec.make_concrete 'wxLanguageInfo'
         spec.regard %w[
           wxLanguageInfo::Language

@@ -11,7 +11,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_temporary
+        spec.gc_as_untracked
       end
     end # class GridTableMessage
 

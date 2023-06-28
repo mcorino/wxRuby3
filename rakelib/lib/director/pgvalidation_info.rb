@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'propgrid/propgrid.h'
-        spec.gc_as_temporary 'wxPGValidationInfo'
+        spec.gc_as_untracked 'wxPGValidationInfo'
         if Config.instance.wx_version < '3.3.0'
           spec.ignore 'wxPGVFBFlags' # not a constant but a rather a clumsy typedef
         end

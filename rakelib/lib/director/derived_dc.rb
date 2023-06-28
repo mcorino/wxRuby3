@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
-        spec.gc_as_temporary spec.module_name
+        spec.gc_as_untracked spec.module_name
         if spec.module_name == 'wxScreenDC'
           spec.make_abstract 'wxScreenDC'
           # as a ScreenDC should always be a temporary stack object

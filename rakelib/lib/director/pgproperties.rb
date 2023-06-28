@@ -26,7 +26,7 @@ module WXRuby3
                     'wxEnumProperty::wxEnumProperty(const wxString &, const wxString &, const wxChar *const *, const long *, wxPGChoices *, int)'
         spec.ignore 'wxEditEnumProperty::wxEditEnumProperty(const wxString &, const wxString &, const wxChar *const *, const long *, const wxString&)',
                     'wxEditEnumProperty::wxEditEnumProperty(const wxString &, const wxString &, const wxChar *const *, const long *, wxPGChoices *, const wxString&)'
-        spec.gc_as_temporary 'wxColourPropertyValue'
+        spec.gc_as_untracked 'wxColourPropertyValue'
         spec.regard 'wxColourPropertyValue::m_type',
                     'wxColourPropertyValue::m_colour'
         spec.regard 'wxSystemColourProperty::Init',

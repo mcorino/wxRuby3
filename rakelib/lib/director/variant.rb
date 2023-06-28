@@ -15,7 +15,7 @@ module WXRuby3
         super
         # variants are (almost) always returned by value and never transfer ownership
         # so we do not need tracking or special free function
-        spec.gc_as_temporary 'wxVariant'
+        spec.gc_as_untracked 'wxVariant'
         spec.disable_proxies
         # add custom wxVariant extensions so to be
         # able to handle all PGProperty specific value types

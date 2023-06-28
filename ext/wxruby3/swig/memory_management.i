@@ -97,14 +97,11 @@ GC_NEVER(kls);
 %enddef
 
 // Strategy for objects whose pointer / id identity does not matter,
-// only their attributes: Size, Point and Rect. They are commonly
-// created as temporary objects on the stack in C++ and then passed into
+// only their attributes and/or methods like DC (and derivatives) Size, Point and Rect. They are commonly
+// created as temporary objects (mostly on the stack) in C++ and then passed into
 // director methods. Once the director method has run they should no
 // longer be referenced in ruby.
-%define GC_MANAGE_AS_FUNGIBLE_OBJECT(kls)
-%enddef
-
-%define GC_MANAGE_AS_TEMP(kls)
+%define GC_MANAGE_AS_UNTRACKED(kls)
 %enddef
 
 // Sizers attached to windows are automatically destroyed by wxWidgets,
@@ -133,10 +130,9 @@ GC_NEVER(kls);
 %enddef
 
 
-// All other classes - mainly helper classes (eg Sizer, GridCellxxx) and
-// informational classes eg Point, Size, Rect. These are tracked but
-// sometimes later disowned once passed into a widget, and thenceforth
-// managed by WxWidgets
+// All other classes - mainly helper classes (eg Sizer, GridCellxxx).
+// These are tracked but sometimes later disowned once passed into a
+// widget, and thenceforth managed by WxWidgets
 %define GC_MANAGE(kls)
 GC_MANAGE_AS_OBJECT(kls)
 %enddef

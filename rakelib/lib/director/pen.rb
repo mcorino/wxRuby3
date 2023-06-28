@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxPenInfo'
-        spec.gc_as_temporary 'wxPenInfo'
+        spec.gc_as_untracked 'wxPenInfo'
         spec.disable_proxies
         spec.add_header_code <<~__HEREDOC
           // special free funcs are needed to clean up Dashes array if it has been

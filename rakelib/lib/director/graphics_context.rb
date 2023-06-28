@@ -14,7 +14,7 @@ module WXRuby3
         spec.disable_proxies
         # do not track GraphicContext objects as that causes problems probably for similar
         # reasons as for DC objects
-        spec.gc_as_temporary
+        spec.gc_as_untracked
         # these static creators require a running app
         spec.require_app 'wxGraphicsContext::Create',
                          'wxGraphicsContext::CreateFromUnknownDC'

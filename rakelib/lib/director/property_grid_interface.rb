@@ -19,7 +19,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_temporary 'wxPropertyGridInterface' # actually no GC control necessary as this is a mixin only
+        spec.gc_as_untracked 'wxPropertyGridInterface' # actually no GC control necessary as this is a mixin only
         # turn wxPropertyGridInterface into a mixin module
         spec.make_mixin 'wxPropertyGridInterface'
         # add typedef to work around flaky define in wxWidgets
