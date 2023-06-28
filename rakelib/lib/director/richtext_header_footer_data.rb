@@ -11,7 +11,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_untracked
+        spec.gc_as_untracked 'wxRichTextHeaderFooterData'
         spec.disable_proxies # fixed and final data structures
       end
     end # class RichTextHeaderFooterData
