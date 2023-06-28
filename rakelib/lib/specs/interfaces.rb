@@ -70,6 +70,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxToggleButton')
     Director.Spec(pkg, 'wxControlWithItems')
     Director.Spec(pkg, 'wxComboBox')
+    Director.Spec(pkg, 'wxBitmapComboBox')
     Director.Spec(pkg, 'wxRadioBox')
     Director.Spec(pkg, 'wxPanel')
     Director.Spec(pkg, 'wxWithImages')
