@@ -14,6 +14,8 @@ module WXRuby3
       def setup
         super
         spec.override_inheritance_chain('wxStyledTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
+        # mixin TextEntry
+        spec.include_mixin 'wxStyledTextCtrl', 'Wx::TextEntry'
         spec.map 'int *', 'long *', as: 'Integer' do
           map_in ignore: true, temp: '$*1_ltype a', code: '$1 = &a;'
           map_argout code: <<~__CODE
