@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        spec.add_swig_code '%feature("notabstract") wxColourPickerCtrl;'
+        spec.make_concrete 'wxColourPickerCtrl'
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with ColourPickerEvent
       end
     end # class ColourPickerCtrl

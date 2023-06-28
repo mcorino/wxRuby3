@@ -291,6 +291,10 @@ module WXRuby3
         @abstracts.has_key?(cls) && !@abstracts[cls]
       end
 
+      def concretes
+        @abstracts.keys.select { |cls| concrete?(cls) }
+      end
+
       def mixin?(cls)
         @mixins.include?(cls)
       end

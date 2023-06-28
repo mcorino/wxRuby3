@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        spec.add_swig_code '%feature("notabstract") wxDirPickerCtrl;'
+        spec.make_concrete 'wxDirPickerCtrl'
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with FileDirPickerEvent
       end
     end # class DirPickerCtrl

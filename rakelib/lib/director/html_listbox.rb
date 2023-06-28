@@ -62,7 +62,7 @@ module WXRuby3
         spec.override_inheritance_chain('wxSimpleHtmlListBox', %w[wxHtmlListBox wxVListBox wxVScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
         spec.fold_bases('wxSimpleHtmlListBox' => %w[wxItemContainer])
         # override SWIG's confusion
-        spec.add_swig_code '%feature("notabstract") wxSimpleHtmlListBox;'
+        spec.make_concrete 'wxSimpleHtmlListBox'
         # not useful overload
         spec.ignore 'wxSimpleHtmlListBox::wxSimpleHtmlListBox(wxWindow *, wxWindowID, const wxPoint &, const wxSize &, int, const wxString[], long, const wxValidator &, const wxString &)'
         # add missing overloads

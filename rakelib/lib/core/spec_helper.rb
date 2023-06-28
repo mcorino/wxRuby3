@@ -153,6 +153,10 @@ module WXRuby3
       ifspec.abstract?(class_def.name) || (class_def.abstract && !ifspec.concrete?(class_def.name))
     end
 
+    def explicit_concretes
+      ifspec.concretes
+    end
+
     def mixins
       ifspec.mixins
     end

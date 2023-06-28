@@ -29,7 +29,7 @@ module WXRuby3
           spec.no_proxy 'wxEvent::Clone'
           spec.regard 'wxEvent::Clone', regard_doc: false # need updated doc
           # need this to force alloc func
-          spec.add_swig_code '%feature("notabstract") wxEvent;'
+          spec.make_concrete 'wxEvent'
           # type mapping for result #clone
           spec.map 'wxEvent*' => 'Wx::Event' do
             map_out code: <<~__CODE
@@ -143,7 +143,7 @@ module WXRuby3
             wxCommandEvent::GetExtraLong
           }
           # need this to force alloc func
-          spec.add_swig_code '%feature("notabstract") wxCommandEvent;'
+          spec.make_concrete 'wxCommandEvent'
           spec.add_header_code <<~__HEREDOC
             // Cf wxEvent - has to be written as a C+++ subclass to ensure correct
             // GC/thread protection of Ruby instance variables when user-written
@@ -222,7 +222,7 @@ module WXRuby3
                 spec.make_abstract(citem)
               else
                 # need this to force alloc func
-                spec.add_swig_code "%feature(\"notabstract\") #{citem};"
+                spec.make_concrete(citem)
               end
             end
           end

@@ -44,13 +44,11 @@ module WXRuby3
         spec.ignore 'wxTextDataObject::GetAllFormats'
 
         %w[wxDataObjectComposite wxBitmapDataObject wxFileDataObject wxTextDataObject wxImageDataObject wxURLDataObject].each do |kls|
-          spec.add_swig_code <<~__HEREDOC
-            // SWIG gets confused and doesn't realise that various virtual methods
-            // from wxDataObject are implemented fully in this subclass, and so,
-            // believing it to be abstract doesn't provide an allocator for this
-            // class. This undocumented feature overrides this.
-            %feature("notabstract") #{kls};
-            __HEREDOC
+          # SWIG gets confused and doesn't realise that various virtual methods
+          # from wxDataObject are implemented fully in these subclasses, and so,
+          # believing it to be abstract doesn't provide an allocator for this
+          # class. This overrides this.
+          spec.make_concrete kls
         end
 
         # Once a DataObject has been added, it belongs to the wxDataObjectComposite object,
