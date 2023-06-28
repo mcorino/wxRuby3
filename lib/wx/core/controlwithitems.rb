@@ -32,6 +32,7 @@ class Wx::ControlWithItems
 
   wx_append = instance_method :append
   define_method :append do |item, data=nil|
+    itm_pos = -1
     if data
       if ::Array === item
         if !(::Array === data)
@@ -39,21 +40,42 @@ class Wx::ControlWithItems
         elsif data.size != item.size
           ::Kernel.raise ::ArgumentError.new("item and data array must be equal size")
         end
-        offs = get_count
-        wx_append.bind(self).call(item)
-        item.size.times { |ix| set_client_data(offs+ix, data[ix]) }
+        if sorted?
+          item.each_with_index do |itm, ix|
+            itm_pos = wx_append.bind(self).call(itm, data[ix])
+            client_data_store.insert(itm_pos, data[ix])
+          end
+        else
+          offs = get_count
+          itm_pos = wx_append.bind(self).call(item)
+          item.size.times { |ix| set_client_data(offs+ix, data[ix]) }
+        end
       else
-        wx_append.bind(self).call(item, data)
-        client_data_store[get_count-1] = data
+        itm_pos = wx_append.bind(self).call(item, data)
+        client_data_store.insert(itm_pos, data)
       end
     else
-      wx_append.bind(self).call(item)
-      # no changes to data store
+      if ::Array === item
+        if sorted?
+          item.each_with_index do |itm, ix|
+            itm_pos = wx_append.bind(self).call(itm, data[ix])
+            client_data_store.insert(itm_pos, nil)
+          end
+        else
+          itm_pos = wx_append.bind(self).call(item)
+          client_data_store.concat(::Array.new(item.size))
+        end
+      else
+        itm_pos = wx_append.bind(self).call(item)
+        client_data_store.insert(itm_pos, nil)
+      end
     end
+    itm_pos
   end
 
   wx_insert = instance_method :insert
   define_method :insert do |item, pos, data=nil|
+    itm_pos = -1
     if data
       if ::Array === item
         if !(::Array === data)
@@ -61,21 +83,37 @@ class Wx::ControlWithItems
         elsif data.size != item.size
           ::Kernel.raise ::ArgumentError.new("item and data array must be equal size")
         end
-        wx_insert.bind(self).call(item, pos)
-        client_data_store.insert(pos, *::Array.new(item.size))
-        item.size.times { |ix| set_client_data(pos+ix, data[ix]) }
+        if sorted?
+          item.each_with_index do |itm, ix|
+            itm_pos = wx_insert.bind(self).call(itm, data[ix])
+            client_data_store.insert(itm_pos, data[ix])
+          end
+        else
+          itm_pos = wx_insert.bind(self).call(item, pos)
+          client_data_store.insert(pos, *::Array.new(item.size))
+          item.size.times { |ix| set_client_data(pos+ix, data[ix]) }
+        end
       else
-        wx_insert.bind(self).call(item, pos, data)
-        client_data_store.insert(pos, data)
+        itm_pos = wx_insert.bind(self).call(item, pos, data)
+        client_data_store.insert(itm_pos, data)
       end
     else
-      wx_insert.bind(self).call(item, pos)
       if ::Array === item
-        client_data_store.insert(pos, *::Array.new(item.size))
+        if sorted?
+          item.each_with_index do |itm, ix|
+            itm_pos = wx_insert.bind(self).call(itm)
+            client_data_store.insert(itm_pos, nil)
+          end
+        else
+          itm_pos = wx_insert.bind(self).call(item, pos)
+          client_data_store.insert(pos, *::Array.new(item.size))
+        end
       else
+        itm_pos = wx_insert.bind(self).call(item, pos)
         client_data_store.insert(pos, nil)
       end
     end
+    itm_pos
   end
 
   wx_set = instance_method :set

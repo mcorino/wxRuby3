@@ -23,6 +23,7 @@ module WXRuby3
                                            wxEvtHandler
                                            wxObject])
         spec.ignore('wxListBox::InsertItems(unsigned int,const wxString *,unsigned int)')
+        spec.ignore('wxListBox::IsSorted') # provided by ControlWithItems
       end
 
     end # class ListBox

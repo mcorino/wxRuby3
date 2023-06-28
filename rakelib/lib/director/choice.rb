@@ -23,6 +23,7 @@ module WXRuby3
         # redundant with good typemaps
         spec.ignore('wxChoice::wxChoice(wxWindow *,wxWindowID,const wxPoint &,const wxSize &,int,const wxString[],long,const wxValidator &,const wxString &)')
         spec.ignore('wxChoice::Create(wxWindow *,wxWindowID,const wxPoint &,const wxSize &,int,const wxString[],long,const wxValidator &,const wxString &)')
+        spec.ignore('wxChoice::IsSorted') # provided by ControlWithItems
       end
 
     end # class Choice

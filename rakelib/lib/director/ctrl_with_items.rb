@@ -47,6 +47,9 @@ module WXRuby3
             'wxItemContainer::Append(const wxArrayString &, void **)',
             'wxItemContainer::Insert(const wxArrayString &, unsigned int, void **)',
             'wxItemContainer::Set(const wxArrayString &, void **)'], ignore_doc: false)
+          # add undocumented method
+          spec.extend_interface 'wxControlWithItems',
+                                'bool IsSorted() const'
           # for doc only
           spec.map 'void** clientData' => 'Array', swig: false do
             map_in code: ''
