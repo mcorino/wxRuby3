@@ -15,14 +15,13 @@ module WXRuby3
         # do not track GraphicContext objects as that causes problems probably for similar
         # reasons as for DC objects
         spec.gc_as_untracked
-        # these static creators require a running app
-        spec.require_app 'wxGraphicsContext::Create',
-                         'wxGraphicsContext::CreateFromUnknownDC'
+        # ignore all these; wxRuby only supports the ::draw_on methods
         spec.ignore 'wxGraphicsContext::CreateFromNative',
                     'wxGraphicsContext::CreateFromNativeWindow',
                     'wxGraphicsContext::CreateFromNativeHDC',
+                    'wxGraphicsContext::CreateFromUnknownDC',
                     'wxGraphicsContext::GetNativeContext',
-                    'wxGraphicsContext::Create(const wxEnhMetaFileDC &)'
+                    'wxGraphicsContext::Create'
         # type mappings
         # Typemap to fix GraphicsContext#get_text_extent
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble* width', 'wxDouble* height',
@@ -138,8 +137,6 @@ module WXRuby3
             }
             __CODE
         end
-        spec.new_object 'wxGraphicsContext::Create',
-                        'wxGraphicsContext::CreateFromUnknownDC'
         # add convenience method providing efficient gc memory management
         spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
           static VALUE draw_on(wxWindow* win)
