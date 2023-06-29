@@ -193,6 +193,10 @@ module WXRuby3
       ifspec.gc_type(classdef.name) || :GC_NEVER
     end
 
+    def is_tracked?(classdef)
+      gc_type(classdef) != :GC_MANAGE_AS_UNTRACKED
+    end
+
     def includes
       ifspec.includes
     end
