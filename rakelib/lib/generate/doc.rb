@@ -852,6 +852,7 @@ module WXRuby3
               fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
               fdoc.puts "module #{clsnm}"
             else
+              fdoc.doc.puts "\n@note This class is <b>untracked</b> and should not be derived from nor instances extended!" unless is_tracked?(item)
               basecls = ifspec.classdef_name(base_class(item, doc: true))
               fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
             end

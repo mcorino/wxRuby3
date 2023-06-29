@@ -114,3 +114,52 @@ destroy these on a regular basis when not used (closed) possibly re-creating the
 
 Dialogs are special cases of toplevel windows which are not automatically destroyed when closed. The wxRuby library
 therefor provides special support to ease handling the destruction of these. See [here](03_dialogs.md) for more details.
+
+## Object identities
+
+One of the trickier things to handle correctly in the kind of native extensions like wxRuby is maintaining object 
+identities i.e. keeping native instances synced with their Ruby wrapper counter parts.
+
+Whenever a native extension is allowed to call back into Ruby space we encounter the problem the we need to map any 
+native object data provided for the call to the right Ruby types and when necessary to the right Ruby instance (object
+identity).
+
+Objects that are considered POD types (*plain old data* types) like numerics, booleans, strings, arrays and hashes do
+not require maintaining *object identity*. For these objects it is enough to map them to the right Ruby type before
+passing them on to Ruby space.
+
+For a lot of other objects though it is essential to not only map to the right **most derived** class type but also to
+the exact Ruby instance which was originally instantiated as wrapper for the native object if any exists (in case no
+Ruby instance existed yet a new instance of the correct **most derived** class should be instantiated at that point). 
+The reason this is important is 1. because the Ruby instance may have been used to identify, link to or otherwise 
+reference other data and/or functionality related to that specific Ruby/native pair and 2. the Ruby instance could 
+contain data elements (instance variables) related to that specific Ruby/native pair.<br>
+In the case of wxRuby Window instance for example it is common to derive custom Window classes with custom behaviour and
+corresponding instance variables that drive that behaviour. When an event handler or an overloaded native method is passed
+a native window object we absolutely need to be able to map that native object to the correct Ruby wrapper instance so
+all information stays in sync.
+
+For this purpose wxRuby uses *object tracking* i.e. maintaining hash tables mapping native object pointers to Ruby object 
+values. Whenever a tracked object is instantiated it is registered and can from than on be resolved whenever needed to map
+from native object to Ruby object.<br>
+Of course this also means wxRuby has to track object destruction so mappings can be removed when a native object is 
+destructed.<br>
+Additionally the tracking tables are also used to mark Ruby objects during the GC marking phase so they do not get garbage
+collected whenever they are not referenced in Ruby space anymore but still functioning in native space (this is for example
+a common situation for many child windows created but not permanently referenced in Ruby space).
+
+Tracking and resolving mappings from tracking tables produces a certain computing overhead but testing has shown this to be
+absolutely acceptable for normal applications.
+
+There are however quite a lot of wrapped native objects in wxRuby for which *object identity* is not essential. For these
+object tracking has been disabled for their classes. This means these kind of classes/object should **not** be derived from
+(if even possible and/or useful) to add functionality/information or their identity used as key to link other information.<br>
+These classes include:
+- classes considered POD types like Wx::Size, Wx::Point, Wx::RealPoint, Wx::Rect, Wx::GBSpan, Wx::GBPosition, Wx::BusyInfoFlags,
+Wx::AboutDialogInfo
+- final non-instantiatable classes like the Wx::DC (Device Context) class family, Wx::GraphicsContext, Wx::WindowsDisabler,
+Wx::EventBlocker, Wx::BusyInfo
+- classes with native singleton objects like Wx::Clipboard
+- the reference counted GDI objects like Wx::Pen, Wx::Brush, Wx::Colour, Wx::Cursor, Wx::Bitmap, Wx::Icon
+
+The reference documentation will note untracked object classes.

@@ -17,6 +17,7 @@ module WxRuby
         done = @tests_have_run
         @tests_have_run = true
         @result = @start_mtd.bind(@test_runner).call unless done
+        self.exit_main_loop
       end
 
       attr_reader :frame
@@ -24,32 +25,31 @@ module WxRuby
 
     class GUITests < ::Test::Unit::TestCase
 
-      class << self
-
-        def shutdown
-          Wx.get_app.frame.hide
-          Wx.get_app.frame.destroy
-          super
-        end
-
-        attr_reader :frame
-
-      end
-
       def test_frame
         Wx.get_app.frame
       end
 
+      class EventCounter
+        def initialize
+          @count = 0
+        end
+        attr_accessor :count
+
+        def inc
+          @count +=1
+        end
+      end
+
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)
         return 0 unless block_given?
-        evt_count = 0
+        evt_count = EventCounter.new
         if id2.nil?
-          win.event_handler.send(evt.to_sym, id1, ->(_evt){ evt_count += 1 })
+          win.event_handler.send(evt.to_sym, id1, ->(_evt){ evt_count.inc })
         else
-          win.event_handler.send(evt.to_sym, id1, id2, ->(_evt){ evt_count += 1 })
+          win.event_handler.send(evt.to_sym, id1, id2, ->(_evt){ evt_count.inc })
         end
-        yield
-        evt_count
+        yield evt_count
+        evt_count.count
       end
 
     end

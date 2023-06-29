@@ -86,5 +86,62 @@ class ButtonTests < WxRuby::Test::GUITests
     assert_nothing_raised { button.set_bitmap_pressed(Wx::NULL_BITMAP) }
     assert( !button.get_bitmap_pressed.ok? )
   end
-  
+
+end
+
+class TextCtrlTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @text = Wx::TextCtrl.new(test_frame, name: 'Text')
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @text.destroy
+    Wx.get_app.yield
+    super
+  end
+
+  attr_reader :text
+
+
+  if Wx.has_feature?(:USE_UIACTIONSIMULATOR)
+
+    def test_text
+      assert_equal('', text.get_value)
+      sim = Wx::UIActionSimulator.new
+
+      updates = count_events(text, :evt_text) do |c_upd|
+        maxlen_count = count_events(text, :evt_text_maxlen) do |c_maxlen|
+          # set focus to text control
+          text.set_focus
+          Wx.get_app.yield
+
+          sim.text('Hello')
+          Wx.get_app.yield
+
+          assert_equal('Hello', text.get_value)
+          assert_equal(5, c_upd.count)
+
+          text.set_max_length(10)
+          sim.text('World')
+          Wx.get_app.yield
+
+          assert_equal('HelloWorld', text.get_value)
+          assert_equal(10, c_upd.count)
+          assert_equal(0, c_maxlen.count)
+
+          sim.text('!')
+          Wx.get_app.yield
+
+          assert_equal('HelloWorld', text.get_value)
+          assert_equal(10, c_upd.count)
+          assert_equal(1, c_maxlen.count)
+        end
+      end
+    end
+
+  end
+
 end
