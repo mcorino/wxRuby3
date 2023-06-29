@@ -127,7 +127,6 @@ module WXRuby3
     Director.Spec(pkg, 'wxListbook', director: Director::BookCtrls, requirements: Director.AnyOf(%w[wxUSE_LISTBOOK]))
     Director.Spec(pkg, 'wxTreebook', director: Director::BookCtrls, requirements: Director.AnyOf(%w[wxUSE_TREEBOOK]))
     Director.Spec(pkg, 'wxSimplebook', director: Director::BookCtrls, requirements: Director.AnyOf(%w[wxUSE_AUI wxUSE_NOTEBOOK wxUSE_LISTBOOK wxUSE_CHOICEBOOK wxUSE_TOOLBOOK wxUSE_TREEBOOK]))
-    Director.Spec(pkg, 'wxColourData', requirements: %w[wxUSE_COLOURDLG])
     Director.Spec(pkg, 'wxColourDialog', director: Director::Dialog, requirements: %w[wxUSE_COLOURDLG])
     Director.Spec(pkg, 'wxColourPickerEvent', director: Director::Event, requirements: %w[wxUSE_COLOURPICKERCTRL wxUSE_COLOURDLG])
     Director.Spec(pkg, 'wxColourPickerCtrl', requirements: %w[wxUSE_COLOURPICKERCTRL wxUSE_COLOURDLG])

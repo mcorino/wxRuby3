@@ -10,6 +10,7 @@ module WXRuby3
     class Colour < Director
 
       def setup
+        spec.gc_as_untracked('wxColour')
         spec.require_app 'wxColour::wxColour(const wxColour&)'
         spec.ignore(%w[
           wxColour::GetPixel wxTransparentColour wxColour::operator!=

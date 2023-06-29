@@ -11,6 +11,7 @@ module WXRuby3
 
       def setup
         super
+        spec.gc_as_untracked 'wxFontData'
         # add copy ctor missing from XML docs
         spec.extend_interface 'wxFontData',
                               'wxFontData(const wxFontData & other)'

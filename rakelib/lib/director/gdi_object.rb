@@ -12,6 +12,7 @@ module WXRuby3
       def setup
         spec.make_abstract('wxGDIObject')
         spec.no_proxy('wxGDIObject')
+        spec.gc_as_untracked 'wxGDIObject'
         super
       end
     end # class GDIObject

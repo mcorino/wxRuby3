@@ -64,9 +64,12 @@ module WXRuby3
             __HEREDOC
         when 'wxFindReplaceDialog'
           spec.ignore 'wxFindReplaceDialog::wxFindReplaceDialog()'
-          spec.map_apply 'SWIGTYPE *DISOWN' => 'wxFindReplaceData* data'
+          # add undocumented method
+          spec.extend_interface 'wxFindReplaceDialog', 'void SetData(wxFindReplaceData *data)'
           spec.do_not_generate(:variables, :enums)
         when 'wxColourDialog'
+          spec.items << 'wxColourData'
+          spec.gc_as_untracked 'wxColourData'
           # make interface GC-safe
           spec.ignore 'wxColourDialog::GetColourData'
           spec.add_extend_code 'wxColourDialog', <<~__HEREDOC

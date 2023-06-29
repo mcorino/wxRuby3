@@ -528,6 +528,15 @@ module WXRuby3
               VALUE klass = rb_const_get(wxRuby_Core(), rb_intern(class_name));
               return rb_obj_is_kind_of(obj, klass);
             }
+            static swig_type_info * wx_BitmapBundleSwigType()
+            {
+              static swig_type_info* swigtype = 0;
+              if (!swigtype)
+              {
+                swigtype = wxRuby_GetSwigTypeForClassName("BitmapBundle");
+              } 
+              return swigtype;
+            }
             __CODE
           map_in from: 'Wx::BitmapBundle,Wx::Bitmap,Wx::Icon,Wx::Image',
                  temp: 'wxBitmapBundle tmpBundle', code: <<~__CODE
@@ -565,6 +574,9 @@ module WXRuby3
               }
             }
             __CODE
+          map_out to: 'Wx::BitmapBundle', code: <<~__CODE
+              $result = SWIG_NewPointerObj((new wxBitmapBundle(*static_cast< const wxBitmapBundle* >($1))), wx_BitmapBundleSwigType(), SWIG_POINTER_OWN);
+          __CODE
           map_typecheck precedence: 2000, code: <<~__CODE
             $1 = (NIL_P($input) || 
                     (TYPE($input) == T_DATA && 
@@ -579,10 +591,10 @@ module WXRuby3
         # output typemaps for common reference counted objects like wxPen, wxBrush,
         # making sure to ALWAYS create managed copies
         # (wxColour and wxFont are handled in separate typemaps above)
-        %w[wxPen wxBrush wxBitmap wxIcon wxCursor wxIconBundle wxPalette wxFontData wxFindReplaceData].each do |klass|
-          map "const #{klass}&", "const #{klass}*" do
+        %w[Pen Brush Bitmap Icon Cursor IconBundle Palette FontData].each do |klass|
+          map "const wx#{klass}&", "const wx#{klass}*", as: "Wx::#{klass}" do
             map_out code: <<~__CODE
-              $result = SWIG_NewPointerObj((new #{klass}(*static_cast< const #{klass}* >($1))), SWIGTYPE_p_#{klass}, SWIG_POINTER_OWN);
+              $result = SWIG_NewPointerObj((new wx#{klass}(*static_cast< const wx#{klass}* >($1))), SWIGTYPE_p_wx#{klass}, SWIG_POINTER_OWN);
               __CODE
           end
         end

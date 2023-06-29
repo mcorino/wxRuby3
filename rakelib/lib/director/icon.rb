@@ -13,6 +13,8 @@ module WXRuby3
 
       def setup
         spec.items << 'wxIconBundle'
+        spec.gc_as_untracked 'wxIcon'
+        spec.gc_as_untracked 'wxIconBundle'
         spec.disable_proxies
         spec.require_app 'wxIcon', 'wxIconBundle'
         # disable as there is no way to distinguish char*/[] from wxString in Ruby
