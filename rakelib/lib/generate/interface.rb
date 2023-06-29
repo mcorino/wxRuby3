@@ -86,6 +86,11 @@ module WXRuby3
                 Data_Get_Struct(obj, void, vptr);
                 wx_#{underscore(rb_name)}_convert_fn fn_cvt = it->second;
                 *ptr = (*fn_cvt)(vptr);
+                if (!ptr)
+                {
+                  rb_raise(rb_eArgError, 
+                           "#{rb_name} object already deleted.");
+                } 
                 return SWIG_OK;
               }
             }
