@@ -223,13 +223,13 @@ module WXRuby3
         def map_to(typedef)
           if ::Hash === typedef
             typedef.each_pair do |argmasks, type|
-              pattern = @patterns.detect { |ps| ps == argmasks }
+              pattern = @map.patterns.detect { |ps| ps == argmasks }
               raise "Unknown parameter set [#{argmasks}] for [#{@map}]" unless pattern
-              @to[pattern] = type
+              @to[pattern] = _get_mapped_type(type)
             end
           else
-            @patterns.inject(@to) do |map, pattern|
-              map[pattern] = typedef
+            @map.patterns.inject(@to) do |map, pattern|
+              map[pattern] = _get_mapped_type(typedef)
               map
             end
           end
@@ -422,7 +422,7 @@ module WXRuby3
       end
 
       def map_out(ignore: nil, to: nil, temp: nil, code: nil, &block)
-        @out = Out.new(self, ignore: ignore, to: nil, temp: temp, code: code, &block)
+        @out = Out.new(self, ignore: ignore, to: to, temp: temp, code: code, &block)
       end
 
       def map_freearg(temp: nil, code: nil, &block)
