@@ -153,6 +153,10 @@ module WXRuby3
       ifspec.abstract?(class_def.name) || (class_def.abstract && !ifspec.concrete?(class_def.name))
     end
 
+    def explicit_concretes
+      ifspec.concretes
+    end
+
     def mixins
       ifspec.mixins
     end
@@ -183,7 +187,7 @@ module WXRuby3
           return :GC_MANAGE_AS_SIZER if classdef.is_derived_from?('wxSizer') || classdef.name == 'wxSizer'
           return :GC_MANAGE_AS_REFCOUNTED if classdef.is_derived_from?('wxRefCounter')
           return :GC_MANAGE_AS_OBJECT if classdef.is_derived_from?('wxObject') || classdef.name == 'wxObject'
-          return :GC_MANAGE_AS_TEMP
+          return :GC_MANAGE_AS_UNTRACKED
         end
       end
       ifspec.gc_type(classdef.name) || :GC_NEVER

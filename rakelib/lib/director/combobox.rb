@@ -22,8 +22,7 @@ module WXRuby3
                                            wxWindow
                                            wxEvtHandler
                                            wxObject])
-        spec.ignore(%w[
-          wxComboBox::IsEmpty])
+        spec.ignore('wxComboBox::IsEmpty')    # ambiguous ControlWithItems<>TextEntry
         spec.rename_for_ruby(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long, long)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *, long *) const')

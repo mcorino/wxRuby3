@@ -10,6 +10,7 @@ module WXRuby3
     class Cursor < Director
 
       def setup
+        spec.gc_as_untracked 'wxCursor'
         # all but the default ctor require a running App
         spec.require_app 'wxCursor::wxCursor(const wxString &, wxBitmapType, int, int)',
                          'wxCursor::wxCursor(wxStockCursor)',

@@ -15,6 +15,7 @@ module WXRuby3
         super
         spec.require_app 'wxRegion'
         spec.disable_proxies
+        spec.gc_as_untracked
         spec.ignore 'wxNullRegion' # does not exist in code
         spec.map_apply 'int n, wxPoint points[]' => [ 'size_t, const wxPoint *']
       end

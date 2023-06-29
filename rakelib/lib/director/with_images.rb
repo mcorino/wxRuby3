@@ -11,7 +11,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_temporary 'wxWithImages' # actually no GC control necessary as this is a mixin only
+        spec.gc_as_untracked 'wxWithImages' # actually no GC control necessary as this is a mixin only
         # turn wxWithImages into a mixin module
         spec.make_mixin 'wxWithImages'
         # Avoid premature deletion of ImageList providing icons for notebook

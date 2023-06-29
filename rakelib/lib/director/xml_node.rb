@@ -12,7 +12,7 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
-        spec.gc_as_temporary
+        spec.gc_as_untracked
         spec.disown 'wxXmlNode *child'
         # ignore this; only allow adding child node by explicitly calling Add/Insert-child methods (easier on the GC handling and avoids wxXmlAttribute)
         spec.ignore 'wxXmlNode::wxXmlNode(wxXmlNode *, wxXmlNodeType, const wxString &, const wxString &, wxXmlAttribute *, wxXmlNode *, int)'

@@ -108,8 +108,7 @@ class GraphicsWindow < Wx::Window
     @rtxt[:font] = gdc.create_font(@font,Wx::RED); @rtxt[:txt] = "This is a red string"
     @gtxt[:font] = gdc.create_font(@font,Wx::GREEN); @gtxt[:txt] = "This is a green string"
     @btxt[:font] = gdc.create_font(@font,Wx::BLUE); @btxt[:txt] = "This is a blue string"
-    # Create the GraphicsContext resources.  For some reason, unable to utilize
-    # GraphicsContext#create(wxWindow) to create these resources in initialize.
+    # Create the GraphicsContext resources.
     @rbrush = gdc.create_brush(RED_BRUSH)
     @gbrush = gdc.create_brush(GREEN_BRUSH)
     @bbrush = gdc.create_brush(BLUE_BRUSH)

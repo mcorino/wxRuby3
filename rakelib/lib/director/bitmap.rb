@@ -11,7 +11,8 @@ module WXRuby3
 
       def setup
         spec.items << 'wxBitmapBundle' << 'wxMask'
-        spec.gc_as_object 'wxBitmapBundle'
+        spec.gc_as_untracked 'wxBitmap'
+        spec.gc_as_untracked 'wxBitmapBundle'
         spec.require_app 'wxBitmap',
                          'wxBitmapBundle',
                          'wxMask'

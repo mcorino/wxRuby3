@@ -12,8 +12,8 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxTextCompleter' << 'wxTextCompleterSimple'
-        spec.gc_as_temporary 'wxTextCompleter', 'wxTextCompleterSimple'
-        spec.gc_as_temporary 'wxTextEntry' # actually no GC control necessary as this is a mixin only
+        spec.gc_as_untracked 'wxTextCompleter', 'wxTextCompleterSimple'
+        spec.gc_as_untracked 'wxTextEntry' # actually no GC control necessary as this is a mixin only
         # turn wxTextEntry into a mixin module
         spec.make_mixin 'wxTextEntry'
         spec.disown 'wxTextCompleter *completer' # managed by wxWidgets after passing in

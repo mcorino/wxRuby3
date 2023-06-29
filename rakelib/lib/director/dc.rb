@@ -17,7 +17,7 @@ module WXRuby3
         # before being passed to Ruby methods
         # as we cannot capture their deletion in anyway this would leave the tracked items
         # registered and reused when future stack allocated DC's happen to have the same address
-        spec.gc_as_temporary
+        spec.gc_as_untracked
         spec.ignore [
           'wxDC::GetPartialTextExtents',
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',

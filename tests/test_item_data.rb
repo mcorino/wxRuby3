@@ -91,6 +91,31 @@ class TestItemData < Test::Unit::TestCase
     GC.start
   end
 
+  def do_sorted_control_with_items_assertions(f)
+    f.control.append(%w[Beta Alpha Gamma Delta], [1, 'a', :sym, true])
+    assert_equal(4, f.control.count)
+    assert_equal('a', f.control.get_item_data(0))
+    assert_equal(1, f.control.get_item_data(1))
+    assert_equal(true, f.control.get_item_data(2))
+    assert_equal(:sym, f.control.get_item_data(3))
+    GC.start
+    assert_equal('a', f.control.get_client_data(0))
+    assert_equal(1, f.control.get_client_data(1))
+    assert_equal(true, f.control.get_client_data(2))
+    assert_equal(:sym, f.control.get_client_data(3))
+    GC.start
+    f.control.delete(2)
+    GC.start
+    assert_equal(3, f.control.count)
+    assert_equal('a', f.control.get_item_data(0))
+    assert_equal(1, f.control.get_item_data(1))
+    assert_equal(:sym, f.control.get_item_data(2))
+    GC.start
+    assert_equal('a', f.control.get_client_data(0))
+    assert_equal(1, f.control.get_client_data(1))
+    assert_equal(:sym, f.control.get_client_data(2))
+  end
+
   def test_treectrl_itemdata
     f = CtrlContainerFrame.new(Wx::TreeCtrl)
     tree = f.control
@@ -157,7 +182,14 @@ class TestItemData < Test::Unit::TestCase
      do_control_with_items_assertions(f)
      f.close(true)
    end
-  
+
+  def test_sorted_listbox_itemdata
+    f = CtrlContainerFrame.new(Wx::ListBox, Wx::DEFAULT_POSITION,
+                               Wx::DEFAULT_SIZE, [], Wx::LB_SORT)
+    do_sorted_control_with_items_assertions(f)
+    f.close(true)
+  end
+
    def test_combobox_itemdata
      f = CtrlContainerFrame.new(Wx::ComboBox, '', Wx::DEFAULT_POSITION,
                                Wx::DEFAULT_SIZE, %w[hash string float])

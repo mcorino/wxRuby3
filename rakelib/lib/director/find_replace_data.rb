@@ -11,6 +11,7 @@ module WXRuby3
 
       def setup
         super
+        spec.gc_as_object 'wxFindReplaceData'
         spec.do_not_generate(:variables, :enums)
       end
     end # class FindReplaceData

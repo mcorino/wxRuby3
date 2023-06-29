@@ -29,7 +29,7 @@ module WXRuby3
                                'drawn_height' => 'wxPGPaintData::m_drawnHeight'
           # wxPGChoices are always returned by value and never transfer ownership
           # so we do not need tracking or special free function
-          spec.gc_as_temporary 'wxPGChoices'
+          spec.gc_as_untracked 'wxPGChoices'
           # prevent exposure of wxPGChoicesData; not of any real use in wxRuby
           spec.ignore 'wxPGChoices::wxPGChoices(wxPGChoicesData*)',
                       'wxPGChoices::AssignData',

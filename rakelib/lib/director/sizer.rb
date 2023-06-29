@@ -15,7 +15,7 @@ module WXRuby3
         case spec.module_name
         when 'wxSizer'
           spec.items << 'wxSizerFlags'
-          spec.gc_as_temporary('wxSizerFlags')
+          spec.gc_as_untracked('wxSizerFlags')
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::SetVirtualSizeHints]
           # cannot use these with wxRuby
@@ -44,7 +44,7 @@ module WXRuby3
           spec.suppress_warning(517, 'wxSizer')
         when 'wxGridBagSizer'
           spec.items << 'wxGBSpan' << 'wxGBPosition'
-          spec.gc_as_temporary 'wxGBSpan', 'wxGBPosition'
+          spec.gc_as_untracked 'wxGBSpan', 'wxGBPosition'
           # cannot use this with wxRuby
           spec.ignore 'wxGridBagSizer::Add(wxGBSizerItem *)'
         end

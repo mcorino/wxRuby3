@@ -9,14 +9,15 @@ module WXRuby3
 
   class Director
 
-    class DirPickerCtrl < Window
+    class SearchCtrl < Window
 
       def setup
         super
-        spec.make_concrete 'wxDirPickerCtrl'
-        spec.do_not_generate(:variables, :defines, :enums, :functions) # with FileDirPickerEvent
+        # mixin TextEntry
+        spec.include_mixin 'wxSearchCtrl', 'Wx::TextEntry'
+        spec.override_inheritance_chain('wxSearchCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
       end
-    end # class DirPickerCtrl
+    end # class SearchCtrl
 
   end # class Director
 

@@ -16,7 +16,7 @@ module WXRuby3
         super
         # now replace items because wxAuiTabCtrl is actually not documented (!!!)
         spec.items.replace %w[wxAuiTabContainerButton]
-        spec.gc_as_temporary 'wxAuiTabContainerButton'
+        spec.gc_as_untracked 'wxAuiTabContainerButton'
         spec.no_proxy %w[wxAuiTabCtrl wxAuiTabContainerButton]
         spec.swig_import %w[swig/classes/include/wxObject.h swig/classes/include/wxEvtHandler.h swig/classes/include/wxWindow.h swig/classes/include/wxControl.h]
         # cannot use #add_extend_code because we do not have an actual parsed XML item

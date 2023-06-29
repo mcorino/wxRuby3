@@ -11,7 +11,7 @@ module WXRuby3
 
       def setup
         spec.disable_proxies
-        spec.gc_as_temporary
+        spec.gc_as_untracked
         spec.regard %w[
           wxAuiPaneInfo::name
           wxAuiPaneInfo::caption

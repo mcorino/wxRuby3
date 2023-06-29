@@ -86,10 +86,11 @@ module Wx
     # Accepts a block, which will be passed a device context which can be
     # used to draw upon the Bitmap
     def draw
-      dc = Wx::MemoryDC.new
-      dc.select_object(self)
-      yield dc
-      dc.select_object( Wx::NULL_BITMAP )
+      return unless block_given?
+      Wx::MemoryDC.draw_on(self) do |dc|
+        dc.select_object(self)
+        yield dc
+      end
     end
   end
 

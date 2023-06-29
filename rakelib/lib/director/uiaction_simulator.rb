@@ -11,7 +11,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_temporary # no tracking
+        spec.gc_as_untracked # no tracking
       end
     end # class UIActionSimulator
 

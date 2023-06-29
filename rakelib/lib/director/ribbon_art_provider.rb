@@ -13,7 +13,7 @@ module WXRuby3
         spec.items << 'wxRibbonPageTabInfo' << 'wxRibbonMSWArtProvider' << 'wxRibbonAUIArtProvider'
         super
         spec.gc_as_object 'wxRibbonArtProvider'
-        spec.gc_as_temporary 'wxRibbonPageTabInfo'
+        spec.gc_as_untracked 'wxRibbonPageTabInfo'
         spec.suppress_warning(473,
                               'wxRibbonArtProvider::Clone',
                               'wxRibbonMSWArtProvider::Clone',

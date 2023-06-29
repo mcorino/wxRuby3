@@ -12,6 +12,7 @@ module WXRuby3
       def setup
         super
         spec.disable_proxies
+        spec.gc_as_untracked 'wxBrush'
         # all but the default ctor require a running App
         spec.require_app 'wxBrush::wxBrush(const wxColour &colour, wxBrushStyle style)',
                          'wxBrush::wxBrush(const wxBitmap &stippleBitmap)',

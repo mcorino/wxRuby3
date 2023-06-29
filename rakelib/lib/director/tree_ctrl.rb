@@ -194,10 +194,13 @@ module WXRuby3
             else // Find the top-left most item, then recurse over it and siblings
             {
               wxTreeItemId base_id = FindFirstRoot(tree_ctrl);
-              // now do recursion
-              RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
-              while ((base_id = tree_ctrl->GetNextSibling(base_id)).IsOk())
+              if (base_id.IsOk())
+              {
+                // now do recursion
                 RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
+                while ((base_id = tree_ctrl->GetNextSibling(base_id)).IsOk())
+                  RecurseOverTreeIds(tree_ctrl, base_id, *rec_func);
+              }
               return;
             }
           }

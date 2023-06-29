@@ -32,15 +32,22 @@ RbClassToSwigTypeHash Global_Type_Map;
 
 // Record swig_type_info for a wxRuby class; called in class
 // initialisation
-WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty) {
+WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty)
+{
   Global_Type_Map[cls] = ty;
 }
 
 // Retrieve swig_type_info for a ruby class - needed by functions which
 // wrap objects whose type is not known in advance - eg
 // Window#find_window_by_index (see Window.i)
-WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls) {
+WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls)
+{
   return Global_Type_Map[cls];
+}
+
+WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClassName(const char* clsname)
+{
+  return wxRuby_GetSwigTypeForClass(rb_const_get(wxRuby_Core(), rb_intern(clsname)));
 }
 
 // Overriding standard SWIG tracking - SWIG's implementation is not
@@ -52,7 +59,8 @@ WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
 PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
-WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object) {
+WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
+{
 #ifdef __WXRB_DEBUG__
   if (wxRuby_TraceLevel()>1)
   {
@@ -68,7 +76,8 @@ WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object) {
 }
 
 // Return the ruby object for ptr
-WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr) {
+WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr)
+{
   if ( Global_Ptr_Map.count(ptr) == 0 )
     return Qnil;
   else
@@ -76,7 +85,8 @@ WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr) {
 }
 
 // Remove the tracking for ptr
-WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr) {
+WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr)
+{
 #ifdef __WXRB_DEBUG__
   if (wxRuby_TraceLevel()>1)
     std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
@@ -85,7 +95,8 @@ WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr) {
 }
 
 // Iterate over all the trackings, calling the passed-in method on each
-WXRUBY_EXPORT void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) ) {
+WXRUBY_EXPORT void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) )
+{
   PtrToRbObjHash::iterator it;
   for( it = Global_Ptr_Map.begin(); it != Global_Ptr_Map.end(); ++it )
     {

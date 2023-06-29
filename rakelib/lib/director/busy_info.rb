@@ -13,7 +13,7 @@ module WXRuby3
         super
         spec.items << 'wxBusyInfoFlags'
         spec.disable_proxies
-        spec.gc_as_temporary 'wxBusyInfo', 'wxBusyInfoFlags'
+        spec.gc_as_untracked 'wxBusyInfo', 'wxBusyInfoFlags'
         # again C++ type guards do not work with Ruby
         # need to Rubify this
         spec.make_abstract 'wxBusyInfo'

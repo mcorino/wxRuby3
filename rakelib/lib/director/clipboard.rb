@@ -13,7 +13,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_temporary # don't even track Clipboard objects
+        spec.gc_as_untracked # don't even track Clipboard objects
         # there is no need or support for clipboard derivatives
         # not least because wxRuby only ever allows a single global clipboard
         spec.disable_proxies

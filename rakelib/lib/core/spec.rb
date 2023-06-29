@@ -250,12 +250,12 @@ module WXRuby3
         self
       end
 
-      def gc_as_temporary(*names)
+      def gc_as_untracked(*names)
         if names.empty?
-          @gc_type = :GC_MANAGE_AS_TEMP
+          @gc_type = :GC_MANAGE_AS_UNTRACKED
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_TEMP }
+          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_UNTRACKED }
         end
         self
       end
@@ -289,6 +289,10 @@ module WXRuby3
 
       def concrete?(cls)
         @abstracts.has_key?(cls) && !@abstracts[cls]
+      end
+
+      def concretes
+        @abstracts.keys.select { |cls| concrete?(cls) }
       end
 
       def mixin?(cls)

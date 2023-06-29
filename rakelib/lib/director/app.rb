@@ -78,6 +78,7 @@ module WXRuby3
         spec.no_proxy %w{
           wxApp::GetDisplayMode
           wxApp::GetTopWindow
+          wxApp::OnAssertFailure
         }
         spec.include %w{
           wx/init.h
@@ -340,7 +341,28 @@ module WXRuby3
             // actually implemented in ruby in classes/app.rb
             virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
             {
-              std::wcout << "ASSERT fired" << std::endl;
+              VALUE rb_app = SWIG_RubyInstanceFor(this);
+              if (rb_during_gc() || NIL_P(rb_app))
+              {
+                std::wcout << file << "(" << line << "): ASSERT " << cond 
+                           << (NIL_P(rb_app) ? " fired without THE_APP in " : " fired during GC phase in ") 
+                           << func << "() with message [" << msg << "]" << std::endl;
+              }
+              else
+              {
+                VALUE obj0 = Qnil ;
+                VALUE obj1 = Qnil ;
+                VALUE obj2 = Qnil ;
+                VALUE obj3 = Qnil ;
+                VALUE obj4 = Qnil ;
+                
+                obj0 = rb_str_new2((const char *)wxString(file).utf8_str());
+                obj1 = INT2NUM(line);
+                obj2 = rb_str_new2((const char *)wxString(func).utf8_str());
+                obj3 = rb_str_new2((const char *)wxString(cond).utf8_str());
+                obj4 = rb_str_new2((const char *)wxString(msg).utf8_str());
+                (void)wxRuby_Funcall(rb_app, rb_intern("on_assert_failure"), 5,obj0,obj1,obj2,obj3,obj4);
+              }
             }
 
             void _wxRuby_Cleanup()

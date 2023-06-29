@@ -202,6 +202,12 @@ module WXRuby3
         fout.puts
         fout.puts swig_code
       end
+      unless explicit_concretes.empty?
+        fout.puts
+        explicit_concretes.each do |cls|
+          fout.puts %Q{%feature("notabstract") #{cls};}
+        end
+      end
       unless included_mixins.empty?
         fout.puts
         included_mixins.each_pair do |cls, module_names|
