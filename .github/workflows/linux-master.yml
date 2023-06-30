@@ -190,7 +190,7 @@ jobs:
           TEST_CMD="bundle exec rake test"
         else
           if [ "${{ matrix.wxw_type }}" == "develop" ]; then
-            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib64
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
           fi
           TEST_CMD="wxruby test"
         fi
