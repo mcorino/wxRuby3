@@ -95,8 +95,10 @@ of these products.
 
 Currently the following are fully supported:
 
-* Windows 10 (RubyInstaller MSYS2-DevKit) / Ruby >= 2.5 / wxWidgets >= 3.2
-* Linux (i686 + AMD-64) / Ruby >= 2.5 / wxWidgets >= 3.2
+| Platform                                                                   | Ruby version(s) | wxWidgets version(s) |
+|----------------------------------------------------------------------------|-----------------| --- |
+| Windows 10 (tested)<br>(most likely also Windows 11)                       | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit) | wxWidgets >= 3.2 |
+| Linux (tested; any AMD-64 distribution)<br>(most likely also i686 and ARM) | Ruby >= 2.5 | wxWidgets >= 3.2 |
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
@@ -150,7 +152,7 @@ which may be relevant.
 
 ### What wxWidgets features are supported by wxRuby3?
 
-wxRuby supports almost all of the wxWidgets 3.x GUI API, providing over
+wxRuby supports almost all of the wxWidgets 3.2+ GUI API, providing over
 600 classes in total. wxWidgets classes that provide general and/or non-GUI 
 programming support features, such as strings, networking, threading, database
 access and such are not and will never be ported, as it's assumed that 
