@@ -8,6 +8,7 @@ on:
       - v*
     paths-ignore:
       - '.github/workflows/**'
+      - 'assets/**'
       - 'lib/wx/doc/**'
       - '**.md'
   pull_request:
@@ -15,6 +16,7 @@ on:
       - master
     paths-ignore:
       - '.github/workflows/**'
+      - 'assets/**'
       - 'lib/wx/doc/**'
       - '**.md'
       - 'Gemfile'
