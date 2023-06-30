@@ -183,3 +183,7 @@ maintainable solution.
 
 Please double-check the [INSTALL](INSTALL.md) documents, and search issue archives. If 
 this doesn't help, please post your question using GitHub Issues.
+
+### Is there another, more declarative way, for writing wxRuby3 desktop GUI applications?
+
+Yes. [Glimmer DSL for WX](https://github.com/AndyObtiva/glimmer-dsl-wx) enables software engineers to build GUI using wxruby3 following the Ruby way with the least amount of code possible. That is by offering a minimalistic declarative high-level DSL that maps visually to the way software engineers think about the GUI hierarchy in addition to adopting Rails' strategy of Convention over Configuration via smart defaults and automation of wxruby3 low-level details. You can check out the [Glimmer DSL for WX README "Coming From wxruby3" section](https://github.com/AndyObtiva/glimmer-dsl-wx#coming-from-wxruby3) for more information on how to translate wxruby3 apps to [Glimmer DSL for WX](https://github.com/AndyObtiva/glimmer-dsl-wx) syntax.
