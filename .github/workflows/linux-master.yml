@@ -42,7 +42,7 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
-            wxw_type: develop
+            wxw_type: system
             wxr_type: gem
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
