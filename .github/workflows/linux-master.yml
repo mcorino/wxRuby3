@@ -42,7 +42,7 @@ jobs:
             swig: '4'
             configure_flags:
             use_xvfb: true
-            wxw_type: system
+            wxw_type: develop
             wxr_type: gem
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
@@ -189,6 +189,9 @@ jobs:
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           TEST_CMD="bundle exec rake test"
         else
+          if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib64
+          fi
           TEST_CMD="wxruby test"
         fi
         /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
