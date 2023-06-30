@@ -4,6 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/wxruby3.svg)](https://badge.fury.io/rb/wxruby3)
 
 [![Documentation](https://img.shields.io/badge/docs-pages-blue.svg)](https://mcorino.github.io/wxRuby3)
+[![Chat](https://img.shields.io/gitter/room/mcorino/wxruby)](https://gitter.im/mcorino/wxruby3)
 
 # README for wxRuby3
 
