@@ -13,11 +13,52 @@ Reviving wxRuby
 
 ## Introduction
 
-wxRuby3 is a cross-platform GUI library for Ruby, based on the [wxWidgets](https://wxwidgets.org)
+wxRuby3 is a cross-platform GUI library for Ruby, based on the mature [wxWidgets](https://wxwidgets.org)
 GUI toolkit for C++. It uses native widgets wherever possible, providing
 the correct look, feel and behaviour to GUI applications on Windows, OS
 X and Linux/GTK. wxRuby aims to provide a comprehensive solution to
 developing professional-standard desktop applications in Ruby. 
+
+## Usage examples
+
+### Hello world
+
+wxRuby3 is very easy to use.
+
+```ruby
+require 'wx'
+
+Wx::App.run do
+  Wx::Frame.new(nil, title: 'Hello world!').show
+end
+```
+
+![Hello_World](assets/hello_world.png "Hello World sample")
+
+### Hello Button
+
+Anyone who is familiar with wxWidgets should feel right at home since the API may be Ruby-fied it is still easily 
+recognizable (with lots of simplifications leading to seriously less coding). An for those that do not have previous 
+experience do not fear, wxRuby3 comes with a detailed [documentation](https://mcorino.github.io/wxRuby3/file.00_starting.html) and lots of examples and test.    
+
+```ruby
+require 'wx'
+
+class TheFrame < Wx::Frame
+  def initialize(title)
+    super(nil, title: title)
+    panel = Wx::Panel.new(self)
+    button = Wx::Button.new(panel, label: 'Click me')
+    button.evt_button(Wx::ID_ANY) { Wx.message_box('Hello. Thanks for clicking me!', 'Hello Button sample') }
+  end
+end
+
+Wx::App.run { TheFrame.new('Hello world!').show }
+```
+
+![Hello_Button](assets/hello_button.png "Hello Button sample")
+![Hello_Button_Clicked](assets/hello_button_clicked.png "Hello Button sample clicked")
+
 
 ## wxRuby3 licence
 
