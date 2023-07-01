@@ -1,5 +1,6 @@
 
 require_relative './lib/wxframe_runner'
+require_relative './lib/text_entry_tests'
 
 class ButtonTests < WxRuby::Test::GUITests
 
@@ -91,6 +92,8 @@ end
 
 class TextCtrlTests < WxRuby::Test::GUITests
 
+  include TextEntryTests
+
   def setup
     super
     @text = Wx::TextCtrl.new(test_frame, name: 'Text')
@@ -106,42 +109,36 @@ class TextCtrlTests < WxRuby::Test::GUITests
   attr_reader :text
 
 
-  if Wx.has_feature?(:USE_UIACTIONSIMULATOR)
+  def test_text
+    assert_equal('', text.get_value)
 
-    def test_text
-      assert_equal('', text.get_value)
-      sim = Wx::UIActionSimulator.new
+    do_text_entry_tests(text)
+  end
 
-      updates = count_events(text, :evt_text) do |c_upd|
-        maxlen_count = count_events(text, :evt_text_maxlen) do |c_maxlen|
-          # set focus to text control
-          text.set_focus
-          Wx.get_app.yield
+end
 
-          sim.text('Hello')
-          Wx.get_app.yield
+class ComboBoxTests < WxRuby::Test::GUITests
 
-          assert_equal('Hello', text.get_value)
-          assert_equal(5, c_upd.count)
+  include TextEntryTests
 
-          text.set_max_length(10)
-          sim.text('World')
-          Wx.get_app.yield
+  def setup
+    super
+    @combo = Wx::ComboBox.new(test_frame, name: 'ComboBox', choices: %w[One Two Three])
+    Wx.get_app.yield
+  end
 
-          assert_equal('HelloWorld', text.get_value)
-          assert_equal(10, c_upd.count)
-          assert_equal(0, c_maxlen.count)
+  def cleanup
+    @combo.destroy
+    Wx.get_app.yield
+    super
+  end
 
-          sim.text('!')
-          Wx.get_app.yield
+  attr_reader :combo
 
-          assert_equal('HelloWorld', text.get_value)
-          assert_equal(10, c_upd.count)
-          assert_equal(1, c_maxlen.count)
-        end
-      end
-    end
+  def test_combo
+    assert_equal('', combo.get_value)
 
+    do_text_entry_tests(combo)
   end
 
 end
