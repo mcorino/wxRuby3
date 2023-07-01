@@ -38,6 +38,10 @@ jobs:
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
 
     steps:
+    - name: Show default Ruby
+      run: |
+        ruby -v
+
     - name: Checkout
       uses: actions/checkout@v3
 
@@ -45,6 +49,10 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+
+    - name: Show installed Ruby
+      run: |
+        ruby -v
 
     - name: Setup Ruby gems
       run: |
