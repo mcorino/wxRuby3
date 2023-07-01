@@ -1,0 +1,136 @@
+name: Mac builds
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    defaults:
+      run:
+        shell: /usr/bin/arch -arch ${{ matrix.arch }} /bin/bash --noprofile --norc -eo pipefail {0}
+
+    runs-on: ${{ matrix.runner }}
+
+    name: ${{ matrix.name }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: wxMac macOS 11
+          runner: macos-11
+          arch: x86_64
+          configure_flags: --disable-sys-libs
+
+    env:
+      wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      NSUnbufferedIO: YES
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - name: Set environment variables
+      run: |
+        echo TZ=UTC >> $GITHUB_ENV
+        echo LD_LIBRARY_PATH=`pwd`/lib >> $GITHUB_ENV
+        wxPROC_COUNT=`sysctl -n hw.logicalcpu`
+        ((wxPROC_COUNT++))
+        echo wxPROC_COUNT=$wxPROC_COUNT >> $GITHUB_ENV
+        echo wxBUILD_ARGS=-j$wxPROC_COUNT >> $GITHUB_ENV
+        # Setting this variable suppresses "Error retrieving accessibility bus address"
+        # messages from WebKit tests that we're not interested in.
+        echo NO_AT_BRIDGE=1 >> $GITHUB_ENV
+        case "${{ matrix.compiler }}" in
+          clang)
+            echo CC=clang >> $GITHUB_ENV
+            echo CXX='clang++ -stdlib=libc++' >> $GITHUB_ENV
+            echo LD=clang++ >> $GITHUB_ENV
+            allow_warn_opt="-Wno-error=#warnings"
+            ;;
+          '')
+            # Assume gcc.
+            allow_warn_opt="-Wno-error=cpp"
+            ;;
+          *)
+            echo "*** Unknown compiler: ${{ matrix.compiler }} ***"
+            ;;
+        esac
+        if [ -z ${{ matrix.allow_warnings }} ]; then
+          error_opts="-Werror $allow_warn_opt"
+          echo "wxMAKEFILE_ERROR_CXXFLAGS=$error_opts" >> $GITHUB_ENV
+          echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
+        fi
+        echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
+
+    - name: Before install
+      run: |
+        ./build/tools/before_install.sh
+        mkdir -p $PWD/localbin_${{ matrix.arch }}
+
+    - name: Show build environment
+      run: |
+        echo "Environment:"
+        env | sort
+        echo
+
+        echo "Compiler version:"
+        ${CXX-g++} --version
+        echo
+
+    - name: Configuring
+      run: |
+        wxCONFIGURE_OPTIONS="--disable-optimise --disable-sys-libs --without-liblzma ${{ matrix.configure_flags }} --prefix=${{ github.workspace }}/localbin_${{ matrix.arch }}"
+
+        if [ -n "${{ matrix.xcode_sdk }}" ]; then
+          sdk_path=`xcrun --sdk ${{ matrix.xcode_sdk }} --show-sdk-path`
+          wxCONFIGURE_OPTIONS="--with-macosx-sdk=$sdk_path $wxCONFIGURE_OPTIONS"
+        fi
+
+        if [ ${{ matrix.use_asan }} ]; then
+          wxASAN_CFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+          wxASAN_CXXFLAGS=$wxASAN_CFLAGS
+          wxASAN_LDFLAGS="-fsanitize=address"
+
+          ${{ matrix.configure_env }} ./configure $wxCONFIGURE_OPTIONS --enable-debug "CFLAGS=$wxASAN_CFLAGS" "CXXFLAGS=$wxASAN_CXXFLAGS" "LDFLAGS=$wxASAN_LDFLAGS" || rc=$?
+        else
+          ${{ matrix.configure_env }} ./configure $wxCONFIGURE_OPTIONS --disable-debug_info || rc=$?
+        fi
+        if [ -n "$rc" ]; then
+          echo '*** Configuring failed, contents of config.log follows: ***'
+          echo '-----------------------------------------------------------'
+          cat config.log
+          echo '-----------------------------------------------------------'
+          exit $rc
+        fi
+
+    - name: Building
+      run: |
+        make -k $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS"
+
+    - name: Installing
+      if: matrix.skip_testing != true
+      run: |
+        make install
+
+    - name: Show wx-config
+      run: |
+        wx-config --prefix
+        wx-config --exec-prefix
+        wx-config --version-full
+        wx-config --selected-config
+        wx-config --cppflags
+        wx-config --cxx
+        wx-config --ld
+        wx-config --libs all
+        wx-config --libs media
