@@ -33,12 +33,19 @@ jobs:
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
       NSUnbufferedIO: YES
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
 
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: checkout wxWidgets
+      uses: actions/checkout@v3
       with:
-        submodules: recursive
+        repository: wxWidgets/wxWidgets
+        path: ${{ env.WXWIDGETS_ROOT }}
+        ref: v${{ matrix.wxWidgets }}
+        submodules: 'recursive'
 
     - name: Set environment variables
       run: |
@@ -74,6 +81,7 @@ jobs:
         echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
 
     - name: Before install
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         ./build/tools/before_install.sh
         mkdir -p $PWD/localbin_${{ matrix.arch }}
@@ -89,6 +97,7 @@ jobs:
         echo
 
     - name: Configuring
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         wxCONFIGURE_OPTIONS="--disable-optimise --disable-sys-libs --without-liblzma ${{ matrix.configure_flags }} --prefix=${{ github.workspace }}/localbin_${{ matrix.arch }}"
 
@@ -115,11 +124,13 @@ jobs:
         fi
 
     - name: Building
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         make -k $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS"
 
     - name: Installing
       if: matrix.skip_testing != true
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         make install
 
