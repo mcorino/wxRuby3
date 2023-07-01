@@ -137,12 +137,12 @@ jobs:
 
     - name: Show wx-config
       run: |
-        $PWD/localbin_${{ matrix.arch }}/wx-config --prefix
-        $PWD/localbin_${{ matrix.arch }}/wx-config --exec-prefix
-        $PWD/localbin_${{ matrix.arch }}/wx-config --version-full
-        $PWD/localbin_${{ matrix.arch }}/wx-config --selected-config
-        $PWD/localbin_${{ matrix.arch }}/wx-config --cppflags
-        $PWD/localbin_${{ matrix.arch }}/wx-config --cxx
-        $PWD/localbin_${{ matrix.arch }}/wx-config --ld
-        $PWD/localbin_${{ matrix.arch }}/wx-config --libs all
-        $PWD/localbin_${{ matrix.arch }}/wx-config --libs media
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --prefix
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --exec-prefix
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --version-full
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --selected-config
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --cppflags
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --cxx
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --ld
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --libs all
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --libs media
