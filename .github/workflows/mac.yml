@@ -28,6 +28,7 @@ jobs:
           runner: macos-11
           arch: x86_64
           wxWidgets: '3.2.2.1'
+          ruby: '3.2'
           configure_flags: --disable-sys-libs
 
     env:
@@ -39,6 +40,15 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Install Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: Setup Ruby gems
+      run: |
+        bundle install
 
     - name: checkout wxWidgets
       uses: actions/checkout@v3
