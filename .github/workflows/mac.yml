@@ -27,6 +27,7 @@ jobs:
         - name: wxMac macOS 11
           runner: macos-11
           arch: x86_64
+          wxWidgets: '3.2.2.1'
           configure_flags: --disable-sys-libs
 
     env:
