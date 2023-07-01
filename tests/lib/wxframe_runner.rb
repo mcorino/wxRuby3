@@ -49,6 +49,7 @@ module WxRuby
           win.event_handler.send(evt.to_sym, id1, id2, ->(_evt){ evt_count.inc })
         end
         yield evt_count
+        win.event_handler.disconnect(id1, id2 || Wx::ID_ANY, evt.to_sym)
         evt_count.count
       end
 
