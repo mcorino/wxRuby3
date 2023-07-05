@@ -201,6 +201,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxSplashScreen', requirements: %w[wxUSE_SPLASH])
     Director.Spec(pkg, 'wxUIActionSimulator', requirements: %w[wxUSE_UIACTIONSIMULATOR])
     Director.Spec(pkg, 'wxActivityIndicator', director: Director::Window, requirements: %w[wxUSE_ACTIVITYINDICATOR])
+    Director.Spec(pkg, 'wxHyperlinkCtrl', director: Director::Window, requirements: %w[wxUSE_HYPERLINKCTRL])
+    Director.Spec(pkg, 'wxHyperlinkEvent', requirements: %w[wxUSE_HYPERLINKCTRL])
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
