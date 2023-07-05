@@ -7,12 +7,10 @@ class ButtonTests < WxRuby::Test::GUITests
   def setup
     super
     @button = Wx::Button.new(test_frame, name: 'Button')
-    Wx.get_app.yield
   end
 
   def cleanup
     @button.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -97,12 +95,10 @@ class TextCtrlTests < WxRuby::Test::GUITests
   def setup
     super
     @text = Wx::TextCtrl.new(test_frame, name: 'Text')
-    Wx.get_app.yield
   end
 
   def cleanup
     @text.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -124,12 +120,10 @@ class ComboBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @combo = Wx::ComboBox.new(test_frame, name: 'ComboBox', choices: %w[One Two Three])
-    Wx.get_app.yield
   end
 
   def cleanup
     @combo.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -140,5 +134,185 @@ class ComboBoxTests < WxRuby::Test::GUITests
 
     do_text_entry_tests(combo)
   end
+
+end
+
+class CheckBoxTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @check = Wx::CheckBox.new(test_frame, label: 'Check Box')
+  end
+
+  def cleanup
+    @check.destroy
+    super
+  end
+
+  def create_checkbox(style)
+    @check.destroy
+    @check = nil
+    @check = Wx::CheckBox.new(test_frame, label: 'Check Box', style: style)
+  end
+
+  attr_reader :check
+
+  def test_check
+    count = count_events(check, :evt_checkbox) do
+      assert(!check.checked?)
+
+      check.set_value(true)
+
+      assert(check.checked?)
+
+      check.set_value(false)
+
+      assert(!check.checked?)
+
+      check.set3state_value(Wx::CheckBoxState::CHK_CHECKED)
+
+      assert(check.checked?)
+
+      check.set3state_value(Wx::CheckBoxState::CHK_UNCHECKED)
+
+      assert(!check.checked?)
+
+    end
+
+    assert_equal(0, count) # should not have emitted any events
+  end
+
+  def test_third_state
+
+    create_checkbox(Wx::CHK_3STATE)
+
+    assert_equal(Wx::CheckBoxState::CHK_UNCHECKED, check.get3state_value)
+    assert(check.is3state)
+    assert(!check.is3rd_state_allowed_for_user)
+
+    check.value = true
+
+    assert_equal(Wx::CheckBoxState::CHK_CHECKED, check.get3state_value)
+
+    check.set3state_value(Wx::CheckBoxState::CHK_UNDETERMINED)
+
+    assert_equal(Wx::CheckBoxState::CHK_UNDETERMINED, check.get3state_value)
+  end
+
+  def test_third_state_user
+
+    create_checkbox(Wx::CHK_3STATE | Wx::CHK_ALLOW_3RD_STATE_FOR_USER)
+
+    assert_equal(Wx::CheckBoxState::CHK_UNCHECKED, check.get3state_value)
+    assert(check.is3state)
+    assert(check.is3rd_state_allowed_for_user)
+
+    check.value = true
+
+    assert_equal(Wx::CheckBoxState::CHK_CHECKED, check.get3state_value)
+
+    check.set3state_value(Wx::CheckBoxState::CHK_UNDETERMINED)
+
+    assert_equal(Wx::CheckBoxState::CHK_UNDETERMINED, check.get3state_value)
+  end
+
+  def test_invalid_style
+
+    # prints assertion warning and creates default checkbox
+    create_checkbox(Wx::CHK_3STATE | Wx::CHK_2STATE)
+
+    assert(!check.is3state)
+
+  end
+
+end
+
+
+class RadioBoxTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @radiobox = Wx::RadioBox.new(test_frame, label: 'Radio Box', choices: ['item 0', 'item 1', 'item 2'])
+  end
+
+  def cleanup
+    @radiobox.destroy
+    super
+  end
+
+  attr_reader :radiobox
+
+  def test_find_string
+    assert_equal(Wx::NOT_FOUND, radiobox.find_string('Not An Item'))
+    assert_equal(1, radiobox.find_string('item 1'))
+    assert_equal(2, radiobox.find_string('ITEM 2'))
+    assert_equal(Wx::NOT_FOUND, radiobox.find_string('ITEM 2', true))
+  end
+
+  def test_show
+    radiobox.show(false)
+
+    assert(!radiobox.is_item_shown(0))
+
+    radiobox.show_item(1, true)
+
+    assert(!radiobox.is_item_shown(0))
+    assert(radiobox.is_item_shown(1))
+    assert(!radiobox.is_item_shown(2))
+
+    radiobox.show(true)
+
+    assert(radiobox.is_item_shown(0))
+    assert(radiobox.is_item_shown(1))
+    assert(radiobox.is_item_shown(2))
+
+    radiobox.show_item(0, false)
+
+    assert(!radiobox.is_item_shown(0))
+    assert(radiobox.is_item_shown(1))
+    assert(radiobox.is_item_shown(2))
+  end
+
+  def test_selection
+    # by default first item selected
+    assert_equal(0, radiobox.get_selection)
+    assert_equal('item 0', radiobox.get_string_selection)
+
+    radiobox.set_selection(1)
+
+    assert_equal(1, radiobox.get_selection)
+    assert_equal('item 1', radiobox.get_string_selection)
+
+    radiobox.string_selection = 'item 2'
+
+    assert_equal(2, radiobox.selection)
+    assert_equal('item 2', radiobox.string_selection)
+  end
+
+  def test_set_string
+    radiobox.set_string(0, 'new item 0')
+    radiobox.set_string(2, '')
+
+    assert_equal('new item 0', radiobox.get_string(0))
+    assert_equal('', radiobox.string(2))
+  end
+
+  def test_count
+    assert_equal(3, radiobox.get_count)
+    assert(!radiobox.empty?)
+  end
+
+  def test_help_text
+    assert(radiobox.get_item_help_text(1).empty?)
+
+    radiobox.set_item_help_text(1, 'Item 1 Help')
+
+    assert_equal('Item 1 Help', radiobox.get_item_help_text(1))
+
+    radiobox.set_item_help_text(1, '')
+
+    assert(radiobox.get_item_help_text(1).empty?)
+  end
+
 
 end
