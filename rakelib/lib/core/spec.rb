@@ -299,8 +299,8 @@ module WXRuby3
         @mixins.include?(cls)
       end
 
-      def include_mixin(cls, *module_names)
-        (@included_mixins[cls] ||= ::Set.new).merge module_names.flatten
+      def include_mixin(cls, mixin_module)
+        (@included_mixins[cls] ||= {}).merge!(mixin_module.is_a?(::Hash) ? mixin_module : {mixin_module => nil})
         self
       end
 

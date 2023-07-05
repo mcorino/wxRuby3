@@ -860,7 +860,7 @@ module WXRuby3
 
             # mixin includes
             if included_mixins.has_key?(item.name)
-              included_mixins[item.name].each { |mod| fdoc.iputs "include #{mod}" }
+              included_mixins[item.name].keys.each { |mod| fdoc.iputs "include #{mod}" }
               fdoc.puts
             end
 

@@ -182,7 +182,7 @@ module WXRuby3
               # any included mixins for this class?
               !mixins.has_key?(cls) ||
                 # if so, are all initialized?
-                mixins[cls].all? do |modname|
+                mixins[cls].keys.all? do |modname|
                   # same package?
                   if modname.start_with?(cls_helper.package.fullname)
                     wx_name = "wx#{modname.split('::').last}"

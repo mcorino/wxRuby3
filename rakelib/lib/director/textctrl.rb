@@ -14,7 +14,7 @@ module WXRuby3
       def setup
         super
         # mixin TextEntry
-        spec.include_mixin 'wxTextCtrl', 'Wx::TextEntry'
+        spec.include_mixin 'wxTextCtrl', { 'Wx::TextEntry' => 'wxTextEntryBase' }
         spec.override_inheritance_chain('wxTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
         if Config.instance.wx_port == :wxQT
