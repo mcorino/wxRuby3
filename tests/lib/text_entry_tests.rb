@@ -1,39 +1,79 @@
 
 module TextEntryTests
-  
-  def do_text_entry_tests(control)
-    if Wx.has_feature?(:USE_UIACTIONSIMULATOR)
-      sim = Wx::UIActionSimulator.new
 
-      updates = count_events(control, :evt_text) do |c_upd|
-        maxlen_count = count_events(control, :evt_text_maxlen) do |c_maxlen|
-          # set focus to control control
-          control.set_focus
-          Wx.get_app.yield
+  def test_te_set_value
+    assert(text_entry.empty?)
 
-          sim.text('Hello')
-          Wx.get_app.yield
+    text_entry.value = 'foo'
+    assert_equal('foo', text_entry.value)
 
-          assert_equal('Hello', control.get_value)
-          assert_equal(5, c_upd.count)
+    text_entry.value = ''
+    assert(text_entry.empty?)
 
-          control.set_max_length(10)
-          sim.text('World')
-          Wx.get_app.yield
+    text_entry.value = 'hi'
+    assert_equal('hi', text_entry.value)
 
-          assert_equal('HelloWorld', control.get_value)
-          assert_equal(10, c_upd.count)
-          assert_equal(0, c_maxlen.count)
+    text_entry.value = 'bye'
+    assert_equal('bye', text_entry.value)
+  end
 
-          sim.text('!')
-          Wx.get_app.yield
+  def test_te_text_change_events
+    updates = count_events(text_entry, :evt_text) do |c_upd|
 
-          assert_equal('HelloWorld', control.get_value)
-          assert_equal(10, c_upd.count)
-          assert_equal(1, c_maxlen.count)
-        end
+      # WXQT only sends event when text changes
+      unless Wx::PLATFORM == 'WXQT'
+        text_entry.value = ''
+        assert_equal(1, c_upd.count)
+        c_upd.count = 0
       end
+
+      text_entry.value = 'foo'
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      # WXQT only sends event when text changes
+      unless Wx::PLATFORM == 'WXQT'
+        text_entry.value = 'foo'
+        assert_equal(1, c_upd.count)
+        c_upd.count = 0
+      end
+
+      text_entry.value = ''
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      text_entry.change_value('bar')
+      assert_equal(0, c_upd.count)
+
+      text_entry.append_text('bar')
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      text_entry.replace(3, 6, 'baz')
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      text_entry.remove(0, 3)
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      text_entry.write_text('foo')
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      text_entry.clear
+      assert_equal(1, c_upd.count)
+      c_upd.count = 0
+
+      text_entry.change_value('')
+      assert_equal(0, c_upd.count)
+
+      text_entry.change_value('non-empty')
+      assert_equal(0, c_upd.count)
+
+      text_entry.change_value('')
+      assert_equal(0, c_upd.count)
     end
   end
-  
+
 end

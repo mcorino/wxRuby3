@@ -19,11 +19,10 @@ class SearchCtrlTests < WxRuby::Test::GUITests
   end
 
   attr_reader :search
+  alias :text_entry :search
 
   def test_search
     assert_equal('', search.get_value)
-
-    do_text_entry_tests(search)
   end
 
 end

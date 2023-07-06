@@ -22,9 +22,9 @@ class ButtonTests < WxRuby::Test::GUITests
     count = count_events(button, :evt_button) do
       sim = Wx::UIActionSimulator.new
 
-      # We move in slightly to account for window decorations, we need to yield
+      # We move in to the middle of the widget, we need to yield
       # after every Wx::UIActionSimulator action to keep everything working in GTK
-      sim.mouse_move(button.get_screen_position + Wx::Point.new(10, 10))
+      sim.mouse_move(button.get_screen_position + (button.size / 2))
       Wx.get_app.yield
 
       sim.mouse_click
@@ -39,9 +39,9 @@ class ButtonTests < WxRuby::Test::GUITests
     count = count_events(button, :evt_button) do
       sim = Wx::UIActionSimulator.new
 
-      # We move in slightly to account for window decorations, we need to yield
+      # We move in to the middle of the widget, we need to yield
       # after every Wx::UIActionSimulator action to keep everything working in GTK
-      sim.mouse_move(button.get_screen_position + Wx::Point.new(10, 10))
+      sim.mouse_move(button.get_screen_position + (button.size / 2))
       Wx.get_app.yield
 
       sim.mouse_click
@@ -103,12 +103,45 @@ class TextCtrlTests < WxRuby::Test::GUITests
   end
 
   attr_reader :text
-
+  alias :text_entry :text
 
   def test_text
     assert_equal('', text.get_value)
+  end
 
-    do_text_entry_tests(text)
+  def test_max_length
+    if Wx.has_feature?(:USE_UIACTIONSIMULATOR)
+      sim = Wx::UIActionSimulator.new
+
+      updates = count_events(text_entry, :evt_text) do |c_upd|
+        maxlen_count = count_events(text_entry, :evt_text_maxlen) do |c_maxlen|
+          # set focus to text_entry text_entry
+          text_entry.set_focus
+          Wx.get_app.yield
+
+          sim.text('Hello')
+          Wx.get_app.yield
+
+          assert_equal('Hello', text_entry.get_value)
+          assert_equal(5, c_upd.count)
+
+          text_entry.set_max_length(10)
+          sim.text('World')
+          Wx.get_app.yield
+
+          assert_equal('HelloWorld', text_entry.get_value)
+          assert_equal(10, c_upd.count)
+          assert_equal(0, c_maxlen.count)
+
+          sim.text('!')
+          Wx.get_app.yield
+
+          assert_equal('HelloWorld', text_entry.get_value)
+          assert_equal(10, c_upd.count)
+          assert_equal(1, c_maxlen.count)
+        end
+      end
+    end
   end
 
 end
@@ -128,11 +161,10 @@ class ComboBoxTests < WxRuby::Test::GUITests
   end
 
   attr_reader :combo
+  alias :text_entry :combo
 
   def test_combo
     assert_equal('', combo.get_value)
-
-    do_text_entry_tests(combo)
   end
 
 end
