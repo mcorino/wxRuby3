@@ -27,18 +27,44 @@ jobs:
         - name: wxMac macOS 11
           runner: macos-11
           arch: x86_64
+          wxWidgets: '3.2.2.1'
+          ruby: '3.2'
           configure_flags: --disable-sys-libs
 
     env:
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
       NSUnbufferedIO: YES
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
 
     steps:
+    - name: Show default Ruby
+      run: |
+        ruby -v
+
     - name: Checkout
       uses: actions/checkout@v3
+
+    - name: Install Ruby
+      uses: ruby/setup-ruby@v1
       with:
-        submodules: recursive
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: Show installed Ruby
+      run: |
+        ruby -v
+
+    - name: Setup Ruby gems
+      run: |
+        bundle install
+
+    - name: checkout wxWidgets
+      uses: actions/checkout@v3
+      with:
+        repository: wxWidgets/wxWidgets
+        path: ${{ env.WXWIDGETS_ROOT }}
+        ref: v${{ matrix.wxWidgets }}
+        submodules: 'recursive'
 
     - name: Set environment variables
       run: |
@@ -74,6 +100,7 @@ jobs:
         echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
 
     - name: Before install
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         ./build/tools/before_install.sh
         mkdir -p $PWD/localbin_${{ matrix.arch }}
@@ -89,6 +116,7 @@ jobs:
         echo
 
     - name: Configuring
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         wxCONFIGURE_OPTIONS="--disable-optimise --disable-sys-libs --without-liblzma ${{ matrix.configure_flags }} --prefix=${{ github.workspace }}/localbin_${{ matrix.arch }}"
 
@@ -115,22 +143,24 @@ jobs:
         fi
 
     - name: Building
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         make -k $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS"
 
     - name: Installing
       if: matrix.skip_testing != true
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         make install
 
     - name: Show wx-config
       run: |
-        wx-config --prefix
-        wx-config --exec-prefix
-        wx-config --version-full
-        wx-config --selected-config
-        wx-config --cppflags
-        wx-config --cxx
-        wx-config --ld
-        wx-config --libs all
-        wx-config --libs media
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --prefix
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --exec-prefix
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --version-full
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --selected-config
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --cppflags
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --cxx
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --ld
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --libs all
+        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --libs media

@@ -15,7 +15,7 @@ module WXRuby3
         super
         setup_ctrl_with_items('wxComboBox')
         # mixin TextEntry
-        spec.include_mixin 'wxComboBox', 'Wx::TextEntry'
+        spec.include_mixin 'wxComboBox', { 'Wx::TextEntry' => 'wxTextEntryBase' }
         spec.override_inheritance_chain('wxComboBox',
                                         %w[wxControlWithItems
                                            wxControl

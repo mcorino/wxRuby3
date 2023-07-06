@@ -99,18 +99,19 @@ module WXRuby3
       __HEREDOC
     end
 
-    def gen_mixin_convert_code(fout, cls, mod)
+    def gen_mixin_convert_code(fout, cls, mod, ctype)
       rb_mod_name = mod.split('::').last
+      ctype ||= "wx#{rb_mod_name}"
       decl_flag = (mod.start_with?(package.fullname) ? 'WXRB_EXPORT_FLAG' : 'WXRB_IMPORT_FLAG') # same package (dll) or import?
       fout.puts
       fout << <<~__HEREDOC
-          // Mixin converter for wx#{rb_mod_name} included in #{cls} 
-          typedef wx#{rb_mod_name}* (*wx_#{underscore(rb_mod_name)}_convert_fn)(void*); 
+          // Mixin converter for #{ctype} (#{mod}) included in #{cls} 
+          typedef #{ctype}* (*wx_#{underscore(rb_mod_name)}_convert_fn)(void*); 
           #{decl_flag} void wxRuby_Register_#{rb_mod_name}_Include(swig_class* cls_info, 
                                                                               wx_#{underscore(rb_mod_name)}_convert_fn converter);
-          static wx#{rb_mod_name}* wxRuby_ConvertTo_#{rb_mod_name}(void* ptr)
+          static #{ctype}* wxRuby_ConvertTo_#{rb_mod_name}(void* ptr)
           {
-            return ((wx#{rb_mod_name}*) static_cast<#{cls}*> (ptr));
+            return ((#{ctype}*) static_cast<#{cls}*> (ptr));
           }
       __HEREDOC
     end
@@ -147,7 +148,7 @@ module WXRuby3
           mixins.each { |name| gen_mixin_code(fout, name) }
         end
         unless included_mixins.empty?
-          included_mixins.each_pair {|cls, mods| mods.each { |mod| gen_mixin_convert_code(fout, cls, mod) } }
+          included_mixins.each_pair {|cls, mods| mods.each_pair { |mod, ctype| gen_mixin_convert_code(fout, cls, mod, ctype) } }
         end
         fout.puts "%}"
       end
@@ -215,8 +216,8 @@ module WXRuby3
       end
       unless included_mixins.empty?
         fout.puts
-        included_mixins.each_pair do |cls, module_names|
-          module_names.each { |m| fout.puts %Q{%mixin #{cls} "#{m}";} }
+        included_mixins.each_pair do |cls, modules|
+          modules.keys.each { |m| fout.puts %Q{%mixin #{cls} "#{m}";} }
         end
       end
     end
@@ -240,8 +241,8 @@ module WXRuby3
         end
         unless included_mixins.empty?
           fout.puts
-          included_mixins.each_pair do |cls, module_names|
-            module_names.each do |modname|
+          included_mixins.each_pair do |cls, modules|
+            modules.keys.each do |modname|
               m = modname.split('::').last
               fout.puts %Q{wxRuby_Register_#{m}_Include(&SwigClassWx#{rb_wx_name(cls)}, wxRuby_ConvertTo_#{m});}
             end

@@ -177,7 +177,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxDataObjectSimpleBase', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxClipboard', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxDragDrop', requirements: %w[wxUSE_DRAG_AND_DROP])
-    Director.Spec(pkg, 'wxContextHelpButton', director: Director::Button, requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxContextHelpButton', requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHelpProvider', requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHelpController', requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxExtHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
@@ -200,6 +200,9 @@ module WXRuby3
     Director.Spec(pkg, 'wxPlatformInfo')
     Director.Spec(pkg, 'wxSplashScreen', requirements: %w[wxUSE_SPLASH])
     Director.Spec(pkg, 'wxUIActionSimulator', requirements: %w[wxUSE_UIACTIONSIMULATOR])
+    Director.Spec(pkg, 'wxActivityIndicator', director: Director::Window, requirements: %w[wxUSE_ACTIVITYINDICATOR])
+    Director.Spec(pkg, 'wxHyperlinkCtrl', director: Director::Window, requirements: %w[wxUSE_HYPERLINKCTRL])
+    Director.Spec(pkg, 'wxHyperlinkEvent', requirements: %w[wxUSE_HYPERLINKCTRL])
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
