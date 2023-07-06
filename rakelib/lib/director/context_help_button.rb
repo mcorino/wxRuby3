@@ -3,7 +3,7 @@
 # Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
-require_relative './window'
+require_relative './button'
 
 module WXRuby3
 
