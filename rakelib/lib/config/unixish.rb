@@ -117,6 +117,16 @@ module WXRuby3
         get_cfg_string('wxxml')
       end
 
+      def get_wx_libs
+        wx_libset = ::Set.new
+        wx_libset.merge wx_config("--libs all").split(' ')
+        # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
+        if features_set?('wxUSE_MEDIACTRL')
+          wx_libset.merge wx_config("--libs media").split(' ')
+        end
+        wx_libset.collect { |s| s.dup }
+      end
+
       def init_unix_platform
         # Allow specification of custom wxWidgets build (mostly useful for
         # static wxRuby3 builds)
@@ -155,13 +165,7 @@ module WXRuby3
 
           @cpp         = wx_config("--cxx")
           @ld          = wx_config("--ld")
-          wx_libset = ::Set.new
-          wx_libset.merge wx_config("--libs all").split(' ')
-          # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
-          if features_set?('wxUSE_MEDIACTRL')
-            wx_libset.merge wx_config("--libs media").split(' ')
-          end
-          @wx_libs = wx_libset.collect { |s| s.dup }
+          @wx_libs     = get_wx_libs
 
           # remove all warning flags provided by Ruby config
           @ruby_cppflags = @ruby_cppflags.collect { |flags| flags.split(' ') }.flatten.
@@ -169,7 +173,6 @@ module WXRuby3
           @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
           # add include flags
           @ruby_cppflags.concat ['-I.', *@ruby_includes.collect { |inc| "-I#{inc}" }]
-          @ruby_ldflags << '-s' if @release_build                         # strip debug symbols for release build
           @ruby_ldflags << "-Wl,-rpath,\\$ORIGIN/../lib"                  # add default rpath
           @ruby_libs <<  "-L#{RB_CONFIG['libdir']}"                       # add ruby lib dir
           # add ruby defined shared ruby lib(s); not any other flags

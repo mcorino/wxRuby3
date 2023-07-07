@@ -57,6 +57,8 @@ module WXRuby3
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
+          @ruby_ldflags << '-s' if @release_build  # strip debug symbols for release build
+
           # create a .so binary
           @extra_ldflags << '-shared'
 

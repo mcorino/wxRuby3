@@ -389,11 +389,12 @@ module WXRuby3
             @rb_docgen_path = File.join(Config.wxruby_root, @rb_docgen_dir)
 
             # Extra swig helper files to be built
-            @helper_modules = if macosx?
-                                %w|RubyStockObjects Mac|
-                              else
-                                %w|RubyStockObjects|
-                              end
+            @helper_modules = %w|RubyStockObjects|
+              # if macosx?
+              #                   %w|RubyStockObjects Mac|
+              #                 else
+              #                   %w|RubyStockObjects|
+              #                 end
             # helper to initialize on startup (stock objects can only be initialized after App creation)
             @helper_inits = @helper_modules - %w|RubyStockObjects|
 

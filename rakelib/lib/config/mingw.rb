@@ -107,6 +107,7 @@ module WXRuby3
 
           @ruby_ldflags.each { |flags| flags.sub!(' $(DEFFILE)', '') } # cleanup for older RubyInstaller versions
           @ruby_ldflags.each { |flags| flags.gsub!(/-s(\s|\Z)/, '') } if @debug_build # do not strip debug symbols for debug build
+          @ruby_ldflags << '-s' if @release_build  # strip debug symbols for release build
           @ruby_cppflags << RB_CONFIG['debugflags'] if @debug_build
           @ruby_cppflags.each { |flags| flags.gsub!(/-O\d/, '-O0') } if @debug_build # disable optimizations for debug build
 
