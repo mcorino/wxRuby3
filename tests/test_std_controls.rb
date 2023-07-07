@@ -153,6 +153,7 @@ class ComboBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @combo = Wx::ComboBox.new(test_frame, name: 'ComboBox', choices: %w[One Two Three])
+    @combo.clear
   end
 
   def cleanup
@@ -253,7 +254,11 @@ class CheckBoxTests < WxRuby::Test::GUITests
     # prints assertion warning and creates default checkbox
     create_checkbox(Wx::CHK_3STATE | Wx::CHK_2STATE)
 
-    assert(!check.is3state)
+    if Wx::PLATFORM == 'WXOSX'
+      assert(check.is3state)
+    else
+      assert(!check.is3state)
+    end
 
   end
 
