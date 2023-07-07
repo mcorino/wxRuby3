@@ -86,6 +86,10 @@ class TestInternationalisation < Test::Unit::TestCase
     end
 
     assert_raises(ArgumentError) { Wx::Locale.set_locale('bad') }
-    locale = Wx::Locale.new(Wx::LANGUAGE_DEFAULT)
+    # this causes problems on MacOSX if the language / region combination is unusual
+    # like on my system (US English language / NL region)
+    unless Wx::PLATFORM == 'WXOSX'
+      locale = Wx::Locale.new(Wx::LANGUAGE_DEFAULT)
+    end
   end
 end
