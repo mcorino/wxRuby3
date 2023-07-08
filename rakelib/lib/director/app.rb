@@ -71,6 +71,35 @@ module WXRuby3
             return dynamic_cast<const wxRubyApp*>(self)->IsRunning();
           }
           __HEREDOC
+        if Config.platform == :macosx
+          # add accessor methods for the standard OSX menu items
+          spec.add_extend_code 'wxApp', <<~__HEREDOC
+            void set_mac_about_menu_itemid(long menu_itemid)
+            {
+              $self->s_macAboutMenuItemId = menu_itemid;
+            }
+            long get_mac_about_menu_itemid(long menu_itemid)
+            {
+              return $self->s_macAboutMenuItemId;
+            }
+            void set_mac_preferences_menu_itemid(long menu_itemid)
+            {
+              $self->s_macPreferencesMenuItemId = menu_itemid;
+            }
+            long get_mac_preferences_menu_itemid(long menu_itemid)
+            {
+              return $self->s_macPreferencesMenuItemId;
+            }
+            void set_mac_exit_menu_itemid(long menu_itemid)
+            {
+              $self->s_macExitMenuItemId = menu_itemid;
+            }
+            long get_mac_exit_menu_itemid(long menu_itemid)
+            {
+              return $self->s_macExitMenuItemId;
+            }
+            __HEREDOC
+        end
         spec.ignore [
           'wxEntry(int &,wxChar **)',
           'wxEntry(HINSTANCE,HINSTANCE,char *,int)'
@@ -339,7 +368,7 @@ module WXRuby3
             }
           
             // actually implemented in ruby in classes/app.rb
-            virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg)
+            virtual void OnAssertFailure(const wxChar *file, int line, const wxChar *func, const wxChar *cond, const wxChar *msg) override
             {
               VALUE rb_app = SWIG_RubyInstanceFor(this);
               if (rb_during_gc() || NIL_P(rb_app))
