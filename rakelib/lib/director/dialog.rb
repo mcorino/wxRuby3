@@ -30,7 +30,7 @@ module WXRuby3
         when 'wxMessageDialog'
         when 'wxFontDialog'
           # ignore the non-const version
-          if Config.platform == :macosx
+          if Config.platform == :macosx && Config.instance.wx_version < '3.3'
             # MacOSX implementation is incorrect so we need to use
             # the non-const definition here
             spec.ignore 'wxFontDialog::GetFontData() const'
