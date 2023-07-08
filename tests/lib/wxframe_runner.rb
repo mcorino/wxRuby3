@@ -40,6 +40,10 @@ module WxRuby
         end
       end
 
+      def self.has_ui_simulator?
+        Wx.has_feature?(:USE_UIACTIONSIMULATOR) && (Wx::PLATFORM != 'WXOSX' || Wx::WXWIDGETS_VERSION >= '3.3')
+      end
+
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)
         return 0 unless block_given?
         evt_count = EventCounter.new
