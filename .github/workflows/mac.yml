@@ -62,10 +62,6 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
 
-    - name: Show installed Ruby
-      run: |
-        ruby -v
-
     - name: Setup Ruby gems
       run: |
         bundle install
@@ -116,6 +112,11 @@ jobs:
       run: |
         ./build/tools/before_install.sh
         mkdir -p $PWD/localbin_${{ matrix.arch }}
+
+    - name: Install SWIG
+      if: matrix.runner != 'macos-11'
+      run: |
+        brew install swig
 
     - name: Install doxygen 1.9.6
       run: |
