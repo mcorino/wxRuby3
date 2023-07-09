@@ -33,6 +33,15 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: develop
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: '3.2.2.1'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
