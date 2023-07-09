@@ -257,6 +257,22 @@ module WXRuby3
         # update generated code for all windows
         spec.post_processors << :update_window
       end
+
+      def process(gendoc: false)
+        defmod = super
+        if spec.module_name == 'wxWindow'
+          # special processing to ignore the non-static versions of methods FromDIP,ToDIP,FromPhys,ToPhys
+          # as SWIG cannot handle identically named static & non-static methods
+          # will handle that in pure Ruby
+          %w[FromDIP ToDIP FromPhys ToPhys].each do |mtd|
+            if (item = defmod.find("wxWindow::#{mtd}"))
+              item.all.each { |ovl| ovl.ignore(true, ignore_doc: false) unless ovl.is_static }
+            end
+          end
+        end
+        defmod
+      end
+
     end # class Window
 
   end # class Director
