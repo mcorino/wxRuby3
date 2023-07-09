@@ -29,13 +29,16 @@ jobs:
           arch: x86_64
           wxWidgets: '3.2.2.1'
           ruby: '3.2'
+          swig: '4'
           configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
 
     env:
-      wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
       NSUnbufferedIO: YES
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
 
     steps:
     - name: Show default Ruby
@@ -105,34 +108,43 @@ jobs:
         ./build/tools/before_install.sh
         mkdir -p $PWD/localbin_${{ matrix.arch }}
 
+    - name: Install doxygen 1.9.6
+      run: |
+        brew tap mcorino/wxruby3
+        brew install doxygen@1.9.6
+
     - name: Show build environment
       run: |
         echo "Environment:"
         env | sort
         echo
 
+        echo "Ruby version:"
+        ruby -v
+        echo
+        
+        echo "SWIG version:"
+        swig -version
+        echo
+        
+        echo "Doxygen version:"
+        doxygen -v
+        echo
+
         echo "Compiler version:"
         ${CXX-g++} --version
         echo
 
-    - name: Configuring
+    - name: Configuring wxWidgets
+      if: matrix.wxw_type != 'embed'
       working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
-        wxCONFIGURE_OPTIONS="--disable-optimise --disable-sys-libs --without-liblzma ${{ matrix.configure_flags }} --prefix=${{ github.workspace }}/localbin_${{ matrix.arch }}"
+        wxCONFIGURE_OPTIONS="--disable-optimise --disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
 
-        if [ -n "${{ matrix.xcode_sdk }}" ]; then
-          sdk_path=`xcrun --sdk ${{ matrix.xcode_sdk }} --show-sdk-path`
-          wxCONFIGURE_OPTIONS="--with-macosx-sdk=$sdk_path $wxCONFIGURE_OPTIONS"
-        fi
-
-        if [ ${{ matrix.use_asan }} ]; then
-          wxASAN_CFLAGS="-fsanitize=address -fno-omit-frame-pointer"
-          wxASAN_CXXFLAGS=$wxASAN_CFLAGS
-          wxASAN_LDFLAGS="-fsanitize=address"
-
-          ${{ matrix.configure_env }} ./configure $wxCONFIGURE_OPTIONS --enable-debug "CFLAGS=$wxASAN_CFLAGS" "CXXFLAGS=$wxASAN_CXXFLAGS" "LDFLAGS=$wxASAN_LDFLAGS" || rc=$?
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
         else
-          ${{ matrix.configure_env }} ./configure $wxCONFIGURE_OPTIONS --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
         fi
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
@@ -142,25 +154,54 @@ jobs:
           exit $rc
         fi
 
-    - name: Building
+    - name: Build wxWidgets
+      if: matrix.wxw_type != 'embed'
       working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
-        make -k $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS"
-
-    - name: Installing
-      if: matrix.skip_testing != true
-      working-directory: ${{ env.WXWIDGETS_ROOT }}
-      run: |
-        make install
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          WX_SKIP_DOXYGEN_VERSION_CHECK=1
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
+        else
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && sudo make install && sudo ldconfig
+        fi
 
     - name: Show wx-config
+      if: matrix.wxw_type == 'develop'
       run: |
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --prefix
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --exec-prefix
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --version-full
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --selected-config
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --cppflags
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --cxx
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --ld
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --libs all
-        $PWD/localbin_${{ matrix.arch }}/bin/wx-config --libs media
+        $WXWIN_INSTALL/bin/wx-config --prefix
+        $WXWIN_INSTALL/bin/wx-config --exec-prefix
+        $WXWIN_INSTALL/bin/wx-config --version-full
+        $WXWIN_INSTALL/bin/wx-config --selected-config
+        $WXWIN_INSTALL/bin/wx-config --cppflags
+        $WXWIN_INSTALL/bin/wx-config --cxx
+        $WXWIN_INSTALL/bin/wx-config --ld
+        $WXWIN_INSTALL/bin/wx-config --libs all
+        $WXWIN_INSTALL/bin/wx-config --libs media
+
+    - name: Remove wxWidgets
+      if: matrix.wxw_type != 'develop'
+      run: rm -rf $WXWIDGETS_ROOT
+
+    - name: Configure wxRuby3
+      if: matrix.wxr_type != 'gem'
+      run: |
+        if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+          bundle exec rake configure[--with-wxwin]
+        elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          bundle exec rake configure[--wxwin=$WXWIN_INSTALL,--wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml]
+        else
+          bundle exec rake configure
+        fi
+
+    - name: Build wxRuby3
+      if: matrix.wxr_type != 'gem'
+      run: |
+        bundle exec rake build
+
+    - name: Run wxRuby3 regression tests
+      run: |
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          bundle exec rake test
+        else 
+          wxruby test
+        fi
