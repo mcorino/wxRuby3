@@ -159,7 +159,7 @@ jobs:
       working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
-          WX_SKIP_DOXYGEN_VERSION_CHECK=1
+          export WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
           make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && sudo make install && sudo ldconfig
