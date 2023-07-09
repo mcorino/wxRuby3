@@ -91,7 +91,7 @@ module WXRuby3
 
         if @wx_version
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized
-                                  -Wno-overloaded-virtual -Wnodeprecated-copy]
+                                  -Wno-overloaded-virtual -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           # create a .dylib binary
