@@ -40,7 +40,7 @@ end
 
 Anyone who is familiar with wxWidgets should feel right at home since the API may be Ruby-fied, it is still easily 
 recognizable (but being Ruby-fied allowing for elegant and compact coding). And for those that do not have previous 
-experience do not fear, wxRuby3 comes with detailed [documentation](https://mcorino.github.io/wxRuby3/file.00_starting.html) and lots of examples and test.    
+experience, do not fear, wxRuby3 comes with detailed [documentation](https://mcorino.github.io/wxRuby3/file.00_starting.html) and lots of examples and tests.    
 
 ```ruby
 require 'wx'

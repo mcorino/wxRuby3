@@ -1,5 +1,6 @@
 # Copyright 2004-2007 by Kevin Smith
-# released under the MIT-style wxruby2 license
+# Copyright 2022 by Martin Corino
+# released under the MIT(-style) wxruby2/3 license
 
 # The base class for all things displayed on screen
 class Wx::Window
@@ -68,5 +69,21 @@ class Wx::Window
     else
       self.paint(&block)
     end
+  end
+
+  # implement non-static variants of these
+
+  def from_dip(*args)
+    Wx::Window.from_dip(*args, self)
+  end
+  def to_dip(*args)
+    Wx::Window.to_dip(*args, self)
+  end
+
+  def from_phys(*args)
+    Wx::Window.from_phys(*args, self)
+  end
+  def to_phys(*args)
+    Wx::Window.to_phys(*args, self)
   end
 end

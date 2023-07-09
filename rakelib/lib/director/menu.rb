@@ -30,9 +30,6 @@ module WXRuby3
         __HEREDOC
         # make Ruby director and wrappers use custom implementation
         spec.use_class_implementation('wxMenu', 'wxRubyMenu')
-        spec.rename_for_ruby(
-          'AppendItem' =>
-            'wxMenu::Append(wxMenuItem *item)')
         # ignore non-const version as that has no benefits in Ruby
         spec.ignore 'wxMenu::GetMenuItems()'
         # Fix for GetMenuItems - converts list of MenuItems to Array
