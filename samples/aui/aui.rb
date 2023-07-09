@@ -568,53 +568,54 @@ class AuiFrame < Wx::Frame
 
   # create some toolbars
   def setup_toolbars
-    tb1 = Wx::ToolBar.new(self, Wx::ID_ANY,
-                          Wx::DEFAULT_POSITION,
-                          Wx::DEFAULT_SIZE,
-                          Wx::TB_FLAT | Wx::TB_NODIVIDER)
-    tb1.set_tool_bitmap_size(Wx::Size.new(48, 48))
+    tb1 = Wx::AUI::AuiToolBar.new(self, Wx::ID_ANY,
+                                  Wx::DEFAULT_POSITION,
+                                  Wx::DEFAULT_SIZE,
+                                  Wx::AUI::AUI_TB_DEFAULT_STYLE | Wx::AUI::AUI_TB_OVERFLOW)
+    # tb1.set_tool_bitmap_size(Wx::Size.new(48, 48))
     tb1.add_tool(101, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_ERROR))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_ERROR))
     tb1.add_separator
     tb1.add_tool(102, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_QUESTION))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_QUESTION))
     tb1.add_tool(103, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_INFORMATION))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_INFORMATION))
     tb1.add_tool(103, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_WARNING));
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_WARNING))
     tb1.add_tool(103, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_MISSING_IMAGE));
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_MISSING_IMAGE))
+    # tb1.set_custom_overflow_items()
     tb1.realize
 
-    tb2 = Wx::ToolBar.new(self, Wx::ID_ANY, Wx::DEFAULT_POSITION,
-                          Wx::DEFAULT_SIZE,
-                          Wx::TB_FLAT | Wx::TB_NODIVIDER)
-    tb2.set_tool_bitmap_size(Wx::Size.new(16, 16))
+    tb2 = Wx::AUI::AuiToolBar.new(self, Wx::ID_ANY, Wx::DEFAULT_POSITION,
+                                 Wx::DEFAULT_SIZE,
+                                 Wx::AUI::AUI_TB_DEFAULT_STYLE | Wx::AUI::AUI_TB_OVERFLOW | Wx::AUI::AUI_TB_HORIZONTAL)
+    # tb2.set_tool_bitmap_size(Wx::Size.new(16, 16))
 
-    tb2_bmp1 = Wx::ArtProvider::get_bitmap(Wx::ART_QUESTION,
-                                           Wx::ART_OTHER,
-                                           Wx::Size.new(16, 16))
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
+    tb2_bmp1 = Wx::ArtProvider::get_bitmap_bundle(Wx::ART_QUESTION,
+                                                  Wx::ART_OTHER,
+                                                  Wx::Size.new(16, 16))
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
     tb2.add_separator
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
     tb2.add_separator
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
-    tb2.add_tool(101, "Test", tb2_bmp1);
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
+    tb2.add_tool(101, "Test", tb2_bmp1)
     tb2.realize
 
-    tb3 = Wx::ToolBar.new(self, Wx::ID_ANY,
-                          Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
-                          Wx::TB_FLAT | Wx::TB_NODIVIDER)
-    tb3.set_tool_bitmap_size(Wx::Size.new(16, 16))
-    tb3_bmp1 = Wx::ArtProvider::get_bitmap(Wx::ART_FOLDER,
-                                           Wx::ART_OTHER,
-                                           Wx::Size.new(16, 16))
+    tb3 = Wx::AUI::AuiToolBar.new(self, Wx::ID_ANY,
+                                  Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                  Wx::AUI::AUI_TB_DEFAULT_STYLE | Wx::AUI::AUI_TB_OVERFLOW)
+    # tb3.set_tool_bitmap_size(Wx::Size.new(16, 16))
+    tb3_bmp1 = Wx::ArtProvider::get_bitmap_bundle(Wx::ART_FOLDER,
+                                                  Wx::ART_OTHER,
+                                                  Wx::Size.new(16, 16))
     tb3.add_tool(101, "Test", tb3_bmp1)
     tb3.add_tool(101, "Test", tb3_bmp1)
     tb3.add_tool(101, "Test", tb3_bmp1)
@@ -624,13 +625,13 @@ class AuiFrame < Wx::Frame
     tb3.add_tool(101, "Test", tb3_bmp1)
     tb3.realize
 
-    tb4 = Wx::ToolBar.new(self, Wx::ID_ANY,
-                          Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
-                          Wx::TB_FLAT | Wx::TB_NODIVIDER | Wx::TB_HORZ_TEXT)
-    tb4.set_tool_bitmap_size(Wx::Size.new(16, 16))
-    tb4_bmp1 = Wx::ArtProvider::get_bitmap(Wx::ART_NORMAL_FILE,
-                                           Wx::ART_OTHER,
-                                           Wx::Size.new(16, 16))
+    tb4 = Wx::AUI::AuiToolBar.new(self, Wx::ID_ANY,
+                                  Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                  Wx::AUI::AUI_TB_DEFAULT_STYLE | Wx::AUI::AUI_TB_OVERFLOW | Wx::AUI::AUI_TB_TEXT | Wx::AUI::AUI_TB_HORZ_TEXT)
+    # tb4.set_tool_bitmap_size(Wx::Size.new(16, 16))
+    tb4_bmp1 = Wx::ArtProvider::get_bitmap_bundle(Wx::ART_NORMAL_FILE,
+                                                  Wx::ART_OTHER,
+                                                  Wx::Size.new(16, 16))
     tb4.add_tool(101, "Item 1", tb4_bmp1)
     tb4.add_tool(101, "Item 2", tb4_bmp1)
     tb4.add_tool(101, "Item 3", tb4_bmp1)
@@ -643,52 +644,52 @@ class AuiFrame < Wx::Frame
     tb4.realize
 
     # create some toolbars
-    tb5 = Wx::ToolBar.new(self, Wx::ID_ANY,
-                          Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
-                          Wx::TB_FLAT | Wx::TB_NODIVIDER | Wx::TB_VERTICAL)
-    tb5.set_tool_bitmap_size(Wx::Size.new(48, 48))
+    tb5 = Wx::AUI::AuiToolBar.new(self, Wx::ID_ANY,
+                                  Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                  Wx::AUI::AUI_TB_DEFAULT_STYLE | Wx::AUI::AUI_TB_OVERFLOW | Wx::AUI::AUI_TB_VERTICAL)
+    # tb5.set_tool_bitmap_size(Wx::Size.new(48, 48))
     tb5.add_tool(101, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_ERROR))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_ERROR))
     tb5.add_separator
     tb5.add_tool(102, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_QUESTION))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_QUESTION))
     tb5.add_tool(103, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_INFORMATION))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_INFORMATION))
     tb5.add_tool(103, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_WARNING))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_WARNING))
     tb5.add_tool(103, "Test",
-                 Wx::ArtProvider::get_bitmap(Wx::ART_MISSING_IMAGE))
+                 Wx::ArtProvider::get_bitmap_bundle(Wx::ART_MISSING_IMAGE))
     tb5.realize
 
     # add the toolbars to the manager
     pi = Wx::AuiPaneInfo.new
-    pi.set_name('tb1').set_caption("Big Toolbar").toolbar_pane
-    pi.top.set_left_dockable(false).set_right_dockable(false)
+    pi.set_name('tb1').set_caption("Big Toolbar").toolbar_pane.top
+    # pi.top.set_left_dockable(false).set_right_dockable(false)
     @mgr.add_pane(tb1, pi)
 
     pi = Wx::AuiPaneInfo.new
-    pi.set_name('tb2').set_caption("Toolbar 2").toolbar_pane
-    pi.top.set_row(1)
-    pi.set_left_dockable(false).set_right_dockable(false)
+    pi.set_name('tb2').set_caption("Toolbar 2 (horizontal)").toolbar_pane.top.set_row(1)
+    # pi.set_left_dockable(false).set_right_dockable(false)
     @mgr.add_pane(tb2, pi)
 
     pi = Wx::AuiPaneInfo.new
-    pi.set_name('tb3').set_caption("Toolbar 3").toolbar_pane
-    pi.top.set_row(1).set_position(1)
-    pi.set_left_dockable(false).set_right_dockable(false)
+    pi.set_name('tb3').set_caption("Toolbar 3").toolbar_pane.top.set_row(1).set_position(1)
+    # pi.set_left_dockable(false).set_right_dockable(false)
     @mgr.add_pane(tb3, pi)
 
     pi = Wx::AuiPaneInfo.new
-    pi.set_name('tb4').set_caption("Sample Bookmark Toolbar")
-    pi.toolbar_pane.top.set_row(2)
-    pi.set_left_dockable(false).set_right_dockable(false)
+    pi.set_name('tb4').set_caption("Sample Bookmark Toolbar").toolbar_pane.top.set_row(2)
+    # pi.set_left_dockable(false).set_right_dockable(false)
     @mgr.add_pane(tb4, pi)
 
     pi = Wx::AuiPaneInfo.new
-    pi.set_name('tb5').set_caption("Sample Vertical Toolbar")
-    pi.toolbar_pane.left.set_gripper_top
-    pi.set_left_dockable(false).set_right_dockable(false)
+    pi.set_name('tb5').set_caption("Sample Vertical Toolbar").toolbar_pane.left.set_gripper_top
+    # pi.set_left_dockable(false).set_right_dockable(false)
     @mgr.add_pane(tb5, pi)
+
+    @mgr.add_pane(Wx::Button.new(self, label: 'Test Button'),
+                  Wx::AUI::AuiPaneInfo.new.set_name('tb6').toolbar_pane.top.set_row(2).set_position(1)
+                                      .set_left_dockable(false).set_right_dockable(false))
   end
 
   def setup_panes
