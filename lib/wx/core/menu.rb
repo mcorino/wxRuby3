@@ -75,4 +75,9 @@ class Wx::Menu
   methods_with_optional_ids_and_pos :insert,
                                     :insert_check_item,
                                     :insert_radio_item
+
+  # wxRuby2 backward compatibility version; no alias as #append has been altered above
+  def append_item(*args)
+    append(*args)
+  end
 end
