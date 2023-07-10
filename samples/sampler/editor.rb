@@ -34,8 +34,8 @@ module WxRuby
   end
 
   class SampleEditPanel
-    def initialize(parent, sample)
-      @frame = parent
+    def initialize(frame, parent, sample)
+      @frame = frame
       @sample = sample
       @splitter = Wx::SplitterWindow.new(parent, Wx::ID_ANY)
 
@@ -66,6 +66,8 @@ module WxRuby
 
       @edt_book.set_selection(0)
     end
+
+    attr_reader :splitter
 
     def add_editor_page(filename, pgnr)
       panel = Wx::Panel.new(@edt_book, Wx::ID_ANY)
@@ -306,29 +308,35 @@ module WxRuby
       menuBar.append(menuHelp, "&Help")
       set_menu_bar(menuBar)
 
-      tb = create_tool_bar(Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT)
-      tb.tool_bitmap_size = [ 16, 16 ]
-      tb.add_tool(ID::SAVE, 'Save', bitmap(:filesave), 'Save the sample to a local folder')
-      tb.add_tool(ID::RUN, 'Run', bitmap(:play), 'Run the (changed) sample')
-      tb.add_separator
-      tb.add_tool(ID::UNDO, 'Undo', bitmap(:undo), 'Undo change')
-      tb.add_tool(ID::REDO, 'Redo', bitmap(:redo), 'Redo change')
-      tb.add_separator
-      tb.add_tool(ID::COPY, 'Copy', bitmap(:copy), 'Copy selection')
-      tb.add_tool(ID::CUT, 'Cut', bitmap(:cut), 'Cut selection')
-      tb.add_tool(ID::PASTE, 'Paste', bitmap(:paste), 'Paste selection')
-      tb.add_separator
-      tb.add_tool(ID::FIND, 'Find', bitmap(:find), 'Show Find Dialog')
-      tb.add_tool(ID::FIND_NEXT, 'FindNext', bitmap(:forward), 'Find next occurrence of the search phrase')
-      tb.add_tool(ID::FIND_PREV, 'FindPrev', bitmap(:back), 'Find previous occurrence of the search phrase')
-      tb.add_tool(ID::REPLACE, 'Replace', bitmap(:findrepl), 'Show Replace Dialog')
-      tb.realize
+      panel = Wx::Panel.new(self)
+      panel_szr = Wx::VBoxSizer.new
+      @tbar = Wx::ToolBar.new(panel, style: Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT)
+      @tbar.tool_bitmap_size = [ 16, 16 ]
+      @tbar.add_tool(ID::SAVE, 'Save', bitmap(:filesave), 'Save the sample to a local folder')
+      @tbar.add_tool(ID::RUN, 'Run', bitmap(:play), 'Run the (changed) sample')
+      @tbar.add_separator
+      @tbar.add_tool(ID::UNDO, 'Undo', bitmap(:undo), 'Undo change')
+      @tbar.add_tool(ID::REDO, 'Redo', bitmap(:redo), 'Redo change')
+      @tbar.add_separator
+      @tbar.add_tool(ID::COPY, 'Copy', bitmap(:copy), 'Copy selection')
+      @tbar.add_tool(ID::CUT, 'Cut', bitmap(:cut), 'Cut selection')
+      @tbar.add_tool(ID::PASTE, 'Paste', bitmap(:paste), 'Paste selection')
+      @tbar.add_separator
+      @tbar.add_tool(ID::FIND, 'Find', bitmap(:find), 'Show Find Dialog')
+      @tbar.add_tool(ID::FIND_NEXT, 'FindNext', bitmap(:forward), 'Find next occurrence of the search phrase')
+      @tbar.add_tool(ID::FIND_PREV, 'FindPrev', bitmap(:back), 'Find previous occurrence of the search phrase')
+      @tbar.add_tool(ID::REPLACE, 'Replace', bitmap(:findrepl), 'Show Replace Dialog')
+      @tbar.realize
+      panel_szr.add(@tbar)
+
+      # Create the editor panel
+      @editors = SampleEditPanel.new(self, panel, @sample)
+      panel_szr.add(@editors.splitter, 1, Wx::GROW, 0)
+
+      panel.set_sizer(panel_szr)
 
       create_status_bar(1)
       set_status_text("Welcome to wxRuby Sample editor.")
-
-      # Create the editor panel
-      @editors = SampleEditPanel.new(self, @sample)
 
       evt_idle(:on_idle)
 
@@ -382,15 +390,15 @@ module WxRuby
     def update_undo_redo(f_undo, f_redo)
       @m_undo.enable(f_undo)
       @m_redo.enable(f_redo)
-      self.tool_bar.enable_tool(ID::UNDO, f_undo)
-      self.tool_bar.enable_tool(ID::REDO, f_redo)
+      @tbar.enable_tool(ID::UNDO, f_undo)
+      @tbar.enable_tool(ID::REDO, f_redo)
       set_status_text('')
     end
     private :update_undo_redo
 
     def update_paste(f_paste)
       @m_paste.enable(f_paste)
-      self.tool_bar.enable_tool(ID::PASTE, f_paste)
+      @tbar.enable_tool(ID::PASTE, f_paste)
       set_status_text('')
     end
 
