@@ -26,24 +26,18 @@ module WXRuby3
             args.join(' ')
           end
 
+          def dll_mask
+            "{#{dll_ext},dylib}"
+          end
+
           def check_rpath_patch
-            # unless @rpath_patch
-            #   if system('which patchelf > /dev/null 2>&1')
-            #     @rpath_patch = 'patchelf --set-rpath'
-            #   else
-            #     STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of either the patchelf utility.'
-            #     return false
-            #   end
-            # end
+            # no need to check anything; install_name_tool is part of XCode cmdline tools
+            # and without these we couldn't build anything
             true
           end
 
           def patch_rpath(shlib, rpath)
-            # if check_rpath_patch
-            #   sh("#{@rpath_patch} '#{rpath}' #{shlib}", verbose: false)
-            #   return true
-            # end
-            # false
+            sh("install_name_tool -add_rpath '$ORIGIN' -add_rpath '$ORIGIN/../ext 2>/dev/null || true' #{shlib}", verbose: false)
             true
           end
 
@@ -84,12 +78,12 @@ module WXRuby3
       def init_platform
         init_unix_platform
 
-        @cpp.sub!(/-std=gnu\+\+11/, '-std=gnu++14')
-        @ld.sub!(/-o\s*\Z/, '')
-
         @dll_pfx = 'lib'
 
         if @wx_version
+          @cpp.sub!(/-std=gnu\+\+11/, '-std=gnu++14')
+          @ld.sub!(/-o\s*\Z/, '')
+
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized
                                   -Wno-overloaded-virtual -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated

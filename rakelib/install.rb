@@ -41,7 +41,7 @@ module WXRuby3
                 end
               else
                 # match only wxWidgets libraries
-                if /\Awx_([a-z\d]+)(_[a-z]+)?-(.*)/.match(lib)
+                if /\Awx(_osx)?_([a-z\d]+)(_[a-z]+)?-(.*)/.match(lib)
                   @wxwin_shlibs.include File.join(libdir, "lib#{lib}*.#{WXRuby3.config.dll_mask}")
                 end
               end
