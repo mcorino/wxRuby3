@@ -230,7 +230,7 @@ jobs:
       if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
       run: |
         if [ "${{ matrix.wxr_type }}" == "gem" ]; then
-          bundle exec rake gem
+          bundle exec rake gem -- WITH_WXWIN=1
         else
           bundle exec rake bingem
         fi
