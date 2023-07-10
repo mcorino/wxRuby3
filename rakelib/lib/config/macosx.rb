@@ -90,7 +90,8 @@ module WXRuby3
         @dll_pfx = 'lib'
 
         if @wx_version
-          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized -Wno-overloaded-virtual]
+          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized
+                                  -Wno-overloaded-virtual -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           # create a .dylib binary

@@ -33,6 +33,15 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: develop
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: '3.2.2.1'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
@@ -52,10 +61,6 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-
-    - name: Show installed Ruby
-      run: |
-        ruby -v
 
     - name: Setup Ruby gems
       run: |
@@ -107,6 +112,11 @@ jobs:
       run: |
         ./build/tools/before_install.sh
         mkdir -p $PWD/localbin_${{ matrix.arch }}
+
+    - name: Install SWIG
+      if: matrix.runner != 'macos-11'
+      run: |
+        brew install swig
 
     - name: Install doxygen 1.9.6
       run: |
