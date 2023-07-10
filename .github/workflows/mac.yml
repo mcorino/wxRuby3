@@ -42,6 +42,24 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: develop
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: '3.2.2.1'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: embed
+          wxr_type: bingem
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: '3.2.2.1'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: embed
+          wxr_type: gem
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
@@ -196,7 +214,7 @@ jobs:
       if: matrix.wxr_type != 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-          bundle exec rake configure[--with-wxwin]
+          bundle exec rake configure WITH_WXWIN=1
         elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure WXWIN=$WXWIN_INSTALL WXXML=$WXWIDGETS_ROOT/docs/doxygen/out/xml WXRUBY_VERBOSE=1
         else
@@ -207,6 +225,28 @@ jobs:
       if: matrix.wxr_type != 'gem'
       run: |
         bundle exec rake build
+
+    - name: Build wxRuby3 gem
+      if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
+      run: |
+        if [ "${{ matrix.wxr_type }}" == "gem" ]; then
+          bundle exec rake gem
+        else
+          bundle exec rake bingem
+        fi
+
+    - name: Install wxRuby3 gem
+      if: matrix.wxr_type != 'develop'
+      run: |
+        if [ "${{ matrix.wxr_type }}" == "bingem" ]; then
+          gem install $(echo pkg/*.gem)
+        else
+          if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            gem install $(echo pkg/*.gem)
+          else
+            gem install $(echo pkg/*.gem) -- WXWIN=$WXWIN_INSTALL
+          fi
+        fi
 
     - name: Run wxRuby3 regression tests
       run: |
