@@ -293,7 +293,7 @@ module WxRuby
               category.modulize!
               Dir[File.join(entry, '*.rb')].each do |rb|
                 # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
-                if File.file?(rb) && (sample_lns = File.readlines(rb)).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
+                if File.file?(rb) && (sample_lns = File.readlines(rb, encoding: 'utf-8')).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
                   # register currently required files
                   cur_loaded = ::Set.new($LOADED_FEATURES)
                   @loading_sample = rb
@@ -302,7 +302,7 @@ module WxRuby
                   # in the class/module scope in which the dialog class is defined working from the dialog class name;
                   # this will fail for anonymous modules as these cannot be identified by name)
                   sample_mod = Sample.const_set("SampleLoader_#{File.basename(rb, '.*').modulize!}", Module.new)
-                  sample_mod.module_eval File.read(rb), rb, 1
+                  sample_mod.module_eval File.read(rb, encoding: 'utf-8'), rb, 1
                   # determine additionally required files
                   new_loaded = ::Set.new($LOADED_FEATURES) - cur_loaded
                   sample_captures.each do |mod|
