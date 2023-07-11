@@ -91,12 +91,12 @@ module WXRuby3
               exit(1)
             end
             # configure wxWidgets
-            unless bash('./configure --disable-optimise --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+            unless bash('./configure --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
               STDERR.puts "ERROR: Failed to configure wxWidgets."
               exit(1)
             end
             # make and install wxWidgets
-            unless bash('make && make install')
+            unless bash('make -j$(sysctl -n hw.logicalcpu) && make install')
               STDERR.puts "ERROR: Failed to build wxWidgets libraries."
               exit(1)
             end
