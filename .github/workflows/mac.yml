@@ -230,7 +230,7 @@ jobs:
       if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
       run: |
         if [ "${{ matrix.wxr_type }}" == "gem" ]; then
-          bundle exec rake gem -- WITH_WXWIN=1
+          bundle exec rake gem
         else
           bundle exec rake bingem
         fi
@@ -242,7 +242,7 @@ jobs:
           gem install $(echo pkg/*.gem)
         else
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install $(echo pkg/*.gem)
+            gem install $(echo pkg/*.gem) -- WITH_WXWIN=1
           else
             gem install $(echo pkg/*.gem) -- WXWIN=$WXWIN_INSTALL
           fi
