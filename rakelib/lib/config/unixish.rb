@@ -177,7 +177,7 @@ module WXRuby3
           @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
           # add include flags
           @ruby_cppflags.concat ['-I.', *@ruby_includes.collect { |inc| "-I#{inc}" }]
-          @ruby_ldflags << "'-Wl,-rpath,#{get_rpath_origin}/../lib'"      # add default rpath
+          @ruby_ldflags << "-Wl,-rpath,'#{get_rpath_origin}/../lib'"      # add default rpath
           @ruby_libs <<  "-L#{RB_CONFIG['libdir']}"                       # add ruby lib dir
           # add ruby defined shared ruby lib(s); not any other flags
           @ruby_libs.concat RB_CONFIG['LIBRUBYARG_SHARED'].split(' ').select { |s| s.start_with?('-l')}
