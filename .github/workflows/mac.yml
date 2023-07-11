@@ -222,7 +222,6 @@ jobs:
           make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
           make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install
-          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
         fi
 
     - name: Show wx-config
