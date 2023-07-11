@@ -203,7 +203,7 @@ jobs:
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
         else
-          ./configure $wxCONFIGURE_OPTIONS --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info || rc=$?
         fi
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
