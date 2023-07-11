@@ -82,6 +82,15 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: embed
           wxr_type: gem
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: '3.2.2.1'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: system
+          wxr_type: gem
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
@@ -189,12 +198,12 @@ jobs:
       if: matrix.wxw_type != 'embed'
       working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
-        wxCONFIGURE_OPTIONS="--disable-optimise --disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
+        wxCONFIGURE_OPTIONS="--disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
 
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
-          ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
         else
-          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info || rc=$?
         fi
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
@@ -212,21 +221,34 @@ jobs:
           export WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && sudo make install && sudo ldconfig
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib" >> $GITHUB_ENV
         fi
 
     - name: Show wx-config
-      if: matrix.wxw_type == 'develop'
+      if: matrix.wxw_type != 'embed'
       run: |
-        $WXWIN_INSTALL/bin/wx-config --prefix
-        $WXWIN_INSTALL/bin/wx-config --exec-prefix
-        $WXWIN_INSTALL/bin/wx-config --version-full
-        $WXWIN_INSTALL/bin/wx-config --selected-config
-        $WXWIN_INSTALL/bin/wx-config --cppflags
-        $WXWIN_INSTALL/bin/wx-config --cxx
-        $WXWIN_INSTALL/bin/wx-config --ld
-        $WXWIN_INSTALL/bin/wx-config --libs all
-        $WXWIN_INSTALL/bin/wx-config --libs media
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          $WXWIN_INSTALL/bin/wx-config --prefix
+          $WXWIN_INSTALL/bin/wx-config --exec-prefix
+          $WXWIN_INSTALL/bin/wx-config --version-full
+          $WXWIN_INSTALL/bin/wx-config --selected-config
+          $WXWIN_INSTALL/bin/wx-config --cppflags
+          $WXWIN_INSTALL/bin/wx-config --cxx
+          $WXWIN_INSTALL/bin/wx-config --ld
+          $WXWIN_INSTALL/bin/wx-config --libs all
+          $WXWIN_INSTALL/bin/wx-config --libs media
+        else
+          wx-config --prefix
+          wx-config --exec-prefix
+          wx-config --version-full
+          wx-config --selected-config
+          wx-config --cppflags
+          wx-config --cxx
+          wx-config --ld
+          wx-config --libs all
+          wx-config --libs media
+        fi
 
     - name: Remove wxWidgets
       if: matrix.wxw_type != 'develop'
@@ -269,6 +291,8 @@ jobs:
         else
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install $(echo pkg/*.gem) -- WITH_WXWIN=1
+          elif [ "${{ matrix.wxw_type }}" == "system" ]; then
+            gem install $(echo pkg/*.gem)
           else
             gem install $(echo pkg/*.gem) -- WXWIN=$WXWIN_INSTALL
           fi
@@ -276,7 +300,7 @@ jobs:
 
     - name: Run wxRuby3 regression tests
       run: |
-        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+        if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           bundle exec rake test
         else 
           wxruby test
