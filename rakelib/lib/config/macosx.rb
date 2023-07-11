@@ -14,10 +14,6 @@ module WXRuby3
       def self.included(base)
         base.class_eval do
           include Config::UnixLike
-          # alias :base_ldflags :ldflags
-          # def ldflags(target)
-          #   "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
-          # end
 
           def debug_command(*args)
             args.unshift(FileUtils::RUBY)
@@ -30,14 +26,27 @@ module WXRuby3
             "{#{dll_ext},dylib}"
           end
 
+          def get_rpath_origin
+            "@loader_path"
+          end
+
           def check_rpath_patch
             # no need to check anything; install_name_tool is part of XCode cmdline tools
             # and without these we couldn't build anything
             true
           end
 
-          def patch_rpath(shlib, rpath)
-            sh("install_name_tool -add_rpath '$ORIGIN' -add_rpath '$ORIGIN/../ext' #{shlib} 2>/dev/null", verbose: false) { |_,_| }
+          def patch_rpath(shlib, *rpath)
+            # don't leave old rpath-s behind
+            sh("install_name_tool -delete_rpath '@loader_path/../lib' #{shlib} 2>/dev/null", verbose: false) { |_,_| }
+            # add deployment rpath-s
+            sh("install_name_tool #{rpath.collect {|rp| "-add_rpath '#{rp}'"}.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
+            true
+          end
+
+          def update_shlib_loadpaths(shlib, deplibs)
+            changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
+            sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
             true
           end
 
@@ -71,6 +80,26 @@ module WXRuby3
             objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
             sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} " +
                  "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
+          end
+
+          private
+
+          def wx_build
+            # initialize submodules
+            unless sh('git submodule update --init')
+              STDERR.puts "ERROR: Failed to update wxWidgets submodules."
+              exit(1)
+            end
+            # configure wxWidgets
+            unless bash('./configure --disable-optimise --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+              STDERR.puts "ERROR: Failed to configure wxWidgets."
+              exit(1)
+            end
+            # make and install wxWidgets
+            unless bash('make && make install')
+              STDERR.puts "ERROR: Failed to build wxWidgets libraries."
+              exit(1)
+            end
           end
         end
       end

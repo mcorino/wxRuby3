@@ -38,9 +38,9 @@ module WXRuby3
             true
           end
 
-          def patch_rpath(shlib, rpath)
+          def patch_rpath(shlib, *rpath)
             if check_rpath_patch
-              sh("#{@rpath_patch} '#{rpath}' #{shlib}", verbose: false)
+              sh("#{@rpath_patch} '#{rpath.join(':')}' #{shlib}", verbose: false)
               return true
             end
             false

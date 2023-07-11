@@ -245,11 +245,19 @@ module WXRuby3
     def do_link(_pkg)
     end
 
+    def get_rpath_origin
+      ''
+    end
+
     def check_rpath_patch
       true
     end
 
-    def patch_rpath(_shlib, _rpath)
+    def patch_rpath(_shlib, *)
+      true
+    end
+
+    def update_shlib_loadpaths(_shlib, _deplibs)
       true
     end
 
