@@ -101,11 +101,38 @@ Currently the following are fully supported:
 |----------------------------------------------------------------------------|-----------------| --- |
 | Windows 10 (tested)<br>(most likely also Windows 11)                       | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit) | wxWidgets >= 3.2 |
 | Linux (tested; any AMD-64 distribution)<br>(most likely also i686 and ARM) | Ruby >= 2.5 | wxWidgets >= 3.2 |
+| MacOS >= 10.10 using Cocoa (tested on AMD-64)                              | Ruby >= 2.5 | wxWidgets >= 3.2 | 
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
 working on similar modern systems (eg FreeBSD or Solaris with GTK) than
 on legacy systems (eg Windows 98, Mac OS 9).
+
+### How can I install wxRuby3?
+
+wxRuby3 is distributed as a Ruby gem on [RubyGems](https://rubygems.org).<br>
+Apart from a regular source-only version of the gem there is also a binary gem version for Windows 10 provided (for the 
+latest stable Ruby version at the time of publishing) which includes an embedded wxWidgets installation (also latest 
+stable version). 
+
+Installing the binary gem version on Windows requires no additional software to be installed except for a supported 
+version of the Ruby interpreter.<br>
+To install the source-only gem the following software is required:
+
+| Sofware                                       | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ruby                                          | A supported version of the Ruby interpreter needs to be installed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| C++ compiler<br>(incl. dev tools like `make`) | On linux a recent version of the GNU C++ compiler (with c++-14 support) needs to be installed<br>On Windows the RubyInstaller MSYS2-Devkit needs to be installed<br>On MacOS XCode with commandline tools needs to be installed                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Git version control toolkit                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| SWIG >= 3.0.12                                | On MacOS install [Homebrew](https://brew.sh/) and than `brew install swig`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Doxygen (preferably >= 1.9.1, <= 1.9.6)       | Doxygen > 1.9.6 has changes that cause problems with the wxWidgets doxygen files (especially on MacOS)<br>On MacOS: `brew tap mcorino/wxruby3` and than `brew install doxygen@1.9.6` (default brew recipe installs 1.9.7)                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| wxWidgets >= 3.2 (*OPTIONAL*)                 | On Linux most distributions provide system installable (development) packages for wxWidgets providing a supported version. Alternatively you can fairly easily install your own preferred version manually (see the [wxWidgets](https://wxwidgets.org) project for details).<br>On Windows and MacOS the process is less straightforward (also here see the [wxWidgets](https://wxwidgets.org) project for details).<br>The wxRuby3 source-only gem can also be installed using a private local wxWidgets installation or an embedded installation (most likely preferred on Windows and MacOS). See [INSTALL](INSTALL.md) for more details. |    
+
+In case the prerequisites above are met the (source-only or binary) gem can be installed executing the following command:
+
+```shell
+gem install wxruby3
+```
 
 ### Where can I ask a question, or report a bug?
 
@@ -182,7 +209,7 @@ maintainable solution.
 
 ### I am getting an error trying to install or compile wxRuby3
 
-Please double-check the [INSTALL](INSTALL.md) documents, and search issue archives. If 
+Please double-check the instructions above and in the [INSTALL](INSTALL.md) document and search issue archives. If 
 this doesn't help, please post your question using GitHub Issues.
 
 ### Is there another, more declarative way, for writing wxRuby3 desktop GUI applications?
