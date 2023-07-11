@@ -37,7 +37,7 @@ module WXRuby3
           end
 
           def patch_rpath(shlib, rpath)
-            sh("install_name_tool -add_rpath '$ORIGIN' -add_rpath '$ORIGIN/../ext 2>/dev/null || true' #{shlib}", verbose: false)
+            sh("install_name_tool -add_rpath '$ORIGIN' -add_rpath '$ORIGIN/../ext' #{shlib} 2>/dev/null", verbose: false) { |_,_| }
             true
           end
 
