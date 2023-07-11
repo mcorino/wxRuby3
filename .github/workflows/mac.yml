@@ -1,6 +1,28 @@
 name: Mac builds
 
 on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'assets/**'
+      - 'lib/wx/doc/**'
+      - '**.md'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'assets/**'
+      - 'lib/wx/doc/**'
+      - '**.md'
+      - 'Gemfile'
+      - '.yardopts'
+      - '.gitignore'
+      - 'LICENSE'
   workflow_dispatch:
 
 concurrency:
@@ -18,7 +40,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
 
-    name: ${{ matrix.name }}
+    name: ${{ matrix.name }} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
 
     strategy:
       fail-fast: false
