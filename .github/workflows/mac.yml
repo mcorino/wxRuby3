@@ -235,6 +235,10 @@ jobs:
           bundle exec rake bingem
         fi
 
+    - name: Remove wxWidgets
+      if: matrix.wxw_type == 'develop' && matrix.wxr_type == 'bingem'
+      run: rm -rf $WXWIDGETS_ROOT
+
     - name: Install wxRuby3 gem
       if: matrix.wxr_type != 'develop'
       run: |
