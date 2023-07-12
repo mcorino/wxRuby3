@@ -82,7 +82,7 @@ and use that for the gem installation. In that case the user is required to gene
 provided to the gem installation as follows:
 
 ```shell
-   gem install wxrbuy3 -- WXWIN=/path/to/wx/install WXXML=/path/to/wx/doxygen/xml
+   gem install wxruby3 -- WXWIN=/path/to/wx/install WXXML=/path/to/wx/doxygen/xml
 ```
 
 Please also not that in case of option two the user is responsible to make sure the wxWidgets shared libraries can be
