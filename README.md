@@ -35,7 +35,7 @@ Wx::App.run do
 end
 ```
 
-![Hello_World](assets/hello_world.png "Hello World sample")
+![Hello_World](assets/hello_world_combi.png "Hello World sample")
 
 ### Hello Button
 
@@ -58,8 +58,7 @@ end
 Wx::App.run { TheFrame.new('Hello world!').show }
 ```
 
-![Hello_Button](assets/hello_button.png "Hello Button sample")
-![Hello_Button_Clicked](assets/hello_button_clicked.png "Hello Button sample clicked")
+![Hello_Button_Clicked](assets/hello_button_clicked_combi.png "Hello Button sample clicked")
 
 
 ## wxRuby3 licence

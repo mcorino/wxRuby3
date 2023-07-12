@@ -128,14 +128,13 @@ jobs:
           g++ -v
 
       - name: Configuring wxWidgets
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
           wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
           if [ -n "${{ matrix.gtk_version }}" ]; then
             wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
           fi
-          pushd $WXWIDGETS_ROOT
           ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
-          popd
           if [ -n "$rc" ]; then
             echo '*** Configuring failed, contents of config.log follows: ***'
             echo '-----------------------------------------------------------'
@@ -145,10 +144,9 @@ jobs:
           fi
 
       - name: Build and install wxWidgets
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          pushd $WXWIDGETS_ROOT
           make && sudo make install && sudo ldconfig
-          popd
 
       - name: Remove wxWidgets
         run: |

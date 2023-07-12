@@ -1,0 +1,68 @@
+---
+:wxFileDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /MyFrame::OnOpen/
+          :replace: |
+            
+            ```ruby
+            class MyFrame
+              ...
+              def on_open(event)
+                if (...current content has not been saved...)
+                  if Wx.message_box('Current content has not been saved! Proceed?', 'Please confirm',
+                                    Wx::ICON_QUESTION | Wx::YES_NO, self) == Wx::NO
+                    return 
+                  #else: proceed asking to the user the new file to open
+                  end
+                end
+              
+                Wx::FileDialog(self, "Open XYZ file", "", "",
+                                    "XYZ files (*.xyz)|*.xyz", Wx::FD_OPEN|Wx::FD_FILE_MUST_EXIST) do |dlg|
+                  return if dlg.show_modal == Wx::ID_CANCEL # the user changed idea...?
+            
+                  # proceed loading the file chosen by the user
+                  file = File.open(dlg.path, 'r') rescue nil
+                  unless file
+                     Wx.log_error("Cannot open file '#{dlg.path}'.")
+                     return
+                  end
+                  ...
+                end
+              end
+            
+            end
+            ```
+        - :pattern: !ruby/regexp /MyFrame::OnSaveAs/
+          :replace: |
+            
+            ```ruby
+            class MyFrame
+              ...
+              def on_save_as(event)
+                Wx::FileDialog(self, "Save XYZ file", "", "",
+                                    "XYZ files (*.xyz)|*.xyz", Wx::FD_SAVE|Wx::FD_OVERWRITE_PROMPT) do |dlg|
+                  return if dlg.show_modal == Wx::ID_CANCEL # the user changed idea...?
+              
+                  # save the current contents in the file
+                  begin
+                    File.open(dlg.path, 'w+') do |f|
+                      # save to file
+                    end
+                  rescue 
+                    Wx.log_error("Cannot save current contents in file '#{dlg.path}'.")
+                    return
+                  end
+                end
+                ...
+              end
+            
+            end
+            ```
+        - :pattern: !ruby/regexp /wxSystemOptions::SetOption/
+          :replace: |
+            
+            ```ruby
+              Wx::SystemOptions.set_option(Wx::OSX_FILEDIALOG_ALWAYS_SHOW_TYPES, 1)
+            ```

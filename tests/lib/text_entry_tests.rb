@@ -2,6 +2,7 @@
 module TextEntryTests
 
   def test_te_set_value
+    text_entry.set_focus # removes the 'Hint' test which in GTK2 causes problems
     assert(text_entry.empty?)
 
     text_entry.value = 'foo'

@@ -157,18 +157,17 @@ jobs:
 
     - name: Configuring wxWidgets
       if: matrix.wxw_type != 'embed'
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
         if [ -n "${{ matrix.gtk_version }}" ]; then
           wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
         fi
-        pushd $WXWIDGETS_ROOT
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
         else
           ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
         fi
-        popd
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
           echo '-----------------------------------------------------------'
@@ -179,15 +178,14 @@ jobs:
 
     - name: Build wxWidgets
       if: matrix.wxw_type != 'embed'
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
-        pushd $WXWIDGETS_ROOT
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make -j$(nproc) && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
           make -j$(nproc) && sudo make install && sudo ldconfig
         fi
-        popd
 
     - name: Remove wxWidgets
       if: matrix.wxw_type != 'develop'

@@ -1,0 +1,27 @@
+---
+:wxEventBlocker:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyWindow
+
+                ...
+            
+                def do_something
+                  # block all events directed to this window
+                  Wx::EventBlocker.blocked_for(self) do
+                    # while we do 1000 function_that_sends_events calls 
+                    1000.times { |i| function_that_sends_events(i) }
+                  end
+                  # old event handler restored; generated event(s) from next call will be processed
+                  function_that_sends_events(0)
+                end
+
+                ... 
+            
+              end
+            ```
