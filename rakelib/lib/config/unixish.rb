@@ -52,6 +52,10 @@ module WXRuby3
              "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
       end
 
+      def get_rpath_origin
+        "$ORIGIN"
+      end
+
       private
 
       def wx_checkout
@@ -76,6 +80,14 @@ module WXRuby3
         end
       end
 
+      def wx_configure
+        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+      end
+
+      def wx_make
+        bash('make -j$(nproc) && make install')
+      end
+
       def wx_build
         # initialize submodules
         unless sh('git submodule update --init')
@@ -83,12 +95,12 @@ module WXRuby3
           exit(1)
         end
         # configure wxWidgets
-        unless bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+        unless wx_configure
           STDERR.puts "ERROR: Failed to configure wxWidgets."
           exit(1)
         end
         # make and install wxWidgets
-        unless bash('make && make install')
+        unless wx_make
           STDERR.puts "ERROR: Failed to build wxWidgets libraries."
           exit(1)
         end
@@ -115,6 +127,16 @@ module WXRuby3
 
       def get_wx_xml_path
         get_cfg_string('wxxml')
+      end
+
+      def get_wx_libs
+        wx_libset = ::Set.new
+        wx_libset.merge wx_config("--libs all").split(' ')
+        # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
+        if features_set?('wxUSE_MEDIACTRL')
+          wx_libset.merge wx_config("--libs media").split(' ')
+        end
+        wx_libset.collect { |s| s.dup }
       end
 
       def init_unix_platform
@@ -155,13 +177,7 @@ module WXRuby3
 
           @cpp         = wx_config("--cxx")
           @ld          = wx_config("--ld")
-          wx_libset = ::Set.new
-          wx_libset.merge wx_config("--libs all").split(' ')
-          # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
-          if features_set?('wxUSE_MEDIACTRL')
-            wx_libset.merge wx_config("--libs media").split(' ')
-          end
-          @wx_libs = wx_libset.collect { |s| s.dup }
+          @wx_libs     = get_wx_libs
 
           # remove all warning flags provided by Ruby config
           @ruby_cppflags = @ruby_cppflags.collect { |flags| flags.split(' ') }.flatten.
@@ -169,8 +185,7 @@ module WXRuby3
           @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
           # add include flags
           @ruby_cppflags.concat ['-I.', *@ruby_includes.collect { |inc| "-I#{inc}" }]
-          @ruby_ldflags << '-s' if @release_build                         # strip debug symbols for release build
-          @ruby_ldflags << "-Wl,-rpath,\\$ORIGIN/../lib"                  # add default rpath
+          @ruby_ldflags << "-Wl,-rpath,'#{get_rpath_origin}/../lib'"      # add default rpath
           @ruby_libs <<  "-L#{RB_CONFIG['libdir']}"                       # add ruby lib dir
           # add ruby defined shared ruby lib(s); not any other flags
           @ruby_libs.concat RB_CONFIG['LIBRUBYARG_SHARED'].split(' ').select { |s| s.start_with?('-l')}

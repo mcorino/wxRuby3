@@ -21,8 +21,8 @@ module WXRuby3
     module Platform
 
       def self.included(base)
-        base.include Config::UnixLike
         base.class_eval do
+          include Config::UnixLike
 
           attr_reader :rescomp
 
@@ -51,6 +51,10 @@ module WXRuby3
           end
 
           private
+
+          def wx_make
+            bash('make && make install')
+          end
 
           def wx_generate_xml
             chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
@@ -107,6 +111,7 @@ module WXRuby3
 
           @ruby_ldflags.each { |flags| flags.sub!(' $(DEFFILE)', '') } # cleanup for older RubyInstaller versions
           @ruby_ldflags.each { |flags| flags.gsub!(/-s(\s|\Z)/, '') } if @debug_build # do not strip debug symbols for debug build
+          @ruby_ldflags << '-s' if @release_build  # strip debug symbols for release build
           @ruby_cppflags << RB_CONFIG['debugflags'] if @debug_build
           @ruby_cppflags.each { |flags| flags.gsub!(/-O\d/, '-O0') } if @debug_build # disable optimizations for debug build
 

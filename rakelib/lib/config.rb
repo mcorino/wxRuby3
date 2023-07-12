@@ -245,11 +245,19 @@ module WXRuby3
     def do_link(_pkg)
     end
 
+    def get_rpath_origin
+      ''
+    end
+
     def check_rpath_patch
       true
     end
 
-    def patch_rpath(_shlib, _rpath)
+    def patch_rpath(_shlib, *)
+      true
+    end
+
+    def update_shlib_loadpaths(_shlib, _deplibs)
       true
     end
 
@@ -389,11 +397,12 @@ module WXRuby3
             @rb_docgen_path = File.join(Config.wxruby_root, @rb_docgen_dir)
 
             # Extra swig helper files to be built
-            @helper_modules = if macosx?
-                                %w|RubyStockObjects Mac|
-                              else
-                                %w|RubyStockObjects|
-                              end
+            @helper_modules = %w|RubyStockObjects|
+              # if macosx?
+              #                   %w|RubyStockObjects Mac|
+              #                 else
+              #                   %w|RubyStockObjects|
+              #                 end
             # helper to initialize on startup (stock objects can only be initialized after App creation)
             @helper_inits = @helper_modules - %w|RubyStockObjects|
 

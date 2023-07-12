@@ -38,9 +38,9 @@ module WXRuby3
             true
           end
 
-          def patch_rpath(shlib, rpath)
+          def patch_rpath(shlib, *rpath)
             if check_rpath_patch
-              sh("#{@rpath_patch} '#{rpath}' #{shlib}", verbose: false)
+              sh("#{@rpath_patch} '#{rpath.join(':')}' #{shlib}", verbose: false)
               return true
             end
             false
@@ -56,6 +56,8 @@ module WXRuby3
         if @wx_version
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
+
+          @ruby_ldflags << '-s' if @release_build  # strip debug symbols for release build
 
           # create a .so binary
           @extra_ldflags << '-shared'

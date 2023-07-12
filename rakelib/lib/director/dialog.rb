@@ -30,8 +30,14 @@ module WXRuby3
         when 'wxMessageDialog'
         when 'wxFontDialog'
           # ignore the non-const version
-          spec.ignore 'wxFontDialog::GetFontData'
-          spec.regard 'wxFontDialog::GetFontData() const'
+          if Config.platform == :macosx && Config.instance.wx_version < '3.3'
+            # MacOSX implementation is incorrect so we need to use
+            # the non-const definition here
+            spec.ignore 'wxFontDialog::GetFontData() const'
+          else
+            spec.ignore 'wxFontDialog::GetFontData'
+            spec.regard 'wxFontDialog::GetFontData() const'
+          end
         when 'wxFileDialog'
           # override the wxArrayString& typemap for GetFilenames and GetPaths
           spec.map 'wxArrayString&' => 'Array<String>' do

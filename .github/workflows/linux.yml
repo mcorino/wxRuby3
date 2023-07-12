@@ -183,9 +183,9 @@ jobs:
         pushd $WXWIDGETS_ROOT
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           WX_SKIP_DOXYGEN_VERSION_CHECK=1
-          make && make install && pushd docs/doxygen && ./regen.sh xml && popd 
+          make -j$(nproc) && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make && sudo make install && sudo ldconfig
+          make -j$(nproc) && sudo make install && sudo ldconfig
         fi
         popd
 

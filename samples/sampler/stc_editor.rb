@@ -114,8 +114,9 @@ module WxRuby
 
     def default_theme
       c_maroon = Wx::Colour.new('Maroon')
-      style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::BLACK);
-      style_set_background(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE);
+      style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::BLACK)
+      style_set_background(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE)
+      set_caret_foreground(Wx::BLACK)
       style_clear_all
       style_set_foreground(Wx::STC::STC_STYLE_LINENUMBER, Wx::Colour.new('Dark Grey'))
       style_set_background(Wx::STC::STC_STYLE_LINENUMBER, Wx::WHITE);
@@ -160,6 +161,7 @@ module WxRuby
       c_str = Wx::Colour.new('Lime Green')
       style_set_background(Wx::STC::STC_STYLE_DEFAULT, bg)
       style_set_foreground(Wx::STC::STC_STYLE_DEFAULT, Wx::WHITE)
+      set_caret_foreground(Wx::WHITE)
       style_clear_all
       style_set_background(Wx::STC::STC_STYLE_LINENUMBER, bg)
       style_set_foreground(Wx::STC::STC_STYLE_LINENUMBER, Wx::WHITE)

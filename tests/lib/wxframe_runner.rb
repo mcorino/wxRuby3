@@ -40,6 +40,10 @@ module WxRuby
         end
       end
 
+      def self.has_ui_simulator?
+        Wx.has_feature?(:USE_UIACTIONSIMULATOR) && (Wx::PLATFORM != 'WXOSX' || Wx::WXWIDGETS_VERSION >= '3.3')
+      end
+
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)
         return 0 unless block_given?
         evt_count = EventCounter.new
@@ -48,8 +52,11 @@ module WxRuby
         else
           win.event_handler.send(evt.to_sym, id1, id2, ->(_evt){ evt_count.inc })
         end
-        yield evt_count
-        win.event_handler.disconnect(id1, id2 || Wx::ID_ANY, evt.to_sym)
+        begin
+          yield evt_count
+        ensure
+          win.event_handler.disconnect(id1, id2 || Wx::ID_ANY, evt.to_sym)
+        end
         evt_count.count
       end
 
