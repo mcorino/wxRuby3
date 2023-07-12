@@ -1,0 +1,47 @@
+---
+:wxEventFilter:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+            # This class allows determining the last time the user has worked with
+            # this application:
+            class LastActivityTimeDetector < Wx::EventFilter
+              def initialize
+                Wx::EvtHandler.add_filter(self)
+        
+                @last = Time.now
+              end
+        
+              def clear
+                Wx::EvtHandler.remove_filter(self)
+              end
+        
+              def filter_event(event)
+                # Update the last user activity
+                t = event.get_event_type
+                case t
+                when Wx::EVT_KEY_DOWN, 
+                     Wx::EVT_MOTION, 
+                     Wx::EVT_LEFT_DOWN,
+                     Wx::EVT_RIGHT_DOWN,
+                     Wx::EVT_MIDDLE_DOWN
+                  @last = Time.now
+                end
+    
+                # Continue processing the event normally as well.
+                Event_Skip
+              end
+        
+              # This function could be called periodically from some timer to
+              # do something (e.g. hide sensitive data or log out from remote
+              # server) if the user has been inactive for some time period.
+              def is_inactive_for?(diff)
+                (Time.now - diff) > @last
+              end
+            
+            end
+            ```

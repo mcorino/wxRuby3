@@ -1,0 +1,16 @@
+---
+:wxContextHelp:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # puts the application into a 'context-sensitive help mode' for my_window
+              context_help = Wx::ContextHelp.new(my_window)
+              ...
+              ...
+              # ends the 'context-sensitive help mode' for my_window
+              context_help.end_context_help            
+            ```
