@@ -80,6 +80,14 @@ module WXRuby3
         end
       end
 
+      def wx_configure
+        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+      end
+
+      def wx_make
+        bash('make -j$(nproc) && make install')
+      end
+
       def wx_build
         # initialize submodules
         unless sh('git submodule update --init')
@@ -87,12 +95,12 @@ module WXRuby3
           exit(1)
         end
         # configure wxWidgets
-        unless bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+        unless wx_configure
           STDERR.puts "ERROR: Failed to configure wxWidgets."
           exit(1)
         end
         # make and install wxWidgets
-        unless bash('make && make install')
+        unless wx_make
           STDERR.puts "ERROR: Failed to build wxWidgets libraries."
           exit(1)
         end

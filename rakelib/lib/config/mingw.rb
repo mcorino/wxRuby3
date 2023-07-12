@@ -21,8 +21,8 @@ module WXRuby3
     module Platform
 
       def self.included(base)
-        base.include Config::UnixLike
         base.class_eval do
+          include Config::UnixLike
 
           attr_reader :rescomp
 
@@ -51,6 +51,10 @@ module WXRuby3
           end
 
           private
+
+          def wx_make
+            bash('make && make install')
+          end
 
           def wx_generate_xml
             chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do

@@ -84,22 +84,12 @@ module WXRuby3
 
           private
 
-          def wx_build
-            # initialize submodules
-            unless sh('git submodule update --init')
-              STDERR.puts "ERROR: Failed to update wxWidgets submodules."
-              exit(1)
-            end
-            # configure wxWidgets
-            unless bash('./configure --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
-              STDERR.puts "ERROR: Failed to configure wxWidgets."
-              exit(1)
-            end
-            # make and install wxWidgets
-            unless bash('make -j$(sysctl -n hw.logicalcpu) && make install')
-              STDERR.puts "ERROR: Failed to build wxWidgets libraries."
-              exit(1)
-            end
+          def wx_configure
+            bash('./configure --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+          end
+
+          def wx_make
+            bash('make -j$(sysctl -n hw.logicalcpu) && make install')
           end
         end
       end
