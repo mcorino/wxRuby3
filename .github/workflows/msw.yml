@@ -142,17 +142,15 @@ jobs:
 
       - name: Configuring wxWidgets
         if: matrix.wxw_type != 'embed'
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          Push-Location $env:WXWIDGETS_ROOT
           ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
-          Pop-Location
 
       - name: Build wxWidgets
         if: matrix.wxw_type != 'embed'
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          Push-Location $env:WXWIDGETS_ROOT
           ridk exec bash -c 'make && make install'
-          Pop-Location
 
       - name: Configure wxRuby3
         if: matrix.wxr_type != 'gem'
