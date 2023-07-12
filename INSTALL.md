@@ -90,6 +90,8 @@ found by the system's dynamic loader at runtime.
 
 > **NOTE:** Be patient when installing the source gem. Building wxRuby3 takes a while and when wxWidgets is included event more. 
 
+> **NOTE:** Be aware that for prerelease versions of the gem you should add the `--pre` argument to the `gem install` command. 
+
 ## Building from source
 
 Checkout the wxRuby3 sources from [GitHub](https://github.com/mcorino/wxRuby3) or download and unpack a release package.

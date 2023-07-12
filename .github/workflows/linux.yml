@@ -147,13 +147,27 @@ jobs:
         
         $WXWIDGETS_ROOT/build/tools/before_install.sh
 
-    - name: Display build environment
+    - name: Show build environment
       run: |
-        echo $PATH
+        echo "Environment:"
+        env | sort
+        echo
+
+        echo "Ruby version:"
         ruby -v
+        echo
+        
+        echo "SWIG version:"
+        swig -version
+        echo
+        
+        echo "Doxygen version:"
         doxygen -v
-        gcc -v
-        g++ -v
+        echo
+
+        echo "Compiler version:"
+        ${CXX-g++} --version
+        echo
 
     - name: Configuring wxWidgets
       if: matrix.wxw_type != 'embed'
