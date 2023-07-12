@@ -1,6 +1,7 @@
 
 require_relative './lib/wxframe_runner'
 require_relative './lib/text_entry_tests'
+require_relative './lib/item_container_tests'
 
 class ButtonTests < WxRuby::Test::GUITests
 
@@ -352,5 +353,27 @@ class RadioBoxTests < WxRuby::Test::GUITests
     assert(radiobox.get_item_help_text(1).empty?)
   end
 
+end
+
+class ChoiceTests < WxRuby::Test::GUITests
+
+  include ItemContainerTests
+
+  def setup
+    super
+    @choice = Wx::Choice.new(test_frame, name: 'Choice')
+  end
+
+  def cleanup
+    @choice.destroy
+    super
+  end
+
+  attr_reader :choice
+  alias :container :choice
+
+  def test_choice
+    assert_equal(Wx::NOT_FOUND, choice.get_selection)
+  end
 
 end
