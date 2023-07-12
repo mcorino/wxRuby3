@@ -14,7 +14,7 @@ The minimal requirements for installing any source based setup (gem, source pack
 | C++ compiler<br>(incl. dev tools like `make`) | On linux a recent version of the GNU C++ compiler (with c++-14 support) needs to be installed<br>On Windows the RubyInstaller MSYS2-Devkit needs to be installed<br>On MacOS XCode with commandline tools needs to be installed |
 | Git version control toolkit                   |                                                                                                                                                                                                                                 |
 | SWIG >= 3.0.12                                | On MacOS install [Homebrew](https://brew.sh/) and than `brew install swig`                                                                                                                                                      |
-| Doxygen (preferably >= 1.9.1, <= 1.9.6)       | Doxygen > 1.9.6 has changes that cause problems with the wxWidgets doxygen files (especially on MacOS)<br>On MacOS: `brew tap mcorino/wxruby3` and than `brew install doxygen@1.9.6` (default brew recipe installs 1.9.7)       |
+| Doxygen (>= 1.9.1, <= 1.9.6)                  | Doxygen > 1.9.6 has changes that cause problems with the wxWidgets doxygen files.<br>On MacOS: `brew tap mcorino/wxruby3` and than `brew install doxygen@1.9.6` (default brew recipe installs 1.9.7)                            |
 
 The wxRuby3 build process requires `git` to clone a copy of the wxWidgets Github repository to extract the interface 
 specifications from.<br>
