@@ -92,11 +92,11 @@ module WxRuby
         return 0 unless block_given?
         evt_count = EventCounter.new
         if Wx::EvtHandler.event_type_arity(evt) == 0
-          win.event_handler.send(evt.to_sym, ->(_evt){ evt_count.inc })
+          win.event_handler.send(evt.to_sym, ->(evt){ evt_count.inc; evt.skip if !evt.command_event? })
         elsif id2.nil?
-          win.event_handler.send(evt.to_sym, id1, ->(_evt){ evt_count.inc })
+          win.event_handler.send(evt.to_sym, id1, ->(evt){ evt_count.inc; evt.skip if !evt.command_event? })
         else
-          win.event_handler.send(evt.to_sym, id1, id2, ->(_evt){ evt_count.inc })
+          win.event_handler.send(evt.to_sym, id1, id2, ->(evt){ evt_count.inc; evt.skip if !evt.command_event? })
         end
         begin
           yield evt_count
