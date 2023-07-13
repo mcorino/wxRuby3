@@ -91,7 +91,9 @@ module WxRuby
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)
         return 0 unless block_given?
         evt_count = EventCounter.new
-        if id2.nil?
+        if Wx::EvtHandler.event_type_arity(evt) == 0
+          win.event_handler.send(evt.to_sym, ->(_evt){ evt_count.inc })
+        elsif id2.nil?
           win.event_handler.send(evt.to_sym, id1, ->(_evt){ evt_count.inc })
         else
           win.event_handler.send(evt.to_sym, id1, id2, ->(_evt){ evt_count.inc })
