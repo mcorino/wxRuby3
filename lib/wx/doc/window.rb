@@ -15,4 +15,8 @@ class Wx::Window
   # @return [Object] result from block
   def paint_buffered; end
 
+  # Locks the window from updates while executing the given block.
+  # @param [Proc] block
+  def locked(&block); end
+
 end
