@@ -181,6 +181,101 @@ jobs:
             exit $rc
           fi
 
+  verify-gem-mac:
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: wxMac macOS 13
+            runner: macos-13
+            arch: x86_64
+            wxWidgets: '3.2.2.1'
+            ruby: '3.2'
+            swig: '4'
+            configure_flags: --disable-sys-libs
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    env:
+      NSUnbufferedIO: YES
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
+
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup Ruby gems
+        run: |
+          bundle install
+
+      - name: checkout wxWidgets
+        uses: actions/checkout@v3
+        with:
+          repository: wxWidgets/wxWidgets
+          path: ${{ env.WXWIDGETS_ROOT }}
+          ref: v${{ matrix.wxWidgets }}
+
+      - name: Set environment variables
+        run: |
+          echo TZ=UTC >> $GITHUB_ENV
+          echo LD_LIBRARY_PATH=`pwd`/lib >> $GITHUB_ENV
+
+      - name: Before install
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
+        run: |
+          ./build/tools/before_install.sh
+
+      - name: Install SWIG
+        run: |
+          brew install swig
+
+      - name: Install doxygen 1.9.6
+        run: |
+          brew tap mcorino/wxruby3
+          brew install doxygen@1.9.6
+
+      - name: Show build environment
+        run: |
+          echo "Environment:"
+          env | sort
+          echo
+          
+          echo "Ruby version:"
+          ruby -v
+          echo
+          
+          echo "SWIG version:"
+          swig -version
+          echo
+          
+          echo "Doxygen version:"
+          doxygen -v
+          echo
+          
+          echo "Compiler version:"
+          ${CXX-g++} --version
+          echo
+
+      - name: Remove wxWidgets
+        run: |
+          rm -rf $WXWIDGETS_ROOT
+
+      - name: Install wxRuby3 gem
+        run: |
+          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
+            gem install wxruby3 -v $WXRUBY_VERSION --pre -- WITH_WXWIN=1
+          else
+            gem install wxruby3 -v $WXRUBY_VERSION -- WITH_WXWIN=1
+          fi
+
+      - name: Run wxRuby3 regression tests
+        run: |
+          wxruby test
   release-bingem:
     needs: release
     runs-on: ${{ matrix.os }}
