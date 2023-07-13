@@ -33,7 +33,7 @@ module ItemContainerTests
   
   def test_ic_count
     assert(container.empty?)
-    container.get_string(0)
+    assert_with_assertion_failure { container.get_string(0) }
 
     container.append(['item 0', 'item 1', 'item 2', 'item 3'])
 
@@ -52,7 +52,7 @@ module ItemContainerTests
     container.insert(['item 0', 'item 1', 'item 2', 'item 3'], 1)
 
     assert_equal(5, container.count)
-    container.get_string(10)
+    assert_with_assertion_failure { container.get_string(10) }
   end
 
   def test_ic_item_selection

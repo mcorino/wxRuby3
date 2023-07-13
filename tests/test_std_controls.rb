@@ -7,7 +7,7 @@ class ButtonTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @button = Wx::Button.new(test_frame, name: 'Button')
+    @button = Wx::Button.new(test_frame, label: 'Button')
   end
 
   def cleanup
@@ -254,13 +254,7 @@ class CheckBoxTests < WxRuby::Test::GUITests
   def test_invalid_style
 
     # prints assertion warning and creates default checkbox
-    create_checkbox(Wx::CHK_3STATE | Wx::CHK_2STATE)
-
-    if Wx::PLATFORM == 'WXOSX'
-      assert(check.is3state)
-    else
-      assert(!check.is3state)
-    end
+    assert_with_assertion_failure { create_checkbox(Wx::CHK_3STATE | Wx::CHK_2STATE) }
 
   end
 
