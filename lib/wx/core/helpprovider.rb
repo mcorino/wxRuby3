@@ -6,9 +6,9 @@ class Wx::HelpProvider
     # SWIG Director; it can't be reaped and re-wrapped later. The
     # easiest way is to make the currently set one an instance variable
     # of this class
-    alias :__wx_set :set
+    wx_set = instance_method :set
     define_method(:set) do | help_provider |
-      __wx_set(help_provider)
+      wx_set.bind(self).call(help_provider)
       @__hp__ = help_provider
     end
   end
