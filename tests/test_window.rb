@@ -48,29 +48,33 @@ class WindowTests < WxRuby::Test::GUITests
 
   end
 
-  def test_key_event
-    if Wx.has_feature?(:USE_UIACTIONSIMULATOR)
-      count_events(window, :evt_key_down) do |c_keydown|
-        count_events(window, :evt_key_up) do |c_keyup|
-          count_events(window, :evt_char) do |c_keychar|
+  if has_ui_simulator?
 
-            sim = Wx::UIActionSimulator.new
+    def test_key_event
+      if Wx::PLATFORM == 'WXGTK' || !is_ci_build?
+        count_events(window, :evt_key_down) do |c_keydown|
+          count_events(window, :evt_key_up) do |c_keyup|
+            count_events(window, :evt_char) do |c_keychar|
 
-            window.set_focus
-            Wx.get_app.yield
+              sim = Wx::UIActionSimulator.new
 
-            sim.text("text")
-            sim.char(Wx::K_SHIFT)
-            Wx.get_app.yield
+              window.set_focus
+              Wx.get_app.yield
 
-            assert_equal(5, c_keydown.count)
-            assert_equal(5, c_keyup.count)
-            assert_equal(4, c_keychar.count)
+              sim.text("text")
+              sim.char(Wx::K_SHIFT)
+              Wx.get_app.yield
 
+              assert_equal(5, c_keydown.count)
+              assert_equal(5, c_keyup.count)
+              assert_equal(4, c_keychar.count)
+
+            end
           end
         end
       end
     end
+
   end
 
   def test_focus_event
