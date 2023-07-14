@@ -132,8 +132,28 @@ module WXRuby3
             'wxWindow::GetTextExtent(const wxString &,int *,int *,int *,int *,const wxFont *)',
             'wxWindow::SendIdleEvents',
             'wxWindow::ClientToScreen(int*,int*)', # no need; prefer the wxPoint version
-            'wxWindow::ScreenToClient(int*,int*)' # no need; prefer the wxPoint version
+            'wxWindow::ScreenToClient(int*,int*)', # no need; prefer the wxPoint version
           ]
+          # redefine these so a nil parent is accepted
+          spec.ignore %w[wxWindow::FindWindowById wxWindow::FindWindowByLabel wxWindow::FindWindowByName], ignore_doc: false
+          # overrule common typemap to allow default NULL
+          spec.map 'wxWindow* find_from_parent' do
+            map_check code: ''
+          end
+          spec.add_extend_code 'wxWindow', <<~__HEREDOC
+            static wxWindow* find_window_by_id(long id, const wxWindow *find_from_parent=0)
+            {
+              return wxWindow::FindWindowById(id, find_from_parent);
+            }
+            static wxWindow* find_window_by_label(const wxString &label, const wxWindow *find_from_parent=0)
+            {
+              return wxWindow::FindWindowByLabel(label, find_from_parent);
+            }
+            static wxWindow* find_window_by_name(const wxString &name, const wxWindow *find_from_parent=0)
+            {
+              return wxWindow::FindWindowByName(name, find_from_parent);
+            }
+            __HEREDOC
           if Config.instance.wx_port == :wxQT
             # protected for wxQT; ignore for now
             spec.ignore 'wxWindow::EnableTouchEvents'

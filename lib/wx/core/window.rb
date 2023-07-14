@@ -86,4 +86,14 @@ class Wx::Window
   def to_phys(*args)
     Wx::Window.to_phys(*args, self)
   end
+
+  # implement Window update locker
+  def locked(&block)
+    self.freeze
+    begin
+      block.call if block_given?
+    ensure
+      self.thaw
+    end
+  end
 end

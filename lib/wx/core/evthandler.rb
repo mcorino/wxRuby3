@@ -22,8 +22,16 @@ class Wx::EvtHandler
   # methods; used internally by disconnect (see EvtHandler.i)
   EVENT_NAME_TYPE_MAP = {}
   private_constant :EVENT_NAME_TYPE_MAP
+  # Hash to look up event handler arity from symbol names of evt handler
+  # methods; internal use
+  EVENT_NAME_EVENT_ARITY_MAP = {}
+  private_constant :EVENT_NAME_EVENT_ARITY_MAP
 
   class << self
+
+    def event_type_arity(name)
+      EVENT_NAME_EVENT_ARITY_MAP[name.to_sym] || 0
+    end
 
     def get_event_type_class_map
       EVENT_TYPE_CLASS_MAP
@@ -79,8 +87,8 @@ class Wx::EvtHandler
 
   # Given the Integer constant Wx::EVT_XXX, returns the convenience
   # handler method name associated with that type of event.
-  def self.event_name_for_type(name)
-    EVENT_NAME_TYPE_MAP.key(name)
+  def self.event_name_for_type(evt_id)
+    EVENT_NAME_TYPE_MAP.key(evt_id)
   end
 
   # Given an integer value +int_val+, returns the name of the EVT_xxx
@@ -120,6 +128,8 @@ class Wx::EvtHandler
     unless ev_type.arity and ev_type.name
       return
     end
+
+    EVENT_NAME_EVENT_ARITY_MAP[ev_type.name.to_sym] = ev_type.arity
 
     # set up the evt_xxx method
     case ev_type.arity

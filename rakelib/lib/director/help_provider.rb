@@ -27,7 +27,7 @@ module WXRuby3
           public:
             // This is pure virtual in base Wx class, so won't compile unless an
             // implementation is provided
-            wxString GetHelp(const wxWindowBase* window)
+            wxString GetHelp(const wxWindowBase* window) override
             {
               static WxRuby_ID get_help_id("get_help");
 
@@ -50,7 +50,7 @@ module WXRuby3
             // RemoveHelp is called by Wx after the window deletion event has been
             // handled. A standard director here re-wraps the already destroyed
             // object, which will cause rapid segfaults when it is later marked.
-            void RemoveHelp(wxWindowBase* window) 
+            void RemoveHelp(wxWindowBase* window) override
             {
               static WxRuby_ID remove_help_id("remove_help");
 
@@ -64,13 +64,8 @@ module WXRuby3
           };
           __HEREDOC
         spec.add_swig_code <<~__HEREDOC
+          GC_MANAGE_AS_OBJECT(wxRubyHelpProvider);
           typedef wxWindow wxWindowBase;
-
-          %ignore wxHelpProvider::GetHelp; // Must be supplied in Ruby
-          
-          // Need to avoid standard director as it will call with destroyed
-          // objects
-          %feature("nodirector") wxHelpProvider::RemoveHelp;
           __HEREDOC
         spec.map 'wxWindowBase' => 'Wx::Window', swig: false do
           map_in
@@ -88,8 +83,11 @@ module WXRuby3
             static wxRubyHelpProvider* Get();
             virtual void AddHelp(wxWindowBase* window, const wxString&  text);
             virtual void AddHelp(wxWindowID id, const wxString& text);
-            virtual wxString GetHelp(const wxWindowBase* window);
-            virtual void RemoveHelp(wxWindowBase* window);
+            // we do not include the declaration of GetHelp here because 
+            // we do not want a default implementation or director as we have
+            // a fixed director implementation above and the rest is pure Ruby
+            // virtual wxString GetHelp(const wxWindowBase* window);
+            void RemoveHelp(wxWindowBase* window); // no virtual as we have fixed director impl above
             virtual bool ShowHelp(wxWindowBase* window);
             virtual bool ShowHelpAtPoint(wxWindowBase* window, const wxPoint point, 
                                          wxHelpEvent::Origin origin);
