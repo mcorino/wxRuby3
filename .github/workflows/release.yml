@@ -199,8 +199,8 @@ jobs:
             ruby: '3.2'
             swig: '4'
             configure_flags: --disable-sys-libs
-    runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.name }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       NSUnbufferedIO: YES
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
