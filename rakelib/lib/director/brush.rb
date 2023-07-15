@@ -20,7 +20,16 @@ module WXRuby3
         # these are defined and loaded in RubyStockObjects.i
         spec.ignore %w[
           wxBLUE_BRUSH wxGREEN_BRUSH wxYELLOW_BRUSH wxWHITE_BRUSH wxBLACK_BRUSH wxGREY_BRUSH
-          wxMEDIUM_GREY_BRUSH wxLIGHT_GREY_BRUSH wxTRANSPARENT_BRUSH wxCYAN_BRUSH wxRED_BRUSH wxTheBrushList]
+          wxMEDIUM_GREY_BRUSH wxLIGHT_GREY_BRUSH wxTRANSPARENT_BRUSH wxCYAN_BRUSH wxRED_BRUSH]
+        # do not expose this
+        spec.ignore 'wxTheBrushList'
+        # provide it's functionality as a class method of Brush instead
+        spec.add_extend_code 'wxBrush', <<~__HEREDOC
+          static wxBrush* find_or_create_brush(const wxColour &colour, wxBrushStyle style=wxBRUSHSTYLE_SOLID)
+          {
+            return wxTheBrushList->FindOrCreateBrush(colour, style);
+          }
+          __HEREDOC
       end
     end # class Brush
 
