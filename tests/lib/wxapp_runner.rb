@@ -60,5 +60,17 @@ module Test
         end
       end
     end
+
+    class TestCase
+
+      def self.is_ci_build?
+        !!ENV['GITHUB_ACTION']
+      end
+
+      def is_ci_build?
+        TestCase.is_ci_build?
+      end
+
+    end
   end
 end

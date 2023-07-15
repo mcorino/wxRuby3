@@ -24,9 +24,7 @@ module WXRuby3
                          'wxFont::GetDefaultEncoding',
                          'wxFont::SetDefaultEncoding'
         spec.rename_for_ruby 'create' => 'wxFont::New'
-        spec.ignore %w[
-          wxFont::SetNativeFontInfo wxFont::GetNativeFontInfo wxFont::operator!=
-          ]
+        spec.ignore [ 'wxFont::SetNativeFontInfo(const wxNativeFontInfo &)', 'wxFont::GetNativeFontInfo', 'wxFont::operator!=' ]
         spec.ignore 'wxFont::wxFont(const wxNativeFontInfo &)'
         if Config.instance.wx_port == :wxQT
           # not implemented
@@ -85,6 +83,17 @@ module WXRuby3
           WXRUBY_EXPORT VALUE wxRuby_FontToRuby(const wxFont& font)
           {
             return SWIG_NewPointerObj(new wxFont(font), SWIGTYPE_p_wxFont, SWIG_POINTER_OWN);
+          }
+          __HEREDOC
+        # implement wxTheFontList methods as static methods of Wx::Font
+        spec.add_extend_code 'wxFont', <<~__HEREDOC
+          static wxFont * find_or_create_font(int point_size, wxFontFamily family, wxFontStyle style, wxFontWeight weight, bool underline=false, const wxString &facename=wxEmptyString, wxFontEncoding encoding=wxFONTENCODING_DEFAULT)
+          {
+            return wxTheFontList->FindOrCreateFont(point_size, family, style, weight, underline, facename, encoding);
+          }
+          static wxFont *	find_or_create_font(const wxFontInfo &fontInfo)
+          {
+            return wxTheFontList->FindOrCreateFont(fontInfo);
           }
           __HEREDOC
         spec.do_not_generate :functions

@@ -107,14 +107,6 @@ module WxRuby
         GUITests.has_ui_simulator?
       end
 
-      def self.is_ci_build?
-        !!ENV['GITHUB_ACTION']
-      end
-
-      def is_ci_build?
-        GUITests.is_ci_build?
-      end
-
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)
         return 0 unless block_given?
         evt_count = EventCounter.new
