@@ -5,6 +5,8 @@ on:
   push:
     tags:
       - v*
+    paths-ignore:
+      - '.github/workflows/**'
   workflow_dispatch:
 
 concurrency:
