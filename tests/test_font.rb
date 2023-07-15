@@ -167,53 +167,51 @@ class FontTests < Test::Unit::TestCase
 
   end
 
-  unless Wx::PLATFORM == 'WXOSX'
-    def test_native_font_info
-      get_test_fonts.each_with_index do |test, n|
-          nid = test.get_native_font_info_desc
-          assert( !nid.empty? )
-          # documented to be never empty
+  def test_native_font_info
+    get_test_fonts.each_with_index do |test, n|
+        nid = test.get_native_font_info_desc
+        assert( !nid.empty? )
+        # documented to be never empty
 
-          temp = Wx::Font.new
-          assert( temp.set_native_font_info(nid) )
-          assert( temp.ok? )
+        temp = Wx::Font.new
+        assert( temp.set_native_font_info(nid) )
+        assert( temp.ok? )
 
-          puts("Testing font ##{n}") unless is_ci_build?
-          puts("original font user description: #{test.get_native_font_info_user_desc}") unless is_ci_build?
-          puts("the other font description: #{temp.get_native_font_info_user_desc}") unless is_ci_build?
+        puts("Testing font ##{n}") unless is_ci_build?
+        puts("original font user description: #{test.get_native_font_info_user_desc}") unless is_ci_build?
+        puts("the other font description: #{temp.get_native_font_info_user_desc}") unless is_ci_build?
 
-          assert_equal( temp, test )
-      end
-
-      # test that clearly invalid font info strings do not work
-      font = Wx::Font.new
-      assert( !font.set_native_font_info('') )
-
-      # pango_font_description_from_string() used by Wx::Font in wxGTK and wxX11
-      # never returns an error at all so this assertion fails there -- and as it
-      # doesn't seem to be possible to do anything about it maybe we should
-      # change wxMSW and other ports to also accept any strings?
-      unless %w[WXGTK WXX11 WXQT].include?(Wx::PLATFORM)
-      assert( !font.set_native_font_info("bloordyblop") )
-      end
-
-      font.set_underlined(true)
-      font.set_strikethrough(true)
-      assert(font == Wx::Font.new(font))
-      assert(font == Wx::Font.new(font.get_native_font_info_desc))
-      assert(Wx::Font.new(font.get_native_font_info_desc).get_underlined)
-      assert(Wx::Font.new(font.get_native_font_info_desc).get_strikethrough)
-      font.set_underlined(false)
-      assert(font == Wx::Font.new(font))
-      assert(font == Wx::Font.new(font.get_native_font_info_desc))
-      assert(!Wx::Font.new(font.get_native_font_info_desc).get_underlined)
-      font.set_underlined(true)
-      font.set_strikethrough(false)
-      assert(font == Wx::Font.new(font))
-      assert(font == Wx::Font.new(font.get_native_font_info_desc))
-      assert(Wx::Font.new(font.get_native_font_info_desc).get_underlined)
-      assert(!Wx::Font.new(font.get_native_font_info_desc).get_strikethrough)
+        assert_equal( temp, test ) unless Wx::PLATFORM == 'WXOSX'
     end
+
+    # test that clearly invalid font info strings do not work
+    font = Wx::Font.new
+    assert( !font.set_native_font_info('') )
+
+    # pango_font_description_from_string() used by Wx::Font in wxGTK and wxX11
+    # never returns an error at all so this assertion fails there -- and as it
+    # doesn't seem to be possible to do anything about it maybe we should
+    # change wxMSW and other ports to also accept any strings?
+    unless %w[WXGTK WXX11 WXQT].include?(Wx::PLATFORM)
+    assert( !font.set_native_font_info("bloordyblop") )
+    end
+
+    font.set_underlined(true)
+    font.set_strikethrough(true)
+    assert(font == Wx::Font.new(font))
+    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless Wx::PLATFORM == 'WXOSX'
+    assert(Wx::Font.new(font.get_native_font_info_desc).get_underlined)
+    assert(Wx::Font.new(font.get_native_font_info_desc).get_strikethrough)
+    font.set_underlined(false)
+    assert(font == Wx::Font.new(font))
+    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless Wx::PLATFORM == 'WXOSX'
+    assert(!Wx::Font.new(font.get_native_font_info_desc).get_underlined)
+    font.set_underlined(true)
+    font.set_strikethrough(false)
+    assert(font == Wx::Font.new(font))
+    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless Wx::PLATFORM == 'WXOSX'
+    assert(Wx::Font.new(font.get_native_font_info_desc).get_underlined)
+    assert(!Wx::Font.new(font.get_native_font_info_desc).get_strikethrough)
   end
 
   def test_find_or_create
