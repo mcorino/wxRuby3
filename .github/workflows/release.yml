@@ -302,14 +302,17 @@ jobs:
         uses: actions/checkout@v3
 
       - uses: ruby/setup-ruby@v1
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         with:
           ruby-version: ${{ matrix.ruby }}
 
       - name: Setup Ruby gems
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle install
 
       - name: Cache Doxygen
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: cache-doxygen
         uses: actions/cache@v3
         with:
@@ -317,7 +320,7 @@ jobs:
           key: ${{ runner.os }}-doxygen
 
       - name: Download Doxygen tool
-        if: steps.cache-doxygen.outputs.cache-hit != 'true'
+        if: ${{ github.event_name != 'workflow_dispatch' }} && steps.cache-doxygen.outputs.cache-hit != 'true'
         run: |
           wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
           $hash = 'bdf1af97a733edd0a60fce2cf375c5c3'
@@ -327,11 +330,13 @@ jobs:
           }
 
       - name: Install Doxygen package
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           Expand-Archive -LiteralPath '.\doxygen-1.9.6.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
           echo "$env:DOXYGEN_ROOT" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Display build environment
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           echo "$env:PATH"
           ruby -v
@@ -340,18 +345,22 @@ jobs:
           ridk exec bash -c 'g++ -v'
 
       - name: Configure wxRuby3
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle exec rake configure[--with-wxwin]
 
       - name: Build wxRuby3
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle exec rake build
 
       - name: Build wxRuby3 gem
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle exec rake bingem
 
       - name: Publish Gem on RubyGems
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           gem push pkg/*.gem 
 
