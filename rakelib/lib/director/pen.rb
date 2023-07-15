@@ -166,7 +166,16 @@ module WXRuby3
         # these are defined and loaded in RubyStockObjects.i
         spec.ignore %w[
           wxRED_PEN wxBLUE_PEN wxCYAN_PEN wxGREEN_PEN wxYELLOW_PEN wxBLACK_PEN wxWHITE_PEN
-          wxTRANSPARENT_PEN wxBLACK_DASHED_PEN wxGREY_PEN wxMEDIUM_GREY_PEN wxLIGHT_GREY_PEN wxThePenList]
+          wxTRANSPARENT_PEN wxBLACK_DASHED_PEN wxGREY_PEN wxMEDIUM_GREY_PEN wxLIGHT_GREY_PEN]
+        # do not expose this
+        spec.ignore 'wxThePenList'
+        # provide it's functionality as a class method of Pen instead
+        spec.add_extend_code 'wxPen', <<~__HEREDOC
+          static wxPen* find_or_create_pen(const wxColour &colour, int width=1, wxPenStyle style=wxPENSTYLE_SOLID)
+          {
+            return wxThePenList->FindOrCreatePen(colour, width, style);
+          }
+          __HEREDOC
       end
     end # class Pen
 
