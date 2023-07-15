@@ -216,10 +216,6 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Setup Ruby gems
-        run: |
-          bundle install
-
       - name: checkout wxWidgets
         uses: actions/checkout@v3
         with:
