@@ -312,7 +312,6 @@ jobs:
           bundle install
 
       - name: Cache Doxygen
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: cache-doxygen
         uses: actions/cache@v3
         with:
@@ -320,7 +319,6 @@ jobs:
           key: ${{ runner.os }}-doxygen
 
       - name: Download Doxygen tool
-        if: ${{ github.event_name != 'workflow_dispatch' }} && steps.cache-doxygen.outputs.cache-hit != 'true'
         run: |
           wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
           $hash = 'bdf1af97a733edd0a60fce2cf375c5c3'
