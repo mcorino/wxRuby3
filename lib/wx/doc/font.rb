@@ -1,5 +1,5 @@
 
-class Wx
+module Wx
   class Font
 
     # @overload find_or_create_font(point_size, family, style, weight, underline=false, facename='', encoding=Wx::FontEncoding::FONTENCODING_DEFAULT)
