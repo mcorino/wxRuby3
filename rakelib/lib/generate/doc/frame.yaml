@@ -1,0 +1,23 @@
+---
+:wxFrame:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::DEFAULT_FRAME_STYLE & ~(Wx::RESIZE_BORDER | Wx::MAXIMIZE_BOX)
+            ```
+:wxFrame.MSWGetTaskBarButton:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              if Wx::PLATFORM == 'WXMSW'
+                #...
+              end
+            ```

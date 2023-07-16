@@ -1,0 +1,11 @@
+---
+:wxFSFile.wxFSFile:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /It is seldom used by the application programmer/
+          :replace: ''
+
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''

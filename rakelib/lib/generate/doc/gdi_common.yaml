@@ -1,0 +1,36 @@
+---
+:wxPoint.SetDefaults:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              if !pos.is_fully_specified
+                pos.set_defaults(get_default_position)
+              end
+            ```
+:wxPoint.wxPoint:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              real_point = ...
+              p = Wx::Point.new(real_point.x.round, real_point.y.round)
+            ```
+:wxSize.SetDefaults:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              if !size.is_fully_specified
+                size.set_defaults(get_default_size)
+              end
+            ```
