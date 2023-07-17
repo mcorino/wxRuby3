@@ -1,0 +1,12 @@
+---
+:wxGUIEventLoop.Dispatch:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              while evt_loop.pending
+                evt_loop.dispatch
+            ```

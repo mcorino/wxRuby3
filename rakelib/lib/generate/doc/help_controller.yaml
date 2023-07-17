@@ -1,0 +1,24 @@
+---
+:wxHelpController.SetViewer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              @help.set_viewer('kdehelp')
+              @help.set_viewer('gnome-help-browser')
+              @help.set_viewer('netscape', Wx::HELP_NETSCAPE)
+            ```
+:wxHelpController:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Note\s+that\s+if\s+you\s+use\s+\.zip.*application\s+initialization:/
+          :subst: 'Note that in Ruby the required filesystem handlers for .zip or .htb books are always loaded.'
+        - :pattern: !ruby/regexp / or\s+nothing\s+will\s+be\s+shown\s+in\s+your\s+help\s+window./
+          :subst: ''
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
