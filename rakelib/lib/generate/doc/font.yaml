@@ -1,0 +1,29 @@
+---
+:wxFont.wxFont:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxFontInfo/
+          :replace: |
+            
+            ```ruby
+              font = Wx::Font.new(Wx::FontInfo.new(10).bold().underlined())
+            ```
+        - :pattern: !ruby/regexp /wxFONTFAMILY_DEFAULT/
+          :replace: |
+            
+            ```ruby
+              font = Wx::Font.new(10, Wx::FontFamily::FONTFAMILY_DEFAULT, 
+                                  Wx::FontStyle::FONTSTYLE_NORMAL, 
+                                  Wx::FontWeight::FONTWEIGHT_BOLD, true)
+            ```
+:wxFontInfo:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              font = Wx::Font.new(Wx::FontInfo.new(12).face_name('Helvetica').italic())
+            ```
