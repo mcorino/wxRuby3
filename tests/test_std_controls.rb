@@ -371,3 +371,61 @@ class ChoiceTests < WxRuby::Test::GUITests
   end
 
 end
+
+class GaugeTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @gauge = Wx::Gauge.new(test_frame, range: 100)
+  end
+
+  def cleanup
+    test_frame.destroy_children
+    super
+  end
+
+  attr_reader :gauge
+
+  def test_direction
+    #We should default to a horizontal gauge
+    assert(!gauge.is_vertical)
+
+    gauge.destroy
+    @gauge = Wx::Gauge.new(test_frame, range: 100, style: Wx::GA_VERTICAL)
+
+    assert(gauge.vertical?)
+
+    gauge.destroy
+    @gauge = Wx::Gauge.new(test_frame, range: 100, style: Wx::GA_HORIZONTAL)
+
+    assert(!gauge.vertical?)
+  end
+
+  def test_range
+    assert_equal(100, gauge.get_range)
+
+    gauge.set_range(50)
+
+    assert_equal(50, gauge.get_range)
+
+    gauge.set_range(0)
+
+    assert_equal(0, gauge.range)
+  end
+
+  def test_value
+    assert_equal(0, gauge.get_value)
+
+    gauge.set_value(50)
+
+    assert_equal(50, gauge.value)
+
+    gauge.value = 0
+
+    assert_equal(0, gauge.get_value)
+
+    gauge.set_value(100)
+
+    assert_equal(100, gauge.value)
+  end
+end
