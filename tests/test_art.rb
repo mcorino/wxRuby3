@@ -76,6 +76,15 @@ class TestArt < Test::Unit::TestCase
     end
   end
 
+  def test_image_histogram
+    img = Wx.Image(:wxruby, Wx::BitmapType::BITMAP_TYPE_JPEG)
+    img_hist = img.compute_histogram
+    assert(img_hist.is_a?(::Hash))
+    assert(img_hist.is_a?(Wx::Image::Histogram))
+    assert(img_hist.size > 0)
+    assert(img_hist.values.all? { |index, value| index>=0 && value>=1 })
+  end
+
   def test_art
     art = nil
     assert_nothing_raised do
