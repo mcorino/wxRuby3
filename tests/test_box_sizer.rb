@@ -15,6 +15,7 @@ class BoxSizerTests < WxRuby::Test::GUITests
     test_frame.destroy_children
     @win = nil
     @sizer = nil
+    super
   end
 
   attr_reader :win, :sizer

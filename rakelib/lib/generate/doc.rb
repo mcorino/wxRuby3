@@ -403,7 +403,7 @@ module WXRuby3
         itm_text = node_to_doc(node)
         # fix possible unwanted leading spaces resulting in verbatim blocks
         itm_text = itm_text.split("\n").collect {|s|s.lstrip}.join("\n") if itm_text.index("\n")
-        "- #{itm_text}"
+        "\n- #{itm_text}"
       end
 
       def node_to_doc(xmlnode)
