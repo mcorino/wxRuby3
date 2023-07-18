@@ -100,6 +100,7 @@ module WXRuby3
             VALUE items = rb_ary_new();
             rb_ary_push(items, (VALUE)item1);
             rb_ary_push(items, (VALUE)item2);
+            rb_ary_push(items, (VALUE)data);
             VALUE the_order = rb_yield(items);
             return NUM2INT(the_order);
           }
@@ -183,9 +184,9 @@ module WXRuby3
             return Qnil;
           }	
           
-          void sort_items()
+          void sort_items(VALUE data = Qnil)
           {
-            self->SortItems(wxListCtrl_SortByYielding, 0);
+            $self->SortItems(wxListCtrl_SortByYielding, static_cast<wxIntPtr> (data));
           }
           __HEREDOC
         super
