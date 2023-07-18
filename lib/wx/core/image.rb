@@ -66,6 +66,39 @@ module Wx
     def convert_to_bitmap
       Wx::Bitmap.from_image(self)
     end
+
+    module Histogram
+
+      def make_key(r, g, b)
+        (r << 16) | (g << 8) | b
+      end
+
+      def find_first_unused_colour(r=1, g=0, b=0)
+        while self.has_key?(make_key(r,g,b))
+          if r >= 254
+            r = 0
+            if g >= 254
+              return nil if b >= 254
+              g = 0
+              b += 1
+            else
+              g += 1
+            end
+          else
+            r += 1
+          end
+        end
+        [r, g, b]
+      end
+
+    end
+
+    wx_compute_histogram = instance_method :compute_histogram
+    define_method :compute_histogram do
+      hist_hash = wx_compute_histogram.bind(self).call
+      hist_hash.extend Histogram
+      hist_hash
+    end
   end
 
   def self.Image(name, bmp_type = nil, *rest)

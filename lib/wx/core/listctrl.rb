@@ -3,8 +3,23 @@ class Wx::ListCtrl
   # Make these ruby enumerables so find, find_all, map are available 
   include Enumerable
   # Passes each valid item index into the passed block
-  def each
-    0.upto(item_count - 1) { | i | yield i }
+  def each(&block)
+    if block_given?
+      0.upto(item_count - 1) { | i | block.call(i) }
+    else
+      ::Enumerator.new { |y| each { | i | y << i } }
+    end
+  end
+
+  def each_selected(&block)
+    if block_given?
+      item = -1
+      while (item = get_next_item(item, Wx::LIST_NEXT_ALL, Wx::LIST_STATE_SELECTED)) >= 0
+        block.call(item)
+      end
+    else
+      ::Enumerator.new { |y| each_selected { | i | y << i } }
+    end
   end
 
   # Returns an Array containing the indexes of the currently selected
@@ -19,15 +34,4 @@ class Wx::ListCtrl
     selections
   end
 
-  # # Stub version for LC_VIRTUAL controls that does nothing; may be
-  # # overridden in subclasses.
-  # def on_get_item_attr(i)
-  #   nil
-  # end
-  #
-  # # Stub version for LC_VIRTUAL|LC_REPORT controls that does nothing;
-  # # may be overridden in subclasses.
-  # def on_get_item_column_image(i, col)
-  #   -1
-  # end
 end

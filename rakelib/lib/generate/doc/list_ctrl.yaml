@@ -1,0 +1,77 @@
+---
+:wxListCtrl.GetNextItem:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              item = -1
+              while (item = list_ctrl.get_next_item(item, Wx::LIST_NEXT_ALL, Wx::LIST_STATE_SELECTED)) != -1
+                # item is selected - do whatever is needed with it
+                Wx.log_message("Item #{item} is selected.")
+              end
+            
+              # alternatively in wxRuby you could do
+              list_ctrl.each_selected do |item|
+                Wx.log_message("Item #{item} is selected.")
+              end
+            ```
+:wxListCtrl.SetItemState:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /item.*wxLIST_STATE_SELECTED.*wxLIST_STATE_SELECTED/
+          :replace: |
+
+            ```ruby
+              list.set_item_state(item, Wx::LIST_STATE_SELECTED, Wx::LIST_STATE_SELECTED)
+            ```
+        - :pattern: !ruby/regexp /item.*0.*wxLIST_STATE_SELECTED/
+          :replace: |
+
+            ```ruby
+              list.set_item_state(item, 0, Wx::LIST_STATE_SELECTED)
+            ```
+:wxListCtrl.GetUpdatedAscendingSortIndicator:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              class MyListCtrl
+            
+                def on_col_click(event)
+                  col = event.column
+                  if col == -1
+                     return # clicked outside any column.
+              
+                  ascending = get_updated_ascending_sort_indicator(col)
+                  sort_items(ascending) { |itm1_data, itm2_data, data| ... }
+                  show_sort_indicator(col, ascending)
+                end
+            
+              end
+            ```
+:wxListCtrl:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              list = Wx::ListCtrl.new(...)
+              3.times { |i| list.insert_column(i, "Column #{i}") }
+              
+              order = [2, 0, 1]
+              list.set_columns_order(order)
+              
+              # now list.get_columns_order() will return order and
+              # list.get_column_index_from_order(n) will return order[n] and
+              # list.get_column_order() will return 1, 2 and 0 for the column 0,
+              # 1 and 2 respectively
+            ```

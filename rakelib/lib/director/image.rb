@@ -157,6 +157,25 @@ module WXRuby3
             return rb_str_new( (const char*)rgb_data, length);
           }
           __HEREDOC
+        # ignore this so we do not have to wrap wxImageHistogram
+        spec.ignore 'wxImage::ComputeHistogram'
+        # add custom method simply returning Hash; finish off in pure Ruby
+        spec.add_extend_code 'wxImage', <<~__HEREDOC
+          VALUE compute_histogram()
+          {
+            VALUE rb_img_hist = rb_hash_new();
+            wxImageHistogram img_hist;
+            $self->ComputeHistogram(img_hist);
+            for (auto pair : img_hist)
+            {
+              VALUE rb_hist_entry = rb_ary_new();
+              rb_ary_push(rb_hist_entry, ULL2NUM(pair.second.index));
+              rb_ary_push(rb_hist_entry, ULL2NUM(pair.second.value));
+              rb_hash_aset(rb_img_hist, ULL2NUM(pair.first), rb_hist_entry);
+            }
+            return rb_img_hist;
+          }
+          __HEREDOC
         spec.do_not_generate(:functions)
       end
     end # class Image

@@ -1,0 +1,81 @@
+---
+:wxImage.Scale:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              # get the bitmap from somewhere
+              bmp = ...
+              
+              # rescale it to have size of 32*32
+              if bmp.width != 32 || bmp.height != 32
+                 image = bmp.convert_to_image
+                 bmp = Wx::Bitmap.new(image.scale(32, 32))
+              
+                 # another possibility:
+                 image.rescale(32, 32)
+                 bmp = image.to_bitmap
+              end
+            ```
+:wxImage.LoadFile:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              hotspot_x = image.get_option_int(Wx::IMAGE_OPTION_CUR_HOTSPOT_X)
+              hotspot_y = image.get_option_int(Wx::IMAGE_OPTION_CUR_HOTSPOT_Y)
+            ```
+:wxImage.SaveFile:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              image.set_option(Wx::IMAGE_OPTION_CUR_HOTSPOT_X, hotspot_x)
+              image.set_option(Wx::IMAGE_OPTION_CUR_HOTSPOT_Y, hotspot_y)
+            ```
+:wxImage.SetLoadFlags:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              image = Wx::Image.new
+              image.set_load_flags(image.get_load_flags & ~Wx::Image::Load_Verbose)
+              image.load_file(...)
+            ```
+:wxImage.wxImage:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              hotspot_x = image.get_option_int(Wx::IMAGE_OPTION_CUR_HOTSPOT_X)
+              hotspot_y = image.get_option_int(Wx::IMAGE_OPTION_CUR_HOTSPOT_Y)
+            ```
+:wxImage.GetImageExtWildcard:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              Wx::FileDialog(self, 'Choose Image', Dir.getwd, '',
+                             'Image Files ' + Wx::Image.get_image_ext_wildcard,
+                             Wx::FD_OPEN) do |file_dlg|
+                # ...
+              end
+            ```
