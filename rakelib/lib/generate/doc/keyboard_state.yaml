@@ -1,0 +1,19 @@
+---
+:wxKeyboardState.GetModifiers:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /ControlDown/
+          :replace: |
+
+            ```ruby
+              if control_down && !alt_down && !shift_down && !meta_down
+                ... handle Ctrl-XXX ...
+            ```
+        - :pattern: !ruby/regexp /GetModifiers/
+          :replace: |
+
+            ```ruby
+              if get_modifiers == Wx::MOD_CONTROL
+                ... handle Ctrl-XXX ...
+            ```
