@@ -1,0 +1,86 @@
+---
+:wxLog.SetComponentLevel:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              wxLog.set_component_level("wx/net", Wx::LOG_Error)
+            ```
+:wxLog.LogRecord:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class Wx::LogChain
+            
+                def do_log_record(level, msg, info)
+                   # let the previous logger show it
+                   if m_logOld && is_passing_messages
+                       m_logOld.log_record(level, msg, info)
+                
+                   # and also send it to the new one
+                   if m_logNew && m_logNew != self
+                       m_logNew.log_record(level, msg, info)
+                end
+            
+              end
+            ```
+:wxLogChain:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              logChain = Wx::LogChain.new(Wx::LogStderr.new)
+              
+              # all the log messages are sent to stderr and also processed as usually
+              ...
+            ```
+:wxLogNull:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxFile.Open/
+          :replace: |
+            
+            ```ruby
+              mime_type = ... # retrieved from somewhere
+              img = Wx::Image.new
+              Wx::LogNull.no_log do     # suspend logging 
+            
+                
+                # Wx::Image#load_stream will complain if there is no handler for the given mimetype and fail
+                if !img.load_stream(File.open('file.img'), mime_type)
+                  # handle problem
+                end
+            
+              end # old log sink restored
+              
+              Wx.log_message('...') # ok
+            ```
+        - :pattern: !ruby/regexp /wxFile::Exists/
+          :replace: |
+            
+            ```ruby
+              mime_type = ... # retrieved from somewhere
+            
+              # check the condition that makes your code complain
+              if Wx::Image.mime_types.include?(mime_type)
+                img.load_stream(File.open('file.img'), mime_type)
+                ...
+              else
+                # do something else
+                ...
+              end
+            ```
+      :para:
+        - :pattern: !ruby/regexp /thread-safe/
+          :replace: ''
