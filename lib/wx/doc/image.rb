@@ -11,6 +11,10 @@ module Wx
     # @return [Array<String>]
     def self.extensions; end
 
+    # Returns an array with the supported mime types of the available image handlers.
+    # @return [Array<String>]
+    def self.mime_types; end
+
     # returns a Hash with all supported extensions per available BitmapType
     # @return [Hash]
     def self.handler_extensions; end
