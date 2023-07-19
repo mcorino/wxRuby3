@@ -20,7 +20,7 @@ class LogTests < Test::Unit::TestCase
     end
 
     def clear
-      @logs.each { |l| l.clear() }
+      @logs = ::Array.new(Wx::LOG_Trace + 1)
       @logsInfo = ::Array.new(Wx::LOG_Trace + 1)
     end
 
@@ -103,5 +103,29 @@ class LogTests < Test::Unit::TestCase
       # restore the original component value
     end
   end
-  
+
+  def test_repetition_counting
+    Wx::Log.set_repetition_counting(true)
+
+    Wx.log_message('Message')
+    assert_equal('Message', @log.get_log(Wx::LOG_Message))
+
+    @log.clear
+    Wx.log_message('Message')
+    assert_equal('', @log.get_log(Wx::LOG_Message))
+    Wx.log_message('Message')
+    assert_equal('', @log.get_log(Wx::LOG_Message))
+
+    Wx.log_info('Another message')
+    if Wx.has_feature?(:USE_INTL)
+      # don't what language may come out so just test if not empty anymore
+      assert_not_empty(@log.get_log(Wx::LOG_Message))
+    else
+      assert_match(/The previous message.*repeated/, @log.get_log(Wx::LOG_Message))
+    end
+    assert_equal('Another message', @log.get_log(Wx::LOG_Info))
+
+    Wx::Log.set_repetition_counting(false)
+  end
+
 end
