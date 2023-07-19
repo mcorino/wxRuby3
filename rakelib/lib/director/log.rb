@@ -11,8 +11,9 @@ module WXRuby3
 
       def setup
         spec.gc_as_object
-        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow])
+        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow wxLogNull wxLogRecordInfo])
         spec.no_proxy(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow])
+        spec.regard %w[wxLog::DoLogRecord wxLog::DoLogTextAtLevel wxLog::DoLogText]
         spec.ignore 'wxLogBuffer::Flush'
         spec.ignore 'wxLogGui::Flush'
         if Config.instance.features_set?(%w[wxUSE_STD_IOSTREAM])
@@ -20,9 +21,40 @@ module WXRuby3
         end
         spec.ignore 'wxLog::SetThreadActiveTarget'
         spec.disown 'wxLog *logtarget'
+        spec.new_object 'wxLog::SetActiveTarget'
         spec.do_not_generate(:functions)
         spec.make_concrete('wxLog')
-        spec.extend_interface('wxLog', '  virtual ~wxLog ();')
+        spec.extend_interface('wxLog', 'virtual ~wxLog ();')
+        spec.add_extend_code 'wxLogRecordInfo', <<~__HEREDOC
+          VALUE filename()
+          {
+            return WXSTR_TO_RSTR(wxString($self->filename));
+          }
+          VALUE line()
+          {
+            return INT2NUM($self->line);
+          }
+          VALUE func()
+          {
+            return WXSTR_TO_RSTR(wxString($self->func));
+          }
+          VALUE component()
+          {
+            return WXSTR_TO_RSTR(wxString($self->component));
+          }
+          __HEREDOC
+        spec.make_abstract 'wxLogNull'
+        spec.ignore 'wxLogNull::wxLogNull'
+        spec.add_extend_code 'wxLogNull', <<~__HEREDOC__
+          static void no_log()
+          {
+            if (rb_block_given_p ())
+            {
+              wxLogNull noLog;
+              rb_yield(Qnil);
+            }
+          }
+          __HEREDOC__
         super
       end
     end # class Log

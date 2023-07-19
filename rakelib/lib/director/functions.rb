@@ -30,93 +30,89 @@ module WXRuby3
           // sprintf in ruby, then pass the composed message directly to the
           // log. This also avoids format string attacks.
           
+          static WxRuby_ID __filename_id("filename");
+          static WxRuby_ID __line_id("line");
+          static WxRuby_ID __func_id("func");
+          static WxRuby_ID __comp_id("component");
+
+          static const char* __wxruby_component = "wxapp";
+
+          // As the wxw logger will only make synchronous use of the filename, func and component pointers while
+          // processing the log entry and never store them we simply gather pointers but no copies 
+          static void do_log(wxLogLevel lvl, int argc, VALUE *argv, ...)
+          {
+            const char* filename = nullptr;
+            int line = 0;
+            const char* func = nullptr;
+            const char* component = __wxruby_component;
+
+            if (argc>1 && TYPE(argv[argc-1]) == T_HASH)
+            {
+              VALUE rb_hash = argv[--argc];
+              VALUE rb_fnm  = rb_hash_aref(rb_hash, ID2SYM(__filename_id.get_id()));
+              if (!NIL_P(rb_fnm) && TYPE(rb_fnm) == T_STRING) filename = StringValuePtr(rb_fnm);
+              VALUE rb_ln   = rb_hash_aref(rb_hash, ID2SYM(__line_id.get_id()));
+              if (!NIL_P(rb_ln) && TYPE(rb_ln) == T_FIXNUM) line = NUM2INT(rb_ln);
+              VALUE rb_func = rb_hash_aref(rb_hash, ID2SYM(__func_id.get_id()));
+              if (!NIL_P(rb_func) && TYPE(rb_func) == T_STRING) func = StringValuePtr(rb_func);
+              VALUE rb_comp = rb_hash_aref(rb_hash, ID2SYM(__comp_id.get_id()));
+              if (!NIL_P(rb_comp) && TYPE(rb_comp) == T_STRING) component = StringValuePtr(rb_comp);
+            }
+
+            VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
+            va_list list;
+            va_start(list, argv); // just a dummy to satisfy wxLogger::LogV 
+            wxLogger(lvl, filename, line, func, component).LogV(wxString(StringValuePtr(log_msg), wxConvUTF8), list);
+          }
+
           // Log a Wx message with the given level to the current Wx log output
           static VALUE log_generic(int argc, VALUE *argv, VALUE self)
           {
-            if ( wxLog::IsEnabled() )
-              {
-                wxLogLevel lvl = static_cast<wxLogLevel> (NUM2INT(argv[0]));
-                VALUE log_msg = argc==2 ? argv[1] : rb_f_sprintf(argc-1, &argv[1]);
-                wxLog::OnLog( lvl,
-                              wxString(StringValuePtr(log_msg), wxConvUTF8),
-                              time(NULL) );
-              }
+            wxLogLevel lvl = static_cast<wxLogLevel> (NUM2INT(argv[0]));
+            do_log(lvl, argc-1, &argv[1]);
             return Qnil;
           }
           
           // Log a Wx low prio Message to the current Wx log output
           static VALUE log_info(int argc, VALUE *argv, VALUE self)
           {
-            if ( wxLog::IsEnabled() )
-              {
-                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-                wxLog::OnLog( wxLOG_Info,
-                              wxString(StringValuePtr(log_msg), wxConvUTF8),
-                              time(NULL) );
-              }
+            do_log(wxLOG_Info, argc, argv);
             return Qnil;
           }
           
           // Log a Wx verbose Message to the current Wx log output
           static VALUE log_verbose(int argc, VALUE *argv, VALUE self)
           {
-            if ( wxLog::IsEnabled() && wxLog::GetVerbose () )
-              {
-                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-                wxLog::OnLog( wxLOG_Info,
-                              wxString(StringValuePtr(log_msg), wxConvUTF8),
-                              time(NULL) );
-              }
+            if (wxLog::GetVerbose ())
+              do_log(wxLOG_Info, argc, argv);
             return Qnil;
           }
           
           // Log a Wx Message to the current Wx log output
           static VALUE log_message(int argc, VALUE *argv, VALUE self)
           {
-            if ( wxLog::IsEnabled() )
-              {
-                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-                wxLog::OnLog( wxLOG_Message,
-                              wxString(StringValuePtr(log_msg), wxConvUTF8),
-                              time(NULL) );
-              }
+            do_log(wxLOG_Message, argc, argv);
             return Qnil;
           }
           
           // Log a Wx Warning message to the current Wx log output
           static VALUE log_warning(int argc, VALUE *argv, VALUE self)
           {
-            if ( wxLog::IsEnabled() )
-              {
-                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-                wxLog::OnLog( wxLOG_Warning,
-                              wxString(StringValuePtr(log_msg), wxConvUTF8),
-                              time(NULL) );
-              }
+            do_log(wxLOG_Warning, argc, argv);
             return Qnil;
           }
           
           // Log an error message to the current output
           static VALUE log_error(int argc, VALUE *argv, VALUE self)
           {
-            if ( wxLog::IsEnabled() )
-              {
-                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-                wxLog::OnLog( wxLOG_Error,
-                              wxString(StringValuePtr(log_msg), wxConvUTF8),
-                              time(NULL) );
-              }
+            do_log(wxLOG_Error, argc, argv);
             return Qnil;
           }
 
           // Log a debug message
           static VALUE log_debug(int argc, VALUE *argv, VALUE self)
           {
-            if (wxLog::IsLevelEnabled(wxLOG_Debug, wxASCII_STR(wxLOG_COMPONENT)))
-            {
-                VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-                wxLogDebug(wxString(StringValuePtr(log_msg), wxConvUTF8));
-            }
+            do_log(wxLOG_Debug, argc, argv);
             return Qnil;
           }
           
