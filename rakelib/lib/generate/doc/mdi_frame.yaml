@@ -1,0 +1,12 @@
+---
+:wxMDIParentFrame.OnCreateClient:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              frame = MyParentFrame.new
+              frame.create(parent, myParentFrameId, 'My Parent Frame')
+            ```

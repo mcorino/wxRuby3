@@ -1,0 +1,43 @@
+---
+:wxMenuItem.SetItemLabel:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              @my_menu_item.set_item_label("My &item\tCTRL+I")
+              @my_menu_item2.set_item_label("Clean && build\tF7")
+              @my_menu_item3.set_item_label("Simple item")
+              @my_menu_item4.set_item_label("Item with &accelerator")
+            ```
+:wxMenuItem.wxMenuItem:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # use all stock properties:
+              helpMenu.append(wxID_ABOUT)
+              
+              # use the stock label and the stock accelerator but not the stock help string:
+              helpMenu.append(Wx::ID_ABOUT, "", "My custom help string")
+              
+              # use all stock properties except for the bitmap:
+              mymenu = Wx::MenuItem.new(helpMenu, Wx::ID_ABOUT)
+              mymenu.set_bitmap(Wx::ArtProvider.get_bitmap(Wx::ART_WARNING))
+              helpMenu.append(mymenu)
+            ```
+:wxMenuItem.GetLabelText:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::MenuItem.get_label_text("&Hello\tCtrl-h")
+            ```

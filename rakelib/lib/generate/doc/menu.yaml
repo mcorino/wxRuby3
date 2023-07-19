@@ -1,0 +1,17 @@
+---
+:wxMenu.Append:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /ID_NEW_FILE/
+          :replace: |
+            
+            ```ruby
+              file_menu.append(ID_NEW_FILE, "&New file\tCTRL+N", "Creates a new XYZ document")
+            ```
+        - :pattern: !ruby/regexp /wxID_NEW/
+          :replace: |
+            
+            ```ruby
+              file_menu.append(Wx::ID_NEW, "", "Creates a new XYZ document")
+            ```
