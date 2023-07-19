@@ -1,0 +1,12 @@
+---
+:wxLocale:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+      :para:
+        - :pattern: !ruby/regexp /If\s+you\s+need\s+to\s+translate\s+a\s+lot\s+of\s+strings.*/
+          :replace: ''

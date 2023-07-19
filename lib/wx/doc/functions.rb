@@ -11,32 +11,73 @@ module Wx
   # @param lvl  [Integer] logging level (like {Wx::LOG_Message})
   # @param fmt  [String]  message (formatting) string
   # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_generic(lvl, fmt, *args) end
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_generic(lvl, fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
 
   # Log a Wx low priority informational message to the current Wx log output
   # @param fmt  [String]  message (formatting) string
   # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_info(fmt, *args) end
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_info(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
 
   # Log a Wx Informational message to the current Wx log output
   # @param fmt  [String]  message (formatting) string
   # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_message(fmt, *args) end
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_message(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
 
   # Log a Wx Error message to the current Wx log output
   # @param fmt  [String]  message (formatting) string
   # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_error(fmt, *args) end
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_error(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
 
   # Log a Wx Warning message to the current Wx log output
   # @param fmt  [String]  message (formatting) string
   # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_warning(fmt, *args) end
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_warning(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
+
+  # Log a Wx verbose informational message to the current Wx log output
+  # (needs explicit activation to be shown)
+  # @param fmt  [String]  message (formatting) string
+  # @param args [Array<Object>] optional message arguments
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_verbose(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
+
+  # Log a Wx debug message to the current Wx log output
+  # @param fmt  [String]  message (formatting) string
+  # @param args [Array<Object>] optional message arguments
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_debug(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
 
   # Log a Wx Status message - this is directed to the status bar of the
   # specified Frame window, or the application main window if not specified.
@@ -50,19 +91,6 @@ module Wx
   #   @param args [Array<Object>] optional message arguments
   # @return [nil]
   def self.log_status(fmt, *args) end
-
-  # Log a Wx verbose informational message to the current Wx log output
-  # (needs explicit activation to be shown)
-  # @param fmt  [String]  message (formatting) string
-  # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_verbose(fmt, *args) end
-
-  # Log a Wx debug message to the current Wx log output
-  # @param fmt  [String]  message (formatting) string
-  # @param args [Array<Object>] optional message arguments
-  # @return [nil]
-  def self.log_debug(fmt, *args) end
 
   # @!endgroup
 

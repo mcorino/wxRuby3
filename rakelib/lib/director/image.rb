@@ -77,6 +77,19 @@ module WXRuby3
             return ext_ary;
           }
 
+          static VALUE mime_types()
+          {
+            VALUE ext_ary = rb_ary_new();
+            wxList& hnd_lst = wxImage::GetHandlers();
+            for (wxList::compatibility_iterator node = hnd_lst.GetFirst();
+                    node; node = node->GetNext())
+            {
+              wxImageHandler *handler = (wxImageHandler *) node->GetData();
+              rb_ary_push(ext_ary, WXSTR_TO_RSTR(handler->GetMimeType()));
+            }
+            return ext_ary;
+          }
+
           static VALUE handler_extensions()
           {
             VALUE ext_hash = rb_hash_new();
