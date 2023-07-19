@@ -56,7 +56,7 @@ module Wx
                   end,
         line: line,
         func: if func
-                func = func.to_s
+                func.to_s
               else
                 func
               end,
