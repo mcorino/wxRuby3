@@ -66,7 +66,7 @@ module Wx
                      Log.component
                    end
       }
-      if @last_msg != msg
+      if Wx::Log.get_repetition_counting && @last_msg != msg
         # refresh cache
         @last_msg = msg
         @last_info = log_info
