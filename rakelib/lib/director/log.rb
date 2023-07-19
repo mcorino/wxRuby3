@@ -25,10 +25,11 @@ module WXRuby3
         spec.do_not_generate(:functions)
         spec.make_concrete('wxLog')
         spec.extend_interface('wxLog', 'virtual ~wxLog ();')
+        spec.gc_as_untracked 'wxLogRecordInfo'
         spec.add_extend_code 'wxLogRecordInfo', <<~__HEREDOC
           VALUE filename()
           {
-            return WXSTR_TO_RSTR(wxString($self->filename));
+            return $self->filename ? WXSTR_TO_RSTR(wxString($self->filename)) : Qnil;
           }
           VALUE line()
           {
@@ -36,11 +37,11 @@ module WXRuby3
           }
           VALUE func()
           {
-            return WXSTR_TO_RSTR(wxString($self->func));
+            return $self->func ? WXSTR_TO_RSTR(wxString($self->func)) : Qnil;
           }
           VALUE component()
           {
-            return WXSTR_TO_RSTR(wxString($self->component));
+            return $self->component ? WXSTR_TO_RSTR(wxString($self->component)) : Qnil;
           }
           __HEREDOC
         spec.make_abstract 'wxLogNull'

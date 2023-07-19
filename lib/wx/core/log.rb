@@ -40,13 +40,15 @@ module Wx
 
   class << self
 
-    def setup_log_info(filename, line, func, component)
+    def setup_log_info(fmt, args, filename, line, func, component)
       # as wxRuby apps will ever only log from the main thread the only reason why
       # log info data may be retained beyond the execution scope of the current
-      # log action is because of log repetition counting for which we simply keep
-      # track of the previous and current info data here
-      @last_log_info = @log_info
-      @log_info = {
+      # log action is because of log repetition counting which will retain the
+      # first log info instance of a repeating message sequence
+
+      # format message
+      msg = fmt % args
+      log_info = {
         filename: if filename
                     filename.to_s
                   else
@@ -64,37 +66,43 @@ module Wx
                      Log.component
                    end
       }
+      if @last_msg != msg
+        # refresh cache
+        @last_msg = msg
+        @last_info = log_info
+      end
+      [msg, log_info]
     end
     private :setup_log_info
 
     wx_log_generic = self.instance_method :log_generic
     define_method :log_generic do |lvl, fmt, *args, filename: nil, line: 0, func: nil, component: nil|
-      wx_log_generic.bind(self).call(lvl, fmt, *args, setup_log_info(filename, line, func, component))
+      wx_log_generic.bind(self).call(lvl, *setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_info = self.instance_method :log_info
     define_method :log_info do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
-      wx_log_info.bind(self).call(fmt, *args, setup_log_info(filename, line, func, component))
+      wx_log_info.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_verbose = self.instance_method :log_verbose
     define_method :log_verbose do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
-      wx_log_verbose.bind(self).call(fmt, *args, setup_log_info(filename, line, func, component))
+      wx_log_verbose.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_message = self.instance_method :log_message
     define_method :log_message do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
-      wx_log_message.bind(self).call(fmt, *args, setup_log_info(filename, line, func, component))
+      wx_log_message.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_warning = self.instance_method :log_warning
     define_method :log_warning do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
-      wx_log_warning.bind(self).call(fmt, *args, setup_log_info(filename, line, func, component))
+      wx_log_warning.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_error = self.instance_method :log_error
     define_method :log_error do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
-      wx_log_error.bind(self).call(fmt, *args, setup_log_info(filename, line, func, component))
+      wx_log_error.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
   end

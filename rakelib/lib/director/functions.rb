@@ -62,7 +62,7 @@ module WXRuby3
             VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
             va_list list;
             va_start(list, argv); // just a dummy to satisfy wxLogger::LogV 
-            wxLogger(lvl, filename, line, func, component).LogV(wxString(StringValuePtr(log_msg), wxConvUTF8), list);
+            wxLogger(lvl, filename, line, func, component).LogV(RSTR_TO_WXSTR(log_msg), list);
           }
 
           // Log a Wx message with the given level to the current Wx log output
