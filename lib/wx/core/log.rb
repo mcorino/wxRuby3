@@ -61,7 +61,7 @@ module Wx
                 func
               end,
         component: if component
-                     component = component.to_s
+                     component.to_s
                    else
                      Log.component
                    end
