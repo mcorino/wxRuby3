@@ -277,6 +277,7 @@ module WXRuby3
 
       def _ident_str_to_doc(s, ref_scope = nil)
         return s if no_idents?
+        return s if s.start_with?('wxRuby')
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
