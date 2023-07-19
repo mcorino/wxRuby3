@@ -270,6 +270,8 @@ const int wxrb_trace_level = 0;
 #endif
 %}
 
+%constant int wxWXWIDGETS_DEBUG_LEVEL = wxDEBUG_LEVEL;
+
 %{
 #ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT int wxRuby_TraceLevel()

@@ -585,6 +585,9 @@ module WXRuby3
                 # Integer constant reflecting the sub-release number of the wxWidgets release used to build wxRuby
                 WXWIDGETS_SUBRELEASE_NUMBER = \#{Wx::WXWIDGETS_SUBRELEASE_NUMBER}
               
+                # Integer constant reflecting the wxWidgets wxDEBUG_LEVEL
+                WXWIDGETS_DEBUG_LEVEL = \#{Wx::WXWIDGETS_DEBUG_LEVEL}
+
                 # Boolean constant indicating if wxRuby was build in debug (true) or release (false) mode
                 DEBUG = \#{Wx::DEBUG}
               
