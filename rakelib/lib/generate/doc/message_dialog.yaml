@@ -1,0 +1,36 @@
+---
+:wxMessageDialog.SetYesNoLabels:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxID_SAVE/
+          :replace: |
+            
+            ```ruby
+              Wx.MessageDialog(...) do |dlg|
+                dlg.set_yes_no_labels(Wx::ID_SAVE, "&Don't save")
+              end
+            ```
+        - :pattern: !ruby/regexp /Quit/
+          :replace: |
+            
+            ```ruby
+              Wx.MessageDialog(...) do |dlg|
+                if dlg.set_yes_no_labels("&Quit, "&Don't quit")
+                  dlg.set_message('What do you want to do?')
+                else # buttons have standard "Yes"/"No" values, so rephrase the question
+                  dlg.set_message('Do you really want to quit?')
+              end
+            ```
+:wxMessageBox:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              answer = Wx.message_box("Quit program?", "Confirm",
+                                       Wx::YES_NO | Wx::CANCEL, main_frame)
+              main_frame.close if answer == Wx::YES
+            ```
