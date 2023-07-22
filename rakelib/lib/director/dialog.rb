@@ -28,6 +28,31 @@ module WXRuby3
             }
           __HEREDOC
         when 'wxMessageDialog'
+          spec.ignore 'wxMessageDialog::ButtonLabel'
+          spec.map 'const ButtonLabel&' => 'String,Integer' do
+            add_header_code 'typedef wxMessageDialog::ButtonLabel ButtonLabel;'
+            map_in temp: 'std::unique_ptr<wxMessageDialog::ButtonLabel> tmp', code: <<~__CODE
+              if (TYPE($input) == T_STRING)
+              {
+                tmp = std::make_unique<wxMessageDialog::ButtonLabel> (RSTR_TO_WXSTR($input));
+              }
+              else if (TYPE($input) == T_FIXNUM || wxRuby_IsAnEnum($input))
+              {
+                tmp = std::make_unique<wxMessageDialog::ButtonLabel> (NUM2INT($input));
+              }
+              else
+              {
+                rb_raise(rb_eArgError, "Expected string or stock id for %d", $argnum-1);
+              }
+              $1 = tmp.get();
+              __CODE
+            map_directorin code: <<~__CODE
+              if ($1.GetStockId() != wxID_NONE)
+              { $input = INT2NUM($1.GetStockId()); }
+              else
+              { $input = WXSTR_TO_RSTR($1.GetAsString()); }
+              __CODE
+          end
         when 'wxFontDialog'
           # ignore the non-const version
           if Config.platform == :macosx && Config.instance.wx_version < '3.3'
