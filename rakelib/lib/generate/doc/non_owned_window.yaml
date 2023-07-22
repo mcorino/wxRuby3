@@ -1,0 +1,14 @@
+---
+:wxNonOwnedWindow.SetShape:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              size = get_size
+              path = Wx::GraphicsRenderer.get_default_renderer.create_path
+              path.add_circle(size.x/2, size.y/2, 30)
+              set_shape(path)
+            ```
