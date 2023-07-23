@@ -1,0 +1,18 @@
+---
+:wxNotebook:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxSystemOptions/
+          :replace: |
+            
+            ```ruby
+              Wx::SystemOptions.set_option("msw.notebook.themed-background", 0)
+            ```
+        - :pattern: !ruby/regexp /GetThemeBackgroundColour/
+          :replace: |
+            
+            ```ruby
+              col = notebook.get_theme_background_colour
+              page.set_background_colour(col) if col.ok?
+            ```

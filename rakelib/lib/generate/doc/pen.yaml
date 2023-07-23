@@ -1,0 +1,11 @@
+---
+:wxPenInfo:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              pen = Wx::Pen.new(Wx::PenInfo.new(Wx::BLUE).style(Wx::PENSTYLE_DOT).join(Wx::JOIN_BEVEL))  
+            ```
