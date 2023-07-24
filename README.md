@@ -158,7 +158,7 @@ some use a more modern coding style than others.
 
 Complete (more or less) wxRuby API documentation should be part of any
 complete wxRuby3 build. This tends to focus on providing a reference
-of all available modules, classes ad methods and how to use specific 
+of all available modules, classes and methods and how to use specific 
 classes and methods, rather than on how to construct an application 
 overall.
 This documentation (for the latest release) is also available online
