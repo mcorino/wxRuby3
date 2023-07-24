@@ -1,0 +1,15 @@
+---
+:wxPlatformInfo:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /In\s+general\s+however\s+you\s+only\s+need\s+to\s+use\s+the\s+static.*for\s+the\s+current\s+platform:/
+          :subst: 'In general however you only need to use the static {Wx::PlatformInfo.instance} method and then access the various information for the current platform:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx.log_message("This application is running under %s.", 
+                             Wx::PlatformInfo.instance.get_operating_system_id_name)
+            ```
