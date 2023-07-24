@@ -1,0 +1,37 @@
+---
+:wxScrolled.DoPrepareDC:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyWindow < Wx::ScrolledCanvas
+            
+                def on_event(event)
+                  Wx::ClientDC.draw_on(self) do |dc|
+                    do_prepare_dc(dc)
+                  
+                    dc.set_pen(Wx::BLACK_PEN)
+                    pos = event.position
+                    if xpos > -1 && ypos > -1 && event.dragging
+                      dc.draw_line(xpos, ypos, pos.x, pos.y)
+                    end
+                    xpos = pos.x
+                    ypos = pos.y
+                  end
+                end
+            
+              end
+            ```
+:wxScrolled.SetScrollbars:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              window.set_scrollbars(20, 20, 50, 50)
+            ```

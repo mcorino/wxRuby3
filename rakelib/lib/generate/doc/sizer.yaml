@@ -1,0 +1,69 @@
+---
+:wxSizer.AddSpacer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::Sizer::add(size, size, 0)
+            ```
+:wxSizer.AddStretchSpacer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::Sizer::add(0, 0, prop)
+            ```
+:wxSizer.SetSizeHints:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame 
+                def initialize(...)
+                  super
+                  panel = Wx::Panel.new(self)
+                  sizer = Wx::BoxSizer.new(Wx::VERTICAL)
+                  sizer.add(...)
+                  sizer.add(...)
+                  panel.set_sizer(sizer)
+              
+                  # Use the panel sizer to set the initial and minimal size of the
+                  # frame to fit its contents.
+                  sizer.set_size_hints(this)
+                end
+            ```
+:wxSizerFlags:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxEXPAND/
+          :replace: |
+            
+            ```ruby
+              sizer.add(ctrl, 0, Wx::EXPAND | Wx::ALL, 10)
+            ```
+        - :pattern: !ruby/regexp /wxSizerFlags.*\(\)/
+          :replace: |
+            
+            ```ruby
+              sizer.add(ctrl, Wx::SizerFlags.new.expand.border(Wx::ALL, 10))
+            ```
+        - :pattern: !ruby/regexp /flagsExpand/
+          :replace: |
+            
+            ```ruby
+              flagsExpand = Wx::SizerFlags.new(1)
+              flagsExpand.expand.border(Wx::ALL, 10)
+              
+              sizer.add(ctrl1, flagsExpand)
+              sizer.add(ctrl2, flagsExpand)
+            ```

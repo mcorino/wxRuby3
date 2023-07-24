@@ -1,0 +1,11 @@
+---
+:wxScrollBar.SetScrollbar:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              scrollbar.set_scrollbar(0, 16, 50, 15)
+            ```
