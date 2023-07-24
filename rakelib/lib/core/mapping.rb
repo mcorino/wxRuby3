@@ -61,11 +61,16 @@ module WXRuby3
       "VOID_#{ctype.tr(' ', '_').upcase}"
     end
 
+    def self.strip_type_decl(ctype)
+      ctype = ctype.gsub(/const\s+/, '')
+      ctype.gsub!(/\s+(\*|&)/, '\1')
+      ctype.strip!
+      ctype.tr!('*&', '')
+      ctype
+    end
+
     def self.wx_type_to_rb(typestr)
-      c_type = typestr.gsub(/const\s+/, '')
-      c_type.gsub!(/\s+(\*|&)/, '\1')
-      c_type.strip!
-      c_type.tr!('*&', '')
+      c_type = strip_type_decl(typestr)
       (std_type_maps[c_type] || c_type).sub(/\Awx/, 'Wx::')
     end
 
@@ -854,15 +859,15 @@ module WXRuby3
         if @pattern.param_masks.first == parameters.first
           # just 'map' the parameter to itself
           param = parameters.shift # loose the 'mapped' parameter
-          return [RubyArg[Typemap.wx_type_to_rb(param.type), param_offset], nil]
+          return [RubyArg[nil, param_offset], nil]
         end
         nil
       end
 
       def map_output(type)
-        if matches?(type)
-          return Typemap.wx_type_to_rb(type)
-        end
+        # if matches?(type)
+        #   return Typemap.wx_type_to_rb(type)
+        # end
         nil
       end
 
@@ -994,7 +999,7 @@ module WXRuby3
             if result
               arg_in, arg_out = result
             else
-              arg_in = RubyArg.new(Typemap.wx_type_to_rb(parameters.first.type), param_offset)
+              arg_in = RubyArg.new(nil, param_offset)
               parameters.shift # loose the mapped param
             end
             # store mapped param
@@ -1009,7 +1014,7 @@ module WXRuby3
         def map_output(type)
           result = nil
           list.reverse_each.detect { |map| result = map.map_output(type) }
-          result || Typemap.wx_type_to_rb(type)
+          result
         end
 
         def to_swig
