@@ -277,6 +277,7 @@ module WXRuby3
 
       def _ident_str_to_doc(s, ref_scope = nil)
         return s if no_idents?
+        return s if s.start_with?('wxRuby')
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
@@ -587,6 +588,39 @@ module WXRuby3
 
       def constants_xref_db
         DocGenerator.constants_xref_db
+      end
+
+      def type_to_doc(ctype_decl)
+        return ctype_decl if ctype_decl == 'void'
+        ctype = Typemap.strip_type_decl(ctype_decl)
+        nmlist = ctype.split('::')
+        nm_str = nmlist.shift.to_s
+        constnm = rb_wx_name(nm_str)
+        if nmlist.empty?  # unscoped id?
+          if DocGenerator.constants_xref_db.has_key?(constnm)
+            "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+          elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
+            "Wx::#{rb_constant_name(nm_str)}"
+          elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str, false))
+            "Wx::#{rb_constant_name(nm_str, false)}"
+          else
+            Typemap.wx_type_to_rb(ctype)
+          end
+        else
+          itmnm = nmlist.shift.to_s
+          if DocGenerator.constants_xref_db.has_key?(constnm)
+            constnm = "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
+          elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
+            cnm = rb_constant_name(nm_str)
+            constnm = "#{DocGenerator.constants_xref_db[cnm]['mod']}::#{cnm}"
+          elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str, false))
+            cnm = rb_constant_name(nm_str, false)
+            constnm = "#{DocGenerator.constants_xref_db[cnm]['mod']}::#{cnm}"
+          elsif nm_str.start_with?('wx')
+            constnm = "Wx::#{constnm}"
+          end
+          "#{constnm}::#{rb_wx_name(itmnm)}"
+        end
       end
 
     end

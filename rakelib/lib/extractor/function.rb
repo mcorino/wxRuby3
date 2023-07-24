@@ -109,7 +109,7 @@ module WXRuby3
                   else
                     rb_param_name(paramdef.name)
                   end
-            params << { name: pnm, type: arg.type }
+            params << { name: pnm, type: arg.type || xml_trans.type_to_doc(paramdef.type) }
             if paramdef.default
               defexp = rb_constant_expression(paramdef.default, xml_trans.constants_xref_db)
               # in case the default expression dereferences a pointer or passes an address clean it up
@@ -142,7 +142,7 @@ module WXRuby3
         params.each do |p|
           doclns << ('@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
-        result = [rb_return_type(type_maps)]
+        result = [rb_return_type(type_maps, xml_trans)]
         result.concat(mapped_ret_args.collect { |mra| mra.type }) if mapped_ret_args
         result.compact! # remove nil values (possible ignored output)
         case result.size
@@ -156,9 +156,9 @@ module WXRuby3
         [rb_decl_name, paramlist, doclns]
       end
 
-      def rb_return_type(type_maps)
-        mapped_type = type_maps.map_output(type)
-        (mapped_type.empty? || mapped_type == 'void') ? nil : mapped_type
+      def rb_return_type(type_maps, xml_trans)
+        mapped_type = type_maps.map_output(type) || xml_trans.type_to_doc(type)
+        mapped_type == 'void' ? nil : mapped_type
       end
 
       def argument_list
@@ -304,9 +304,9 @@ module WXRuby3
         end
       end
 
-      def rb_return_type(type_maps)
+      def rb_return_type(type_maps, xml_trans)
         if is_ctor
-          rb_wx_name(class_name)
+          xml_trans.type_to_doc(class_name)
         else
           super
         end

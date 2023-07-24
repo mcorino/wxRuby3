@@ -18,9 +18,9 @@ is available for anyone to look at and use in any way they like. Also, anyone ca
 and enhancements to the project.
 
 Like wxWidgets wxRuby is a cross platform toolkit. This means that the same program will run on multiple platforms 
-without modification. Currently Supported platforms are Microsoft Windows and Linux or other 
-unix-like systems with GTK2 or GTK3 libraries. As wxWidgets also has stable releases for Mac OSX and Linux QT platforms
-it should not be to hard to support these. Contributions to achieve this are appreciated.
+without modification. Currently Supported platforms are Microsoft Windows, MacOSX and Linux or other 
+unix-like systems with GTK2 or GTK3 libraries. Contributions to achieve support for other wxWidgets supported platforms
+are appreciated.
 
 Since the programming language is Ruby, wxRuby programs are simple and easy to write and understand. To accomplish the
 full Ruby experience wxRuby has not ported the wxWidgets API 1 on 1 to Ruby but has made an effort to make the wxRuby
@@ -75,7 +75,7 @@ require 'wx'
 Wx::App.run { puts 'Hello world!' }
 ```
 
-As you can there is no obligation to create an instance of the Wx::App class in wxRuby for
+As you can see there is no obligation to create an instance of the Wx::App class in wxRuby for
 (admittedly extremely) simple applications. Calling the #run class method with a block will suffice.<br>
 The class method will create an instance of the generic Wx::App class under the hood and use the 
 provided block as the #on_init callback. As the code inside the block returns a false-type value (#puts 
@@ -127,8 +127,8 @@ When creating #on_init/#on_exit methods it is important to understand that those
 with wxWidgets itself). The base Wx::App class actually does not define these methods so it's also not needed (even not possible)
 to call `super` in the implementation. The wxRuby application class implementation will call the wxWidget OnInit base implementation
 itself and after successful completion check for the existence of an #on_init method (which could also be 'automagicallly'
-created from a block passed to #run) and call that if available or terminate the application if not. For the
-exit sequence to executions are similar but reversed (first a possible #on_exit method and than the wxWidgets base OnExit).
+created from a block passed to #run) and call that if available or terminate the application if not. The
+exit sequence of executions are similar but reversed (first a possible #on_exit method and than the wxWidgets base OnExit).
 
 What remains though is that for a derived application class it is still not necessary to explicitly create a class instance.
 Simply calling the #run class method will suffice.

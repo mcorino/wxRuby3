@@ -80,9 +80,9 @@ module WXRuby3
         ignore # ignore all member variables by default (trust on availability of accessor methods)
       end
 
-      def rb_return_type(type_maps)
-        mapped_type = type_maps.map_output(type)
-        (mapped_type.empty? || mapped_type == 'void') ? nil : mapped_type
+      def rb_return_type(type_maps, xml_trans)
+        mapped_type = type_maps.map_output(type) || xml_trans.type_to_doc(type)
+        mapped_type == 'void' ? nil : mapped_type
       end
       private :rb_return_type
 
@@ -97,7 +97,7 @@ module WXRuby3
         doc = []
         # first document the reader
         doc << [var_doc.dup]
-        doc.last << "@return [#{rb_return_type(type_maps)}]"
+        doc.last << "@return [#{rb_return_type(type_maps, xml_trans)}]"
         doc << "def #{is_static ? 'self.' : ''}#{rb_method_name(rb_name || name)}; end"
         # next document the writer (if any)
         unless no_setter
@@ -108,9 +108,9 @@ module WXRuby3
                                 array: false)]
           mapped_args, _ = type_maps.map_input(parms)
           if mapped_args.empty? # something went wrong!
-            doc.last << "@param val [#{Typemap.wx_type_to_rb(type)}]"
+            doc.last << "@param val [#{xml_trans.type_to_doc(type)}]"
           else
-            doc.last << "@param val [#{mapped_args.first.type}]"
+            doc.last << "@param val [#{mapped_args.first.type || xml_trans.type_to_doc(type)}]"
           end
           doc.last << "@return [void]"
           doc << "def #{is_static ? 'self.' : ''}#{rb_method_name(rb_name || name)}=(val); end"

@@ -76,7 +76,7 @@ As mentioned above the wxWidgets GUI framework resources will only be fully init
 starts. Likewise the framework resources will be de-initialized (deleted) after `#on_exit` method ends which means that 
 your application should not attempt to access any of these resources (windows, fonts, colours etc.) after that moment.
 
-Also, largely because of the way the wxWidgets framework is designed but also because of that way this meshes with Ruby 
+Also, largely because of the way the wxWidgets framework is designed but also because of the way this meshes with Ruby 
 GC, there is no safe way to re-initialize the framework after an application instance ends it run. This means you 
 **cannot** safely attempt to start another application instance after a previous (first) one has ended. 
 
@@ -120,7 +120,7 @@ therefor provides special support to ease handling the destruction of these. See
 One of the trickier things to handle correctly in the kind of native extensions like wxRuby is maintaining object 
 identities i.e. keeping native instances synced with their Ruby wrapper counter parts.
 
-Whenever a native extension is allowed to call back into Ruby space we encounter the problem the we need to map any 
+Whenever a native extension is allowed to call back into Ruby space we encounter the problem that we need to map any 
 native object data provided for the call to the right Ruby types and when necessary to the right Ruby instance (object
 identity).
 
@@ -131,8 +131,8 @@ passing them on to Ruby space.
 For a lot of other objects though it is essential to not only map to the right **most derived** class type but also to
 the exact Ruby instance which was originally instantiated as wrapper for the native object if any exists (in case no
 Ruby instance existed yet a new instance of the correct **most derived** class should be instantiated at that point). 
-The reason this is important is 1. because the Ruby instance may have been used to identify, link to or otherwise 
-reference other data and/or functionality related to that specific Ruby/native pair and 2. the Ruby instance could 
+The reason this is important is **1.** because the Ruby instance may have been used to identify, link to or otherwise 
+reference other data and/or functionality related to that specific Ruby/native pair and **2.** the Ruby instance could 
 contain data elements (instance variables) related to that specific Ruby/native pair.<br>
 In the case of wxRuby Window instance for example it is common to derive custom Window classes with custom behaviour and
 corresponding instance variables that drive that behaviour. When an event handler or an overloaded native method is passed
@@ -155,11 +155,12 @@ There are however quite a lot of wrapped native objects in wxRuby for which *obj
 object tracking has been disabled for their classes. This means these kind of classes/object should **not** be derived from
 (if even possible and/or useful) to add functionality/information or their identity used as key to link other information.<br>
 These classes include:
-- classes considered POD types like Wx::Size, Wx::Point, Wx::RealPoint, Wx::Rect, Wx::GBSpan, Wx::GBPosition, Wx::BusyInfoFlags,
+* classes considered POD types like Wx::Size, Wx::Point, Wx::RealPoint, Wx::Rect, Wx::GBSpan, Wx::GBPosition, Wx::BusyInfoFlags,
 Wx::AboutDialogInfo
-- final non-instantiatable classes like the Wx::DC (Device Context) class family, Wx::GraphicsContext, Wx::WindowsDisabler,
+* final non-instantiatable classes like the Wx::DC (Device Context) class family, Wx::GraphicsContext, Wx::WindowsDisabler,
 Wx::EventBlocker, Wx::BusyInfo
-- classes with native singleton objects like Wx::Clipboard
-- the reference counted GDI objects like Wx::Pen, Wx::Brush, Wx::Colour, Wx::Cursor, Wx::Bitmap, Wx::Icon
+* classes with native singleton objects like Wx::Clipboard
+* the reference counted GDI objects like Wx::Pen, Wx::Brush, Wx::Colour, Wx::Cursor, Wx::Bitmap, Wx::Icon and similar 
+reference counted objects like Wx::Font
 
 The reference documentation will note untracked object classes.

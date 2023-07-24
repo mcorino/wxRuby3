@@ -15,7 +15,7 @@ your own Ruby application code.
 
 Any exceptions raised from wxRuby wrapper code signal coding errors that need to be rectified.
 
-As far as handling application code exceptions is concerned the same advice applies as for wxWidgets itself; do **not**
+As far as handling application code exceptions is concerned the same advice applies as for wxWidgets itself; do **NOT**
 let exceptions escape your event handlers meaning that if you can reasonably expect application code to raise exceptions
 you should make sure to catch any such exceptions within the context of the event handler like:
 

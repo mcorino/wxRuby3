@@ -79,3 +79,9 @@
                 # ...
               end
             ```
+:wxImage:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /To\s+use\s+other\s+image\s+formats,.*or\s+call\s+.*\./
+          :subst: 'In wxRuby all image handlers are loaded by default at startup by {init_all_image_handlers}.'
