@@ -1,0 +1,42 @@
+---
+:wxTextEntry.GetInsertionPoint:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def get_current_char(txt_ctrl)
+                 pos = txt_ctrl.get_insertion_point
+                 return '' if pos == txt_ctrl.get_last_position
+              
+                 txt_ctrl.get_range(pos, pos + 1)
+              end
+            ```
+:wxTextCompleterSimple:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyTextCompleter < Wx::TextCompleterSimple
+            
+                def get_completions(prefix)
+                  firstWord = prefix.split(' ').shift
+                  if firstWord == 'white'
+                    ['white pawn', 'white rook']
+                  elsif firstWord == 'black'
+                    ['black king', 'black queen']
+                  else
+                    ['white', 'black']
+                  end
+                end
+            
+              end
+              ...
+              text_ctrl = ...
+              text_ctrl.auto_complete(MyTextCompleter.new)
+            ```
