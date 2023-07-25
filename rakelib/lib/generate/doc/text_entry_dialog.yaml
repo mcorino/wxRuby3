@@ -1,0 +1,17 @@
+---
+:wxTextEntryDialog.SetTextValidator:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::TextEntryDialog(self, ...) do |dlg|
+                dlg.set_text_validator(Wx::FILTER_ALPHA)
+                if dlg.show_modal == Wx::ID_OK
+                   # We can be certain that this string contains letters only.
+                   value = dlg.get_value
+                end
+              end
+            ```
