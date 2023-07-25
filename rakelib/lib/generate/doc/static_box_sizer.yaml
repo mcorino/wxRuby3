@@ -1,0 +1,22 @@
+---
+:wxStaticBoxSizer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+              
+                def create_controls
+                  panel = Wx::Panel.new(self)
+                  ...
+                  sz = Wx::StaticBoxSizer.new(Wx::VERTICAL, panel, "Box")
+                  sz.add(Wx::StaticText.new(sz.get_static_box, Wx::ID_ANY,
+                                            "This window is a child of the staticbox"))
+                  ...
+                end
+            
+              end
+            ```

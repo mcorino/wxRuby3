@@ -1,0 +1,19 @@
+---
+:wxTextCtrl:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /SetDefaultStyle.*wxRED/
+          :replace: |
+            
+            ```ruby
+              text.set_default_style(Wx::TextAttr.new(Wx::RED))
+              text.append_text("Red text\n")
+              text.set_default_style(Wx::TextAttr.new(Wx::NULL_COLOUR, Wx::LIGHT_GREY))
+              text.append_text("Red on grey text\n")
+              text.set_default_style(Wx::TextAttr.new(Wx::BLUE))
+              text.append_text("Blue on grey text\n")
+            ```
+    :post:
+      - :pattern: !ruby/regexp /==\s+wxTextCtrl\s+and\s+C\+\+\s+Streams.*See\s+\{Wx::StreamToTextRedirector\}\s+for\s+more\s+details\./m
+        :subst: ''

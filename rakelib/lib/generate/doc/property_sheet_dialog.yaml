@@ -1,0 +1,26 @@
+---
+:wxPropertySheetDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertySheetDialog < Wx::PropertySheetDialog
+            
+                def create(...)
+                   return false if !super
+                
+                   create_buttons(Wx::OK|Wx::CANCEL|Wx::HELP)
+                
+                   # Add page
+                   panel = Wx::Panel.new(get_book_ctrl, ...)
+                   get_book_ctrl.add_page(panel, "General")
+                
+                   layout_dialog
+                   true
+                end
+            
+              end
+            ```

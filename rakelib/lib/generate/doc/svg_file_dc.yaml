@@ -1,0 +1,11 @@
+---
+:wxSVGFileDC.SetBitmapHandler:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              mySVGFileDC.set_bitmap_handler(Wx::SVGBitmapEmbedHandler.new)
+            ```

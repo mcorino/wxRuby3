@@ -1,0 +1,18 @@
+---
+:wxSplashScreen:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              bitmap Wx::Bitmap.new 
+              if bitmap.load_file("splash16.png", Wx::BITMAP_TYPE_PNG))
+                 splash = Wx::SplashScreen.new(bitmap,
+                     Wx::SPLASH_CENTRE_ON_SCREEN|Wx::SPLASH_TIMEOUT,
+                     6000, nil, -1, Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                     Wx::BORDER_SIMPLE|Wx::STAY_ON_TOP)
+              end
+              Wx.get_app.yield
+            ```

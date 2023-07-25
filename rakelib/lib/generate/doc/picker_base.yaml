@@ -1,0 +1,19 @@
+---
+:wxPickerBase.GetPickerCtrl:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              if Wx::PLATFORM == 'WXMSW'
+                # wxMSW is one of the platforms where the generic implementation
+                # of Wx::FilePickerCtrl is used...
+                
+                butt = myFilePickerCtrl.get_picker_ctrl
+                if butt
+                   butt.set_label("Custom browse string")
+                end
+              end
+            ```

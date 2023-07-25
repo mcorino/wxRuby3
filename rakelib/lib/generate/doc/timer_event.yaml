@@ -1,0 +1,28 @@
+---
+:wxTimerEvent:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+
+                def initialize
+                  super(nil)
+                  @timer = Wx::Timer.new(self, TIMER_ID)
+            
+                  evt_timer(TIMER_ID, :on_timer)
+            
+                  @timer.start(1000)    # 1 second interval
+                end
+                 
+                ...
+                 
+                def on_timer(event)
+                  # do whatever you want to do every second here
+                end
+              
+              end
+            ```

@@ -1,0 +1,35 @@
+---
+:wxToolBar.SetToolBitmapSize:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              toolbar.set_tool_bitmap_size(from_dip(Wx::Size.new(32, 32)))
+              toolbar.add_tool(Wx::ID_NEW, 'New', Wx::BitmapBundle.from_XXX(...))
+              ...
+              toolbar.realize
+            ```
+:wxToolBar:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /0\);/
+          :replace: |
+            
+            ```ruby
+              Wx::SystemOptions.set_option('msw.remap', 0)
+            ```
+        - :pattern: !ruby/regexp /2\);/
+          :replace: |
+            
+            ```ruby
+              Wx::SystemOptions.set_option('msw.remap', 2)
+            ```
+        - :pattern: !ruby/regexp /wxTheApp/
+          :replace: ''
+      :para:
+        - :pattern: !ruby/regexp /But\s+only\s+use.*true\s+colour:/
+          :subst: ''

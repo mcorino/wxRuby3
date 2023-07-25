@@ -1,0 +1,23 @@
+---
+:wxTopLevelWindow.MSWGetSystemMenu:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              if Wx::PLATFORM == 'WXMSW'
+            ```
+:wxTopLevelWindow.UseNativeDecorations:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              frame = MyFrame.new                   # use default ctor  
+              frame.use_native_decorations(false)   # change from default "true"
+              frame.create(parent, title, ...)      # really create the frame
+            ```

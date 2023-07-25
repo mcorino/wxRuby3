@@ -1,0 +1,52 @@
+---
+:wxStaticBox.wxStaticBox:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+                
+                def create_controls
+                  panel = Wx::Panel.new(self)
+                  checkbox = Wx::CheckBox.new(panel, Wx::ID_ANY, "Box checkbox")
+                  box = Wx::StaticBox.new(panel, Wx::ID_ANY, checkbox)
+                  ...
+                end
+            
+              end
+            ```
+:wxStaticBox.Enable:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              check = Wx::CheckBox.new(parent, Wx::ID_ANY, "Use the box")
+              box = Wx::StaticBox.new(parent, Wx::ID_ANY, check)
+              check.evt_checkbox { |event| box.enable(event.checked? }
+            ```
+:wxStaticBox:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+            
+                def create_controls
+                  panel = Wx::Panel.new(self)
+                  box = Wx::StaticBox.new(panel, Wx::ID_ANY, 'StaticBox')
+            
+                  Wx::StaticText.new(box, Wx::ID_ANY, "This window is a child of the staticbox")
+                  ...
+                end
+            
+              end
+            ```

@@ -20,8 +20,8 @@ module WXRuby3
           public:
             WXRubyTextValidator(const wxTextValidator& v) 
               : wxTextValidator(v) {}
-            WXRubyTextValidator(long style=wxFILTER_NONE, wxString *valPtr=NULL) 
-              : wxTextValidator(style, valPtr) {}
+            WXRubyTextValidator(long style=wxFILTER_NONE) 
+              : wxTextValidator(style) {}
             virtual ~WXRubyTextValidator() 
             {
               wxRuby_ReleaseEvtHandlerProcs(this);
@@ -29,6 +29,12 @@ module WXRuby3
           };
         __HEREDOC
         spec.use_class_implementation 'wxTextValidator', 'WXRubyTextValidator'
+        # ignore copy ctor doc
+        spec.regard 'wxTextValidator::wxTextValidator(const wxTextValidator&)', regard_doc: false
+        # ignore this ctor
+        spec.ignore 'wxTextValidator::wxTextValidator(long, wxString*)'
+        # add alternative
+        spec.extend_interface 'wxTextValidator', 'wxTextValidator(long style=wxFILTER_NONE)'
         spec.no_proxy 'wxTextValidator::Clone'
         spec.new_object 'wxTextValidator::Clone'
         # handle clone mapping

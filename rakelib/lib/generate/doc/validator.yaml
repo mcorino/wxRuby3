@@ -1,0 +1,12 @@
+---
+:wxValidator.SetWindow:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              Wx::TextCtrl.new(self, Wx::ID_ANY, '', Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE, 0,
+                               Wx::TextValidator.new(Wx::FILTER_ALPHA))
+            ```
