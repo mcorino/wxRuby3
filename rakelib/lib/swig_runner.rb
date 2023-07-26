@@ -481,6 +481,43 @@ module WXRuby3
         end
       end
 
+      # Updates SWIG generated wrapper code for disowned allocation modules.
+      class FixDisownedAlloc < Processor
+
+        def run
+          # get the generated (class) items which have been defined to need disowned allocation
+          class_list = def_items.select { |itm| Extractor::ClassDef === itm && allocate_disowned?(itm) }
+          # setup a table with the required tracking methods for each class
+          track_table = class_list.inject({}) do |tbl, clsdef|
+            tbl[clsdef.name] = (gc_type(clsdef) == :GC_MANAGE_AS_UNTRACKED) ? '0' : 'SWIG_RubyRemoveTracking'
+            tbl
+          end
+          # create re match list for class names
+          cls_re_txt = class_list.collect { |clsdef| clsdef.name }.join('|')
+          # updating any matching alloc functions in generated SWIG sourcecode
+          # create regexp for 'initialize' wrappers (due to overloads this could be more than one per class)
+          alloc_re = /_wrap_(#{cls_re_txt})_allocate\(int\s+argc.*\)/
+          found_alloc = false
+          cpp_class = nil
+          update_source do |line|
+            if found_alloc # inside 'xxx_allocate' wrapper?
+              if line =~ /\A(\s*)return\s+vresult;/
+                # insert an override for the free method to disown the new instance
+                line = "#{$1}RDATA(vresult)->dfree = #{track_table[cpp_class]};\n#{line}"
+              elsif /\A}/ =~ line # end of wrapper function?
+                # stop matching
+                found_alloc = false
+              end
+            elsif alloc_re =~ line # are we at an 'xxx_allocate' wrapper?
+              found_alloc = true
+              cpp_class = $1
+            end
+            line
+          end
+        end
+
+      end
+
       # Updates SWIG generated wrapper code for Mixin modules.
       class FixInterfaceMixin < Processor
 

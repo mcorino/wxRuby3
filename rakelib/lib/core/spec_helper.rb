@@ -171,6 +171,12 @@ module WXRuby3
       ifspec.included_mixins
     end
 
+    def allocate_disowned?(classdef_or_name)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      ifspec.allocate_disowned?(class_def.name)
+    end
+
     def has_virtuals?(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
