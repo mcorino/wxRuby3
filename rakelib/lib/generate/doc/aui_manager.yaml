@@ -1,0 +1,21 @@
+---
+:wxAuiManager:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /AddPane/
+          :replace: |
+            
+            ```ruby
+              @text1 = Wx::TextCtrl.new(self, -1)
+              @text2 = Wx::TextCtrl.new(self, -1)
+              @mgr.add_pane(@text1, Wx::LEFT, 'Pane Caption')
+              @mgr.add_pane(@text2, Wx::BOTTOM, 'Pane Caption')
+              @mgr.update
+            ```
+        - :pattern: !ruby/regexp /GetPane/
+          :replace: |
+            
+            ```ruby
+              @mgr.get_pane(@text1).float
+            ```
