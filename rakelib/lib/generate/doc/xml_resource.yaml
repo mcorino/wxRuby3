@@ -1,0 +1,27 @@
+---
+:wxXmlResource.Load:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              if !Wx::XmlResource.get.load('rc/*.xrc')
+                Wx.log_error("Couldn't load resources!")
+              end
+            ```
+:wxXmlResource.LoadDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              dlg = MyDialog.new
+              Wx::XmlResource.get.load_dialog_subclass(dlg, main_frame, 'my_dialog')
+              dlg.show_modal
+            
+              dlg.destroy
+            ```

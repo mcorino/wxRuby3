@@ -1,0 +1,7 @@
+---
+:wxXmlNode.GetNodeContent:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /tagnametagcontent\/tagname/
+          :subst: '&lt;tagname&gt;tagcontent&lt;/tagname&gt;'

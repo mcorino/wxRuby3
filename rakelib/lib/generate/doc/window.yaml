@@ -1,0 +1,249 @@
+---
+:wxWindow.SetScrollbar:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              set_scrollbar(Wx::VERTICAL, 0, 16, 50)
+            ```
+:wxWindow.FromDIP:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              bmp = Wx::Bitmap.new(from_dip(Wx::Size.new(32, 32)))
+            ```
+:wxWindow.ToDIP:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              pt = Wx::Point.new(to_dip(get_position))
+              size = Wx::Size.new(to_dip(get_size))
+            ```
+:wxWindow.SetMaxClientSize:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              set_max_size(client_to_window_size(size))
+            ```
+:wxWindow.SetMinClientSize:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              set_min_size(client_to_window_size(size))
+            ```
+:wxWindow.Move:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              set_size(x, y, Wx::DEFAULT_COORD, Wx::DEFAULT_COORD, Wx::SIZE_USE_EXISTING)
+            ```
+:wxWindow.ConvertDialogToPixels:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /A\s+convenience\s+macro\s+is\s+defined:/
+          :subst: ''
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxWindow.SetBackgroundStyle:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyWidget < Wx::Window
+                def initialize(parent, ...)
+                  super() # Use default ctor here!
+                   # Do this first:
+                   set_background_style(Wx::BG_STYLE_TRANSPARENT)
+            
+                   # And really create the window afterwards:
+                   create(parent, ...)
+                end
+              end
+            ```
+:wxWindow.HandleWindowEvent:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              get_event_handler.safely_process_event(event)
+            ```
+:wxWindow.ProcessWindowEvent:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              get_event_handler.process_event(event)
+            ```
+:wxWindow.PushEventHandler:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              W.push_event_handler(A)
+              W.push_event_handler(B)
+            ```
+:wxWindow.Enable:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              w = MyWindow.new # Note: default ctor is used here.
+              w.enable(false)
+              w.create(parent, ... all the usual non-default ctor arguments ...)
+            ```
+:wxWindow.EnableTouchEvents:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              enable_touch_events(Wx::TOUCH_ZOOM_GESTURE | Wx::TOUCH_ROTATE_GESTURE)
+            ```
+:wxWindow.DoUpdateWindowUI:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # do the window-specific processing after processing the update event
+              def Wx::TopLevelWindow.do_update_window_ui(event)
+                if event.get_set_enabled
+                  enable(event.get_enabled)
+                end
+              
+                if event.get_set_text
+                  if event.get_text != get_title
+                    set_title(event.get_text)
+                  end
+                end
+              end
+            ```
+:wxWindow.UpdateWindowUI:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyWindow
+                ...
+                def on_internal_idle
+                  update_window_ui(Wx::UPDATE_UI_FROMIDLE) if Wx::UpdateUIEvent.can_update(self)
+                end
+                ...
+              end
+            ```
+:wxWindow.Create:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxPanel/
+          :replace: |
+            
+            ```ruby
+              panel = Wx::Panel.new   # Note: default constructor used.
+              panel.hide  # Can be called before actually creating it.
+              panel.create(parent, Wx::ID_ANY, ...)   # Won't be shown yet.
+              ... create all the panel children ...
+              panel.show  # Now everything will be shown at once.
+            ```
+        - :pattern: !ruby/regexp /MyCreateWindowObjectFunction/
+          :replace: |
+            
+            ```ruby
+              # Suppose we have this function (which would typically be in a
+              # different file from the rest of the code).
+              def my_create_window_object_function
+                 MyCustomClassDerivingFromWindow.new
+              end
+              
+              # Then we can create a window of MyCustomClassDerivingFromWindow
+              # class without really knowing about this type, as we would have
+              # to do if we wanted to use the non-default constructor, like this:
+              
+              # First create the C++ object using the factory function.
+              window = my_create_window_object_function
+              
+              # And now create the underlying window.
+              #
+              # This should call the base Wx::Window#create.
+              # In C++ (wxWidgets) this method is not virtual and cannot be overloaded
+              # so the derived class can't customize this part.
+              # In wxRuby however this method can be overloaded as long as the following
+              # is kept in mind:
+              # 1. the overloaded version will **NOT** be called when using a non-default
+              #    constructor (Create will than be called from C++ which will always be 
+              #    the base Wx::Window version);
+              # 2. when calling the overloaded version from Ruby understand that the window
+              #    will not actually be created until after the `super` version has been called.
+              # In general it's best not to overload this method but to define a different method
+              # if a custom initializer is needed.
+              window.create(parent, Wx::ID_ANY, ...)
+            ```
+:wxWindow.MSWDisableComposited:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+                def initialize(...)
+                  ...
+                  p = Wx::Panel.new(self)
+                  if Wx::PLATFORM == 'WXMSW'
+                    p.msw_disable_composited
+                  end
+              
+                  # Using Wx::ClientDC will work now with this panel in wxMSW --
+                  # although it still won't with wxOSX nor wxGTK under Wayland.            
+                end
+                ...            
+              end
+            ```
