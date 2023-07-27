@@ -10,6 +10,14 @@ module Wx
 
   end
 
+  class LogStderr
+
+    # Creates a new LogStderr for the given file handle.
+    # Possible values are 2 for `stderr` and 1 for `stdout`.
+    # @param [Integer] fh file stream handle
+    def initialize(fh = 2) end
+  end
+
   class LogNull
 
     # Suspends logging before executing the given block and restarts logging when the block returns.

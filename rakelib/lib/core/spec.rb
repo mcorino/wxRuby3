@@ -43,6 +43,7 @@ module WXRuby3
         @interface_extensions = ::Hash.new
         @folded_bases = ::Hash.new
         @abstracts = ::Hash.new
+        @disowned_alloc = ::Set.new
         @mixins = ::Set.new
         @included_mixins = ::Hash.new
         @items = [modname]
@@ -165,7 +166,7 @@ module WXRuby3
           @gc_type = :GC_NEVER
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_NEVER }
+          names.flatten.each {|n| @gc_type[n] = :GC_NEVER }
         end
         self
       end
@@ -175,7 +176,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_OBJECT
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_OBJECT }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_OBJECT }
         end
         self
       end
@@ -185,7 +186,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_WINDOW
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_WINDOW }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_WINDOW }
         end
         self
       end
@@ -195,7 +196,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_FRAME
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_FRAME }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_FRAME }
         end
         self
       end
@@ -205,7 +206,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_DIALOG
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_DIALOG }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_DIALOG }
         end
         self
       end
@@ -215,7 +216,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_EVENT
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_EVENT }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_EVENT }
         end
         self
       end
@@ -225,7 +226,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_SIZER
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_SIZER }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_SIZER }
         end
         self
       end
@@ -235,7 +236,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_REFCOUNTED
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_REFCOUNTED }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_REFCOUNTED }
         end
         self
       end
@@ -245,7 +246,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_UNTRACKED_REFCOUNTED
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_UNTRACKED_REFCOUNTED }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_UNTRACKED_REFCOUNTED }
         end
         self
       end
@@ -255,7 +256,7 @@ module WXRuby3
           @gc_type = :GC_MANAGE_AS_UNTRACKED
         else
           @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
-          names.each {|n| @gc_type[n] = :GC_MANAGE_AS_UNTRACKED }
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_UNTRACKED }
         end
         self
       end
@@ -281,6 +282,16 @@ module WXRuby3
         no_proxy(cls)
         post_processors << :fix_interface_mixin
         self
+      end
+
+      def allocate_disowned(cls)
+        @disowned_alloc << cls
+        post_processors << :fix_disowned_alloc unless post_processors.include? :fix_disowned_alloc
+        self
+      end
+
+      def allocate_disowned?(cls)
+        @disowned_alloc.include?(cls)
       end
 
       def abstract?(cls)

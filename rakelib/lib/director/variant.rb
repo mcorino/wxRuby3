@@ -437,10 +437,6 @@ module WXRuby3
                 return true;
               }
           
-          //#if wxUSE_ANY
-          //    // Converts value to wxAny, if possible. Return true if successful.
-          //    virtual bool GetAsAny(wxAny* WXUNUSED(any)) const { return false; }
-          //#endif
           protected:
               VALUE m_value;
           };
@@ -462,6 +458,21 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbValueVariants);'
+        # ignore GetType (not doc)
+        spec.ignore 'wxVariant::GetType', ignore_doc: false
+        # replace with custom implementation
+        spec.add_extend_code 'wxVariant', <<~__HEREDOC
+          VALUE get_type()
+          {
+            wxString ts = self->GetType();
+            if (ts == WXRBValueVariantData::type_name_)
+            {
+              VALUE klass = CLASS_OF(((WXRBValueVariantData*)self->GetData())->GetValue());
+              return rb_str_new2(rb_class2name(CLASS_OF(klass)));
+            }
+            return WXSTR_TO_RSTR(ts);
+          }
+          __HEREDOC
         # add custom extension methods 'assign' as replacement for operator=
         spec.add_extend_code 'wxVariant', <<~__HEREDOC
           void assign(const wxVariant& v)
@@ -504,6 +515,7 @@ module WXRuby3
             if (ts == wxS("ulonglong")) return ULL2NUM(self->GetULongLong().GetValue());
             if (ts == wxS("double")) return rb_funcall(SWIG_From_double(self->GetDouble()), to_i_id(), 0);
             if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_i_id(), 0);
+            if (ts == WXRBValueVariantData::type_name_) return rb_funcall(((WXRBValueVariantData*)self->GetData())->GetValue(), to_i_id(), 0);
             rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts.ToAscii());
             return Qnil;
           }
@@ -519,6 +531,7 @@ module WXRuby3
             if (ts == wxS("ulonglong")) return rb_funcall(ULL2NUM(self->GetULongLong().GetValue()), to_f_id(), 0);
             if (ts == wxS("double")) return SWIG_From_double(self->GetDouble());
             if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_f_id(), 0);
+            if (ts == WXRBValueVariantData::type_name_) return rb_funcall(((WXRBValueVariantData*)self->GetData())->GetValue(), to_f_id(), 0);
             rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to Integer", (const char*)ts.ToAscii());
             return Qnil;
           }

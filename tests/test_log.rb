@@ -128,4 +128,36 @@ class LogTests < Test::Unit::TestCase
     Wx::Log.set_repetition_counting(false)
   end
 
+  class MyBufferInterposer < Wx::LogInterposer
+
+    def initialize
+      super
+      @buffer = []
+    end
+
+    attr_reader :buffer
+
+    def do_log_text(msg)
+      @buffer << msg
+    end
+    protected :do_log_text
+
+  end
+
+  def test_log_interposer
+    buffer_log = MyBufferInterposer.new
+    assert_empty(buffer_log.buffer)
+
+    Wx.log_message('Message')
+    assert_equal("Message", @log.get_log(Wx::LOG_Message))
+    assert_equal(1, buffer_log.buffer.size)
+    assert_match(/Message/, buffer_log.buffer.first)
+
+    Wx.log_warning('Message')
+    assert_equal("Message", @log.get_log(Wx::LOG_Warning))
+    assert_equal(2, buffer_log.buffer.size)
+    assert_match(/Message/, buffer_log.buffer.last)
+
+  end
+
 end

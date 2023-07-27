@@ -1,0 +1,29 @@
+---
+:wxVariant:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            A variant's value can be changed at run time, possibly to a different type of value.
+            In wxRuby Wx::Variant is the only available Wx variant class (unlike in C++) and almost exclusively for
+            use in combination with the property grid classes (see the {Wx::PG} module).
+
+            By default Wx::Variant can store values of type bool, {Integer}, {Float}, {String}, {Time} (or {Date} / {DateTime}), {Array} of {String}, 
+            {Array} of {Wx::Variant}, {Wx::Font}, {Wx::Colour} and {Wx::ColourPropertyValue}.
+            In addition Wx::Variant can store any Ruby {Object}.
+            
+            An optional name member is associated with a Wx::Variant.
+            
+            In wxRuby Wx::Variant also provides the standard conversion methods #to_i, #to_s and #to_f for supported
+            value types. In case of incompatible value types these methods will raise a {TypeError} exception.
+:wxVariant.GetType:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /\-\s+\"void\*\"$/
+        :subst: ''
+      - :pattern: !ruby/regexp /\Z/
+        :subst: |
+          
+          If the variant contains an arbitrary Ruby {Object}, the value type returned is the result of `variant.get_object.class.name`.
