@@ -190,7 +190,7 @@ If you know of a feature in wxWidgets that you would like to see
 supported in wxRuby3 you are free to ask but do not **EXPECT** unconditional 
 agreement or immediate response. 
 
-### How does wxRuby3 relate to the wxRuby 2.0 (and even older 0.6.0 release)?
+### How does wxRuby3 relate to the wxRuby 2.0 (and even older 0.6.0) release?
 
 wxRuby 0.6.0 was the last in a series of releases developed using a
 different approach in the early days of wxRuby. Work on this series

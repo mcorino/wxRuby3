@@ -1,0 +1,14 @@
+---
+:wxWizardPageSimple.Chain:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              firstPage = FirstPage.new # derived from Wx::WizardPageSimple
+              firstPage.chain(SecondPage.new)
+                         .chain(ThirdPage.new)
+                         .chain(LastPage.new)
+            ```
