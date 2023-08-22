@@ -127,7 +127,9 @@ class Wx::ControlWithItems
     end
     wx_set.bind(self).call(items)
     client_data_store.clear
-    items.each_with_index { |item, ix| set_client_data(item, data[ix]) }
+    if data
+      items.each_with_index { |item, ix| set_client_data(item, data[ix]) }
+    end
   end
 
   wx_clear = instance_method :clear
