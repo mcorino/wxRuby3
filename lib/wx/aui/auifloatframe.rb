@@ -1,5 +1,5 @@
 # Advanced User Interface Notebook - draggable panes etc
-class Wx::AUI::AuiNotebook
+class Wx::AUI::AuiFloatingFrame
 
   # Before wxWidgets 3.3 the AUI manager of this control would prevent
   # WindowDestroyEvent propagation so we 'patch' in a std event handler
@@ -12,10 +12,4 @@ class Wx::AUI::AuiNotebook
     end
   end
 
-  # Convenience method for iterating pages
-  def each_page
-    0.upto(get_page_count - 1) do | i |
-      yield get_page(i)
-    end
-  end
 end
