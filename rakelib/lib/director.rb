@@ -397,20 +397,20 @@ module WXRuby3
                 member.all.each do |ovl|
                   if !ovl.ignored && ovl.deprecated
                     is_void = (ovl.type && !ovl.type=='void')
-                    if ovl.only_for
-                      spec.add_extend_code clsnm, if ::Array === ovl.only_for
-                                                    "#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-                                                  else
-                                                    "#ifdef #{ovl.only_for}"
-                                                  end
-                    end
+                    # if ovl.only_for
+                    #   spec.add_extend_code clsnm, if ::Array === ovl.only_for
+                    #                                 "#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
+                    #                               else
+                    #                                 "#ifdef #{ovl.only_for}"
+                    #                               end
+                    # end
                     spec.add_extend_code clsnm, <<~__HEREDOC
                       #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{ovl.name}#{ovl.args_string} {
                         std::wcerr << "DEPRECATION WARNING: #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{clsnm}::#{ovl.name}#{ovl.args_string}" << std::endl;
                         #{is_void ? '' : 'return '}$self->#{ovl.name}(#{ovl.parameters.collect {|p| p.name}.join(',')});
                       }
                       __HEREDOC
-                    spec.add_extend_code(clsnm, '#endif') if ovl.only_for
+                    # spec.add_extend_code(clsnm, '#endif') if ovl.only_for
                   end
                 end
               end

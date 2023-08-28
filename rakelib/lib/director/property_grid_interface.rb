@@ -36,11 +36,7 @@ module WXRuby3
         spec.extend_interface 'wxPropertyGridInterface',
                               'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory = 0)'
         # optionals
-        if Config.instance.features_set?('wxUSE_LONGLONG')
-          spec.set_only_for 'wxLongLong_t',
-                            'wxPropertyGridInterface::GetPropertyValueAsLongLong',
-                            'wxPropertyGridInterface::GetPropertyValueAsULongLong'
-        else
+        unless Config.instance.features_set?('wxUSE_LONGLONG')
           spec.ignore 'wxPropertyGridInterface::GetPropertyValueAsLongLong',
                       'wxPropertyGridInterface::GetPropertyValueAsULongLong'
         end

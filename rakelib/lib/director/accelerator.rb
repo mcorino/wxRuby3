@@ -45,6 +45,9 @@ module WXRuby3
             __CODE
         end
         spec.set_only_for('__WXMSW__', 'wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
+        unless Config.instance.features_set?('__WXMSW__')
+          spec.ignore('wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
+        end
         spec.add_swig_code <<~__HEREDOC
           %warnfilter(509) wxAcceleratorTable::wxAcceleratorTable;
           __HEREDOC

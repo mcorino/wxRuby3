@@ -17,7 +17,7 @@ module WXRuby3
         spec.regard %w[wxLog::DoLogRecord wxLog::DoLogTextAtLevel wxLog::DoLogText]
         spec.ignore 'wxLogBuffer::Flush'
         spec.ignore 'wxLogGui::Flush'
-        if Config.instance.features_set?(%w[wxUSE_STD_IOSTREAM])
+        if Config.instance.features_set?('wxUSE_STD_IOSTREAM')
           spec.ignore 'wxLogStream'
         end
         # wxLogStderr

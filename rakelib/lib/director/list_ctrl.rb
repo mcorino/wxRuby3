@@ -57,7 +57,13 @@ module WXRuby3
                              wxListCtrl::GetColumnOrder
                              wxListCtrl::GetColumnsOrder
                              wxListCtrl::SetColumnsOrder]
-        # these are protected so ignored by defaylt but we want them here
+        unless Config.instance.features_set?('wxHAS_LISTCTRL_COLUMN_ORDER')
+          spec.ignore %w[wxListCtrl::GetColumnIndexFromOrder
+                         wxListCtrl::GetColumnOrder
+                         wxListCtrl::GetColumnsOrder
+                         wxListCtrl::SetColumnsOrder]
+        end
+        # these are protected so ignored by default but we want them here
         spec.regard %w[
             wxListCtrl::OnGetItemAttr
             wxListCtrl::OnGetItemColumnAttr

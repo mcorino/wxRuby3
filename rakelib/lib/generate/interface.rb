@@ -659,15 +659,15 @@ module WXRuby3
     end
 
     def gen_only_for(fout, item, &block)
-      if item.only_for
-        if ::Array === item.only_for
-          fout.puts "#if #{item.only_for.collect { |s| "defined(#{s})" }.join(' || ')}"
-        else
-          fout.puts "#ifdef #{item.only_for}"
-        end
-      end
+      # if item.only_for
+      #   if ::Array === item.only_for
+      #     fout.puts "#if #{item.only_for.collect { |s| "defined(#{s})" }.join(' || ')}"
+      #   else
+      #     fout.puts "#ifdef #{item.only_for}"
+      #   end
+      # end
       block.call
-      fout.puts "#endif" if item.only_for
+      # fout.puts "#endif" if item.only_for
     end
 
     def gen_swig_interface_specs(fout)

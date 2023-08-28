@@ -24,10 +24,11 @@ module WXRuby3
           wxLanguageInfo::Description
           wxLanguageInfo::DescriptionNative
           wxLanguageInfo::LayoutDirection
-          wxLanguageInfo::WinLang
-          wxLanguageInfo::WinSublang
           ]
-        spec.set_only_for('__WIN32__', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
+        spec.set_only_for('__WXMSW__', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
+        if Config.instance.features_set?('__WXMSW__')
+          spec.regard('wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
+        end
       end
     end # class Locale
 
