@@ -192,7 +192,6 @@ module WXRuby3
             }
             __HEREDOC
           spec.ignore 'wxQueueEvent'
-          spec.set_only_for 'wxUSE_HOTKEY', 'wxEVT_HOTKEY'
           spec.ignore('wxEVT_HOTKEY') unless Config.instance.features_set?('wxUSE_HOTKEY')
           spec.ignore('wxEVT_MOUSE_CAPTURE_CHANGED', 'wxEVT_MOUSE_CAPTURE_LOST', 'wxEVT_DISPLAY_CHANGED') unless Config.instance.features_set?('__WXMSW__')
           # make sure this event constant definition exists

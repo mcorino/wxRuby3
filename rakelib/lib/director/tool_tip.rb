@@ -10,7 +10,6 @@ module WXRuby3
     class ToolTip < Director
 
       def setup
-        spec.set_only_for('__WXMSW__', 'wxToolTip::SetMaxWidth')
         spec.ignore('wxToolTip::SetMaxWidth') unless Config.instance.features_set?('__WXMSW__')
         super
       end

@@ -406,9 +406,7 @@ module WXRuby3
         fout.indent { gen_inner_class(fout, member) }
       when Extractor::MethodDef
         if member.is_ctor
-          gen_only_for(fout, member) do
-            fout.puts "  #{class_name(classdef)}#{member.args_string};"
-          end
+          fout.puts "  #{class_name(classdef)}#{member.args_string};"
         elsif member.is_dtor
           unless is_abstract?(classdef)
             dtor_sig = "~#{class_name(classdef)}()"
@@ -420,12 +418,10 @@ module WXRuby3
       when Extractor::EnumDef
         gen_interface_enum(fout, member, classdef)
       when Extractor::MemberVarDef
-        gen_only_for(fout, member) do
-          fout.puts "  // from #{member.definition}"
-          fout.puts '  %immutable;' if member.no_setter
-          fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
-          fout.puts '  %mutable;' if member.no_setter
-        end
+        fout.puts "  // from #{member.definition}"
+        fout.puts '  %immutable;' if member.no_setter
+        fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
+        fout.puts '  %mutable;' if member.no_setter
       when ::String
         fout.indent do
           fout.puts '// custom wxRuby extension'
@@ -455,15 +451,11 @@ module WXRuby3
           if member.is_ctor
             if member.protection == 'public'
               if !member.ignored && !member.deprecated
-                gen_only_for(fout, member) do
-                  fout.puts "  #{classdef.name}#{member.args_string};"
-                end
+                fout.puts "  #{classdef.name}#{member.args_string};"
               end
               member.overloads.each do |ovl|
                 if ovl.protection == 'public' && !ovl.ignored && !ovl.deprecated
-                  gen_only_for(fout, ovl) do
-                    fout.puts "  #{classdef.name}#{ovl.args_string};"
-                  end
+                  fout.puts "  #{classdef.name}#{ovl.args_string};"
                 end
               end
             end
@@ -486,12 +478,10 @@ module WXRuby3
           end
         when Extractor::MemberVarDef
           if member.protection == 'public' && !member.ignored && !member.deprecated
-            gen_only_for(fout, member) do
-              fout.puts "  // from #{member.definition}"
-              fout.puts '  %immutable;' if member.no_setter
-              fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
-              fout.puts '  %mutable;' if member.no_setter
-            end
+            fout.puts "  // from #{member.definition}"
+            fout.puts '  %immutable;' if member.no_setter
+            fout.puts "  #{member.is_static ? 'static ' : ''}#{member.type} #{member.name};"
+            fout.puts '  %mutable;' if member.no_setter
           end
         end
       end
@@ -507,37 +497,29 @@ module WXRuby3
         mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = type_map.ignored_output.include?(mtd_type))
       end
       # generate method declaration
-      gen_only_for(fout, methoddef) do
-        fout.puts "  // from #{methoddef.definition}"
-        fout.puts %Q[  %feature("numoutputs", "0") #{methoddef.name};] if no_output
-        mdecl = methoddef.is_static ? 'static ' : ''
-        mdecl << 'virtual ' if methoddef.is_virtual
-        purespec = (requires_purevirtual && methoddef.is_pure_virtual) ? ' =0' : ''
-        fout.puts "  #{mdecl}#{mtd_type} #{methoddef.name}#{methoddef.args_string}#{purespec};"
-      end
+      fout.puts "  // from #{methoddef.definition}"
+      fout.puts %Q[  %feature("numoutputs", "0") #{methoddef.name};] if no_output
+      mdecl = methoddef.is_static ? 'static ' : ''
+      mdecl << 'virtual ' if methoddef.is_virtual
+      purespec = (requires_purevirtual && methoddef.is_pure_virtual) ? ' =0' : ''
+      fout.puts "  #{mdecl}#{mtd_type} #{methoddef.name}#{methoddef.args_string}#{purespec};"
     end
 
     def gen_interface_enum(fout, member, classdef)
-      gen_only_for(fout, member) do
-        fout.puts "  // from #{classdef.name}::#{member.name}"
-        fout.puts "  enum #{member.is_anonymous ? '' : member.name} {"
-        enum_size = member.items.size
-        member.items.each_with_index do |e, i|
-          gen_only_for(fout, e) do
-            fout.puts "    #{e.name}#{(i+1)<enum_size ? ',' : ''}"
-          end unless e.ignored
-        end
-        fout.puts "  };"
+      fout.puts "  // from #{classdef.name}::#{member.name}"
+      fout.puts "  enum #{member.is_anonymous ? '' : member.name} {"
+      enum_size = member.items.size
+      member.items.each_with_index do |e, i|
+        fout.puts "    #{e.name}#{(i+1)<enum_size ? ',' : ''}" unless e.ignored
       end
+      fout.puts "  };"
     end
 
     def gen_typedefs(fout)
       typedefs = def_items.select {|item| Extractor::TypedefDef === item && !item.ignored }
       typedefs.each do |item|
         fout.puts
-        gen_only_for(fout, item) do
-          fout.puts "#{item.definition};"
-        end
+        fout.puts "#{item.definition};"
       end
       fout.puts '' unless typedefs.empty?
     end
@@ -546,14 +528,12 @@ module WXRuby3
       vars = def_items.select {|item| Extractor::GlobalVarDef === item && !item.ignored }
       vars.each do |item|
         fout.puts
-        gen_only_for(fout, item) do
-          wx_pfx = item.name.start_with?('wx') ? 'wx' : ''
-          const_name = underscore!(rb_wx_name(item.name))
-          const_type = item.type
-          const_type += '*' if const_type.index('char') && item.args_string == '[]'
-          const_type.sub!(/constexpr\s+/, '') # remove any 'constexpr ' type modifiers
-          fout.puts "%constant #{const_type} #{wx_pfx}#{const_name.upcase} = #{item.name.rstrip};"
-        end
+        wx_pfx = item.name.start_with?('wx') ? 'wx' : ''
+        const_name = underscore!(rb_wx_name(item.name))
+        const_type = item.type
+        const_type += '*' if const_type.index('char') && item.args_string == '[]'
+        const_type.sub!(/constexpr\s+/, '') # remove any 'constexpr ' type modifiers
+        fout.puts "%constant #{const_type} #{wx_pfx}#{const_name.upcase} = #{item.name.rstrip};"
       end
       fout.puts '' unless vars.empty?
     end
@@ -566,9 +546,7 @@ module WXRuby3
           fout.puts "enum #{item.name};" unless item.is_anonymous
           item.items.each do |e|
             unless e.ignored
-              gen_only_for(fout, e) do
-                fout.puts "%constant int #{e.name} = #{e.fqn};"
-              end
+              fout.puts "%constant int #{e.name} = #{e.fqn};"
             end
           end
         end
@@ -597,37 +575,35 @@ module WXRuby3
         Extractor::DefineDef === item && !item.ignored && !item.is_macro? && item.value && !item.value.empty?
       }
       defines.each do |item|
-        gen_only_for(fout, item) do
-          if item.value =~ /\A\d/
-            fout.puts
-            fout.puts "#define #{item.name} #{item.value}"
-          elsif item.value.start_with?('"')
-            fout.puts
-            fout.puts "%constant char*  #{item.name} = #{item.value};"
-          elsif item.value =~ /(wxString|wxS)\((".*")\)/
-            fout.puts
-            fout.puts "%constant char*  #{item.name} = #{$2};"
-          elsif item.value =~ /wx(Size|Point)(\(.*\))/
-            frbext = init_rb_ext_file unless frbext
-            frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = Wx::#{$1}.new#{$2}" }
-            frbext.puts
-          elsif item.value =~ /wx(Colour|Font)(\(.*\))/
-            frbext = init_rb_ext_file unless frbext
-            frbext.indent do
-              frbext.puts "Wx.add_delayed_constant(self, :#{rb_wx_name(item.name)}) { Wx::#{$1}.new#{$2} }"
-            end
-            frbext.puts
-          elsif item.value =~ /wxSystemSettings::(\w+)\((.*)\)/
-            frbext = init_rb_ext_file unless frbext
-            args = $2.split(',').collect {|a| rb_constant_value(a) }.join(', ')
-            frbext.indent do
-              frbext.puts "Wx.add_delayed_constant(self, :#{rb_wx_name(item.name)}) { Wx::SystemSettings.#{rb_method_name($1)}(#{args}) }"
-            end
-            frbext.puts
-          else
-            fout.puts
-            fout.puts "%constant int  #{item.name} = #{item.value};"
+        if item.value =~ /\A\d/
+          fout.puts
+          fout.puts "#define #{item.name} #{item.value}"
+        elsif item.value.start_with?('"')
+          fout.puts
+          fout.puts "%constant char*  #{item.name} = #{item.value};"
+        elsif item.value =~ /(wxString|wxS)\((".*")\)/
+          fout.puts
+          fout.puts "%constant char*  #{item.name} = #{$2};"
+        elsif item.value =~ /wx(Size|Point)(\(.*\))/
+          frbext = init_rb_ext_file unless frbext
+          frbext.indent { frbext.puts "#{rb_wx_name(item.name)} = Wx::#{$1}.new#{$2}" }
+          frbext.puts
+        elsif item.value =~ /wx(Colour|Font)(\(.*\))/
+          frbext = init_rb_ext_file unless frbext
+          frbext.indent do
+            frbext.puts "Wx.add_delayed_constant(self, :#{rb_wx_name(item.name)}) { Wx::#{$1}.new#{$2} }"
           end
+          frbext.puts
+        elsif item.value =~ /wxSystemSettings::(\w+)\((.*)\)/
+          frbext = init_rb_ext_file unless frbext
+          args = $2.split(',').collect {|a| rb_constant_value(a) }.join(', ')
+          frbext.indent do
+            frbext.puts "Wx.add_delayed_constant(self, :#{rb_wx_name(item.name)}) { Wx::SystemSettings.#{rb_method_name($1)}(#{args}) }"
+          end
+          frbext.puts
+        else
+          fout.puts
+          fout.puts "%constant int  #{item.name} = #{item.value};"
         end
       end
       if frbext
@@ -649,25 +625,11 @@ module WXRuby3
           if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(ovl) }
             fn_type = Typemap.rb_void_type(fn_type) if (no_output = type_map.ignored.include?(fn_type))
           end
-          gen_only_for(fout, ovl) do
-            fout.puts %Q[  %feature("numoutputs", "0") #{ovl.name};] if no_output
-            fout.puts "#{fn_type} #{ovl.name}#{ovl.args_string};"
-          end
+          fout.puts %Q[  %feature("numoutputs", "0") #{ovl.name};] if no_output
+          fout.puts "#{fn_type} #{ovl.name}#{ovl.args_string};"
         end
       end
       fout.puts '' unless functions.empty?
-    end
-
-    def gen_only_for(fout, item, &block)
-      # if item.only_for
-      #   if ::Array === item.only_for
-      #     fout.puts "#if #{item.only_for.collect { |s| "defined(#{s})" }.join(' || ')}"
-      #   else
-      #     fout.puts "#ifdef #{item.only_for}"
-      #   end
-      # end
-      block.call
-      # fout.puts "#endif" if item.only_for
     end
 
     def gen_swig_interface_specs(fout)

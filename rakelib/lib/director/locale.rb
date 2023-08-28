@@ -25,7 +25,6 @@ module WXRuby3
           wxLanguageInfo::DescriptionNative
           wxLanguageInfo::LayoutDirection
           ]
-        spec.set_only_for('__WXMSW__', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
         if Config.instance.features_set?('__WXMSW__')
           spec.regard('wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
         end

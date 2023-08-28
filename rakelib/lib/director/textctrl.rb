@@ -21,7 +21,6 @@ module WXRuby3
           # not implemented
           spec.ignore 'wxTextCtrl::OnDropFiles'
         end
-        spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
         spec.ignore('wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions') unless Config.instance.features_set?('wxUSE_SPELLCHECK')
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
         spec.map_apply 'long * OUTPUT' => 'long *'

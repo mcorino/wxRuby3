@@ -44,7 +44,6 @@ module WXRuby3
                    (TYPE($input) == T_STRING && RSTRING_LEN($input) == 1) );
             __CODE
         end
-        spec.set_only_for('__WXMSW__', 'wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
         unless Config.instance.features_set?('__WXMSW__')
           spec.ignore('wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
         end

@@ -81,11 +81,6 @@ module WXRuby3
             wxTopLevelWindow::RestoreToGeometry
             wxTopLevelWindow::GeometrySerializer
           }
-          spec.set_only_for '__WXUNIVERSAL__', %w{
-            wxTopLevelWindow::IsUsingNativeDecorations
-            wxTopLevelWindow::UseNativeDecorations
-            wxTopLevelWindow::UseNativeDecorationsByDefault
-          }
           unless Config.instance.features_set?('__WXUNIVERSAL__')
             spec.ignore %w{
             wxTopLevelWindow::IsUsingNativeDecorations
@@ -93,12 +88,7 @@ module WXRuby3
             wxTopLevelWindow::UseNativeDecorationsByDefault
             }
           end
-          spec.set_only_for '__WXMSW__',
-                            'wxTopLevelWindow::MSWGetSystemMenu'
           spec.ignore('wxTopLevelWindow::MSWGetSystemMenu') unless Config.instance.features_set?('__WXMSW__')
-          spec.set_only_for '__WXOSX__',
-                            'wxTopLevelWindow::OSXSetModified',
-                            'wxTopLevelWindow::OSXIsModified'
           spec.ignore('wxTopLevelWindow::OSXSetModified','wxTopLevelWindow::OSXIsModified') unless Config.instance.features_set?('__WXOSX__')
           spec.swig_import 'swig/classes/include/wxDefs.h'
           # incorrectly documented here

@@ -335,21 +335,6 @@ module WXRuby3
       end
     end
 
-    def handle_item_only_for(defmod, fullname, platform_id)
-      # find the item
-      item = defmod.find_item(fullname)
-      if item
-        # set the item's only_for specs
-        item.only_for = platform_id
-        # in case we looked up a function without arg mask also set the only_for specs of any overloads
-        if Extractor::FunctionDef === item && !fullname.index('(')
-          item.overloads.each {|ovl| ovl.only_for = platform_id }
-        end
-      else
-        raise "Cannot find '#{fullname}' for module '#{spec.module_name}' to set only_for [#{platform_id}]"
-      end
-    end
-
     def process(gendoc: false)
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, gendoc: gendoc)
@@ -373,12 +358,6 @@ module WXRuby3
       spec.renames.each_pair do |rb_name, names|
         names.each { |fullname| handle_item_rename(defmod, fullname, rb_name) }
       end
-      # handle only_for settings
-      spec.only_for.each_pair do |platform_id, names|
-        names.each do |fullname|
-          handle_item_only_for(defmod, fullname, platform_id)
-        end
-      end
       # handle class specified includes
       defmod.classes.each do |cls|
         unless cls.ignored
@@ -397,20 +376,12 @@ module WXRuby3
                 member.all.each do |ovl|
                   if !ovl.ignored && ovl.deprecated
                     is_void = (ovl.type && !ovl.type=='void')
-                    # if ovl.only_for
-                    #   spec.add_extend_code clsnm, if ::Array === ovl.only_for
-                    #                                 "#if #{ovl.only_for.collect { |s| "defined(__#{s.upcase}__)" }.join(' || ')}"
-                    #                               else
-                    #                                 "#ifdef #{ovl.only_for}"
-                    #                               end
-                    # end
                     spec.add_extend_code clsnm, <<~__HEREDOC
                       #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{ovl.name}#{ovl.args_string} {
                         std::wcerr << "DEPRECATION WARNING: #{ovl.is_static ? 'static ' : ''}#{ovl.type} #{clsnm}::#{ovl.name}#{ovl.args_string}" << std::endl;
                         #{is_void ? '' : 'return '}$self->#{ovl.name}(#{ovl.parameters.collect {|p| p.name}.join(',')});
                       }
                       __HEREDOC
-                    # spec.add_extend_code(clsnm, '#endif') if ovl.only_for
                   end
                 end
               end
