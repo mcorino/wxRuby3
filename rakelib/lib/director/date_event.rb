@@ -98,7 +98,7 @@ module WXRuby3
             {
                 if (ruby_value == Qnil)
                 {
-                    return new wxDateTime();
+                    return new wxDateTime(wxDefaultDateTime.GetValue());
                 }
                 else
                 {
