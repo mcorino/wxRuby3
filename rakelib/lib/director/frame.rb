@@ -27,7 +27,9 @@ module WXRuby3
             wxFrame::GetToolBar]
           spec.ignore %w[
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
-          spec.set_only_for(%w[__WXMSW__ wxUSE_TASKBARBUTTON], 'wxFrame::MSWGetTaskBarButton')
+          unless Config.instance.features_set?(*%w[__WXMSW__ wxUSE_TASKBARBUTTON])
+            spec.ignore('wxFrame::MSWGetTaskBarButton')
+          end
           # this reimplemented window base method need to be properly wrapped but
           # is missing from the XML docs
           spec.extend_interface('wxFrame', 'virtual void OnInternalIdle()')

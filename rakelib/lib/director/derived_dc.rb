@@ -179,7 +179,7 @@ module WXRuby3
               }
               return rc;
             }
-            static VALUE draw_on(wxWindow* tgt, wxBitmap &buffer=wxNullBitmap, int style=wxBUFFER_CLIENT_AREA)
+            static VALUE draw_on(wxWindow* tgt, wxBitmap &buffer, int style=wxBUFFER_CLIENT_AREA)
             {
               if (!wxRuby_IsAppRunning()) 
                 rb_raise(rb_eRuntimeError, "A running Wx::App is required.");

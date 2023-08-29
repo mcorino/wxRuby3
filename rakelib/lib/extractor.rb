@@ -217,7 +217,9 @@ module WXRuby3
           @brief_doc = bd # Should be just one <para> element
           @detailed_doc = element.xpath('detaileddescription')
           if (el = @detailed_doc.at_xpath('para/onlyfor'))
-            @only_for = el.text.strip.split(',').collect { |s| "__#{s.upcase}__"}
+            @only_for = el.text.strip.split(',').collect { |s| "__#{s.upcase}__" }
+            @ignored = @only_for.none? { |s| Config.instance.features_set?(s) }
+            @docs_ignored = @ignored
           end
         end
       end

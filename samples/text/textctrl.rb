@@ -45,6 +45,9 @@ class TextCtrlFrame < Wx::Frame
     sizer = Wx::BoxSizer.new(Wx::VERTICAL)
 
     @textctrl = InformativeTextCtrl.new(panel)
+    if Wx.has_feature?(:USE_SPELLCHECK)
+      @textctrl.enable_proof_check(Wx::TextProofOptions.disable)
+    end
     populate_textctrl
     sizer.add(@textctrl, 2, Wx::GROW|Wx::ALL, 2)
 

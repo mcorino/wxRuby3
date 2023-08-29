@@ -21,7 +21,29 @@ module WXRuby3
           # not implemented
           spec.ignore 'wxTextCtrl::OnDropFiles'
         end
-        spec.set_only_for('wxUSE_SPELLCHECK', 'wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
+        # Ignore these; wxTextProofOptions documentation is absolute crap and as the class is trivial
+        # we will not wrap it but create a simplified interface when USE_SPELLCHECK is enabled which
+        # we will complement in pure Ruby to provide Wx::TextProofOptions class
+        spec.ignore('wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
+        if Config.instance.features_set?('wxUSE_SPELLCHECK')
+          spec.add_extend_code 'wxTextCtrl', <<~__HEREDOC
+            VALUE DoEnableProofCheck(bool spelling, bool grammar, const wxString& language)
+            {
+              bool rc = $self->EnableProofCheck (wxTextProofOptions::Disable().SpellCheck(spelling).GrammarCheck(grammar).Language(language));
+              return rc ? Qtrue : Qfalse;
+            }
+
+            VALUE DoGetProofCheckOptions()
+            {
+              wxTextProofOptions opts = $self->GetProofCheckOptions();
+              VALUE rc = rb_ary_new();
+              rb_ary_push(rc, opts.IsSpellCheckEnabled() ? Qtrue : Qfalse);
+              rb_ary_push(rc, opts.IsGrammarCheckEnabled() ? Qtrue : Qfalse);
+              rb_ary_push(rc, WXSTR_TO_RSTR(opts.GetLang()));
+              return rc;
+            }
+          __HEREDOC
+        end
         spec.no_proxy %w[wxTextCtrl::EmulateKeyPress wxTextCtrl::GetDefaultStyle]
         spec.map_apply 'long * OUTPUT' => 'long *'
         spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
