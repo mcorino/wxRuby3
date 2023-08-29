@@ -77,7 +77,7 @@ class MyFrame < Frame
 
     @calendar_flags = CAL_MONDAY_FIRST | CAL_SHOW_HOLIDAYS
 
-    @calendar = MyCalendar.new(@panel, self, Time.now, @calendar_flags)
+    @calendar = MyCalendar.new(@panel, self, Wx::DEFAULT_DATE_TIME, @calendar_flags)
 
     @sizer = BoxSizer.new(VERTICAL)
     configure_window
