@@ -174,7 +174,11 @@ class MultilineTextCtrlTests < WxRuby::Test::GUITests
       assert_instance_of(Wx::TextProofOptions, proof_opts)
       assert_true(proof_opts.is_spell_check_enabled) unless Wx::PLATFORM == 'WXGTK'
       assert_false(proof_opts.is_grammar_check_enabled)
-      assert_true(text.enable_proof_check(Wx::TextProofOptions.disable))
+      if Wx::PLATFORM != 'WXMSW' || Wx::WXWIDGETS_VERSION >= '3.3'
+        assert_true(text.enable_proof_check(Wx::TextProofOptions.disable))
+      else
+        assert_false(text.enable_proof_check(Wx::TextProofOptions.disable)) # incorrect return value for WXMSW
+      end
       Wx.get_app.yield
       proof_opts = text.get_proof_check_options
       assert_instance_of(Wx::TextProofOptions, proof_opts)
