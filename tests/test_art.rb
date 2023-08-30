@@ -43,6 +43,19 @@ class TestArt < Test::Unit::TestCase
     end
   end
 
+  def test_bitmap_bundle
+    bmps = []
+    bmps << Wx.Bitmap(:wxruby)
+    bmps << Wx.Bitmap('wxruby-64x64')
+    bmps << Wx.Bitmap('wxruby-128x128')
+    bmps << Wx.Bitmap('wxruby-256x256')
+    bundle = assert_nothing_raised { Wx::BitmapBundle.from_bitmaps(bmps) }
+    assert_instance_of(Wx::BitmapBundle, bundle)
+    assert_true(bundle.ok?)
+    assert_equal(Wx::Size.new(32,32), bundle.default_size)
+    assert_instance_of(Wx::Bitmap, bundle.get_bitmap([256,256]))
+  end
+
   if Wx::PLATFORM == 'WXMSW'
 
   def test_cursors
