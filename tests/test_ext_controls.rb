@@ -27,7 +27,7 @@ class SearchCtrlTests < WxRuby::Test::GUITests
 
 end
 
-class CalendarCtlTests < WxRuby::Test::GUITests
+class CalendarCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
@@ -55,6 +55,28 @@ class CalendarCtlTests < WxRuby::Test::GUITests
     dt = cal.get_date
     assert_not_nil(dt)
     assert((dt.to_i - now.to_i) < 10) # should only be a fraction of a second
+  end
+
+end
+
+class HyperlinkCtrlTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @link = Wx::HyperlinkCtrl.new(test_frame, label: 'Hyperlink', url: 'https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', name: 'Hyperlink')
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @link.destroy
+    Wx.get_app.yield
+    super
+  end
+
+  attr_reader :link
+
+  def test_link
+    assert_equal('https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', link.get_url)
   end
 
 end
