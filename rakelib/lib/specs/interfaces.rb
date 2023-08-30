@@ -60,6 +60,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxSizerItem')
     Director.Spec(pkg, 'wxSizer')
     Director.Spec(pkg, 'wxBoxSizer', director: Director::Sizer)
+    Director.Spec(pkg, 'wxWrapSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxControl')
     Director.Spec(pkg, 'wxStatusBar', requirements: %w[wxUSE_STATUSBAR])
     Director.Spec(pkg, 'wxTextEntry')
