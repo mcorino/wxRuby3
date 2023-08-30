@@ -11,8 +11,21 @@ class Wx::SplashScreen
   def initialize(bitmap, splashstyle, milliseconds, parent = nil, *mixed_args, &block)
     # no zero-args ctor for use with XRC!
 
+    real_args = begin
+                  [ bitmap, splashstyle, milliseconds, parent ] + self.class.args_as_list(*mixed_args)
+                rescue => err
+                  msg = "Error initializing #{self.inspect}\n"+
+                    " : #{err.message} \n" +
+                    "Provided are #{[ bitmap, splashstyle, milliseconds, parent ] + mixed_args} \n" +
+                    "Correct parameters for #{self.class.name}.new are:\n" +
+                    self.class.describe_constructor(
+                      ":bitmap => (Wx::Bitmap)\n:splashstyle => (Integer)\n:milliseconds => (Integer)\n:parent => (Wx::Window)\n")
+
+                  new_err = err.class.new(msg)
+                  new_err.set_backtrace(caller)
+                  Kernel.raise new_err
+                end
     begin
-      real_args = [ bitmap, splashstyle, milliseconds, parent ] + self.class.args_as_list(*mixed_args)
       pre_wx_kwctor_init(*real_args)
     rescue => err
       msg = "Error initializing #{self.inspect}\n"+
@@ -20,7 +33,7 @@ class Wx::SplashScreen
         "Provided are #{real_args} \n" +
         "Correct parameters for #{self.class.name}.new are:\n" +
         self.class.describe_constructor(
-          ":bitmap => Wx::Bitmap\n:splashstyle => Integer\n:milliseconds => Integer\n:parent => Wx::Window\n")
+          ":bitmap => (Wx::Bitmap)\n:splashstyle => (Integer)\n:milliseconds => (Integer)\n:parent => (Wx::Window)\n")
 
       new_err = err.class.new(msg)
       new_err.set_backtrace(caller)

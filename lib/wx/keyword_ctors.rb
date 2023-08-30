@@ -191,15 +191,27 @@ module Wx
             return
           end
 
+          real_args = begin
+                        [ parent ] + self.class.args_as_list(*mixed_args)
+                      rescue => err
+                        msg = "Error initializing #{self.inspect}\n"+
+                          " : #{err.message} \n" +
+                          "Provided are #{[parent] + mixed_args} \n" +
+                          "Correct parameters for #{self.class.name}.new are:\n" +
+                          self.class.describe_constructor(":parent => (Wx::Window)\n")
+
+                        new_err = err.class.new(msg)
+                        new_err.set_backtrace(caller)
+                        Kernel.raise new_err
+                      end
           begin
-            real_args = [ parent ] + self.class.args_as_list(*mixed_args)
             pre_wx_kwctor_init(*real_args)
           rescue => err
             msg = "Error initializing #{self.inspect}\n"+
                   " : #{err.message} \n" +
                   "Provided are #{real_args} \n" +
                   "Correct parameters for #{self.class.name}.new are:\n" +
-                   self.class.describe_constructor()
+                   self.class.describe_constructor(":parent => (Wx::Window)\n")
 
             new_err = err.class.new(msg)
             new_err.set_backtrace(caller)
