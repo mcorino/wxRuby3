@@ -16,7 +16,9 @@ module WXRuby3
         spec.require_app 'wxBitmap',
                          'wxBitmapBundle',
                          'wxMask'
-        spec.ignore 'wxBitmapBundle::FromSVG(char *,const wxSize &)'
+        spec.ignore 'wxBitmapBundle::FromSVG(const wxByte *,size_t,const wxSize &)',
+                    'wxBitmapBundle::FromSVGResource',
+                    'wxBitmapBundle::FromResources'
         # not useful in Ruby
         spec.ignore 'wxBitmapBundle::wxBitmapBundle(const char * const *)'
         # disable the wxBitmapBundle typemap for the copy constructor
@@ -44,6 +46,7 @@ module WXRuby3
               SWIG_exception_fail(SWIG_TypeError, "Wrong type for $1_basetype parameter $argnum");
             }
             __CODE
+          map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
         spec.no_proxy 'wxBitmap'
         # Handler functions are not needed in wxRuby - all standard handlers

@@ -46,7 +46,7 @@ class TextCtrlFrame < Wx::Frame
 
     @textctrl = InformativeTextCtrl.new(panel)
     if Wx.has_feature?(:USE_SPELLCHECK)
-      @textctrl.enable_proof_check(Wx::TextProofOptions.disable)
+      @textctrl.enable_proof_check(Wx::TextProofOptions.default)
     end
     populate_textctrl
     sizer.add(@textctrl, 2, Wx::GROW|Wx::ALL, 2)
@@ -89,6 +89,11 @@ class TextCtrlFrame < Wx::Frame
 
   def on_click
     @log.value = @textctrl.report
+    if @textctrl.get_proof_check_options.is_spell_check_enabled
+      @textctrl.enable_proof_check(Wx::TextProofOptions.disable)
+    else
+      @textctrl.enable_proof_check(Wx::TextProofOptions.default)
+    end
   end
 
   def on_quit
