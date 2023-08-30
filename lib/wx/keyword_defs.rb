@@ -445,7 +445,7 @@ end
 Wx::define_keyword_ctors(Wx::HyperlinkCtrl) do
   wx_ctor_params :id, :label => ''
   wx_ctor_params :url => ''
-  wx_ctor_params :pos, :size, :style => 0
+  wx_ctor_params :pos, :size, :style => Wx::HL_DEFAULT_STYLE
   wx_ctor_params :name => 'hyperlink'
 end
 
