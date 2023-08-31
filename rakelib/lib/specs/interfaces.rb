@@ -205,7 +205,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxActivityIndicator', director: Director::Window, requirements: %w[wxUSE_ACTIVITYINDICATOR])
     Director.Spec(pkg, 'wxHyperlinkCtrl', requirements: %w[wxUSE_HYPERLINKCTRL])
     Director.Spec(pkg, 'wxHyperlinkEvent', requirements: %w[wxUSE_HYPERLINKCTRL])
-    Director.Spec(pkg, 'wxBannerWindow', director: Director::Window)
+    Director.Spec(pkg, 'wxBannerWindow')
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
