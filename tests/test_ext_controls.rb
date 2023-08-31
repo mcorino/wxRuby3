@@ -80,3 +80,27 @@ class HyperlinkCtrlTests < WxRuby::Test::GUITests
   end
 
 end
+
+class BannerWindowTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @banner = Wx::BannerWindow.new(test_frame, dir: Wx::Direction::TOP)
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @banner.destroy
+    Wx.get_app.yield
+    super
+  end
+
+  attr_reader :banner
+
+  def test_link
+    assert_nothing_raised { banner.bitmap = Wx.Bitmap(:sample3) }
+    assert_nothing_raised { banner.set_text('BannerWindow Test', 'Hello to the BannerWindow test.') }
+    Wx.get_app.yield
+  end
+
+end
