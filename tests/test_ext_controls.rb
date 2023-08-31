@@ -99,8 +99,36 @@ class BannerWindowTests < WxRuby::Test::GUITests
 
   def test_link
     assert_nothing_raised { banner.bitmap = Wx.Bitmap(:sample3) }
-    assert_nothing_raised { banner.set_text('BannerWindow Test', 'Hello to the BannerWindow test.') }
+    assert_nothing_raised { banner.set_text('BannerWindow Test', 'Welcome to the BannerWindow test.') }
     Wx.get_app.yield
+  end
+
+end
+
+class InfoBarTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @info = Wx::InfoBar.new(test_frame)
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @info.destroy
+    Wx.get_app.yield
+    super
+  end
+
+  attr_reader :info
+
+  def test_link
+    assert_nothing_raised { info.show_message('Welcome to the InfoBar test.') }
+    Wx.get_app.yield
+    assert_nothing_raised { info.add_button(Wx::ID_HIGHEST+1000, 'Button1') }
+    Wx.get_app.yield
+    assert_equal(1, info.button_count)
+    assert_equal(Wx::ID_HIGHEST+1000, info.button_id(0))
+    assert_true(info.has_button_id?(Wx::ID_HIGHEST+1000))
   end
 
 end
