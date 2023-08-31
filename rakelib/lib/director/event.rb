@@ -26,7 +26,7 @@ module WXRuby3
           spec.extend_interface('wxEvent', 'wxEvent(wxEventType commandType = wxEVT_NULL, int id = 0, int prop_level = wxEVENT_PROPAGATE_NONE)')
           spec.ignore %w[wxEvent::GetEventUserData]
           spec.ignore 'wxEvent::wxEvent(int,wxEventType)'
-          spec.no_proxy 'wxEvent::Clone'
+          spec.no_proxy 'wxEvent::Clone', 'wxCommandEvent::Clone'
           spec.regard 'wxEvent::Clone', regard_doc: false # need updated doc
           # need this to force alloc func
           spec.make_concrete 'wxEvent'
@@ -208,6 +208,7 @@ module WXRuby3
           spec.items.each do |citem|
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item
+              spec.no_proxy "#{citem}::Clone"
               if def_item.hierarchy.has_key?('wxEvent')
                 spec.override_inheritance_chain(citem, {'wxEvent' => 'wxEvent'}, 'wxObject')
               elsif def_item.hierarchy.has_key?('wxCommandEvent')
@@ -224,6 +225,7 @@ module WXRuby3
               else
                 # need this to force alloc func
                 spec.make_concrete(citem)
+                spec.no_proxy(citem)
               end
             end
           end

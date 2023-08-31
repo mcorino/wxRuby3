@@ -556,7 +556,7 @@ module WXRuby3
                     if mtdreg[:virtual] && !mtdreg[:proxy]
                       # if we did NOT generate a wrapper override and we do not have the proxy suppressed we're in trouble
                       if !cls_mtdreg.has_key?(mtdsig) && has_method_proxy?(item.name, mtdreg[:method])
-                        errors << "* ERROR: method #{mtdreg[:method].signature} is proxied without wrapper implementation in class #{item.name} but not proxied in base class #{base_name}!"
+                        warnings << "* WARNING: disabling proxy for virtual method #{mtdreg[:method].signature} without wrapper implementation in class #{item.name} since it is NOT proxied in base class #{base_name}!"
                       elsif cls_mtdreg.has_key?(mtdsig) && !cls_mtdreg[mtdsig][:extension] && !has_method_proxy?(item.name, cls_mtdreg[mtdsig][:method])
                         # if this is not a custom extension and we do have an override wrapper and no proxy this is unnecessary code bloat
                         warnings << " * WARNING: Unnecessary override #{mtdreg[:method].signature} in class #{item.name} for non-proxied base in #{base_name}. Ignoring."

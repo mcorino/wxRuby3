@@ -15,6 +15,7 @@ module WXRuby3
         super
         if spec.module_name == 'wxControlWithItems'
           spec.items.replace %w[wxControlWithItems wxItemContainer wxItemContainerImmutable]
+          spec.no_proxy 'wxControlWithItems'
           spec.fold_bases('wxControlWithItems' => %w[wxItemContainer wxItemContainerImmutable])
           spec.override_inheritance_chain('wxControlWithItems',
                                           %w[wxControl
