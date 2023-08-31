@@ -16,7 +16,8 @@ module WXRuby3
         spec.require_app 'wxBitmap',
                          'wxBitmapBundle',
                          'wxMask'
-        spec.ignore 'wxBitmapBundle::FromSVG(const wxByte *,size_t,const wxSize &)',
+        spec.ignore 'wxBitmapBundle::FromSVG(char*, const wxSize &)', # only need 1 of these; keep the 'const char*'
+                    'wxBitmapBundle::FromSVG(const wxByte *,size_t,const wxSize &)',
                     'wxBitmapBundle::FromSVGResource',
                     'wxBitmapBundle::FromResources'
         # not useful in Ruby
