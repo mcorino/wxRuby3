@@ -327,9 +327,9 @@ module WXRuby3
               # at the top of our Init_ function, make sure we only initialize
               # ourselves once
               if /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
-                line += "static bool initialized;\n"
-                line += "if(initialized) return;\n"
-                line += "initialized = true;\n"
+                line += "\n  static bool initialized;\n"
+                line += "  if(initialized) return;\n"
+                line += "  initialized = true;\n"
                 found_init = true # switch to init fixes
               end
 
