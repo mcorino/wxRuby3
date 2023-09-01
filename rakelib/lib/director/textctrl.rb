@@ -17,6 +17,10 @@ module WXRuby3
         spec.include_mixin 'wxTextCtrl', { 'Wx::TextEntry' => 'wxTextEntryBase' }
         spec.override_inheritance_chain('wxTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
+        if Config.instance.wx_port == :wxGTK && Config.instance.wx_version >= '3.3.0'
+          spec.ignore 'wxTextCtrl::GTKGetTextBuffer',
+                      'wxTextCtrl::GTKGetEditable'
+        end
         if Config.instance.wx_port == :wxQT
           # not implemented
           spec.ignore 'wxTextCtrl::OnDropFiles'
