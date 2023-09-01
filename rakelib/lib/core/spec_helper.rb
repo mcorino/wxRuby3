@@ -99,21 +99,21 @@ module WXRuby3
       end
     end
 
-    def get_base_list(hierarchy, foldedbases, list = ::Set.new)
+    def get_base_list(hierarchy, foldedbases, list = ::Set.new, do_not_fold: false)
       hierarchy.each_value do |super_def|
-        list << super_def.name unless foldedbases.include?(super_def.name)
-        get_base_list(super_def.supers, folded_bases(super_def.name), list)
+        list << super_def.name unless !do_not_fold && foldedbases.include?(super_def.name)
+        get_base_list(super_def.supers, do_not_fold ? [] : folded_bases(super_def.name), list, do_not_fold: do_not_fold)
       end
       list
     end
     private :get_base_list
 
-    def base_list(classdef_or_name)
+    def base_list(classdef_or_name, do_not_fold: false)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
       base = ifspec.inheritance_override(class_def.name)
       hierarchy = (base && (base.name ? {base.name => base} : {})) || class_def.hierarchy
-      get_base_list(hierarchy, folded_bases(class_def.name)).to_a
+      get_base_list(hierarchy, do_not_fold ? [] : folded_bases(class_def.name), do_not_fold: do_not_fold).to_a
     end
 
     def get_base_module_list(hierarchy, foldedbases, list = ::Set.new)
@@ -131,6 +131,12 @@ module WXRuby3
       base = ifspec.inheritance_override(class_def.name)
       hierarchy = (base && (base.name ? {base.name => base} : {})) || class_def.hierarchy
       get_base_module_list(hierarchy, folded_bases(class_def.name)).to_a
+    end
+
+    def is_derived_from?(classdef_or_name, base_name)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      ifspec.is_derived_from?(class_def, base_name)
     end
 
     def is_folded_base?(cnm)
@@ -180,7 +186,20 @@ module WXRuby3
     def has_virtuals?(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
-      return class_def.all_methods.any? { |m| m.is_virtual }
+      return class_def.all_methods.any? { |m| !(m.ignored || m.deprecated) && m.is_virtual }
+    end
+
+    def inherits_virtuals?(classdef_or_name)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      base_list(class_def).any? do |base_name|
+        dir = ifspec.package.director_for_class(base_name)
+        raise "Cannot determine director for class #{base_name}" unless dir
+        dir.synchronize do
+          dir.extract_interface(false) # make sure the Director has extracted data from XML
+        end
+        Simple.new(dir).has_virtuals?(base_name)
+      end
     end
 
     def gc_type(classdef)
@@ -222,11 +241,12 @@ module WXRuby3
     def has_proxy?(classdef_or_name)
       class_def = (Extractor::ClassDef === classdef_or_name ?
                      classdef_or_name : classdef_for_name(classdef_or_name))
-      rc =!disabled_proxies
+      rc = !disabled_proxies
       rc &&= (class_def.ignored ||
           class_def.is_template? ||
           has_virtuals?(class_def) ||
-          forced_proxy?(class_def.name))
+          forced_proxy?(class_def.name) ||
+          inherits_virtuals?(class_def))
       clsnm = class_name(class_def)
       rc &&= !no_proxies.include?(clsnm)
       rc

@@ -165,14 +165,14 @@ module WXRuby3
         def_classes.each do |cls|
           if !cls.ignored && !cls.is_template?
             unless is_folded_base?(cls.name)
-              fout.puts "%feature(\"nodirector\") #{class_name(cls)};"
+              fout.puts "%feature(\"nodirector\") #{class_name(cls)}; /* disabled_proxies */"
             end
           end
         end
       else
         def_classes.each do |cls|
-          unless cls.ignored || cls.is_template? || has_virtuals?(cls) || forced_proxy?(cls.name)
-            fout.puts "%feature(\"nodirector\") #{class_name(cls)};"
+          unless cls.ignored || cls.is_template? || has_virtuals?(cls) || inherits_virtuals?(cls) || forced_proxy?(cls.name)
+            fout.puts "%feature(\"nodirector\") #{class_name(cls)}; /* no-virtuals */ "
           end
           if forced_proxy?(cls.name) && !cls.ignored && !cls.is_template?
             fout.puts "%feature(\"notabstract\") #{class_name(cls)};"
@@ -182,7 +182,7 @@ module WXRuby3
       unless no_proxies.empty?
         fout.puts
         no_proxies.each do |name|
-          fout.puts "%feature(\"nodirector\") #{name};"
+          fout.puts "%feature(\"nodirector\") #{name}; /* no-proxy */"
         end
       end
       unless renames.empty?

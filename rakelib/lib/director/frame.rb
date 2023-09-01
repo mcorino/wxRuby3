@@ -16,15 +16,6 @@ module WXRuby3
         # only for wxFrame class itself
         case spec.module_name
         when 'wxFrame'
-          spec.no_proxy %w[
-            wxFrame::CreateStatusBar
-            wxFrame::CreateToolBar
-            wxFrame::SetMenuBar
-            wxFrame::GetMenuBar
-            wxFrame::SetStatusBar
-            wxFrame::GetStatusBar
-            wxFrame::SetToolBar
-            wxFrame::GetToolBar]
           spec.ignore %w[
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
           unless Config.instance.features_set?(*%w[__WXMSW__ wxUSE_TASKBARBUTTON])
@@ -54,21 +45,29 @@ module WXRuby3
                                 'wxFrame::GetMenuBar',
                                 'wxFrame::GetStatusBar',
                                 'wxFrame::GetToolBar')
-        else # 'wxMiniFrame', 'wxMDIFrame', 'wxAuiMDIParentFrame'
-          spec.items.each do |cls|
+        end
+      end
+
+      def process(gendoc: false)
+        defmod = super
+        spec.items.each do |citem|
+          def_item = defmod.find_item(citem)
+          if Extractor::ClassDef === def_item && (citem == 'wxFrame' || spec.is_derived_from?(def_item, 'wxFrame'))
             spec.no_proxy %W[
-              #{cls}::CreateStatusBar
-              #{cls}::CreateToolBar
-              #{cls}::SetMenuBar
-              #{cls}::GetMenuBar
-              #{cls}::SetStatusBar
-              #{cls}::GetStatusBar
-              #{cls}::SetToolBar
-              #{cls}::GetToolBar
+              #{spec.class_name(citem)}::CreateStatusBar
+              #{spec.class_name(citem)}::CreateToolBar
+              #{spec.class_name(citem)}::SetMenuBar
+              #{spec.class_name(citem)}::GetMenuBar
+              #{spec.class_name(citem)}::SetStatusBar
+              #{spec.class_name(citem)}::GetStatusBar
+              #{spec.class_name(citem)}::SetToolBar
+              #{spec.class_name(citem)}::GetToolBar
               ]
           end
         end
+        defmod
       end
+      
     end # class Frame
 
   end # class Director

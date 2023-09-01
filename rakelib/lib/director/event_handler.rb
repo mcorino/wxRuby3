@@ -356,17 +356,31 @@ module WXRuby3
             }
             __HEREDOC
           spec.do_not_generate :typedefs, :variables, :enums, :defines, :functions
-        else
-          spec.items.each do |itm|
-            # Avoid adding unneeded directors
-            spec.no_proxy("#{spec.class_name(itm)}::ProcessEvent") unless /\.h\Z/ =~ itm
-          end
-          spec.add_header_code <<~__HEREDOC
-            static WxRuby_ID __wxrb_try_before_id("try_before");
-            static WxRuby_ID __wxrb_try_after_id("try_after");
-            __HEREDOC
         end
       end
+
+      def process(gendoc: false)
+        defmod = super
+        unless spec.module_name == 'wxEvtHandler'
+          is_evt_handler = false
+          spec.items.each do |citem|
+            def_item = defmod.find_item(citem)
+            if Extractor::ClassDef === def_item && spec.is_derived_from?(def_item, 'wxEvtHandler')
+              spec.no_proxy "#{spec.class_name(citem)}::ProcessEvent"
+              is_evt_handler = true
+            end
+          end
+          # only once
+          if is_evt_handler
+            spec.add_header_code <<~__HEREDOC
+              static WxRuby_ID __wxrb_try_before_id("try_before");
+              static WxRuby_ID __wxrb_try_after_id("try_after");
+              __HEREDOC
+          end
+        end
+        defmod
+      end
+
     end # class EvtHandler
 
   end # class Director
@@ -410,7 +424,7 @@ module WXRuby3
                 // reroute directly to C++ method
                 if (Qnil == wxRuby_FindTracking(this) || wxRuby_IsNativeMethod(swig_get_self(), __wxrb_try_#{director_method_id.downcase}_id()))
                 {
-                  return this->#{director_wx_class}::Try#{director_method_id}(event);
+                  return this->#{class_implementation(director_wx_class)}::Try#{director_method_id}(event);
                 }
                 __CODE
                 line << "\n  " << code.split("\n").join("\n  ")

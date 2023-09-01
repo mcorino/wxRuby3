@@ -13,65 +13,6 @@ module WXRuby3
 
       def setup
         super
-        # for all wxWindow derived classes (not wxFrame and descendants)
-        spec.items.each do |itm|
-          # Avoid adding unneeded directors
-          spec.no_proxy("#{itm}::AddChild",
-                        "#{itm}::Fit",
-                        "#{itm}::FitInside",
-                        "#{itm}::Freeze",
-                        "#{itm}::GetBackgroundStyle",
-                        "#{itm}::GetCharHeight",
-                        "#{itm}::GetCharWidth",
-                        "#{itm}::GetLabel",
-                        "#{itm}::GetName",
-                        "#{itm}::GetScreenPosition",
-                        "#{itm}::GetScrollPos",
-                        "#{itm}::GetScrollRange",
-                        "#{itm}::GetScrollThumb",
-                        "#{itm}::GetTextExtent",
-                        "#{itm}::HasCapture",
-                        "#{itm}::HasMultiplePages",
-                        "#{itm}::IsDoubleBuffered",
-                        "#{itm}::IsEnabled",
-                        "#{itm}::IsFrozen",
-                        "#{itm}::IsRetained",
-                        "#{itm}::IsShown",
-                        "#{itm}::IsShownOnScreen",
-                        "#{itm}::ReleaseMouse",
-                        "#{itm}::RemoveChild",
-                        "#{itm}::ScrollLines",
-                        "#{itm}::ScrollPages",
-                        "#{itm}::ScrollWindow",
-                        "#{itm}::SetAcceleratorTable",
-                        "#{itm}::SetBackgroundColour",
-                        "#{itm}::SetBackgroundStyle",
-                        "#{itm}::SetCursor",
-                        "#{itm}::SetFocus",
-                        "#{itm}::SetFocusFromKbd",
-                        "#{itm}::SetFont",
-                        "#{itm}::SetForegroundColour",
-                        "#{itm}::SetHelpText",
-                        "#{itm}::SetLabel",
-                        "#{itm}::SetName",
-                        "#{itm}::SetScrollPos",
-                        "#{itm}::SetScrollbar",
-                        "#{itm}::SetThemeEnabled",
-                        "#{itm}::SetThemeEnabled",
-                        "#{itm}::SetValidator",
-                        "#{itm}::SetWindowStyleFlag",
-                        "#{itm}::ShouldInheritColour",
-                        "#{itm}::Thaw",
-                        "#{itm}::Layout",
-                        "#{itm}::InheritAttributes",
-                        "#{itm}::GetDefaultAttributes",
-                        "#{itm}::GetWindowStyleFlag",
-                        "#{itm}::GetDropTarget",
-                        "#{itm}::GetValidator",
-                        "#{itm}::IsTopLevel",
-                        "#{itm}::EnableTouchEvents") unless /\.h\Z/ =~ itm
-        end
-
         case spec.module_name
         when 'wxWindow' # only for actual wxWindow class
           # // Any of these following kind of objects become owned by the window
@@ -280,6 +221,67 @@ module WXRuby3
 
       def process(gendoc: false)
         defmod = super
+        # for all wxWindow (derived) classes
+        spec.items.each do |citem|
+          def_item = defmod.find_item(citem)
+          if Extractor::ClassDef === def_item && (citem == 'wxWindow' || spec.is_derived_from?(def_item, 'wxWindow'))
+            # Avoid adding unneeded directors
+            spec.no_proxy("#{spec.class_name(citem)}::AddChild",
+                          "#{spec.class_name(citem)}::Fit",
+                          "#{spec.class_name(citem)}::FitInside",
+                          "#{spec.class_name(citem)}::Freeze",
+                          "#{spec.class_name(citem)}::GetBackgroundStyle",
+                          "#{spec.class_name(citem)}::GetCharHeight",
+                          "#{spec.class_name(citem)}::GetCharWidth",
+                          "#{spec.class_name(citem)}::GetLabel",
+                          "#{spec.class_name(citem)}::GetName",
+                          "#{spec.class_name(citem)}::GetScreenPosition",
+                          "#{spec.class_name(citem)}::GetScrollPos",
+                          "#{spec.class_name(citem)}::GetScrollRange",
+                          "#{spec.class_name(citem)}::GetScrollThumb",
+                          "#{spec.class_name(citem)}::GetTextExtent",
+                          "#{spec.class_name(citem)}::HasCapture",
+                          "#{spec.class_name(citem)}::HasMultiplePages",
+                          "#{spec.class_name(citem)}::IsDoubleBuffered",
+                          "#{spec.class_name(citem)}::IsEnabled",
+                          "#{spec.class_name(citem)}::IsFrozen",
+                          "#{spec.class_name(citem)}::IsRetained",
+                          "#{spec.class_name(citem)}::IsShown",
+                          "#{spec.class_name(citem)}::IsShownOnScreen",
+                          "#{spec.class_name(citem)}::ReleaseMouse",
+                          "#{spec.class_name(citem)}::RemoveChild",
+                          "#{spec.class_name(citem)}::ScrollLines",
+                          "#{spec.class_name(citem)}::ScrollPages",
+                          "#{spec.class_name(citem)}::ScrollWindow",
+                          "#{spec.class_name(citem)}::SetAcceleratorTable",
+                          "#{spec.class_name(citem)}::SetBackgroundColour",
+                          "#{spec.class_name(citem)}::SetBackgroundStyle",
+                          "#{spec.class_name(citem)}::SetCursor",
+                          "#{spec.class_name(citem)}::SetFocus",
+                          "#{spec.class_name(citem)}::SetFocusFromKbd",
+                          "#{spec.class_name(citem)}::SetFont",
+                          "#{spec.class_name(citem)}::SetForegroundColour",
+                          "#{spec.class_name(citem)}::SetHelpText",
+                          "#{spec.class_name(citem)}::SetLabel",
+                          "#{spec.class_name(citem)}::SetName",
+                          "#{spec.class_name(citem)}::SetScrollPos",
+                          "#{spec.class_name(citem)}::SetScrollbar",
+                          "#{spec.class_name(citem)}::SetThemeEnabled",
+                          "#{spec.class_name(citem)}::SetThemeEnabled",
+                          "#{spec.class_name(citem)}::SetValidator",
+                          "#{spec.class_name(citem)}::SetWindowStyleFlag",
+                          "#{spec.class_name(citem)}::ShouldInheritColour",
+                          "#{spec.class_name(citem)}::Thaw",
+                          "#{spec.class_name(citem)}::Layout",
+                          "#{spec.class_name(citem)}::InheritAttributes",
+                          "#{spec.class_name(citem)}::GetDefaultAttributes",
+                          "#{spec.class_name(citem)}::GetWindowStyleFlag",
+                          "#{spec.class_name(citem)}::GetDropTarget",
+                          "#{spec.class_name(citem)}::GetValidator",
+                          "#{spec.class_name(citem)}::IsTopLevel",
+                          "#{spec.class_name(citem)}::EnableTouchEvents")
+          end
+        end
         if spec.module_name == 'wxWindow'
           # special processing to ignore the non-static versions of methods FromDIP,ToDIP,FromPhys,ToPhys
           # as SWIG cannot handle identically named static & non-static methods
@@ -331,7 +333,7 @@ module WXRuby3
                 // if Ruby object not registered anymore or no Ruby defined method override
                 // reroute directly to C++ method
                 if (wxRuby_FindTracking(this) == Qnil || wxRuby_IsNativeMethod(swig_get_self(), __wxrb_on_internal_idle_id()))
-                  this->#{director_wx_class}::OnInternalIdle();
+                  this->#{class_implementation(director_wx_class)}::OnInternalIdle();
                 else
                 __CODE
                 line << "\n  " << code.split("\n").join("\n  ")

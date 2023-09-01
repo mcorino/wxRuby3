@@ -491,5 +491,15 @@ Wx::define_keyword_ctors(Wx::ActivityIndicator) do
   wx_ctor_params :name => 'activityIndicator'
 end
 
+Wx::define_keyword_ctors(Wx::BannerWindow) do
+  wx_ctor_params :id, :dir => Wx::Direction::LEFT
+  wx_ctor_params :pos, :size, :style
+  wx_ctor_params :name => 'bannerwindow'
+end
+
+Wx::define_keyword_ctors(Wx::InfoBar) do
+  wx_ctor_params :id
+end
+
 # FIXME - SymbolPickerDialog is hard to because the parent argument is
 # in a strange place.

@@ -13,49 +13,6 @@ module WXRuby3
 
       def setup
         super
-        # for all wxTopLevelWindow (derived) classes
-        spec.items.each do |itm|
-          spec.no_proxy("#{itm}::ClearBackground",
-                        "#{itm}::Enable",
-                        "#{itm}::EnableCloseButton",
-                        "#{itm}::EndModal",
-                        "#{itm}::GetHelpTextAtPoint",
-                        "#{itm}::GetMaxSize",
-                        "#{itm}::GetMinSize",
-                        "#{itm}::GetTitle",
-                        "#{itm}::Iconize",
-                        "#{itm}::IsActive",
-                        "#{itm}::IsFullScreen",
-                        "#{itm}::IsMaximzed",
-                        "#{itm}::IsAlwaysMaximzed",
-                        "#{itm}::IsModal",
-                        #"#{itm}::IsTopLevel",
-                        "#{itm}::IsVisible",
-                        "#{itm}::Maximize",
-                        "#{itm}::Navigate",
-                        "#{itm}::Refresh",
-                        "#{itm}::Reparent",
-                        "#{itm}::RequestUserAttention",
-                        "#{itm}::Restore",
-                        "#{itm}::SetIcon",
-                        "#{itm}::SetIcons",
-                        #"#{itm}::SetMaxSize",
-                        #"#{itm}::SetMinSize",
-                        "#{itm}::SetShape",
-                        "#{itm}::SetSize",
-                        "#{itm}::SetSize",
-                        #"#{itm}::SetSizeHints",
-                        #"#{itm}::SetSizeHints",
-                        "#{itm}::SetTitle",
-                        #"#{itm}::SetTransparent",
-                        #"#{itm}::Show",
-                        "#{itm}::ShowFullScreen",
-                        "#{itm}::ShowModal",
-                        "#{itm}::Update",
-                        "#{itm}::UpdateWindow",
-                        "#{itm}::Validate")
-        end
-
         if spec.module_name == 'wxTopLevelWindow'
           # add these to the generated interface to be parsed by SWIG
           # the wxWidgets docs are flawed in this respect that several reimplemented
@@ -97,6 +54,54 @@ module WXRuby3
                                  'EVT_MAXIMIZE' => ['EVT_MAXIMIZE', 0, 'wxMaximizeEvent'] }
         end
       end
+
+      def process(gendoc: false)
+        defmod = super
+        # for all wxTopLevelWindow (derived) classes
+        spec.items.each do |citem|
+          def_item = defmod.find_item(citem)
+          if Extractor::ClassDef === def_item && (citem == 'wxTopLevelWindow' || spec.is_derived_from?(def_item, 'wxTopLevelWindow'))
+            spec.no_proxy("#{spec.class_name(citem)}::ClearBackground",
+                          "#{spec.class_name(citem)}::Enable",
+                          "#{spec.class_name(citem)}::EnableCloseButton",
+                          "#{spec.class_name(citem)}::GetHelpTextAtPoint",
+                          "#{spec.class_name(citem)}::GetMaxSize",
+                          "#{spec.class_name(citem)}::GetMinSize",
+                          "#{spec.class_name(citem)}::GetTitle",
+                          "#{spec.class_name(citem)}::Iconize",
+                          "#{spec.class_name(citem)}::IsActive",
+                          "#{spec.class_name(citem)}::IsFullScreen",
+                          "#{spec.class_name(citem)}::IsMaximzed",
+                          "#{spec.class_name(citem)}::IsAlwaysMaximzed",
+                          #"#{spec.class_name(citem)}::IsTopLevel",
+                          "#{spec.class_name(citem)}::IsVisible",
+                          "#{spec.class_name(citem)}::Maximize",
+                          "#{spec.class_name(citem)}::Navigate",
+                          "#{spec.class_name(citem)}::Refresh",
+                          "#{spec.class_name(citem)}::Reparent",
+                          "#{spec.class_name(citem)}::RequestUserAttention",
+                          "#{spec.class_name(citem)}::Restore",
+                          "#{spec.class_name(citem)}::SetIcon",
+                          "#{spec.class_name(citem)}::SetIcons",
+                          #"#{spec.class_name(citem)}::SetMaxSize",
+                          #"#{spec.class_name(citem)}::SetMinSize",
+                          "#{spec.class_name(citem)}::SetShape",
+                          "#{spec.class_name(citem)}::SetSize",
+                          "#{spec.class_name(citem)}::SetSize",
+                          #"#{spec.class_name(citem)}::SetSizeHints",
+                          #"#{spec.class_name(citem)}::SetSizeHints",
+                          "#{spec.class_name(citem)}::SetTitle",
+                          #"#{spec.class_name(citem)}::SetTransparent",
+                          #"#{spec.class_name(citem)}::Show",
+                          "#{spec.class_name(citem)}::ShowFullScreen",
+                          "#{spec.class_name(citem)}::Update",
+                          "#{spec.class_name(citem)}::UpdateWindow",
+                          "#{spec.class_name(citem)}::Validate")
+          end
+        end
+        defmod
+      end
+
     end # class Frame
 
   end # class Director

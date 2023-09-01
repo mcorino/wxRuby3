@@ -135,7 +135,7 @@ module WXRuby3
         this ? this.supers : {}
       end
 
-      def find_base(bases, name)
+      def self.find_base(bases, name)
         return bases[name] if bases.has_key?(name)
         bases.each_value do |base|
           if (base = find_base(base.supers, name))
@@ -144,10 +144,9 @@ module WXRuby3
         end
         nil
       end
-      private :find_base
 
       def is_derived_from?(classname)
-        !!find_base(@hierarchy, classname)
+        !!ClassDef.find_base(@hierarchy, classname)
       end
 
       def add_crossrefs(element)
