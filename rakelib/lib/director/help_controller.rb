@@ -50,10 +50,9 @@ module WXRuby3
             return rc;
           }
           __HEREDOC
+        spec.suppress_warning(473, "#{spec.module_name}::GetParentWindow")
         if spec.module_name == 'wxHtmlHelpController'
           spec.ignore 'wxHtmlHelpController::CreateHelpFrame'
-          spec.suppress_warning(473,
-                                'wxHtmlHelpController::GetParentWindow')
         elsif spec.module_name == 'wxExtHelpController'
           spec.ignore %w[
             wxExtHelpController::DisplayBlock
@@ -62,8 +61,6 @@ module WXRuby3
             wxExtHelpController::Quit
             wxExtHelpController::GetFrameParameters
           ]
-          spec.suppress_warning(473,
-                                'wxExtHelpController::GetParentWindow')
           # already generated with HelpController
           spec.do_not_generate :variables, :enums, :defines, :functions
         end

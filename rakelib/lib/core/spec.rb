@@ -134,6 +134,15 @@ module WXRuby3
         (!doc || doc_override) ? supers : nil
       end
 
+      def is_derived_from?(class_def, base_name)
+        base = inheritance_override(class_def.name)
+        if base
+          !!Extractor::ClassDef.find_base({base.name => base}, base_name)
+        else
+          class_def.is_derived_from?(base_name)
+        end
+      end
+
       def extend_interface(cls, *declarations, visibility: 'public')
         ((@interface_extensions[cls] ||= {})[visibility] ||= ::Set.new).merge declarations.flatten
         self

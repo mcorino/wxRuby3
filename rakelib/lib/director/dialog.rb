@@ -216,6 +216,20 @@ module WXRuby3
           spec.do_not_generate(:variables, :enums, :defines, :functions)
         end
       end
+
+      def process(gendoc: false)
+        defmod = super
+        spec.items.each do |citem|
+          def_item = defmod.find_item(citem)
+          if Extractor::ClassDef === def_item && (citem == 'wxDialog' || spec.is_derived_from?(def_item, 'wxDialog'))
+            spec.no_proxy "#{spec.class_name(citem)}::ShowModal"
+            spec.no_proxy "#{spec.class_name(citem)}::EndModal"
+            spec.no_proxy "#{spec.class_name(citem)}::IsModal"
+          end
+        end
+        defmod
+      end
+
     end # class Dialog
 
   end # class Director

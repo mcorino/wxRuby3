@@ -133,6 +133,12 @@ module WXRuby3
       get_base_module_list(hierarchy, folded_bases(class_def.name)).to_a
     end
 
+    def is_derived_from?(classdef_or_name, base_name)
+      class_def = (Extractor::ClassDef === classdef_or_name ?
+                     classdef_or_name : classdef_for_name(classdef_or_name))
+      ifspec.is_derived_from?(class_def, base_name)
+    end
+
     def is_folded_base?(cnm)
       ifspec.is_folded_base?(cnm)
     end
