@@ -424,7 +424,7 @@ module WXRuby3
                 // reroute directly to C++ method
                 if (Qnil == wxRuby_FindTracking(this) || wxRuby_IsNativeMethod(swig_get_self(), __wxrb_try_#{director_method_id.downcase}_id()))
                 {
-                  return this->#{director_wx_class}::Try#{director_method_id}(event);
+                  return this->#{class_implementation(director_wx_class)}::Try#{director_method_id}(event);
                 }
                 __CODE
                 line << "\n  " << code.split("\n").join("\n  ")
