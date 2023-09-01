@@ -333,7 +333,7 @@ module WXRuby3
                 // if Ruby object not registered anymore or no Ruby defined method override
                 // reroute directly to C++ method
                 if (wxRuby_FindTracking(this) == Qnil || wxRuby_IsNativeMethod(swig_get_self(), __wxrb_on_internal_idle_id()))
-                  this->#{director_wx_class}::OnInternalIdle();
+                  this->#{class_implementation(director_wx_class)}::OnInternalIdle();
                 else
                 __CODE
                 line << "\n  " << code.split("\n").join("\n  ")
