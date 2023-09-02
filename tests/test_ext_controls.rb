@@ -132,3 +132,64 @@ class InfoBarTests < WxRuby::Test::GUITests
   end
 
 end
+
+class CommandLinkButtonTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @button = Wx::CommandLinkButton.new(test_frame, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @button.destroy
+    super
+  end
+
+  attr_reader :button
+
+  def test_button
+    assert_equal('CommandLinkButton', button.main_label)
+    assert_equal('Testing CommandLinkButton', button.note)
+    button.label = 'button label'
+    assert_equal('button label', button.label)
+  end
+
+  if has_ui_simulator?
+
+    def test_click
+      count = count_events(button, :evt_button) do
+        sim = Wx::UIActionSimulator.new
+
+        # We move in to the middle of the widget, we need to yield
+        # after every Wx::UIActionSimulator action to keep everything working in GTK
+        sim.mouse_move(button.get_screen_position + (button.size / 2))
+        Wx.get_app.yield
+
+        sim.mouse_click
+        Wx.get_app.yield
+      end
+
+      assert_equal(1, count)
+    end
+
+    def test_disabled
+      button.disable
+      count = count_events(button, :evt_button) do
+        sim = Wx::UIActionSimulator.new
+
+        # We move in to the middle of the widget, we need to yield
+        # after every Wx::UIActionSimulator action to keep everything working in GTK
+        sim.mouse_move(button.get_screen_position + (button.size / 2))
+        Wx.get_app.yield
+
+        sim.mouse_click
+        Wx.get_app.yield
+      end
+
+      assert_equal(0, count)
+    end
+
+  end # has_ui_simulator?
+
+end

@@ -96,6 +96,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxSpinCtrl', director: Director::Window, requirements: %w[wxUSE_SPINCTRL])
     Director.Spec(pkg, 'wxStaticBitmap')
     Director.Spec(pkg, 'wxBitmapButton', director: Director::Button)
+    Director.Spec(pkg, 'wxCommandLinkButton', director: Director::Button)
     Director.Spec(pkg, 'wxArtProvider')
     Director.Spec(pkg, 'wxStaticBoxSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxStdDialogButtonSizer', director: Director::Sizer)

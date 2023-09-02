@@ -273,6 +273,13 @@ Wx::define_keyword_ctors(Wx::BitmapButton) do
   wx_ctor_params :validator, :name => 'button'
 end
 
+# Push button control, similar behavior as hyperlinks
+Wx::define_keyword_ctors(Wx::CommandLinkButton) do
+  wx_ctor_params :id, :mainLabel, :note
+  wx_ctor_params :pos, :size, :style
+  wx_ctor_params :validator, :name => 'commandLinkButton'
+end
+
 # A button which stays pressed when clicked by user.
 Wx::define_keyword_ctors(Wx::ToggleButton) do
   wx_ctor_params :id, :label, :pos, :size, :style
