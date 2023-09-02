@@ -275,7 +275,8 @@ end
 
 # Push button control, similar behavior as hyperlinks
 Wx::define_keyword_ctors(Wx::CommandLinkButton) do
-  wx_ctor_params :id, :mainLabel, :note
+  wx_ctor_params :id, :mainLabel => ''
+  wx_ctor_params :note => ''
   wx_ctor_params :pos, :size, :style
   wx_ctor_params :validator, :name => 'commandLinkButton'
 end
