@@ -379,6 +379,17 @@ Wx::define_keyword_ctors(Wx::SpinCtrl) do
   wx_ctor_params :name => 'spinCtrl'
 end
 
+# wxSpinCtrlDouble 	A spin control - i.e. spin button and text control
+Wx::define_keyword_ctors(Wx::SpinCtrlDouble) do
+  wx_ctor_params :id, :value => ''
+  wx_ctor_params :pos, :size, :style => Wx::SP_ARROW_KEYS
+  wx_ctor_params :min => 0
+  wx_ctor_params :max => 100
+  wx_ctor_params :initial => 0
+  wx_ctor_params :inc => 1
+  wx_ctor_params :name => 'spinCtrlDouble'
+end
+
 # One or more lines of non-editable text
 Wx::define_keyword_ctors(Wx::StaticText) do
   wx_ctor_params :id, :label, :pos, :size, :style, :name => 'staticText'
