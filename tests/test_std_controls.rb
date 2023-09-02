@@ -8,10 +8,12 @@ class ButtonTests < WxRuby::Test::GUITests
   def setup
     super
     @button = Wx::Button.new(test_frame, label: 'Button')
+    Wx.get_app.yield
   end
 
   def cleanup
     @button.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -96,10 +98,12 @@ class TextCtrlTests < WxRuby::Test::GUITests
   def setup
     super
     @text = Wx::TextCtrl.new(test_frame, name: 'Text')
+    Wx.get_app.yield
   end
 
   def cleanup
     @text.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -154,10 +158,12 @@ class MultilineTextCtrlTests < WxRuby::Test::GUITests
   def setup
     super
     @text = Wx::TextCtrl.new(test_frame, name: 'Text', style: Wx::TE_MULTILINE|Wx::TE_RICH|Wx::TE_RICH2)
+    Wx.get_app.yield
   end
 
   def cleanup
     @text.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -203,11 +209,13 @@ class ComboBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @combo = Wx::ComboBox.new(test_frame, name: 'ComboBox', choices: %w[One Two Three])
+    Wx.get_app.yield
     @combo.clear
   end
 
   def cleanup
     @combo.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -225,10 +233,12 @@ class CheckBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @check = Wx::CheckBox.new(test_frame, label: 'Check Box')
+    Wx.get_app.yield
   end
 
   def cleanup
     @check.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -314,10 +324,12 @@ class RadioBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @radiobox = Wx::RadioBox.new(test_frame, label: 'Radio Box', choices: ['item 0', 'item 1', 'item 2'])
+    Wx.get_app.yield
   end
 
   def cleanup
     @radiobox.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -404,10 +416,12 @@ class ChoiceTests < WxRuby::Test::GUITests
   def setup
     super
     @choice = Wx::Choice.new(test_frame, name: 'Choice')
+    Wx.get_app.yield
   end
 
   def cleanup
     @choice.destroy
+    Wx.get_app.yield
     super
   end
 
@@ -425,10 +439,12 @@ class GaugeTests < WxRuby::Test::GUITests
   def setup
     super
     @gauge = Wx::Gauge.new(test_frame, range: 100)
+    Wx.get_app.yield
   end
 
   def cleanup
     test_frame.destroy_children
+    Wx.get_app.yield
     super
   end
 
