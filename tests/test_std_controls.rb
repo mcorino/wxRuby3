@@ -138,7 +138,7 @@ class TextCtrlTests < WxRuby::Test::GUITests
         assert_equal(10, c_upd.count)
         assert_equal(0, c_maxlen.count)
 
-        unless is_ci_build? && Wx::Platform == 'WXMSW'
+        unless is_ci_build? && Wx::PLATFORM == 'WXMSW'
           sim.text('!')
           Wx.get_app.yield
 
