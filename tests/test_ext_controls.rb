@@ -132,3 +132,151 @@ class InfoBarTests < WxRuby::Test::GUITests
   end
 
 end
+
+class CommandLinkButtonTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @button = Wx::CommandLinkButton.new(test_frame, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @button.destroy
+    super
+  end
+
+  attr_reader :button
+
+  def test_button
+    assert_equal('CommandLinkButton', button.main_label)
+    assert_equal('Testing CommandLinkButton', button.note)
+    button.label = 'button label'
+    assert_equal('button label', button.label)
+  end
+
+  if has_ui_simulator?
+
+    def test_click
+      count = count_events(button, :evt_button) do
+        sim = Wx::UIActionSimulator.new
+
+        # We move in to the middle of the widget, we need to yield
+        # after every Wx::UIActionSimulator action to keep everything working in GTK
+        sim.mouse_move(button.get_screen_position + (button.size / 2))
+        Wx.get_app.yield
+
+        sim.mouse_click
+        Wx.get_app.yield
+      end
+
+      assert_equal(1, count)
+    end
+
+    def test_disabled
+      button.disable
+      count = count_events(button, :evt_button) do
+        sim = Wx::UIActionSimulator.new
+
+        # We move in to the middle of the widget, we need to yield
+        # after every Wx::UIActionSimulator action to keep everything working in GTK
+        sim.mouse_move(button.get_screen_position + (button.size / 2))
+        Wx.get_app.yield
+
+        sim.mouse_click
+        Wx.get_app.yield
+      end
+
+      assert_equal(0, count)
+    end
+
+  end # has_ui_simulator?
+
+end
+
+class SpinCtrlTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @spin = Wx::SpinCtrl.new(test_frame, name: 'SpinCtrl')
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @spin.destroy
+    super
+  end
+
+  attr_reader :spin
+
+  def test_spin_control
+    assert_equal(0, spin.min)
+    assert_equal(100, spin.max)
+  end
+
+  if has_ui_simulator?
+
+    def test_arrows
+      spin.set_value(0)
+      spin.set_focus
+      Wx.get_app.yield
+      count = count_events(spin, :evt_spinctrl) do
+        sim = Wx::UIActionSimulator.new
+
+        sim.key_down(Wx::KeyCode::K_UP)
+        Wx.get_app.yield
+        sim.key_up(Wx::KeyCode::K_UP)
+        Wx.get_app.yield
+      end
+      assert_equal(1, count)
+      assert_equal(1, spin.value)
+    end
+
+  end
+
+end
+
+class SpinCtrlDoubleTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @spin = Wx::SpinCtrlDouble.new(test_frame, name: 'SpinCtrlDouble')
+    Wx.get_app.yield
+  end
+
+  def cleanup
+    @spin.destroy
+    super
+  end
+
+  attr_reader :spin
+
+  def test_spin_control
+    assert_equal(0.0, spin.min)
+    assert_equal(100.0, spin.max)
+    assert_equal(1.0, spin.increment)
+    spin.set_digits(10)
+    assert_equal(10, spin.digits)
+  end
+
+  if has_ui_simulator?
+
+    def test_arrows
+      spin.set_value(0.0)
+      spin.set_focus
+      Wx.get_app.yield
+      count = count_events(spin, :evt_spinctrldouble) do
+        sim = Wx::UIActionSimulator.new
+
+        sim.key_down(Wx::KeyCode::K_UP)
+        Wx.get_app.yield
+        sim.key_up(Wx::KeyCode::K_UP)
+        Wx.get_app.yield
+      end
+      assert_equal(1, count)
+      assert_equal(1.0, spin.value)
+    end
+
+  end
+
+end

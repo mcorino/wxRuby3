@@ -273,6 +273,14 @@ Wx::define_keyword_ctors(Wx::BitmapButton) do
   wx_ctor_params :validator, :name => 'button'
 end
 
+# Push button control, similar behavior as hyperlinks
+Wx::define_keyword_ctors(Wx::CommandLinkButton) do
+  wx_ctor_params :id, :mainLabel => ''
+  wx_ctor_params :note => ''
+  wx_ctor_params :pos, :size, :style
+  wx_ctor_params :validator, :name => 'commandLinkButton'
+end
+
 # A button which stays pressed when clicked by user.
 Wx::define_keyword_ctors(Wx::ToggleButton) do
   wx_ctor_params :id, :label, :pos, :size, :style
@@ -370,6 +378,17 @@ Wx::define_keyword_ctors(Wx::SpinCtrl) do
   wx_ctor_params :max => 100
   wx_ctor_params :initial => 0
   wx_ctor_params :name => 'spinCtrl'
+end
+
+# wxSpinCtrlDouble 	A spin control - i.e. spin button and text control
+Wx::define_keyword_ctors(Wx::SpinCtrlDouble) do
+  wx_ctor_params :id, :value => ''
+  wx_ctor_params :pos, :size, :style => Wx::SP_ARROW_KEYS
+  wx_ctor_params :min => 0
+  wx_ctor_params :max => 100
+  wx_ctor_params :initial => 0
+  wx_ctor_params :inc => 1
+  wx_ctor_params :name => 'spinCtrlDouble'
 end
 
 # One or more lines of non-editable text
