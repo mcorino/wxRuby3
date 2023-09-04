@@ -306,7 +306,7 @@ module WXRuby3
 
       def rb_return_type(type_maps, xml_trans)
         if is_ctor
-          xml_trans.type_to_doc(class_name)
+          xml_trans.type_to_doc(xml_trans.class_name(class_name))
         else
           super
         end
