@@ -33,7 +33,7 @@ jobs:
       prerelease: ${{ steps.version_var.outputs.WXRUBY_PRERELEASE }}
     steps:
     - name: Checkout wxRuby3
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - uses: ruby/setup-ruby@v1
       if: ${{ github.event_name != 'workflow_dispatch' }}
@@ -111,7 +111,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: checkout wxWidgets
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
@@ -217,7 +217,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: checkout wxWidgets
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
@@ -299,7 +299,7 @@ jobs:
 
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: ruby/setup-ruby@v1
         with:
