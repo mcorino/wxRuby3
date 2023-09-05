@@ -56,14 +56,13 @@ class WindowTests < WxRuby::Test::GUITests
           count_events(window, :evt_key_up) do |c_keyup|
             count_events(window, :evt_char) do |c_keychar|
 
-              sim = Wx::UIActionSimulator.new
+              sim = get_ui_simulator
 
               window.set_focus
               Wx.get_app.yield
 
               sim.text("text")
               sim.char(Wx::K_SHIFT)
-              Wx.get_app.yield
 
               assert_equal(5, c_keydown.count)
               assert_equal(5, c_keyup.count)

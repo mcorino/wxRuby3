@@ -109,12 +109,76 @@ module WxRuby
         end
       end
 
+      class UISimulator < Wx::UIActionSimulator
+
+        def mouse_move(*args)
+          super
+          Wx::get_app.yield
+        end
+
+        def mouse_down(button = Wx::MouseButton::MOUSE_BTN_LEFT)
+          super
+          Wx::get_app.yield
+        end
+
+        def mouse_up(button = Wx::MouseButton::MOUSE_BTN_LEFT)
+          super
+          Wx::get_app.yield
+        end
+
+        def mouse_click(button = Wx::MouseButton::MOUSE_BTN_LEFT)
+          super
+          Wx::get_app.yield
+        end
+
+        def mouse_dbl_click(button = Wx::MouseButton::MOUSE_BTN_LEFT)
+          super
+          Wx::get_app.yield
+        end
+
+        def mouse_drag_drop(x1, y1, x2, y2, button = Wx::MouseButton::MOUSE_BTN_LEFT)
+          super
+          Wx::get_app.yield
+        end
+
+        def key_down(keycode, modifiers = Wx::KeyModifier::MOD_NONE)
+          super
+          Wx::get_app.yield
+        end
+
+        def key_up(keycode, modifiers = Wx::KeyModifier::MOD_NONE)
+          super
+          Wx::get_app.yield
+        end
+
+        def char(keycode, modifiers = Wx::KeyModifier::MOD_NONE)
+          super
+          Wx::get_app.yield
+        end
+
+        def select(text)
+          super
+          Wx::get_app.yield
+        end
+
+        def text(text)
+          super
+          Wx::get_app.yield
+        end
+
+      end
+
       def self.has_ui_simulator?
         Wx.has_feature?(:USE_UIACTIONSIMULATOR) && (Wx::PLATFORM != 'WXOSX' || Wx::WXWIDGETS_VERSION >= '3.3')
       end
 
       def has_ui_simulator?
         GUITests.has_ui_simulator?
+      end
+
+      def get_ui_simulator
+        raise 'Wx::UIActionSimulator is NOT supported on this platform!' unless has_ui_simulator?
+        @ui_sim ||= UISimulator.new
       end
 
       def count_events(win, evt, id1=Wx::ID_ANY, id2=nil)

@@ -21,15 +21,13 @@ class ButtonTests < WxRuby::Test::GUITests
 
   def test_click
     count = count_events(button, :evt_button) do
-      sim = Wx::UIActionSimulator.new
+      sim = get_ui_simulator
 
       # We move in to the middle of the widget, we need to yield
       # after every Wx::UIActionSimulator action to keep everything working in GTK
       sim.mouse_move(button.get_screen_position + (button.size / 2))
-      Wx.get_app.yield
 
       sim.mouse_click
-      Wx.get_app.yield
     end
 
     assert_equal(1, count)
@@ -38,15 +36,13 @@ class ButtonTests < WxRuby::Test::GUITests
   def test_disabled
     button.disable
     count = count_events(button, :evt_button) do
-      sim = Wx::UIActionSimulator.new
+      sim = get_ui_simulator
 
       # We move in to the middle of the widget, we need to yield
       # after every Wx::UIActionSimulator action to keep everything working in GTK
       sim.mouse_move(button.get_screen_position + (button.size / 2))
-      Wx.get_app.yield
 
       sim.mouse_click
-      Wx.get_app.yield
     end
 
     assert_equal(0, count)
@@ -112,7 +108,7 @@ class TextCtrlTests < WxRuby::Test::GUITests
 
   if has_ui_simulator?
   def test_max_length
-    sim = Wx::UIActionSimulator.new
+    sim = get_ui_simulator
 
     updates = count_events(text_entry, :evt_text) do |c_upd|
       maxlen_count = count_events(text_entry, :evt_text_maxlen) do |c_maxlen|
@@ -121,21 +117,18 @@ class TextCtrlTests < WxRuby::Test::GUITests
         Wx.get_app.yield
 
         sim.text('Hello')
-        Wx.get_app.yield
 
         assert_equal('Hello', text_entry.get_value)
         assert_equal(5, c_upd.count)
 
         text_entry.set_max_length(10)
         sim.text('World')
-        Wx.get_app.yield
 
         assert_equal('HelloWorld', text_entry.get_value)
         assert_equal(10, c_upd.count)
         assert_equal(0, c_maxlen.count)
 
         sim.text('!')
-        Wx.get_app.yield
 
         assert_equal('HelloWorld', text_entry.get_value)
         assert_equal(10, c_upd.count)
