@@ -151,6 +151,9 @@ jobs:
         esac
         if [ -z ${{ matrix.allow_warnings }} ]; then
           error_opts="-Werror $allow_warn_opt"
+          if [ "${{ matrix.runner }}" != "macos-11" ]; then
+            error_opts="$error_opts -Wno-unused-but-set-variable" 
+          fi
           echo "wxMAKEFILE_ERROR_CXXFLAGS=$error_opts" >> $GITHUB_ENV
           echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
         fi
@@ -218,9 +221,9 @@ jobs:
       run: |
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           export WX_SKIP_DOXYGEN_VERSION_CHECK=1
-          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS -Wno-unused-but-set-variable" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS -Wno-unused-but-set-variable" && make install
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install
         fi
 
     - name: Show wx-config
