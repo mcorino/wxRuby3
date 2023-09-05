@@ -71,12 +71,12 @@ module WxRuby
 
       setup
       def base_setup
-        Wx.get_app.yield
+        10.times { Wx.get_app.yield }
       end
 
       cleanup
       def base_cleanup
-        Wx.get_app.yield
+        10.times { Wx.get_app.yield }
       end
 
       def frame_win
