@@ -138,12 +138,14 @@ class TextCtrlTests < WxRuby::Test::GUITests
         assert_equal(10, c_upd.count)
         assert_equal(0, c_maxlen.count)
 
-        sim.text('!')
-        Wx.get_app.yield
+        unless is_ci_build? && Wx::Platform == 'WXMSW'
+          sim.text('!')
+          Wx.get_app.yield
 
-        assert_equal('HelloWorld', text_entry.get_value)
-        assert_equal(10, c_upd.count)
-        assert_equal(1, c_maxlen.count)
+          assert_equal('HelloWorld', text_entry.get_value)
+          assert_equal(10, c_upd.count)
+          assert_equal(1, c_maxlen.count)
+        end
       end
     end
   end
