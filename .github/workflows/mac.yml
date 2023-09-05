@@ -200,9 +200,9 @@ jobs:
         wxCONFIGURE_OPTIONS="--disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
 
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
-          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable" || rc=$?
         else
-          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable" || rc=$?
         fi
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
