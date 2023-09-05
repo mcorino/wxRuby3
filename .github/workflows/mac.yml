@@ -200,9 +200,9 @@ jobs:
         wxCONFIGURE_OPTIONS="--disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
 
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
-          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable" || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
         else
-          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable" || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info || rc=$?
         fi
         if [ -n "$rc" ]; then
           echo '*** Configuring failed, contents of config.log follows: ***'
@@ -218,9 +218,9 @@ jobs:
       run: |
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           export WX_SKIP_DOXYGEN_VERSION_CHECK=1
-          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" "CFLAGS=-Wno-unused-but-set-variable" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
-          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" "CFLAGS=-Wno-unused-but-set-variable" && make install
         fi
 
     - name: Show wx-config
