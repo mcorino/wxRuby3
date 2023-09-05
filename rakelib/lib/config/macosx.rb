@@ -85,7 +85,7 @@ module WXRuby3
           private
 
           def wx_configure
-            bash('./configure --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+            bash('./configure --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable"')
           end
 
           def wx_make
