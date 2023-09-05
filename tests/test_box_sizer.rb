@@ -5,14 +5,14 @@ class BoxSizerTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @win = Wx::Window.new(test_frame, Wx::ID_ANY)
+    @win = Wx::Window.new(frame_win, Wx::ID_ANY)
     @sizer = Wx::HBoxSizer.new
     @win.set_client_size(127, 35)
     @win.sizer = @sizer
   end
 
   def cleanup
-    test_frame.destroy_children
+    frame_win.destroy_children
     @win = nil
     @sizer = nil
     super

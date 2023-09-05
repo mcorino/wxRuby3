@@ -8,13 +8,11 @@ class SearchCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @search = Wx::SearchCtrl.new(test_frame, name: 'SearchCtrl')
-    Wx.get_app.yield
+    @search = Wx::SearchCtrl.new(frame_win, name: 'SearchCtrl')
   end
 
   def cleanup
     @search.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -31,13 +29,11 @@ class CalendarCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @cal = Wx::CalendarCtrl.new(test_frame, name: 'Calendar')
-    Wx.get_app.yield
+    @cal = Wx::CalendarCtrl.new(frame_win, name: 'Calendar')
   end
 
   def cleanup
     @cal.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -63,13 +59,11 @@ class HyperlinkCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @link = Wx::HyperlinkCtrl.new(test_frame, label: 'Hyperlink', url: 'https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', name: 'Hyperlink')
-    Wx.get_app.yield
+    @link = Wx::HyperlinkCtrl.new(frame_win, label: 'Hyperlink', url: 'https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', name: 'Hyperlink')
   end
 
   def cleanup
     @link.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -85,13 +79,11 @@ class BannerWindowTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @banner = Wx::BannerWindow.new(test_frame, dir: Wx::Direction::TOP)
-    Wx.get_app.yield
+    @banner = Wx::BannerWindow.new(frame_win, dir: Wx::Direction::TOP)
   end
 
   def cleanup
     @banner.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -109,13 +101,11 @@ class InfoBarTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @info = Wx::InfoBar.new(test_frame)
-    Wx.get_app.yield
+    @info = Wx::InfoBar.new(frame_win)
   end
 
   def cleanup
     @info.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -137,8 +127,7 @@ class CommandLinkButtonTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @button = Wx::CommandLinkButton.new(test_frame, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
-    Wx.get_app.yield
+    @button = Wx::CommandLinkButton.new(frame_win, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
   end
 
   def cleanup
@@ -198,8 +187,7 @@ class SpinCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @spin = Wx::SpinCtrl.new(test_frame, name: 'SpinCtrl')
-    Wx.get_app.yield
+    @spin = Wx::SpinCtrl.new(frame_win, name: 'SpinCtrl')
   end
 
   def cleanup
@@ -240,8 +228,7 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @spin = Wx::SpinCtrlDouble.new(test_frame, name: 'SpinCtrlDouble')
-    Wx.get_app.yield
+    @spin = Wx::SpinCtrlDouble.new(frame_win, name: 'SpinCtrlDouble')
   end
 
   def cleanup

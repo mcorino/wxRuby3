@@ -5,11 +5,11 @@ class WindowTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @window = Wx::Window.new(test_frame)
+    @window = Wx::Window.new(frame_win)
   end
 
   def cleanup
-    test_frame.destroy_children
+    frame_win.destroy_children
     @window = nil
     super
   end
@@ -86,7 +86,7 @@ class WindowTests < WxRuby::Test::GUITests
           assert(c_setfocus.wait_event(500))
           assert_equal(window, Wx::Window.find_focus)
 
-          button = Wx::Button.new(test_frame, Wx::ID_ANY)
+          button = Wx::Button.new(frame_win, Wx::ID_ANY)
 
           Wx.get_app.yield
           button.set_focus
@@ -191,14 +191,14 @@ class WindowTests < WxRuby::Test::GUITests
 
   def test_parent
     assert_equal(nil, window.get_grand_parent)
-    assert_equal(test_frame, window.get_parent)
+    assert_equal(frame_win, window.get_parent)
   end
 
   def test_sibling
     assert_equal(nil, window.get_next_sibling)
     assert_equal(nil, window.get_prev_sibling)
 
-    newwin = Wx::Window.new(test_frame, Wx::ID_ANY)
+    newwin = Wx::Window.new(frame_win, Wx::ID_ANY)
 
     assert_equal(newwin, window.get_next_sibling)
     assert_equal(nil, window.get_prev_sibling)
@@ -242,7 +242,7 @@ class WindowTests < WxRuby::Test::GUITests
       end
 
       # Set the focus back to the main window
-      test_frame.set_focus
+      frame_win.set_focus
 
       if window.accepts_focus_from_keyboard
         window.set_focus_from_kbd

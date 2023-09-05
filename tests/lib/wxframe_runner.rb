@@ -69,7 +69,17 @@ module WxRuby
 
     class GUITests < ::Test::Unit::TestCase
 
-      def test_frame
+      setup
+      def base_setup
+        Wx.get_app.yield
+      end
+
+      cleanup
+      def base_cleanup
+        Wx.get_app.yield
+      end
+
+      def frame_win
         Wx.get_app.frame
       end
 

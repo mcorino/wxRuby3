@@ -7,13 +7,11 @@ class ButtonTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @button = Wx::Button.new(test_frame, label: 'Button')
-    Wx.get_app.yield
+    @button = Wx::Button.new(frame_win, label: 'Button')
   end
 
   def cleanup
     @button.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -97,13 +95,11 @@ class TextCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @text = Wx::TextCtrl.new(test_frame, name: 'Text')
-    Wx.get_app.yield
+    @text = Wx::TextCtrl.new(frame_win, name: 'Text')
   end
 
   def cleanup
     @text.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -156,13 +152,11 @@ class MultilineTextCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @text = Wx::TextCtrl.new(test_frame, name: 'Text', style: Wx::TE_MULTILINE|Wx::TE_RICH|Wx::TE_RICH2)
-    Wx.get_app.yield
+    @text = Wx::TextCtrl.new(frame_win, name: 'Text', style: Wx::TE_MULTILINE|Wx::TE_RICH|Wx::TE_RICH2)
   end
 
   def cleanup
     @text.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -207,14 +201,12 @@ class ComboBoxTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @combo = Wx::ComboBox.new(test_frame, name: 'ComboBox', choices: %w[One Two Three])
-    Wx.get_app.yield
+    @combo = Wx::ComboBox.new(frame_win, name: 'ComboBox', choices: %w[One Two Three])
     @combo.clear
   end
 
   def cleanup
     @combo.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -231,20 +223,18 @@ class CheckBoxTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @check = Wx::CheckBox.new(test_frame, label: 'Check Box')
-    Wx.get_app.yield
+    @check = Wx::CheckBox.new(frame_win, label: 'Check Box')
   end
 
   def cleanup
     @check.destroy
-    Wx.get_app.yield
     super
   end
 
   def create_checkbox(style)
     @check.destroy
     @check = nil
-    @check = Wx::CheckBox.new(test_frame, label: 'Check Box', style: style)
+    @check = Wx::CheckBox.new(frame_win, label: 'Check Box', style: style)
   end
 
   attr_reader :check
@@ -322,13 +312,11 @@ class RadioBoxTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @radiobox = Wx::RadioBox.new(test_frame, label: 'Radio Box', choices: ['item 0', 'item 1', 'item 2'])
-    Wx.get_app.yield
+    @radiobox = Wx::RadioBox.new(frame_win, label: 'Radio Box', choices: ['item 0', 'item 1', 'item 2'])
   end
 
   def cleanup
     @radiobox.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -414,13 +402,11 @@ class ChoiceTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @choice = Wx::Choice.new(test_frame, name: 'Choice')
-    Wx.get_app.yield
+    @choice = Wx::Choice.new(frame_win, name: 'Choice')
   end
 
   def cleanup
     @choice.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -437,13 +423,11 @@ class GaugeTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @gauge = Wx::Gauge.new(test_frame, range: 100)
-    Wx.get_app.yield
+    @gauge = Wx::Gauge.new(frame_win, range: 100)
   end
 
   def cleanup
-    test_frame.destroy_children
-    Wx.get_app.yield
+    frame_win.destroy_children
     super
   end
 
@@ -454,12 +438,12 @@ class GaugeTests < WxRuby::Test::GUITests
     assert(!gauge.is_vertical)
 
     gauge.destroy
-    @gauge = Wx::Gauge.new(test_frame, range: 100, style: Wx::GA_VERTICAL)
+    @gauge = Wx::Gauge.new(frame_win, range: 100, style: Wx::GA_VERTICAL)
 
     assert(gauge.vertical?)
 
     gauge.destroy
-    @gauge = Wx::Gauge.new(test_frame, range: 100, style: Wx::GA_HORIZONTAL)
+    @gauge = Wx::Gauge.new(frame_win, range: 100, style: Wx::GA_HORIZONTAL)
 
     assert(!gauge.vertical?)
   end
