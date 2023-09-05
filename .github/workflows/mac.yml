@@ -151,6 +151,9 @@ jobs:
         esac
         if [ -z ${{ matrix.allow_warnings }} ]; then
           error_opts="-Werror $allow_warn_opt"
+          if [ "${{ matrix.runner }}" != "macos-11" ]; then
+            error_opts="$error_opts -Wno-unused-but-set-variable" 
+          fi
           echo "wxMAKEFILE_ERROR_CXXFLAGS=$error_opts" >> $GITHUB_ENV
           echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
         fi
