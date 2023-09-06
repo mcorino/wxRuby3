@@ -5,7 +5,7 @@ class ButtonTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @list = Wx::ListCtrl.new(test_frame)
+    @list = Wx::ListCtrl.new(frame_win)
     @list.set_window_style(Wx::LC_REPORT | Wx::LC_EDIT_LABELS)
     @list.set_size([400, 200])
   end

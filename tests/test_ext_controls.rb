@@ -8,13 +8,11 @@ class SearchCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @search = Wx::SearchCtrl.new(test_frame, name: 'SearchCtrl')
-    Wx.get_app.yield
+    @search = Wx::SearchCtrl.new(frame_win, name: 'SearchCtrl')
   end
 
   def cleanup
     @search.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -31,13 +29,11 @@ class CalendarCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @cal = Wx::CalendarCtrl.new(test_frame, name: 'Calendar')
-    Wx.get_app.yield
+    @cal = Wx::CalendarCtrl.new(frame_win, name: 'Calendar')
   end
 
   def cleanup
     @cal.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -63,13 +59,11 @@ class HyperlinkCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @link = Wx::HyperlinkCtrl.new(test_frame, label: 'Hyperlink', url: 'https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', name: 'Hyperlink')
-    Wx.get_app.yield
+    @link = Wx::HyperlinkCtrl.new(frame_win, label: 'Hyperlink', url: 'https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', name: 'Hyperlink')
   end
 
   def cleanup
     @link.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -85,13 +79,11 @@ class BannerWindowTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @banner = Wx::BannerWindow.new(test_frame, dir: Wx::Direction::TOP)
-    Wx.get_app.yield
+    @banner = Wx::BannerWindow.new(frame_win, dir: Wx::Direction::TOP)
   end
 
   def cleanup
     @banner.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -100,7 +92,6 @@ class BannerWindowTests < WxRuby::Test::GUITests
   def test_link
     assert_nothing_raised { banner.bitmap = Wx.Bitmap(:sample3) }
     assert_nothing_raised { banner.set_text('BannerWindow Test', 'Welcome to the BannerWindow test.') }
-    Wx.get_app.yield
   end
 
 end
@@ -109,13 +100,11 @@ class InfoBarTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @info = Wx::InfoBar.new(test_frame)
-    Wx.get_app.yield
+    @info = Wx::InfoBar.new(frame_win)
   end
 
   def cleanup
     @info.destroy
-    Wx.get_app.yield
     super
   end
 
@@ -123,9 +112,7 @@ class InfoBarTests < WxRuby::Test::GUITests
 
   def test_link
     assert_nothing_raised { info.show_message('Welcome to the InfoBar test.') }
-    Wx.get_app.yield
     assert_nothing_raised { info.add_button(Wx::ID_HIGHEST+1000, 'Button1') }
-    Wx.get_app.yield
     assert_equal(1, info.button_count)
     assert_equal(Wx::ID_HIGHEST+1000, info.button_id(0))
     assert_true(info.has_button_id?(Wx::ID_HIGHEST+1000))
@@ -137,8 +124,7 @@ class CommandLinkButtonTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @button = Wx::CommandLinkButton.new(test_frame, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
-    Wx.get_app.yield
+    @button = Wx::CommandLinkButton.new(frame_win, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
   end
 
   def cleanup
@@ -159,15 +145,13 @@ class CommandLinkButtonTests < WxRuby::Test::GUITests
 
     def test_click
       count = count_events(button, :evt_button) do
-        sim = Wx::UIActionSimulator.new
+        sim = get_ui_simulator
 
         # We move in to the middle of the widget, we need to yield
         # after every Wx::UIActionSimulator action to keep everything working in GTK
         sim.mouse_move(button.get_screen_position + (button.size / 2))
-        Wx.get_app.yield
 
         sim.mouse_click
-        Wx.get_app.yield
       end
 
       assert_equal(1, count)
@@ -176,15 +160,13 @@ class CommandLinkButtonTests < WxRuby::Test::GUITests
     def test_disabled
       button.disable
       count = count_events(button, :evt_button) do
-        sim = Wx::UIActionSimulator.new
+        sim = get_ui_simulator
 
         # We move in to the middle of the widget, we need to yield
         # after every Wx::UIActionSimulator action to keep everything working in GTK
         sim.mouse_move(button.get_screen_position + (button.size / 2))
-        Wx.get_app.yield
 
         sim.mouse_click
-        Wx.get_app.yield
       end
 
       assert_equal(0, count)
@@ -198,8 +180,7 @@ class SpinCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @spin = Wx::SpinCtrl.new(test_frame, name: 'SpinCtrl')
-    Wx.get_app.yield
+    @spin = Wx::SpinCtrl.new(frame_win, name: 'SpinCtrl')
   end
 
   def cleanup
@@ -221,12 +202,10 @@ class SpinCtrlTests < WxRuby::Test::GUITests
       spin.set_focus
       Wx.get_app.yield
       count = count_events(spin, :evt_spinctrl) do
-        sim = Wx::UIActionSimulator.new
+        sim = get_ui_simulator
 
         sim.key_down(Wx::KeyCode::K_UP)
-        Wx.get_app.yield
         sim.key_up(Wx::KeyCode::K_UP)
-        Wx.get_app.yield
       end
       assert_equal(1, count)
       assert_equal(1, spin.value)
@@ -240,8 +219,7 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @spin = Wx::SpinCtrlDouble.new(test_frame, name: 'SpinCtrlDouble')
-    Wx.get_app.yield
+    @spin = Wx::SpinCtrlDouble.new(frame_win, name: 'SpinCtrlDouble')
   end
 
   def cleanup
@@ -266,12 +244,10 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
       spin.set_focus
       Wx.get_app.yield
       count = count_events(spin, :evt_spinctrldouble) do
-        sim = Wx::UIActionSimulator.new
+        sim = get_ui_simulator
 
         sim.key_down(Wx::KeyCode::K_UP)
-        Wx.get_app.yield
         sim.key_up(Wx::KeyCode::K_UP)
-        Wx.get_app.yield
       end
       assert_equal(1, count)
       assert_equal(1.0, spin.value)

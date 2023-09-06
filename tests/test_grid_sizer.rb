@@ -5,14 +5,14 @@ class GridSizerTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @win = Wx::Window.new(test_frame, Wx::ID_ANY)
+    @win = Wx::Window.new(frame_win, Wx::ID_ANY)
     @win.set_client_size(127, 35)
     @sizer = Wx::GridSizer.new(2)
     @win.set_sizer(@sizer)
   end
 
   def cleanup
-    test_frame.destroy_children
+    frame_win.destroy_children
     @win = nil
     @sizer = nil
     super
@@ -46,14 +46,14 @@ class FlexGridSizerTests < WxRuby::Test::GUITests
 
   def setup
     super
-    @win = Wx::Window.new(test_frame, Wx::ID_ANY)
+    @win = Wx::Window.new(frame_win, Wx::ID_ANY)
     @win.set_client_size(127, 35)
     @sizer = Wx::FlexGridSizer.new(2)
     @win.set_sizer(@sizer)
   end
 
   def cleanup
-    test_frame.destroy_children
+    frame_win.destroy_children
     @win = nil
     @sizer = nil
     super

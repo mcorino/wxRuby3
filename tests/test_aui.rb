@@ -50,7 +50,7 @@ class Issue141Test  < WxRuby::Test::GUITests
 
   def test_aui_frame
     GC.start
-    aui_frame = AUIFrame.new(test_frame)
+    aui_frame = AUIFrame.new(frame_win)
     aui_frame.show
     GC.start
     aui_frame.destroy
