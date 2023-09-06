@@ -93,14 +93,14 @@ module WxRuby
           @count +=1
         end
 
-        def wait_event(msec)
+        def wait_event(msec, reset=true)
           start = Time.now
           msec /= 1000.0
           while (Time.now - start) < msec
             Wx.get_app.yield
             if @count > 0
               raise StandardError.new("Too many events. Expected a single one.") unless @count == 1
-              @count = 0
+              @count = 0 if reset
               return true
             end
             sleep(50.0/1000.0)
