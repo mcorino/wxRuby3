@@ -20,14 +20,15 @@ class ButtonTests < WxRuby::Test::GUITests
   if has_ui_simulator?
 
   def test_click
-    count = count_events(button, :evt_button) do
+    count = count_events(button, :evt_button) do |counter|
       sim = get_ui_simulator
 
-      # We move in to the middle of the widget, we need to yield
-      # after every Wx::UIActionSimulator action to keep everything working in GTK
+      # We move in to the middle of the widget
       sim.mouse_move(button.get_screen_position + (button.size / 2))
 
       sim.mouse_click
+
+      counter.wait_event(2000, false) if Wx::PLATFORM == 'WXMSW'
     end
 
     assert_equal(1, count)
@@ -38,8 +39,7 @@ class ButtonTests < WxRuby::Test::GUITests
     count = count_events(button, :evt_button) do
       sim = get_ui_simulator
 
-      # We move in to the middle of the widget, we need to yield
-      # after every Wx::UIActionSimulator action to keep everything working in GTK
+      # We move in to the middle of the widget
       sim.mouse_move(button.get_screen_position + (button.size / 2))
 
       sim.mouse_click
@@ -118,17 +118,23 @@ class TextCtrlTests < WxRuby::Test::GUITests
 
         sim.text('Hello')
 
+        c_upd.wait_event(2000, false) if Wx::PLATFORM == 'WXMSW'
+
         assert_equal('Hello', text_entry.get_value)
         assert_equal(5, c_upd.count)
 
         text_entry.set_max_length(10)
         sim.text('World')
 
+        c_upd.wait_event(2000, false) if Wx::PLATFORM == 'WXMSW'
+
         assert_equal('HelloWorld', text_entry.get_value)
         assert_equal(10, c_upd.count)
         assert_equal(0, c_maxlen.count)
 
         sim.text('!')
+
+        c_maxlen.wait_event(2000, false) if Wx::PLATFORM == 'WXMSW'
 
         assert_equal('HelloWorld', text_entry.get_value)
         assert_equal(10, c_upd.count)
