@@ -77,6 +77,7 @@ module WxRuby
       cleanup
       def base_cleanup
         10.times { Wx.get_app.yield }
+        GC.start
       end
 
       def frame_win

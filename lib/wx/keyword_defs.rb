@@ -520,5 +520,15 @@ Wx::define_keyword_ctors(Wx::InfoBar) do
   wx_ctor_params :id
 end
 
+Wx::define_keyword_ctors(Wx::RearrangeList) do
+  wx_ctor_params :id, :pos, :size, :order, :items, :style
+  wx_ctor_params :validator, :name => 'rearrangeList'
+end
+
+Wx::define_keyword_ctors(Wx::RearrangeCtrl) do
+  wx_ctor_params :id, :pos, :size, :order, :items, :style
+  wx_ctor_params :validator, :name => 'rearrangeCtrl'
+end
+
 # FIXME - SymbolPickerDialog is hard to because the parent argument is
 # in a strange place.
