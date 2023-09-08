@@ -178,6 +178,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxWizard', director: Director::Dialog, requirements: %w[wxUSE_WIZARDDLG])
     Director.Spec(pkg, 'wxCheckListBox', requirements: %w[wxUSE_CHECKLISTBOX])
     Director.Spec(pkg, 'wxRearrangeList', requirements: %w[wxUSE_CHECKLISTBOX])
+    Director.Spec(pkg, 'wxRearrangeCtrl', director: Director::Window, requirements: %w[wxUSE_CHECKLISTBOX])
     Director.Spec(pkg, 'wxDataFormat', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxDataObject', requirements: %w[wxUSE_CLIPBOARD])
     Director.Spec(pkg, 'wxDataObjectSimpleBase', requirements: %w[wxUSE_CLIPBOARD])

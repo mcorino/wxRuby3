@@ -279,3 +279,26 @@ class RearrangeListTests < WxRuby::Test::GUITests
   end
 
 end
+
+class RearrangeCtrlTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @ra_ctrl = Wx::RearrangeCtrl.new(frame_win, items: %w[first second third], order: [~1, ~2, 0])
+  end
+
+  def cleanup
+    @ra_ctrl.destroy
+    super
+  end
+
+  attr_reader :ra_ctrl
+
+  def test_rearrange_list
+    assert_equal([~1, ~2, 0], ra_ctrl.list.get_current_order)
+    ra_ctrl.set_focus
+    assert_true(ra_ctrl.list.move_current_down)
+    assert_equal([~2, ~1, 0], ra_ctrl.list.get_current_order)
+  end
+
+end
