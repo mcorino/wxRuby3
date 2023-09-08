@@ -374,7 +374,7 @@ module WXRuby3
           map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
-        # input reference
+        # input reference (out by value)
         map 'wxArrayInt&' => 'Array<Integer>' do
           map_in temp: 'wxArrayInt tmp', code: <<~__CODE
             if (($input == Qnil) || (TYPE($input) != T_ARRAY))
@@ -391,6 +391,13 @@ module WXRuby3
               $1 = &tmp;
             }
             __CODE
+          map_out code: <<~__CODE
+            $result = rb_ary_new();
+            for (size_t i = 0; i < $1->GetCount(); i++)
+            {
+              rb_ary_push($result,INT2NUM( $1->Item(i) ) );
+            }
+            __CODE
           map_directorin code: <<~__CODE
             $input = rb_ary_new();
             for (size_t i = 0; i < $1.GetCount(); i++)
@@ -399,6 +406,8 @@ module WXRuby3
             }
           __CODE
           map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
+          # no directorout mapping as returning a reference would cause trouble; luckily there
+          # do not seem to be virtual methods returning that
         end
 
         # various enumerator type mappings

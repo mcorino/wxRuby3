@@ -256,3 +256,26 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
   end
 
 end
+
+class RearrangeListTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @list = Wx::RearrangeList.new(frame_win, items: %w[first second third], order: [~1, ~2, 0])
+  end
+
+  def cleanup
+    @list.destroy
+    super
+  end
+
+  attr_reader :list
+
+  def test_rearrange_list
+    assert_equal([~1, ~2, 0], list.get_current_order)
+    list.set_focus
+    assert_true(list.move_current_down)
+    assert_equal([~2, ~1, 0], list.get_current_order)
+  end
+
+end
