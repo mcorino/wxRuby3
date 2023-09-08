@@ -274,6 +274,7 @@ class RearrangeListTests < WxRuby::Test::GUITests
   def test_rearrange_list
     assert_equal([~1, ~2, 0], list.get_current_order)
     list.set_focus
+    list.set_selection(0)
     Wx.get_app.yield
     assert_true(list.move_current_down)
     assert_equal([~2, ~1, 0], list.get_current_order)
@@ -298,6 +299,7 @@ class RearrangeCtrlTests < WxRuby::Test::GUITests
   def test_rearrange_ctrl
     assert_equal([~1, ~2, 0], ra_ctrl.list.get_current_order)
     ra_ctrl.set_focus
+    ra_ctrl.list.set_selection(0)
     Wx.get_app.yield
     assert_true(ra_ctrl.list.move_current_down)
     assert_equal([~2, ~1, 0], ra_ctrl.list.get_current_order)
