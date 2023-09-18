@@ -137,6 +137,18 @@ module WXRuby3
             }
             __CODE
         end
+        # for GetPartialTextExtents
+        spec.map 'wxArrayDouble &widths' => 'Array<Float>' do
+          map_in ignore: true, temp: 'wxArrayDouble tmp', code: '$1 = &tmp;'
+
+          map_argout code: <<~__CODE
+            $result = rb_ary_new();
+            for (size_t i = 0; i < $1->GetCount(); i++)
+            {
+              rb_ary_push($result,DBL2NUM( $1->Item(i) ) );
+            }
+            __CODE
+        end
         # add convenience method providing efficient gc memory management
         spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
           static VALUE draw_on(wxWindow* win)
