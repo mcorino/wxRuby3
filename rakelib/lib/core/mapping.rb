@@ -270,7 +270,7 @@ module WXRuby3
       end
 
       class ArgOut < Base
-        def initialize(map, as: nil, temp: nil, code: nil, &block)
+        def initialize(map, as: nil, by_ref: false, temp: nil, code: nil, &block)
           super(map, temp: nil, code: code)
           @as = {}
           if as
@@ -278,10 +278,11 @@ module WXRuby3
           elsif !map.types.empty?
             map.types.each_pair { |pset, type| @as[pset] = _get_mapped_type(type) }
           end
+          @by_ref = by_ref
           block.call(self) if block
         end
 
-        attr_reader :as
+        attr_reader :as, :by_ref
 
         def map_as(argdef)
           _map_args(argdef, @as)
@@ -434,8 +435,8 @@ module WXRuby3
         @check = FreeArg.new(self, temp: temp, code: code, &block)
       end
 
-      def map_argout(as: nil, temp: nil, code: nil, &block)
-        @argout = ArgOut.new(self, as: as, temp: temp, code: code, &block)
+      def map_argout(as: nil, by_ref: false, temp: nil, code: nil, &block)
+        @argout = ArgOut.new(self, as: as, by_ref: by_ref, temp: temp, code: code, &block)
       end
 
       def map_directorin(temp: nil, code: nil, &block)
@@ -541,7 +542,7 @@ module WXRuby3
       end
 
       def maps_input_as_output?
-        !!@argout
+        @argout && !@argout.by_ref
       end
 
       def ignores_output?
