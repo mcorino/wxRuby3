@@ -140,6 +140,18 @@ module WXRuby3
             }
             __CODE
         end
+        # for GetSelectedProperties
+        spec.map 'const wxArrayPGProperty &' => 'Array<Wx::PG::PGProperty>' do
+          map_out code: <<~__CODE
+            $result = rb_ary_new();
+            for (size_t i = 0; i < $1->GetCount(); i++)
+            {
+              wxPGProperty* pp = $1->Item(i);
+              VALUE rb_pp = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+              rb_ary_push($result, rb_pp);
+            }
+            __CODE
+        end
         # GetState is missing from the XML docs but we want to add a customized version anyway
         # to be able to return either a PropertyGridPage (for PropertyGridManager) or a PropertyGridPageState
         # (for PropertyGrid).

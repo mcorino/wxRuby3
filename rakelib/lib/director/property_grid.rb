@@ -120,6 +120,32 @@ module WXRuby3
                               'wxWindow* GetPrimaryEditor() const',
                               'wxWindow* GetEditorControlSecondary() const',
                               'wxRect GetPropertyRect(const wxPGProperty* p1, const wxPGProperty* p2) const'
+        # for SetSelection
+        spec.map 'const wxArrayPGProperty &newSelection' => 'Array<Wx::PG::PGProperty>' do
+          map_in temp: 'wxArrayPGProperty tmp', code: <<~__CODE
+            if (TYPE($input) == T_ARRAY)
+            {
+              for (int i = 0; i < RARRAY_LEN($input); i++)
+              {
+                void* ptr = 0;
+                VALUE rb_pgprop = rb_ary_entry($input, i);
+                int res = SWIG_ConvertPtr(rb_pgprop, &ptr,SWIGTYPE_p_wxPGProperty, 0);
+                if (!SWIG_IsOK(res)) 
+                {
+                  VALUE msg = rb_inspect($input);
+                  rb_raise(rb_eTypeError, "Expected array of Wx::PG::PGProperty for 1 but got %s", StringValuePtr(msg));
+                }
+                wxPGProperty *pgprop_ptr = reinterpret_cast< wxPGProperty * >(ptr);
+                tmp.push_back(pgprop_ptr);
+              }
+              $1 = &tmp;
+            }
+            else
+            {
+              SWIG_exception_fail(SWIG_TypeError, Ruby_Format_TypeError( "", "Array","SetSelection", $argnum, $input));
+            } 
+            __CODE
+        end
         # add extension code to retrieve the internal standard editors
         # can't use the global variables directly to create constants as these will
         # only be initialized after the app has started so we add a module method
