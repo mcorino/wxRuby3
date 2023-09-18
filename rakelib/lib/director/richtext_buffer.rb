@@ -36,6 +36,35 @@ module WXRuby3
             %set_constant("$symname", rb_str_new2((const char *)wxString($value).utf8_str()));
           }
           __HEREDOC
+        # for GetExtWildcard
+        spec.map 'wxArrayInt* types' => 'Array,nil' do
+
+          map_in temp: 'wxArrayInt tmp, VALUE rb_types', code: <<~__CODE
+            rb_types = $input;
+            if (!NIL_P(rb_types)) 
+            {
+              if (TYPE(rb_types) == T_ARRAY)
+              {
+                $1 = &tmp;
+              }
+              else
+              {
+                SWIG_exception_fail(SWIG_TypeError, Ruby_Format_TypeError( "", "Array","wxRichTextBuffer::GetExtWildcard", $argnum, $input ));
+              } 
+            }
+            __CODE
+
+          map_argout code: <<~__CODE
+            if (!NIL_P(rb_types$argnum))
+            {
+              for (size_t i = 0; i < $1->GetCount(); i++)
+              {
+                rb_ary_push(rb_types$argnum,INT2NUM( $1->Item(i) ) );
+              }
+            }
+            __CODE
+
+        end
         spec.do_not_generate(:functions)
         super
       end
