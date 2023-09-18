@@ -51,6 +51,35 @@ module WXRuby3
               return (*self)[idx];
             }
           __HEREDOC
+          # for GetIndicesForStrings
+          spec.map 'wxArrayString *unmatched' => 'Array,nil' do
+
+            map_in temp: 'wxArrayString tmp, VALUE rb_unmatched', code: <<~__CODE
+              rb_unmatched = $input;
+              if (!NIL_P(rb_unmatched)) 
+              {
+                if (TYPE(rb_unmatched) == T_ARRAY)
+                {
+                  $1 = &tmp;
+                }
+                else
+                {
+                  SWIG_exception_fail(SWIG_TypeError, Ruby_Format_TypeError( "", "Array", "GetIndicesForStrings", $argnum, $input ));
+                } 
+              }
+              __CODE
+
+            map_argout by_ref: true, code: <<~__CODE
+              if (!NIL_P(rb_unmatched$argnum))
+              {
+                for (size_t i = 0; i < $1->GetCount(); i++)
+                {
+                  rb_ary_push(rb_unmatched$argnum,WXSTR_TO_RSTR( $1->Item(i) ) );
+                }
+              }
+              __CODE
+
+          end
           spec.disown 'wxPGProperty *prop', 'wxPGProperty *childProperty'
           # do not think this useful for wxRuby (Also; caused GC problems)
           spec.ignore 'wxPGProperty::GetCellRenderer'
