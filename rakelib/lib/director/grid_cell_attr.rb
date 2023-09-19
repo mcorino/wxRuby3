@@ -39,9 +39,13 @@ module WXRuby3
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
         # argout type mappings
-        spec.map_apply 'int* OUTPUT' => ['int *hAlign', 'int *vAlign', 'int *num_rows', 'int *num_cols']
+        spec.map_apply 'int* OUTPUT' => ['int *num_rows', 'int *num_cols']
+        spec.map 'int *hAlign', 'int *vAlign', as: 'Integer' do
+          map_in ignore: true, temp: 'int tmp', code: 'tmp = wxALIGN_INVALID; $1 = &tmp;'
+          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, INT2NUM(*$1));'
+        end
         # for docs only
-        spec.map ['int *hAlign', 'int *vAlign', 'int *num_rows', 'int *num_cols'] => 'Integer', swig: false do
+        spec.map 'int *num_rows', 'int *num_cols', as: 'Integer', swig: false do
           map_in ignore: true
           map_argout
         end
