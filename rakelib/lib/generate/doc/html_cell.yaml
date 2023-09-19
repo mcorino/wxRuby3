@@ -1,0 +1,11 @@
+---
+:wxHtmlContainerCell.SetWidthFloat.w:
+  :brief:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              set_width_float(-50, Wx::HTML::HTML_UNITS_PIXELS)
+            ```

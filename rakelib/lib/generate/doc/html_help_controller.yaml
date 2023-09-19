@@ -1,0 +1,23 @@
+---
+:wxHtmlHelpController.AddBook:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              add_book('help.zip')
+            ```
+:wxHtmlHelpController.SetViewer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              @help.set_viewer('kdehelp')
+              @help.set_viewer('gnome-help-browser')
+              @help.set_viewer('netscape', Wx::HELP_NETSCAPE)
+            ```

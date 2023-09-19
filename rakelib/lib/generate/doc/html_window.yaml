@@ -1,0 +1,47 @@
+---
+:wxHtmlFilter.CanRead:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFilter < Wx::HTML::HtmlFilter
+                # ...
+            
+                def can_read(file)
+                  file.get_mime_type == 'application/x-ugh'
+                end
+            
+                # ...
+              end
+            ```
+:wxHtmlFilter.ReadFile:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFilter < Wx::HTML::HtmlFilter
+                # ...
+            
+                def read_file(file)
+                  '<html><body><img src="' + file.get_location + '"></body></html>'
+                end
+            
+                # ...
+              end
+            ```
+:wxHtmlWindow.SetPage:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              htmlwin.set_page('<html><body>Hello, world!</body></html>')
+            ```

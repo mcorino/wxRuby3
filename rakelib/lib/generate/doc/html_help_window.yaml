@@ -1,0 +1,21 @@
+---
+:wxHtmlHelpWindow:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # @embeddedHelpWindow is a wxHtmlHelpWindow
+              # @embeddedHtmlHelp is a wxHtmlHelpController
+              #   
+              # Create embedded HTML Help window
+              @embeddedHelpWindow = Wx::HTML::HtmlHelpWindow.new
+              @embeddedHtmlHelp.use_config(config, rootPath) # Set your own config object here
+              @embeddedHtmlHelp.set_help_window(@embeddedHelpWindow)
+              @embeddedHelpWindow.create(self, Wx::ID_ANY, 
+                                         size: get_client_size,
+                                         style: Wx::TAB_TRAVERSAL|Wx::BORDER_NONE)
+              @embeddedHtmlHelp.add_book('doc.zip')
+            ```
