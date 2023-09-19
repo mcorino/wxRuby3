@@ -36,14 +36,6 @@ module WXRuby3
         spec.ignore 'wxHtmlWindow::OnLinkClicked'
         spec.no_proxy 'wxHtmlWindow::SendAutoScrollEvents'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
-        # type mapping for LoadFile, SetFonts and OnOpeningURL
-        spec.map 'const wxFileName &filename' => 'String' do
-          # Deal with wxFileName
-          map_in temp: 'wxFileName tmp', code: <<~__CODE
-            tmp = wxFileName(RSTR_TO_WXSTR($input));
-            $1 = &tmp;
-            __CODE
-        end
         # Deal with sizes argument to SetFonts
         spec.map 'const int *sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer), nil' do
           map_in temp: 'int tmp[7]', code: <<~__CODE

@@ -1,0 +1,25 @@
+---
+:wxGrid.GetRowGridLinePen:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MidiGrid < Wx::GRID::Grid
+            
+                # ...
+            
+                # in a grid displaying music notation, use a solid black pen between
+                # octaves (C0=row 127, C1=row 115 etc.)
+                def get_row_grid_line_pen(row)
+                  if row % 12 == 7 
+                    Wx::Pen.new(Wx::BLACK, 1, Wx::PENSTYLE_SOLID)
+                  else
+                    get_default_grid_line_pen
+                  end
+                end
+            
+              end
+            ```

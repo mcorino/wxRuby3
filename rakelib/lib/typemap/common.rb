@@ -625,6 +625,27 @@ module WXRuby3
           map_in code: '$1 = wxRuby_ConvertRbValue2Variant($input);'
         end
 
+        # add type mapping for wxFileName input args
+        map 'const wxFileName&' => 'String' do
+          # Deal with wxFileName
+          map_in temp: 'wxFileName tmp', code: <<~__CODE
+            tmp = wxFileName(RSTR_TO_WXSTR($input));
+            $1 = &tmp;
+            __CODE
+          map_typecheck precedence: 'POINTER', code: <<~__CODE
+            $1 = TYPE($input) == T_STRING;
+            __CODE
+          map_directorin code: <<~__CODE
+            $input = WXSTR_TO_RSTR($1.GetFullPath());
+            __CODE
+        end
+
+        # add type mapping for wxFileName output
+        map 'wxFileName' => 'String' do
+          map_out code:  '$result = WXSTR_TO_RSTR($1.GetFullPath());'
+          map_directorout code: '$result = RSTR_TO_WXSTR($input);'
+        end
+
       end # define
 
     end # Common

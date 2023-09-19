@@ -1,0 +1,21 @@
+---
+:wxGridCellAttr.GetNonDefaultAlignment:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              h_align, v_align = attr.get_non_default_alignment
+              h_align = Wx::ALIGN_RIGHT if h_align == Wx::ALIGN_INVALID
+            ```
+
+    :post:
+      - :pattern: !ruby/regexp /Unlike\s.*\{Wx::Alignment::ALIGN_INVALID\}\./
+        :subst: 'Unlike {Wx::GRID::GridCellAttr#get_alignment} this function only returns hAlign and vAlign if this attribute does define a non-default alignment. Otherwise the returned value will be {Wx::ALIGN_INVALID}.'
+:wxGridCellAttr.GetAlignment:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /Notice\s.*desirable\./
+        :subst: 'Notice that valid hAlign and vAlign values (default or non-default) are always returned by this function, use {Wx::GRID::GridCellAttr#get_non_default_alignment} if this is not desirable.'
