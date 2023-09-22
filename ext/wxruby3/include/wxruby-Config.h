@@ -7,9 +7,16 @@
 #define _WXRUBY_CONFIG_RB_HASH_H
 
 #include <wx/config.h>
+#include <ruby/version.h>
 
 VALUE rb_hash_has_key (VALUE hash, VALUE key);
 VALUE rb_hash_delete (VALUE hash, VALUE key);
+
+#if RUBY_API_VERSION_MAJOR<3
+typedef int (*rb_foreach_func)(...);
+#else
+typedef int (*rb_foreach_func)(VALUE, VALUE, VALUE);
+#endif
 
 struct RbCfgCounter
 {
@@ -27,7 +34,7 @@ static int wxrb_CountConfig(VALUE key, VALUE value, VALUE rbCounter)
     if (counter->groups)
       ++counter->count;
     if (counter->recursive)
-      rb_hash_foreach(value, wxrb_CountConfig, rbCounter);
+      rb_hash_foreach(value, static_cast<rb_foreach_func>(&wxrb_CountConfig), rbCounter);
   }
   else
   {
@@ -142,7 +149,7 @@ public:
     RbCfgCounter counter = {false, bRecursive, 0};
     void* ptr = &counter;
     VALUE rbCounter = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
-    rb_hash_foreach(m_cfgGroup, wxrb_CountConfig, rbCounter);
+    rb_hash_foreach(m_cfgGroup, static_cast<rb_foreach_func>(&wxrb_CountConfig), rbCounter);
     return counter.count;
   }
 
@@ -151,7 +158,7 @@ public:
     RbCfgCounter counter = {true, bRecursive, 0};
     void* ptr = &counter;
     VALUE rbCounter = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
-    rb_hash_foreach(m_cfgGroup, wxrb_CountConfig, rbCounter);
+    rb_hash_foreach(m_cfgGroup, static_cast<rb_foreach_func>(&wxrb_CountConfig), rbCounter);
     return counter.count;
   }
 
