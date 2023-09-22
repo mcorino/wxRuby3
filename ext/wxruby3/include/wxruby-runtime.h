@@ -87,6 +87,11 @@ WXRUBY_EXPORT bool wxRuby_GetEnumValue(const char* enum_class_name_cstr, VALUE r
 WXRUBY_EXPORT bool wxRuby_IsAnEnum(VALUE rb_val);
 WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE rb_enum_val);
 
+// wxConfigBase helpers
+#include <wx/config.h>
+WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbHash);
+WXRUBY_EXPORT VALUE wxRuby_ConfigBase2Ruby(wxConfigBase* config);
+
 // Colour type mapping helpers
 WXRUBY_EXPORT bool wxRuby_IsRubyColour(VALUE rbcol);
 WXRUBY_EXPORT wxColour wxRuby_ColourFromRuby(VALUE rbcol);
