@@ -9,7 +9,6 @@
 #include <wx/config.h>
 #include <ruby/version.h>
 
-VALUE rb_hash_has_key (VALUE hash, VALUE key);
 VALUE rb_hash_delete (VALUE hash, VALUE key);
 
 #if RUBY_API_VERSION_MAJOR<3 && RUBY_API_VERSION_MINOR<7
@@ -18,6 +17,11 @@ typedef int (*rb_foreach_func)(ANYARGS);
 typedef int (*rb_foreach_func)(VALUE, VALUE, VALUE);
 #endif
 #define FOREACH_FUNC(x) reinterpret_cast<rb_foreach_func>((void*)&(x))
+
+inline bool rb_hash_includes(VALUE hash, VALUE key)
+{
+  return (rb_hash_lookup2(hash, key, Qundef) != Qundef);
+}
 
 struct RbCfgCounter
 {
@@ -338,7 +342,7 @@ public:
       wxConfigPathChanger path(this, key);
 
       VALUE rbEntry = WXSTR_TO_RSTR(path.Name());
-      if ( !rb_hash_has_key(m_cfgGroup, rbEntry) )
+      if ( !rb_hash_includes(m_cfgGroup, rbEntry) )
         return false;
       rb_hash_delete(m_cfgGroup, rbEntry);
 
@@ -367,7 +371,7 @@ public:
     wxConfigPathChanger path(this, RemoveTrailingSeparator(szKey));
 
     VALUE rbGrpName = WXSTR_TO_RSTR(path.Name());
-    if ( !rb_hash_has_key(m_cfgGroup, rbGrpName) )
+    if ( !rb_hash_includes(m_cfgGroup, rbGrpName) )
       return false;
     rb_hash_delete(m_cfgGroup, rbGrpName);
 
@@ -389,7 +393,7 @@ protected:
     wxConfigPathChanger path(this, key);
 
     VALUE rbKey = WXSTR_TO_RSTR(path.Name());
-    if (rb_hash_has_key(m_cfgGroup, rbKey) == Qfalse)
+    if (rb_hash_includes(m_cfgGroup, rbKey) == Qfalse)
     {
         return false;
     }
@@ -415,7 +419,7 @@ protected:
     wxConfigPathChanger path(this, key);
 
     VALUE rbKey = WXSTR_TO_RSTR(path.Name());
-    if (rb_hash_has_key(m_cfgGroup, rbKey) == Qfalse)
+    if (rb_hash_includes(m_cfgGroup, rbKey) == Qfalse)
     {
         return false;
     }
@@ -446,7 +450,7 @@ protected:
     wxConfigPathChanger path(this, key);
 
     VALUE rbKey = WXSTR_TO_RSTR(path.Name());
-    if (rb_hash_has_key(m_cfgGroup, rbKey) == Qfalse)
+    if (rb_hash_includes(m_cfgGroup, rbKey) == Qfalse)
     {
         return false;
     }
@@ -477,7 +481,7 @@ protected:
     wxConfigPathChanger path(this, key);
 
     VALUE rbKey = WXSTR_TO_RSTR(path.Name());
-    if (rb_hash_has_key(m_cfgGroup, rbKey) == Qfalse)
+    if (rb_hash_includes(m_cfgGroup, rbKey) == Qfalse)
     {
         return false;
     }
@@ -507,7 +511,7 @@ protected:
     wxConfigPathChanger path(this, key);
 
     VALUE rbKey = WXSTR_TO_RSTR(path.Name());
-    if (rb_hash_has_key(m_cfgGroup, rbKey) == Qfalse)
+    if (rb_hash_includes(m_cfgGroup, rbKey) == Qfalse)
     {
         return false;
     }
@@ -748,7 +752,7 @@ private:
     if (NIL_P(m_cfgGroup)) return false;
 
     VALUE rbEntry = WXSTR_TO_RSTR(entry);
-    if (rb_hash_has_key(m_cfgGroup, rbEntry))
+    if (rb_hash_includes(m_cfgGroup, rbEntry))
     {
       VALUE rbVal = rb_hash_aref(m_cfgGroup, rbEntry);
       if (TYPE(rbVal) != T_HASH)
@@ -771,7 +775,7 @@ private:
     if (NIL_P(m_cfgGroup)) return false;
 
     VALUE rbGrpName = WXSTR_TO_RSTR(grpName);
-    if (rb_hash_has_key(m_cfgGroup, rbGrpName))
+    if (rb_hash_includes(m_cfgGroup, rbGrpName))
     {
       VALUE rbVal = rb_hash_aref(m_cfgGroup, rbGrpName);
       if (TYPE(rbVal) == T_HASH)
