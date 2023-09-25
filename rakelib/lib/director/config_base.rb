@@ -15,10 +15,7 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           #include "wxruby-Config.h"
 
-          static VALUE g_cConfigBase;
-
           static const char * __iv_ConfigBase_sc_config = "@config";
-          static const char * __iv_ConfigBase_data = "@data";
 
           static VALUE config_base_get(int argc, VALUE *argv, VALUE self)
           {
@@ -38,13 +35,10 @@ module WXRuby3
             // create new config instance if none exists and autoCreate is true
             if (NIL_P(curConfig) && autoCreate)
             {
-              // create new hash as argument for ConfigBase ctor
-              VALUE args[1];
-              args[0] = rb_hash_new();  
               // create new ConfigBase instance
-              curConfig = rb_class_new_instance(1, args, g_cConfigBase);
+              curConfig = rb_class_new_instance(0, 0, g_cConfigBase);
               // set global wxConfigBase instance to a new Ruby Hash wrapper
-              wxConfigBase::Set(wxRuby_Ruby2ConfigBase(args[0]));
+              wxConfigBase::Set(wxRuby_Ruby2ConfigBase(curConfig));
               // store global ConfigBase instance as Ruby instance variable of ConfigBase singleton class
               // (keeps it safe from GC)
               VALUE cConfigBase_Singleton = rb_funcall(g_cConfigBase, rb_intern("singleton_class"), 0, 0);
@@ -74,18 +68,11 @@ module WXRuby3
                 return Qnil;
               }
               newCfg = argv[0];
-              if (TYPE(newCfg) != T_HASH && rb_obj_is_kind_of(newCfg, g_cConfigBase) != Qtrue)
+              if (!NIL_P(newCfg) && rb_obj_is_kind_of(newCfg, g_cConfigBase) != Qtrue)
               {
                 rb_raise(rb_eArgError, "Expected a Wx::ConfigBase instance");
                 return Qnil;
               }
-              // in case of a simple hash instance autoconvert to ConfigBase 
-              if (TYPE(newCfg) == T_HASH)
-              {
-                VALUE args[1];
-                args[0] = newCfg;
-                newCfg = rb_class_new_instance(1, args, g_cConfigBase);
-              } 
             }
 
             // get existing config (if any) 
@@ -94,10 +81,8 @@ module WXRuby3
             // set new config instance (could be nil)
             if (!NIL_P(newCfg))
             {
-              // get data hash
-              VALUE dataHash = rb_iv_get(newCfg, __iv_ConfigBase_data);
-              // set global wxConfigBase instance to a new Ruby Hash wrapper
-              wxConfigBase::Set(wxRuby_Ruby2ConfigBase(dataHash));
+              // set global wxConfigBase instance to a (new) Ruby Hash wrapper
+              wxConfigBase::Set(wxRuby_Ruby2ConfigBase(newCfg));
             }
             rb_iv_set(cConfigBase_Singleton, __iv_ConfigBase_sc_config, newCfg);
 

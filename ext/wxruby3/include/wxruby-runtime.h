@@ -89,6 +89,7 @@ WXRUBY_EXPORT bool wxRuby_IsEnumValue(const char* enum_wx_class_name_cstr, VALUE
 
 // wxConfigBase helpers
 #include <wx/config.h>
+WXRUBY_EXPORT bool wxRuby_IsRubyConfig(VALUE rbConfig);
 WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbHash);
 WXRUBY_EXPORT VALUE wxRuby_ConfigBase2Ruby(wxConfigBase* config);
 

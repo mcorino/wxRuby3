@@ -49,6 +49,8 @@ static int wxrb_CountConfig(VALUE key, VALUE value, VALUE rbCounter)
   return ST_CONTINUE;
 }
 
+static VALUE g_cConfigBase;
+
 class wxRbHashConfig : public wxConfigBase
 {
 public:
@@ -60,8 +62,9 @@ public:
   static WxRuby_ID to_f_ID;
 
   // ctor & dtor
-  wxRbHashConfig(VALUE cfgHash)
+  wxRbHashConfig(VALUE cfgInstance, VALUE cfgHash)
     : wxConfigBase(wxTheApp ? wxTheApp->GetAppName() : wxString())
+    , m_cfgInstance(cfgInstance)
     , m_cfgHash(cfgHash)
     , m_cfgGroup(cfgHash)
     , m_cfgGroupKeys(Qnil)
@@ -80,8 +83,8 @@ public:
     // not require separate marking
   }
 
-  // Get wrapped Ruby Hash
-  VALUE GetHash() const { return m_cfgHash; }
+  // Get wrapped Ruby ConfigBase instance
+  VALUE GetRubyConfig() const { return m_cfgInstance; }
 
   // implement inherited pure virtual functions
   virtual void SetPath(const wxString& strPath) override { DoSetPath(strPath, true /* create missing components */); }
@@ -826,6 +829,8 @@ private:
 
     // split the path
     VALUE rbSegments = rb_funcall(rbPath, split_ID(), 1, WXSTR_TO_RSTR(cfgSepStr));
+    // as the path being split is always absolute the first segment is always empty
+    rb_ary_delete_at(rbSegments, 0);
     // prune the segments (remove relative elements)
     for (long i=0; i<RARRAY_LEN(rbSegments) ;)
     {
@@ -880,7 +885,8 @@ private:
 
   // member variables
   // ----------------
-  VALUE       m_cfgHash;                // Ruby Hash store
+  VALUE       m_cfgInstance;            // Ruby ConfigBase instance
+  VALUE       m_cfgHash;                // Ruby config Hash store
   VALUE       m_cfgGroup;               // Ruby Current Group Hash store
   VALUE       m_cfgGroupKeys;           // Ruby Current Group Keys Array
   wxString    m_strPath;                // current path (not '/' terminated)
@@ -895,10 +901,37 @@ WxRuby_ID wxRbHashConfig::to_s_ID("to_s");
 WxRuby_ID wxRbHashConfig::to_i_ID("to_i");
 WxRuby_ID wxRbHashConfig::to_f_ID("to_f");
 
-// Wrap a Ruby hash for input type mapping
-WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbHash)
+static const char * __iv_ConfigBase_data = "@data";
+
+static void wxRuby_free_config_base(void* cfg)
 {
-  return new wxRbHashConfig(rbHash);
+  if (cfg)
+    delete static_cast<wxRbHashConfig*> (cfg);
+}
+
+WXRUBY_EXPORT bool wxRuby_IsRubyConfig(VALUE rbConfig)
+{
+  return rb_obj_is_kind_of(rbConfig, g_cConfigBase) == Qtrue;
+}
+
+// Wrap a Ruby hash for input type mapping
+WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbConfig)
+{
+  if (rb_obj_is_kind_of(rbConfig, g_cConfigBase) == Qtrue)
+  {
+    // check if this Ruby config instance already has a associated wrapper
+    wxRbHashConfig* config;
+    Data_Get_Struct(rbConfig, wxRbHashConfig, config);
+    if (config == nullptr)
+    {
+      // if not, create one
+      config = new wxRbHashConfig(rbConfig, rb_iv_get(rbConfig, __iv_ConfigBase_data));
+      Data_Wrap_Struct(g_cConfigBase, 0, wxRuby_free_config_base, config);
+    }
+    // return wrapper
+    return config;
+  }
+  return nullptr;
 }
 
 // Return Ruby hash from wx config (either the wrapped hash or a new converted one)
@@ -909,7 +942,7 @@ WXRUBY_EXPORT VALUE wxRuby_ConfigBase2Ruby(wxConfigBase* config)
     wxRbHashConfig* hsh_config = dynamic_cast<wxRbHashConfig*> (config);
     if (hsh_config)
     {
-      return hsh_config->GetHash();
+      return hsh_config->GetRubyConfig();
     }
   }
   return Qnil;
