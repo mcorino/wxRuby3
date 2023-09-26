@@ -36,8 +36,8 @@ module WXRuby3
             if (NIL_P(curConfig) && autoCreate)
             {
               // create new ConfigBase instance
-              curConfig = rb_class_new_instance(0, 0, g_cConfigBase);
-              // set global wxConfigBase instance to a new Ruby Hash wrapper
+              curConfig = rb_class_new_instance(0, 0, g_cConfig);
+              // set global wxConfigBase instance to a new Ruby Config wrapper
               wxConfigBase::Set(wxRuby_Ruby2ConfigBase(curConfig));
               // store global ConfigBase instance as Ruby instance variable of ConfigBase singleton class
               // (keeps it safe from GC)
@@ -68,9 +68,9 @@ module WXRuby3
                 return Qnil;
               }
               newCfg = argv[0];
-              if (!NIL_P(newCfg) && rb_obj_is_kind_of(newCfg, g_cConfigBase) != Qtrue)
+              if (!NIL_P(newCfg) && rb_obj_is_kind_of(newCfg, g_cConfig) != Qtrue)
               {
-                rb_raise(rb_eArgError, "Expected a Wx::ConfigBase instance");
+                rb_raise(rb_eArgError, "Expected a Wx::Config instance");
                 return Qnil;
               }
             }
@@ -88,13 +88,40 @@ module WXRuby3
 
             return curConfig; // return old config (if any)
           }
+          __HEREDOC
+        spec.add_wrapper_code <<~__HEREDOC
+          SWIGINTERN void 
+          _free_config(void* cfg)
+          {
+            if (cfg)
+            {
+              wxRbHashConfig* config = (wxRbHashConfig*)cfg;
+              delete config;
+            }
+          }
 
+          SWIGINTERN VALUE
+          #ifdef HAVE_RB_DEFINE_ALLOC_FUNC
+          config_allocate(VALUE self)
+          #else
+          config_allocate(int argc, VALUE *argv, VALUE self)
+          #endif
+          {
+            VALUE vresult = Data_Wrap_Struct(g_cConfig, 0, _free_config, 0);
+          #ifndef HAVE_RB_DEFINE_ALLOC_FUNC
+            rb_obj_call_init(vresult, argc, argv);
+          #endif
+            return vresult;
+          }
           __HEREDOC
         spec.add_init_code <<~__HEREDOC
           g_cConfigBase = rb_define_class_under(mWxCore, "ConfigBase", rb_cObject);
           rb_define_module_function(g_cConfigBase, "create", VALUEFUNC(config_base_create), -1);
           rb_define_module_function(g_cConfigBase, "get", VALUEFUNC(config_base_get), -1);
           rb_define_module_function(g_cConfigBase, "set", VALUEFUNC(config_base_set), -1);
+
+          g_cConfig = rb_define_class_under(mWxCore, "Config", g_cConfigBase);
+          rb_define_alloc_func(g_cConfig, config_allocate);
           __HEREDOC
       end
 

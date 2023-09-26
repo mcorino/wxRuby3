@@ -50,6 +50,17 @@ static int wxrb_CountConfig(VALUE key, VALUE value, VALUE rbCounter)
 }
 
 static VALUE g_cConfigBase;
+static VALUE g_cConfig;
+
+/*
+ * Wrapper class for Ruby Config class.
+ * CAVEAT: The implementation here is not 100% foolproof specifically for situations
+           where in between the moment a current path is set in C++ and the moment(s)
+           read/write operations are performed in C++ Ruby code gets executed that
+           mutates the underlying Hash.
+           This however currently does not happen anywhere in code and normally SHOULD
+           never happen.
+ */
 
 class wxRbHashConfig : public wxConfigBase
 {
@@ -72,15 +83,9 @@ public:
     SetRootPath();
   }
 
-  virtual ~wxRbHashConfig() {}
-
-  // Ruby GC marking
-  void GC_Mark() const
+  virtual ~wxRbHashConfig()
   {
-    rb_gc_mark(m_cfgHash);
-    if (!NIL_P(m_cfgGroupKeys)) rb_gc_mark(m_cfgGroupKeys);
-    // m_cfgGroup is always either m_cfgHash itself or an entry of this and so does
-    // not require separate marking
+    DATA_PTR(m_cfgInstance) = 0; // make sure it never get's deleted twice
   }
 
   // Get wrapped Ruby ConfigBase instance
@@ -901,23 +906,17 @@ WxRuby_ID wxRbHashConfig::to_s_ID("to_s");
 WxRuby_ID wxRbHashConfig::to_i_ID("to_i");
 WxRuby_ID wxRbHashConfig::to_f_ID("to_f");
 
-static const char * __iv_ConfigBase_data = "@data";
-
-static void wxRuby_free_config_base(void* cfg)
-{
-  if (cfg)
-    delete static_cast<wxRbHashConfig*> (cfg);
-}
+static const char * __iv_Config_data = "@data";
 
 WXRUBY_EXPORT bool wxRuby_IsRubyConfig(VALUE rbConfig)
 {
-  return rb_obj_is_kind_of(rbConfig, g_cConfigBase) == Qtrue;
+  return rb_obj_is_kind_of(rbConfig, g_cConfig) == Qtrue;
 }
 
 // Wrap a Ruby hash for input type mapping
 WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbConfig)
 {
-  if (rb_obj_is_kind_of(rbConfig, g_cConfigBase) == Qtrue)
+  if (rb_obj_is_kind_of(rbConfig, g_cConfig) == Qtrue)
   {
     // check if this Ruby config instance already has a associated wrapper
     wxRbHashConfig* config;
@@ -925,8 +924,8 @@ WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbConfig)
     if (config == nullptr)
     {
       // if not, create one
-      config = new wxRbHashConfig(rbConfig, rb_iv_get(rbConfig, __iv_ConfigBase_data));
-      Data_Wrap_Struct(g_cConfigBase, 0, wxRuby_free_config_base, config);
+      config = new wxRbHashConfig(rbConfig, rb_iv_get(rbConfig, __iv_Config_data));
+      DATA_PTR(rbConfig) = config;
     }
     // return wrapper
     return config;
