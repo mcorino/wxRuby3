@@ -11,6 +11,8 @@ module WXRuby3
 
     class HtmlHelpWindow < Window
 
+      include Typemap::ConfigBase
+
       def setup
         super
         # only allow setting config through propagation from help controller
