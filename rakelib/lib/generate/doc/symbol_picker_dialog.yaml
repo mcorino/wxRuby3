@@ -1,0 +1,40 @@
+---
+:wxSymbolPickerDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              ctrl = find_window(ID_RICHTEXT_CTRL)
+              
+              attr = Wx::TextAttr.new
+              attr.set_flags(Wx::TEXT_ATTR_FONT)
+              ctrl.get_style(ctrl.insertion_point, attr)
+              
+              if attr.has_font? && attr.font.ok?
+                currentFontName = attr.font.face_name
+              
+              # Don't set the initial font in the dialog (so the user is choosing
+              # 'normal text', i.e. the current font) but do tell the dialog
+              # what 'normal text' is.
+              
+              Wx.SymbolPickerDialog("*", '', currentFontName, self) do |dlg|
+              
+                if dlg.show_modal == Wx::ID_OK
+                  if dlg.has_selection?
+                    insertionPoint = ctrl.insertion_point
+            
+                    ctrl.write_text(dlg.symbol)
+            
+                    unless dlg.use_normal_font
+                      font = attr.font
+                      font.face_name = dlg.font_name
+                      attr.font = font
+                      ctrl.set_style(insertionPoint, insertionPoint+1, attr)
+                    end
+                  end
+                end
+              end
+            ```

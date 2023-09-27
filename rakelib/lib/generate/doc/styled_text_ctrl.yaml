@@ -1,0 +1,18 @@
+---
+:wxStyledTextCtrl.GetInsertionPoint:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              def get_current_char(tc)
+                pos = tc.insertion_point
+                if pos == tc.last_position
+                  nil
+                else
+                  tc.get_range(pos, pos + 1)
+                end
+              end
+            ```
