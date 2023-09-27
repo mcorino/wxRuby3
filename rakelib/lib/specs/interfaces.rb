@@ -19,6 +19,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxEventFilter')
     Director.Spec(pkg, 'wxGUIEventLoop')
     Director.Spec(pkg, 'wxApp')
+    Director.Spec(pkg, 'wxConfigBase')
     Director.Spec(pkg, 'wxDC')
     Director.Spec(pkg, 'wxWindowDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxClientDC', director: Director::DerivedDC)
@@ -277,9 +278,8 @@ module WXRuby3
 
   Director.Package('Wx::HTML', 'wxUSE_HTML') { |pkg|
     Director.Spec(pkg, 'wxHtmlWindow')
-    Director.Spec(pkg, 'wxHtmlHelpData')
-    Director.Spec(pkg, 'wxHtmlHelpWindow', director: Director::Window)
-    Director.Spec(pkg, 'wxHtmlHelpFrame')
+    Director.Spec(pkg, 'wxHtmlHelpData', requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxHtmlHelpWindow', requirements: %w[wxUSE_HELP])
     Director.Spec(pkg, 'wxHtmlCellEvent', director: Director::HtmlEvent)
     Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
     Director.Spec(pkg, 'wxHtmlHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])

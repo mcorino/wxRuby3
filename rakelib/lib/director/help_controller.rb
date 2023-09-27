@@ -9,6 +9,8 @@ module WXRuby3
 
     class HelpController < Director
 
+      include Typemap::ConfigBase
+
       def setup
         super
         spec.items << 'wxHelpControllerBase'
@@ -52,7 +54,12 @@ module WXRuby3
           __HEREDOC
         spec.suppress_warning(473, "#{spec.module_name}::GetParentWindow")
         if spec.module_name == 'wxHtmlHelpController'
-          spec.ignore 'wxHtmlHelpController::CreateHelpFrame'
+          # prevent having to expose HtmlHelpFrame & HtmlHelpDialog
+          # I do not see real use in supporting custom HtmlHelpController derivatives
+          spec.ignore 'wxHtmlHelpController::CreateHelpFrame',
+                      'wxHtmlHelpController::CreateHelpDialog',
+                      'wxHtmlHelpController::GetFrame',
+                      'wxHtmlHelpController::GetDialog'
         elsif spec.module_name == 'wxExtHelpController'
           spec.ignore %w[
             wxExtHelpController::DisplayBlock

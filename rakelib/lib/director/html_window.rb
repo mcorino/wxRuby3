@@ -12,6 +12,7 @@ module WXRuby3
     class HtmlWindow < Window
 
       include Typemap::HtmlCell
+      include Typemap::ConfigBase
 
       def setup
         super
