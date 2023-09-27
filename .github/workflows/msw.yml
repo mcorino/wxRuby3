@@ -19,6 +19,7 @@ on:
       - '.github/workflows/**'
       - 'assets/**'
       - 'lib/wx/doc/**'
+      - 'rakelib/lib/**/*.yaml'
       - '**.md'
       - 'Gemfile'
       - '.yardopts'
