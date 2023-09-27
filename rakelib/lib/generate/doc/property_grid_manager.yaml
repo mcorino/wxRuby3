@@ -1,0 +1,40 @@
+---
+:wxPropertyGridManager:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              pgMan = Wx::PG::PropertyGridManager.new(self, PGID,
+                  Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                  # These and other similar styles are automatically
+                  # passed to the embedded wxPropertyGrid.
+                  Wx::PG::PG_BOLD_MODIFIED|Wx::PG::PG_SPLITTER_AUTO_CENTER|
+                  # Include toolbar.
+                  Wx::PG::PG_TOOLBAR |
+                  # Include description box.
+                  Wx::PG::PG_DESCRIPTION |
+                  # Include compactor.
+                  Wx::PG::PG_COMPACTOR |
+                  # Plus defaults.
+                  wxPGMAN_DEFAULT_STYLE)
+              
+              page = pgMan.add_page("First Page")
+              
+              page.append(Wx::PG::PropertyCategory.new("Category A1"))
+              
+              page.append(Wx::PG::IntProperty.new("Number",Wx::PG::PG_LABEL,1))
+              
+              page.append(Wx::PG::ColourProperty.new("Colour",Wx::PG::PG_LABEL,Wx::WHITE))
+              
+              page = pgMan.add_page("Second Page")
+              
+              page.append(Wx::PG::StringProperty.new("Text", Wx::PG::PG_LABEL, "(no text)"))
+              
+              page.append(Wx::PG::FontProperty.new("Font",Wx::PG::PG_LABEL))
+              
+              # Display a header above the grid
+              pgMan.show_header
+            ```

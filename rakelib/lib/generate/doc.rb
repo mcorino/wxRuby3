@@ -572,6 +572,9 @@ module WXRuby3
             end
           end
         end
+        if @item_doc_ovr.has_key?(:replace)
+          doc = @item_doc_ovr[:replace][:text]
+        end
         doc.sub!(/\<b\>\{Wx::Perl.*/, '')
         doc.strip!
         # reduce triple(or more) newlines to max 2

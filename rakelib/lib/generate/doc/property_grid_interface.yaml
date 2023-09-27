@@ -1,0 +1,30 @@
+---
+:wxPropertyGridInterface.Insert:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # append category
+              my_cat_id = propertygrid.append(Wx::PG::PropertyCategory.new("My Category"))
+              
+              ...
+              
+              # insert into category - using second overload
+              my_item_id_1 = propertygrid.insert(my_cat_id, 0, Wx::PG::StringProperty.new("My String 1"))
+              
+              # insert before to first item - using first overload
+              my_item_id_2 = propertygrid.insert(my_item_id, Wx::PG::StringProperty.new("My String 2"))
+            ```
+:wxPropertyGridInterface.ReplaceProperty:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              pg.replace_property("Flags", Wx::PG::FlagsProperty.new("Flags", Wx::PG::PG_LABEL, newItems))
+            ```

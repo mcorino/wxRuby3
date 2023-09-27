@@ -1,0 +1,11 @@
+---
+:wxPGEditor:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```
+              editor = Wx::PG::PropertyGrid.register_editor_class(MyEditorClass.new)
+            ```

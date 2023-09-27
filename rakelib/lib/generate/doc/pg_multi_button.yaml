@@ -1,0 +1,78 @@
+---
+:wxPGMultiButton:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /public.*wxPGTextCtrlEditor/
+          :replace: |
+            
+            ```ruby
+              class WxSampleMultiButtonEditor < Wx::PG::PGTextCtrlEditor
+            
+                def initialize
+                  super
+                end
+            
+                def create_controls(propGrid, property, pos, sz)
+                  # Create and populate buttons-subwindow
+                  buttons = Wx::PG::PGMultiButton.new(propGrid, sz)
+              
+                  # Add two regular buttons
+                  buttons.add('...')
+                  buttons.add('A')
+                  # Add a bitmap button
+                  buttons.add(Wx::ArtProvider::get_bitmap(Wx::ART_FOLDER))
+              
+                  # Create the 'primary' editor control (textctrl in this case)
+                  primary, _ = super(propGrid, property, pos, buttons.primary_size)
+              
+                  # Finally, move buttons-subwindow to correct position and make sure
+                  # returned Wx::PG::PGWindowList contains our custom button list.
+                  buttons.finalize(propGrid, pos)
+              
+                  [primary, buttons]
+                end
+            
+                def on_event(propGrid, property, ctrl, event)
+                  if event.event_type == Wx::EVT_BUTTON
+                    buttons = propGrid.get_editor_control_secondary
+                
+                    if event.id == buttons.button_id(0)
+                
+                      # Do something when the first button is pressed
+                      Wx::log_info('First button pressed')
+                      return false # Return false since value did not change
+                    end
+                    if event.id == buttons.get_button_id(1)
+                
+                      # Do something when the second button is pressed
+                      Wx.message_box('Second button pressed')
+                      return false # Return false since value did not change
+                    end
+                    if event.id == buttons.button_id(2)
+                      # Do something when the third button is pressed
+                      Wx.message_box('Third button pressed')
+                      return false # Return false since value did not change
+                    end
+                  end
+                  super(propGrid, property, ctrl, event)
+                end
+            
+              end # class WxSampleMultiButtonEditor
+            ```
+        - :pattern: !ruby/regexp /Register.*editor.*class/
+          :replace: |
+            
+            ```ruby
+              # Register editor class - needs only to be called once
+              @sampleMultiButtonEditor =
+                Wx::PG::PropertyGrid.register_editor_class(WxSampleMultiButtonEditor.new)
+            
+              # ...
+            
+              # Insert the property that will have multiple buttons
+              propGrid.append(Wx::PG::LongStringProperty.new("MultipleButtons", Wx::PG::PG_LABEL))
+            
+              # Change property to use editor created in the previous code segment
+              propGrid.set_property_editor("MultipleButtons", @sampleMultiButtonEditor)            
+            ```

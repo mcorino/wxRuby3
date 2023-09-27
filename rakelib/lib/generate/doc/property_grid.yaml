@@ -1,0 +1,23 @@
+---
+:wxPropertyGrid.AddActionTrigger:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              propGrid.add_action_trigger(Wx::PG::PG_ACTION_NEXT_PROPERTY, Wx::K_RETURN)
+              propGrid.dedicate_key(Wx::K_RETURN)
+            ```
+:wxPropertyGrid.MakeColumnEditable:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # see Wx::PG::PGProperty#change_flag
+              property.change_flag(Wx::PG::PG_PROP_READONLY, true)
+            ```
