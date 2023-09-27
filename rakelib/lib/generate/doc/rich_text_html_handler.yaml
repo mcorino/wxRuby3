@@ -1,0 +1,11 @@
+---
+:wxRichTextHTMLHandler.SetFontSizeMapping:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              html_handler.set_font_size_mapping([7,9,11,12,14,22,100])
+            ```
