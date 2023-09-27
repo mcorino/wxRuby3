@@ -1,0 +1,244 @@
+---
+:wxCursorProperty.OnCustomPaint.paintdata:
+  :brief:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxImageFileProperty.OnCustomPaint.paintdata:
+  :brief:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxSystemColourProperty.OnCustomPaint.paintdata:
+  :brief:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxDirProperty.DoGetValidator:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /SetPropertyValidator/
+          :subst: '#set_property_validator'
+        - :pattern: !ruby/regexp /In.*most.*situations,.*first.*macro\)\:/
+          :subst: 'In most situations, code like this should work well:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertyClass < Wx::PG::DirProperty
+  
+  
+                class << self
+                  def validator
+                    @validator ||= MyValidator.new(...)
+                  end
+                end
+                
+                # ...
+            
+                def do_get_validator
+                  MyPropertyClass.validator
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxFileProperty.DoGetValidator:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /SetPropertyValidator/
+          :subst: '#set_property_validator'
+        - :pattern: !ruby/regexp /In.*most.*situations,.*first.*macro\)\:/
+          :subst: 'In most situations, code like this should work well:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertyClass < Wx::PG::FileProperty
+            
+            
+                class << self
+                  def validator
+                    @validator ||= MyValidator.new(...)
+                  end
+                end
+            
+                # ...
+            
+                def do_get_validator
+                  MyPropertyClass.validator
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxFloatProperty.DoGetValidator:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /SetPropertyValidator/
+          :subst: '#set_property_validator'
+        - :pattern: !ruby/regexp /In.*most.*situations,.*first.*macro\)\:/
+          :subst: 'In most situations, code like this should work well:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertyClass < Wx::PG::FloatProperty
+            
+            
+                class << self
+                  def validator
+                    @validator ||= MyValidator.new(...)
+                  end
+                end
+            
+                # ...
+            
+                def do_get_validator
+                  MyPropertyClass.validator
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxIntProperty.DoGetValidator:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /SetPropertyValidator/
+          :subst: '#set_property_validator'
+        - :pattern: !ruby/regexp /In.*most.*situations,.*first.*macro\)\:/
+          :subst: 'In most situations, code like this should work well:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertyClass < Wx::PG::IntProperty
+            
+            
+                class << self
+                  def validator
+                    @validator ||= MyValidator.new(...)
+                  end
+                end
+            
+                # ...
+            
+                def do_get_validator
+                  MyPropertyClass.validator
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxUIntProperty.DoGetValidator:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /SetPropertyValidator/
+          :subst: '#set_property_validator'
+        - :pattern: !ruby/regexp /In.*most.*situations,.*first.*macro\)\:/
+          :subst: 'In most situations, code like this should work well:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertyClass < Wx::PG::UIntProperty
+            
+            
+                class << self
+                  def validator
+                    @validator ||= MyValidator.new(...)
+                  end
+                end
+            
+                # ...
+            
+                def do_get_validator
+                  MyPropertyClass.validator
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxFlagsProperty.ChildChanged:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyProperty < Wx::PG::FlagsProperty
+            
+                def child_changed(thisValue, childIndex, childValue)
+                  # Acquire reference to actual type of data stored in variant
+                  flags = thisValue.object;
+                  case childIndex
+                    when 0
+                      flags.sub_prop1 = childValue.to_i
+                    when 1
+                      flags.sub_prop2 = childValue.to_s
+                    # ...
+                  end
+                  # return altered data
+                  Wx::Variant.new(flags)
+                end
+            
+              end
+            ```
+:wxFontProperty.ChildChanged:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class WxFontDataProperty < Wx::PG::FontProperty
+            
+                def child_changed(thisValue, childIndex, childValue)
+                  fontData = thisValue.object
+                  fontData.initial_font = fontData.chosen_font
+                  
+                  case childIndex
+                    when 6
+                      col = childValue.colour
+                      fontData.colour = col
+                    else
+                      # Transfer from subset to superset.
+                      font = fontData.chosen_font
+                      variant = Wx::Variant.new(font)
+                      variant = super(variant, childIndex, childValue)
+                      font = variant.font
+                      fontData.chosen_font = font
+                  end
+                  
+                  Wx::Variant.new(fontData)
+                end
+            
+              end
+            ```
+:wxIntProperty:
+  :detail:
+    :replace:
+      :text: |
+        
+        <b>Supported special attributes:</b>
+        - {Wx::PG::PG_ATTR_MIN}, {Wx::PG::PG_ATTR_MAX}, {Wx::PG::PG_ATTR_SPINCTRL_STEP}, {Wx::PG::PG_ATTR_SPINCTRL_WRAP}, {Wx::PG::PG_ATTR_SPINCTRL_MOTION}: like in {Wx::PG::NumericProperty}.

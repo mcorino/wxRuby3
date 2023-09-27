@@ -1,0 +1,188 @@
+---
+:wxPGProperty.OnCustomPaint.paintdata:
+  :brief:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxPGProperty.DoGetValidator:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /SetPropertyValidator/
+          :subst: '#set_property_validator'
+        - :pattern: !ruby/regexp /In.*most.*situations,.*first.*macro\)\:/
+          :subst: 'In most situations, code like this should work well:'
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyPropertyClass < Wx::PG::IntProperty
+            
+            
+                class << self
+                  def validator
+                    @validator ||= MyValidator.new(...)
+                  end
+                end
+            
+                # ...
+            
+                def do_get_validator
+                  MyPropertyClass.validator
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxPGProperty.ChildChanged:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyProperty < Wx::PG::FlagsProperty
+            
+                def child_changed(thisValue, childIndex, childValue)
+                  # Acquire reference to actual type of data stored in variant
+                  flags = thisValue.object;
+                  case childIndex
+                    when 0
+                      flags.sub_prop1 = childValue.to_i
+                    when 1
+                      flags.sub_prop2 = childValue.to_s
+                    # ...
+                  end
+                  # return altered data
+                  Wx::Variant.new(flags)
+                end
+            
+              end
+            ```
+:wxPGProperty.ChangeFlag:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              enable(false)
+            ```
+:wxPGProperty.SetDefaultValue:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              set_attribute('DefaultValue', value)
+            ```
+:wxPGProperty.wxPGProperty:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class WxPointProperty < Wx::PG::PGProperty
+            
+                def initialize(label = Wx::PG::PG_LABEL, name = Wx::PG::PG_LABEL, value = Wx::Point.new)
+                  super(label, name)
+            
+                  # should work in pretty much 100% of cases
+                  self.value = value
+            
+                  # add private child properties
+                  add_private_child( Wx::PG::IntProperty.new("X", Wx::PG::PG_LABEL,value.x))
+                  add_private_child( Wx::PG::IntProperty.new("Y", Wx::PG::PG_LABEL,value.y))
+                end
+            
+                # ...
+            
+              end
+            ```
+:wxPGProperty:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /class.*wxColourPropertyValue/
+          :replace: ''
+        - :pattern: !ruby/regexp /virtual.*ColourToString/
+          :replace: | 
+            
+            ```ruby
+              # Override in derived class to customize how colours are translated
+              # to strings.
+              def colour_to_string(col, index) end
+            
+              # Returns index of entry that triggers colour picker dialog
+              # (default is last).
+              def get_custom_colour_index; end
+            
+              # Helper function to show the colour dialog
+              def query_colour_from_user(variant) end
+
+              # Returns colour for given choice.
+              # Default function returns Wx::SystemSettings.get_colour(index).
+              def get_colour(index) end
+            ```
+        - :pattern: !ruby/regexp /WX_PG_DECLARE_VARIANT_DATA.*WX_PG_IMPLEMENT_VARIANT_DATA_DUMMY_EQ/m
+          :replace: ''
+        - :pattern: !ruby/regexp /class.*MyProperty.*:.*public.*wxPGProperty/
+          :replace: | 
+            
+            ``` ruby
+              class MyProperty < Wx::PG::PGProperty
+              
+                  # All arguments of this ctor must have a default value -
+                  # use Wx::PG::PG_LABEL for label and name
+                  def initialize(label = Wx::PG::PG_LABEL, name = Wx::PG::PG_LABEL, value = '')
+                    super(label, name)
+                    # self.value is Wx::Variant
+                    self.value = value
+                  end
+              
+                  def do_get_editor_class
+                    # Determines editor used by property.
+                    # You can replace 'TEXT_CTRL' below with any of these
+                    # builtin-in property editor identifiers: CHOICE, COMBO_BOX,
+                    # TEXT_CTRL_AND_BUTTON, CHOICE_AND_BUTTON, CHECK_BOX, SPIN_CTRL,
+                    # DATE_PICKER_CTRL.
+                    return Wx::PG::PG_EDITOR_TEXT_CTRL
+                  end
+              
+                  def value_to_string(value, argFlags)
+                    # TODO: Convert given property value to a string
+                  end
+              
+                  def string_to_value(variant, text, argFlags)
+                    # TODO: Adapt string to property value.
+                  end
+              
+              protected
+                  # ...
+              end
+            ```
+    :post:
+      - :pattern: !ruby/regexp /==\swxIntProperty.*==\swxUIntProperty/m
+        :subst: |
+          
+          == wxIntProperty
+          
+          It derives from {Wx::PG::NumericProperty} and displays value as a signed long integer.
+          Supported special attributes:
+           
+          - {Wx::PG::PG_ATTR_MIN}, {Wx::PG::PG_ATTR_MAX} to specify acceptable value range.
+          - {Wx::PG::PG_ATTR_SPINCTRL_STEP}, {Wx::PG::PG_ATTR_SPINCTRL_WRAP}, {Wx::PG::PG_ATTR_SPINCTRL_MOTION}: Sets SpinCtrl editor parameters. 
+          
+          == wxUIntProperty
+
+      - :pattern: !ruby/regexp /Since\s\{Wx::PG::PGProperty\}\sderives.*For\sinstance:/m
+        :subst: ''
