@@ -350,7 +350,7 @@ module WXRuby3
         # add type mappings to handle registration
         # first declare 'normal' type mapping for const pointer (for DrawCellHighlight)
         spec.map 'const wxGridCellAttr *'  => 'Wx::GRID::GridCellAttr' do
-          map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'
+          map_check code: ''  # do nothing; this instance does not get managed by wxWidgets
         end
         # next handle registering mappings
         spec.map 'wxGridCellAttr *' => 'Wx::GRID::GridCellAttr' do
