@@ -504,6 +504,27 @@ module WXRuby3
             __CODE
         end
 
+        # For various editor controls
+
+        map 'const wxKeyEvent &' => 'Wx::KeyEvent' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $input = wxRuby_WrapWxEventInRuby(this, const_cast<wxEvent*> (&$1));
+            #else
+            $input = wxRuby_WrapWxEventInRuby(const_cast<wxEvent*> (&$1));
+            #endif
+            __CODE
+        end
+        map 'wxKeyEvent &' => 'Wx::KeyEvent' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+            #else
+            $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
+            #endif
+            __CODE
+        end
+
         # typemap to allow String or Symbol for wxColour in args
         map 'const wxColour&', 'const wxColour*', as: 'Wx::Colour,String,Symbol' do
           map_in temp: 'wxColour tmpcol', code: <<~__CODE

@@ -33,6 +33,44 @@ module WXRuby3
           'wxRichTextCtrl::HitTest(const wxPoint &,long *)',
           'wxRichTextCtrl::SetListStyle(const wxRichTextRange &,wxRichTextListStyleDefinition *,int,int,int)',
           ]
+        # ignore the standard event handlers (doesn't seem useful to export to Ruby since non-virtual)
+        # and removing cleans the interface
+        spec.ignore %w[
+          wxRichTextCtrl::OnDropFiles
+          wxRichTextCtrl::OnCaptureLost
+          wxRichTextCtrl::OnSysColourChanged
+          wxRichTextCtrl::OnCut
+          wxRichTextCtrl::OnCopy
+          wxRichTextCtrl::OnPaste
+          wxRichTextCtrl::OnUndo
+          wxRichTextCtrl::OnRedo
+          wxRichTextCtrl::OnSelectAll
+          wxRichTextCtrl::OnProperties
+          wxRichTextCtrl::OnClear
+          wxRichTextCtrl::OnUpdateCut
+          wxRichTextCtrl::OnUpdateCopy
+          wxRichTextCtrl::OnUpdatePaste
+          wxRichTextCtrl::OnUpdateUndo
+          wxRichTextCtrl::OnUpdateRedo
+          wxRichTextCtrl::OnUpdateSelectAll
+          wxRichTextCtrl::OnUpdateProperties
+          wxRichTextCtrl::OnUpdateClear
+          wxRichTextCtrl::OnContextMenu
+          wxRichTextCtrl::OnPaint
+          wxRichTextCtrl::OnEraseBackground
+          wxRichTextCtrl::OnLeftClick
+          wxRichTextCtrl::OnLeftUp
+          wxRichTextCtrl::OnMoveMouse
+          wxRichTextCtrl::OnLeftDClick
+          wxRichTextCtrl::OnMiddleClick
+          wxRichTextCtrl::OnRightClick
+          wxRichTextCtrl::OnChar
+          wxRichTextCtrl::OnSize
+          wxRichTextCtrl::OnSetFocus
+          wxRichTextCtrl::OnKillFocus
+          wxRichTextCtrl::OnIdle
+          wxRichTextCtrl::OnScroll
+          ]
         # TODO : not supported (yet)
         spec.ignore %w[
           wxRichTextCtrl::WriteTextBox

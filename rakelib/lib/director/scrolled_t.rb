@@ -30,7 +30,7 @@ module WXRuby3
             swig/classes/include/wxWindow.h
             swig/classes/include/wxPanel.h
             ]
-          spec.no_proxy 'wxScrolledWindow::SendAutoScrollEvents'
+          spec.ignore 'wxScrolled::SendAutoScrollEvents'
           spec.do_not_generate(:typedefs, :functions)
         when 'wxScrolledCanvas'
           spec.use_template_as_class('wxScrolled', 'wxScrolledCanvas')
@@ -42,7 +42,7 @@ module WXRuby3
             swig/classes/include/wxEvtHandler.h
             swig/classes/include/wxWindow.h
             ]
-          spec.no_proxy 'wxScrolledCanvas::SendAutoScrollEvents'
+          spec.ignore 'wxScrolled::SendAutoScrollEvents'
           spec.do_not_generate(:typedefs, :functions, :enums) # enums are generated with wxScrolledWindow
         when 'wxScrolledControl'
           spec.use_template_as_class('wxScrolled', 'wxScrolledControl')
@@ -56,7 +56,7 @@ module WXRuby3
             swig/classes/include/wxWindow.h
             swig/classes/include/wxControl.h
             ]
-          spec.no_proxy 'wxScrolledControl::SendAutoScrollEvents'
+          spec.ignore 'wxScrolled::SendAutoScrollEvents'
           spec.do_not_generate(:typedefs, :functions, :enums) # enums are generated with wxScrolledWindow
         end
         spec.ignore 'wxScrolled::OnDraw'
