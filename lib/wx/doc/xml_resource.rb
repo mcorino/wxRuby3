@@ -1,6 +1,14 @@
+# :stopdoc:
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
+
 # Wx Xml Resource
 #
 # Documentation stubs for Wx Xml Resource classes
+# :startdoc:
+
 
 
 module Wx

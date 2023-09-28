@@ -1,8 +1,10 @@
-/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2023 M.J.N. Corino, The Netherlands
+//
+// This software is released under the MIT license.
+
 // Name:        swig/wxruby.rc
 // Purpose:     wxRuby3 MSW standard resource file
 // Author:      Martin Corino
-/////////////////////////////////////////////////////////////////////////////
 
 // note that the icon used by the Explorer (i.e. the programs icon) is the
 // first icon in the executable and the icons are sorted both by their order

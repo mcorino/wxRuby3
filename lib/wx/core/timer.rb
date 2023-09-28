@@ -1,4 +1,13 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # Class allowing periodic or timed events to be fired
+
 class Wx::Timer
   # Convenience method to trigger a one-off action after +interval+
   # milliseconds have passed. The action is specified by the passed

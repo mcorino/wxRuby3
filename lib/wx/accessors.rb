@@ -1,3 +1,11 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # = WxSugar - Accessors
 #
 # The default WxRuby interface has lots and lots of methods like
@@ -7,7 +15,7 @@
 #  * is_checked()
 #  * can_undo()
 #  * has_style(a_style)
-# 
+#
 # and so on. Methods that retrieve set, or query attributes of an object
 # are more normally in Ruby called simply by the attribute name, or, in
 # other cases, with a predicate method:
@@ -24,7 +32,7 @@
 # automagically creates an alias for every WxRuby instance method that
 # begins with +get_+, +set_+, +is_+, +can_+ and +has_+. Note that if you are calling a
 # 'setter' method on self, you must explicitly send the message to self:
-# 
+#
 #  # set's self size to be 100px by 100px
 #  self.size = Wx::Size.new(100, 100)
 #  # only sets the value of a local variable 'size'

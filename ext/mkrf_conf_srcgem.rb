@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 extension configuration file for source gem
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 # generate Rakefile with appropriate default task (all actual task in rakelib)
