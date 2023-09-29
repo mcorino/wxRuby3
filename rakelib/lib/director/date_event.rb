@@ -133,6 +133,10 @@ module WXRuby3
             __HEREDOC
         elsif spec.module_name == 'wxCalendarEvent'
           spec.override_inheritance_chain('wxCalendarEvent', 'wxDateEvent', {'wxCommandEvent' => 'wxEvent'}, 'wxEvent', 'wxObject', doc_override: false)
+          spec.ignore 'wxCalendarEvent::SetWeekDay' # only internal use; saves us from exposing/mapping wxDateTime::WeekDay
+          spec.map 'wxDateTime::WeekDay' => 'Integer' do
+            map_out code: '$result = INT2NUM(static_cast<int> ($1));'
+          end
           # inconsistent definitions
           spec.add_swig_code %Q{%constant wxEventType wxEVT_CALENDAR = wxEVT_CALENDAR_DOUBLECLICKED;}
         end
