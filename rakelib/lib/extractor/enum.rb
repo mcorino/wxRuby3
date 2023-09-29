@@ -24,11 +24,21 @@ module WXRuby3
         end
 
         def enum?(name)
-          enums.has_key?(name)
+          if (i = name.index('::'))
+            e_nm = name[i+2,name.size]
+            enums.has_key?(e_nm) && enums[e_nm] == name[0,i]
+          else
+            enums.has_key?(name)
+          end
         end
 
         def enum_scope(name)
           enums[name]
+          if (i = name.index('::'))
+            enums[name[i+2,name.size]]
+          else
+            enums[name]
+          end
         end
       end
 
