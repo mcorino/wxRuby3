@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 wxWidgets interface director
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 module WXRuby3
@@ -13,7 +16,10 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_untracked_refcounted
+        spec.gc_as_untracked
+        # use custom free func to be able to account for more complex inheritance
+        spec.add_header_code 'extern void GC_free_GridCellRenderer(void *ptr);'
+        spec.add_swig_code '%feature("freefunc") wxGridCellRenderer "GC_free_GridCellRenderer";'
         if spec.module_name == 'wxGridCellRenderer'
           # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
           # for wxRuby; far easier to just use member variables in derived classes
@@ -97,7 +103,14 @@ module WXRuby3
               wxRuby_RegisterGridCellRenderer(const_cast<wxGridCellRenderer*> (wx_gcr), rb_gcr);
               return rb_gcr;
             }
-          __CODE
+
+            extern void GC_free_GridCellRenderer(void *ptr)
+            {
+              wxGridCellRenderer* gc_rdr = (wxGridCellRenderer*)ptr; 
+              if (ptr)
+                gc_rdr->DecRef();
+            }
+            __CODE
         else
           case spec.module_name
           when 'wxGridCellStringRenderer'

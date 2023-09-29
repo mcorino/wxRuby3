@@ -1,5 +1,8 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 # Wx all-in-one loader for wxRuby3
-# Copyright (c) M.J.N. Corino, The Netherlands
 
 WX_GLOBAL_CONSTANTS=true unless defined? WX_GLOBAL_CONSTANTS
 

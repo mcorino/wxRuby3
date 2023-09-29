@@ -1,6 +1,13 @@
-#!/usr/bin/env ruby
-# wxRuby2 Sample Code. Copyright (c) 2004-2008 wxRuby development team
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # Freely reusable code: see SAMPLES-LICENSE.TXT for details
+
 begin
   require 'rubygems' 
 rescue LoadError

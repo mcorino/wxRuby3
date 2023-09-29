@@ -1,4 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 # Advanced User Interface Notebook - draggable panes etc
+
 class Wx::AUI::AuiNotebook
 
   # Before wxWidgets 3.3 the AUI manager of this control would prevent

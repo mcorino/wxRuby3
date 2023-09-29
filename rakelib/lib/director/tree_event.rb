@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 wxWidgets interface director
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 require_relative './event'
@@ -15,7 +18,17 @@ module WXRuby3
 
       def setup
         super
-        # create a lightweight, but typesafe, wrapper for wxEventId
+        # for wxTreeEvent::GetKeyEvent
+        spec.map 'const wxKeyEvent&' => 'Wx::KeyEvent' do
+          map_out code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $result = wxRuby_WrapWxEventInRuby(arg1, static_cast<wxEvent*> ($1));
+            #else
+            $result = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> ($1));
+            #endif
+            __CODE
+        end
+        # create a lightweight, but typesafe, wrapper for TreeItemId
         spec.add_init_code <<~__HEREDOC
           // define TreeItemId wrapper class
           mWxTreeItemId = rb_define_class_under(mWxCore, "TreeItemId", rb_cObject);

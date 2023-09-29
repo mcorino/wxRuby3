@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 wxWidgets interface director
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 module WXRuby3
@@ -13,7 +16,10 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_untracked_refcounted
+        spec.gc_as_untracked
+        # use custom free func to be able to account for more complex inheritance
+        spec.add_header_code 'extern void GC_free_GridCellEditor(void *ptr);'
+        spec.add_swig_code '%feature("freefunc") wxGridCellEditor "GC_free_GridCellEditor";'
         if spec.module_name == 'wxGridCellEditor'
           spec.post_processors << :fix_gridcelleditor
           # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
@@ -101,7 +107,14 @@ module WXRuby3
               wxRuby_RegisterGridCellEditor(const_cast<wxGridCellEditor*> (wx_gce), rb_gce);
               return rb_gce;
             }
-          __CODE
+
+            extern void GC_free_GridCellEditor(void *ptr)
+            {
+              wxGridCellEditor* gc_edt = (wxGridCellEditor*)ptr; 
+              if (ptr)
+                gc_edt->DecRef();
+            }
+            __CODE
         elsif spec.module_name == 'wxGridCellActivatableEditor'
           spec.post_processors << :fix_gridcelleditor
           spec.override_inheritance_chain('wxGridCellActivatableEditor', %w[wxGridCellEditor])
@@ -335,7 +348,7 @@ module WXRuby3
             elsif line["wxGridActivationResult SwigDirector_#{module_name}::TryActivate("]
               skip_lines = true
               # append new method implementation
-              line << <<~__METHOD__
+              line << "\n" << <<~__METHOD__
                 static WxRuby_ID try_activate_id("try_activate");
 
                 VALUE obj0 = Qnil ;
@@ -358,7 +371,7 @@ module WXRuby3
             elsif line["_wrap_#{module_name}_TryActivate(int argc, VALUE *argv, VALUE self) {"]
               skip_lines = true
               # append new method implementation
-              line << <<~__METHOD__
+              line << "\n" << <<~__METHOD__
                   #{module_name} *arg1 = (#{module_name} *) 0 ;
                   int arg2 ;
                   int arg3 ;

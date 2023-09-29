@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 wxWidgets interface director
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 require_relative './window'
@@ -32,6 +35,16 @@ module WXRuby3
         # for upcalls
         spec.extend_interface('wxPopupWindow',
                               'virtual bool Show(bool show = true) override')
+        # For ProcessLeftDown
+        spec.map 'wxMouseEvent &' => 'Wx::MouseEvent' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+            #else
+            $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
+            #endif
+            __CODE
+        end
       end
 
     end # class PopupWindow

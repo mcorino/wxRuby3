@@ -1,4 +1,13 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # Hierarchical control with items
+
 class Wx::TreeCtrl
   # Make these ruby enumerables so find, find_all, map etc are available
   include Enumerable

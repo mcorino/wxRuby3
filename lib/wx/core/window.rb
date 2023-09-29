@@ -1,3 +1,11 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # Copyright 2004-2007 by Kevin Smith
 # Copyright 2022 by Martin Corino
 # released under the MIT(-style) wxruby2/3 license

@@ -1,5 +1,14 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # Make this easier to use for multi-typed data objects. Comparison
 # doesn't work correctly in the SWIG binding
+
 class Wx::DataFormat
   def ==(other)
     if self.get_type > Wx::DataFormatId::DF_INVALID

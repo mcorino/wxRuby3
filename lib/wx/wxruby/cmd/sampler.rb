@@ -1,5 +1,8 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 # wxruby sampler command handler
-# Copyright (c) M.J.N. Corino, The Netherlands
 #--------------------------------------------------------------------
 
 require 'fileutils'

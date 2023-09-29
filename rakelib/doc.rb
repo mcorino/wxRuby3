@@ -1,7 +1,11 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 rake doc generation support
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
+
 require_relative './lib/config'
 
 if WXRuby3.is_bootstrapped?

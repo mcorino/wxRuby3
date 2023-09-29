@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 wxWidgets interface director
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 module WXRuby3
@@ -16,7 +19,24 @@ module WXRuby3
         # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
         # for wxRuby; far easier to just use member variables in derived classes
         spec.override_inheritance_chain('wxGridCellAttr', [])
-        spec.gc_as_untracked_refcounted('wxGridCellAttr')
+        spec.gc_as_untracked('wxGridCellAttr')
+        # use custom free func to be able to account for more complex inheritance
+        spec.add_header_code <<~__HEREDOC
+          static void GC_free_GridCellAttr(void *ptr)
+          {
+            wxGridCellAttr* gc_attr = (wxGridCellAttr*)ptr; 
+            if (ptr)
+              gc_attr->DecRef();
+          }
+          __HEREDOC
+        spec.add_swig_code '%feature("freefunc") wxGridCellAttr "GC_free_GridCellAttr";'
+        # these do not provide usable refcount handling and would be unsafe for GC
+        # are actually more for internal Grid use than anything else anyway
+        spec.ignore 'wxGridCellAttr::wxGridCellAttr(wxGridCellAttr *)',
+                    'wxGridCellAttr::SetDefAttr',
+                    'wxGridCellAttr::MergeWith'
+        # replace with true default ctor
+        spec.extend_interface('wxGridCellAttr', 'wxGridCellAttr()')
         spec.ignore %w[wxGridCellAttr::IncRef wxGridCellAttr::DecRef]
         spec.ignore('wxGridCellAttr::GetEditorPtr',
                     'wxGridCellAttr::GetRendererPtr')

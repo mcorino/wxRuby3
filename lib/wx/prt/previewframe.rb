@@ -1,4 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 # Frame that displays a print preview
+
 class Wx::PRT::PreviewFrame
   # a PreviewFrame has a preview associated with it that must be
   # protected from Ruby's GC. However, there is no C++ method to access

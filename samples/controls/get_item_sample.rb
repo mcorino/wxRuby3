@@ -1,7 +1,13 @@
-#!/usr/bin/env ruby
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+# 
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
+
 # Written by Nobuaki Arima
 # Adapted for wxRuby3
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 require 'wx'

@@ -1,7 +1,9 @@
-/* wxRuby3
- * Copyright (c) Martin J.N. Corino
- */
-// Copyright 2004-2008, wxRuby development team
+// Copyright (c) 2023 M.J.N. Corino, The Netherlands
+//
+// This software is released under the MIT license.
+//
+// Some parts are
+// Copyright 2004-2007, wxRuby development team
 // released under the MIT-like wxRuby2 license
 
 // mark_free_impl.i - this contains the C++ implementation of various

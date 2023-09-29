@@ -1,5 +1,8 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 # Constant extension loader for Wx::RTC
-# Copyright (c) M.J.N. Corino, The Netherlands
 
 module Wx::RTC
   if !defined?(::WxGlobalConstants)

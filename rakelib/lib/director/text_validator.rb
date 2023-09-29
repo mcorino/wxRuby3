@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 wxWidgets interface director
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 require_relative './event_handler'
@@ -35,6 +38,8 @@ module WXRuby3
         spec.ignore 'wxTextValidator::wxTextValidator(long, wxString*)'
         # add alternative
         spec.extend_interface 'wxTextValidator', 'wxTextValidator(long style=wxFILTER_NONE)'
+        # ignore non-virtual standard handler (not really useful in Ruby)
+        spec.ignore 'wxTextValidator::OnChar'
         spec.no_proxy 'wxTextValidator::Clone'
         spec.new_object 'wxTextValidator::Clone'
         # handle clone mapping

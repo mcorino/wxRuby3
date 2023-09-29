@@ -1,6 +1,9 @@
+// Copyright (c) 2023 M.J.N. Corino, The Netherlands
+//
+// This software is released under the MIT license.
+
 /*
  * WxRuby3 wxRbHashConfig class
- * Copyright (c) M.J.N. Corino, The Netherlands
  */
 
 #ifndef _WXRUBY_CONFIG_RB_HASH_H

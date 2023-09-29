@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # PropertyGrid extended sample
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 require 'wx'

@@ -1,6 +1,9 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 ###
 # wxRuby3 Common typemap definitions
-# Copyright (c) M.J.N. Corino, The Netherlands
 ###
 
 require_relative '../core/mapping'
@@ -492,6 +495,27 @@ module WXRuby3
         # For wxControl::Command
 
         map 'wxCommandEvent &' => 'Wx::CommandEvent' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+            #else
+            $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
+            #endif
+            __CODE
+        end
+
+        # For various editor controls
+
+        map 'const wxKeyEvent &' => 'Wx::KeyEvent' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $input = wxRuby_WrapWxEventInRuby(this, const_cast<wxEvent*> (&$1));
+            #else
+            $input = wxRuby_WrapWxEventInRuby(const_cast<wxEvent*> (&$1));
+            #endif
+            __CODE
+        end
+        map 'wxKeyEvent &' => 'Wx::KeyEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_DEBUG__
             $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));

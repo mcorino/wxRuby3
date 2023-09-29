@@ -1,5 +1,8 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+
 # Wx core package loader for wxRuby3
-# Copyright (c) M.J.N. Corino, The Netherlands
 
 require_relative './startup' if File.exist?(File.join(__dir__, 'startup.rb'))
 
