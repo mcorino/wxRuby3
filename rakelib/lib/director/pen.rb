@@ -76,7 +76,7 @@ module WXRuby3
             return new_pen;
           }
           __HEREDOC
-        # dealt with below - these require special handling becaause of the use
+        # dealt with below - these require special handling because of the use
         # of wxDash array, which cannot be freed until the pen(info) is disposed of
         # or until a new dash pattern is specified.
         spec.ignore(%w[wxPen::GetDashes wxPen::SetDashes wxPenInfo::GetDashes wxPenInfo::Dashes], ignore_doc: false)
