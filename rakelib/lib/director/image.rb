@@ -20,6 +20,7 @@ module WXRuby3
         spec.ignore [
           'wxImage::wxImage(wxInputStream &,wxBitmapType,int)',
           'wxImage::wxImage(wxInputStream &,const wxString &,int)',
+          'wxImage::wxImage(const char *const *)',
           'wxImage::GetImageCount(wxInputStream &,wxBitmapType)'
           ]
         # ignore original signature
