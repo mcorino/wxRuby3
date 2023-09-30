@@ -67,7 +67,9 @@ module WXRuby3
                     'wxStyledTextCtrl::ReplaceTargetRaw',
                     'wxStyledTextCtrl::ReplaceTargetRERaw',
                     'wxStyledTextCtrl::SetStyleBytes',
-                    'wxStyledTextCtrl::RegisterImage(int, const char *const *)'
+                    'wxStyledTextCtrl::RegisterImage(int, const char *const *)',
+                    'wxStyledTextCtrl::RegisterRGBAImage(int, const unsigned char *)',
+                    'wxStyledTextCtrl::MarkerDefineRGBAImage(int, const unsigned char *)'
         # TODO : these need investigating to see if they might be useful
         spec.ignore 'wxStyledTextCtrl::GetDocPointer',
                     'wxStyledTextCtrl::SetDocPointer',
