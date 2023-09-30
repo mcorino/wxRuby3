@@ -26,9 +26,11 @@ module WXRuby3
                     'wxGraphicsContext::GetNativeContext',
                     'wxGraphicsContext::Create'
         # type mappings
-        # Typemap to fix GraphicsContext#get_text_extent
+        # Typemap to fix GraphicsContext#get_text_extent and get_dpi and get_clip_box
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble* width', 'wxDouble* height',
-                                             'wxDouble* descent', 'wxDouble* externalLeading' ]
+                                             'wxDouble* descent', 'wxDouble* externalLeading',
+                                             'wxDouble *dpiX', 'wxDouble *dpiY',
+                                             'wxDouble *x', 'wxDouble *y', 'wxDouble *w', 'wxDouble *h']
         spec.map 'wxDouble* width, wxDouble* height, wxDouble* descent, wxDouble* externalLeading' do
           map_directorargout code: <<~__CODE
             if ( (TYPE(result) == T_ARRAY) && (RARRAY_LEN(result) >= 2) )

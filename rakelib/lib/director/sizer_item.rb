@@ -25,8 +25,11 @@ module WXRuby3
         when 'wxGBSizerItem'
           spec.make_abstract 'wxGBSizerItem'
           # ignore constructors
-          spec.ignore 'wxGBSizerItem::wxGBSizerItem'
-          spec.ignore(%w[wxGBSizerItem::SetGBSizer])
+          spec.ignore 'wxGBSizerItem::wxGBSizerItem',
+                      'wxGBSizerItem::SetGBSizer',
+                      'wxGBSizerItem::GetPos(int &, int &)',
+                      'wxGBSizerItem::GetSpan(int &, int &)'
+          spec.map_apply 'int &OUTPUT' => ['int &row', 'int &col']
           spec.do_not_generate :variables, :enums, :defines, :functions
         end
         super

@@ -26,6 +26,7 @@ module WXRuby3
                                            wxObject])
         spec.ignore 'wxBitmapComboBox::Insert(const wxString &, const wxBitmap &, unsigned int, wxClientData *)',
                     'wxBitmapComboBox::Append(const wxString &, const wxBitmap &, wxClientData *)'
+        spec.map_apply 'long * OUTPUT' => [ 'long *from', 'long *to' ]
       end
 
     end # class BitmapComboBox

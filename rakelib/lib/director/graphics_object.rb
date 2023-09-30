@@ -43,6 +43,7 @@ module WXRuby3
         end
         spec.ignore 'wxGraphicsPath::GetBox() const',
                     'wxGraphicsPath::GetCurrentPoint() const'
+        spec.map_apply 'double * OUTPUT' => 'wxDouble *'
         if Config.platform == :mingw
           # it seems for WXMSW there is a problem cleaning up GraphicsObjects in GC after
           # the wxApp has ended (probably because some other wxWidgets cleanup already

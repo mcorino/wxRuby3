@@ -45,6 +45,8 @@ module WXRuby3
 
         spec.ignore 'wxGrid::GetSelectedBlocks' # for now (flawed interface)
 
+        spec.ignore 'wxGrid::GetGridWindowOffset(const wxGridWindow *, int &, int &) const'
+
         spec.add_header_code <<~__HEREDOC
           typedef wxGrid::wxGridSelectionModes wxGridSelectionModes;
           typedef wxGrid::CellSpan CellSpan;

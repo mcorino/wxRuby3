@@ -21,6 +21,7 @@ module WXRuby3
         spec.gc_as_untracked
         spec.ignore 'wxNullRegion' # does not exist in code
         spec.map_apply 'int n, wxPoint points[]' => [ 'size_t, const wxPoint *']
+        spec.ignore 'wxRegion::GetBox(wxCoord &, wxCoord &, wxCoord &, wxCoord &) const'
       end
     end # class Region
 

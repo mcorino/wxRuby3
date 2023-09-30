@@ -17,6 +17,7 @@ module WXRuby3
         if Config.instance.windows? || Config.instance.macosx?
           spec.ignore('wxImageList::Add(const wxIcon &)', ignore_doc: false)
         end
+        spec.ignore 'wxImageList::GetSize(int , int &, int &) const'
         super
       end
     end # class ImageList

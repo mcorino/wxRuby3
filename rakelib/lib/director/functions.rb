@@ -195,6 +195,7 @@ module WXRuby3
             }
             __CODE
         end
+        spec.map_apply 'int *OUTPUT' => ['int *indexDefaultExtension']
         # hardcoded interface declarations
         spec.add_interface_code <<~__HEREDOC
           bool wxSafeYield(wxWindow* win = NULL, bool onlyIfNeeded = false);

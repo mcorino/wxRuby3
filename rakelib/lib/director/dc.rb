@@ -50,6 +50,8 @@ module WXRuby3
             return rb_result;
           }
           __HEREDOC
+        # for GetUserScale and GetLogicalScale
+        spec.map_apply 'double * OUTPUT' => 'double *'
         spec.swig_import 'swig/classes/include/wxGDICommon.h'
       end
     end # class DC
