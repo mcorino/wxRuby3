@@ -19,6 +19,11 @@ module WXRuby3
           wxColour::GetPixel wxTransparentColour wxColour::operator!=
           wxBLACK wxBLUE wxCYAN wxGREEN wxYELLOW wxLIGHT_GREY wxRED wxWHITE
           ])
+        spec.map 'unsigned char *' => 'Integer' do
+          map_in temp: 'unsigned char tmp', code: 'tmp = NUM2UINT($input); $1 = &tmp;'
+          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, INT2NUM(tmp$argnum));'
+          map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_FIXNUM);'
+        end
         # rename static method to prevent masking the instance method
         spec.rename_for_ruby 'create_disabled' => 'wxColour::MakeDisabled(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char brightness=255)',
                              # for consistency
