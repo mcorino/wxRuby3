@@ -21,7 +21,14 @@ module WXRuby3
         spec.ignore 'wxGraphicsMatrix::IsEqual(const wxGraphicsMatrix &)'
         spec.ignore 'wxGraphicsMatrix::GetNativeMatrix'
         spec.ignore 'wxGraphicsBitmap::GetNativeBitmap'
-        spec.ignore 'wxGraphicsPath::GetNativePath', 'wxGraphicsPath::UnGetNativePath'
+        spec.ignore 'wxGraphicsPath::GetNativePath',
+                    'wxGraphicsPath::UnGetNativePath',
+                    'wxGraphicsPath::AddCurveToPoint(const wxPoint2DDouble &, const wxPoint2DDouble &, const wxPoint2DDouble &)',
+                    'wxGraphicsPath::AddLineToPoint(const wxPoint2DDouble &)',
+                    'wxGraphicsPath::Contains(const wxPoint2DDouble &, wxPolygonFillMode) const',
+                    'wxGraphicsPath::GetCurrentPoint',
+                    'wxGraphicsPath::MoveToPoint(const wxPoint2DDouble &)',
+                    'wxGraphicsPath::AddArc(const wxPoint2DDouble &, wxDouble, wxDouble, wxDouble, bool)'
         # Deal with GraphicsMatrix#get method
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
