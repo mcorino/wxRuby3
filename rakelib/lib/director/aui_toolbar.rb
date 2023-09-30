@@ -17,7 +17,7 @@ module WXRuby3
       def setup
         super
         # for #set_custom_overflow_items
-        spec.map 'const wxAuiToolBarItemArray&' => 'Array<Wx::AUI::AuiToolbarItem>,nil' do
+        spec.map 'const wxAuiToolBarItemArray&' => 'Array<Wx::AUI::AuiToolBarItem>,nil' do
           map_in temp: 'wxAuiToolBarItemArray tmp', code: <<~__CODE
             if (!NIL_P($input))
             {
@@ -41,7 +41,7 @@ module WXRuby3
                     {
                       msg = "null reference";
                     }
-                    rb_raise(rb_eTypeError, "$symname : expected Wx::AUI::AuiToolbarItem for array element for $argnum but got %s",
+                    rb_raise(rb_eTypeError, "$symname : expected Wx::AUI::AuiToolBarItem for array element for $argnum but got %s",
                              msg);
                   }
                   tmp.Add(*reinterpret_cast< wxAuiToolBarItem * >(ptr));
