@@ -21,7 +21,7 @@ module WXRuby3
           ])
         spec.map 'unsigned char *' => 'Integer' do
           map_in temp: 'unsigned char tmp', code: 'tmp = NUM2UINT($input); $1 = &tmp;'
-          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, INT2NUM(tmp$argnum));'
+          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, UINT2NUM(tmp$argnum));'
           map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_FIXNUM);'
         end
         # rename static method to prevent masking the instance method
