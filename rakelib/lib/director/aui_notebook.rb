@@ -18,6 +18,13 @@ module WXRuby3
         super
         spec.override_inheritance_chain(spec.module_name, %w[wxBookCtrlBase wxControl wxWindow wxEvtHandler wxObject])
         if spec.module_name == 'wxAuiNotebook'
+          spec.items << 'wxAuiNotebookPage'
+          spec.regard %w[wxAuiNotebookPage::window
+                         wxAuiNotebookPage::caption
+                         wxAuiNotebookPage::tooltip
+                         wxAuiNotebookPage::bitmap
+                         wxAuiNotebookPage::rect
+                         wxAuiNotebookPage::active]
           # reset type mapping done in BookCtrls as the non-const arg is used for query-ing here (FindTab)
           # (wxWidgets should have made this a const arg)
           spec.map_apply 'SWIGTYPE *' => 'wxWindow* page'
