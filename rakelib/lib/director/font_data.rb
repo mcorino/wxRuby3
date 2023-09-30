@@ -18,6 +18,11 @@ module WXRuby3
         # add copy ctor missing from XML docs
         spec.extend_interface 'wxFontData',
                               'wxFontData(const wxFontData & other)'
+        spec.add_swig_code <<~__HEREDOC
+          %constant int wxFONTRESTRICT_NONE = wxFONTRESTRICT_NONE;
+          %constant int wxFONTRESTRICT_SCALABLE = wxFONTRESTRICT_SCALABLE;
+          %constant int wxFONTRESTRICT_FIXEDPITCH = wxFONTRESTRICT_FIXEDPITCH;
+          __HEREDOC
       end
     end # class FontData
 

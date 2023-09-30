@@ -19,7 +19,9 @@ module WXRuby3
         spec.fold_bases('wxApp' => 'wxAppConsole', 'wxAppConsole' => 'wxEventFilter')
         spec.override_inheritance_chain('wxApp', %w[wxEvtHandler wxObject])
         spec.ignore %w{
-          wxApp.ProcessMessage
+          wxApp::ProcessMessage
+          wxApp::SetDisplayMode
+          wxApp::GetDisplayMode
           wxAppConsole::OnInit
           wxAppConsole::OnExit
           wxAppConsole::OnRun

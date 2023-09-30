@@ -164,3 +164,25 @@ evt_handler.call_after(->(txt) { Wx.log_info(txt) }, "Hello")
 # async call of block
 evt_handler.call_after('Call nr. %d', 1) { |fmt, num| Wx.log_info(fmt, num) }
 ```
+
+## Event life cycles!
+
+Like in C++ the wxRuby Event objects passed to the event handlers are (in general) references to **temporary** objects 
+which are only safe to access within the execution scope of the event handler that received the reference.
+If you *need* (really?) to store a reference to such an object do so to a cloned version (see `Wx::Event#clone`) and **not**
+to the original object otherwise you **will** run into 'Object already deleted' exceptions.
+
+Only user defined events instantiated in Ruby code (or cloned Event objects) will be subject to Ruby's normal life cycle 
+rules (GC).
+This means that when you instantiate a user defined event and pass it to `Wx::EvtHandler#process_event` it would be possible
+to directly store the reference to such an Event object passed to it's event handler. You have to **know** for sure though
+(see below). So, in case of doubt (or to be safe) use `Wx::Event#clone`.
+
+Another 'feature' to be aware of is the fact that when passing an (user instantiated) Event object to `Wx::EvtHandler#queue_event` 
+or `Wx::EvtHandler#add_pending_event` the Ruby event instance is unlinked from it's C++ counterpart (or in the case of user
+defined events a cloned instance is associated with it's C++ counterpart) before being queued and the C++ side now takes ownership 
+(and will delete the Event object when handled).  
+As a result this means that even in the case of a user defined Event object any event handler triggered by a asynchronously 
+processed event will be handling a temporary Event object.
+Additionally this also means that any Event object passed to `Wx::EvtHandler#queue_event` or `Wx::EvtHandler#add_pending_event`
+is essentially invalidated after these methods return and should not be referenced anymore.

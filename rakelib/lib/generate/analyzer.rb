@@ -363,9 +363,11 @@ module WXRuby3
 
       def gen_enum_typemap(type)
         enum_scope = Extractor::EnumDef.enum_scope(type)
-        type_list = enum_scope.empty? ? [type] : [type, "#{enum_scope}::#{type}"]
+        type_list = [type]
+        type_list << (type.index('::') ? type.split('::').pop : "#{enum_scope}::#{type}") unless enum_scope.empty?
         rb_enum_name = rb_wx_name(type)
-        director.spec.map *type_list, as: rb_enum_name do
+        STDERR.puts "*** #{director.spec.module_name}: defining type map for #{type_list} as: Wx::#{rb_enum_name}" if Director.trace?
+        director.spec.map *type_list, as: "Wx::#{rb_enum_name}" do
           map_in code: <<~__CODE
             int eval;
             if (!wxRuby_GetEnumValue("#{type}", $input, eval))
@@ -373,7 +375,7 @@ module WXRuby3
               VALUE str = rb_inspect($input);
               rb_raise(rb_eArgError,
                        "Invalid enum class. Expected %s got %s.",
-                       "#{rb_enum_name}",
+                       "Wx::#{rb_enum_name}",
                        StringValuePtr(str));
             }
             $1 = static_cast<$1_type>(eval);
@@ -389,7 +391,7 @@ module WXRuby3
             if ($input == Qnil)
             {
               Swig::DirectorTypeMismatchException::raise(rb_eArgError, 
-                                                         "Invalid enum value for enum class #{rb_enum_name}.");
+                                                         "Invalid enum value for enum class Wx::#{rb_enum_name}.");
             }
           __CODE
           map_directorout code: <<~__CODE
@@ -397,7 +399,7 @@ module WXRuby3
             if (!wxRuby_GetEnumValue("#{type}", $input, eval))
             {
               Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
-                                                         "Invalid enum. Expected #{rb_enum_name}.");
+                                                         "Invalid enum. Expected Wx::#{rb_enum_name}.");
             }
             $result = static_cast<$1_type>(eval);
           __CODE
@@ -405,7 +407,7 @@ module WXRuby3
       end
 
       def gen_function_enum_typemaps(fndef, enum_maps)
-        if !(Extractor::MethodDef === fndef && fndef.is_ctor) &&
+        if !(Extractor::MethodDef === fndef && (fndef.is_ctor || fndef.type.nil?)) &&
               Extractor::EnumDef.enum?(fndef.type) &&
               !enum_maps.include?(fndef.type)
           gen_enum_typemap(fndef.type)
@@ -414,7 +416,7 @@ module WXRuby3
         fndef.parameters.each do |param|
           if Extractor::EnumDef.enum?(param.type) && !enum_maps.include?(param.type)
             gen_enum_typemap(param.type)
-            enum_maps << fndef.type
+            enum_maps << param.type
           end
         end
       end

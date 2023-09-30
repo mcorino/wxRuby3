@@ -258,10 +258,10 @@ module WXRuby3
           def_items.each do |item|
             case item
             when Extractor::EnumDef
-              item.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(item.name) } if item.is_type
+              item.items.each { |e| enumerators[rb_wx_name(e.name)] = item } if item.is_type
             when Extractor::ClassDef
               item.items.select { |itm| Extractor::EnumDef === itm }.each do |enum|
-                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = rb_wx_name(enum.name) } if enum.is_type
+                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = enum } if enum.is_type
               end
             end
           end
@@ -279,7 +279,7 @@ module WXRuby3
           brace_level = 0
 
           fix_enum = false
-          enum_name = nil
+          enum_item = nil
 
           found_init = false
 
@@ -378,38 +378,47 @@ module WXRuby3
                   # have we reached the first of a known enum?
                   if enum_table.has_key?(md[2])
                     fix_enum = true
-                    enum_name = enum_table[md[2]]
+                    enum_item = enum_table[md[2]]
+                    enum_name = rb_wx_name(enum_item.name)
+                    enum_id = enum_item.scope.empty? ? enum_name : "#{rb_wx_name(enum_item.scope)}::#{enum_name}"
+                    enum_var = enum_id.gsub('::', '_')
                     line = [
                       '',
-                      # create new enum class
-                      "  VALUE cWx#{enum_name} = wxRuby_CreateEnumClass(\"#{enum_name}\"); // Inserted by fixmodule.rb",
-                      # add enum class constant to current module
-                      "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_name}); // Inserted by fixmodule.rb",
+                      # create new enum class (use scoped id)
+                      "  VALUE cWx#{enum_var} = wxRuby_CreateEnumClass(\"#{enum_id}\"); // Inserted by fixmodule.rb",
+                      # add enum class constant to current module (use unscoped name)
+                      "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_var}); // Inserted by fixmodule.rb",
                       # create enumerator value const under new enum class
-                      "  wxRuby_AddEnumValue(cWx#{enum_name}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                      "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
                     ].join("\n")
                   end
                 else
                   # still an enumerator?
                   if enum_table.has_key?(md[2])
                     # of the same enum?
-                    if enum_table[md[2]] == enum_name
+                    if enum_item && enum_table[md[2]] == enum_item
+                      enum_name = rb_wx_name(enum_item.name)
+                      enum_id = enum_item.scope.empty? ? enum_name : "#{rb_wx_name(enum_item.scope)}::#{enum_name}"
+                      enum_var = enum_id.gsub('::', '_')
                       # create enumerator value const under new enum class
-                      line = "  wxRuby_AddEnumValue(cWx#{enum_name}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                      line = "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
                     else # we found the start of another enum
-                      enum_name = enum_table[md[2]]
+                      enum_item = enum_table[md[2]]
+                      enum_name = rb_wx_name(enum_item.name)
+                      enum_id = enum_item.scope.empty? ? enum_name : "#{rb_wx_name(enum_item.scope)}::#{enum_name}"
+                      enum_var = enum_id.gsub('::', '_')
                       line = [
                         '',
-                        # create new enum class
-                        "  VALUE cWx#{enum_name} = wxRuby_CreateEnumClass(\"#{enum_name}\"); // Inserted by fixmodule.rb",
-                        # add enum class constant to current module
-                        "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_name}); // Inserted by fixmodule.rb",
+                        # create new enum class (use scoped id)
+                        "  VALUE cWx#{enum_var} = wxRuby_CreateEnumClass(\"#{enum_id}\"); // Inserted by fixmodule.rb",
+                        # add enum class constant to current module (use unscoped name)
+                        "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_var}); // Inserted by fixmodule.rb",
                         # create enumerator value const under new enum class
-                        "  wxRuby_AddEnumValue(cWx#{enum_name}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                        "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
                       ].join("\n")
                     end
                   else # end of enum def
-                    enum_name = nil
+                    enum_item = nil
                     fix_enum = false
                   end
                 end
