@@ -121,8 +121,8 @@ module WXRuby3
             $result = rb_ary_new();
             for (size_t i = 0; i < $1->GetCount(); i++)
             {
-              wxAuiNotebookPage np = $1->Item(i);
-              rb_ary_push($result, SWIG_NewPointerObj(SWIG_as_voidptr(&np), SWIGTYPE_p_wxAuiNotebookPage, 0));
+              wxAuiNotebookPage* np = new wxAuiNotebookPage($1->Item(i));
+              rb_ary_push($result, SWIG_NewPointerObj(SWIG_as_voidptr(&np), SWIGTYPE_p_wxAuiNotebookPage, SWIG_POINTER_OWN));
             }
             __CODE
         end
