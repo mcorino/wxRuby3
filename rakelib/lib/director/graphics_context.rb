@@ -14,6 +14,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxGraphicsGradientStop' << 'wxGraphicsGradientStops' << 'wxGraphicsPenInfo'
         spec.disable_proxies
         # do not track GraphicContext objects as that causes problems probably for similar
         # reasons as for DC objects
@@ -24,7 +25,76 @@ module WXRuby3
                     'wxGraphicsContext::CreateFromNativeHDC',
                     'wxGraphicsContext::CreateFromUnknownDC',
                     'wxGraphicsContext::GetNativeContext',
-                    'wxGraphicsContext::Create'
+                    'wxGraphicsContext::Create',
+                    'wxGraphicsContext::CreateMatrix(const wxAffineMatrix2DBase &) const',
+                    'wxGraphicsContext::DrawLines(size_t, const wxPoint2DDouble *, wxPolygonFillMode)',
+                    'wxGraphicsContext::StrokeLines(size_t, const wxPoint2DDouble *)',
+                    'wxGraphicsContext::StrokeLines (size_t, const wxPoint2DDouble *, const wxPoint2DDouble *)'
+        if Config.platform == :linux
+          spec.ignore 'wxGraphicsContext::Create(const wxPrinterDC &)'
+        end
+        spec.add_header_code <<~__HEREDOC
+          // special free funcs are needed to clean up Dashes array if it has been
+          // set; wxWidgets does not do this automatically so will leak if not
+          // dealt with.
+          void GC_free_wxGraphicsPenInfo(wxGraphicsPenInfo *pen_info) 
+          {
+            SWIG_RubyRemoveTracking(pen_info);
+            if (pen_info)
+            {
+              wxDash *dashes;
+              int dash_count = pen_info->GetDashes(&dashes);
+              if ( dash_count )
+                delete dashes;
+            }
+            delete pen_info;
+          }
+          __HEREDOC
+        # dealt with below - these require special handling because of the use
+        # of wxDash array, which cannot be freed until the peninfo is disposed of
+        # or until a new dash pattern is specified.
+        spec.ignore(%w[wxGraphicsPenInfo::GetDashes wxGraphicsPenInfo::Dashes], ignore_doc: false)
+        spec.ignore 'wxGraphicsPenInfo::GetDash'
+        spec.add_extend_code 'wxGraphicsPenInfo', <<~__HEREDOC
+          // Returns a ruby array with the dash lengths
+          VALUE get_dashes() 
+          {
+            VALUE rb_dashes = rb_ary_new();
+            wxDash* dashes;
+            int dash_count = $self->GetDashes(&dashes);
+            for ( int i = 0; i < dash_count; i++ )
+            {
+              rb_ary_push(rb_dashes, INT2NUM(dashes[i]));
+            }
+            return rb_dashes;
+          }
+        
+          // Sets the dashes to have the lengths defined in the ruby array of ints
+          void dashes(VALUE rb_dashes) 
+          {
+            // Check right parameter type
+            if ( TYPE(rb_dashes) != T_ARRAY )
+              rb_raise(rb_eTypeError, 
+                       "Wrong argument type for set_dashes, should be Array");
+        
+            // Get old value in case it needs to be deallocated to avoid leaking
+            wxDash* old_dashes;
+            int old_dashes_count = $self->GetDashes(&old_dashes);
+        
+            // Create a C++ wxDash array to hold the new dashes, and populate
+            int new_dash_count = RARRAY_LEN(rb_dashes);
+            wxDash* new_dashes = new wxDash[ new_dash_count ];
+            for ( int i = 0; i < new_dash_count; i++ )
+            {
+              new_dashes[i] = NUM2INT(rb_ary_entry(rb_dashes, i));
+            }
+            $self->Dashes(new_dash_count, new_dashes);
+        
+            // Clean up the old if it existed
+            if ( old_dashes_count )
+              delete old_dashes;
+          }
+          __HEREDOC
         # type mappings
         # Typemap to fix GraphicsContext#get_text_extent and get_dpi and get_clip_box
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble* width', 'wxDouble* height',
@@ -155,6 +225,24 @@ module WXRuby3
             __CODE
         end
         # add convenience method providing efficient gc memory management
+        unless Config.platform == :linux
+          spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
+            static VALUE draw_on(const wxPrinterDC& dc)
+            {
+              VALUE rc = Qnil;
+              if (rb_block_given_p())
+              {
+                wxGraphicsContext* p_gc = wxGraphicsContext::Create(dc);
+                VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
+                rc = rb_yield(rb_gc);
+                SWIG_RubyRemoveTracking((void *)p_gc);
+                DATA_PTR(rb_gc) = NULL;
+                delete p_gc;
+              }
+              return rc;
+            }
+            __HEREDOC
+        end
         spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
           static VALUE draw_on(wxWindow* win)
           {
@@ -185,20 +273,6 @@ module WXRuby3
             return rc;
           }
           static VALUE draw_on(const wxMemoryDC& dc)
-          {
-            VALUE rc = Qnil;
-            if (rb_block_given_p())
-            {
-              wxGraphicsContext* p_gc = wxGraphicsContext::Create(dc);
-              VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
-              rc = rb_yield(rb_gc);
-              SWIG_RubyRemoveTracking((void *)p_gc);
-              DATA_PTR(rb_gc) = NULL;
-              delete p_gc;
-            }
-            return rc;
-          }
-          static VALUE draw_on(const wxPrinterDC& dc)
           {
             VALUE rc = Qnil;
             if (rb_block_given_p())
