@@ -45,6 +45,27 @@ module WXRuby3
         spec.suppress_warning(473,
                               'wxAuiMDIChildFrame::CreateStatusBar',
                               'wxAuiMDIChildFrame::CreateToolBar')
+        # for SetStatusWidths
+        spec.map 'int n, int widths_field[]' do
+          map_in from: {type: 'Array<Integer>', index: 1},
+                 temp: 'int size, std::unique_ptr<int[]> arr', code: <<~__CODE
+              size = RARRAY_LEN($input);
+              arr.reset(new int[size]);
+              for(int i = 0; i < size; i++)
+              {
+                arr.get()[i] = NUM2INT(rb_ary_entry($input,i));
+              }
+              $1 = size;
+              $2 = arr.get();
+              __CODE
+          map_directorin code: <<~__CODE
+            $input = rb_ary_new();
+            for (int i = 0; i < $1; i++)
+            {
+              rb_ary_push($input, INT2NUM($2[i]));
+            }
+            __CODE
+        end
       end
     end # class AuiMDIChildFrame
 

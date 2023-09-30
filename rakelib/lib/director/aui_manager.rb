@@ -66,6 +66,7 @@ module WXRuby3
         __HEREDOC
         spec.use_class_implementation 'wxAuiManager', 'WXRubyAuiManager'
         spec.map_apply('SWIGTYPE *DISOWN' => 'wxAuiDockArt* art_provider')
+        spec.map_apply 'double * OUTPUT' => ['double *widthpct', 'double *heightpct']
         # Any set AuiDockArt ruby object must be protected from GC once set,
         # even if it is no longer referenced anywhere else.
         spec.add_header_code <<~__HEREDOC

@@ -182,22 +182,6 @@ module WXRuby3
           
               return do_paint_buffered(self);
             }
-          
-            // Return a window handle as a platform-specific ruby integer
-            VALUE get_handle()
-            {
-              wxWindow *win = self;
-              int64_t handle = (int64_t)win->GetHandle();
-              return LL2NUM(handle);
-            }
-          
-            // Attach a wx Object to an existing Windows handle (MSW only)
-            VALUE associate_handle(int64_t handle)
-            {
-              WXWidget wx_handle = (WXWidget)handle;
-              $self->AssociateHandle(wx_handle);
-              return Qnil;
-            }
           __HEREDOC
           spec.override_events 'wxWindow', 'EVT_ACTIVATE' => ['EVT_ACTIVATE', 0, 'wxActivateEvent']
         when 'wxNonOwnedWindow'

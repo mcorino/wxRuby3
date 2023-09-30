@@ -116,6 +116,16 @@ module WXRuby3
               void MakeTabVisible(int tabPage, wxWindow* win);
           };
           __HEREDOC
+        spec.map 'wxAuiNotebookPageArray&' => 'Array<Wx::AUI::AuiNotebookPage>' do
+          map_out code: <<~__CODE
+            $result = rb_ary_new();
+            for (size_t i = 0; i < $1->GetCount(); i++)
+            {
+              wxAuiNotebookPage* np = new wxAuiNotebookPage($1->Item(i));
+              rb_ary_push($result, SWIG_NewPointerObj(SWIG_as_voidptr(&np), SWIGTYPE_p_wxAuiNotebookPage, SWIG_POINTER_OWN));
+            }
+            __CODE
+        end
       end
     end # class AuiTabCtrl
 

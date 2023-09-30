@@ -15,6 +15,8 @@ module WXRuby3
       def setup
         super
         spec.override_inheritance_chain('wxHtmlPrintout', {'wxPrintout' => 'wxPrinter'}, 'wxObject')
+        # for GetPageInfo
+        spec.map_apply 'int * OUTPUT' => ['int *minPage', 'int *maxPage', 'int *pageFrom', 'int *pageTo']
         # Deal with sizes argument to SetFonts
         spec.map 'const int *sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer), nil' do
           map_in temp: 'int tmp[7]', code: <<~__CODE

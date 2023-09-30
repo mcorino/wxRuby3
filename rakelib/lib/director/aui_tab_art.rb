@@ -34,6 +34,54 @@ module WXRuby3
           map_argout code: '$result = INT2NUM(tmp$argnum);'
           map_directorargout code: 'if (!NIL_P(result)) *xExtent = NUM2INT(result);'
         end
+        spec.map 'const wxAuiNotebookPageArray&' => 'Array<Wx::AUI::AuiNotebookPage>' do
+          map_in temp: 'wxAuiNotebookPageArray tmp', code: <<~__CODE
+            if (!NIL_P($input))
+            {
+              if (TYPE($input) == T_ARRAY)
+              {
+                for (int i=0; i<RARRAY_LEN($input) ;++i)
+                {
+                  VALUE rb_el = rb_ary_entry($input, i);
+                  void* ptr = 0;
+                  int res = SWIG_ConvertPtr(rb_el, &ptr, SWIGTYPE_p_wxAuiNotebookPage,  0);
+                  if (!SWIG_IsOK(res) || ptr == 0) 
+                  {
+                    const char* msg;
+                    VALUE rb_msg;
+                    if (ptr)
+                    {
+                      rb_msg = rb_inspect(rb_el);
+                      msg = StringValuePtr(rb_msg);
+                    }
+                    else
+                    {
+                      msg = "null reference";
+                    }
+                    rb_raise(rb_eTypeError, "$symname : expected Wx::AUI::AuiNotebookPage for array element for %d but got %s",
+                             $argnum-1, msg);
+                  }
+                  tmp.Add(*reinterpret_cast< wxAuiNotebookPage * >(ptr));
+                }
+              }
+              else
+              {
+                VALUE msg = rb_inspect($input);
+                rb_raise(rb_eArgError, "$symname : expected array for %d but got %s",
+                         $argnum-1, StringValuePtr(msg));
+              }
+            }
+            $1 = &tmp;
+            __CODE
+          map_directorin code: <<~__CODE
+            $input = rb_ary_new();
+            for (size_t i = 0; i < $1.GetCount(); i++)
+            {
+              wxAuiNotebookPage& np = $1.Item(i);
+              rb_ary_push($input, SWIG_NewPointerObj(SWIG_as_voidptr(&np), SWIGTYPE_p_wxAuiNotebookPage, 0));
+            }
+            __CODE
+        end
         # for GetTabSize
         spec.map_apply('int * OUTPUT' => 'int *x_extent')
 
