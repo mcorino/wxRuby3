@@ -23,6 +23,8 @@ module WXRuby3
                     'wxBitmapBundle::FromSVG(const wxByte *,size_t,const wxSize &)',
                     'wxBitmapBundle::FromSVGResource',
                     'wxBitmapBundle::FromResources'
+        # do not support custom impls (for now)
+        spec.ignore 'wxBitmapBundle::FromImpl'
         # not useful in Ruby
         spec.ignore 'wxBitmapBundle::wxBitmapBundle(const char * const *)'
         # disable the wxBitmapBundle typemap for the copy constructor
