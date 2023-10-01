@@ -100,6 +100,7 @@ module WXRuby3
         map 'wxString' => 'String' do
           map_in code: '$1 = RSTR_TO_WXSTR($input);'
           map_out code: '$result = WXSTR_TO_RSTR($1);'
+          map_directorin code: '$input = WXSTR_TO_RSTR($1);'
           map_directorout code: '$result = RSTR_TO_WXSTR($input);'
           map_typecheck precedence: 'STRING', code: '$1 = (TYPE($input) == T_STRING);'
           map_varout code: '$result = WXSTR_TO_RSTR($1);'
