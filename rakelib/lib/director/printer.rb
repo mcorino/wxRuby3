@@ -39,6 +39,8 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPrintPreview "GC_mark_wxPrintPreview";'
+        # as we do not support derived previews there is no need to support these
+        spec.ignore 'wxPrintPreview::SetCanvas', 'wxPrintPreview::PaintPage'
         # for GetCanvas
         spec.ignore('wxPrintPreview::GetCanvas', ignore_doc: false)
         spec.extend_interface('wxPrintPreview',
