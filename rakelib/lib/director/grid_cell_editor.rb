@@ -139,6 +139,10 @@ module WXRuby3
           case spec.module_name
           when 'wxGridCellEnumEditor'
             spec.override_inheritance_chain(spec.module_name, %w[wxGridCellChoiceEditor wxGridCellEditor])
+          when 'wxGridCellChoiceEditor'
+            # unnecessary overload
+            spec.ignore 'wxGridCellChoiceEditor::wxGridCellChoiceEditor(size_t, const wxString [], bool)'
+            spec.override_inheritance_chain(spec.module_name, %w[wxGridCellEditor])
           when 'wxGridCellAutoWrapStringEditor', 'wxGridCellFloatEditor', 'wxGridCellNumberEditor'
             spec.override_inheritance_chain(spec.module_name, %w[wxGridCellTextEditor wxGridCellEditor])
           else

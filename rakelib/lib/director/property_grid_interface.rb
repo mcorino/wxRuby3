@@ -130,6 +130,9 @@ module WXRuby3
             return rc;
           }
         __HEREDOC
+        spec.map 'wxPGProperty::FlagType' => 'Integer' do
+          map_in code: '$1 = NUM2UINT($input);'
+        end
         # type mapping for 'wxArrayPGProperty *targetArr' (GetPropertiesWithFlag)
         spec.map 'wxArrayPGProperty *targetArr' => 'Array<Wx::PG::PGProperty>' do
           map_in ignore: true, temp: 'wxArrayPGProperty tmp', code: '$1 = &tmp;'

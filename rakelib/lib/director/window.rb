@@ -18,6 +18,11 @@ module WXRuby3
         super
         case spec.module_name
         when 'wxWindow' # only for actual wxWindow class
+          spec.items << 'wxVisualAttributes'
+          spec.gc_as_untracked 'wxVisualAttributes'
+          spec.regard 'wxVisualAttributes::font',
+                      'wxVisualAttributes::colFg',
+                      'wxVisualAttributes::colBg'
           # // Any of these following kind of objects become owned by the window
           # // when passed into Wx, and so will be deleted automatically; using
           # // DISOWN resets their %freefunc to avoid deleting the object twice
@@ -78,6 +83,8 @@ module WXRuby3
             'wxWindow::ClientToScreen(int*,int*)', # no need; prefer the wxPoint version
             'wxWindow::ScreenToClient(int*,int*)', # no need; prefer the wxPoint version
           ]
+          # no real docs and can't find actual examples of usage; ignore
+          spec.ignore 'wxWindow::GetConstraints', 'wxWindow::SetConstraints'
           # redefine these so a nil parent is accepted
           spec.ignore %w[wxWindow::FindWindowById wxWindow::FindWindowByLabel wxWindow::FindWindowByName], ignore_doc: false
           # overrule common typemap to allow default NULL

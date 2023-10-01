@@ -1098,9 +1098,9 @@ class MyFrame < Frame
     focus = Window::find_focus()
     if focus && (focus != @s_windowFocus)
       @s_windowFocus = focus
-      msg = sprintf( "Focus: %s, HWND = %08x",
+      msg = sprintf( "Focus: %s @ %d",
                        @s_windowFocus.wx_class,
-                       @s_windowFocus.get_handle )
+                       @s_windowFocus.object_id )
       set_status_text(msg)
     end
   end

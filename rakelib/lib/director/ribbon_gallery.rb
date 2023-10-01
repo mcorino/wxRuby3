@@ -18,9 +18,11 @@ module WXRuby3
         super
         # exclude these; far better done in pure Ruby
         spec.ignore 'wxRibbonGallery::SetItemClientObject',
-                    'wxRibbonGallery::GetItemClientObject'
+                    'wxRibbonGallery::GetItemClientObject',
+                    'wxRibbonGallery::Append(const wxBitmap &, int, wxClientData *)'
         spec.ignore 'wxRibbonGallery::SetItemClientData',
-                    'wxRibbonGallery::GetItemClientData', ignore_doc: false
+                    'wxRibbonGallery::GetItemClientData',
+                    'wxRibbonGallery::Append(const wxBitmap &, int, void *)', ignore_doc: false
         spec.map 'wxRibbonGalleryItem*' => 'Integer' do
           map_out code: '$result = ULL2NUM(reinterpret_cast<uintptr_t> ($1));'
           map_directorout code: '$result = reinterpret_cast<wxRibbonGalleryItem*> ((uintptr_t)NUM2ULL($1));'

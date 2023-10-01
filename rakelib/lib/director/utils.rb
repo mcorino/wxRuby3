@@ -47,6 +47,11 @@ module WXRuby3
         spec.ignore 'wxGetEmailAddress(char *,int)',
                     'wxGetUserId(char *,int)',
                     'wxGetUserName(char *,int)'
+        spec.map 'wxMemorySize' => 'Integer' do
+          map_out code: <<~__CODE
+            $result = LL2NUM(wxLongLongNative($1).GetValue());
+            __CODE
+        end
         # we want only the functions that are not ignored
         spec.do_not_generate(:classes, :typedefs, :variables, :enums, :defines)
         super

@@ -231,6 +231,10 @@ module WXRuby3
           end
         end
         spec.add_header_code 'typedef wxPGProperty::FlagType FlagType;'
+        spec.map 'FlagType' => 'Integer' do
+          map_in code: '$1 = NUM2UINT($input);'
+          map_typecheck precedence: 'INTEGER', code: '$1 = TYPE($input) == T_FIXNUM || TYPE($input) == T_BIGNUM;'
+        end
       end
     end # class PGProperty
 

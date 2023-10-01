@@ -18,6 +18,13 @@ class Wx::RBN::RibbonGallery
   end
   alias :item_client_data :get_item_client_data
 
+  wx_append = instance_method :append
+  define_method :append do |bmp, item_id, data=nil|
+    item = wx_append.bind(self).call(bmp, item_id)
+    set_item_client_data(item, data) if item && data
+    item
+  end
+
   def items
     if block_given?
       count.times { |i| yield item(i) }
