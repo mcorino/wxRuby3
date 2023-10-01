@@ -15,6 +15,7 @@ module WXRuby3
     class MenuBar < Window
 
       def setup
+        super
         spec.no_proxy('wxMenuBar::FindItem',
                 'wxMenuBar::Remove',
                 'wxMenuBar::Replace')
@@ -25,7 +26,14 @@ module WXRuby3
         unless Config.instance.wx_version >= '3.3' || Config.instance.wx_abi_version > '3.0.0'
           spec.ignore 'wxMenuBar::OSXGetAppleMenu'
         end
-        super
+        # for FindItem
+        spec.map 'wxMenu **' => 'Wx::Menu' do
+          map_in ignore: true, temp: 'wxMenu *tmp', code: '$1 = &tmp;'
+          map_argout code: <<~__CODE
+            void *ptr = tmp$argnum;
+            $result = SWIG_Ruby_AppendOutput($result, SWIG_NewPointerObj(ptr, SWIGTYPE_p_wxMenu, 0));
+            __CODE
+        end
       end
     end # class MenuBar
 
