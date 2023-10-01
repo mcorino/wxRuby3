@@ -45,7 +45,8 @@ module WXRuby3
                       'wxPGChoices::Set(size_t, const wxString *, const long *)',
                       'wxPGChoices::Set(const wxChar **, const long *)',
                       'wxPGChoices::wxPGChoices(size_t, const wxString *, const long *)',
-                      'wxPGChoices::wxPGChoices(const wxChar **, const long *)'
+                      'wxPGChoices::wxPGChoices(const wxChar **, const long *)',
+                      'wxPGChoices::GetId'
           # replace by extension
           spec.ignore 'wxPGChoices::operator[]', ignore_doc: false
           spec.add_extend_code 'wxPGChoices', <<~__HEREDOC
