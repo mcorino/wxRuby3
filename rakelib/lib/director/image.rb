@@ -20,8 +20,13 @@ module WXRuby3
         spec.ignore [
           'wxImage::wxImage(wxInputStream &,wxBitmapType,int)',
           'wxImage::wxImage(wxInputStream &,const wxString &,int)',
+          'wxImage::wxImage(const char *const *)',
           'wxImage::GetImageCount(wxInputStream &,wxBitmapType)'
           ]
+        # ignore original signature
+        spec.ignore 'wxImage::SetAlpha(unsigned char *,bool)', ignore_doc: false
+        # add custom signature to aid type mapping
+        spec.extend_interface 'wxImage', 'void SetAlpha(unsigned char *alpha_or_null=NULL, bool static_data=false)'
         spec.rename_for_ruby(
           'LoadStream' => ['wxImage::LoadFile(wxInputStream &, wxBitmapType, int)', 'wxImage::LoadFile(wxInputStream &,const wxString &, int)'],
           'Write' => ['wxImage::SaveFile(wxOutputStream &, wxBitmapType) const', 'wxImage::SaveFile(wxOutputStream &,const wxString &) const'],
@@ -117,7 +122,7 @@ module WXRuby3
         # The GetRgbData and GetAlphaData methods require special handling using %extend;
         spec.ignore %w[wxImage::GetData wxImage::GetAlpha]
         # The SetRgbData and SetAlphaData are dealt with by typemaps (see below).
-        # For Image#set_rgb_data, Image#set_alpha_data and Image.new with raw data arg:
+        # For Image#set_rgb_data, Image#set_alpha_data and Image.new/create with raw data arg:
         # copy raw string data from a Ruby string to a memory block that will be
         # managed by wxWidgets (see static_data typemap below)
         spec.map 'unsigned char* data', 'unsigned char* alpha', as: 'String' do
@@ -128,12 +133,27 @@ module WXRuby3
                 $1 = (unsigned char*)malloc(data_len);
                 memcpy($1, StringValuePtr($input), data_len);
               }
-            else if ( $input == Qnil ) // Needed for SetAlpha, an error for SetData
+            else
+              SWIG_exception_fail(SWIG_ERROR, 
+                                  "String required as raw Image data argument");
+            __CODE
+          map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_STRING);'
+        end
+        spec.map 'unsigned char* alpha_or_null', as: 'String' do
+          map_in code: <<~__CODE
+            if ( TYPE($input) == T_STRING )
+              {
+                int data_len = RSTRING_LEN($input);
+                $1 = (unsigned char*)malloc(data_len);
+                memcpy($1, StringValuePtr($input), data_len);
+              }
+            else if ( $input == Qnil ) // Needed for SetAlpha
               $1 = NULL;
             else
               SWIG_exception_fail(SWIG_ERROR, 
                                   "String required as raw Image data argument");
             __CODE
+          map_typecheck precedence: 'POINTER', code: '$1 = NIL_P($input) || (TYPE($input) == T_STRING);'
         end
         # Image.new(data...) and Image#set_alpha_data both accept a static_data
         # argument to specify whether wxWidgets should delete the data

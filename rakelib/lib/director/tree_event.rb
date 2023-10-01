@@ -76,6 +76,11 @@ module WXRuby3
             return wxTreeItemId(data);
           }
 
+          bool _wxRuby_Is_wxTreeItemId(VALUE id)
+          {
+            return rb_typeddata_is_kind_of(id, &__wxTreeEventId_type) == 1;
+          } 
+
           VALUE _wxRuby_wxTreeItemId_IsOk(VALUE self)
           {
             void *data = 0;

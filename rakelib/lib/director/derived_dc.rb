@@ -278,6 +278,28 @@ module WXRuby3
           # like all DC this should best always be a temporary stack object
           # we do not allow creation in Ruby but rather provide class
           # methods for block execution on a temp dc
+          unless Config.platform == :linux
+            spec.add_extend_code 'wxGCDC', <<~__HEREDOC
+              static VALUE draw_on(const wxPrinterDC& dc)
+              {
+                if (!wxRuby_IsAppRunning()) 
+                  rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+                VALUE rc = Qnil;
+                if (rb_block_given_p ())
+                {
+                  // Somehow there seems to be a problem with the Ruby GCDC value 
+                  // being GC-ed unless we block GC for the duration of the block
+                  // execution. Unclear why. We have similar code for other objects
+                  // where this issue does not come up.
+                  wxGCDC gc_dc(dc);
+                  wxGCDC* dc_ptr = &gc_dc;
+                  VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
+                  rc = rb_yield(rb_dc);
+                }
+                return rc;
+              }
+              __HEREDOC
+          end
           spec.add_extend_code 'wxGCDC', <<~__HEREDOC
             static VALUE draw_on(const wxWindowDC& dc)
             {
@@ -298,24 +320,6 @@ module WXRuby3
               return rc;
             }
             static VALUE draw_on(const wxMemoryDC& dc)
-            {
-              if (!wxRuby_IsAppRunning()) 
-                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
-              VALUE rc = Qnil;
-              if (rb_block_given_p ())
-              {
-                // Somehow there seems to be a problem with the Ruby GCDC value 
-                // being GC-ed unless we block GC for the duration of the block
-                // execution. Unclear why. We have similar code for other objects
-                // where this issue does not come up.
-                wxGCDC gc_dc(dc);
-                wxGCDC* dc_ptr = &gc_dc;
-                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
-                rc = rb_yield(rb_dc);
-              }
-              return rc;
-            }
-            static VALUE draw_on(const wxPrinterDC& dc)
             {
               if (!wxRuby_IsAppRunning()) 
                 rb_raise(rb_eRuntimeError, "A running Wx::App is required.");

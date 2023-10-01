@@ -16,11 +16,18 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxFontMetrics'
         # it's not safe to track DC objects as these are often created on the stack in C++
         # before being passed to Ruby methods
         # as we cannot capture their deletion in anyway this would leave the tracked items
         # registered and reused when future stack allocated DC's happen to have the same address
         spec.gc_as_untracked
+        spec.regard 'wxFontMetrics::height',
+                    'wxFontMetrics::ascent',
+                    'wxFontMetrics::descent',
+                    'wxFontMetrics::internalLeading',
+                    'wxFontMetrics::externalLeading',
+                    'wxFontMetrics::averageWidth'
         spec.ignore [
           'wxDC::GetPartialTextExtents',
           'wxDC::DrawLines(const wxPointList *,wxCoord,wxCoord)',
@@ -29,6 +36,12 @@ module WXRuby3
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const',
           'wxDC::GetHandle'
         ]
+        # ignore Matrix Transformation methods until someone asks for them
+        # TODO : possibly wrap at a later time
+        spec.ignore 'wxDC::SetTransformMatrix',
+                    'wxDC::GetTransformMatrix',
+                    'wxDC::ResetTransformMatrix',
+                    'wxDC::CanUseTransformMatrix'
         spec.disable_proxies
         spec.rename_for_ruby({
           'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *) const',
