@@ -16,7 +16,7 @@ module WXRuby3
         super
         spec.disable_proxies
         spec.gc_as_untracked 'wxPalette'
-        spec.ignore 'wxPalette::GetRGB(int,unsigned char *,unsigned char *,unsigned char *) const'
+        spec.ignore 'wxPalette::GetRGB(int,unsigned char *,unsigned char *,unsigned char *) const', ignore_doc: false
         spec.extend_interface 'wxPalette', 'bool GetRGB(int pixel,unsigned char *red_out,unsigned char *green_out,unsigned char *blue_out) const'
         # for GetRGB
         spec.map 'unsigned char *red_out', 'unsigned char *green_out', 'unsigned char *blue_out', as: 'Integer' do

@@ -60,7 +60,7 @@ module WXRuby3
         spec.rename_for_ruby('init' => 'wxPreviewFrame::Initialize')
         # We do not wrap the (undocumented) wxPrintPreviewBase so map this to wxPrintPreview what
         # in all cases will be the actual base being used.
-        spec.ignore 'wxPreviewFrame::wxPreviewFrame(wxPrintPreviewBase *, wxWindow *,const wxString &,const wxPoint &,const wxSize &,long,const wxString &)'
+        spec.ignore 'wxPreviewFrame::wxPreviewFrame(wxPrintPreviewBase *, wxWindow *,const wxString &,const wxPoint &,const wxSize &,long,const wxString &)', ignore_doc: false
         spec.extend_interface('wxPreviewFrame',
             'wxPreviewFrame(wxPrintPreview *preview, wxWindow *parent, const wxString &title="Print Preview", const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE, const wxString &name=wxFrameNameStr)')
         # non-functional map for doc gen
