@@ -57,6 +57,8 @@ module WXRuby3
             $result = SWIG_Ruby_AppendOutput($result, SWIG_NewPointerObj(ptr, SWIGTYPE_p_wxMenu, 0));
             __CODE
         end
+        # for FindChildItem
+        spec.map_apply 'size_t * OUTPUT' => 'size_t * pos'
         spec.add_header_code <<~__HEREDOC
           // Mark Function
           // Need to protect MenuItems which are included in the Menu, including
