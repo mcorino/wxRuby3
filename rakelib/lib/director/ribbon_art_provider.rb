@@ -40,6 +40,11 @@ module WXRuby3
             }
             __CODE
         end
+        spec.map 'wxRibbonGalleryItem*' => 'Integer' do
+          map_in code: '$1 = reinterpret_cast<wxRibbonGalleryItem*> ((uintptr_t)NUM2ULL($input));'
+          map_directorin code: '$input = ULL2NUM(reinterpret_cast<uintptr_t> ($1));'
+          map_typecheck precedence: 'INTEGER', code: '$1 = (TYPE($input) == T_FIXNUM);'
+        end
         # add method for correctly wrapping RibbonArtProvider references
         spec.add_header_code <<~__CODE
             extern VALUE mWxRBN; // declare external module reference
