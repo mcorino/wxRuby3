@@ -48,6 +48,10 @@ module WXRuby3
             rb_ary_push($result, INT2NUM(*$2));
           __CODE
         end
+        spec.map 'wxIntPtr' => 'Integer' do
+          map_in code: '$1 = NUM2ULL($input);'
+          map_out code: '$result = ULL2NUM($1);'
+        end
         # not useful in wxRuby
         spec.ignore 'wxStyledTextCtrl::HitTest(const wxPoint &, long *) const',
                     'wxStyledTextCtrl::GetDirectFunction',
