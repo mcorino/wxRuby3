@@ -97,7 +97,9 @@ module WXRuby3
           spec.rename_for_ruby 'GetCellOrDefault' => 'wxPGProperty::GetCell(unsigned int) const'
           spec.rename_for_ruby 'get_cell' => 'wxPGProperty::GetOrCreateCell'
           # don't expose wxPGAttributeStorage; add a more Ruby-like extension
-          spec.ignore 'wxPGProperty::GetAttributes'
+          spec.ignore 'wxPGProperty::GetAttributes', # implemented in pure Ruby
+                      'wxPGProperty::SetAttributes',
+                      ignore_doc: false
           spec.add_extend_code 'wxPGProperty', <<~__HEREDOC
             VALUE each_attribute()
             {

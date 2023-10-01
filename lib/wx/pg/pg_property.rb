@@ -17,14 +17,24 @@ module Wx::PG
   class PGProperty
 
     wx_each_attribute = instance_method :each_attribute
-    define_method :each_attribute do |id|
+    define_method :each_attribute do
       if block_given?
-        wx_each_attribute.bind(self).call(id)
+        wx_each_attribute.bind(self).call
       else
-        ::Enumerator.new { |y| wx_each_attribute.bind(self).call(id) { |variant| y << variant } }
+        ::Enumerator.new { |y| wx_each_attribute.bind(self).call { |variant| y << variant } }
       end
     end
-    alias :attributes :each_attribute
+
+    def get_attributes
+      each_attribute.inject({}) { |map, v| map[v.name] = v; map }
+    end
+    alias :attributes :get_attributes
+
+    def set_attributes(map)
+      raise ArgumentError, 'Expected Hash' unless map.is_a?(::Hash)
+      map.each_pair { |nm, v| set_attribute(nm, v) }
+    end
+    alias :attributes= :set_attributes
   end
 
 end

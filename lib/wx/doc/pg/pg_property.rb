@@ -11,4 +11,15 @@ module Wx::PG
 
   PG_DEFAULT_IMAGE_SIZE = Wx::DEFAULT_SIZE
 
+  class PGProperty
+
+    # Iterate each attribute.
+    # Passes the variant for each attribute to the given block.
+    # Returns an Enumerator if no block given.
+    # @yieldparam [Wx::Variant] variant attribute's variant
+    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
+    def each_attribute; end
+
+  end
+
 end
