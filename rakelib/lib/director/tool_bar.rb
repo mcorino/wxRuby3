@@ -35,6 +35,22 @@ module WXRuby3
         spec.no_proxy 'wxToolBarToolBase'
         # more sensible name to use
         spec.rename_for_ruby('ToolBarTool' => 'wxToolBarToolBase')
+        spec.map 'wxToolBarBase *' => 'Wx::ToolBar' do
+          map_in code: <<~__CODE
+            void *argp = 0;
+            int res = SWIG_ConvertPtr($input, &argp, SWIGTYPE_p_wxToolBar, 0);
+            if (!SWIG_IsOK(res)) {
+              SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "Wx::ToolBar","wxToolBarToolBase", 1, $input)); 
+            }
+            $1 = reinterpret_cast< wxToolBarBase * >(argp);
+            __CODE
+          map_typecheck code: <<~__CODE
+            void *vptr = 0;
+            int res = SWIG_ConvertPtr($input, &vptr, SWIGTYPE_p_wxToolBar, 0);
+            $1 = SWIG_CheckState(res);
+            __CODE
+          map_out code: '$result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxToolBar, 0);'
+        end
         # Ensure that the C++ wxToolBar(Base) implementation of UpdateWindowUI
         # is called internally, so that UpdateUIEvents are also sent to each
         # button within the toolbar. This means update_window_ui can't be

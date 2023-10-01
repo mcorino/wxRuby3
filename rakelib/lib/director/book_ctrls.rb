@@ -76,6 +76,13 @@ module WXRuby3
         when 'wxToolbook', 'wxListbook', 'wxChoicebook', 'wxSimplebook'
           setup_book_ctrl_class(spec.module_name)
           spec.force_proxy(spec.module_name)
+          if spec.module_name == 'wxToolbook'
+            spec.map 'wxToolBarBase *' => 'Wx::ToolBar', swig: false do
+              map_out code: ''
+            end
+            spec.ignore 'wxToolbook::GetToolBar', ignore_doc: false
+            spec.extend_interface 'wxToolbook', 'wxToolBar* GetToolBar() const'
+          end
         when 'wxTreebook'
           setup_book_ctrl_class(spec.module_name)
           spec.force_proxy(spec.module_name)
