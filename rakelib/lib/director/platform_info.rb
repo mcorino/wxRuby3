@@ -15,7 +15,11 @@ module WXRuby3
       def setup
         super
         spec.gc_as_untracked
-        spec.items << 'wxVersionInfo'
+        spec.items << 'wxVersionInfo' << 'wxLinuxDistributionInfo'
+        spec.regard 'wxLinuxDistributionInfo::Id',
+                    'wxLinuxDistributionInfo::Release',
+                    'wxLinuxDistributionInfo::CodeName',
+                    'wxLinuxDistributionInfo::Description'
         spec.make_abstract('wxPlatformInfo')
         spec.ignore 'wxPlatformInfo::wxPlatformInfo',
                     'wxPlatformInfo::operator==',
