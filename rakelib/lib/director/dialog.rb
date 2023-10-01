@@ -126,8 +126,8 @@ module WXRuby3
           # data to each choice. However this would need memory management, and a
           # pure ruby implementation is trivial and likely to be more convenient
           # on a per-case basis so just ignore this argument for Ruby.
-          spec.map 'char** clientData' do
-            map_in ignore: true, code: '$1 = (char **)NULL;'
+          spec.map 'void** clientData' do
+            map_in ignore: true, code: '$1 = nullptr;'
           end
           spec.ignore 'wxSingleChoiceDialog::GetSelectionData'
           spec.do_not_generate(:functions)
