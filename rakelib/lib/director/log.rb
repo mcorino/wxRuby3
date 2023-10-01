@@ -17,6 +17,7 @@ module WXRuby3
         spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow wxLogNull wxLogRecordInfo])
         spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogStderr wxLogTextCtrl wxLogWindow])
         spec.force_proxy(%w[wxLogInterposer wxLogInterposerTemp])
+        spec.ignore 'wxLog::SetFormatter'
         spec.regard %w[wxLog::DoLogRecord wxLog::DoLogTextAtLevel wxLog::DoLogText]
         spec.ignore 'wxLogBuffer::Flush'
         spec.ignore 'wxLogGui::Flush'
