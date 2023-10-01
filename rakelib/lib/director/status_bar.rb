@@ -16,6 +16,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxStatusBarPane'
         # StatusBar has numerous methods (eg GetFieldRect, G/SetStatusText,
         # SetFieldsCount) that are marked 'virtual', but can't be
         # usefully re-implemented in Ruby.
