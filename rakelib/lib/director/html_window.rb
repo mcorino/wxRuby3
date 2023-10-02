@@ -38,6 +38,8 @@ module WXRuby3
         spec.suppress_warning(473, "wxHtmlWindow::GetHTMLWindow")
         # deprecated; use event handler instead
         spec.ignore 'wxHtmlWindow::OnLinkClicked'
+        # not useful for wxRuby
+        spec.ignore 'wxHtmlWindow::GetParser'
         spec.no_proxy 'wxHtmlWindow::SendAutoScrollEvents'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
         spec.map 'HTMLCursor' => 'Integer' do
