@@ -18,9 +18,9 @@ module WXRuby3
 
       def setup
         # replace before calling super
-        spec.items.replace %w[wxGrid wxGridBlockCoords wxGridBlockDiffResult]
+        spec.items.replace %w[wxGrid wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo]
         super
-        spec.gc_as_untracked %w[wxGridBlockCoords wxGridBlockDiffResult]
+        spec.gc_as_untracked %w[wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo]
         spec.gc_as_window 'wxGrid'
         spec.override_inheritance_chain('wxGrid', %w[wxScrolledCanvas wxWindow wxEvtHandler wxObject])
         spec.no_proxy 'wxGrid::SendAutoScrollEvents'
@@ -43,6 +43,49 @@ module WXRuby3
         spec.ignore 'wxGrid::SetCellTextColour(const wxColour &,int,int)'
         spec.ignore 'wxGrid::SetCellValue(const wxString &,int,int)'
         spec.ignore 'wxGrid::SetTable' # there is wxGrid::AssignTable now that always takes ownership
+
+        spec.regard 'wxGridSizesInfo::m_sizeDefault',
+                    'wxGridSizesInfo::m_customSizes'
+        spec.rename_for_ruby 'size_default' => 'wxGridSizesInfo::m_sizeDefault',
+                             'custom_sizes' => 'wxGridSizesInfo::m_customSizes'
+        spec.map 'wxUnsignedToIntHashMap' => 'Hash' do
+          add_header_code <<~__CODE
+            #if RUBY_API_VERSION_MAJOR<3 && RUBY_API_VERSION_MINOR<7
+            typedef int (*rb_foreach_func)(ANYARGS);
+            #else
+            typedef int (*rb_foreach_func)(VALUE, VALUE, VALUE);
+            #endif
+            #define FOREACH_FUNC(x) reinterpret_cast<rb_foreach_func>((void*)&(x))
+            static int _wxrb_cvt_custom_sizes(VALUE key, VALUE value, VALUE rbWxMap)
+            {
+              wxUnsignedToIntHashMap* wxMap;
+              Data_Get_Struct(rbWxMap, wxUnsignedToIntHashMap, wxMap);
+              (*wxMap)[NUM2UINT(key)] = NUM2INT(value);
+              return ST_CONTINUE;
+            }
+            __CODE
+          map_in code: <<~__CODE
+            if (TYPE($input) == T_HASH)
+            {
+              void* ptr = &($1);
+              VALUE rbWxMap = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+              rb_hash_foreach($input, FOREACH_FUNC(_wxrb_cvt_custom_sizes), rbWxMap);
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected Hash for %d", $argnum-1);
+            }
+            __CODE
+
+          map_out code: <<~__CODE
+            $result = rb_hash_new();
+            wxUnsignedToIntHashMap::const_iterator it = $1.begin();
+            for (; it != $1.end() ;++it)
+            {
+              rb_hash_aset($result, UINT2NUM(it->first), INT2NUM(it->second));
+            } 
+            __CODE
+        end
 
         spec.ignore 'wxGrid::GetSelectedBlocks' # ignore
         # add rubified API (finish in pure Ruby)
