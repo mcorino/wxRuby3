@@ -40,6 +40,10 @@ module WXRuby3
         spec.ignore 'wxHtmlWindow::OnLinkClicked'
         spec.no_proxy 'wxHtmlWindow::SendAutoScrollEvents'
         spec.add_header_code 'typedef wxHtmlWindow::HTMLCursor HTMLCursor;'
+        spec.map 'HTMLCursor' => 'Integer' do
+          map_in code: '$1 = static_cast<HTMLCursor> (NUM2INT($input));'
+          map_directorin code: '$input = INT2NUM((int)$1);'
+        end
         # Deal with sizes argument to SetFonts
         spec.map 'const int *sizes' => 'Array(Integer,Integer,Integer,Integer,Integer,Integer,Integer), nil' do
           map_in temp: 'int tmp[7]', code: <<~__CODE
