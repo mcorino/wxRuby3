@@ -154,6 +154,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxBusyInfo', requirements: %w[wxUSE_BUSYINFO])
     Director.Spec(pkg, 'wxListCtrl', requirements: %w[wxUSE_LISTCTRL])
     Director.Spec(pkg, 'wxListEvent', director: Director::Event, requirements: %w[wxUSE_LISTCTRL])
+    Director.Spec(pkg, 'wxHeaderCtrl')
     Director.Spec(pkg, 'wxGridSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxFlexGridSizer', director: Director::Sizer)
     Director.Spec(pkg, 'wxGBSizerItem', director: Director::SizerItem)
