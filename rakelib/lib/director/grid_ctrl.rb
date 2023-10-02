@@ -113,6 +113,71 @@ module WXRuby3
                               'wxGrid::GetDefaultEditorForType',
                               'wxGrid::GetDefaultRendererForCell',
                               'wxGrid::GetDefaultRendererForType')
+
+        # create a lightweight, but typesafe, wrapper for wxGridWindow
+        spec.add_init_code <<~__HEREDOC
+          // define wxGridWindow wrapper class
+          mWxGridWindow = rb_define_class_under(mWxGRID, "GridWindow", rb_cObject);
+          rb_undef_alloc_func(mWxGridWindow);
+          __HEREDOC
+
+        spec.add_header_code <<~__HEREDOC
+          VALUE mWxGridWindow;
+
+          // wxGridWindow wrapper class definition and helper functions
+          static size_t __wxGridWindow_size(const void* data)
+          {
+            return 0;
+          }
+
+          #include <ruby/version.h> 
+
+          static const rb_data_type_t __wxGridWindow_type = {
+            "GridWindow",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { NULL, NULL, __wxGridWindow_size, 0, 0},
+          #else
+            { NULL, NULL, __wxGridWindow_size, 0},
+          #endif 
+            NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
+          };
+
+          VALUE _wxRuby_Wrap_wxGridWindow(wxGridWindow* gw)
+          {
+            if (gw)
+            {
+              void* data = gw;
+              VALUE ret = TypedData_Wrap_Struct(mWxGridWindow, &__wxGridWindow_type, data);
+              return ret;
+            }
+            else
+              return Qnil;
+          } 
+
+          wxGridWindow* _wxRuby_Unwrap_wxGridWindow(VALUE rbgw)
+          {
+            if (NIL_P(rbgw))
+              return nullptr;
+            else
+            {
+              void *data = 0;
+              TypedData_Get_Struct(rbgw, void, &__wxGridWindow_type, data);
+              return reinterpret_cast<wxGridWindow*> (data);
+            }
+          }
+
+          bool _wxRuby_Is_wxGridWindow(VALUE rbgw)
+          {
+            return rb_typeddata_is_kind_of(rbgw, &__wxGridWindow_type) == 1;
+          } 
+          __HEREDOC
+
+        spec.map 'wxGridWindow*' => 'Wx::GRID::GridWindow' do
+          map_in code: '$1 = _wxRuby_Unwrap_wxGridWindow($input);'
+          map_out code: '$result = _wxRuby_Wrap_wxGridWindow($1);'
+          map_typecheck code: '$1 = _wxRuby_Is_wxGridWindow($input);'
+        end
+
         # Add custom code to handle GC marking for Grid cell attributes, editors and renderers.
         # Ruby created instances of these are registered in global tables whenever they are assigned to
         # a Grid (for a cell, default or named type). The global tables will be scanned during the GC marking stage

@@ -22,5 +22,8 @@ module Wx::GRID
     alias :table= :assign_table
 
   end
-  
+
+  # Provides an opaque handle for grid windows.
+  class GridWindow; end
+
 end
