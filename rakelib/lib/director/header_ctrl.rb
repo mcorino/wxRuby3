@@ -28,6 +28,7 @@ module WXRuby3
                               visibility: 'protected'
         # handled; can be suppressed
         spec.suppress_warning(473, 'wxHeaderCtrl::GetColumn', 'wxHeaderCtrlSimple::GetColumn')
+        spec.do_not_generate :typedefs, :variables, :enums, :defines, :functions
       end
     end # class HeaderCtrl
 
