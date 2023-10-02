@@ -18,9 +18,9 @@ module WXRuby3
 
       def setup
         # replace before calling super
-        spec.items.replace %w[wxGrid wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo]
+        spec.items.replace %w[wxGrid wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo wxGridFitMode]
         super
-        spec.gc_as_untracked %w[wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo]
+        spec.gc_as_untracked %w[wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo wxGridFitMode]
         spec.gc_as_window 'wxGrid'
         spec.override_inheritance_chain('wxGrid', %w[wxScrolledCanvas wxWindow wxEvtHandler wxObject])
         spec.no_proxy 'wxGrid::SendAutoScrollEvents'
