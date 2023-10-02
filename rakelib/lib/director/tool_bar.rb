@@ -40,7 +40,7 @@ module WXRuby3
             void *argp = 0;
             int res = SWIG_ConvertPtr($input, &argp, SWIGTYPE_p_wxToolBar, 0);
             if (!SWIG_IsOK(res)) {
-              SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "Wx::ToolBar","wxToolBarToolBase", 1, $input)); 
+              SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "Wx::ToolBar", "$symname", 1, $input)); 
             }
             $1 = reinterpret_cast< wxToolBarBase * >(argp);
             __CODE

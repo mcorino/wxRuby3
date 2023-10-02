@@ -313,7 +313,7 @@ module WXRuby3
                 VALUE var = rb_ary_entry($input, i);
                 int res = SWIG_ConvertPtr(var, &ptr, SWIGTYPE_p_wxVariant,  0 );
                 if (!SWIG_IsOK(res)) {
-                  SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxVariantList","wxVariant", 1, var )); 
+                  SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxVariantList", "$symname", 1, var )); 
                 }
                 // the default constructed wxVariantList tmp will not delete it's contents so no need to copy variant 
                 tmp.Append(static_cast<wxVariant*>(ptr));
