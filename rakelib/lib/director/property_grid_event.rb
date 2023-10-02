@@ -18,6 +18,13 @@ module WXRuby3
 
       def setup
         super
+        if Config.instance.wx_version < '3.3.0'
+          spec.map 'wxPGVFBFlags' => 'Integer' do
+            map_in code: '$1 = (unsigned char)NUM2UINT($input);'
+            map_out code: '$result = UINT2NUM((unsigned int)$1);'
+          end
+        else # from 3.3.0 this is an enum but docs are still missing
+        end
       end
     end # class PropertyGridEvent
 

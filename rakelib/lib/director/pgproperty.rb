@@ -45,7 +45,8 @@ module WXRuby3
                       'wxPGChoices::Set(size_t, const wxString *, const long *)',
                       'wxPGChoices::Set(const wxChar **, const long *)',
                       'wxPGChoices::wxPGChoices(size_t, const wxString *, const long *)',
-                      'wxPGChoices::wxPGChoices(const wxChar **, const long *)'
+                      'wxPGChoices::wxPGChoices(const wxChar **, const long *)',
+                      'wxPGChoices::GetId'
           # replace by extension
           spec.ignore 'wxPGChoices::operator[]', ignore_doc: false
           spec.add_extend_code 'wxPGChoices', <<~__HEREDOC
@@ -96,7 +97,9 @@ module WXRuby3
           spec.rename_for_ruby 'GetCellOrDefault' => 'wxPGProperty::GetCell(unsigned int) const'
           spec.rename_for_ruby 'get_cell' => 'wxPGProperty::GetOrCreateCell'
           # don't expose wxPGAttributeStorage; add a more Ruby-like extension
-          spec.ignore 'wxPGProperty::GetAttributes'
+          spec.ignore 'wxPGProperty::GetAttributes', # implemented in pure Ruby
+                      'wxPGProperty::SetAttributes',
+                      ignore_doc: false
           spec.add_extend_code 'wxPGProperty', <<~__HEREDOC
             VALUE each_attribute()
             {

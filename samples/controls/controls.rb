@@ -331,7 +331,7 @@ class MyPanel < Panel
                               GA_VERTICAL | GA_SMOOTH | NO_BORDER )
     @m_slider = Slider.new( panel, ID_SLIDER, 0, 0, 200, Point.new(18,90), Size.new(155,-1),
                             SL_AUTOTICKS | SL_LABELS )
-    @m_slider.set_tick_freq(40)
+    @m_slider.set_tick_freq(40) unless Wx::PLATFORM == 'WXGTK'
     @m_slider.set_tool_tip("This is a sliding slider")
 
     StaticBox.new( panel, -1, "&Explanation",

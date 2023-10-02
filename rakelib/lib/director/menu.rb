@@ -47,8 +47,18 @@ module WXRuby3
                                                         SWIGTYPE_p_wxMenuItem, 0);
                 rb_ary_push($result, rb_menu_item);
             }
+          __CODE
+        end
+        # for FindItem
+        spec.map 'wxMenu **' => 'Wx::Menu' do
+          map_in ignore: true, temp: 'wxMenu *tmp', code: '$1 = &tmp;'
+          map_argout code: <<~__CODE
+            void *ptr = tmp$argnum;
+            $result = SWIG_Ruby_AppendOutput($result, SWIG_NewPointerObj(ptr, SWIGTYPE_p_wxMenu, 0));
             __CODE
         end
+        # for FindChildItem
+        spec.map_apply 'size_t * OUTPUT' => 'size_t * pos'
         spec.add_header_code <<~__HEREDOC
           // Mark Function
           // Need to protect MenuItems which are included in the Menu, including
@@ -74,7 +84,7 @@ module WXRuby3
         __HEREDOC
         spec.add_swig_code <<~__HEREDOC
           %markfunc wxMenu "mark_wxMenu";
-          __HEREDOC
+        __HEREDOC
         # fix SWIG's problems with const& return value
         spec.ignore('wxMenu::GetTitle', ignore_doc: false) # keep doc
         spec.add_extend_code 'wxMenu', <<~__HEREDOC
@@ -82,7 +92,7 @@ module WXRuby3
             wxString const& title = $self->GetTitle();
             return &const_cast<wxString&> (title);
           }
-          __HEREDOC
+        __HEREDOC
         super
       end
     end # class Menu
