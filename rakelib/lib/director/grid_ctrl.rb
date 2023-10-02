@@ -44,7 +44,23 @@ module WXRuby3
         spec.ignore 'wxGrid::SetCellValue(const wxString &,int,int)'
         spec.ignore 'wxGrid::SetTable' # there is wxGrid::AssignTable now that always takes ownership
 
-        spec.ignore 'wxGrid::GetSelectedBlocks' # for now (flawed interface)
+        spec.ignore 'wxGrid::GetSelectedBlocks' # ignore
+        # add rubified API (finish in pure Ruby)
+        spec.add_extend_code 'wxGrid', <<~__HEREDOC
+          VALUE selected_blocks()
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGridBlocks sel = $self->GetSelectedBlocks();
+              for (const wxGridBlockCoords& gbc : sel)
+              {
+                rc = rb_yield (SWIG_NewPointerObj(new wxGridBlockCoords(gbc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+              }
+            }
+            return rc;  
+          }
+          __HEREDOC
 
         spec.ignore 'wxGrid::GetGridWindowOffset(const wxGridWindow *, int &, int &) const'
 
@@ -57,9 +73,9 @@ module WXRuby3
         spec.map 'wxGridBlockCoordsVector' => 'Array<Wx::GRID::GridBlockCoords' do
           map_out code: <<~__CODE
             $result = rb_ary_new();
-            for (const wxGridBlockCoords& bgc: $1)
+            for (const wxGridBlockCoords& gbc: $1)
             {
-              rb_ary_push($result, SWIG_NewPointerObj(new wxGridBlockCoords(bgc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+              rb_ary_push($result, SWIG_NewPointerObj(new wxGridBlockCoords(gbc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
             }
             __CODE
         end

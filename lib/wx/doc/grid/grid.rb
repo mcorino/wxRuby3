@@ -21,6 +21,12 @@ module Wx::GRID
     alias :set_table :assign_table
     alias :table= :assign_table
 
+    # Iterates all selected blocks passing each corresponding Wx::GRID::GridBlockCoords to the given block
+    # or returns an enumerator if no block given.
+    # @yieldparam [Wx::GRID::GridBlockCoords] selected_block
+    # @return [Object,Enumerator] result of last block execution or an Enumerator if no block given
+    def selected_blocks; end
+
   end
 
   # Provides an opaque handle for grid windows.
