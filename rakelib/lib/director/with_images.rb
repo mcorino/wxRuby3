@@ -28,7 +28,7 @@ module WXRuby3
         spec.add_header_code 'typedef wxVector<wxBitmapBundle> WxBitmapBundleArray;'
         spec.extend_interface 'wxWithImages', 'void SetImages(const WxBitmapBundleArray& images);'
         # type mapping for wrapper implementation
-        spec.map 'const WxBitmapBundleArray& images' => 'Array<Wx::Image>' do
+        spec.map 'const WxBitmapBundleArray& images' => 'Array<Wx::ImageBundle>' do
           map_in temp: 'wxVector<wxBitmapBundle> tmp', code: <<~__CODE
             if ($input != Qnil)
             {
