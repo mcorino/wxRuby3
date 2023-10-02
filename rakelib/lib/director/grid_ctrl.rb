@@ -18,9 +18,10 @@ module WXRuby3
 
       def setup
         # replace before calling super
-        spec.items.replace %w[wxGrid]
+        spec.items.replace %w[wxGrid wxGridBlockCoords wxGridBlockDiffResult]
         super
-        spec.gc_as_window
+        spec.gc_as_untracked %w[wxGridBlockCoords wxGridBlockDiffResult]
+        spec.gc_as_window 'wxGrid'
         spec.override_inheritance_chain('wxGrid', %w[wxScrolledCanvas wxWindow wxEvtHandler wxObject])
         spec.no_proxy 'wxGrid::SendAutoScrollEvents'
         # All of the methods have alternate versions that accept row, col pair
@@ -52,6 +53,17 @@ module WXRuby3
           typedef wxGrid::CellSpan CellSpan;
           typedef wxGrid::TabBehaviour TabBehaviour;
           __HEREDOC
+
+        spec.map 'wxGridBlockCoordsVector' => 'Array<Wx::GRID::GridBlockCoords' do
+          map_out code: <<~__CODE
+            $result = rb_ary_new();
+            for (const wxGridBlockCoords& bgc: $1)
+            {
+              rb_ary_push($result, SWIG_NewPointerObj(new wxGridBlockCoords(bgc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+            }
+            __CODE
+        end
+
         # Needed for methods that return cell and label alignments and other argout type mappings
         spec.map_apply 'int *OUTPUT' => [ 'int *horiz', 'int *vert' ,
                                           'int *num_rows', 'int *num_cols' ]

@@ -12,6 +12,8 @@ module WXRuby3
 
     class GridTableBase < Director
 
+      include Typemap::GridCoords
+
       def setup
         super
         spec.ignore %w[
