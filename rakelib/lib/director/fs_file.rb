@@ -35,6 +35,32 @@ module WXRuby3
             }
           __CODE
         end
+        spec.map 'wxFileOffset' => 'Integer' do
+          # we need these inline methods here as we do not want SWIG to preprocess the code
+          # as it will do in the type mapping code sections
+          add_header_code <<~__CODE
+            inline wxFileOffset __ruby2wxFileOffset(VALUE num)
+            {
+            #ifdef wxHAS_HUGE_FILES
+              return static_cast<wxFileOffset> (NUM2LL(num));
+            #else
+              return static_cast<wxFileOffset> (NUM2LONG(num));
+            #endif
+            } 
+            inline VALUE __wxFileOffset2ruby(wxFileOffset offs)
+            {
+            #ifdef wxHAS_HUGE_FILES
+              return LL2NUM(offs);
+            #else
+              return LONG2NUM(offs);
+            #endif
+            } 
+            __CODE
+
+          map_in code: '$1 = __ruby2wxFileOffset($input);'
+          map_out code: '$result = __wxFileOffset2ruby($1);'
+          map_typecheck code: '$1 = TYPE($input) == T_FIXNUM;'
+        end
         spec.new_object 'wxFSFile::DetachStream'
         # ignore troublesome methods
         spec.ignore 'wxInputStream::Read(void *, size_t)',
