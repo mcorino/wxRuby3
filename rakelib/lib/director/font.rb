@@ -28,7 +28,8 @@ module WXRuby3
                          'wxFont::SetDefaultEncoding'
         spec.rename_for_ruby 'create' => 'wxFont::New'
         spec.ignore [ 'wxFont::SetNativeFontInfo(const wxNativeFontInfo &)', 'wxFont::GetNativeFontInfo', 'wxFont::operator!=' ]
-        spec.ignore 'wxFont::wxFont(const wxNativeFontInfo &)'
+        spec.ignore 'wxFont::wxFont(const wxNativeFontInfo &)',
+                    'wxFont::New(const wxNativeFontInfo &)'
         if Config.instance.wx_port == :wxQT
           # not implemented
           spec.ignore 'wxFont::AddPrivateFont'
