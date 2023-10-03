@@ -386,6 +386,14 @@ module WXRuby3
         seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromCurrent', brief_doc: 'Seek from the current position.')
         seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromEnd', brief_doc: 'Seek from end of the file.')
         defmod.items << seek_mode_enum
+        # same for this
+        stream_error_enum = Extractor::EnumDef.new(name: 'wxStreamError',
+                                                brief_doc: 'IO stream error codes.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_NO_ERROR', brief_doc: 'No error occurred.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_EOF', brief_doc: 'EOF reached.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_WRITE_ERROR', brief_doc: 'generic write error on the last write call.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_READ_ERROR', brief_doc: 'generic read error on the last read call.')
+        defmod.items << stream_error_enum
         defmod
       end
 
