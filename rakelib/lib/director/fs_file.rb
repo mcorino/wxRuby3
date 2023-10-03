@@ -13,6 +13,7 @@ module WXRuby3
     class FSFile < Director
 
       include Typemap::IOStreams
+      include Typemap::DateTime
 
       def setup
         super
@@ -347,6 +348,19 @@ module WXRuby3
           }
           __CODE
         spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbStreams);'
+      end
+
+      def process(gendoc: false)
+        defmod = super
+        # wxSeekMode is documented in a separate module with a lot of defs we do not want
+        # so let's manually insert it's definition here
+        seek_mode_enum = Extractor::EnumDef.new(name: 'wxSeekMode',
+                                                brief_doc: 'Parameter indicating how file offset should be interpreted.')
+        seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromStart', brief_doc: 'Seek from the file beginning.')
+        seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromCurrent', brief_doc: 'Seek from the current position.')
+        seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromEnd', brief_doc: 'Seek from end of the file.')
+        defmod.items << seek_mode_enum
+        defmod
       end
 
     end # class FSFile
