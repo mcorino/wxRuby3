@@ -10,6 +10,16 @@
 
 class Wx::Dialog
 
+  class << self
+
+    wx_set_layout_adapter = instance_method :set_layout_adapter
+    define_method :set_layout_adapter do |adapter|
+      prev_adapter = wx_set_layout_adapter.bind(self).call(adapter)
+      @adapter = adapter # cache here to prevent premature GC collection
+    end
+
+  end
+
   module Functor
     def self.included(klass)
       scope = klass.name.split('::')
