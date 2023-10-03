@@ -45,19 +45,19 @@ module WXRuby3
         
         spec.add_wrapper_code <<~__HEREDOC
           // wxTreeItemId wrapper class definition and helper functions
-          static size_t __wxTreeEventId_size(const void* data)
+          static size_t __wxTreeItemId_size(const void* data)
           {
             return 0;
           }
 
           #include <ruby/version.h> 
 
-          static const rb_data_type_t __wxTreeEventId_type = {
-            "TreeEventId",
+          static const rb_data_type_t __wxTreeItemId_type = {
+            "TreeItemId",
           #if RUBY_API_VERSION_MAJOR >= 3
-            { NULL, NULL, __wxTreeEventId_size, 0, 0},
+            { NULL, NULL, __wxTreeItemId_size, 0, 0},
           #else
-            { NULL, NULL, __wxTreeEventId_size, 0},
+            { NULL, NULL, __wxTreeItemId_size, 0},
           #endif 
             NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
           };
@@ -65,26 +65,26 @@ module WXRuby3
           VALUE _wxRuby_Wrap_wxTreeItemId(const wxTreeItemId& id)
           {
             void* data = id.GetID();
-            VALUE ret = TypedData_Wrap_Struct(mWxTreeItemId, &__wxTreeEventId_type, data);
+            VALUE ret = TypedData_Wrap_Struct(mWxTreeItemId, &__wxTreeItemId_type, data);
             return ret;
           } 
 
           wxTreeItemId _wxRuby_Unwrap_wxTreeItemId(VALUE id)
           {
             void *data = 0;
-            TypedData_Get_Struct(id, void, &__wxTreeEventId_type, data);
+            TypedData_Get_Struct(id, void, &__wxTreeItemId_type, data);
             return wxTreeItemId(data);
           }
 
           bool _wxRuby_Is_wxTreeItemId(VALUE id)
           {
-            return rb_typeddata_is_kind_of(id, &__wxTreeEventId_type) == 1;
+            return rb_typeddata_is_kind_of(id, &__wxTreeItemId_type) == 1;
           } 
 
           VALUE _wxRuby_wxTreeItemId_IsOk(VALUE self)
           {
             void *data = 0;
-            TypedData_Get_Struct(self, void, &__wxTreeEventId_type, data);
+            TypedData_Get_Struct(self, void, &__wxTreeItemId_type, data);
             return wxTreeItemId(data).IsOk() ? Qtrue : Qfalse;
           }
           __HEREDOC

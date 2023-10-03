@@ -89,7 +89,7 @@ module WXRuby3
               }
               if (!SWIG_IsOK(res)) 
               {
-                SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxEventFilter *","wxEvtHandler::$symname", 1, $input)); 
+                SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxEventFilter *","$symname", 1, $input)); 
               }
               __CODE
           end

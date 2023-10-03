@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'htmldefs.h'
+        spec.items << 'wxHtmlLinkInfo' << 'wxHtmlContainerCell' << 'wxHtmlSelection' << 'htmldefs.h'
         # the classes here are internal and for reference only
         # should never be derived from or instantiated in (Ruby) user code
         spec.disable_proxies
@@ -30,7 +30,11 @@ module WXRuby3
                     'wxHtmlCell::Draw',
                     'wxHtmlCell::DrawInvisible',
                     'wxHtmlCell::Layout',
-                    'wxHtmlCell::ProcessMouseClick'
+                    'wxHtmlCell::ProcessMouseClick',
+                    'wxHtmlCell::GetMouseCursor',
+                    'wxHtmlCell::GetMouseCursorAt'
+        spec.ignore 'wxHtmlContainerCell::SetAlign',
+                    'wxHtmlContainerCell::SetWidthFloat'
       end
     end # class HtmlCell
 

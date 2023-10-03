@@ -32,7 +32,7 @@ module WXRuby3
             map_in code: <<~__CODE
                 int res = SWIG_ConvertPtr($input, SWIG_as_voidptrptr(&$1), SWIGTYPE_p_wxSizer, SWIG_POINTER_DISOWN);
                 if (!SWIG_IsOK(res)) {
-                  SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxSizer *","SetSizer", 2, $input));
+                  SWIG_exception_fail(SWIG_ArgError(res), Ruby_Format_TypeError( "", "wxSizer *","$symname", 2, $input));
                 }
                 $2 = true; // always delete 'old' sizer
               __CODE

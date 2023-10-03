@@ -18,9 +18,10 @@ module WXRuby3
 
       def setup
         # replace before calling super
-        spec.items.replace %w[wxGrid]
+        spec.items.replace %w[wxGrid wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo wxGridFitMode]
         super
-        spec.gc_as_window
+        spec.gc_as_untracked %w[wxGridBlockCoords wxGridBlockDiffResult wxGridSizesInfo wxGridFitMode]
+        spec.gc_as_window 'wxGrid'
         spec.override_inheritance_chain('wxGrid', %w[wxScrolledCanvas wxWindow wxEvtHandler wxObject])
         spec.no_proxy 'wxGrid::SendAutoScrollEvents'
         # All of the methods have alternate versions that accept row, col pair
@@ -43,7 +44,66 @@ module WXRuby3
         spec.ignore 'wxGrid::SetCellValue(const wxString &,int,int)'
         spec.ignore 'wxGrid::SetTable' # there is wxGrid::AssignTable now that always takes ownership
 
-        spec.ignore 'wxGrid::GetSelectedBlocks' # for now (flawed interface)
+        spec.regard 'wxGridSizesInfo::m_sizeDefault',
+                    'wxGridSizesInfo::m_customSizes'
+        spec.rename_for_ruby 'size_default' => 'wxGridSizesInfo::m_sizeDefault',
+                             'custom_sizes' => 'wxGridSizesInfo::m_customSizes'
+        spec.map 'wxUnsignedToIntHashMap' => 'Hash' do
+          add_header_code <<~__CODE
+            #if RUBY_API_VERSION_MAJOR<3 && RUBY_API_VERSION_MINOR<7
+            typedef int (*rb_foreach_func)(ANYARGS);
+            #else
+            typedef int (*rb_foreach_func)(VALUE, VALUE, VALUE);
+            #endif
+            #define FOREACH_FUNC(x) reinterpret_cast<rb_foreach_func>((void*)&(x))
+            static int _wxrb_cvt_custom_sizes(VALUE key, VALUE value, VALUE rbWxMap)
+            {
+              wxUnsignedToIntHashMap* wxMap;
+              Data_Get_Struct(rbWxMap, wxUnsignedToIntHashMap, wxMap);
+              (*wxMap)[NUM2UINT(key)] = NUM2INT(value);
+              return ST_CONTINUE;
+            }
+            __CODE
+          map_in code: <<~__CODE
+            if (TYPE($input) == T_HASH)
+            {
+              void* ptr = &($1);
+              VALUE rbWxMap = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+              rb_hash_foreach($input, FOREACH_FUNC(_wxrb_cvt_custom_sizes), rbWxMap);
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected Hash for %d", $argnum-1);
+            }
+            __CODE
+
+          map_out code: <<~__CODE
+            $result = rb_hash_new();
+            wxUnsignedToIntHashMap::const_iterator it = $1.begin();
+            for (; it != $1.end() ;++it)
+            {
+              rb_hash_aset($result, UINT2NUM(it->first), INT2NUM(it->second));
+            } 
+            __CODE
+        end
+
+        spec.ignore 'wxGrid::GetSelectedBlocks' # ignore
+        # add rubified API (finish in pure Ruby)
+        spec.add_extend_code 'wxGrid', <<~__HEREDOC
+          VALUE selected_blocks()
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGridBlocks sel = $self->GetSelectedBlocks();
+              for (const wxGridBlockCoords& gbc : sel)
+              {
+                rc = rb_yield (SWIG_NewPointerObj(new wxGridBlockCoords(gbc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+              }
+            }
+            return rc;  
+          }
+          __HEREDOC
 
         spec.ignore 'wxGrid::GetGridWindowOffset(const wxGridWindow *, int &, int &) const'
 
@@ -52,6 +112,17 @@ module WXRuby3
           typedef wxGrid::CellSpan CellSpan;
           typedef wxGrid::TabBehaviour TabBehaviour;
           __HEREDOC
+
+        spec.map 'wxGridBlockCoordsVector' => 'Array<Wx::GRID::GridBlockCoords' do
+          map_out code: <<~__CODE
+            $result = rb_ary_new();
+            for (const wxGridBlockCoords& gbc: $1)
+            {
+              rb_ary_push($result, SWIG_NewPointerObj(new wxGridBlockCoords(gbc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+            }
+            __CODE
+        end
+
         # Needed for methods that return cell and label alignments and other argout type mappings
         spec.map_apply 'int *OUTPUT' => [ 'int *horiz', 'int *vert' ,
                                           'int *num_rows', 'int *num_cols' ]
@@ -113,6 +184,71 @@ module WXRuby3
                               'wxGrid::GetDefaultEditorForType',
                               'wxGrid::GetDefaultRendererForCell',
                               'wxGrid::GetDefaultRendererForType')
+
+        # create a lightweight, but typesafe, wrapper for wxGridWindow
+        spec.add_init_code <<~__HEREDOC
+          // define wxGridWindow wrapper class
+          mWxGridWindow = rb_define_class_under(mWxGRID, "GridWindow", rb_cObject);
+          rb_undef_alloc_func(mWxGridWindow);
+          __HEREDOC
+
+        spec.add_header_code <<~__HEREDOC
+          VALUE mWxGridWindow;
+
+          // wxGridWindow wrapper class definition and helper functions
+          static size_t __wxGridWindow_size(const void* data)
+          {
+            return 0;
+          }
+
+          #include <ruby/version.h> 
+
+          static const rb_data_type_t __wxGridWindow_type = {
+            "GridWindow",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { NULL, NULL, __wxGridWindow_size, 0, 0},
+          #else
+            { NULL, NULL, __wxGridWindow_size, 0},
+          #endif 
+            NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
+          };
+
+          VALUE _wxRuby_Wrap_wxGridWindow(wxGridWindow* gw)
+          {
+            if (gw)
+            {
+              void* data = gw;
+              VALUE ret = TypedData_Wrap_Struct(mWxGridWindow, &__wxGridWindow_type, data);
+              return ret;
+            }
+            else
+              return Qnil;
+          } 
+
+          wxGridWindow* _wxRuby_Unwrap_wxGridWindow(VALUE rbgw)
+          {
+            if (NIL_P(rbgw))
+              return nullptr;
+            else
+            {
+              void *data = 0;
+              TypedData_Get_Struct(rbgw, void, &__wxGridWindow_type, data);
+              return reinterpret_cast<wxGridWindow*> (data);
+            }
+          }
+
+          bool _wxRuby_Is_wxGridWindow(VALUE rbgw)
+          {
+            return rb_typeddata_is_kind_of(rbgw, &__wxGridWindow_type) == 1;
+          } 
+          __HEREDOC
+
+        spec.map 'wxGridWindow*' => 'Wx::GRID::GridWindow' do
+          map_in code: '$1 = _wxRuby_Unwrap_wxGridWindow($input);'
+          map_out code: '$result = _wxRuby_Wrap_wxGridWindow($1);'
+          map_typecheck code: '$1 = _wxRuby_Is_wxGridWindow($input);'
+        end
+
         # Add custom code to handle GC marking for Grid cell attributes, editors and renderers.
         # Ruby created instances of these are registered in global tables whenever they are assigned to
         # a Grid (for a cell, default or named type). The global tables will be scanned during the GC marking stage

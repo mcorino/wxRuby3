@@ -52,7 +52,7 @@ module WXRuby3
               }
               else
               {
-                SWIG_exception_fail(SWIG_TypeError, Ruby_Format_TypeError( "", "Array","wxRichTextBuffer::GetExtWildcard", $argnum, $input ));
+                SWIG_exception_fail(SWIG_TypeError, Ruby_Format_TypeError( "", "Array","$symname", $argnum, $input ));
               } 
             }
             __CODE
