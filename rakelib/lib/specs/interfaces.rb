@@ -146,6 +146,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxTipProvider')
     Director.Spec(pkg, 'wxDirDialog', director: Director::Dialog, requirements: %w[wxUSE_DIRDLG])
     Director.Spec(pkg, 'wxFileDialog', director: Director::Dialog, requirements: %w[wxUSE_FILEDLG])
+    Director.Spec(pkg, 'wxFileDialogCustomizeHook', requirements: %w[wxUSE_FILEDLG])
+    Director.Spec(pkg, 'wxFileDialogCustomControl', requirements: %w[wxUSE_FILEDLG])
     Director.Spec(pkg, 'wxFileDirPickerEvent', director: Director::Event, requirements: Director.AnyOf(%w[wxUSE_DIRDLG wxUSE_DIRPICKERCTRL], %w[wxUSE_FILEDLG wxUSE_FILEPICKERCTRL]))
     Director.Spec(pkg, 'wxDirPickerCtrl', requirements: %w[wxUSE_DIRDLG wxUSE_DIRPICKERCTRL])
     Director.Spec(pkg, 'wxFilePickerCtrl', requirements: %w[wxUSE_FILEDLG wxUSE_FILEPICKERCTRL])
