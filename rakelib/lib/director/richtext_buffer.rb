@@ -21,6 +21,9 @@ module WXRuby3
           wxTextAttrBorder
           wxTextAttrBorders
           wxTextBoxAttr
+          wxTextAttrDimension
+          wxTextAttrDimensions
+          wxTextAttrSize
           wxRichTextAttr
           wxRichTextBuffer
           ]

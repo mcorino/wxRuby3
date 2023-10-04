@@ -437,7 +437,7 @@ class MyFrame < Frame
                            "This is a small sample\n" +
                              "A single-choice convenience dialog",
                            "Please select a value",
-                           choices, nil, OK | CANCEL) do |dialog|
+                           choices, OK | CANCEL) do |dialog|
       dialog.set_selection(2)
 
       if dialog.show_modal == ID_OK

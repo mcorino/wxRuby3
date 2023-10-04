@@ -221,7 +221,6 @@ Wx::define_keyword_ctors(Wx::SingleChoiceDialog) do
   wx_ctor_params :message => ''
   wx_ctor_params :caption => ''
   wx_ctor_params :choices => []
-  wx_ctor_params :data => nil
   wx_ctor_params :style => Wx::DEFAULT_DIALOG_STYLE|Wx::RESIZE_BORDER|
                            Wx::OK|Wx::CANCEL|Wx::CENTRE
   wx_ctor_params :pos
