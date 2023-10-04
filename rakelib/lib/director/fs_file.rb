@@ -13,6 +13,7 @@ module WXRuby3
     class FSFile < Director
 
       include Typemap::IOStreams
+      include Typemap::DateTime
 
       def setup
         super
@@ -33,6 +34,32 @@ module WXRuby3
               rb_raise(rb_eArgError, "Invalid value for %d expected IO-like", $argnum-1);
             }
           __CODE
+        end
+        spec.map 'wxFileOffset' => 'Integer' do
+          # we need these inline methods here as we do not want SWIG to preprocess the code
+          # as it will do in the type mapping code sections
+          add_header_code <<~__CODE
+            inline wxFileOffset __ruby2wxFileOffset(VALUE num)
+            {
+            #ifdef wxHAS_HUGE_FILES
+              return static_cast<wxFileOffset> (NUM2LL(num));
+            #else
+              return static_cast<wxFileOffset> (NUM2LONG(num));
+            #endif
+            } 
+            inline VALUE __wxFileOffset2ruby(wxFileOffset offs)
+            {
+            #ifdef wxHAS_HUGE_FILES
+              return LL2NUM(offs);
+            #else
+              return LONG2NUM(offs);
+            #endif
+            } 
+            __CODE
+
+          map_in code: '$1 = __ruby2wxFileOffset($input);'
+          map_out code: '$result = __wxFileOffset2ruby($1);'
+          map_typecheck code: '$1 = TYPE($input) == T_FIXNUM;'
         end
         spec.new_object 'wxFSFile::DetachStream'
         # ignore troublesome methods
@@ -347,6 +374,27 @@ module WXRuby3
           }
           __CODE
         spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbStreams);'
+      end
+
+      def process(gendoc: false)
+        defmod = super
+        # wxSeekMode is documented in a separate module with a lot of defs we do not want
+        # so let's manually insert it's definition here
+        seek_mode_enum = Extractor::EnumDef.new(name: 'wxSeekMode',
+                                                brief_doc: 'Parameter indicating how file offset should be interpreted.')
+        seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromStart', brief_doc: 'Seek from the file beginning.')
+        seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromCurrent', brief_doc: 'Seek from the current position.')
+        seek_mode_enum.items << Extractor::EnumValueDef.new(enum: seek_mode_enum, name: 'wxFromEnd', brief_doc: 'Seek from end of the file.')
+        defmod.items << seek_mode_enum
+        # same for this
+        stream_error_enum = Extractor::EnumDef.new(name: 'wxStreamError',
+                                                brief_doc: 'IO stream error codes.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_NO_ERROR', brief_doc: 'No error occurred.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_EOF', brief_doc: 'EOF reached.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_WRITE_ERROR', brief_doc: 'generic write error on the last write call.')
+        stream_error_enum.items << Extractor::EnumValueDef.new(enum: stream_error_enum, name: 'wxSTREAM_READ_ERROR', brief_doc: 'generic read error on the last read call.')
+        defmod.items << stream_error_enum
+        defmod
       end
 
     end # class FSFile

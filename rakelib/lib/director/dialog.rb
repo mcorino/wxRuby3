@@ -22,6 +22,10 @@ module WXRuby3
         end
         case spec.module_name
         when 'wxDialog'
+          spec.items << 'wxDialogLayoutAdapter'
+          spec.gc_as_object 'wxDialogLayoutAdapter'
+          spec.disown 'wxDialogLayoutAdapter* adapter'
+          spec.new_object 'wxDialog::SetLayoutAdapter'
           spec.ignore('wxDialog::GetContentWindow',
                       'wxDialog::GetToolBar') # seemingly removed from MSW
           spec.swig_import('swig/classes/include/wxDefs.h')

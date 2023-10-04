@@ -48,6 +48,10 @@ module WXRuby3
 
         map 'wxDateTime' => 'Time,Date,DateTime' do
 
+          # Accepts any Time-like object from Ruby and creates a wxDateTime
+          map_in temp: 'std::unique_ptr<wxDateTime> tmp_dt',
+                 code: 'tmp_dt.reset(wxRuby_wxDateTimeFromRuby($input)); $1 = *tmp_dt.get();'
+
           # Converts a return value of wxDateTime to a Ruby Time object
           map_out code: '$result = wxRuby_wxDateTimeToRuby($1);'
 
