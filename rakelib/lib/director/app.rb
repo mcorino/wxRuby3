@@ -43,6 +43,7 @@ module WXRuby3
           wxAppConsole::IsScheduledForDestruction
           wxAppConsole::SetInstance
           wxAppConsole::GetInstance
+          wxAppConsole::CreateTraits
           wxAppConsole::argc
           wxAppConsole::argv
           wxDECLARE_APP
