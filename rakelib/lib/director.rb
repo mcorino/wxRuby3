@@ -338,6 +338,25 @@ module WXRuby3
       end
     end
 
+    def handle_duplicate_const_overloads(cls)
+      cls.methods.each do |mtd|
+        unless mtd.is_ctor || mtd.is_dtor || mtd.is_operator || !mtd.has_overloads
+          # ignore any non-const overloads which match a const overload with the same signature
+          # and only differ in returning a non-const type vs a const type
+          # (as Ruby has no notion of const types these are essentially the same when wrapped)
+          non_const_ovls = mtd.all.select { |ovl| !ovl.ignored && !ovl.is_const }
+          unless non_const_ovls.empty?
+            mtd.all.select { |ovl| !ovl.ignored && ovl.is_const }.each do |const_ovl|
+              non_const_ovl = non_const_ovls.find { |nco| !nco.ignored && nco.argument_list.strip == const_ovl.argument_list.strip }
+              if non_const_ovl && non_const_ovl.type.strip == const_ovl.type.sub('const ', '').strip
+                non_const_ovl.ignore
+              end
+            end
+          end
+        end
+      end
+    end
+
     def process(gendoc: false)
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, gendoc: gendoc)
@@ -365,6 +384,12 @@ module WXRuby3
       defmod.classes.each do |cls|
         unless cls.ignored
           spec.includes.merge(cls.includes) unless cls.includes.empty?
+        end
+      end
+      # prevent unnecessary code bloat
+      defmod.classes.each do |cls|
+        unless cls.ignored
+          handle_duplicate_const_overloads(cls)
         end
       end
       # TODO - should we just ignore all deprecations?
