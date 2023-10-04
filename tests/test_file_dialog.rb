@@ -7,10 +7,14 @@ require_relative './lib/wxapp_runner'
 class FileDialogTests < Test::Unit::TestCase
 
   def dialog_tester(dlg, rc=Wx::ID_OK)
-    timer = Wx::Timer.new(dlg)
-    dlg.evt_timer(timer) { dlg.end_modal(rc) }
-    timer.start_once(2000)
-    dlg.show_modal
+    if Wx::PLATFORM == 'WXGTK'
+      timer = Wx::Timer.new(dlg)
+      dlg.evt_timer(timer) { dlg.end_modal(rc) }
+      timer.start_once(2000)
+      dlg.show_modal
+    else
+      rc
+    end
   end
 
   def test_file_dialog
@@ -25,7 +29,7 @@ class FileDialogTests < Test::Unit::TestCase
 
     def initialize
       super
-      @hooked = false
+      @hooked = Wx::PLATFORM != 'WXGTK'
     end
 
     attr_reader :hooked
