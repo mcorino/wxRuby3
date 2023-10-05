@@ -192,14 +192,16 @@ module WXRuby3
     private :bash
 
     def test(*tests, **options)
+      errors = 0
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
         unless File.exist?(test)
           test = File.join(Config.instance.test_dir, test)
           test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
         end
-        Rake.sh(Config.instance.exec_env, *make_ruby_cmd(test))
+        Rake.sh(Config.instance.exec_env, *make_ruby_cmd(test)) { |ok,status| errors += 1 unless ok }
       end
+      fail "ERRORS: ##{errors} test scripts failed." if errors>0
     end
 
     def irb(**options)
