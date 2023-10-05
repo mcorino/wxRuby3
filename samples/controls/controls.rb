@@ -350,14 +350,14 @@ class MyPanel < Panel
     initialSpinValue = -5
     s = initialSpinValue.to_s
     @m_spintext = TextCtrl.new( panel, -1, s, Point.new(20,160), Size.new(80,-1) )
-    @m_spinbutton = SpinButton.new( panel, ID_SPIN, Point.new(103,160), Size.new(80, -1) )
+    @m_spinbutton = SpinButton.new( panel, ID_SPIN, Point.new(103,160), Size.new(80, @m_spintext.size.height) )
     @m_spinbutton.set_range(-40,30)
     @m_spinbutton.set_value(initialSpinValue)
 
     @m_btnProgress = Button.new( panel, ID_BTNPROGRESS, "&Show progress dialog",
                                  Point.new(300, 160) )
 
-    @m_spinctrl = SpinCtrl.new( panel, ID_SPINCTRL, "", Point.new(200, 160), Size.new(80, -1) )
+    @m_spinctrl = SpinCtrl.new( panel, ID_SPINCTRL, "", Point.new(200, 160), Size.new(95, @m_spintext.size.height) )
     @m_spinctrl.set_range(10,30)
     @m_spinctrl.set_value(15)
 
@@ -915,7 +915,7 @@ class MyPanel < Panel
     end
 
     cont = false
-    ProgressDialog("Progress dialog example",
+    Wx.ProgressDialog("Progress dialog example",
                    "An informative message",
                    max, # range
                    self, # parent
