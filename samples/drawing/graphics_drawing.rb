@@ -167,6 +167,8 @@ class GraphicsWindow < Wx::Window
           create_resources(gdc)
         end
 
+        gcdc.clear
+
         unless @rtxt[:w] != 0
           gdc.set_font(@rtxt[:font])
           get_extents(gdc)
