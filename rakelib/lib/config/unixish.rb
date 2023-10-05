@@ -158,17 +158,17 @@ module WXRuby3
           @wx_version  = wx_config('--version')
           @wx_port = case wx_config('--selected-config')
                      when /\Agtk/
-                       :wxGTK
+                       :wxgtk
                      when /\Aqt/
-                       :wxQT
+                       :wxqt
                      when /\Ax11/
-                       :wxX11
+                       :wxx11
                      when /\Amotif/
-                       :wxMOTIF
+                       :wxmotif
                      when /\Amsw/
-                       :wxMSW
+                       :wxmsw
                      when /\Aosx/
-                       :wxOSX
+                       :wxosx
                      else
                        nil
                      end

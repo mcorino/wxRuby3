@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_port == :wxQT || Config.platform == :macosx
+        if Config.instance.wx_port == :wxqt || Config.platform == :macosx
           # missing from implementation currently
           spec.ignore 'wxStaticBox::wxStaticBox(wxWindow *, wxWindowID, wxWindow *, const wxPoint &, const wxSize &, long, const wxString &)',
                       'wxStaticBox::Create(wxWindow *, wxWindowID, wxWindow *, const wxPoint &, const wxSize &, long, const wxString &)'

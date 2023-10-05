@@ -30,7 +30,7 @@ module WXRuby3
         spec.ignore [ 'wxFont::SetNativeFontInfo(const wxNativeFontInfo &)', 'wxFont::GetNativeFontInfo', 'wxFont::operator!=' ]
         spec.ignore 'wxFont::wxFont(const wxNativeFontInfo &)',
                     'wxFont::New(const wxNativeFontInfo &)'
-        if Config.instance.wx_port == :wxQT
+        if Config.instance.wx_port == :wxqt
           # not implemented
           spec.ignore 'wxFont::AddPrivateFont'
         end
