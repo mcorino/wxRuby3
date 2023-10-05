@@ -136,6 +136,7 @@ class GridFrame < Wx::Frame
     # (11 rows and 12 columns in this example)
     @grid.create_grid( 20, 12 )
     @grid.set_default_cell_background_colour(Wx::WHITE)
+    @grid.set_default_cell_text_colour(Wx::BLACK)
     # We can set the sizes of individual rows and columns
     # in pixels, and the label value string
     @grid.set_row_size( 0, 60 )
