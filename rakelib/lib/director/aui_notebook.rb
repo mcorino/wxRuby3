@@ -29,6 +29,7 @@ module WXRuby3
           # (wxWidgets should have made this a const arg)
           spec.map_apply 'SWIGTYPE *' => 'wxWindow* page'
           spec.do_not_generate(:variables, :defines, :enums, :functions) # with AuiNotebookEvent
+          spec.disown 'wxAuiTabArt * art' # C++ side takes ownership
           # Any set AuiTabArt ruby object must be protected from GC once set,
           # even if it is no longer referenced anywhere else.
           spec.add_header_code <<~__HEREDOC
