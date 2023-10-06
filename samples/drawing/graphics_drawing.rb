@@ -102,6 +102,7 @@ class GraphicsWindow < Wx::Window
     # Setup the event Handler to do the drawing on this window.
     evt_paint :on_paint
     evt_timer 1000, :animate
+    set_background_style(Wx::BG_STYLE_PAINT)
   end
   
   def create_resources(gdc)
@@ -159,38 +160,43 @@ class GraphicsWindow < Wx::Window
   def on_paint
     # We do our drawing now
     rect = self.get_client_size
-    Wx::GraphicsContext.draw_on(self) do |gdc|
-      unless @rtxt
-        create_resources(gdc)
-      end
-
-      unless @rtxt[:w] != 0
-        gdc.set_font(@rtxt[:font])
-        get_extents(gdc)
-        setup_positions
-      end
-      @rtxt.draw(gdc)
-      @gtxt.draw(gdc)
-      @btxt.draw(gdc)
-      # Draw our rectangles, if they are checked
-      15.times do
-        pen = gdc.create_pen(Wx::Pen.new(Wx::Colour.new(rand(256),rand(256),rand(256),rand(256))))
-        if @corner.is_checked
-          x = rand(rect.width)
-          y = rand(rect.height)
-          gdc.set_pen(pen)
-          gdc.draw_rectangle(x,y,x,1)
-          gdc.draw_rectangle(x,y,1,y)
+    paint_buffered do |paint_dc|
+      Wx::GCDC.draw_on(paint_dc) do |gcdc|
+        gdc = gcdc.get_graphics_context
+        unless @rtxt
+          create_resources(gdc)
         end
-        if @rect.is_checked
-          x = rand(rect.width)
-          y = rand(rect.height)
-          w = rand(rect.width)
-          h = rand(rect.height)
-          w + x > rect.width ? (w -= x; w -= rand(150)) : 0
-          h + y > rect.height ? (h -= y; h -= rand(150)) : 0
-          gdc.set_pen(pen)
-          gdc.draw_rectangle(x,y,w,h)
+
+        gcdc.clear
+
+        unless @rtxt[:w] != 0
+          gdc.set_font(@rtxt[:font])
+          get_extents(gdc)
+          setup_positions
+        end
+        @rtxt.draw(gdc)
+        @gtxt.draw(gdc)
+        @btxt.draw(gdc)
+        # Draw our rectangles, if they are checked
+        15.times do
+          pen = gdc.create_pen(Wx::Pen.new(Wx::Colour.new(rand(256),rand(256),rand(256),rand(256))))
+          if @corner.is_checked
+            x = rand(rect.width)
+            y = rand(rect.height)
+            gdc.set_pen(pen)
+            gdc.draw_rectangle(x,y,x,1)
+            gdc.draw_rectangle(x,y,1,y)
+          end
+          if @rect.is_checked
+            x = rand(rect.width)
+            y = rand(rect.height)
+            w = rand(rect.width)
+            h = rand(rect.height)
+            w + x > rect.width ? (w -= x; w -= rand(150)) : 0
+            h + y > rect.height ? (h -= y; h -= rand(150)) : 0
+            gdc.set_pen(pen)
+            gdc.draw_rectangle(x,y,w,h)
+          end
         end
       end
     end

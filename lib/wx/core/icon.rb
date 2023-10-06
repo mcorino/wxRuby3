@@ -27,13 +27,13 @@ module Wx
 
     def to_bitmap
       # for WXMSW platform Icon is not derived from Bitmap
-      return self unless Wx::PLATFORM == 'WXMSW' || Wx::PLATFORM == 'WXOSX'
+      return self unless Wx::PLATFORM == 'WXMSW'
       bm = Wx::Bitmap.new
       bm.copy_from_icon(self)
       bm
     end
 
-    if Wx::PLATFORM == 'WXMSW' || Wx::PLATFORM == 'WXOSX'
+    if Wx::PLATFORM == 'WXMSW'
       def convert_to_image
         to_bitmap.convert_to_image
       end

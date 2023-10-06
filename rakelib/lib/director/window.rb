@@ -105,7 +105,7 @@ module WXRuby3
               return wxWindow::FindWindowByName(name, find_from_parent);
             }
             __HEREDOC
-          if Config.instance.wx_port == :wxQT
+          if Config.instance.wx_port == :wxqt
             # protected for wxQT; ignore for now
             spec.ignore 'wxWindow::EnableTouchEvents'
           end

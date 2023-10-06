@@ -76,7 +76,7 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
           __HEREDOC
-        if [:wxMSW, :wxQT].include?(Config.instance.wx_port)
+        if [:wxmsw, :wxqt].include?(Config.instance.wx_port)
           spec.ignore('wxTreeCtrl::SetButtonsImageList')
           spec.ignore('wxTreeCtrl::GetButtonsImageList')
         end

@@ -65,7 +65,7 @@ module WXRuby3
           __CODE
           map_typecheck precedence: 'POINTER', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
-        if Config.instance.wx_port == :wxQT
+        if Config.instance.wx_port == :wxqt
           # mismatched implementation which does nothing anyway
           spec.ignore 'wxPalette::wxPalette(int, const unsigned char *, const unsigned char *, const unsigned char *)'
           spec.ignore 'wxPalette::Create(int, const unsigned char *, const unsigned char *, const unsigned char *)'

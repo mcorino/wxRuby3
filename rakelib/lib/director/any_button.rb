@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_port == :wxQT
+        if Config.instance.wx_port == :wxqt
           # pure abstract so use wxRuby specific impl class
           spec.add_header_code <<~__HEREDOC
             class wxRubyAnyButton : public wxAnyButton
