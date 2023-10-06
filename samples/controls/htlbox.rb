@@ -181,7 +181,7 @@ class MyFrame < Wx::Frame
     # create the child controls
     create_box
     text = Wx::TextCtrl.new(self, Wx::ID_ANY, "", style: Wx::TE_MULTILINE)
-    Wx::Log.set_active_target(Wx::LogTextCtrl.new(text))
+    old_log_tgt = Wx::Log.set_active_target(Wx::LogTextCtrl.new(text))
 
     # and lay them out
     sizer = Wx::HBoxSizer.new
@@ -193,6 +193,7 @@ class MyFrame < Wx::Frame
     evt_menu ID::HtmlLbox_CustomBox,  :on_simple_or_custom_box
     evt_menu ID::HtmlLbox_SimpleBox,  :on_simple_or_custom_box
     evt_menu ID::HtmlLbox_Quit,  :on_quit
+    evt_close { Wx::Log.set_active_target(old_log_tgt); destroy }
 
     evt_menu ID::HtmlLbox_SetMargins, :on_set_margins
     evt_menu ID::HtmlLbox_DrawSeparator, :on_draw_separator
