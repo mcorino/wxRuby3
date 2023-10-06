@@ -163,4 +163,59 @@ class LogTests < Test::Unit::TestCase
 
   end
 
+  def test_log_chain
+    log_chain = Wx::LogChain.new(TestLog.new)
+    assert_not_nil(log_chain.instance_variable_get('@new_log'))
+    assert_kind_of(TestLog, log_chain.instance_variable_get('@new_log'))
+    log_chain = nil # GC collection should still be prevented
+    GC.start
+    log_chain = Wx::Log.get_active_target
+    assert_kind_of(Wx::LogChain, log_chain)
+    assert_not_nil(log_chain.instance_variable_get('@new_log'))
+    assert_kind_of(TestLog, log_chain.instance_variable_get('@new_log'))
+    log_chain = nil # GC collection should still be prevented
+    GC.start
+    Wx.log_message('Message')
+    log_chain = Wx::Log.get_active_target
+    new_log = log_chain.instance_variable_get('@new_log')
+    assert_equal('Message', @log.get_log(Wx::LOG_Message))
+    assert_equal('Message', new_log.get_log(Wx::LOG_Message))
+    log_chain = new_log = nil
+    GC.start
+    Wx.log_warning('Message 2')
+    log_chain = Wx::Log.get_active_target
+    new_log = log_chain.instance_variable_get('@new_log')
+    assert_equal('Message 2', @log.get_log(Wx::LOG_Warning))
+    assert_equal('Message 2', new_log.get_log(Wx::LOG_Warning))
+    log_chain = new_log = nil
+  end
+
+  def test_interposer_chain
+    log_chain = MyBufferInterposer.new
+    assert_false(log_chain.instance_variable_defined?('@new_log'))
+    log_chain = nil # GC collection should still be prevented
+    GC.start
+    log_chain = Wx::Log.get_active_target
+    assert_kind_of(MyBufferInterposer, log_chain)
+    log_chain = nil # GC collection should still be prevented
+    GC.start
+    Wx.log_message('Message')
+    log_chain = Wx::Log.get_active_target
+    assert_equal('Message', @log.get_log(Wx::LOG_Message))
+    assert_equal(1, log_chain.buffer.size)
+    assert_match(/Message/, log_chain.buffer.first)
+    log_chain = nil
+    GC.start
+    Wx.log_message('Message 2')
+    log_chain = Wx::Log.get_active_target
+    assert_equal('Message 2', @log.get_log(Wx::LOG_Message))
+    assert_equal(2, log_chain.buffer.size)
+    assert_match(/Message 2/, log_chain.buffer.last)
+    Wx::Log.set_active_target(log_chain.get_old_log)
+    log_chain = nil
+    GC.start
+    Wx.log_message('Message 3')
+    assert_equal('Message 3', @log.get_log(Wx::LOG_Message))
+  end
+
 end

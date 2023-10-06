@@ -45,6 +45,23 @@ module Wx
 
   end
 
+  class LogChain
+
+    wx_initialize = instance_method :initialize
+    define_method :initialize do |new_log|
+      wx_initialize.bind(self).call(new_log)
+      @new_log = new_log # cache to prevent premature GC collection; old_log managed in C++ wrapper
+    end
+
+    wx_set_log = instance_method :set_log
+    define_method :set_log do |new_log|
+      wx_set_log.bind(self).call(new_log)
+      @new_log = new_log # cache to prevent premature GC collection; old_log managed in C++ wrapper
+    end
+    alias :log= :set_log
+
+  end
+
   class << self
 
     def setup_log_info(fmt, args, filename, line, func, component)

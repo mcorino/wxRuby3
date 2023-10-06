@@ -13,10 +13,10 @@ module WXRuby3
     class Log < Director
 
       def setup
-        spec.gc_as_object %w[wxLog wxLogChain wxLogInterposer wxLogInterposerTemp]
-        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogInterposerTemp wxLogWindow wxLogNull wxLogRecordInfo])
+        spec.gc_as_object %w[wxLog wxLogChain wxLogInterposer]
+        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogWindow wxLogNull wxLogRecordInfo])
         spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogStderr wxLogTextCtrl wxLogWindow])
-        spec.force_proxy(%w[wxLogInterposer wxLogInterposerTemp])
+        spec.force_proxy(%w[wxLogInterposer])
         spec.ignore 'wxLog::SetFormatter'
         spec.regard %w[wxLog::DoLogRecord wxLog::DoLogTextAtLevel wxLog::DoLogText]
         spec.ignore 'wxLogBuffer::Flush'
@@ -36,7 +36,32 @@ module WXRuby3
             rb_raise(rb_eArgError, "Expected 1 (for stdout) or 2 (for stderr).");
           }
           __HEREDOC
+
         # for wxLogChain
+
+        # In this case we have a mix of C++ marking and Ruby caching to manage GC collection.
+        # The 'Old Log' reference is managed from C++ as it is captured and accessible there.
+        # The 'New Log' reference is cached in Ruby as the LogChain class does not provide
+        # access to this after setting (private member).
+        spec.add_header_code <<~__HEREDOC
+          static void GC_mark_wxLogChain(void* ptr)
+          {
+            if (ptr )
+            {
+              wxLogChain* logChain = reinterpret_cast<wxLogChain*> (ptr);
+              wxLog* oldLog = logChain->GetOldLog();
+              VALUE rb_old_log = SWIG_RubyInstanceFor(oldLog);
+              if (!NIL_P(rb_old_log))
+              {
+                rb_gc_mark(rb_old_log);
+              } 
+            } 
+          }
+          __HEREDOC
+        spec.add_swig_code '%markfunc wxLogChain "GC_mark_wxLogChain";',
+                           '%markfunc wxLogInterposer "GC_mark_wxLogChain";',
+                           '%markfunc wxLogWindow "GC_mark_wxLogChain";'
+
         spec.disown 'wxLog *logger'
         spec.ignore 'wxLogChain::DetachOldLog' # too much potential trouble
         # add override decl missing from xml specs
@@ -47,8 +72,8 @@ module WXRuby3
         # are installed as ActiveTarget on construction and so wxWidgets has ownership
         spec.allocate_disowned 'wxLogChain'
         spec.allocate_disowned 'wxLogInterposer'
-        spec.allocate_disowned 'wxLogInterposerTemp'
         spec.allocate_disowned 'wxLogWindow'
+
         # for ActiveTarget methods
         spec.ignore 'wxLog::SetThreadActiveTarget'
         spec.disown 'wxLog *logtarget'

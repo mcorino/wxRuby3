@@ -31,11 +31,14 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           static void GC_mark_wxPrintPreview(void *ptr)
           {
-            wxPrintPreview* print_preview = (wxPrintPreview*)ptr;
-            wxPrintout* printout = print_preview->GetPrintout();
-            rb_gc_mark( SWIG_RubyInstanceFor(printout) );
-            wxPrintout* printout_for_printing = print_preview->GetPrintoutForPrinting();
-            rb_gc_mark( SWIG_RubyInstanceFor(printout_for_printing) );
+            if (ptr)
+            {
+              wxPrintPreview* print_preview = (wxPrintPreview*)ptr;
+              wxPrintout* printout = print_preview->GetPrintout();
+              rb_gc_mark( SWIG_RubyInstanceFor(printout) );
+              wxPrintout* printout_for_printing = print_preview->GetPrintoutForPrinting();
+              rb_gc_mark( SWIG_RubyInstanceFor(printout_for_printing) );
+            }
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPrintPreview "GC_mark_wxPrintPreview";'
