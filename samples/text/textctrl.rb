@@ -63,6 +63,8 @@ class TextCtrlFrame < Wx::Frame
     @log = LogTextCtrl.new(panel)
     sizer.add(@log, 1, Wx::GROW|Wx::ALL, 2)
     panel.sizer = sizer
+
+    construct_menus
   end
 
   def populate_textctrl
@@ -108,7 +110,7 @@ class TextCtrlFrame < Wx::Frame
   def on_about
     msg =  sprintf("This is the About dialog of the textctrl sample.\n" \
                     "Welcome to %s", Wx::WXWIDGETS_VERSION)
-    message_box(msg, "About Minimal", Wx::OK|Wx::ICON_INFORMATION, self)
+    Wx.message_box(msg, "About Minimal", Wx::OK|Wx::ICON_INFORMATION, self)
   end
 end
 
