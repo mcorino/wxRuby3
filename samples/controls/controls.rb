@@ -183,8 +183,6 @@ end
 
 class MyPanel < Panel
 
-  #    delete Log::set_active_target(@m_logTargetOld)
-  #    delete @m_notebook.GetImageList()
   attr_reader   :m_text,:m_logTargetOld
 
   def initialize(frame,x,y,w,h)
@@ -615,26 +613,6 @@ class MyPanel < Panel
     @m_text.append_text( "ListBox control selection string is: '" )
     @m_text.append_text( listbox.get_string_selection() )
     @m_text.append_text( "'\n" )
-
-    # NOTE: get_client_data and set_client_data have been removed from wxRuby 0.4
-    # because they could cause crashes
-    #        obj = event.get_client_data()
-    #        @m_text.append_text( "ListBox event client data string is: '" )
-    #        if obj
-    #            @m_text.append_text( obj )
-    #        else
-    #            @m_text.append_text( "none" )
-    #        end
-
-    #        @m_text.append_text( "'\n" )
-    #        @m_text.append_text( "ListBox control client data string is: '" )
-    #        obj = listbox.get_client_data(listbox.get_selection())
-    #        if obj
-    #            @m_text.append_text( obj )
-    #        else
-    #            @m_text.append_text( "none" )
-    #        end
-    #        @m_text.append_text( "'\n" )
   end
 
   def onListBoxDoubleClick(event)
@@ -658,12 +636,6 @@ class MyPanel < Panel
       @m_lbSelectThis.enable( event.get_int() == 0 )
       @m_lbSelectNum.enable( event.get_int() == 0 )
       @m_listboxSorted.enable( event.get_int() == 0 )
-      #w = Window::find_window_by_id(ID_CHANGE_COLOUR)
-      #if(w)
-      #    w.enable( event.get_int() == 0 )
-      #else
-      #    puts("Window ID_CHANGE_COLOR not found")
-      #end
     when ID_LISTBOX_SEL_NUM
       @m_listbox.set_selection( 2 )
       @m_listboxSorted.set_selection( 2 )
@@ -705,28 +677,6 @@ class MyPanel < Panel
     @m_text.append_text( "Choice control selection string is: '" )
     @m_text.append_text( choice.get_string_selection() )
     @m_text.append_text( "'\n" )
-
-    # NOTE: get_client_data and set_client_data have been removed from wxRuby 0.4
-    # because they could cause crashes
-    #        obj = event.get_client_data()
-    #        @m_text.append_text( "Choice event client data string is: '" )
-
-    #        if obj
-    #           @m_text.append_text( obj )
-    #        else
-    #           @m_text.append_text( "none" )
-    #        end
-
-    #        @m_text.append_text( "'\n" )
-    #        @m_text.append_text( "Choice control client data string is: '" )
-
-    #        obj = choice.get_client_data(choice.get_selection())
-    #        if obj
-    #           @m_text.append_text( obj )
-    #        else
-    #           @m_text.append_text( "none" )
-    #        end
-    #        @m_text.append_text( "'\n" )
   end
 
   def onChoiceButtons(event)
