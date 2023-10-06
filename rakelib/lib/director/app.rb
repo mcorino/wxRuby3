@@ -243,6 +243,14 @@ module WXRuby3
                 return;
               }
           
+              // Mark any active (tracked) log target
+              wxLog* curLog = wxLog::GetActiveTarget();
+              VALUE rb_cur_log = wxRuby_FindTracking(curLog);
+              if (!NIL_P(rb_cur_log))
+              {
+                rb_gc_mark(rb_cur_log);
+              }
+
               // Mark evt handler procs associated with live windows - see
               // classes/EvtHandler.i
               wxRuby_MarkProtectedEvtHandlerProcs();
