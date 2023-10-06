@@ -1084,7 +1084,7 @@ class MyFrame < Wx::Frame
 
     # set our text control as the log target
     logWindow = Wx::LogTextCtrl.new(@textctrl)
-    Wx::Log::set_active_target(logWindow)
+    @old_log_tgt = Wx::Log::set_active_target(logWindow)
 
     # @splitter.split_horizontally(@treectrl, @textctrl, 500)
 
@@ -1682,7 +1682,7 @@ class MyFrame < Wx::Frame
   end
 
   def on_close(event)
-    Wx::Log::active_target = nil
+    Wx::Log::active_target = @old_log_tgt
     destroy
   end
 
