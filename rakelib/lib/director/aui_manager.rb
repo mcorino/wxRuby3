@@ -72,10 +72,13 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           static void GC_mark_wxAuiManager(void *ptr)
           {
-            wxAuiManager* mgr = (wxAuiManager*)ptr;
-            wxAuiDockArt* art_prov = mgr->GetArtProvider();
-            VALUE rb_art_prov = SWIG_RubyInstanceFor( (void *)art_prov );
-            rb_gc_mark( rb_art_prov );
+            if (ptr)
+            {
+              wxAuiManager* mgr = (wxAuiManager*)ptr;
+              wxAuiDockArt* art_prov = mgr->GetArtProvider();
+              VALUE rb_art_prov = SWIG_RubyInstanceFor( (void *)art_prov );
+              rb_gc_mark( rb_art_prov );
+            }
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxAuiManager "GC_mark_wxAuiManager";'
