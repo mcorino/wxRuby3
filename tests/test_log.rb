@@ -187,7 +187,12 @@ class LogTests < Test::Unit::TestCase
     new_log = log_chain.instance_variable_get('@new_log')
     assert_equal('Message 2', @log.get_log(Wx::LOG_Warning))
     assert_equal('Message 2', new_log.get_log(Wx::LOG_Warning))
+    log_chain.release
+    Wx.log_message('Message 3')
+    assert_equal('Message 3', @log.get_log(Wx::LOG_Message))
+    assert_not_equal('Message 3', new_log.get_log(Wx::LOG_Message))
     log_chain = new_log = nil
+    GC.start
   end
 
   def test_interposer_chain

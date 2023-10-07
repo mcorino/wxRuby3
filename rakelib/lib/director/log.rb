@@ -13,7 +13,7 @@ module WXRuby3
     class Log < Director
 
       def setup
-        spec.gc_as_object %w[wxLog wxLogChain wxLogInterposer]
+        spec.gc_as_object %w[wxLog wxLogChain wxLogInterposer wxLogWindow]
         spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogWindow wxLogNull wxLogRecordInfo])
         spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogStderr wxLogTextCtrl wxLogWindow])
         spec.force_proxy(%w[wxLogInterposer])
@@ -39,6 +39,23 @@ module WXRuby3
 
         # for wxLogChain
 
+        # In C++ wxLogChain releases it's redirection chain when destructed.
+        # In wxRuby this does not work as expected as GC collection cannot be exactly predicted.
+        # Therefor extend the class here with an explicit 'release' method.
+        spec.add_extend_code 'wxLogChain', <<~__CODE
+          void release()
+          {
+            wxLog::SetActiveTarget($self->GetOldLog());
+            $self->DetachOldLog();
+            // Make Ruby own the object again so it will be deleted when GC collected 
+            VALUE rb_self = SWIG_RubyInstanceFor($self);
+            if (!NIL_P(rb_self))
+            {
+              swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(CLASS_OF(rb_self));
+              RDATA(rb_self)->dfree = ((swig_class *)swig_type->clientdata)->destroy;
+            }
+          }
+          __CODE
         # In this case we have a mix of C++ marking and Ruby caching to manage GC collection.
         # The 'Old Log' reference is managed from C++ as it is captured and accessible there.
         # The 'New Log' reference is cached in Ruby as the LogChain class does not provide
@@ -61,7 +78,6 @@ module WXRuby3
         spec.add_swig_code '%markfunc wxLogChain "GC_mark_wxLogChain";',
                            '%markfunc wxLogInterposer "GC_mark_wxLogChain";',
                            '%markfunc wxLogWindow "GC_mark_wxLogChain";'
-
         spec.disown 'wxLog *logger'
         spec.ignore 'wxLogChain::DetachOldLog' # too much potential trouble
         # add override decl missing from xml specs

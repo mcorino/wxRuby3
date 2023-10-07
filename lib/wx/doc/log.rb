@@ -31,4 +31,15 @@ module Wx
 
   end
 
+  class LogChain
+
+    # Releases the redirection chain and restores the previous log instance as the active log target.
+    # Traditionally in C++ applications would rely on the destructor to do this but that is not a really
+    # predictable option in wxRuby since destruction only takes place after GC collection (which is not
+    # exactly predictable) so wxRuby adds this method to better control restoration time if needed.
+    # @return [void]
+    def release; end
+
+  end
+
 end
