@@ -14,7 +14,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_object('wxTextAttr')
+        spec.gc_as_untracked('wxTextAttr')
         spec.ignore 'wxTextAttr::Merge(const wxTextAttr &,const wxTextAttr &)'
         spec.do_not_generate :variables, :defines, :enums, :functions
       end

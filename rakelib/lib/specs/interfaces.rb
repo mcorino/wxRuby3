@@ -235,6 +235,9 @@ module WXRuby3
   end
 
   Director.Package('Wx::RTC', 'wxUSE_RICHTEXT') { |pkg|
+    Director.Spec(pkg, 'wxRichTextObject')
+    Director.Spec(pkg, 'wxRichTextImage')
+    Director.Spec(pkg, 'wxRichTextCompositeObject')
     Director.Spec(pkg, 'wxRichTextEvent')
     Director.Spec(pkg, 'wxRichTextBuffer')
     Director.Spec(pkg, 'wxRichTextCtrl')

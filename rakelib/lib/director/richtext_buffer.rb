@@ -6,28 +6,22 @@
 # wxRuby3 wxWidgets interface director
 ###
 
+require_relative './richtext_object'
+
 module WXRuby3
 
   class Director
 
-    class RichTextBuffer < Director
+    class RichTextBuffer < RichTextObject
 
       include Typemap::RichText
-      include Typemap::IOStreams
 
       def setup
+        super
         spec.disable_proxies
         spec.items.replace %w[
-          wxTextAttrBorder
-          wxTextAttrBorders
-          wxTextBoxAttr
-          wxTextAttrDimension
-          wxTextAttrDimensions
-          wxTextAttrSize
-          wxRichTextAttr
           wxRichTextBuffer
           ]
-        spec.gc_as_object 'wxRichTextAttr'
         spec.gc_as_object 'wxRichTextBuffer'
         spec.override_inheritance_chain('wxRichTextBuffer', %w[wxObject])
         spec.ignore %w[
@@ -35,13 +29,6 @@ module WXRuby3
           wxRichTextBuffer::GetCommandProcessor
           ]
         spec.disown 'wxRichTextFileHandler* handler'
-        spec.ignore(%w[wxRICHTEXT_ALL wxRICHTEXT_NONE wxRICHTEXT_NO_SELECTION])
-        # special typemap for const wxChar wxRichTextLineBreakChar;
-        spec.add_swig_code <<~__HEREDOC
-          %typemap(constcode,noblock=1) const wxChar {
-            %set_constant("$symname", rb_str_new2((const char *)wxString($value).utf8_str()));
-          }
-          __HEREDOC
         # for GetExtWildcard
         spec.map 'wxArrayInt* types' => 'Array,nil' do
 
@@ -71,8 +58,7 @@ module WXRuby3
             __CODE
 
         end
-        spec.do_not_generate(:functions)
-        super
+        spec.do_not_generate(:typedefs, :variables, :enums, :defines, :functions)
       end
     end # class RichTextBuffer
 
