@@ -6,6 +6,7 @@
 
 
 require 'wx/core'
+require 'wx/html'
 require 'wx/prt' if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)
 
 require 'wxruby_rtc'

@@ -15,10 +15,14 @@ Wx::define_keyword_ctors(Wx::RTC::RichTextCtrl) do
   wx_ctor_params :validator, :name => 'textCtrl'
 end
 
-# Wx::define_keyword_ctors(Wx::RTC::RichTextStyleListBox) do
-#   wx_ctor_params :id, :pos, :size, :style
-# end
+Wx::define_keyword_ctors(Wx::RTC::RichTextStyleListBox) do
+  wx_ctor_params :id, :pos, :size, :style
+end
 
-# Wx::define_keyword_ctors(Wx::RTC::RichTextStyleListCtrl) do
-#   wx_ctor_params :id, :pos, :size, :style
-# end
+Wx::define_keyword_ctors(Wx::RTC::RichTextStyleListCtrl) do
+  wx_ctor_params :id, :pos, :size, :style
+end
+
+Wx::define_keyword_ctors(Wx::RTC::RichTextStyleComboCtrl) do
+  wx_ctor_params :id, :pos, :size, :style
+end
