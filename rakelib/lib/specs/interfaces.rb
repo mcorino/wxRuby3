@@ -249,6 +249,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxRichTextHeaderFooterData', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxRichTextPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxSymbolPickerDialog', director: Director::Dialog)
+    Director.Spec(pkg, 'wxRichTextFormattingDialog')
+    Director.Spec(pkg, 'wxRichTextStyleOrganiserDialog')
     # need to look into special needs
     # Director.Spec(pkg, 'wxRichTextBufferDataObject')
   }
