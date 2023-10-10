@@ -56,7 +56,7 @@ module WXRuby3
             __HEREDOC
           spec.make_abstract 'wxRichTextObject'
           spec.add_header_code <<~__HEREDOC
-            extern VALUE wxRuby_RichTextObject2Ruby(const wxRichTextObject *wx_rto)
+            extern VALUE wxRuby_RichTextObject2Ruby(const wxRichTextObject *wx_rto, int own)
             {
                 // If no object was passed to be wrapped.
                 if ( ! wx_rto )
@@ -66,6 +66,10 @@ module WXRuby3
                 VALUE rb_rto = SWIG_RubyInstanceFor(const_cast<wxRichTextObject*> (wx_rto));
                 if (rb_rto && !NIL_P(rb_rto))
                 {
+                  if (own)
+                  {
+                    RDATA(rb_rto)->dfree = GC_RichTextObjectFreeFunc; // make sure Ruby owns
+                  }
                   return rb_rto;
                 }
   
@@ -93,7 +97,7 @@ module WXRuby3
                 // Otherwise, retrieve the swig type info for this class and wrap it
                 // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
                 swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-                rb_rto = SWIG_NewPointerObj(const_cast<wxRichTextObject*> (wx_rto), swig_type, 0);
+                rb_rto = SWIG_NewPointerObj(const_cast<wxRichTextObject*> (wx_rto), swig_type, own);
                 return rb_rto;
             }
             __HEREDOC
@@ -106,7 +110,28 @@ module WXRuby3
             __HEREDOC
           spec.new_object 'wxRichTextObject::DoSplit',
                           'wxRichTextObject::Clone'
-          spec.map_apply 'int * OUTPUT' => ['int * height', 'long & end', 'int & descent',
+          # for wxRichTextObject::GetRangeSize
+          spec.map 'int & descent', as: 'Integer' do
+
+            map_in temp: 'int tmp', code: 'tmp = NUM2INT($input); $1 = &tmp;'
+
+            map_argout code: '$result = SWIG_Ruby_AppendOutput($result, INT2NUM(tmp$argnum));'
+
+            map_directorin code: '$input = INT2NUM($1);'
+
+            map_directorargout code: <<~__CODE
+              if(output != Qnil)
+              {
+                $1 = NUM2INT(output);
+              }
+              else
+              {
+                $1 = 0;
+              }
+              __CODE
+
+          end
+          spec.map_apply 'int * OUTPUT' => ['int * height',
                                             'int &leftMargin', 'int &rightMargin', 'int &topMargin', 'int &bottomMargin']
           spec.map 'wxTextOutputStream &' => 'IO,Wx::OutputStream' do
 
@@ -165,6 +190,29 @@ module WXRuby3
               }
               __CODE
           end
+          spec.map 'wxRichTextAttrArray & attributes' => 'Array' do
+
+            map_in temp: 'wxRichTextAttrArray arr, VALUE rb_arr', code: <<~__CODE
+            if (TYPE($input) == T_ARRAY)
+            {
+              $1 = &arr;
+              rb_arr = $input;
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected an Array for %d", $argnum-1);
+            }
+            __CODE
+
+            map_argout by_ref: true, code: <<~__CODE
+            for (size_t i=0; i<arr$argnum.GetCount() ;++i)
+            {
+              wxRichTextAttr* wx_rta = new wxRichTextAttr(arr$argnum.Item(i));
+              rb_ary_push(rb_arr$argnum, SWIG_NewPointerObj(SWIG_as_voidptr(wx_rta), SWIGTYPE_p_wxRichTextAttr, SWIG_POINTER_OWN));
+            }
+            __CODE
+
+          end
           spec.ignore 'wxRichTextSelection::operator[]'
           spec.ignore 'wxRichTextProperties::SetProperty(const wxString &,const wxChar *)',
                       'wxRichTextProperties::operator[]'
@@ -201,7 +249,7 @@ module WXRuby3
           end
           spec.do_not_generate(:functions)
         else
-          spec.add_header_code 'extern VALUE wxRuby_RichTextObject2Ruby(const wxRichTextObject *wx_rto);'
+          spec.add_header_code 'extern VALUE wxRuby_RichTextObject2Ruby(const wxRichTextObject *wx_rto, int own);'
         end
       end
 

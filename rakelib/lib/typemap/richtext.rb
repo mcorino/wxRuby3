@@ -100,7 +100,7 @@ module WXRuby3
 
         map 'wxRichTextObject *' => 'Wx::RTC::RichTextObject' do
 
-          map_out code: '$result = wxRuby_RichTextObject2Ruby($1);'
+          map_out code: '$result = wxRuby_RichTextObject2Ruby($1, $owner);'
 
         end
 
@@ -108,13 +108,23 @@ module WXRuby3
 
           map_in ignore: true, temp: 'wxRichTextObject * tmp', code: '$1 = &tmp;'
 
-          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, wxRuby_RichTextObject2Ruby(tmp$argnum));'
+          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, wxRuby_RichTextObject2Ruby(tmp$argnum, 0));'
 
         end
 
         map 'wxArrayInt * partialExtents' => 'Array,nil' do
-          map_in temp: 'wxArrayInt tmp, VALUE rb_arg', code: '$1 = NIL_P($input) ? nullptr : &tmp; rb_arg = $input;'
-          map_argout code: <<~__CODE
+          map_in temp: 'wxArrayInt tmp, VALUE rb_arg', code: <<~__CODE
+            rb_arg = $input;
+            if (NIL_P($input) || TYPE($input) == T_ARRAY)
+            {
+              $1 = NIL_P($input) ? nullptr : &tmp; 
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected Array or nil for %d", $argnum-1);
+            }
+            __CODE
+          map_argout by_ref: true, code: <<~__CODE
               if (!NIL_P(rb_arg$argnum))
               {
                 for (size_t i=0; i<tmp$argnum.GetCount() ;++i)
@@ -123,10 +133,43 @@ module WXRuby3
                 }
               }
               __CODE
+
+          map_directorin code: 'VALUE rb_int_arr = $input = ($1 == nullptr ? Qnil : rb_ary_new());'
+          map_directorargout code: <<~__CODE
+            if ($1)
+            {
+              for (int i=0; i<RARRAY_LEN(rb_int_arr) ;++i)
+              {
+                $1->Add(NUM2INT(rb_ary_entry(rb_int_arr, i)));
+              }
+            }
+            output = Qnil;
+            __CODE
         end
 
         # Used as out parameters by some other selection-getting methods
-        map_apply 'int *OUTPUT' => [ 'long * from' , 'long * to', 'long& textPosition', 'long& wrapPosition' ]
+        map_apply 'int *OUTPUT' => [ 'long * from' , 'long * to', 'long *x', 'long *y' ]
+
+        map 'long & end', 'long& textPosition', 'long& wrapPosition', as: 'Integer' do
+
+          map_in temp: 'long tmp', code: 'tmp = NUM2LONG($input); $1 = &tmp;'
+
+          map_argout code: '$result = SWIG_Ruby_AppendOutput($result, LONG2NUM(tmp$argnum));'
+
+          map_directorin code: '$input = LONG2NUM($1);'
+
+          map_directorargout code: <<~__CODE
+              if(output != Qnil)
+              {
+                $1 = NUM2LONG(output);
+              }
+              else
+              {
+                $1 = 0;
+              }
+              __CODE
+
+        end
 
         map 'bool * recurse' => 'Boolean' do
 
@@ -146,7 +189,49 @@ module WXRuby3
           map_out code: '$result = _wxRuby_Wrap_wxRichTextFloatCollector($1);'
           map_typecheck code: '$1 = _wxRuby_Is_wxRichTextFloatCollector($input);'
         end
-        
+
+        map 'const wxRichTextObjectList &' => 'Array<Wx::RTC::RichTextObject>' do
+
+          map_out code: <<~__CODE
+            $result = rb_ary_new();
+            for (const wxRichTextObject *wx_rto : *$1)
+            {
+              rb_ary_push($result, wxRuby_RichTextObject2Ruby(wx_rto, 0));
+            }
+            __CODE
+
+        end
+
+
+        map 'wxRichTextObjectList &' => 'Array<Wx::RTC::RichTextObject>' do
+
+          map_in temp: 'wxRichTextObjectList lst, VALUE rb_lst', code: <<~__CODE
+            if (TYPE($input) == T_ARRAY)
+            {
+              $1 = &lst;
+              rb_lst = $input;
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected an Array for %d", $argnum-1);
+            }
+            __CODE
+
+          map_argout by_ref: true, code: <<~__CODE
+            for (const wxRichTextObject *wx_rto : lst$argnum)
+            {
+              rb_ary_push(rb_lst$argnum, SWIG_NewPointerObj(SWIG_as_voidptr(const_cast<wxRichTextObject*> (wx_rto)), SWIGTYPE_p_wxRichTextObject, 0));
+            }
+            __CODE
+
+        end
+
+        map 'wxRichTextStyleDefinition *' => 'Wx::RTC::RichTextStyleDefinition' do
+
+          map_out code: '$result = wxRuby_RichTextStyleDefinition2Ruby($1, $owner);'
+
+        end
+
       end # define
 
     end # RichText

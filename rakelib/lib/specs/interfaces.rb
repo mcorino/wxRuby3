@@ -238,6 +238,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxRichTextObject')
     Director.Spec(pkg, 'wxRichTextImage')
     Director.Spec(pkg, 'wxRichTextCompositeObject')
+    Director.Spec(pkg, 'wxRichTextParagraphLayoutBox')
+    Director.Spec(pkg, 'wxRichTextBox')
     Director.Spec(pkg, 'wxRichTextEvent')
     Director.Spec(pkg, 'wxRichTextBuffer')
     Director.Spec(pkg, 'wxRichTextCtrl')

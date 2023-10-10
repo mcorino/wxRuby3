@@ -6,6 +6,8 @@
 # wxRuby3 wxWidgets interface director
 ###
 
+require_relative './richtext_object'
+
 module WXRuby3
 
   class Director
@@ -36,12 +38,12 @@ module WXRuby3
             {
               rb_raise(rb_eArgError, "Expected a String for %d", $argnum-1);
             }
-            __CODE
+          __CODE
 
           map_out code: <<~__CODE
             size_t data_len = arg1->GetDataSize();
             $result = rb_str_new( (const char*)$1, data_len);
-            __CODE
+          __CODE
         end
         spec.map_apply 'bool * OUTPUT' => 'bool & changed'
         spec.do_not_generate(:typedefs, :variables, :enums, :defines, :functions)
