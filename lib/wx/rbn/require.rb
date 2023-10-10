@@ -7,6 +7,7 @@
 require_relative './events'
 require_relative './keyword_defs'
 require_relative './ribbon_art_provider'
+require_relative './ribbon_bar'
 require_relative './ribbon_control'
 require_relative './ribbon_page'
 require_relative './ribbon_panel'
