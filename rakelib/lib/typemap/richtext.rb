@@ -25,10 +25,10 @@ module WXRuby3
         # typemaps
         map 'wxRichTextRange&' => 'Range' do
 
-          map_in code: <<~__CODE
+          map_in temp: 'wxRichTextRange rng', code: <<~__CODE
             int start = NUM2INT( rb_funcall( $input, rb_intern("begin"), 0));
             int end   = NUM2INT( rb_funcall( $input, rb_intern("end"), 0));
-            wxRichTextRange rng = wxRichTextRange(start, end);
+            rng = wxRichTextRange(start, end);
             $1 = &rng;
             __CODE
 
