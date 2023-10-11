@@ -30,6 +30,9 @@ module WXRuby3
                         'wxRichTextParagraphStyleDefinition',
                         'wxRichTextListStyleDefinition'
           spec.make_abstract 'wxRichTextStyleDefinition'
+          spec.make_concrete 'wxRichTextCharacterStyleDefinition'
+          spec.make_concrete 'wxRichTextParagraphStyleDefinition'
+          spec.make_concrete 'wxRichTextListStyleDefinition'
           # documented declarations are incorrect
           spec.ignore 'wxRichTextStyleDefinition::GetStyle'
           spec.extend_interface 'wxRichTextStyleDefinition',
@@ -90,6 +93,9 @@ module WXRuby3
                   return rb_rtsd;
               }
               __HEREDOC
+          # add undocumented convenience method
+          spec.extend_interface 'wxRichTextListStyleDefinition',
+                                'void SetAttributes(int i, int leftIndent, int leftSubIndent, int bulletStyle, const wxString& bulletSymbol = wxEmptyString)'
           # redefine these since we need to be able to selectively specify 'disown'
           spec.ignore 'wxRichTextStyleSheet::AddCharacterStyle',
                       'wxRichTextStyleSheet::AddListStyle',
