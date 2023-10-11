@@ -22,6 +22,15 @@ class Wx::RTC::RichTextBuffer
         ::Enumerator.new { |y| wx_each_field_type.bind(self).call { |ft| y << ft } }
       end
     end
+
+    wx_each_drawing_handler = instance_method :each_drawing_handler
+    define_method :each_drawing_handler do |&block|
+      if block_given?
+        wx_each_drawing_handler.bind(self).call(&block)
+      else
+        ::Enumerator.new { |y| wx_each_drawing_handler.bind(self).call { |h| y << h } }
+      end
+    end
   end
 
 end

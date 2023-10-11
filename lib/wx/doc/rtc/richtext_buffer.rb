@@ -11,12 +11,18 @@ class Wx::RTC::RichTextBuffer
   # or returns an enumerator if no block given.
   # @yieldparam [Wx::RTC::RichTextFileHandler] handler
   # @return [Object,Enumerator] last result of given block or enumerator
-  def each_handler; end
+  def self.each_handler; end
 
   # Iterates all RichTextFieldType-s and passes each field type to the given block
   # or returns an enumerator if no block given.
   # @yieldparam [Wx::RTC::RichTextFieldType] field type
   # @return [Object,Enumerator] last result of given block or enumerator
-  def each_field_type; end
+  def self.each_field_type; end
+
+  # Iterates all RichTextDrawingHandler-s and passes each handler to the given block
+  # or returns an enumerator if no block given.
+  # @yieldparam [Wx::RTC::RichTextDrawingHandler] handler
+  # @return [Object,Enumerator] last result of given block or enumerator
+  def self.each_drawing_handler; end
 
 end
