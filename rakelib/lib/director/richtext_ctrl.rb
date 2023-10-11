@@ -33,6 +33,8 @@ module WXRuby3
           wxCommandProcessor::Submit
           wxCommandProcessor::Store
         ]
+        # mixin TextEntry
+        spec.include_mixin 'wxRichTextCtrl', { 'Wx::TextEntry' => 'wxTextEntryBase' }
         spec.override_inheritance_chain('wxRichTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.include 'wx/dc.h'
         spec.ignore [
