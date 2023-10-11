@@ -205,10 +205,10 @@ module WXRuby3
 
         map 'wxRichTextObjectList &' => 'Array<Wx::RTC::RichTextObject>' do
 
-          map_in temp: 'wxRichTextObjectList lst, VALUE rb_lst', code: <<~__CODE
+          map_in temp: 'wxRichTextObjectList wx_lst, VALUE rb_lst', code: <<~__CODE
             if (TYPE($input) == T_ARRAY)
             {
-              $1 = &lst;
+              $1 = &wx_lst;
               rb_lst = $input;
             }
             else
@@ -218,7 +218,7 @@ module WXRuby3
             __CODE
 
           map_argout by_ref: true, code: <<~__CODE
-            for (const wxRichTextObject *wx_rto : lst$argnum)
+            for (const wxRichTextObject *wx_rto : wx_lst$argnum)
             {
               rb_ary_push(rb_lst$argnum, SWIG_NewPointerObj(SWIG_as_voidptr(const_cast<wxRichTextObject*> (wx_rto)), SWIGTYPE_p_wxRichTextObject, 0));
             }
