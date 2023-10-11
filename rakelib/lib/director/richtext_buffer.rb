@@ -33,7 +33,8 @@ module WXRuby3
           wxRichTextBuffer::SetRenderer
           ]
         spec.disown 'wxRichTextFileHandler* handler',
-                    'wxRichTextDrawingHandler *handler'
+                    'wxRichTextDrawingHandler *handler',
+                    'wxRichTextFieldType *fieldType'
         spec.add_extend_code 'wxRichTextBuffer', <<~__HEREDOC
           static VALUE each_handler()
           {
