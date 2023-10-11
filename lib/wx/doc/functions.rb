@@ -112,7 +112,7 @@ module Wx
   # string - useful for debugging
   # @param obj [Object] wrapped object
   # @return [String] string with address in hex format
-  def self.cpp_ptr_addr(obj) end
+  def self.ptr_addr(obj) end
 
   # Converts a string XRC id into a Wx id
   # @param str [String] XRC id string
