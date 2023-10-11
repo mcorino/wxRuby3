@@ -148,7 +148,7 @@ module WXRuby3
         end
 
         # Used as out parameters by some other selection-getting methods
-        map_apply 'int *OUTPUT' => [ 'long * from' , 'long * to', 'long *x', 'long *y' ]
+        map_apply 'long * OUTPUT' => [ 'long * from' , 'long * to', 'long *x', 'long *y' ]
 
         map 'long & end', 'long& textPosition', 'long& wrapPosition', as: 'Integer' do
 
