@@ -118,6 +118,37 @@ module WXRuby3
         spec.suppress_warning(402, 'wxRichTextAttr')
         # Deal with some output values from TextCtrl methods - PositionToXY
         spec.map_apply 'long * OUTPUT' => 'long *'
+        # DeleteSelectedContent
+        spec.map 'long *newPos' => 'Integer' do
+          map_in ignore: true, temp: 'long tmp', code: '$1 = &tmp;'
+          # ignore C defined return value entirely (also affects directorout)
+          map_out ignore: 'bool'
+          map_argout code: <<~__CODE
+            if (result)
+            {
+              $result = LONG2NUM(tmp$argnum);
+            }
+            else
+              $result = Qnil;
+            __CODE
+          map_directorargout code: <<~__CODE
+            if (RTEST(result))
+            {
+              if (TYPE(result) == T_FIXNUM)
+              {
+                *newPos = NUM2LONG(result);
+                c_result = true;
+              }
+              else
+              {
+                Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
+                                                           "expected an Integer, or nil on failure");
+              }
+            }
+            else
+              c_result = false;
+          __CODE
+        end
         spec.map_apply 'long * OUTPUT' => [ 'wxTextCoord *col', 'wxTextCoord *row' ]
         # GetViewStart
         spec.map_apply 'int * OUTPUT' => 'int *'
