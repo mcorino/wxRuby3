@@ -89,6 +89,18 @@ module WXRuby3
         spec.ignore %w[
           wxRichTextCtrl::PaintBackground
           wxRichTextCtrl::PaintAboveContent
+          wxRichTextCtrl::LayoutContent
+          wxRichTextCtrl::DoLayoutBuffer
+          wxRichTextCtrl::DoGetValue
+          wxRichTextCtrl::DoSetValue
+          wxRichTextCtrl::DoWriteText
+          wxRichTextCtrl::EnableVerticalScrollbar
+          wxRichTextCtrl::GetVerticalScrollbarEnabled
+          wxRichTextCtrl::SetupScrollbars
+          wxRichTextCtrl::ScrollIntoView
+          wxRichTextCtrl::KeyboardNavigate
+          wxRichTextCtrl::PositionToXY
+          wxRichTextCtrl::XYToPosition
           ]
         # this method contains worrisome code and is unclearly documented so I doubt it's usefulness
         spec.ignore 'wxRichTextCtrl::FindContainerAtPoint'
