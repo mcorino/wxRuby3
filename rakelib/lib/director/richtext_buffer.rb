@@ -83,8 +83,33 @@ module WXRuby3
             }
             return rc;  
           }
-
           __HEREDOC
+        spec.add_header_code <<~__HEREDOC
+          // define the richtext buffer marker
+          static void wxRuby_markRichTextBuffer()
+          {
+            // mark any user installed drawing handlers
+            wxList& handlers = wxRichTextBuffer::GetDrawingHandlers();
+            for (wxList::compatibility_iterator node = handlers.GetFirst();
+                  node; node = node->GetNext())
+            {
+              VALUE obj = wxRuby_FindTracking(node->GetData());
+              if (obj && !NIL_P(obj))
+                rb_gc_mark(obj);
+            }
+            // mark any user installed field types
+            wxRichTextFieldTypeHashMap& map = wxRichTextBuffer::GetFieldTypes();
+            wxRichTextFieldTypeHashMap::const_iterator it = map.begin();
+            for (; it != map.end() ;++it)
+            {
+              VALUE obj = wxRuby_FindTracking(it->second);
+              if (obj && !NIL_P(obj))
+                rb_gc_mark(obj);
+            }
+          }
+          __HEREDOC
+        # register the marker at module initialization
+        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRichTextBuffer);'
         # for GetExtWildcard
         spec.map 'wxArrayInt* types' => 'Array,nil' do
 
