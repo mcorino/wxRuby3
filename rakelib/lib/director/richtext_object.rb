@@ -33,8 +33,9 @@ module WXRuby3
             wxRichTextProperties
           ]
           spec.disable_proxies
-          spec.gc_as_refcounted 'wxRichTextObject',
-                                'wxRichTextPlainText'
+          spec.gc_as_untracked 'wxRichTextObject',
+                               'wxRichTextPlainText'
+          spec.add_swig_code '%feature("freefunc") wxRichTextObject "GC_RichTextObjectFreeFunc";'
           spec.gc_as_object 'wxRichTextDrawingContext'
           spec.gc_as_untracked 'wxRichTextAttr',
                                'wxTextAttrDimension',
@@ -44,13 +45,17 @@ module WXRuby3
                                'wxTextAttrBorders',
                                'wxTextAttrSize',
                                'wxRichTextSelection'
-          spec.add_swig_code '%feature("freefunc") wxRichTextObject "GC_RichTextObjectFreeFunc";'
           spec.add_header_code <<~__HEREDOC
             extern void GC_RichTextObjectFreeFunc(void* ptr)
             {
+              SWIG_RubyRemoveTracking(ptr);
               if (ptr)
               {
-                ((wxRichTextObject*)ptr)->Dereference();
+            #ifdef __WXRB_DEBUG__
+                if (wxRuby_TraceLevel()>1)
+                  std::wcout << "GC_RichTextObjectFreeFunc(" << ptr << ")" << std::endl;
+            #endif
+                ((wxRichTextObject*)ptr)->Dereference();            
               } 
             }
             __HEREDOC
@@ -61,17 +66,6 @@ module WXRuby3
                 // If no object was passed to be wrapped.
                 if ( ! wx_rto )
                   return Qnil;
-  
-                // check for registered instance
-                VALUE rb_rto = SWIG_RubyInstanceFor(const_cast<wxRichTextObject*> (wx_rto));
-                if (rb_rto && !NIL_P(rb_rto))
-                {
-                  if (own)
-                  {
-                    RDATA(rb_rto)->dfree = GC_RichTextObjectFreeFunc; // make sure Ruby owns
-                  }
-                  return rb_rto;
-                }
   
                 // Get the wx class and the ruby class we are converting into
                 wxString class_name( wx_rto->GetClassInfo()->GetClassName() );
@@ -97,7 +91,7 @@ module WXRuby3
                 // Otherwise, retrieve the swig type info for this class and wrap it
                 // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
                 swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-                rb_rto = SWIG_NewPointerObj(const_cast<wxRichTextObject*> (wx_rto), swig_type, own);
+                VALUE rb_rto = SWIG_NewPointerObj(const_cast<wxRichTextObject*> (wx_rto), swig_type, own);
                 return rb_rto;
             }
             __HEREDOC
@@ -261,7 +255,7 @@ module WXRuby3
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item && def_item.is_derived_from?('wxRichTextObject')
               spec.no_proxy def_item.name
-              spec.gc_as_refcounted def_item.name
+              spec.gc_as_untracked def_item.name
               spec.add_swig_code %Q{%feature("freefunc") #{def_item.name} "GC_RichTextObjectFreeFunc";}
             end
           end
