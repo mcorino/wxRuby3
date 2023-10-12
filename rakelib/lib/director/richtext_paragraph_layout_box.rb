@@ -25,7 +25,8 @@ module WXRuby3
                         'wxRichTextCharacterStyleDefinition' <<
                         'wxRichTextParagraphStyleDefinition' <<
                         'wxRichTextListStyleDefinition'
-          spec.no_proxy 'wxRichTextStyleDefinition',
+          spec.no_proxy 'wxRichTextStyleSheet',
+                        'wxRichTextStyleDefinition',
                         'wxRichTextCharacterStyleDefinition',
                         'wxRichTextParagraphStyleDefinition',
                         'wxRichTextListStyleDefinition'
@@ -54,17 +55,6 @@ module WXRuby3
                   if ( ! wx_rtsd )
                     return Qnil;
     
-                  // check for registered instance
-                  VALUE rb_rtsd = SWIG_RubyInstanceFor(const_cast<wxRichTextStyleDefinition*> (wx_rtsd));
-                  if (rb_rtsd && !NIL_P(rb_rtsd))
-                  {
-                    if (own)
-                    {
-                      wxRuby_MakeRichTextStyleDefinitionOwned(rb_rtsd);
-                    }
-                    return rb_rtsd;
-                  }
-    
                   // Get the wx class and the ruby class we are converting into
                   wxString class_name( wx_rtsd->GetClassInfo()->GetClassName() );
                   wxCharBuffer wx_classname = class_name.mb_str();
@@ -89,7 +79,7 @@ module WXRuby3
                   // Otherwise, retrieve the swig type info for this class and wrap it
                   // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
                   swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-                  rb_rtsd = SWIG_NewPointerObj(const_cast<wxRichTextStyleDefinition*> (wx_rtsd), swig_type, own);
+                  VALUE rb_rtsd = SWIG_NewPointerObj(const_cast<wxRichTextStyleDefinition*> (wx_rtsd), swig_type, own);
                   return rb_rtsd;
               }
               __HEREDOC
