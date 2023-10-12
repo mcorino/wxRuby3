@@ -36,15 +36,17 @@ module WXRuby3
           spec.gc_as_untracked 'wxRichTextObject',
                                'wxRichTextPlainText'
           spec.add_swig_code '%feature("freefunc") wxRichTextObject "GC_RichTextObjectFreeFunc";'
-          spec.gc_as_object 'wxRichTextDrawingContext'
-          spec.gc_as_untracked 'wxRichTextAttr',
+          spec.gc_as_untracked 'wxRichTextDrawingContext',
+                               'wxRichTextAttr',
+                               'wxTextBoxAttr',
                                'wxTextAttrDimension',
                                'wxTextAttrDimensions',
                                'wxTextAttrShadow',
                                'wxTextAttrBorder',
                                'wxTextAttrBorders',
                                'wxTextAttrSize',
-                               'wxRichTextSelection'
+                               'wxRichTextSelection',
+                               'wxRichTextProperties'
           spec.add_header_code <<~__HEREDOC
             extern void GC_RichTextObjectFreeFunc(void* ptr)
             {
