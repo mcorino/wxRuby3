@@ -129,7 +129,7 @@ module WXRuby3
             __CODE
 
           map_argout by_ref: true, code: <<~__CODE
-            if (!NIL_P(rb_types$argnum))
+            if ($1)
             {
               for (size_t i = 0; i < $1->GetCount(); i++)
               {
