@@ -27,6 +27,12 @@ module WXRuby3
           wxRichTextFormattingDialog::SetStyle
           wxRichTextFormattingDialog::SetStyleDefinition
         ]
+        # add undocumented methods
+        spec.extend_interface 'wxRichTextFormattingDialog',
+                              'wxRichTextObject* GetObject() const',
+                              'void SetObject(wxRichTextObject* obj)',
+                              'virtual bool ApplyStyle(wxRichTextCtrl* ctrl, int flags = wxRICHTEXT_SETSTYLE_WITH_UNDO)'
+        spec.add_header_code 'extern VALUE wxRuby_RichTextObject2Ruby(const wxRichTextObject *wx_rto, int own);'
         spec.disown 'wxRichTextFormattingDialogFactory *factory'
         spec.suppress_warning(473, 'wxRichTextFormattingDialogFactory::CreatePage')
       end
