@@ -19,8 +19,8 @@ life cycles. Any DC object created would have to be dynamically created and due 
 life cycles could well be kept alive beyond the scope of it's creation. This will not always cause problems but could
 and does not really have an upside.
 
-To prevent confusion and potential problems wxRuby defines all `Wx::DC` derived classes to be abstract classes that
-cannot be instantiated using `new`. Rather all `Wx::DC` derived classes provide `::draw_on` factory methods to create 
+To prevent confusion and potential problems wxRuby defines all {Wx::DC} derived classes to be abstract classes that
+cannot be instantiated using `new`. Rather all {Wx::DC} derived classes provide `::draw_on` factory methods to create 
 temporary dc objects that will be passed on to blocks given and will only exist for the duration of the execution of
 the block. This will guarantee proper DC cleanup when leaving it's usage scope.
 
@@ -44,10 +44,10 @@ A typical usage of a `::draw_on` method would be:
 
 ## Windows, Wx::PaintDC and Wx::AutoBufferedPaintDC
 
-The `Wx::PaintDC` and `Wx::AutoBufferedPaintDC` classes provide `::draw_on` methods just like all other DC classes but
+The {Wx::PaintDC} and {Wx::AutoBufferedPaintDC} classes provide `::draw_on` methods just like all other DC classes but
 this is mostly to be consistent.
 
-In this case it is recommended to instead use the `Wx::Window#paint` or `Wx::Window#paint_buffered` methods as these
+In this case it is recommended to instead use the {Wx::Window#paint} or {Wx::Window#paint_buffered} methods as these
 provide some optimizations with regard to automatically detecting if the methods are called inside `Wx::EVT_PAINT` 
 handlers (which should normally be the case) or not.
 

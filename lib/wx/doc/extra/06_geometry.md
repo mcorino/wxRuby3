@@ -19,13 +19,13 @@ Wx::Frame.new(nil, -1, 'title', Wx::Point.new(0,0), Wx::Size.new(500,400))
 which starts to feel awkward to specify what are in essence just pairs of integers.
 
 To provide a simpler, more compact and more Ruby-like, alternative the wxRuby API therefor supports specifying arrays
-of integer (or float in case of Wx::RealPoint) pairs in (almost) all cases where `Wx::Size` or `Wx::Point` 
-(or Wx::RealPoint) is expected. So the following code is equivalent to the previous code:
+of integer (or float in case of {Wx::RealPoint}) pairs in (almost) all cases where {Wx::Size} or {Wx::Point} 
+(or {Wx::RealPoint}) is expected. So the following code is equivalent to the previous code:
 ```ruby
 Wx::Frame.new(nil, -1, 'title', [0,0], [500,400])
 ```
 
-In addition `Wx::Size`, `Wx::Point` and `Wx::RealPoint` support parallel assignment semantics such that you can write code like
+In addition {Wx::Size}, {Wx::Point} and {Wx::RealPoint} support parallel assignment semantics such that you can write code like
 ```ruby
   win.paint do | dc |
     # ...    
@@ -47,12 +47,12 @@ instead of
 Instances of these classes can also be converted (back) to arrays with their `#to_ary` methods.
 
 Lastly wxRuby also extends the standard Ruby Array class with conversion methods to explicitly convert
-arrays to `Wx::Size`, `Wx::Point` or `Wx::RealPoint`; respectively the `#to_size`, `#to_point` and `#to_real_point` 
+arrays to {Wx::Size}, {Wx::Point} or {Wx::RealPoint}; respectively the `#to_size`, `#to_point` and `#to_real_point` 
 methods.
 
 ## Areas (Wx::Rect)
 
-Like `Wx::Size` and `Wx::Point` wxRuby supports parallel assignment for `Wx::Rect` such that you can write code like
+Like {Wx::Size} and {Wx::Point} wxRuby supports parallel assignment for {Wx::Rect} such that you can write code like
 ```ruby
 x, y, width, height = win.get_client_rect
 ```
