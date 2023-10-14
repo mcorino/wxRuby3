@@ -4,6 +4,7 @@
 # This software is released under the MIT license.
 # :startdoc:
 
+
 module Wx::RTC
 
   RICHTEXT_FORMAT_MARGINS = 0x0040

@@ -21,7 +21,7 @@ For the wxRuby API similar support has been achieved for various much used argum
 
 ## Colour
 
-Wherever a `Wx::Colour` object is expected as an argument wxRuby supports the specification of `String` or `Symbol`
+Wherever a {Wx::Colour} object is expected as an argument wxRuby supports the specification of `String` or `Symbol`
 values as a developer friendly alternative. This way the following code is equivalent:
 
 ```ruby
@@ -37,7 +37,7 @@ pen.set_colour(:CYAN)
 
 ## Font
 
-Wherever a `Wx::Font` object is expected as an argument wxRuby supports the specification of a `Wx::FontInfo` object.
+Wherever a {Wx::Font} object is expected as an argument wxRuby supports the specification of a {Wx::FontInfo} object.
 This way the following code is equivalent:
 
 ```ruby

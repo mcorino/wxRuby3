@@ -45,7 +45,7 @@ module WXRuby3
         elsif STD_STR_TYPES.include?(std_type)
           'String'
         elsif STD_BOOL_TYPES.include?(std_type)
-          'true,false'
+          'Boolean'
         else
           nil
         end
@@ -514,7 +514,7 @@ module WXRuby3
             # shift mapped parameters
             parameters.shift(tm_pset.param_masks.size)
             # return mappings
-            return [in_arg, out_arg]
+            return [in_arg, out_arg, self]
           end
         end
         nil
@@ -522,9 +522,6 @@ module WXRuby3
 
       def map_output(type)
         if maps_output?
-          if ignores_output? && ignored_output.include?(type)
-            return ''
-          end
           if (tm_pset = @patterns.detect { |pset| pset == type })
             return @out.to.has_key?(tm_pset) ? @out.to[tm_pset].type : ''
           end
@@ -548,12 +545,8 @@ module WXRuby3
         @argout && !@argout.by_ref
       end
 
-      def ignores_output?
-        @out && @out.ignore?
-      end
-
-      def ignored_output
-        @out ? @out.ignored : []
+      def ignores_output?(type)
+        @out && @out.ignore? && @out.ignored.include?(type)
       end
 
       def to_swig
@@ -574,7 +567,7 @@ module WXRuby3
                   @directorin,
                   @directorargout,
                   @varout]
-          maps << @directorout unless ignores_output?
+          maps << @directorout unless @out && @out.ignore?
           s.concat maps.collect { |mapping| mapping ? mapping.to_swig : nil }.compact
         else
           []
@@ -663,7 +656,7 @@ module WXRuby3
             # shift mapped parameters
             parameters.shift(@src_pattern.param_masks.size)
             # return mappings
-            return [in_arg, out_arg]
+            return [in_arg, out_arg, tm_app]
           end
         end
         nil
@@ -671,9 +664,6 @@ module WXRuby3
 
       def map_output(type)
         if maps_output?
-          if ignores_output? && ignored_output.include?(type)
-            return ''
-          end
           return @applied_maps.detect { |tm| tm.maps_output? }.map_output(type)
         end
         nil
@@ -693,14 +683,6 @@ module WXRuby3
 
       def maps_input_as_output?
         @applied_maps ? @applied_maps.any? { |map| map.maps_input_as_output? } : false
-      end
-
-      def ignores_output?
-        @applied_maps ? @applied_maps.any? { |map| map.ignores_output? } : false
-      end
-
-      def ignored_output
-        ignores_output? ? @applied_maps.detect { |map| map.ignores_output? }.ignored_output : []
       end
 
       def to_swig
@@ -778,7 +760,7 @@ module WXRuby3
             # shift mapped parameters
             parameters.shift(tm_pset.param_masks.size)
             # return mappings
-            return [in_arg, out_arg]
+            return [in_arg, out_arg, self]
           end
         end
         nil
@@ -807,12 +789,8 @@ module WXRuby3
         @maps_out
       end
 
-      def ignores_output?
+      def ignores_output?(_)
         false
-      end
-
-      def ignored_output
-        []
       end
 
       def to_swig
@@ -863,7 +841,7 @@ module WXRuby3
         if @pattern.param_masks.first == parameters.first
           # just 'map' the parameter to itself
           param = parameters.shift # loose the 'mapped' parameter
-          return [RubyArg[nil, param_offset], nil]
+          return [RubyArg[nil, param_offset], nil, self]
         end
         nil
       end
@@ -891,12 +869,8 @@ module WXRuby3
         false
       end
 
-      def ignores_output?
+      def ignores_output?(_)
         false
-      end
-
-      def ignored_output
-        []
       end
 
       def to_swig
@@ -994,14 +968,15 @@ module WXRuby3
           param_offset = 0
           args = []
           ret = []
+          maps = []
           reverse_list = list.reverse_each
           while !parameters.empty?
             result = nil
             param_count = parameters.size
             reverse_list.detect { |map| result = map.map_input(parameters, param_offset) }
-            arg_in = arg_out = nil
+            arg_in = arg_out = tmap = nil
             if result
-              arg_in, arg_out = result
+              arg_in, arg_out, tmap = result
             else
               arg_in = RubyArg.new(nil, param_offset)
               parameters.shift # loose the mapped param
@@ -1009,10 +984,11 @@ module WXRuby3
             # store mapped param
             args << arg_in if arg_in
             ret << arg_out if arg_out
+            maps << tmap if tmap
             # calculate new param offset
             param_offset += (param_count - parameters.size)
           end
-          [args, ret]
+          [args, ret, maps]
         end
 
         def map_output(type)
@@ -1036,7 +1012,7 @@ module WXRuby3
       STD_INT_TYPES => 'Integer',
       STD_STR_TYPES => 'String',
       STD_FLOAT_TYPES => 'Float',
-      STD_BOOL_TYPES => 'true,false'
+      STD_BOOL_TYPES => 'Boolean'
     }.inject(Typemap::Collection.new) do |list, (ctypes, rbtype)|
       unless rbtype == 'String'
         list << SystemMap.new(*ctypes.collect { |t| ["#{t} * OUTPUT", "#{t} & OUTPUT"]}.flatten,

@@ -56,117 +56,118 @@ Currently the following modules have been implemented.
 
 ### Core
 
-The core wxRuby package providing the toplevel `Wx` module.
+The core wxRuby package providing the toplevel {Wx} module.
 This package includes basic classes like:
 
-- `Wx::Object`
-- `Wx::EvtHandler`
-- `Wx::Event`
-- `Wx::CommandEvent`
-- `Wx::App`
-- `Wx::Window`
-- `Wx::NonOwnedWindow`
-- `Wx::ToplevelWindow`
-- `Wx::Frame`
-- `Wx::Dialog`
+- {Wx::Object}
+- {Wx::EvtHandler}
+- {Wx::Event}
+- {Wx::CommandEvent}
+- {Wx::App}
+- {Wx::Window}
+- {Wx::NonOwnedWindow}
+- {Wx::TopLevelWindow}
+- {Wx::Frame}
+- {Wx::Dialog}
 
 as well as most common window classes, control/widget classes, event classes, constant and enum definitions
 and global functions not part of any of the other packages.
 
 ### AUI - Advanced User Interface controls and related classes
 
-The wxRuby AUI package providing the `Wx::AUI` module.
+The wxRuby AUI package providing the {Wx::AUI} module.
 This package includes all classes, constants and enum definitions that are considered part of the 
 wxWidgets AUI framework like:
 
-- `Wx::AUI::AuiManager`
-- `Wx::AUI::AuiMDIParentFrame`
-- `Wx::AUI::AuiMDIChildFrame`
-- `Wx::AUI::AuiMDIClientWindow`
+- {Wx::AUI::AuiManager}
+- {Wx::AUI::AuiMDIParentFrame}
+- {Wx::AUI::AuiMDIChildFrame}
+- {Wx::AUI::AuiMDIClientWindow}
 - etc
 
 ### GRID - Grid control and related classes
 
-The wxRuby GRID package providing the `Wx::GRID` module.
+The wxRuby GRID package providing the {Wx::GRID} module.
 This package includes all classes, constants and enum definitions that are associated with the
 wxWidgets wxGrid control like:
 
-- `Wx::GRID::Grid`
-- `Wx::GRID::GridTableBase`
-- `Wx::GRID::GridCellEditor`
-- `Wx::GRID::GridCellRenderer`
-- `Wx::GRID::GridEvent`
+- {Wx::GRID::Grid}
+- {Wx::GRID::GridTableBase}
+- {Wx::GRID::GridCellEditor}
+- {Wx::GRID::GridCellRenderer}
+- {Wx::GRID::GridEvent}
 - etc
 
 ### HTML - Html framework classes
 
-The wxRuby HTML package providing the `Wx::HTML` module.
+The wxRuby HTML package providing the {Wx::HTML} module.
 This package includes all classes, constants and enum definitions that are considered part of the
 wxWidgets Html framework like:
 
-- `Wx::HTML::HtmlWindow`
-- `Wx::HTML::HtmlHelpWindow`
-- `Wx::HTML::HtmlHelpFrame`
-- `Wx::HTML::HtmlHelpController`
+- {Wx::HTML::HtmlWindow}
+- {Wx::HTML::HtmlHelpWindow}
+- {Wx::HTML::HtmlPrintout}
+- {Wx::HTML::HtmlHelpController}
+- {Wx::HTML::HtmlListBox}
 - etc
 
 ### PG - PropertyGrid control and related classes
 
-The wxRuby PG package providing the `Wx::PG` module.
+The wxRuby PG package providing the {Wx::PG} module.
 This package includes all classes, constants and enum definitions that are associated with the
 wxWidgets wxPropertyGrid control like:
 
-- `Wx::PG::PropertyGrid`
-- `Wx::PG::PropertyGridManager`
-- `Wx::PG::PGCell`
-- `Wx::PG::PGProperty`
-- `Wx::PG::PropertyGridEvent`
+- {Wx::PG::PropertyGrid}
+- {Wx::PG::PropertyGridManager}
+- {Wx::PG::PGCell}
+- {Wx::PG::PGProperty}
+- {Wx::PG::PropertyGridEvent}
 - etc
 
 ### PRT - Printing framework classes
 
-The wxRuby PRT package providing the `Wx::PRT` module.
+The wxRuby PRT package providing the {Wx::PRT} module.
 This package includes all classes, constants and enum definitions that are considered part of the
 wxWidgets Printing framework like:
 
-- `Wx::PRT::PreviewFrame`
-- `Wx::PRT::Printer`
-- `Wx::PRT::PrinterDC`
-- `Wx::PRT::PrintDialog`
+- {Wx::PRT::PreviewFrame}
+- {Wx::PRT::Printer}
+- {Wx::PRT::PrinterDC}
+- {Wx::PRT::PrintDialog}
 - etc
 
 ### RBN - Ribbon framework classes
 
-The wxRuby RBN package providing the `Wx::RBN` module.
+The wxRuby RBN package providing the {Wx::RBN} module.
 This package includes all classes, constants and enum definitions that are considered part of the
 wxWidgets Ribbon framework like:
 
-- `Wx::RBN::RibbonControl`
-- `Wx::RBN::RibbonGallery`
-- `Wx::RBN::RibbonPanel`
-- `Wx::RBN::RibbonPage`
-- `Wx::RBN::RibbonBar`
+- {Wx::RBN::RibbonControl}
+- {Wx::RBN::RibbonGallery}
+- {Wx::RBN::RibbonPanel}
+- {Wx::RBN::RibbonPage}
+- {Wx::RBN::RibbonBar}
 - etc
 
 ### RTC - RichText control and related classes
 
-The wxRuby RTC package providing the `Wx::RTC` module.
+The wxRuby RTC package providing the {Wx::RTC} module.
 This package includes all classes, constants and enum definitions that are associated with the
 wxWidgets wxRichTextCtrl control like:
 
-- `Wx::RTC::RichTextCtrl`
-- `Wx::RTC::RichTextEvent`
-- `Wx::RTC::RichTextBuffer`
+- {Wx::RTC::RichTextCtrl}
+- {Wx::RTC::RichTextEvent}
+- {Wx::RTC::RichTextBuffer}
 - etc
 
 ### STC - StyledText control and related classes
 
-The wxRuby STC package providing the `Wx::STC` module.
+The wxRuby STC package providing the {Wx::STC} module.
 This package includes all classes, constants and enum definitions that are associated with the
 wxWidgets wxStyledTextCtrl control (Scintilla integration) like:
 
-- `Wx::STC::StyledTextCtrl`
-- `Wx::STC::StyledTextEvent`
+- {Wx::STC::StyledTextCtrl}
+- {Wx::STC::StyledTextEvent}
 
 ## Feature dependencies
 

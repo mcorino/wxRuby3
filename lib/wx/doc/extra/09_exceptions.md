@@ -50,5 +50,5 @@ end
 
 In wxRuby event handler code is executed in an exception safe way which will capture any leaking exceptions. As wxRuby 
 however has no idea why this exception was raised and how to handle it, the result will be an exit of the main event loop
-of the running `Wx::App` instance and re-raising the exception to be handled by Ruby like any unhandled application 
+of the running {Wx::App} instance and re-raising the exception to be handled by Ruby like any unhandled application 
 exception.

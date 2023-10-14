@@ -111,6 +111,12 @@ class TestArt < Test::Unit::TestCase
     assert_equal('sample', File.basename(art, '.*'))
     img = Wx::Image.new(art)
     assert { img.ok? }
+    img = Wx.Image(:sample, art_section: 'my_art')
+    assert { img.ok? }
+    bmp = Wx.Bitmap(:sample, art_section: 'my_art')
+    assert { bmp.ok? }
+    icon = Wx.Icon(:sample, art_section: 'my_art')
+    assert { icon.ok? }
   end
 
 end

@@ -19,6 +19,10 @@ module WXRuby3
         # do not track GraphicContext objects as that causes problems probably for similar
         # reasons as for DC objects
         spec.gc_as_untracked
+        # doc error
+        spec.ignore 'wxGraphicsGradientStop::wxGraphicsGradientStop'
+        spec.extend_interface 'wxGraphicsGradientStop',
+                              'wxGraphicsGradientStop(wxColour col=wxTransparentColour, float pos=0.0)'
         # ignore all these; wxRuby only supports the ::draw_on methods
         spec.ignore 'wxGraphicsContext::CreateFromNative',
                     'wxGraphicsContext::CreateFromNativeWindow',

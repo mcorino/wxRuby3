@@ -122,6 +122,8 @@ module WxRuby
       # The main application frame has no parent (nil)
       super(nil, :title => title, :size => frameSize, pos: framePos)
 
+      @closing = false
+
       # Give the frame an icon. PNG is a good choice of format for
       # cross-platform images. Note that OS X doesn't have "Frame" icons.
       icon_file = File.join(__dir__, 'art', "wxruby.png")
@@ -200,6 +202,7 @@ module WxRuby
       @main_panel.layout
     end
 
+    attr_reader :closing
     attr_reader :running_sample
     attr_accessor :sample_editor
 
@@ -209,14 +212,17 @@ module WxRuby
         read_count = count
         @gauge.value = read_count
         Wx.get_app.yield
+        return false if @closing
         sleep 0.05
       end
 
       WxRuby::Sample.categories.size.times do |ix|
         add_category(read_count+1, ix)
         Wx.get_app.yield
+        return false if @closing
       end
       show_samples
+      true
     end
 
     def add_category(offset, cat)
@@ -343,6 +349,7 @@ module WxRuby
     end
 
     def on_close(_evt)
+      @closing = true
       @running_sample.close if @running_sample
       @sample_editor.destroy if @sample_editor
       @tbicon.remove_icon
@@ -392,6 +399,4 @@ Wx::App.run do
   @frame.show
 
   @frame.load_samples
-
-  true
 end

@@ -18,8 +18,8 @@ Art that is part of the application's design will preferably be stored with the 
 is not standard for this nor is there any standard support for locating those files from the application
 code like there is for `require`-s of other code modules.
 
-The wxRuby framework provides a convenience module `Wx::ArtLocator` to assist in that respect.
-Wx::ArtLocator aims on the one side to standardize folder structures for storing art files and on the
+The wxRuby framework provides a convenience module {Wx::ArtLocator} to assist in that respect.
+{Wx::ArtLocator} aims on the one side to standardize folder structures for storing art files and on the
 other side to provide runtime support for locating those files from code.
 
 The main locator method provided is:
@@ -63,41 +63,47 @@ The first location can be skipped by specifying `nil` for 'art_type'.
 
 ## Bitmap types
 
-Based on platform and specified '<art_type>' (and optionally a specific Wx::BitmapType) art files with a specific
+Based on platform and specified '<art_type>' (and optionally a specific {Wx::BitmapType}) art files with a specific
 range of extensions will be tested in a specific order.
 For example for locating an `:icon` (<art_type>) on platform 'WXGTK' the locator will test the preferred extension
 '.xpm' followed by any of supported extensions of all other supported bitmap types.
 For platform 'WXMSW' however the same search would test only the extensions '.ico' and '.xpm' (in that
 order).
-Specifying a specific Wx::BitmapType for a search will restrict the search to testing only the extensions supported
-for the specified Wx::BitmapType.
+Specifying a specific {Wx::BitmapType} for a search will restrict the search to testing only the extensions supported
+for the specified {Wx::BitmapType}.
 
 ## Search paths
 
-To prevent having to specify base search path for every location request Wx::Locator provides 2 options.
+To prevent having to specify base search path for every location request {Wx::Locator} provides 2 options.
 
 When an explicit specification of a base search path ('art_path) is omitted from a location request the locator
 will determine one by using `Kernel#caller_locations` to extract the absolute path for the source file containing
 the caller's code. The result of `File.dirname(src_path)` is than used as base search path.
 If 'art_section' is also omitted the result of `File.basename(src_path, '.*')` will be used instead.
 
-This means that calling `Wx::ArtLocator.find_art` from some code in file `/some/lib/path/to/ruby/code.rb` without 
+This means that calling {Wx::ArtLocator.find_art} from some code in file `/some/lib/path/to/ruby/code.rb` without 
 specifying both 'art_path' and 'art_section' would result in looking for an art file with the base search path
 being `/some/lib/path/to/ruby/` and using `code` as 'art_section'.
 
-It is also possible to add 'application global' search paths with the method `Wx::ArtLocator.add_search_path`.
+It is also possible to add 'application global' search paths with the method {Wx::ArtLocator.add_search_path}.
 Search paths added in this way will be tested after failing to find any matching art file at the initial 'art_path'
 location. The same location steps apply to these search paths as with the initial 'art_path' (see above).
 
 ## Convenience methods
 
-Based on the Wx::ArtLocator implementation wxRuby additionally provides a number of convenience methods to
-easily create Icons, Bitmaps, Cursors and Images from simple ids (symbols).
+Based on the {Wx::ArtLocator} implementation wxRuby additionally provides a number of convenience methods to
+easily create Icons, Bitmaps, Cursors and Images from simple ids (symbols):
+
+- {Wx.Bitmap} 
+- {Wx.Cursor} 
+- {Wx.Icon} 
+- {Wx.Image}
+
 These methods mimic the ease of use of the `wxICON` and `wxBITMAP` macros used with C++ wxWidgets such that
-creating an Wx::Icon instance could be as easy as:
+creating an {Wx::Icon} instance could be as easy as:
 
 ```ruby
-    frame.icon = Wx::Icon(:sample)
+    frame.icon = Wx.Icon(:sample)
 ```
 
 As these methods apply the same search path 'automagic' as `Wx::ArtLocator.find_art` (see [Search paths](#Search-paths))

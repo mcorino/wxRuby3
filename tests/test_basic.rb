@@ -8,7 +8,7 @@ require 'wx'
 class BasicTests < Test::Unit::TestCase
 
   def test_versions
-    assert_equal(Wx::WXRUBY_VERSION, "#{Wx::WXRUBY_MAJOR}.#{Wx::WXRUBY_MINOR}.#{Wx::WXRUBY_RELEASE}-#{Wx::WXRUBY_RELEASE_TYPE}")
+    assert_equal(Wx::WXRUBY_VERSION, "#{Wx::WXRUBY_MAJOR}.#{Wx::WXRUBY_MINOR}.#{Wx::WXRUBY_RELEASE}#{Wx::WXRUBY_RELEASE_TYPE.empty? ? '' : '-'+Wx::WXRUBY_RELEASE_TYPE}")
     assert_equal(Wx::WXWIDGETS_VERSION, "#{Wx::WXWIDGETS_MAJOR_VERSION}.#{Wx::WXWIDGETS_MINOR_VERSION}.#{Wx::WXWIDGETS_RELEASE_NUMBER}")
   end
 

@@ -15,8 +15,9 @@ Instead wxRuby offers a dynamic solution that is just as easy to use and even of
 ## Event handlers
 
 Instead of the `EVT_XXX` event handler declaration macros used in wxWidgets wxRuby provides similarly named event handler 
-definition methods for each of the known event declarations which are inherited by **all** classes derived from `Wx::EvtHandler`
-(which includes all window classes, the `Wx::App` class and `Wx::Timer` as well as various other classes).<br>
+definition methods for each of the known event declarations which are inherited by **all** classes derived from {Wx::
+EvtHandler}
+(which includes all window classes, the {Wx::App} class and {Wx::Timer} as well as various other classes).<br>
 
 Naming is (mostly) identical but rubified. So `EVT_MENU` becomes `evt_menu`, `EVT_IDLE` becomes `evt_idle`, `EVT_UPDATE_UI`
 becomes `evt_update_ui` etc.
@@ -27,7 +28,7 @@ Like the event handler macros some of these methods require a single (window) id
 
 Event handler setup is typically something done during the initialization of an event handler object (like a window) but
 this is not required. As all event handlers are assigned dynamically in wxRuby you can setup (some) event handlers at a 
-later moment. You could also disconnect earlier activated handlers at any time (see `Wx::EvtHandler#disconnect`).
+later moment. You could also disconnect earlier activated handlers at any time (see {Wx::EvtHandler#disconnect}).
 
 In case of some frame class `MyForm` including a menu a wxWidgets static event handling table like:
 
@@ -96,7 +97,7 @@ will take care of checking and handling method arity.
 
 Custom event definitions are fully supported in wxRuby including the definition of new event types.
 
-New event classes can be registered with `Wx::EvtHandler#register_class` which returns the new event type for the event 
+New event classes can be registered with {Wx::EvtHandler#register_class} which returns the new event type for the event 
 class like this:
 
 ```ruby
@@ -125,27 +126,27 @@ Check the reference documentation [here](https://mcorino.github.io/wxRuby3/Wx/Ev
 
 ## Event processing
 
-In wxRuby overruling the normal chain of event handling has been limited to being able to override the default 
-`Wx::EvtHandler#try_before` and `Wx::EvtHandler#try_after` methods. These are the advised interception points for events
+In wxRuby overruling the normal chain of event handling has been limited to being able to override the default
+{Wx::EvtHandler#try_before} and {Wx::EvtHandler#try_after} methods. These are the advised interception points for events
 when you really need to do this.<br>
-Overriding `Wx::EvtHandler#process_event` is not considered to be efficient (or desired)
+Overriding {Wx::EvtHandler#process_event} is not considered to be efficient (or desired)
 for wxRuby applications and has therefor been blocked.
 
 ## Event insertion
 
-Use of `Wx::EvtHandler#process_event` or `Wx::EvtHandler#queue_event` and `Wx::EvtHandler#add_pending_event` in wxRuby to
+Use of {Wx::EvtHandler#process_event} or {Wx::EvtHandler#queue_event} and {Wx::EvtHandler#add_pending_event} in wxRuby to
 trigger event processing of user generated (possibly custom) events is fully supported.
 
-As with wxWidgets `Wx::EvtHandler#process_event` will trigger immediate processing of the given event, not returning before
+As with wxWidgets {Wx::EvtHandler#process_event} will trigger immediate processing of the given event, not returning before
 this has finished.<br>
-`Wx::EvtHandler#queue_event` and `Wx::EvtHandler#add_pending_event` on the other hand will post (append) the given event
+{Wx::EvtHandler#queue_event} and {Wx::EvtHandler#add_pending_event} on the other hand will post (append) the given event
 to the event queue and return immediately after that is done. The event will than be processed after any other events in
 the queue. Unlike in wxWidgets in wxRuby there is no practical difference between `queue_event` and `add_pending_event`.
 
 ## Asynchronous execution
 
-In addition to `Wx::EvtHandler#queue_event` and `Wx::EvtHandler#add_pending_event` to trigger asynchronous processing 
-wxRuby also supports `Wx::EvtHandler#call_after`.
+In addition to {Wx::EvtHandler#queue_event} and {Wx::EvtHandler#add_pending_event} to trigger asynchronous processing 
+wxRuby also supports {Wx::EvtHandler#call_after}.
 
 This method provides the means to trigger asynchronous execution of arbitrary code and because it has been rubified is
 easy and powerful to use. Like with event handler definition this method accepts a `Symbol` or `String` (identifying a 
@@ -169,20 +170,22 @@ evt_handler.call_after('Call nr. %d', 1) { |fmt, num| Wx.log_info(fmt, num) }
 
 Like in C++ the wxRuby Event objects passed to the event handlers are (in general) references to **temporary** objects 
 which are only safe to access within the execution scope of the event handler that received the reference.
-If you *need* (really?) to store a reference to such an object do so to a cloned version (see `Wx::Event#clone`) and **not**
+If you *need* (really?) to store a reference to such an object do so to a cloned version (see {Wx::Event#clone}) and **not**
 to the original object otherwise you **will** run into 'Object already deleted' exceptions.
 
 Only user defined events instantiated in Ruby code (or cloned Event objects) will be subject to Ruby's normal life cycle 
 rules (GC).
-This means that when you instantiate a user defined event and pass it to `Wx::EvtHandler#process_event` it would be possible
+This means that when you instantiate a user defined event and pass it to {Wx::EvtHandler#process_event} it would be possible
 to directly store the reference to such an Event object passed to it's event handler. You have to **know** for sure though
-(see below). So, in case of doubt (or to be safe) use `Wx::Event#clone`.
+(see below). So, in case of doubt (or to be safe) use {Wx::Event#clone}.
 
-Another 'feature' to be aware of is the fact that when passing an (user instantiated) Event object to `Wx::EvtHandler#queue_event` 
-or `Wx::EvtHandler#add_pending_event` the Ruby event instance is unlinked from it's C++ counterpart (or in the case of user
+Another 'feature' to be aware of is the fact that when passing an (user instantiated) Event object to {Wx::
+EvtHandler#queue_event} 
+or {Wx::EvtHandler#add_pending_event} the Ruby event instance is unlinked from it's C++ counterpart (or in the case of user
 defined events a cloned instance is associated with it's C++ counterpart) before being queued and the C++ side now takes ownership 
 (and will delete the Event object when handled).  
 As a result this means that even in the case of a user defined Event object any event handler triggered by a asynchronously 
 processed event will be handling a temporary Event object.
-Additionally this also means that any Event object passed to `Wx::EvtHandler#queue_event` or `Wx::EvtHandler#add_pending_event`
+Additionally this also means that any Event object passed to {Wx::EvtHandler#queue_event} or {Wx::
+EvtHandler#add_pending_event}
 is essentially invalidated after these methods return and should not be referenced anymore.
