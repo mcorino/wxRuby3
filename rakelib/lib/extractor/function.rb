@@ -100,10 +100,11 @@ module WXRuby3
         # get mapped ruby parameter list
         params = []
         mapped_ret_args = nil
+        matched_maps = []
         param_defs = self.parameters
         unless param_defs.empty?
           # map parameters
-          mapped_args, mapped_ret_args = type_maps.map_input(param_defs.dup)
+          mapped_args, mapped_ret_args, matched_maps = type_maps.map_input(param_defs.dup)
           # collect full param specs
           mapped_args.each do |arg|
             paramdef = param_defs[arg.index]
@@ -145,7 +146,11 @@ module WXRuby3
         params.each do |p|
           doclns << ('@param '  << p[:name] << ' [' << p[:type] << '] ' << (p[:doc] ? ' '+(p[:doc].split("\n").join("\n  ")) : ''))
         end
-        result = [rb_return_type(type_maps, xml_trans)]
+        result = if matched_maps.any? { |map| map.ignores_output?(type) }
+                   []
+                 else
+                   [rb_return_type(type_maps, xml_trans)]
+                 end
         result.concat(mapped_ret_args.collect { |mra| mra.type }) if mapped_ret_args
         result.compact! # remove nil values (possible ignored output)
         case result.size

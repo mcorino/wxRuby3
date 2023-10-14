@@ -17,8 +17,6 @@ module WXRuby3
 
     def initialize(dir)
       super
-      # select all typemaps that have an ignored out map
-      @typemaps_with_ignored_out = type_maps.select { |tm| tm.ignores_output? }
     end
 
     def gen_swig_header(fout)
@@ -496,8 +494,11 @@ module WXRuby3
       mtd_type = methoddef.type
       no_output = false
       # check if this method matches a type map with ignored out defs
-      if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(methoddef) }
-        mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = type_map.ignored_output.include?(mtd_type))
+      unless methoddef.parameters.empty?
+        # find matching type maps for arguments (if any)
+        _, _, matched_maps = type_maps.map_input(methoddef.parameters.dup)
+        # check if any of these specify to ignore the C output
+        mtd_type = Typemap.rb_void_type(mtd_type) if (no_output = matched_maps.any? { |map| map.ignores_output?(mtd_type) })
       end
       # generate method declaration
       fout.puts "  // from #{methoddef.definition}"
@@ -625,8 +626,11 @@ module WXRuby3
           fn_type = ovl.type
           no_output = false
           # check if this method matches a type map with ignored out defs
-          if type_map = @typemaps_with_ignored_out.detect { |tm| tm.matches?(ovl) }
-            fn_type = Typemap.rb_void_type(fn_type) if (no_output = type_map.ignored.include?(fn_type))
+          unless ovl.parameters.empty?
+            # find matching type maps for arguments (if any)
+            _, _, matched_maps = type_maps.map_input(ovl.parameters.dup)
+            # check if any of these specify to ignore the C output
+            fn_type = Typemap.rb_void_type(fn_type) if (no_output = matched_maps.any? { |map| map.ignores_output?(fn_type) })
           end
           fout.puts %Q[  %feature("numoutputs", "0") #{ovl.name};] if no_output
           fout.puts "#{fn_type} #{ovl.name}#{ovl.args_string};"
