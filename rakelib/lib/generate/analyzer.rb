@@ -364,12 +364,12 @@ module WXRuby3
       def gen_enum_typemap(type)
         enum_scope = Extractor::EnumDef.enum_scope(type)
         type_list = [type]
-        type_list << (type.index('::') ? type.split('::').pop : "#{enum_scope}::#{type}") unless enum_scope.empty?
-        rb_enum_name = if type.index('::') && !enum_scope.empty?
-          "#{enum_scope}::#{rb_wx_name(type.split('::').pop)}"
-        else
-          rb_wx_name(type)
-        end
+        type_list << "#{enum_scope}::#{type.split('::').pop}" unless enum_scope.empty?
+        rb_enum_name = if !enum_scope.empty?
+                         "#{enum_scope}::#{rb_wx_name(type.split('::').pop)}"
+                       else
+                         rb_wx_name(type)
+                       end
         STDERR.puts "*** #{director.spec.module_name}: defining type map for #{type_list} as: Wx::#{rb_enum_name}" if Director.trace?
         director.spec.map *type_list, as: "Wx::#{rb_enum_name}" do
           map_in code: <<~__CODE
@@ -383,13 +383,13 @@ module WXRuby3
                        StringValuePtr(str));
             }
             $1 = static_cast<$1_type>(eval);
-            __CODE
+          __CODE
           map_out code: <<~__CODE
             $result = wxRuby_GetEnumValueObject("#{rb_enum_name}", static_cast<int>($1));
-            __CODE
+          __CODE
           map_typecheck precedence: 1, code: <<~__CODE
             $1 = wxRuby_IsEnumValue("#{rb_enum_name}", $input);
-            __CODE
+          __CODE
           map_directorin code: <<~__CODE
             $input = wxRuby_GetEnumValueObject("#{rb_enum_name}", static_cast<int>($1));
             if ($input == Qnil)
