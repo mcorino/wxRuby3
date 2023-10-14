@@ -68,7 +68,7 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
   end
 
   def test_write_image
-    assert_nothing_raised { richtext.write_image(Wx::ArtLocator.find_art(:wxruby, art_type: :bitmap, art_section: 'test_art', bmp_type: Wx::BitmapType::BITMAP_TYPE_PNG), Wx::BitmapType::BITMAP_TYPE_PNG) }
+    assert_nothing_raised { richtext.write_image(Wx.Bitmap(:wxruby, Wx::BitmapType::BITMAP_TYPE_PNG, art_section: 'test_art')) }
     img_obj = richtext.buffer.get_leaf_object_at_position(0)
     assert_kind_of(Wx::RTC::RichTextImage, img_obj)
   end
