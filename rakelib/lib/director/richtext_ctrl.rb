@@ -131,7 +131,7 @@ module WXRuby3
         # Deal with some output values from TextCtrl methods - PositionToXY
         spec.map_apply 'long * OUTPUT' => 'long *'
         # DeleteSelectedContent
-        spec.map 'long *newPos' => 'Integer' do
+        spec.map 'long *newPos' => 'Integer,nil' do
           map_in ignore: true, temp: 'long tmp', code: '$1 = &tmp;'
           # ignore C defined return value entirely (also affects directorout)
           map_out ignore: 'bool'
