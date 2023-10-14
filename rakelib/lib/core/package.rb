@@ -18,13 +18,14 @@ module WXRuby3
         @name = name
         @parent = parent
         @required_features = ::Set.new
+        @dependencies = ::Set.new
         @directors = []
         @director_index = {}
         @subpackages = {}
         @event_docs = {}
       end
 
-      attr_reader :name, :parent, :required_features, :directors, :director_index, :subpackages, :event_docs
+      attr_reader :name, :parent, :required_features, :dependencies, :directors, :director_index, :subpackages, :event_docs
 
       def is_core?
         name == 'Wx' && !parent
@@ -91,6 +92,11 @@ module WXRuby3
         self
       end
 
+      def depends_on(*pkgs)
+        dependencies.merge(pkgs.flatten)
+        self
+      end
+
       def add_director(spec)
         dir = spec.director.new(spec)
         director_index[spec.name] = dir
@@ -105,6 +111,7 @@ module WXRuby3
       def director_for_class(class_name)
         dir = included_directors.detect { |dir| dir.spec.module_name == class_name || dir.spec.items.include?(class_name) }
         subpackages.each_value.detect { |spkg| dir = spkg.director_for_class(class_name) } if dir.nil?
+        dependencies.detect { |pkgdep| dir = pkgdep.director_for_class(class_name) } if dir.nil?
         dir = parent.director_for_class(class_name) if dir.nil? && parent
         dir
       end
@@ -148,7 +155,11 @@ module WXRuby3
       end
 
       def dep_libs
-        parent ? parent.dep_libs + [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")] : []
+        if parent
+          parent.dep_libs + [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")]
+        else
+          []
+        end
       end
 
       def dep_libnames

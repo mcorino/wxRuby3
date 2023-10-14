@@ -78,6 +78,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxControlWithItems')
     Director.Spec(pkg, 'wxComboBox')
     Director.Spec(pkg, 'wxBitmapComboBox')
+    Director.Spec(pkg, 'wxComboCtrl')
     Director.Spec(pkg, 'wxRadioBox')
     Director.Spec(pkg, 'wxPanel')
     Director.Spec(pkg, 'wxWithImages')
@@ -221,6 +222,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHyperlinkEvent', requirements: %w[wxUSE_HYPERLINKCTRL])
     Director.Spec(pkg, 'wxBannerWindow', requirements: %w[wxUSE_BANNERWINDOW])
     Director.Spec(pkg, 'wxInfoBar', requirements: %w[wxUSE_INFOBAR])
+    Director.Spec(pkg, 'wxFileSystem', requirements: %w[wxUSE_FILESYSTEM])
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
@@ -234,7 +236,26 @@ module WXRuby3
     Director.Spec(pkg, 'wxPrinter')
   end
 
-  Director.Package('Wx::RTC', 'wxUSE_RICHTEXT') { |pkg|
+  Director.Package('Wx::HTML', 'wxUSE_HTML') { |pkg|
+    Director.Spec(pkg, 'wxHtmlWindow')
+    Director.Spec(pkg, 'wxHtmlHelpData', requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxHtmlHelpWindow', requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxHtmlCellEvent', director: Director::HtmlEvent)
+    Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
+    Director.Spec(pkg, 'wxHtmlHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
+    Director.Spec(pkg, 'wxHtmlCell')
+    Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
+    Director.Spec(pkg, 'wxHtmlListBox')
+    Director.Spec(pkg, 'wxHTMLDataObject') if Config.instance.wx_version >= '3.3'
+  }
+
+  Director.Package('Wx::RTC', 'wxUSE_RICHTEXT', depends_on: ['Wx::HTML']) { |pkg|
+    Director.Spec(pkg, 'wxRichTextObject')
+    Director.Spec(pkg, 'wxRichTextImage')
+    Director.Spec(pkg, 'wxRichTextCompositeObject')
+    Director.Spec(pkg, 'wxRichTextParagraphLayoutBox')
+    Director.Spec(pkg, 'wxRichTextBox')
     Director.Spec(pkg, 'wxRichTextEvent')
     Director.Spec(pkg, 'wxRichTextBuffer')
     Director.Spec(pkg, 'wxRichTextCtrl')
@@ -244,8 +265,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxRichTextHeaderFooterData', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxRichTextPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxSymbolPickerDialog', director: Director::Dialog)
-    # need to look into special needs
-    # Director.Spec(pkg, 'wxRichTextBufferDataObject')
+    Director.Spec(pkg, 'wxRichTextFormattingDialog')
+    Director.Spec(pkg, 'wxRichTextStyleOrganiserDialog')
+    Director.Spec(pkg, 'wxRichTextStyleListBox')
+    Director.Spec(pkg, 'wxRichTextBufferDataObject')
   }
 
   Director.Package('Wx::STC', 'wxUSE_STC') { |pkg|
@@ -282,20 +305,6 @@ module WXRuby3
     Director.Spec(pkg, 'wxGridTableMessage')
     Director.Spec(pkg, 'wxGridStringTable')
     Director.Spec(pkg, 'wxGridCtrl')
-  }
-
-  Director.Package('Wx::HTML', 'wxUSE_HTML') { |pkg|
-    Director.Spec(pkg, 'wxHtmlWindow')
-    Director.Spec(pkg, 'wxHtmlHelpData', requirements: %w[wxUSE_HELP])
-    Director.Spec(pkg, 'wxHtmlHelpWindow', requirements: %w[wxUSE_HELP])
-    Director.Spec(pkg, 'wxHtmlCellEvent', director: Director::HtmlEvent)
-    Director.Spec(pkg, 'wxHtmlLinkEvent', director: Director::HtmlEvent)
-    Director.Spec(pkg, 'wxHtmlHelpController', director: Director::HelpController, requirements: %w[wxUSE_HELP])
-    Director.Spec(pkg, 'wxHtmlCell')
-    Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
-    Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[wxUSE_PRINTING_ARCHITECTURE])
-    Director.Spec(pkg, 'wxHtmlListBox')
-    Director.Spec(pkg, 'wxHTMLDataObject') if Config.instance.wx_version >= '3.3'
   }
 
   Director.Package('Wx::AUI', 'wxUSE_AUI') { |pkg|

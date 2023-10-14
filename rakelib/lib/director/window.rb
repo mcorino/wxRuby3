@@ -273,7 +273,10 @@ module WXRuby3
                           "#{spec.class_name(citem)}::GetDropTarget",
                           "#{spec.class_name(citem)}::GetValidator",
                           "#{spec.class_name(citem)}::IsTopLevel",
-                          "#{spec.class_name(citem)}::EnableTouchEvents")
+                          "#{spec.class_name(citem)}::EnableTouchEvents",
+                          "#{spec.class_name(citem)}::WarpPointer",
+                          "#{spec.class_name(citem)}::AdjustForLayoutDirection",
+                          "#{spec.class_name(citem)}::IsTransparentBackgroundSupported")
           end
         end
         if spec.module_name == 'wxWindow'

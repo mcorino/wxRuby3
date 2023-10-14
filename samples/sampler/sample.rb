@@ -158,10 +158,16 @@ module WxRuby
           desc_clone[:thumbnail] = File.join(sample_folder, File.basename(description.image_file))
           FileUtils.cp(description.image_file, desc_clone[:thumbnail])
         end
-        # copy sample specific resources (not .rb or 'tn_*.png' files and not directories)
+        # copy sample specific resources (not .rb or 'tn_*.png' files and not directories unless it's an art folder)
         Dir[File.join(path, '*')].each do |fp|
-          unless File.directory?(fp) || File.extname(fp) == '.rb' || /\Atn_.*\.png\Z/ =~ File.basename(fp)
-            FileUtils.cp(fp, File.join(sample_folder, File.basename(fp)))
+          if File.directory?(fp)
+            if File.basename(fp) == 'art'
+              FileUtils.cp_r(fp, File.join(sample_folder, File.basename(fp)))
+            end
+          else
+            unless File.extname(fp) == '.rb' || /\Atn_.*\.png\Z/ =~ File.basename(fp)
+              FileUtils.cp(fp, File.join(sample_folder, File.basename(fp)))
+            end
           end
         end
         # copy art folder to dest

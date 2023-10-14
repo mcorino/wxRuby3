@@ -288,8 +288,12 @@ module WXRuby3
           if /(\w+)\s*\(([^\)]*)\)/ =~ nm_str   # method with arglist?
             fn = $1
             args = _arglist_to_doc($2)
-            mtdsig = args.empty? ? "#{rb_method_name(fn)}" : "#{rb_method_name(fn)}(#{args})"
             if ref_scope
+              mtdsig = if ref_scope == fn
+                         args.empty? ? 'initialize' : "initialize(#{args})"
+                       else
+                         args.empty? ? "#{rb_method_name(fn)}" : "#{rb_method_name(fn)}(#{args})"
+                       end
               sep = _is_static_method?(ref_scope, fn) ? '.' : '#'
               constnm = rb_wx_name(ref_scope)
               if DocGenerator.constants_xref_db.has_key?(constnm)
@@ -298,6 +302,7 @@ module WXRuby3
                 "Wx::#{constnm}#{sep}#{mtdsig}"
               end
             else
+              mtdsig = args.empty? ? "#{rb_method_name(fn)}" : "#{rb_method_name(fn)}(#{args})"
               [mtdsig, true]
             end
           else # constant or method name only
@@ -310,8 +315,12 @@ module WXRuby3
             elsif !_is_method?(nm_str, ref_scope)
               ["Wx::#{constnm}", true]
             else
-              mtdnm = rb_method_name(nm_str)
               if ref_scope
+                mtdnm = if ref_scope == nm_str
+                          'initialize'
+                        else
+                          rb_method_name(nm_str)
+                        end
                 sep = _is_static_method?(ref_scope, nm_str) ? '.' : '#'
                 constnm = rb_wx_name(ref_scope)
                 if DocGenerator.constants_xref_db.has_key?(constnm)
@@ -320,6 +329,7 @@ module WXRuby3
                   "Wx::#{constnm}#{sep}#{mtdnm}"
                 end
               else
+                mtdnm = rb_method_name(nm_str)
                 [mtdnm, true]
               end
             end

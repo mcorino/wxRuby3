@@ -33,8 +33,8 @@ module WXRuby3
 
     class << self
 
-      def Package(pkgid, *required_features, &block)
-        block.call(self[pkgid].requires(*required_features))
+      def Package(pkgid, *required_features, depends_on: [], &block)
+        block.call(self[pkgid].requires(*required_features).depends_on(*depends_on.collect { |pid| self[pid] }))
       end
 
       def Spec(pkg, modname, name: nil, director:  nil, processors: nil, requirements: [])

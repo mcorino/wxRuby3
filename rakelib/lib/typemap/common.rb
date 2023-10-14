@@ -510,9 +510,9 @@ module WXRuby3
         map 'const wxKeyEvent &' => 'Wx::KeyEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_DEBUG__
-            $input = wxRuby_WrapWxEventInRuby(this, const_cast<wxEvent*> (&$1));
+            $input = wxRuby_WrapWxEventInRuby(const_cast<void*> ((const void*)this), const_cast<wxKeyEvent*> (&$1));
             #else
-            $input = wxRuby_WrapWxEventInRuby(const_cast<wxEvent*> (&$1));
+            $input = wxRuby_WrapWxEventInRuby(const_cast<wxKeyEvent*> (&$1));
             #endif
             __CODE
         end

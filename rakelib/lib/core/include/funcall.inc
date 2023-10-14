@@ -11,74 +11,18 @@
 
 typedef VALUE (*RUBY_INVOKE_FUNC) (VALUE);
 
-namespace Swig {
-  /* Base class for director exceptions */
-  class DirectorException : public std::exception
-  {
-  protected:
-    VALUE swig_error;
-    std::string swig_msg;
-  protected:
-    DirectorException(VALUE error) : swig_error(error) { }
-    DirectorException(VALUE error, const char *hdr, const char *msg ="") : swig_error(error), swig_msg(hdr)
-    {
-      if (msg[0])
-      {
-        swig_msg += " ";
-        swig_msg += msg;
-      }
-      if (swig_msg.size())
-      {
-        VALUE str = rb_str_new(swig_msg.data(), swig_msg.size());
-        swig_error = rb_exc_new3(error, str);
-      }
-      else
-      {
-        swig_error = error;
-      }
-    }
-  public:
-    virtual ~DirectorException() throw() { }
-    VALUE getType() const
-    {
-      return CLASS_OF(swig_error);
-    }
-    VALUE getError() const
-    {
-      return swig_error;
-    }
-    /* Deprecated, use what() instead */
-    const std::string& getMessage() const
-    {
-      return swig_msg;
-    }
-    const char *what() const throw()
-    {
-      return swig_msg.c_str();
-    }
-  };
-  class DirectorRubyException : public DirectorException
-  {
-  public:
-    DirectorRubyException(const char *exname, const char *msg="")
-      : DirectorException(rb_eRuntimeError, exname, msg)
-    {
-    }
-  };
-}
-
 class WXRuby_RBFuncall
 {
 public:
-  WXRuby_RBFuncall (ID fnid, bool throw_on_ex=true)
+  WXRuby_RBFuncall (ID fnid, bool abort_on_ex=true)
    : fn_id_ (fnid),
-     throw_on_ex_ (throw_on_ex),
+     abort_on_ex_ (abort_on_ex),
      ex_caught_ (false)
   {
   }
-  WXRuby_RBFuncall (const char* fn, bool throw_on_ex=true)
+  WXRuby_RBFuncall (const char* fn, bool abort_on_ex=true)
   : fn_id_ (rb_intern (fn)),
-    throw_on_ex_ (throw_on_ex),
+    abort_on_ex_ (abort_on_ex),
     ex_caught_ (false)
   {
   }
@@ -121,14 +65,13 @@ protected:
                                &invoke_state);
     if (invoke_state)
     {
-      if (this->throw_on_ex_)
+      if (this->abort_on_ex_)
       {
         // handle exception
         VALUE rexc = this->get_exception ();
         VALUE msg = rb_eval_string ("$!.message+\"\\n\"+$!.backtrace.join(\"\\n\")");
         const char *exc_name = rb_obj_classname(rexc);
-        wxLogDebug("%s : %s", exc_name, StringValuePtr(msg));
-        throw Swig::DirectorRubyException(exc_name, StringValuePtr(msg));
+        wxLogFatalError("%s : %s", exc_name, StringValuePtr(msg));
       }
       else
       {
@@ -195,7 +138,7 @@ protected:
 
 private:
   ID      fn_id_;
-  bool    throw_on_ex_;
+  bool    abort_on_ex_;
   bool    ex_caught_;
 };
 

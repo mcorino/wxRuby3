@@ -13,6 +13,7 @@ module WXRuby3
     class RichTextFileHandler < Director
 
       include Typemap::RichText
+      include Typemap::IOStreams
 
       def setup
         super
@@ -29,6 +30,14 @@ module WXRuby3
             wxRichTextXMLHandler::ExportXML
             ]
         when 'wxRichTextHTMLHandler'
+          # identically named instance and class method clash in SWIG
+          spec.ignore 'wxRichTextHTMLHandler::DeleteTemporaryImages()', ignore_doc: true
+          spec.add_extend_code 'wxRichTextHTMLHandler', <<~__CODE
+            bool delete_temporary_images()
+            {
+              return $self->DeleteTemporaryImages();
+            }
+            __CODE
         end
         spec.no_proxy "#{spec.module_name}::LoadFile",
                       "#{spec.module_name}::SaveFile",
