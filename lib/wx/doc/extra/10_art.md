@@ -92,7 +92,13 @@ location. The same location steps apply to these search paths as with the initia
 ## Convenience methods
 
 Based on the {Wx::ArtLocator} implementation wxRuby additionally provides a number of convenience methods to
-easily create Icons, Bitmaps, Cursors and Images from simple ids (symbols).
+easily create Icons, Bitmaps, Cursors and Images from simple ids (symbols):
+
+- {Wx.Bitmap} 
+- {Wx.Cursor} 
+- {Wx.Icon} 
+- {Wx.Image}
+
 These methods mimic the ease of use of the `wxICON` and `wxBITMAP` macros used with C++ wxWidgets such that
 creating an {Wx::Icon} instance could be as easy as:
 

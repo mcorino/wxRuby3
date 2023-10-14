@@ -5,7 +5,7 @@
 # :startdoc:
 
 
-class Wx::Icon
+class Wx
 
   # Searches for an art file with basename 'name' and creates an Icon if found.
   # Raises an ArgumentError if not found.

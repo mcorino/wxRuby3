@@ -5,7 +5,7 @@
 # :startdoc:
 
 
-class Wx::Cursor
+class Wx
 
   # Searches for an art file with basename 'name' and creates a Cursor if found.
   # Raises an ArgumentError if not found.
