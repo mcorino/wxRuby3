@@ -230,7 +230,7 @@ module UnicodeSample
   def self.activate
     frame = IConvFrame.new("Unicode demonstration - ",
                            Wx::Point.new(50, 50),
-                           Wx::Size.new(450, 450) )
+                           Wx::Size.new(450, 600) )
 
     frame.show(true)
     frame

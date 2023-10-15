@@ -320,20 +320,20 @@ class MyPanel < Panel
     @m_notebook.add_page(panel, "RadioBox", false, Image_Radio)
 
     panel = Panel.new(@m_notebook)
-    box = StaticBox.new( panel, -1, "&Gauge and Slider", Point.new(10,10), Size.new(222,130) )
-    @m_gauge = Gauge.new( box, -1, 200, Point.new(8,40), Size.new(155, 30), GA_HORIZONTAL|NO_BORDER )
+    box = StaticBox.new( panel, -1, "&Gauge and Slider", Point.new(10,10), Size.new(240,170) )
+    @m_gauge = Gauge.new( box, -1, 200, Point.new(10,30), Size.new(155, 30), GA_HORIZONTAL|NO_BORDER )
     @m_gauge.set_background_colour(GREEN)
     @m_gauge.set_foreground_colour(RED)
     @m_gaugeVert = Gauge.new( box, -1, 100,
                               Point.new(185,25), Size.new(30, 90),
                               GA_VERTICAL | GA_SMOOTH | NO_BORDER )
-    @m_slider = Slider.new( box, ID_SLIDER, 0, 0, 200, Point.new(8,80), Size.new(155,-1),
+    @m_slider = Slider.new( box, ID_SLIDER, 0, 0, 200, Point.new(10,70), Size.new(155,-1),
                             SL_AUTOTICKS | SL_LABELS )
     @m_slider.set_tick_freq(40) unless Wx::PLATFORM == 'WXOSX'
     @m_slider.set_tool_tip("This is a sliding slider")
 
     box = StaticBox.new(panel, -1, "&Explanation",
-                        Point.new(230,10), Size.new(270,130),
+                        Point.new(250,10), Size.new(310,170),
                         ALIGN_CENTER )
 
     StaticText.new( box, -1,
@@ -343,20 +343,20 @@ class MyPanel < Panel
                     "\n"+
                     "This is also supposed to demonstrate how\n"+
                     "to use static controls.\n",
-                    Point.new(20,15),
+                    Point.new(10,10),
                     DEFAULT_SIZE)
                     #Size.new(240, 110))
     initialSpinValue = -5
     s = initialSpinValue.to_s
-    @m_spintext = TextCtrl.new( panel, -1, s, Point.new(20,160), Size.new(80,-1) )
-    @m_spinbutton = SpinButton.new( panel, ID_SPIN, Point.new(103,160), Size.new(80, @m_spintext.size.height) )
+    @m_spintext = TextCtrl.new( panel, -1, s, Point.new(20,195), Size.new(80,-1) )
+    @m_spinbutton = SpinButton.new( panel, ID_SPIN, Point.new(103,195), Size.new(80, @m_spintext.size.height) )
     @m_spinbutton.set_range(-40,30)
     @m_spinbutton.set_value(initialSpinValue)
 
     @m_btnProgress = Button.new( panel, ID_BTNPROGRESS, "&Show progress dialog",
-                                 Point.new(300, 160) )
+                                 Point.new(300, 195) )
 
-    @m_spinctrl = SpinCtrl.new( panel, ID_SPINCTRL, "", Point.new(200, 160), Size.new(95, @m_spintext.size.height) )
+    @m_spinctrl = SpinCtrl.new( panel, ID_SPINCTRL, "", Point.new(200, 195), Size.new(95, @m_spintext.size.height) )
     @m_spinctrl.set_range(10,30)
     @m_spinctrl.set_value(15)
 
@@ -923,7 +923,7 @@ end
 
 class MyFrame < Frame
   def initialize(title,x,y)
-    super(nil, -1, title, Point.new(x, y), Size.new(500, 430))
+    super(nil, -1, title, Point.new(x, y), Size.new(600, 500))
 
     @s_delay = 5000
     @s_enabled = true
