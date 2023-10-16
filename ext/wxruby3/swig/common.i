@@ -13,6 +13,28 @@
 %feature("compactdefaultargs");
 %feature("flatnested");
 
+%exception {
+  try {
+    $action
+  }
+  catch (const Swig::DirectorException& swigex) {
+    if (rb_obj_is_kind_of(swigex.getError(), rb_eException))
+    {
+      rb_exc_raise(swigex.getError());
+    }
+    else
+    {
+      rb_raise(swigex.getError(), swigex.what());
+    }
+  }
+  catch (const std::exception& ex) {
+    rb_raise(rb_eRuntimeError, "Unexpected C++ exception: %s", ex.what());
+  }
+  catch (...) {
+    rb_raise(rb_eRuntimeError, "Unexpected UNKNOWN exception");
+  }
+}
+
 %begin %{
 /*
  * Since SWIG does not provide readily usable export macros
