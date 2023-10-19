@@ -14,7 +14,6 @@ module WXRuby3
 
       def setup
         # Any nested sizers passed to Add() in are owned by C++, not GC'd by Ruby
-        spec.disown 'wxSizer* sizer'
         case spec.module_name
         when 'wxSizer'
           spec.items << 'wxSizerFlags'
@@ -26,6 +25,64 @@ module WXRuby3
                       'wxSizer::Insert(size_t, wxSizerItem *)',
                       'wxSizer::Prepend(wxSizerItem *)'
           spec.ignore 'wxSizer::Remove(wxWindow *)' # long time deprecated
+          # need to adjust sizer arg name to apply disown specs
+          spec.ignore 'wxSizer::Add(wxSizer *, const wxSizerFlags &)',
+                      'wxSizer::Add(wxSizer *, int, int, int, wxObject *)',
+                      'wxSizer::Insert(size_t, wxSizer *, const wxSizerFlags &)',
+                      'wxSizer::Insert(size_t, wxSizer *, int, int, int, wxObject *)',
+                      'wxSizer::Prepend(wxSizer *, const wxSizerFlags &)',
+                      'wxSizer::Prepend(wxSizer *, int, int, int, wxObject *)',
+                      ignore_doc: false
+          spec.extend_interface 'wxSizer',
+                                'wxSizerItem* Add(wxSizer *sizer_disown, const wxSizerFlags &flags)',
+                                'wxSizerItem* Add(wxSizer *sizer_disown, int proportion=0, int flag=0, int border=0, wxObject *userData=NULL)',
+                                'wxSizerItem* Insert(size_t index, wxSizer *sizer_disown, const wxSizerFlags &flags)',
+                                'wxSizerItem* Insert(size_t index, wxSizer *sizer_disown, int proportion=0, int flag=0, int border=0, wxObject *userData=NULL)',
+                                'wxSizerItem* Prepend(wxSizer *sizer_disown, const wxSizerFlags &flags)',
+                                'wxSizerItem* Prepend(wxSizer *sizer_disown, int proportion=0, int flag=0, int border=0, wxObject *userData=NULL)'
+          spec.disown 'wxSizer* sizer_disown'
+          # needs custom impl to transfer ownership of detached items
+          spec.ignore 'wxSizer::Detach(wxSizer*)',
+                      'wxSizer::Detach(int)', ignore_doc: false
+          spec.add_extend_code 'wxSizer', <<~__HEREDOC
+            bool detach(wxSizer* szr)
+            {
+              if ($self->Detach(szr))
+              {
+                VALUE rb_szr = SWIG_RubyInstanceFor(szr);
+                if (rb_szr && !NIL_P(rb_szr))
+                {
+                  // transfer ownership to Ruby
+                  RDATA(rb_szr)->dfree = GcSizerFreeFunc;            
+                }
+                return true;
+              }
+              return false;
+            }
+
+            bool detach(int itm_nr)
+            {
+              wxSizerItem* itm = $self->GetItem(itm_nr);
+              if (itm)
+              {
+                VALUE rb_szr = Qnil;
+                if (itm->IsSizer())
+                {
+                  rb_szr = SWIG_RubyInstanceFor(itm->GetSizer());
+                }
+                if ($self->Detach(itm_nr))
+                {
+                  if (rb_szr && !NIL_P(rb_szr))
+                  {
+                    // transfer ownership to Ruby
+                    RDATA(rb_szr)->dfree = GcSizerFreeFunc;            
+                  }
+                  return true;
+                }
+              }
+              return false;
+            }
+            __HEREDOC
           # Typemap for GetChildren - convert to array of Sizer items
           spec.map 'wxSizerItemList&' => 'Array<Wx::SizerItem>' do
             map_out code: <<~__CODE
@@ -50,6 +107,12 @@ module WXRuby3
           spec.gc_as_untracked 'wxGBSpan', 'wxGBPosition'
           # cannot use this with wxRuby
           spec.ignore 'wxGridBagSizer::Add(wxGBSizerItem *)'
+          # need to adjust sizer arg name to apply disown specs
+          spec.ignore 'wxGridBagSizer::Add(wxSizer *, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
+                      ignore_doc: false
+          spec.extend_interface 'wxGridBagSizer',
+                                'wxSizerItem *Add(wxSizer *sizer_disown, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)'
+          spec.disown 'wxSizer* sizer_disown'
         end
         # no real use for allowing these to be overloaded but a whole lot of grieve
         # if we do allow it
