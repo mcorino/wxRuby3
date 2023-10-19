@@ -188,7 +188,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
   // Otherwise, retrieve the swig type info for this class and wrap it
   // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
   swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
-  VALUE r_obj = SWIG_NewPointerObj(wx_obj, swig_type, 1);
+  VALUE r_obj = SWIG_NewPointerObj(wx_obj, swig_type, 0);
   return r_obj;
 }
 
