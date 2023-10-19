@@ -114,10 +114,6 @@
                   vb_pt = get_view_start # Top left corner of client
                 
                   Wx::RegionIterator.for_region(get_update_region) do |region_it|
-            
-                    int vX,vY,vW,vH                 
-                    wxRegionIterator upd(GetUpdateRegion()) # get the update rect list
-                
                     region_it.each do |rct|
                       # rct == Dimensions of client area to repaint in pixels
                 
