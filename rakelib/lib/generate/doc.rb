@@ -172,7 +172,7 @@ module WXRuby3
               end
             end
           end
-          text.gsub!(/WX(K_[A-Z]+)/) { "{Wx::#{$1}}"}
+          text.gsub!(/WX(K_[A-Z]+)/) { "{Wx::KeyCode::#{$1}}"}
         end
         if event_section?
           case text
@@ -280,7 +280,7 @@ module WXRuby3
 
       def _ident_str_to_doc(s, ref_scope = nil)
         return s if no_idents?
-        return s if %w[wxRuby wxMSW wxOSX wxGTK wxX11].any? { |w| s.start_with?(w) }
+        return s if %w[wxRuby wxMSW wxOSX wxGTK wxX11 wxMac].any? { |w| s.start_with?(w) }
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
