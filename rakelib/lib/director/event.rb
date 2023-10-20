@@ -235,8 +235,28 @@ module WXRuby3
         end
         defmod
       end
+
+      def doc_generator
+        if spec.module_name == 'wxEvent'
+          EventDocGenerator.new(self)
+        else
+          super
+        end
+      end
+
     end # class Event
 
   end # class Director
+
+  class EventDocGenerator < DocGenerator
+
+    protected def gen_constants_doc(fdoc)
+      super
+      xref_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
+      gen_constant_doc(fdoc, 'EVT_MENU_HIGHLIGHT_ALL', xref_table['EVT_MENU_HIGHLIGHT'], '')
+      gen_constant_doc(fdoc, 'EVT_NC_PAINT', xref_table['EVT_NC_PAINT'], '')
+    end
+
+  end
 
 end # module WXRuby3

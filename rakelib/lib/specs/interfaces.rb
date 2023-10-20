@@ -176,7 +176,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxTimePickerCtrl', requirements: %w[wxUSE_TIMEPICKCTRL])
     Director.Spec(pkg, 'wxTimerEvent', director: Director::Event, requirements: %w[wxUSE_TIMER])
     Director.Spec(pkg, 'wxTimer', requirements: %w[wxUSE_TIMER])
-    Director.Spec(pkg, 'wxSashEvent', director: Director::Event, requirements: %w[wxUSE_SASH])
+    Director.Spec(pkg, 'wxSashEvent', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxSashWindow', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxSashLayoutWindow', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxQueryLayoutInfoEvent', director: Director::SashLayoutEvent)
