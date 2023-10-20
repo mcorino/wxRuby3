@@ -223,6 +223,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxBannerWindow', requirements: %w[wxUSE_BANNERWINDOW])
     Director.Spec(pkg, 'wxInfoBar', requirements: %w[wxUSE_INFOBAR])
     Director.Spec(pkg, 'wxFileSystem', requirements: %w[wxUSE_FILESYSTEM])
+    Director.Spec(pkg, 'wxDialUpManager', requirements: %w[wxUSE_DIALUP_MANAGER])
+    Director.Spec(pkg, 'wxDialUpEvent', requirements: %w[wxUSE_DIALUP_MANAGER])
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
