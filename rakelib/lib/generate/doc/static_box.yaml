@@ -18,6 +18,14 @@
             
               end
             ```
+    :post:
+      - :pattern: !ruby/regexp /,\s+use\s+\{Wx::HAS_WINDOW_LABEL_IN_STATIC_BOX\}.*compile-time\./
+        :subst: '.'
+:wxStaticBox.Create:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /,\s+use\s+\{Wx::HAS_WINDOW_LABEL_IN_STATIC_BOX\}.*compile-time\./
+        :subst: '.'
 :wxStaticBox.Enable:
   :detail:
     :pre:
