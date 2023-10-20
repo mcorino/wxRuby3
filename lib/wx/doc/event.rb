@@ -27,10 +27,4 @@ module Wx
 
   end
 
-  # Find a window with the focus, that is also a descendant of the given window.
-  # This is used to determine the window to initially send commands to.
-  # @param [Wx::Window] ancestor
-  # @return [Wx::Window,nil] descendant window of ancestor with focus
-  def self.find_focus_descendant(ancestor) end
-
 end

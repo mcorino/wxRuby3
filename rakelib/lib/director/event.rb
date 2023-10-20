@@ -201,8 +201,6 @@ module WXRuby3
           spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
           # add event type constant missing from interface defs
           spec.add_swig_code %Q{%constant wxEventType wxEVT_NC_PAINT = wxEVT_NC_PAINT;}
-          # add undocumented global function
-          spec.add_swig_code 'wxWindow* wxFindFocusDescendant(wxWindow* ancestor);'
         end
         super
       end

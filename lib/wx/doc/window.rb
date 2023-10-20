@@ -48,4 +48,9 @@ class Wx::Window
   # @return [Wx::Window]
   def find_window_by_name(name) end
 
+  # Switches the current sizer with the given sizer and detaches and returns the 'old' sizer.
+  # @param [Wx::Sizer] new_sizer new sizer for window
+  # @return [Wx::Sizer] previous window sizer
+  def switch_sizer(new_sizer) end
+
 end

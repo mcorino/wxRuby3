@@ -1432,36 +1432,6 @@ class MyFrame < Wx::Frame
 
   end
 
-  # Forward command events to the current rich text control, if any
-  def try_before(event)
-    if event.is_command_event && !event.is_a?(Wx::ChildFocusEvent)
-      # Problem: we can get infinite recursion because the events
-      # climb back up to this frame, and repeat.
-      # Assume that command events don't cause another command event
-      # to be called, so we can rely on inCommand not being overwritten
-
-      if MyFrame.win_id != event.id && MyFrame.event_type != event.event_type
-        MyFrame.event_type = event.event_type
-        MyFrame.win_id = event.id
-        focusWin = Wx.find_focus_descendant(self)
-        focusWin = @richTextCtrl unless focusWin
-
-        if focusWin && focusWin.get_event_handler.process_event(event)
-          MyFrame.event_type = 0
-          MyFrame.win_id = 0
-          return true
-        end
-
-        MyFrame.event_type = 0
-        MyFrame.win_id = 0
-      else
-        return false
-      end
-    end
-
-    false
-  end
-
   # Write text
   def write_initial_text
     r = @richTextCtrl

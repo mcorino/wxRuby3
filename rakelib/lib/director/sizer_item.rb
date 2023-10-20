@@ -22,6 +22,28 @@ module WXRuby3
           # ignore constructors
           spec.ignore 'wxSizerItem::wxSizerItem'
           spec.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow])
+          # need to adjust sizer arg name to apply disown specs
+          spec.ignore 'wxSizerItem::AssignSizer(wxSizer *)', ignore_doc: false
+          spec.extend_interface 'wxSizerItem',
+                                'void AssignSizer(wxSizer *sizer_disown)'
+          spec.disown 'wxSizer *sizer_disown'
+          # needs custom impl to properly transfer ownership to Ruby
+          spec.ignore 'wxSizerItem::DetachSizer', ignore_doc: false
+          spec.add_extend_code 'wxSizerItem', <<~__HEREDOC
+            void detach_sizer()
+            {
+              if ($self->IsSizer())
+              {
+                VALUE rb_szr = SWIG_RubyInstanceFor($self->GetSizer());
+                if (rb_szr && !NIL_P(rb_szr))
+                {
+                  // transfer ownership to Ruby
+                  RDATA(rb_szr)->dfree = GcSizerFreeFunc;            
+                }
+                $self->DetachSizer();
+              }              
+            }
+            __HEREDOC
         when 'wxGBSizerItem'
           spec.make_abstract 'wxGBSizerItem'
           # ignore constructors
