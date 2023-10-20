@@ -22,6 +22,24 @@ module WXRuby3
         spec.ignore %w{
           wxTheColourDatabase
         }
+        if Config.instance.wx_version >= '3.3.0'
+          spec.ignore 'wxColourDatabase::GetAllNames', ignore_doc: false
+          spec.add_extend_code 'wxColourDatabase', <<~__HEREDOC
+            VALUE get_all_names() const
+            {
+              wxVector<wxString> nms = $self->GetAllNames();
+              VALUE rb_nms = rb_ary_new();
+              for (const wxString& nm : nms)
+              {
+                rb_ary_push(rb_nms, WXSTR_TO_RSTR(nm));
+              } 
+              return rb_nms;
+            }
+            __HEREDOC
+          spec.map 'wxVector<wxString>' => 'Array<String>', swig: false do
+            map_out code: ''
+          end
+        end
         spec.ignore [
           'wxClientDisplayRect(int *,int *,int *,int *)',
           'wxDisplaySize(int *,int *)',
