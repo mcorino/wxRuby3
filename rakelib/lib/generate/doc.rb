@@ -343,6 +343,7 @@ module WXRuby3
             mtd = $1
             args = _arglist_to_doc($2)
           end
+          # transform the scope prefix
           if DocGenerator.constants_xref_db.has_key?(constnm)
             constnm = "#{DocGenerator.constants_xref_db[constnm]['mod']}::#{constnm}"
           elsif DocGenerator.constants_xref_db.has_key?(rb_constant_name(nm_str))
@@ -355,8 +356,18 @@ module WXRuby3
             known = false
             constnm = "Wx::#{constnm}"
           end
+          # transform and append the element id
           if mtd.nil?
-            if DocGenerator.constants_xref_db.has_key?(rb_wx_name(itmnm)) || !_is_method?(itmnm, nm_str)
+            if DocGenerator.constants_xref_db.has_key?(rb_wx_name(itmnm))
+              itmnm = rb_wx_name(itmnm)
+              # in case of enum constants the documented scope most likely omits the enum class
+              # which we want for correct linking for wxRuby
+              if DocGenerator.constants_xref_db[itmnm]['mod'].start_with?("#{constnm}::")
+                ["#{DocGenerator.constants_xref_db[itmnm]['mod']}::#{rb_wx_name(itmnm)}", known]
+              else
+                ["#{constnm}::#{rb_wx_name(itmnm)}", known]
+              end
+            elsif !_is_method?(itmnm, nm_str)
               ["#{constnm}::#{rb_wx_name(itmnm)}", known]
             else
               sep = _is_static_method?(nm_str, itmnm) ? '.' : '#'
