@@ -16,6 +16,9 @@ module WXRuby3
       CONST_RE = /(\A|\W)const(\W|\Z)/
       MULTI_WORD_TYPES = %w[char short int long]
       def initialize(param)
+        # prevent unwanted splitting on whitespaces in template type decls
+        param = param.gsub(/\<\s+/, '<')
+        param.gsub!(/\s+\>/, '>')
         @array = false
         if ::Array === param
           @ctype, @name, arr = param

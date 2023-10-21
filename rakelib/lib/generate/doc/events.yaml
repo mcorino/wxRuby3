@@ -57,6 +57,16 @@
               if event.get_modifiers == Wx::KeyModifier::MOD_CONTROL
                 # ... handle Ctrl-XXX ...
             ```
+:wxKeyEvent.GetRawKeyCode:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /,\s+use\s+\#ifdef\s+\{Wx::HAS_RAW_KEY_CODES\}.*available\./
+        :subst: '.'
+:wxKeyEvent.GetRawKeyFlags:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /,\s+use\s+\#ifdef\s+\{Wx::HAS_RAW_KEY_CODES\}.*available\./
+        :subst: '.'
 :wxMouseEvent.GetModifiers:
   :detail:
     :pre:

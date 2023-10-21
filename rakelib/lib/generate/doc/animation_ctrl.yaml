@@ -1,0 +1,15 @@
+---
+:wxAnimationBundle:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              animationCtrl = Wx::AnimationCtrl.new(parent, Wx::ID_ANY)
+              animations = Wx::AnimationBundle.new 
+              animations.add("throbber.gif")
+              animations.add("throbber_2x.gif")
+              animationCtrl.play if animationCtrl.set_animation(animations)
+            ```
