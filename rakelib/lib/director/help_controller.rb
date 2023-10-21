@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxHelpControllerBase'
+        spec.items << 'wxHelpControllerBase' << 'helpfrm.h'
         spec.fold_bases(spec.module_name => 'wxHelpControllerBase')
         spec.rename_for_ruby('Init' => "#{spec.module_name}::Initialize")
         # ignore these (pure virtual) decls

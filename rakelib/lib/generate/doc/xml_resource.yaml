@@ -11,6 +11,9 @@
                 Wx.log_error("Couldn't load resources!")
               end
             ```
+    :post:
+      - :pattern: !ruby/regexp /If\s+\{Wx::USE_FILESYS\}.*\)\./
+        :subst: 'If {Wx::Setup::USE_FILESYSTEM} is enabled, this method understands {Wx::FileSystem} URLs.'
 :wxXmlResource.LoadDialog:
   :detail:
     :pre:

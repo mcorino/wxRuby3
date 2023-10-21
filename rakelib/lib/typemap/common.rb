@@ -456,12 +456,10 @@ module WXRuby3
         end
 
 
-        # Validators must be cast to correct subclass, but internal validator
-        # is a clone, and should not be freed, so disown after wrapping.
+        # Validators must be cast to correct subclass, but not owned
         map 'wxValidator*' => 'Wx::Validator' do
           map_out code: <<~__CODE
             $result = wxRuby_WrapWxObjectInRuby($1);
-            if (!NIL_P($result)) RDATA($result)->dfree = SWIG_RubyRemoveTracking;
             __CODE
         end
 
@@ -631,11 +629,6 @@ module WXRuby3
               $result = SWIG_NewPointerObj((new wx#{klass}(*static_cast< const wx#{klass}* >($1))), SWIGTYPE_p_wx#{klass}, SWIG_POINTER_OWN);
               __CODE
           end
-        end
-
-        # special case bc SWIG causes trouble in Window.cpp
-        map 'const wxRegion&', 'const wxRegion*', as: 'Wx::Region' do
-          map_out code: '$result = wxRuby_WrapWxObjectInRuby(new wxRegion(*static_cast<const wxRegion*> ($1)));'
         end
 
         # add type mapping for wxVariant input args

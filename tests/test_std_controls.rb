@@ -439,3 +439,39 @@ class GaugeTests < WxRuby::Test::GUITests
     assert_equal(100, gauge.value)
   end
 end
+
+class StaticBoxTests < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @box = nil
+  end
+
+  def cleanup
+    @box.destroy if @box
+    super
+  end
+
+  attr_reader :box
+
+  def test_basic
+    @box = Wx::StaticBox.new(frame_win, label: 'Box')
+
+    txt = Wx::StaticText.new(box, Wx::ID_ANY, "This window is a child of the staticbox")
+    assert_equal(box, txt.parent)
+  end
+
+  unless Wx::PLATFORM == 'WXOSX'
+
+  def test_label_window
+    check = Wx::CheckBox.new(frame_win, Wx::ID_ANY, 'Enable')
+    @box = Wx::StaticBox.new(frame_win, label: check)
+
+    button = Wx::Button.new(box, label: 'Button')
+    box.enable(false)
+    assert_false(button.is_enabled)
+  end
+
+  end
+
+end

@@ -201,8 +201,6 @@ module WXRuby3
           spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
           # add event type constant missing from interface defs
           spec.add_swig_code %Q{%constant wxEventType wxEVT_NC_PAINT = wxEVT_NC_PAINT;}
-          # add undocumented global function
-          spec.add_swig_code 'wxWindow* wxFindFocusDescendant(wxWindow* ancestor);'
         end
         super
       end
@@ -237,8 +235,28 @@ module WXRuby3
         end
         defmod
       end
+
+      def doc_generator
+        if spec.module_name == 'wxEvent'
+          EventDocGenerator.new(self)
+        else
+          super
+        end
+      end
+
     end # class Event
 
   end # class Director
+
+  class EventDocGenerator < DocGenerator
+
+    protected def gen_constants_doc(fdoc)
+      super
+      xref_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
+      gen_constant_doc(fdoc, 'EVT_MENU_HIGHLIGHT_ALL', xref_table['EVT_MENU_HIGHLIGHT'], '')
+      gen_constant_doc(fdoc, 'EVT_NC_PAINT', xref_table['EVT_NC_PAINT'], '')
+    end
+
+  end
 
 end # module WXRuby3

@@ -176,7 +176,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxTimePickerCtrl', requirements: %w[wxUSE_TIMEPICKCTRL])
     Director.Spec(pkg, 'wxTimerEvent', director: Director::Event, requirements: %w[wxUSE_TIMER])
     Director.Spec(pkg, 'wxTimer', requirements: %w[wxUSE_TIMER])
-    Director.Spec(pkg, 'wxSashEvent', director: Director::Event, requirements: %w[wxUSE_SASH])
+    Director.Spec(pkg, 'wxSashEvent', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxSashWindow', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxSashLayoutWindow', requirements: %w[wxUSE_SASH])
     Director.Spec(pkg, 'wxQueryLayoutInfoEvent', director: Director::SashLayoutEvent)
@@ -223,6 +223,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxBannerWindow', requirements: %w[wxUSE_BANNERWINDOW])
     Director.Spec(pkg, 'wxInfoBar', requirements: %w[wxUSE_INFOBAR])
     Director.Spec(pkg, 'wxFileSystem', requirements: %w[wxUSE_FILESYSTEM])
+    Director.Spec(pkg, 'wxDialUpManager', requirements: %w[wxUSE_DIALUP_MANAGER])
+    Director.Spec(pkg, 'wxDialUpEvent', requirements: %w[wxUSE_DIALUP_MANAGER])
   }
 
   Director.Package('Wx::PRT', 'wxUSE_PRINTING_ARCHITECTURE') do |pkg|
