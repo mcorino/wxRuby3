@@ -455,7 +455,7 @@ class StaticBoxTests < WxRuby::Test::GUITests
   attr_reader :box
 
   def test_basic
-    @box = Wx::StaticBox.new(frame_win, name: 'Box')
+    @box = Wx::StaticBox.new(frame_win, label: 'Box')
 
     txt = Wx::StaticText.new(box, Wx::ID_ANY, "This window is a child of the staticbox")
     assert_equal(box, txt.parent)
