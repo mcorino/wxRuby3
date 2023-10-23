@@ -91,14 +91,18 @@ module WXRuby3
       end
 
       def rb_constant_value(name)
-        val = name.sub(/\Awx/, 'Wx::')
-        case val
-        when /NULL|nullptr/
+        name = name.strip
+        case name
+        when /\A(null|nullptr)\Z/i
           'nil'
+        when /\A(true|false)\Z/i
+          name.downcase
         when /EmptyString/
           %q['']
+        when /\A\"/
+          name
         else
-          val
+          "#{name.start_with?('wx') ? 'Wx::' : ''}#{rb_constant_name(name)}"
         end
       end
 
@@ -110,7 +114,7 @@ module WXRuby3
           ids = idstr.split('::')
           if ids.size > 1
             is_scoped = true
-            scoped_name = rb_constant_value(ids.shift)
+            scoped_name = rb_wx_name(ids.shift)
             while ids.size > 1
               scoped_name << '::' << ids.shift
             end
@@ -127,7 +131,7 @@ module WXRuby3
               when 'wxString'
                 '('
               else
-                "#{rb_constant_value(idstr)}.new("
+                "#{idstr.start_with?('wx') ? 'Wx::' : ''}#{rb_wx_name(idstr)}.new("
               end
             end
           else
@@ -143,8 +147,6 @@ module WXRuby3
               # constant
               if /[\-\+\.\d]+/ =~ idstr
                 idstr # numeric constant
-              elsif /\A(true|false|NULL|nullptr)/ =~ idstr
-                ($1 == 'NULL' || $1 == 'nullptr') ? 'nil' : $1
               else
                 if const_xref.has_key?(rb_constant_name(idstr))
                   "#{const_xref[rb_constant_name(idstr)]['mod']}::#{rb_constant_name(idstr)}"
