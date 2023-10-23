@@ -1,8 +1,6 @@
-# :stopdoc:
 # Copyright (c) 2023 M.J.N. Corino, The Netherlands
 #
 # This software is released under the MIT license.
-# :startdoc:
 
 
 module Wx
@@ -10,8 +8,7 @@ module Wx
 =begin
   These constants are not documented in the wxWidgets interface headers
   although they are referenced in various argument defaults which *are*
-  in the interface header declarations so we do want them included the
-  wxRuby docs so the doc links work.
+  in the interface header declarations so.
 =end
 
   DEFAULT_DATE_TIME_FORMAT = '%c'
@@ -74,8 +71,10 @@ module Wx
   EDITABLE_LIST_BOX_NAME_STR = 'editableListBox'
   V_LIST_BOX_NAME_STR = 'wxVListBox'
 
-  # wxMSW only
-  MSW_HEADER_CTRL_NAME_STR = 'wxMSWHeaderCtrl'
+  if Wx::PLATFORM == 'WXMSW'
+    # wxMSW only
+    MSW_HEADER_CTRL_NAME_STR = 'wxMSWHeaderCtrl'
+  end
 
   PROPERTY_GRID_MANAGER_NAME_STR = 'wxPropertyGridManager'
   PROPERTY_GRID_NAME_STR = 'wxPropertyGrid'
