@@ -17,13 +17,31 @@ module WXRuby3
       include Typemap::TreeItemId
 
       def setup
-        spec.post_processors << :fixtreectrl
         spec.items.replace %w[wxTreeCtrl treebase.h]
         spec.override_inheritance_chain('wxTreeCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         # mixin WithImages
         spec.include_mixin 'wxTreeCtrl', 'Wx::WithImages'
         spec.ignore('operator!=', 'operator==')
         spec.include 'wx/dirctrl.h'
+        # Use a custom interface class to work around the wxTreeCtrl::SortItems/OnCompareItems issue
+        # without having to patch the SWIG director class
+        spec.add_header_code <<~__HEREDOC
+          class WxRubyTreeCtrl : public wxTreeCtrl
+          {
+          public:
+            WxRubyTreeCtrl() : wxTreeCtrl() {}
+            WxRubyTreeCtrl(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
+		                       const wxSize& size = wxDefaultSize, long style = wxTR_DEFAULT_STYLE, 
+                           const wxValidator& validator = wxDefaultValidator, const wxString& name = wxTreeCtrlNameStr)
+              : wxTreeCtrl(parent, id, pos, size, style, validator, name)
+            {}
+            virtual ~WxRubyTreeCtrl() {}
+          private:
+            DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
+          };
+          IMPLEMENT_DYNAMIC_CLASS(WxRubyTreeCtrl,  wxTreeCtrl);          
+          __HEREDOC
+        spec.use_class_implementation('wxTreeCtrl', 'WxRubyTreeCtrl')
         # These only differ from SetXXXList in the way memory ownership is
         # transferred. So only support the version that won't leak on wxRuby.
         spec.ignore %w[
@@ -370,48 +388,5 @@ module WXRuby3
     end # class TreeCtrl
 
   end # class Director
-
-  module SwigRunner
-    class Processor
-
-      # special post-processor for TreeCtrl
-      class Fixtreectrl < Processor
-
-        def run
-          director_found = false
-          update_source do |line|
-            # Ugly: special fixes for TreeCtrl - these macros and extra funcs
-            # are needed to allow user-defined sorting to work
-            # default ctor needed for Swig::Director
-            if line["Director(VALUE self) : swig_self(self), swig_disown_flag(false)"]
-              line = "    Director() { } // added by fixmodule.rb \n" + line
-            end
-            if line["SwigDirector_wxTreeCtrl::SwigDirector_wxTreeCtrl(VALUE self)"]
-              line = "IMPLEMENT_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl,  wxTreeCtrl);\n" + line
-              director_found = true
-            end
-
-            line
-          end
-          if director_found
-            # We also need to tweak the header file
-            update_header do |line|
-              if line.strip == 'public:'
-                line << "\nSwigDirector_wxTreeCtrl() {};"
-              elsif /\A};/ =~ line
-                line = <<~__HEREDOC
-                  private:
-                  DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
-                  };
-                  __HEREDOC
-              end
-              line
-            end
-          end
-        end
-      end # class Fixtreectrl
-
-    end
-  end
 
 end # module WXRuby3
