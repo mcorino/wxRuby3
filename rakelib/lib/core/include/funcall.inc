@@ -14,52 +14,8 @@ typedef VALUE (*RUBY_INVOKE_FUNC) (VALUE);
 VALUE rb_exc_set_backtrace(VALUE, VALUE);
 VALUE rb_get_backtrace(VALUE);
 
-namespace Swig {
-  /* Base class for director exceptions */
-  class DirectorException : public std::exception
-  {
-  protected:
-    VALUE swig_error;
-    std::string swig_msg;
-  protected:
-    DirectorException(VALUE error) : swig_error(error) { }
-    DirectorException(VALUE error, const char *hdr, const char *msg ="") : swig_error(error), swig_msg(hdr)
-    {
-      if (msg[0])
-      {
-        swig_msg += " ";
-        swig_msg += msg;
-      }
-      if (swig_msg.size())
-      {
-        VALUE str = rb_str_new(swig_msg.data(), swig_msg.size());
-        swig_error = rb_exc_new3(error, str);
-      }
-      else
-      {
-        swig_error = error;
-      }
-    }
-  public:
-    virtual ~DirectorException() throw() { }
-    VALUE getType() const
-    {
-      return CLASS_OF(swig_error);
-    }
-    VALUE getError() const
-    {
-      return swig_error;
-    }
-    /* Deprecated, use what() instead */
-    const std::string& getMessage() const
-    {
-      return swig_msg;
-    }
-    const char *what() const throw()
-    {
-      return swig_msg.c_str();
-    }
-  };
+namespace Swig
+{
   class DirectorRubyException : public DirectorException
   {
   public:
