@@ -245,10 +245,12 @@ SWIG_Ruby_NewPointerObj(void *ptr, swig_type_info *type, int flags)
         downcast methods. */
       if (obj != Qnil)
       {
+        // wxRuby : Note that we also track non-SWIG types so the return
+        //          value might be nil
         VALUE value = rb_iv_get(obj, "@__swigtype__");
-        const char* type_name = RSTRING_PTR(value);
 
-        if (strcmp(type->name, type_name) == 0)
+        // wxRuby : allow returning tracked objects of derived classes
+        if (!NIL_P(value) && rb_obj_is_kind_of(obj, sklass->klass))
         {
           return obj;
         }
