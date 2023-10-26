@@ -35,11 +35,31 @@ WX_DECLARE_HASH_MAP(VALUE,
 					RbClassToSwigTypeHash);
 RbClassToSwigTypeHash Global_Type_Map;
 
+// Mapping of wxWidgets class names to Ruby classes
+WX_DECLARE_STRING_HASH_MAP(VALUE,
+                           WxClassnameToRbClassHash);
+WxClassnameToRbClassHash Global_Class_Map;
+
+// Record wxRuby class for a wxw class name
+WXRUBY_EXPORT void wxRuby_SetRbClassForWxName(const wxString& wx_name, VALUE cls)
+{
+  Global_Class_Map[wx_name] = cls;
+}
+
+// Retrieve wxRuby class for a wxw class name
+WXRUBY_EXPORT VALUE wxRuby_GetRbClassForWxName(const wxString& wx_name)
+{
+  return Global_Class_Map[wx_name];
+}
+
 // Record swig_type_info for a wxRuby class; called in class
 // initialisation
 WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty)
 {
   Global_Type_Map[cls] = ty;
+  const char* swig_type_name = ty->name;
+  // skip '_p_' prefix and register class
+  wxRuby_SetRbClassForWxName(wxString(swig_type_name+3), cls);
 }
 
 // Retrieve swig_type_info for a ruby class - needed by functions which
@@ -141,33 +161,11 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 
   // Get the wx class and the ruby class we are converting into
   wxString class_name( wx_obj->GetClassInfo()->GetClassName() );
-  wxCharBuffer wx_classname = class_name.mb_str();
-  VALUE r_class_name = rb_intern(wx_classname.data () + 2);
-  VALUE r_class = Qnil;
-
-  if ( class_name.Len() > 2 )
-  {
-    // lookup the class in the main module and any package submodules loaded
-    if (rb_const_defined(mWxCore, r_class_name))
-      r_class = rb_const_get(mWxCore, r_class_name);
-    else
-    {
-      VALUE submod_ary = rb_ivar_get(mWxCore, rb_intern("@__pkgmods__"));
-      for (long n=0; n<RARRAY_LEN(submod_ary); ++n)
-      {
-        VALUE submod = rb_ary_entry(submod_ary, n);
-        if (rb_const_defined(submod, r_class_name))
-        {
-          r_class = rb_const_get(submod, r_class_name);
-          break;
-        }
-      }
-    }
-  }
+  VALUE r_class = wxRuby_GetRbClassForWxName(class_name);
 
   // Handle classes (currently) unknown in wxRuby.
   // (could cause problems because class-specific methods won't be accessible).
-  if ( r_class == Qnil )
+  if ( r_class == 0 || NIL_P(r_class) )
   {
     // map unknown wxWindow derivatives as basic window
     if (wxIsKindOf(wx_obj, wxWindow))
