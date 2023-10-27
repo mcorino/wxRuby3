@@ -53,7 +53,7 @@ module WXRuby3
               if ( TYPE(v_ret) == T_DATA )
               {
                 void* ptr;
-                SWIG_ConvertPtr(v_ret, &ptr, SWIGTYPE_p_wxSize, 1);
+                SWIG_ConvertPtr(v_ret, &ptr, SWIGTYPE_p_wxSize, 0);
                 return *reinterpret_cast< wxSize * >(ptr);
               }
               else if ( TYPE(v_ret) == T_ARRAY )
