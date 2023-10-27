@@ -106,6 +106,8 @@ namespace Swig {
 
     DirectorException(VALUE error, const char *hdr, const char *msg ="");
 
+    void setup_error(VALUE error);
+
   public:
     virtual ~DirectorException() throw();
 
@@ -143,14 +145,21 @@ namespace Swig {
       : DirectorException(rb_eTypeError, "SWIG director type mismatch", msg)
     {}
 
-    static void raise(VALUE error, const char *msg)
+    DirectorTypeMismatchException(VALUE self, const char *method, VALUE error, const char *msg="");
+
+    static inline void raise(VALUE error, const char *msg)
     {
       throw DirectorTypeMismatchException(error, msg);
     }
 
-    static void raise(const char *msg)
+    static inline void raise(const char *msg)
     {
       throw DirectorTypeMismatchException(msg);
+    }
+
+    static inline void raise(VALUE self, const char* method, VALUE error, const char *msg)
+    {
+      throw DirectorTypeMismatchException(self, method, error, msg);
     }
   };
 

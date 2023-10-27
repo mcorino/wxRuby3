@@ -119,6 +119,8 @@ namespace Swig
 
     DirectorException(VALUE error, const char *hdr, const char *msg ="");
 
+    void setup_error(VALUE error);
+
   public:
     virtual ~DirectorException() throw();
 
@@ -145,25 +147,32 @@ namespace Swig
   };
 
   DirectorException::DirectorException(VALUE error, const char *hdr, const char *msg)
-    : swig_error(error), swig_msg(hdr)
+    : swig_msg(hdr)
   {
     if (msg[0])
     {
       swig_msg += " ";
       swig_msg += msg;
     }
-    if (swig_msg.size())
-    {
-      VALUE str = rb_str_new(swig_msg.data(), swig_msg.size());
-      swig_error = rb_exc_new3(error, str);
-    } else
-    {
-      swig_error = error;
-    }
+    this->setup_error(error);
   }
 
   DirectorException::~DirectorException() throw()
   {}
+
+
+  void DirectorException::setup_error(VALUE error)
+  {
+    if (swig_msg.size())
+    {
+      VALUE str = rb_str_new(swig_msg.data(), swig_msg.size());
+      swig_error = rb_exc_new3(error, str);
+    }
+    else
+    {
+      swig_error = error;
+    }
+  }
 
   /* Type mismatch in the return value from a Ruby method call */
   class WXRB_EXPORT_FLAG DirectorTypeMismatchException : public DirectorException
@@ -177,16 +186,36 @@ namespace Swig
       : DirectorException(rb_eTypeError, "SWIG director type mismatch", msg)
     {}
 
-    static void raise(VALUE error, const char *msg)
+    DirectorTypeMismatchException(VALUE self, const char *method, VALUE error, const char *msg="");
+
+    static inline void raise(VALUE error, const char *msg)
     {
       throw DirectorTypeMismatchException(error, msg);
     }
 
-    static void raise(const char *msg)
+    static inline void raise(const char *msg)
     {
       throw DirectorTypeMismatchException(msg);
     }
+
+    static inline void raise(VALUE self, const char* method, VALUE error, const char *msg)
+    {
+      throw DirectorTypeMismatchException(self, method, error, msg);
+    }
   };
+
+
+  DirectorTypeMismatchException::DirectorTypeMismatchException(VALUE self, const char *method, VALUE error, const char *msg)
+    : DirectorException(Qnil)
+  {
+    this->swig_msg = "SWIG director type mismatch ";
+    this->swig_msg += msg;
+    this->swig_msg += " returned from ";
+    this->swig_msg += rb_class2name(CLASS_OF(self));
+    this->swig_msg += "#";
+    this->swig_msg += method;
+    this->setup_error(rb_eTypeError);
+  }
 
   /* Any Ruby exception that occurs during a director method call */
   class WXRB_EXPORT_FLAG DirectorMethodException : public DirectorException
