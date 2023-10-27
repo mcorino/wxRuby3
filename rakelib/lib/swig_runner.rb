@@ -275,8 +275,6 @@ module WXRuby3
           core_name = name
           core_name = 'ruby3' if /\Awx\Z/i =~ core_name
 
-          brace_level = 0
-
           fix_enum = false
           enum_item = nil
 
@@ -322,20 +320,6 @@ module WXRuby3
                 \(void\s\*\)\s+&(\w+)\)/x
 
                 line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
-              end
-
-              # TODO : can we improve this?
-              # Fix for Event.i - because it is implemented with a custom Ruby
-              # subclass, need to make this subclass SWIG info available under
-              # the normal name "SWIGTYPE_p_wxEvent" as it's referenced by many
-              # other classes.
-              if core_name == 'Event' or core_name == 'CommandEvent'
-                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRuby(Command)?Event/]
-                  line = line +
-                    "  // Inserted by fixmodule.rb\n" +
-                    line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
-                             "SWIGTYPE_p_wx\\1Event")
-                end
               end
 
               # check for known enumerator constants
