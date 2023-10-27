@@ -341,7 +341,14 @@ module WXRuby3
               // Get the ruby representation of the App object, and call the
               // ruby on_init method to set up the initial window state
               VALUE the_app = rb_const_get(#{spec.package.module_variable}, rb_intern("THE_APP"));
-              VALUE result  = wxRuby_Funcall(the_app, rb_intern("on_ruby_init"), 0, 0);
+              bool ex_caught = false;
+              VALUE result  = wxRuby_Funcall(ex_caught, the_app, rb_intern("on_ruby_init"), 0, 0);
+
+              if (ex_caught)
+              {
+                wxRuby_PrintException(result);
+                result = Qfalse; // exit app
+              }
         
               // If on_init return any (ruby) true value, signal to wxWidgets to
               // enter the main event loop by returning true, else return false
@@ -371,7 +378,12 @@ module WXRuby3
               ID on_exit_id = rb_intern("on_exit");
               if (rb_funcall(the_app, rb_intern("respond_to?"), 1, ID2SYM(on_exit_id)) == Qtrue)
               {
-                wxRuby_Funcall(the_app, on_exit_id, 0, 0);
+                bool ex_caught = false;
+                VALUE rc = wxRuby_Funcall(ex_caught, the_app, on_exit_id, 0, 0);
+                if (ex_caught)
+                {
+                  wxRuby_PrintException(rc);
+                }
               }
 
               // perform wxRuby cleanup
@@ -470,10 +482,10 @@ module WXRuby3
             VALUE msg = rb_funcall(err, message_id(), 0);
             VALUE err_name = rb_funcall(rb_funcall(err, class_id(), 0), name_id(), 0);
             VALUE bt = rb_funcall(err, backtrace_id(), 0);
-            bt = rb_funcall(bt, join_id(), 1, rb_str_new2("\\n"));
+            bt = rb_funcall(bt, join_id(), 1, rb_str_new2("\\n\\tfrom "));
             std::cerr << std::endl
-                      << ' ' << StringValuePtr(err_name) << ": " << StringValuePtr(msg) << std::endl
-                      << StringValuePtr(bt) << std::endl;
+                      << ' ' << StringValuePtr(msg) << '(' << StringValuePtr(err_name) << ')' << std::endl
+                      << "\\tfrom " << StringValuePtr(bt) << std::endl << std::endl;
           }
           __HEREDOC
         super
