@@ -165,15 +165,37 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 
   // Handle classes (currently) unknown in wxRuby.
   // (could cause problems because class-specific methods won't be accessible).
-  if ( r_class == 0 || NIL_P(r_class) )
+  if (r_class == 0 || NIL_P(r_class))
   {
-    // map unknown wxWindow derivatives as basic window
+    // map unknown wxWindow derivatives as a mapped base class
+    // this solves issues with explicitly defined wxRuby custom
+    // DECLARE_DYNAMIC_CLASS classes like WxRubyTreeCtrl
     if (wxIsKindOf(wx_obj, wxWindow))
     {
-      r_class = rb_const_get(mWxCore, window_id());
-      // issue warning if $VERBOSE is true
-      rb_warning("Cannot wrap exact window class as '%s' is not (yet) known in wxRuby; wrapping as base Window object.",
-                 (const char *)class_name.mb_str());
+      wxClassInfo* cls_info = wx_obj->GetClassInfo();
+      do
+      {
+        wxString base_name(wx_obj->GetClassInfo()->GetBaseClassName1());
+        r_class = wxRuby_GetRbClassForWxName(base_name);
+        if (r_class == 0 || NIL_P(r_class))
+        {
+          cls_info = wxClassInfo::FindClass(base_name);
+          if (!cls_info)
+          {
+            // map to basic Wx::Window
+            r_class = rb_const_get(mWxCore, window_id());
+            // issue warning if $VERBOSE is true
+            rb_warning("Cannot wrap exact window class as '%s' is not (yet) known in wxRuby; wrapping as base Wx::Window object.",
+                       (const char *)class_name.mb_str());
+          }
+        }
+        else
+        {
+          // issue warning if $VERBOSE is true
+          rb_warning("Cannot wrap exact window class as '%s' is not (yet) known in wxRuby; wrapping as %s object.",
+                     (const char *)class_name.mb_str(), rb_class2name(r_class));
+        }
+      } while (r_class == 0 || NIL_P(r_class));
     }
     else
     {
