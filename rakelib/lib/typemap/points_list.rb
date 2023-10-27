@@ -29,28 +29,26 @@ module WXRuby3
           add_header_code <<~__CODE
             static void wxRuby_PointArrayRubyToC(VALUE rb_arr, wxPoint wx_arr[]) 
             {
-              wxPoint *wx_point;
               VALUE rb_item;
               for (int i = 0; i < RARRAY_LEN(rb_arr); i++)
               {
                 rb_item = rb_ary_entry (rb_arr, i);
                 if (TYPE(rb_item) == T_DATA)
                 {
+                    wxPoint *wx_point;
                     SWIG_ConvertPtr (rb_item, (void **) &wx_point,
-                                     SWIGTYPE_p_wxPoint, 1);
+                                     SWIGTYPE_p_wxPoint, 0);
+                    wx_arr[i] = *wx_point;
                 }
                 else if (TYPE(rb_item) == T_ARRAY && RARRAY_LEN(rb_item) == 2)
                 {
-                  wx_point = new wxPoint (NUM2INT( rb_ary_entry(rb_item, 0)),
-                    NUM2INT(rb_ary_entry (rb_item, 1)));
-                  // Create a ruby object so the C++ obj is freed when GC runs
-                  SWIG_NewPointerObj (wx_point, SWIGTYPE_p_wxPoint, 1);
+                  wx_arr[i] = wxPoint (NUM2INT( rb_ary_entry(rb_item, 0)),
+                                       NUM2INT(rb_ary_entry (rb_item, 1)));
                 }
                 else
                 {
                   rb_raise(rb_eTypeError, "Wrong type for wxPoint parameter %i", i);
                 }
-                wx_arr[i] = *wx_point;
               }
             }
             __CODE
