@@ -105,8 +105,7 @@ module WXRuby3
               }
               else
               {
-                Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
-                                                           "get_data_here should return a string, or nil on failure");
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, "get_data_here should return a string, or nil on failure");
               }
             }
             else

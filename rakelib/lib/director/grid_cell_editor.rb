@@ -182,12 +182,12 @@ module WXRuby3
             static WxRuby_ID ga_mouse_id("mouse");
 
             inline wxGridActivationResult
-            array_to_wxGridActivationResult(VALUE rbarr)
+            array_to_wxGridActivationResult(VALUE self, const char* method, VALUE rbarr)
             {
               if (rbarr == Qnil || 
                 !(TYPE(rbarr) == T_ARRAY || TYPE(rbarr) == T_SYMBOL))
               {
-                Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
+                Swig::DirectorTypeMismatchException::raise(self, method, SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
                                                            "in output value of type 'wxGridActivationResult'");
               }
               if (TYPE(rbarr) == T_SYMBOL)
@@ -197,7 +197,7 @@ module WXRuby3
                 else if (SYM2ID(rbarr) == ga_show_editor_id())
                   return wxGridActivationResult::DoEdit();
                 else
-                  Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
+                  Swig::DirectorTypeMismatchException::raise(self, method, SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
                                                              "in output value of type 'wxGridActivationResult'");
               }
               else
@@ -206,7 +206,7 @@ module WXRuby3
                 VALUE rbStr = rb_ary_shift(rbarr); // could be nil
                 if (rbAction == Qnil || TYPE(rbAction) != T_SYMBOL)
                 {
-                  Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
+                  Swig::DirectorTypeMismatchException::raise(self, method, SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
                                                              "in output value of type 'wxGridActivationResult'");
                 }
                 else if (SYM2ID(rbAction) == ga_change_id() && rbStr != Qnil)
@@ -220,7 +220,7 @@ module WXRuby3
                   else if (SYM2ID(rbAction) == ga_show_editor_id())
                     return wxGridActivationResult::DoEdit();
                   else
-                    Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
+                    Swig::DirectorTypeMismatchException::raise(self, method, SWIG_ErrorType(SWIG_ArgError(SWIG_ERROR)), 
                                                                "in output value of type 'wxGridActivationResult'");
                 }
               }
@@ -366,7 +366,7 @@ module WXRuby3
                 obj2 = SWIG_NewPointerObj(SWIG_as_voidptr(grid), SWIGTYPE_p_wxGrid,  0 );
                 obj3 = wxGridActivationSource_to_array(actSource); 
                 result = rb_funcall(swig_get_self(), try_activate_id(), 4,obj0,obj1,obj2,obj3);
-                return array_to_wxGridActivationResult(result);
+                return array_to_wxGridActivationResult(swig_get_self(), "try_activate", result);
                 __METHOD__
             elsif !helpers_added && line["SwigDirector_#{module_name}::SwigDirector_#{module_name}(VALUE self"]
               # insert helper methods

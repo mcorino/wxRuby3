@@ -153,7 +153,7 @@ module WXRuby3
               }
               else
               {
-                Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, 
                                                            "expected an Integer, or nil on failure");
               }
             }

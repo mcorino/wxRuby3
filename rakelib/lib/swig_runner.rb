@@ -224,6 +224,10 @@ module WXRuby3
               name = $1
               line['rb_funcall'] = 'wxRuby_Funcall'
               line[name] = '"%s"' % rb_method_name(name[1..-2])
+              # director output exceptions
+            when /Swig::DirectorTypeMismatchException::raise\(swig_get_self\(\),\s+\"(\w+)\"/
+              name = $1
+              line[%Q{"#{name}"}] = %Q{"#{rb_method_name(name)}"}
               # defined alias methods (original method name)
             when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*[=\?\!]?")/
               name = $1

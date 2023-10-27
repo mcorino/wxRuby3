@@ -200,7 +200,7 @@ module WXRuby3
               }
               else
               {
-                Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, 
                                                            "on_custom_string_edit should return a string, or nil");
               }
             }

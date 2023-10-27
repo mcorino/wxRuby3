@@ -60,7 +60,7 @@ module WXRuby3
             void* ptr = 0;
             int res$argnum = SWIG_ConvertPtr($result, &ptr, SWIGTYPE_p_wxImage,  0 );
             if (!SWIG_IsOK(res$argnum)) {
-              Swig::DirectorTypeMismatchException::raise(rb_eTypeError, "Expected Wx::Image result");
+              Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, "Expected Wx::Image result");
             }
             *$1 = *reinterpret_cast<wxImage*> (ptr);
           __CODE

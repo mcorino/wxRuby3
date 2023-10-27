@@ -23,6 +23,7 @@ namespace Swig
       : DirectorException(Qnil)
     {
       VALUE msg = rb_sprintf("Caught exception in SWIG director method for %s#%s", rb_class2name(CLASS_OF(rcvr)), rb_id2name(fn_id));
+      this->swig_msg = StringValuePtr(msg);
       swig_error = rb_exc_new_str(rb_eRuntimeError, msg);
       VALUE bt = rb_funcall(error, rb_intern("backtrace"), 0);
       rb_funcall(swig_error, rb_intern("set_backtrace"), 1, bt);
