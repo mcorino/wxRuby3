@@ -20,6 +20,11 @@ module WXRuby3
       define do
 
         map 'const wxPGPropArgCls&' => 'String,Wx::PG::PGProperty' do
+
+          add_header_code <<~__CODE
+            static WxRuby_ID s_pg_property_id("PGProperty");
+            __CODE
+
           map_in temp: 'wxPGPropArgCls temp = (wxPGProperty *)0', code: <<~__CODE
             if (!NIL_P($input))
             {
@@ -29,12 +34,12 @@ module WXRuby3
               }
               else if (TYPE($input) == T_DATA)
               {
-                VALUE rb_klass = rb_const_get(mWxPG, rb_intern("PGProperty"));
+                VALUE rb_klass = rb_const_get(mWxPG, s_pg_property_id());
                 if (rb_obj_is_kind_of($input, rb_klass))
                 {
                   swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(rb_klass);
                   wxPGProperty *pgprop = (wxPGProperty *)0;
-                  SWIG_ConvertPtr($input, SWIG_as_voidptrptr(&pgprop), swig_type, SWIG_POINTER_DISOWN);
+                  SWIG_ConvertPtr($input, SWIG_as_voidptrptr(&pgprop), swig_type, 0);
                   temp = wxPGPropArgCls(pgprop);
                 }
                 else
