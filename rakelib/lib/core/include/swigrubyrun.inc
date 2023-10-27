@@ -4,6 +4,8 @@
 
 // SWIG Ruby runtime
 
+/* From rubytracking.swg */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,6 +48,36 @@ SWIGRUNTIMEINLINE void SWIG_RubyUnlinkObjects(void* ptr)
     DATA_PTR(object) = 0;
   }
 }
+#ifdef __cplusplus
+}
+#endif
+
+/* From rubyapi.swg */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+WXRB_EXPORT_FLAG VALUE
+SWIG_Ruby_AppendOutput(VALUE target, VALUE o)
+{
+  if (NIL_P(target))
+  {
+    target = o;
+  }
+  else
+  {
+    if (TYPE(target) != T_ARRAY)
+    {
+      VALUE o2 = target;
+      target = rb_ary_new();
+      rb_ary_push(target, o2);
+    }
+    rb_ary_push(target, o);
+  }
+  return target;
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -95,8 +127,6 @@ SWIGRUNTIMEINLINE void SWIG_RubyUnlinkObjects(void* ptr)
 
 #define SWIG_MangleStr(value)                        	SWIG_Ruby_MangleStr(value)
 #define SWIG_CheckConvert(value, ty)                 	SWIG_Ruby_CheckConvert(value, ty)
-
-#define SWIG_ObjectPreviouslyDeletedError  -100
 
 static VALUE _mSWIG = Qnil;
 

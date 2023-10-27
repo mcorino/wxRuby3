@@ -322,8 +322,9 @@ module WXRuby3
           fsrc.puts
           if is_core?
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrun.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrubyerrors.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrubyrun.inc'))
-            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'director.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigdirector.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'funcall.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'enum.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'init.inc'))
