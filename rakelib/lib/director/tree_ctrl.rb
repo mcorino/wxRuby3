@@ -37,7 +37,7 @@ module WXRuby3
             {}
             virtual ~WxRubyTreeCtrl() {}
           private:
-            DECLARE_DYNAMIC_CLASS(SwigDirector_wxTreeCtrl);
+            DECLARE_DYNAMIC_CLASS(WxRubyTreeCtrl);
           };
           IMPLEMENT_DYNAMIC_CLASS(WxRubyTreeCtrl,  wxTreeCtrl);          
           __HEREDOC
