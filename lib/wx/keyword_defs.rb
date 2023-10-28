@@ -349,8 +349,6 @@ Wx::define_keyword_ctors(Wx::ComboCtrl) do
   wx_ctor_params :validator, :name => 'comboCtrl'
 end
 
-# wxDatePickerCtrl 	Small date picker control
-
 # wxGauge 	A control to represent a varying quantity, such as time
 # remaining
 Wx::define_keyword_ctors(Wx::Gauge) do
@@ -514,8 +512,50 @@ Wx::define_keyword_ctors(Wx::VListBox) do
   wx_ctor_params :id, :pos, :size, :style, :name => 'VListBoxNameStr'
 end
 
+# wxDatePickerCtrl 	Small date picker control
 Wx::define_keyword_ctors(Wx::DatePickerCtrl) do
-  wx_ctor_params :id, :dt, :pos, :size, :style, :validator, :name => 'dateCtrl'
+  wx_ctor_params :id, :dt, :pos, :size, :style => Wx::DP_DEFAULT|Wx::DP_SHOWCENTURY
+  wx_ctor_params :validator, :name => 'datePickerCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::TimePickerCtrl) do
+  wx_ctor_params :id, :dt, :pos, :size, :style => Wx::TP_DEFAULT
+  wx_ctor_params :validator, :name => 'timePickerCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::ColourPickerCtrl) do
+  wx_ctor_params :id, :colour => :BLACK
+  wx_ctor_params :pos, :size, :style => Wx::CLRP_DEFAULT_STYLE
+  wx_ctor_params :validator, :name => 'colourPickerCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::FontPickerCtrl) do
+  wx_ctor_params :id, :font => Wx::NULL_FONT
+  wx_ctor_params :pos, :size, :style => Wx::FNTP_DEFAULT_STYLE
+  wx_ctor_params :validator, :name => 'fontPickerCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::FilePickerCtrl) do
+  wx_ctor_params :id, :path => ''
+  wx_ctor_params :message => Wx::FILE_SELECTOR_PROMPT_STR
+  wx_ctor_params :wildcard => Wx::FILE_SELECTOR_DEFAULT_WILDCARD_STR
+  wx_ctor_params :pos, :size, :style => Wx::FLP_DEFAULT_STYLE
+  wx_ctor_params :validator, :name => 'filePickerCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::DirPickerCtrl) do
+  wx_ctor_params :id, :path => ''
+  wx_ctor_params :message => Wx::DIR_SELECTOR_PROMPT_STR
+  wx_ctor_params :pos, :size, :style => Wx::DIRP_DEFAULT_STYLE
+  wx_ctor_params :validator, :name => 'dirPickerCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::FileCtrl) do
+  wx_ctor_params :id, :defaultDirectory => ''
+  wx_ctor_params :defaultFilename => ''
+  wx_ctor_params :wildcard => Wx::FILE_SELECTOR_DEFAULT_WILDCARD_STR
+  wx_ctor_params :style => Wx::FC_DEFAULT_STYLE
+  wx_ctor_params :pos, :size, :name => 'fileCtrl'
 end
 
 Wx::define_keyword_ctors(Wx::ActivityIndicator) do
@@ -542,6 +582,3 @@ Wx::define_keyword_ctors(Wx::RearrangeCtrl) do
   wx_ctor_params :id, :pos, :size, :order, :items, :style
   wx_ctor_params :validator, :name => 'rearrangeCtrl'
 end
-
-# FIXME - SymbolPickerDialog is hard to because the parent argument is
-# in a strange place.
