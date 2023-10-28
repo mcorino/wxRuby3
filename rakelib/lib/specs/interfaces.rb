@@ -153,6 +153,8 @@ module WXRuby3
     Director.Spec(pkg, 'wxFileDirPickerEvent', director: Director::Event, requirements: Director.AnyOf(%w[wxUSE_DIRDLG wxUSE_DIRPICKERCTRL], %w[wxUSE_FILEDLG wxUSE_FILEPICKERCTRL]))
     Director.Spec(pkg, 'wxDirPickerCtrl', requirements: %w[wxUSE_DIRDLG wxUSE_DIRPICKERCTRL])
     Director.Spec(pkg, 'wxFilePickerCtrl', requirements: %w[wxUSE_FILEDLG wxUSE_FILEPICKERCTRL])
+    Director.Spec(pkg, 'wxFileCtrl', requirements: %w[wxUSE_FILECTRL])
+    Director.Spec(pkg, 'wxFileCtrlEvent', requirements: %w[wxUSE_FILECTRL])
     Director.Spec(pkg, 'wxProgressDialog', director: Director::Dialog)
     Director.Spec(pkg, 'wxWindowDisabler')
     Director.Spec(pkg, 'wxBusyInfo', requirements: %w[wxUSE_BUSYINFO])
