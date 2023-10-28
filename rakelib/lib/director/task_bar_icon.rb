@@ -54,7 +54,7 @@ module WXRuby3
               int swig_res = SWIG_ConvertPtr(result, &ptr, $1_descriptor, 0 | SWIG_POINTER_DISOWN);
               if (!SWIG_IsOK(swig_res))
               {
-                Swig::DirectorTypeMismatchException::raise(rb_eTypeError,
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError,
                          "create_popup_menu must return a Wx::Menu, or nil");
               }
               $result = reinterpret_cast < wxMenu * > (ptr);

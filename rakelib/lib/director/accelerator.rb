@@ -69,7 +69,7 @@ module WXRuby3
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
                 SWIG_ConvertPtr(rb_ary_entry($input,i), (void **) &wx_acc_ent, 
-                                SWIGTYPE_p_wxAcceleratorEntry, 1);
+                                SWIGTYPE_p_wxAcceleratorEntry, 0);
                 if (wx_acc_ent == NULL) 
                   rb_raise(rb_eTypeError, "Reference to null wxAcceleratorEntry");
                 arr[i] = *wx_acc_ent;

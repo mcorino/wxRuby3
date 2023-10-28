@@ -282,6 +282,7 @@ module WXRuby3
         Stream.transaction do
           fsrc = CodeStream.new(initializer_src)
           fsrc.puts '#include <ruby.h>'
+          fsrc.puts '#include <ruby/version.h>'
           fsrc.puts <<~__HEREDOC
             #ifndef WXRB_EXPORT_FLAG
             # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
@@ -319,9 +320,11 @@ module WXRuby3
           fsrc.puts "VALUE #{module_variable} = 0;"
           fsrc.puts "WXRB_IMPORT_FLAG VALUE wxRuby_Core();" unless is_core?
           fsrc.puts
-          fsrc.puts '#define VALUEFUNC(f) ((VALUE (*)(ANYARGS)) f)'
-          fsrc.puts
           if is_core?
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrun.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrubyerrors.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrubyrun.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigdirector.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'funcall.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'enum.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'init.inc'))

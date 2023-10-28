@@ -51,7 +51,7 @@ module WXRuby3
               int res = SWIG_ConvertPtr(rb_ary_entry($input, 0), &ptr, SWIGTYPE_p_wxWindow, 0 |  0);
               if (!SWIG_IsOK(res)) 
               {
-                Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(res)), "in primary output value of type 'wxWindow *'");
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", SWIG_ErrorType(SWIG_ArgError(res)), "in primary output value of type 'wxWindow *'");
               }
               $result = wxPGWindowList(static_cast<wxWindow*>(ptr));
               if (RARRAY_LEN($input) > 1)
@@ -59,7 +59,7 @@ module WXRuby3
                 res = SWIG_ConvertPtr(rb_ary_entry($input, 1), &ptr, SWIGTYPE_p_wxWindow, 0 |  0);
                 if (!SWIG_IsOK(res)) 
                 {
-                  Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(res)), "in secundary output value of type 'wxWindow *'");
+                  Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", SWIG_ErrorType(SWIG_ArgError(res)), "in secundary output value of type 'wxWindow *'");
                 }
                 $result.SetSecondary(static_cast<wxWindow*>(ptr));
               }

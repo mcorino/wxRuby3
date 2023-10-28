@@ -62,6 +62,9 @@ WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr);
 WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls);
 WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClassName(const char* clsname);
 WXRUBY_EXPORT void wxRuby_SetSwigTypeForClass(VALUE cls, swig_type_info* ty);
+// and wx class names -> Ruby class
+WXRUBY_EXPORT void wxRuby_SetRbClassForWxName(const wxString& wx_name, VALUE cls);
+WXRUBY_EXPORT VALUE wxRuby_GetRbClassForWxName(const wxString& wx_name);
 
 // Common wrapping functions
 WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject* obj);

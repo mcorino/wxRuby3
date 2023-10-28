@@ -30,7 +30,7 @@ module WXRuby3
             void* argp$argnum = NULL;
             if ( TYPE($input) == T_DATA )
             {
-              if (SWIG_IsOK(SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, $argnum-1)) && argp$argnum)
+              if (SWIG_IsOK(SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 0)) && argp$argnum)
               {
                 $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
               }
@@ -69,7 +69,7 @@ module WXRuby3
               }
               else
               {
-                Swig::DirectorTypeMismatchException::raise(rb_eTypeError, 
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, 
                                                            "get_data_here should return a string, or nil on failure");
               }
             }

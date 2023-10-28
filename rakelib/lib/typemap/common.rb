@@ -215,7 +215,7 @@ module WXRuby3
             if ( TYPE($input) == T_DATA )
             {
               void* argp$argnum;
-              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 1 );
+              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 0);
               $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
             }
             else if ( TYPE($input) == T_ARRAY )
@@ -238,6 +238,28 @@ module WXRuby3
             else if (TYPE($input) == T_DATA && SWIG_CheckState (SWIG_ConvertPtr ($input, &vptr, $1_descriptor, 0)))
               $1 = 1;
             __CODE
+        end
+
+        map 'wxSize' => 'Array(Integer, Integer), Wx::Size',
+            'wxPoint' => 'Array(Integer, Integer), Wx::Point' do
+
+          map_directorout code: <<~__CODE
+            if (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 2)
+            {
+              $result = $1_basetype(NUM2INT( rb_ary_entry($input, 0)),
+                                    NUM2INT( rb_ary_entry($input, 1)));
+            }
+            else
+            {
+              void *ptr;
+              int res = SWIG_ConvertPtr($input, &ptr, $&1_descriptor, SWIG_POINTER_NO_NULL);
+              if (!SWIG_IsOK(res)) {
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", SWIG_ErrorType(SWIG_ArgError(res)), "in output value of type '""$1_type""'");
+              }
+              $result = *(reinterpret_cast< $1_type * >(ptr));
+            }
+            __CODE
+
         end
 
         # Integer <> wxItemKind type mappings

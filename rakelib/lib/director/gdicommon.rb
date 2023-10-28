@@ -56,7 +56,7 @@ module WXRuby3
             if ( TYPE($input) == T_DATA )
             {
               void* argp$argnum;
-              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 1 );
+              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 0);
               $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
             }
             else

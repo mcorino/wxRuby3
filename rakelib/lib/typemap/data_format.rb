@@ -63,7 +63,7 @@ module WXRuby3
               void* tmp;
               SWIG_ConvertPtr(rb_ary_entry(result, i),
                               &tmp,
-              SWIGTYPE_p_wxDataFormat, 0);
+                              SWIGTYPE_p_wxDataFormat, 0);
               wxDataFormat* fmt = reinterpret_cast< wxDataFormat* >(tmp);
               $1[i] = *fmt;
             }

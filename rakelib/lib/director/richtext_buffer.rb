@@ -224,7 +224,7 @@ module WXRuby3
               int res = SWIG_ConvertPtr(rb_ary_entry(rb_int_arr, i), &ptr,SWIGTYPE_p_wxRichTextAttr, 0);
               if (!SWIG_IsOK(res)) 
               {
-                Swig::DirectorTypeMismatchException::raise(SWIG_ErrorType(SWIG_ArgError(res)), "in output value of type '""Wx::RTC::RichTextAttr""'");
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", SWIG_ErrorType(SWIG_ArgError(res)), "in output value of type '""Wx::RTC::RichTextAttr""'");
               }
               wxRichTextAttr* wx_att = static_cast< wxRichTextAttr* >(ptr);
               $1.Add(*wx_att);

@@ -11,18 +11,38 @@
 
 typedef VALUE (*RUBY_INVOKE_FUNC) (VALUE);
 
+VALUE rb_exc_set_backtrace(VALUE, VALUE);
+VALUE rb_get_backtrace(VALUE);
+
+namespace Swig
+{
+  class DirectorRubyException : public DirectorException
+  {
+  public:
+    DirectorRubyException(VALUE error, VALUE rcvr, ID fn_id)
+      : DirectorException(Qnil)
+    {
+      VALUE msg = rb_sprintf("Caught exception in SWIG director method for %s#%s", rb_class2name(CLASS_OF(rcvr)), rb_id2name(fn_id));
+      this->swig_msg = StringValuePtr(msg);
+      swig_error = rb_exc_new_str(rb_eRuntimeError, msg);
+      VALUE bt = rb_funcall(error, rb_intern("backtrace"), 0);
+      rb_funcall(swig_error, rb_intern("set_backtrace"), 1, bt);
+    }
+  };
+}
+
 class WXRuby_RBFuncall
 {
 public:
-  WXRuby_RBFuncall (ID fnid, bool abort_on_ex=true)
+  WXRuby_RBFuncall (ID fnid, bool throw_on_ex=true)
    : fn_id_ (fnid),
-     abort_on_ex_ (abort_on_ex),
+     throw_on_ex_ (throw_on_ex),
      ex_caught_ (false)
   {
   }
-  WXRuby_RBFuncall (const char* fn, bool abort_on_ex=true)
+  WXRuby_RBFuncall (const char* fn, bool throw_on_ex=true)
   : fn_id_ (rb_intern (fn)),
-    abort_on_ex_ (abort_on_ex),
+    throw_on_ex_ (throw_on_ex),
     ex_caught_ (false)
   {
   }
@@ -43,15 +63,18 @@ public:
 
   bool has_caught_exception () { return this->ex_caught_; }
 
-  VALUE get_exception () { return rb_gv_get ("$!"); }
+  VALUE get_exception () { return rb_errinfo(); }
 
   ID id () { return this->fn_id_; }
 
 protected:
   struct FuncArgs
   {
+    FuncArgs(VALUE rcvr) : receiver_(rcvr) {}
     virtual ~FuncArgs () {}
     virtual VALUE rb_invoke (ID fnid) const = 0;
+
+    VALUE receiver_;
   };
 
   VALUE _invoke (const FuncArgs& fa)
@@ -65,13 +88,11 @@ protected:
                                &invoke_state);
     if (invoke_state)
     {
-      if (this->abort_on_ex_)
+      if (this->throw_on_ex_)
       {
         // handle exception
         VALUE rexc = this->get_exception ();
-        VALUE msg = rb_eval_string ("$!.message+\"\\n\"+$!.backtrace.join(\"\\n\")");
-        const char *exc_name = rb_obj_classname(rexc);
-        wxLogFatalError("%s : %s", exc_name, StringValuePtr(msg));
+        throw Swig::DirectorRubyException(rexc, fa.receiver_, this->fn_id_);
       }
       else
       {
@@ -88,7 +109,7 @@ protected:
   struct FuncArgArray : public FuncArgs
   {
     FuncArgArray (VALUE rcvr, VALUE args)
-     : receiver_ (rcvr), args_ (args) {}
+     : FuncArgs (rcvr), args_ (args) {}
     virtual ~FuncArgArray () {}
 
     virtual VALUE rb_invoke (ID fnid) const
@@ -96,14 +117,13 @@ protected:
       return rb_apply (this->receiver_, fnid, this->args_);
     }
 
-    VALUE receiver_;
     VALUE args_;
   };
 
   struct FuncArgList : public FuncArgs
   {
     FuncArgList (VALUE rcvr, int argc, VALUE* args)
-     : receiver_ (rcvr), argc_ (argc), args_ (args) {}
+     : FuncArgs (rcvr), argc_ (argc), args_ (args) {}
     virtual ~FuncArgList () {}
 
     virtual VALUE rb_invoke (ID fnid) const
@@ -111,7 +131,6 @@ protected:
       return rb_funcall2 (this->receiver_, fnid, this->argc_, this->args_);
     }
 
-    VALUE receiver_;
     int argc_;
     VALUE* args_;
   };
@@ -138,7 +157,7 @@ protected:
 
 private:
   ID      fn_id_;
-  bool    abort_on_ex_;
+  bool    throw_on_ex_;
   bool    ex_caught_;
 };
 

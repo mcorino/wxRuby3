@@ -224,6 +224,10 @@ module WXRuby3
               name = $1
               line['rb_funcall'] = 'wxRuby_Funcall'
               line[name] = '"%s"' % rb_method_name(name[1..-2])
+              # director output exceptions
+            when /Swig::DirectorTypeMismatchException::raise\(swig_get_self\(\),\s+\"(\w+)\"/
+              name = $1
+              line[%Q{"#{name}"}] = %Q{"#{rb_method_name(name)}"}
               # defined alias methods (original method name)
             when /rb_define_alias\s*\(.*"[_a-zA-Z0-9]+[=\?]?".*("[_a-zA-Z0-9]*[=\?\!]?")/
               name = $1
@@ -275,9 +279,6 @@ module WXRuby3
           core_name = name
           core_name = 'ruby3' if /\Awx\Z/i =~ core_name
 
-          skip_entire_method = false
-          brace_level = 0
-
           fix_enum = false
           enum_item = nil
 
@@ -288,43 +289,10 @@ module WXRuby3
               # all following fixes are applicable only before we reached the
               # Init_ function
 
-              # comment out swig_up because it is defined global in every module
-              if (line.index("bool Swig::Director::swig_up"))
-                line = "//" + line
-              end
-
-              if line =~ /char\* type_name = (RSTRING\(value\)->ptr|RSTRING_PTR\(value\));/
-                line = ""
-              end
-              # Patch submitted for SWIG 1.3.30
-              if (line.index("if (strcmp(type->name, type_name) == 0) {"))
-                line = "		if ( value != Qnil && rb_obj_is_kind_of(obj, sklass->klass) ) {"
-              end
-              #TODO 1.3.30
-              #			end
-
               # Fix the class names used to determine derived/non-derived in 'initialize' ('new')
               # wrappers
               if line =~ /const\s+char\s+\*classname\s+SWIGUNUSED\s+=\s+"Wx#{core_name}::wx(\w+)";/
                 line.sub!(/\"Wx#{core_name}::wx#{$1}/, "\"#{package.fullname}::#{$1}")
-              end
-
-              # remove the UnknownExceptionHandler::handler method
-              if line.index('void UnknownExceptionHandler::handler()')
-                skip_entire_method = true
-              end
-
-              if (skip_entire_method)
-                line = "//#{line}"
-                if (line.index('{'))
-                  brace_level += 1
-                end
-                if (line.index('}'))
-                  brace_level -= 1
-                end
-                if (brace_level == 0)
-                  skip_entire_method = false
-                end
               end
 
               # at the top of our Init_ function, make sure we only initialize
@@ -356,20 +324,6 @@ module WXRuby3
                 \(void\s\*\)\s+&(\w+)\)/x
 
                 line << "\n  wxRuby_SetSwigTypeForClass(#{$2}.klass, #{$1});"
-              end
-
-              # TODO : can we improve this?
-              # Fix for Event.i - because it is implemented with a custom Ruby
-              # subclass, need to make this subclass SWIG info available under
-              # the normal name "SWIGTYPE_p_wxEvent" as it's referenced by many
-              # other classes.
-              if core_name == 'Event' or core_name == 'CommandEvent'
-                if line[/SWIG_TypeClientData\(SWIGTYPE_p_wxRuby(Command)?Event/]
-                  line = line +
-                    "  // Inserted by fixmodule.rb\n" +
-                    line.sub(/SWIGTYPE_p_wxRuby(Command)?Event/,
-                             "SWIGTYPE_p_wx\\1Event")
-                end
               end
 
               # check for known enumerator constants
