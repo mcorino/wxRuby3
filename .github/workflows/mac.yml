@@ -18,6 +18,7 @@ on:
       - '.github/workflows/**'
       - 'assets/**'
       - 'lib/wx/doc/**'
+      - 'lib/wx/version.rb'
       - 'rakelib/lib/**/*.yaml'
       - '**.md'
       - 'Gemfile'
