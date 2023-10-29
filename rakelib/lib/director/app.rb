@@ -346,7 +346,10 @@ module WXRuby3
 
               if (ex_caught)
               {
+          #ifdef __WXRB_DEBUG__
                 wxRuby_PrintException(result);
+          #endif
+                rb_iv_set(the_app, "@exception", result);
                 result = Qfalse; // exit app
               }
         
@@ -382,7 +385,10 @@ module WXRuby3
                 VALUE rc = wxRuby_Funcall(ex_caught, the_app, on_exit_id, 0, 0);
                 if (ex_caught)
                 {
+          #ifdef __WXRB_DEBUG__
                   wxRuby_PrintException(rc);
+          #endif
+                  rb_iv_set(the_app, "@exception", rc);
                 }
               }
 
