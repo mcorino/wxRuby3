@@ -402,14 +402,14 @@ module WXRuby3
 
       # transform all titles
       def title_to_doc(node)
-        "== #{node.text}\n"
+        "## #{node.text}\n"
       end
 
       def heading_to_doc(node)
         lvl = 1+(node['level'] || '1').to_i
         txt = node_to_doc(node)
         event_section(/Events emitted by this class|Events using this class/i =~ txt)
-        "#{'=' * lvl} #{txt}"
+        "#{'#' * lvl} #{txt}"
       end
 
       # transform all itemizedlist
