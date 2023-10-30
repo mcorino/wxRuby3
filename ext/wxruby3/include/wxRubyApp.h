@@ -183,14 +183,9 @@ public:
     // wxEntry returns
 
 #ifdef __WXMSW__
-    // the instance handle is actually set from DllMain
-    if (!wxMSWEntryCommon(wxGetInstance(), (int)true))
-      rc = -1;
-    else
-      rc = wxEntry(argc, argv_safe.get());
-#else
-    rc = wxEntry(argc, argv_safe.get());
+    wxApp::m_nCmdShow = SW_NORMAL;
 #endif
+    rc = wxEntry(argc, argv_safe.get());
 
     /*
       At this point the C++ wxRubyApp instance has been destroyed so take care NOT to reference
