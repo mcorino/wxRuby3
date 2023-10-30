@@ -21,7 +21,7 @@ class TestApp < Test::Unit::TestCase
     o = AppReturnsFalseFromInit.new
     o.run
     assert(o.did_call_on_init, "didn't call on_init?")
-    assert_equal("wxruby", o.the_app_name)
+    assert_equal("testapp_noframe", o.the_app_name)
   end
   
 end
