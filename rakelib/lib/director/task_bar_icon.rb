@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_never
+        spec.gc_as_object
         # need a custom implementation to handle event handler proc cleanup
         spec.add_header_code <<~__HEREDOC
           class WXRubyTaskBarIcon : public wxTaskBarIcon
@@ -26,9 +26,11 @@ module WXRuby3
             virtual ~WXRubyTaskBarIcon() 
             {
               wxRuby_ReleaseEvtHandlerProcs(this);
-            }               
+              SWIG_RubyUnlinkObjects(this);
+              SWIG_RubyRemoveTracking(this);
+            }
           };
-        __HEREDOC
+          __HEREDOC
         spec.use_class_implementation 'wxTaskBarIcon', 'WXRubyTaskBarIcon'
         # this one is protected so ignored by default but we want it here
         # (we do not want GetPopupMenu available for override in Ruby)
@@ -61,16 +63,6 @@ module WXRuby3
             }
             __CODE
         end
-        spec.add_extend_code 'wxTaskBarIcon', <<~__HEREDOC
-          // Explicitly dispose of a TaskBarIcon; needed for clean exits on
-          // Windows.
-          VALUE destroy()
-          {
-            delete $self;
-            return Qnil;
-          }
-          __HEREDOC
-        # already generated with TaskBarIconEvent
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class TaskBarIcon
