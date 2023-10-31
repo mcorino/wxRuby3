@@ -8,14 +8,6 @@
  * WxRuby3 App class
  */
 
-
-#ifdef __WXMSW__
-extern "C"
-{
-  WXDLLIMPEXP_BASE HINSTANCE wxGetInstance();
-}
-#endif
-
 class wxRubyApp : public wxApp
 {
 private:
