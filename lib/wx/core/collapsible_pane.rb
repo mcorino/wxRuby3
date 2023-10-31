@@ -10,7 +10,7 @@
 
 module Wx
 
-  if Wx.has_feature?(:USE_COLLPANE) && (!Wx.has_feature?(:WXGTK20) || Wx.has_feature?(:WXUNIVERSAL))
+  if Wx.has_feature?(:USE_COLLPANE)
     
     GenericCollapsiblePane = CollapsiblePane
     
