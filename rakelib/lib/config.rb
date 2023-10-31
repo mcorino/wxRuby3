@@ -615,9 +615,15 @@ module WXRuby3
           def _retrieve_features(wxwidgets_setup_h)
             features = {}
 
-            File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
-              features[$1] = $2.to_i.zero? ? false : true
-            end if is_configured? && wxwidgets_setup_h
+            if is_configured? && wxwidgets_setup_h
+              File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
+                features[$1] = $2.to_i.zero? ? false : true
+              end
+              # make sure correct platform defines are included as well which will not be the case always
+              # (for example __WXMSW__ and __WXOSX__ are not in setup.h)
+              features['__WXMSW__'] = true if features['__GNUWIN32__']
+              features['__WXOSX__'] = true if features['__DARWIN__']
+            end
 
             features
           end

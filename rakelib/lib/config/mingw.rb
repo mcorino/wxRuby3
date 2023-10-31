@@ -35,7 +35,7 @@ module WXRuby3
           end
 
           def debug_command(*args)
-            args.unshift(FileUtils::RUBY)
+            args.unshift(nix_path(FileUtils::RUBY))
             args.unshift('--args')
             args.unshift('gdb')
             args.join(' ')
