@@ -4,7 +4,7 @@
 
 require_relative './lib/wxframe_runner'
 
-class ButtonTests < WxRuby::Test::GUITests
+class ListCtrlTests < WxRuby::Test::GUITests
 
   def setup
     super
