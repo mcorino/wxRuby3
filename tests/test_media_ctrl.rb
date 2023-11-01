@@ -4,7 +4,8 @@
 
 require_relative './lib/wxframe_runner'
 
-if Wx.has_feature?(:USE_MEDIACTRL)
+# test seems to deadlock for WXGTK
+if Wx.has_feature?(:USE_MEDIACTRL) && Wx::PLATFORM != 'WXGTK'
 
 require 'uri'
 
