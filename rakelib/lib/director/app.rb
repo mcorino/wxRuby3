@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         spec.items << 'wxAppConsole' << 'wxEventFilter'
-        if Config.platform == :mingw
+        if Config.platform == :mingw && Config.instance.wx_version >= '3.3.0'
           spec.items << 'wxDarkModeSettings'
           spec.disown 'wxDarkModeSettings *settings'
           # wxDarkModeSettings does has have virt dtor; it's just not documented
