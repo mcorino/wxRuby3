@@ -55,7 +55,7 @@ module Tool
       end
     end
 
-    def check_types(quiet)
+    def check_types(verbose)
       un_wrapped = SWIG_TYPES_USED - SWIG_TYPES_WRAPPED
       un_used = SWIG_TYPES_WRAPPED - SWIG_TYPES_USED
 
@@ -66,7 +66,7 @@ module Tool
         STDERR.puts
       end
 
-      unless un_used.empty? || quiet
+      unless un_used.empty? || !verbose
         STDOUT.puts "INFO: The following types have wrapper classes defined not used in wrapper code:"
         un_used.each { |s| STDOUT.puts "\t#{s}" }
         STDOUT.puts
@@ -75,14 +75,14 @@ module Tool
 
   end
 
-  def self.run(quiet)
+  def self.run(verbose)
     scan_sources
 
-    check_types(quiet)
+    check_types(verbose)
   end
 
 end
 
-Tool.run(ARGV.size==1 && ARGV[0]=='-q')
+Tool.run(ARGV.size==1 && ARGV[0]=='-v')
 
 exit(1) if Tool.errors?
