@@ -35,6 +35,12 @@ module Tool
               SWIG_TYPES_USED << type_str
               (SWIG_TYPES_USED_FILES[type_str] ||= ::Set.new) << File.basename(p)
             end
+          when /VALUE\s+vresult\s+=\s+SWIG_NewClassInstance\(self,\s*(SWIGTYPE_p_\w+)\);/
+            SWIG_TYPES_USED << $1
+            (SWIG_TYPES_USED_FILES[$1] ||= ::Set.new) << File.basename(p)
+          when /SwigClassWxBitmap.klass\s+=\s+rb_define_class_under\(.*\(\(swig_class\s+\*\)\s*(SWIGTYPE_p_\w+)->clientdata\)->klass\);/
+            SWIG_TYPES_USED << $1
+            (SWIG_TYPES_USED_FILES[$1] ||= ::Set.new) << File.basename(p)
           when /\A\s+SWIG_TypeClientData\((SWIGTYPE_p_\w+),/
             if SWIG_TYPES_WRAPPED.include?($1)
               STDERR.puts "*** ERROR: SWIG type #{$1} defined multiple times."

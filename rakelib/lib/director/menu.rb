@@ -85,6 +85,8 @@ module WXRuby3
         spec.add_swig_code <<~__HEREDOC
           %markfunc wxMenu "mark_wxMenu";
         __HEREDOC
+        # ignore MSW specific method
+        spec.ignore 'wxMenu::MSWCommand'
         # fix SWIG's problems with const& return value
         spec.ignore('wxMenu::GetTitle', ignore_doc: false) # keep doc
         spec.add_extend_code 'wxMenu', <<~__HEREDOC

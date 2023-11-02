@@ -16,6 +16,12 @@ module WXRuby3
 
       def setup
         spec.items << 'wxAppConsole' << 'wxEventFilter'
+        if Config.platform == :mingw && Config.instance.wx_version >= '3.3.0'
+          spec.items << 'wxDarkModeSettings'
+          spec.disown 'wxDarkModeSettings *settings'
+          # wxDarkModeSettings does has have virt dtor; it's just not documented
+          spec.suppress_warning(514, 'wxDarkModeSettings')
+        end
         spec.fold_bases('wxApp' => 'wxAppConsole', 'wxAppConsole' => 'wxEventFilter')
         spec.override_inheritance_chain('wxApp', %w[wxEvtHandler wxObject])
         spec.ignore %w{

@@ -436,6 +436,35 @@ module WXRuby3
           # do not seem to be virtual methods returning that
         end
 
+        # const wxVector<int>&
+
+        map 'const wxVector<int>&' => 'Array<Integer>' do
+          map_in temp: 'wxVector<int> tmp', code: <<~__CODE
+            if (($input == Qnil) || (TYPE($input) != T_ARRAY))
+            {
+              VALUE dump = rb_inspect($input);
+              rb_raise(rb_eArgError, "expected Array of Integer for %d but got %s", 
+                                     $argnum-1, StringValuePtr(dump));
+            }
+            else
+            {
+              for (int i = 0; i < RARRAY_LEN($input); i++)
+              {
+                tmp.push_back(NUM2INT(rb_ary_entry($input,i)));
+              }
+              $1 = &tmp;
+            }
+            __CODE
+          map_directorin code: <<~__CODE
+            $input = rb_ary_new();
+            for (size_t i = 0; i < $1.size(); i++)
+            {
+              rb_ary_push($input,INT2NUM( $1[i] ) );
+            }
+          __CODE
+          map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
+        end
+
         # various enumerator type mappings
 
         map *%w[wxEdge wxRelationship wxKeyCode], as: 'Integer' do

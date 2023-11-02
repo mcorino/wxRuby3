@@ -25,9 +25,12 @@ module WXRuby3
         spec.ignore('wxIcon::wxIcon(const char *const *)', 'wxIcon::wxIcon(const char[],int,int)')
         # xml specs incorrectly list this method for MWS while it does not exist anymore
         spec.ignore('wxIcon::ConvertToDisabled')
-        unless Config.platform == :mingw
+        if Config.platform == :mingw
+          spec.ignore 'wxIconBundle::wxIconBundle(const wxString &, WXHINSTANCE)',
+                      'wxIconBundle::AddIcon(const wxString&,WXHINSTANCE)',
+                      'wxIcon::CreateFromHICON'
+        else
           spec.override_inheritance_chain('wxIcon', %w[wxBitmap wxGDIObject wxObject])
-          spec.ignore 'wxIconBundle::wxIconBundle(const wxString &, WXHINSTANCE)'
         end
         super
       end
