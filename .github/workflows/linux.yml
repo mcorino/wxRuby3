@@ -224,6 +224,11 @@ jobs:
       run: |
         bundle exec rake build
 
+    - name: Run wxRuby3 post-build checks
+      if: matrix.wxr_type != 'gem'
+      run: |
+        ruby tools/check_swig_types.rb
+
     - name: Build wxRuby3 gem
       if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
       run: |
