@@ -82,6 +82,21 @@ module WXRuby3
               }
               return false;
             }
+
+            VALUE each_child()
+            {
+              const wxSizerItemList& child_list = self->GetChildren();
+              VALUE rc = Qnil;
+              wxSizerItemList::compatibility_iterator node = child_list.GetFirst();
+              while (node)
+              {
+                wxSizerItem *wx_si = node->GetData();
+                VALUE rb_si = SWIG_NewPointerObj(wx_si, SWIGTYPE_p_wxSizerItem, 0);
+                rc = rb_yield(rb_si);
+                node = node->GetNext();
+              }
+              return rc;
+            }
             __HEREDOC
           # Typemap for GetChildren - convert to array of Sizer items
           spec.map 'wxSizerItemList&' => 'Array<Wx::SizerItem>' do
