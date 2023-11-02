@@ -21,6 +21,12 @@ class Wx::Window
   # @return [Object] result from block
   def paint_buffered; end
 
+  # Yield each child window to the given block.
+  # Returns an Enumerator if no block given.
+  # @yieldparam [Wx::Window] child the child window yielded
+  # @return [Object,Enumerator] last result of block or Enumerator if no block given.
+  def each_child; end
+
   # Locks the window from updates while executing the given block.
   # @param [Proc] block
   def locked(&block); end

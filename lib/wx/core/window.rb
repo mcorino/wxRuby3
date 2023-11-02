@@ -79,6 +79,16 @@ class Wx::Window
     end
   end
 
+  # Overload to provide Enumerator without block
+  wx_each_child = instance_method :each_child
+  define_method :each_child do |&block|
+    if block
+      wx_each_child.bind(self).call(&block)
+    else
+      ::Enumerator.new { |y| wx_each_child.bind(self).call { |c| y << c } }
+    end
+  end
+
   # implement non-static variants of these
 
   def from_dip(*args)
