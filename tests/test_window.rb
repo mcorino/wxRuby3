@@ -229,6 +229,18 @@ class WindowTests < WxRuby::Test::GUITests
     assert_equal(child1, window.find_window_by_id(Wx::ID_HIGHEST + 1))
     assert_equal(child1, window.find_window_by_name("child1"))
 
+    child1 = Wx::Window.new(window, Wx::ID_HIGHEST + 2)
+
+    children = window.get_children
+    window.each_child do |child|
+      assert_equal(child, children.shift)
+    end
+
+    children = window.get_children
+    enum = window.each_child
+    assert_equal(children.first, enum.find { |c| c.get_id == Wx::ID_HIGHEST + 1})
+    assert_equal(children.last, enum.find { |c| c.get_id == Wx::ID_HIGHEST + 2})
+
     window.destroy_children
 
     assert_equal(0, window.get_children.count)
