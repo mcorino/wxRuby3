@@ -191,7 +191,7 @@ class ComboBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @combo = Wx::ComboBox.new(frame_win, name: 'ComboBox', choices: %w[One Two Three])
-    @combo.clear
+    @combo.value = '' # don't use #clear as that also clears the choices
   end
 
   def cleanup
@@ -204,6 +204,16 @@ class ComboBoxTests < WxRuby::Test::GUITests
 
   def test_combo
     assert_equal('', combo.get_value)
+  end
+
+  def test_enumerate
+    combo.each_string do |str, ix|
+      assert_equal(%w[One Two Three][ix], str)
+    end
+    str_enum = combo.each_string
+    assert_kind_of(::Enumerator, str_enum)
+    assert_true(str_enum.any? { |s,_| s == 'Three'})
+    assert_true(combo.each_string.none? { |s,_| s == 'Four'})
   end
 
 end
