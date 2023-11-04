@@ -30,6 +30,19 @@ module WXRuby3
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long, long)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *, long *) const')
         spec.map_apply 'long * OUTPUT' => [ 'long *from', 'long *to' ]
+        spec.add_extend_code 'wxComboBox', <<~__HEREDOC
+          VALUE each_string()
+          {
+            VALUE rc = Qnil;
+            unsigned int n = $self->GetCount();
+            for (unsigned int i=0; i<n ;++i)
+            {
+              VALUE rb_s = WXSTR_TO_RSTR($self->GetString(i));
+              rc = rb_yield_values(2, rb_s, UINT2NUM(i));
+            }
+            return rc;
+          }
+          __HEREDOC
       end
 
     end # class ComboBox
