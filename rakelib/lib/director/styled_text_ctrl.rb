@@ -87,6 +87,19 @@ module WXRuby3
         # TODO : these will need some sort of stream solution to be useful
         spec.ignore 'wxStyledTextCtrl::GetCharacterPointer',
                     'wxStyledTextCtrl::GetRangePointer'
+        spec.add_extend_code 'wxStyledTextCtrl', <<~__HEREDOC
+          VALUE each_line()
+          {
+            VALUE rc = Qnil;
+            int n = $self->GetNumberOfLines();
+            for (int i=0; i<n ;++i)
+            {
+              VALUE rb_ln = WXSTR_TO_RSTR($self->GetLineText(i));
+              rc = rb_yield_values(2, rb_ln, INT2NUM(i));
+            }
+            return rc;
+          }
+          __HEREDOC
         spec.do_not_generate(:variables, :enums, :defines, :functions)
       end
     end # class StyledTextCtrl
