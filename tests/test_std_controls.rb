@@ -111,6 +111,32 @@ class TextCtrlTests < WxRuby::Test::GUITests
     assert_equal('', text.get_value)
   end
 
+  def test_stream_append
+    text << 'This is the number ' << 101 << '.'
+    assert_equal('This is the number 101.', text.get_value)
+  end
+
+  def test_enumerate_lines
+    text.destroy
+    @text = Wx::TextCtrl.new(frame_win, style: Wx::TE_MULTILINE, name: 'Text')
+    text << <<~__HEREDOC
+      This is line 1.
+      This is line 2.
+      This is line 3.
+      __HEREDOC
+    assert_equal(4, text.get_number_of_lines)
+    text.each_line do |txt, lnr|
+      if lnr < 3
+        assert("This is line #{lnr+1}.", txt)
+      else
+        assert('', txt)
+      end
+    end
+    line_enum = text.each_line
+    txt, _ = line_enum.detect { |t,l| l == 1 }
+    assert_equal('This is line 2.', txt)
+  end
+
   if has_ui_simulator?
   def test_max_length
     sim = get_ui_simulator
