@@ -84,7 +84,7 @@ module WXRuby3
           wxTreeCtrl::EndEditLabel
           ]
         # for now, ignore this version as the added customization features
-        # do not work as yet and may cause us more trouble than it's worth
+        # work only on WXMSW as yet and may cause us more trouble than it's worth
         spec.ignore 'wxTreeCtrl::EditLabel'
         # add simplified non-virtual version
         spec.add_extend_code 'wxTreeCtrl', <<~__HEREDOC
