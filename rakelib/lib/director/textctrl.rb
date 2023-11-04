@@ -99,6 +99,18 @@ module WXRuby3
             else if(TYPE(value)==T_FLOAT)
               *self << (double)(RFLOAT_VALUE(value));
           }
+
+          VALUE each_line()
+          {
+            VALUE rc = Qnil;
+            int n = $self->GetNumberOfLines();
+            for (int i=0; i<n ;++i)
+            {
+              VALUE rb_ln = WXSTR_TO_RSTR($self->GetLineText(i));
+              rc = rb_yield_values(2, rb_ln, INT2NUM(i));
+            }
+            return rc;
+          }
           __HEREDOC
         spec.swig_import 'swig/classes/include/wxTextAttr.h'
       end

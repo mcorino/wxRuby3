@@ -59,8 +59,18 @@ module Wx
   class TextCtrl
     wx_op_append = instance_method :<<
     define_method :<< do |o|
-      wx_op_append.bind(self).call(o)
+      wx_op_append.bind(self).call(o.to_s)
       self
+    end
+
+    # Overload to provide Enumerator without block
+    wx_each_line = instance_method :each_line
+    define_method :each_line do |&block|
+      if block
+        wx_each_line.bind(self).call(&block)
+      else
+        ::Enumerator.new { |y| wx_each_line.bind(self).call { |ln, lnr| y << [ln, lnr] } }
+      end
     end
 
     if Wx.has_feature?(:USE_SPELLCHECK)
