@@ -9,22 +9,41 @@
 # Hierarchical control with items
 
 class Wx::TreeCtrl
-  # Make these ruby enumerables so find, find_all, map etc are available
-  include Enumerable
+
+  # Overload to provide Enumerator without block
+  wx_traverse = instance_method :traverse
+  define_method :traverse do |start_id=nil, &block|
+    if block
+      wx_traverse.bind(self).call(start_id, &block)
+    else
+      ::Enumerator.new { |y| wx_traverse.bind(self).call(start_id) { |c| y << c } }
+    end
+  end
+
   # Iterate over all items
   alias :each :traverse
 
-  # Return the children of +parent+ as an array of TreeItemIDs.
-  def get_children(parent)
-    kids = []
-    kid, _ = get_first_child(parent)
-    return [] unless kid.ok?
-    kids << kid
+  # Make these ruby enumerables so find, find_all, map etc are available
+  include Enumerable
 
-    while kid = get_next_sibling(kids.last) and kid.ok?
-      kids << kid
+  # Iterate all children of parent_id
+  def each_item_child(parent_id, &block)
+    if block
+      rc = nil
+      child_id, cookie = get_first_child(parent_id)
+      while child_id && child_id.ok?
+        rc = block.call(child_id)
+        child_id, cookie = get_next_child(parent_id, cookie)
+      end
+      rc
+    else
+      ::Enumerator.new { |y| each_item_child(parent_id) { |child_id| y << child_id } }
     end
-    kids
+  end
+
+  # Return the children of +parent+ as an array of TreeItemIDs.
+  def get_item_children(parent_id)
+    each_item_child(parent_id).to_a
   end
 
   # Returns a Wx::Rect corresponding to the edges of an individual tree
