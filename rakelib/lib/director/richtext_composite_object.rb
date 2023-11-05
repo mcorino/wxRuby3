@@ -161,6 +161,20 @@ module WXRuby3
               }
               $self->MoveFromList(wx_lst);
             }
+
+            VALUE each_line()
+            {
+              VALUE rc = Qnil;
+              const wxRichTextLineVector &lines = $self->GetLines();
+              int lnr = 0;
+              for (const wxRichTextLine* line : lines)
+              {
+                VALUE rb_ln = SWIG_NewPointerObj(SWIG_as_voidptr(const_cast<wxRichTextLine*> (line)), SWIGTYPE_p_wxRichTextLine, 0);
+                rc = rb_yield_values(2, rb_ln, INT2NUM(lnr));
+                ++lnr;
+              }
+              return rc;
+            }
             __CODE
 
           spec.do_not_generate(:typedefs, :variables, :enums, :defines, :functions)
