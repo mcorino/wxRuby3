@@ -64,13 +64,23 @@ module WXRuby3
           # Replace the old Wx definition of this method (which segfaults)
           # Only need the setter as we cache data in Ruby and the getter
           # therefor can be pure Ruby
-          spec.add_extend_code('wxControlWithItems', <<~__HEREDOC
+          spec.add_extend_code 'wxControlWithItems', <<~__HEREDOC
             VALUE set_client_data(int n, VALUE item_data) {
               self->SetClientData(n, (void *)item_data);
               return item_data;
             }
+
+            VALUE each_string()
+            {
+              VALUE rc = Qnil;
+              for (unsigned int i=0; i<$self->GetCount() ;++i)
+              {
+                VALUE rb_s = WXSTR_TO_RSTR($self->GetString(i));
+                rc = rb_yield_values(2, rb_s, UINT2NUM(i));
+              }
+              return rc;
+            }
             __HEREDOC
-            )
        end
       end
 
