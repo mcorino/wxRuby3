@@ -67,6 +67,25 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
     assert_equal('Second Line', richtext.get_line_text(1))
   end
 
+  def test_enumerate_lines
+    richtext.write_text <<~__HEREDOC
+      This is line 1.
+      This is line 2.
+      This is line 3.
+      __HEREDOC
+    assert_equal(4, richtext.get_number_of_lines)
+    richtext.each_line do |txt, lnr|
+      if lnr < 3
+        assert("This is line #{lnr+1}.", txt)
+      else
+        assert('', txt)
+      end
+    end
+    line_enum = richtext.each_line
+    txt, _ = line_enum.detect { |t,l| l == 1 }
+    assert_equal('This is line 2.', txt)
+  end
+
   def test_write_image
     assert_nothing_raised { richtext.write_image(Wx.Bitmap(:wxruby, Wx::BitmapType::BITMAP_TYPE_PNG, art_section: 'test_art')) }
     img_obj = richtext.buffer.get_leaf_object_at_position(0)
