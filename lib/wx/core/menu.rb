@@ -26,6 +26,16 @@ class Wx::Menu
     end
   end
 
+  # Overload to provide Enumerator without block
+  wx_each_item = instance_method :each_item
+  define_method :each_item do |&block|
+    if block
+      wx_each_item.bind(self).call(&block)
+    else
+      ::Enumerator.new { |y| wx_each_item.bind(self).call { |mi| y << mi } }
+    end
+  end
+
   # In the standard WxWidgets API, the methods append, prepend, insert
   # (and their variants) require a constant integer id as the identifier
   # of the menu item. This is then used in event handling. 
