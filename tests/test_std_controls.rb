@@ -214,6 +214,7 @@ class ComboBoxTests < WxRuby::Test::GUITests
     assert_kind_of(::Enumerator, str_enum)
     assert_true(str_enum.any? { |s,_| s == 'Three'})
     assert_true(combo.each_string.none? { |s,_| s == 'Four'})
+    assert_equal('BREAK', combo.each_string { |_,_| break 'BREAK' })
   end
 
 end
