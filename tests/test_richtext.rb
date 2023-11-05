@@ -84,6 +84,16 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
     line_enum = richtext.each_line
     txt, _ = line_enum.detect { |t,l| l == 1 }
     assert_equal('This is line 2.', txt)
+    para = richtext.buffer.get_child_at_position(0)
+    assert_kind_of(Wx::RTC::RichTextParagraph, para)
+    para.each_line do |rtl, lnr|
+      txt = para.get_text_for_range(rtl.get_range)
+      if lnr < 3
+        assert("This is line #{lnr+1}.", txt)
+      else
+        assert('', txt)
+      end
+    end
   end
 
   def test_write_image
