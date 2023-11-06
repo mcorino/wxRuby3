@@ -45,6 +45,17 @@ module WXRuby3
               }
               return rc;
             }
+
+            VALUE each_child()
+            {
+              VALUE rc = Qnil;
+              for (size_t i=0; i<$self->GetChildCount() ;++i)
+              {
+                wxRichTextObject *rto = $self->GetChild(i);
+                rc = rb_yield(wxRuby_RichTextObject2Ruby(rto, 0));
+              }
+              return rc;
+            }
             __HEREDOC
 
           spec.new_object 'wxRichTextLine::Clone'
