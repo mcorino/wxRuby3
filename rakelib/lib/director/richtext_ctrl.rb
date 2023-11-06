@@ -208,6 +208,18 @@ module WXRuby3
             __CODE
 
         end
+        spec.add_extend_code 'wxRichTextCtrl', <<~__HEREDOC
+          VALUE each_line()
+          {
+            VALUE rc = Qnil;
+            for (int i=0; i<$self->GetNumberOfLines() ;++i)
+            {
+              VALUE rb_ln = WXSTR_TO_RSTR($self->GetLineText(i));
+              rc = rb_yield(rb_ln);
+            }
+            return rc;
+          }
+          __HEREDOC
       end
     end # class RichTextCtrl
 

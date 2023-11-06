@@ -59,6 +59,18 @@ module Wx
 
   class TextCtrl
 
+    # Appends the string representation of `obj` to the text value of the control.
+    # Calls #to_s to get the string representation of `obj`.
+    # @param [Object] obj
+    # @return [self]
+    def <<(obj) end
+
+    # Yield each line to the given block.
+    # Returns an Enumerator if no block given.
+    # @yieldparam [String] line the line yielded
+    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
+    def each_line; end
+
     # @overload enable_proof_check(text_proof_options = Wx::TextProofOptions.default)
     #   Enable or disable native spell checking on this text control if it is available on the current platform.
     #   Currently this is supported in WXMSW (when running under Windows 8 or later), WXGTK when using GTK 3 and wxOSX.

@@ -45,6 +45,17 @@ module WXRuby3
               }
               return rc;
             }
+
+            VALUE each_child()
+            {
+              VALUE rc = Qnil;
+              for (size_t i=0; i<$self->GetChildCount() ;++i)
+              {
+                wxRichTextObject *rto = $self->GetChild(i);
+                rc = rb_yield(wxRuby_RichTextObject2Ruby(rto, 0));
+              }
+              return rc;
+            }
             __HEREDOC
 
           spec.new_object 'wxRichTextLine::Clone'
@@ -160,6 +171,20 @@ module WXRuby3
                 wx_lst.push_back(wx_rto);
               }
               $self->MoveFromList(wx_lst);
+            }
+
+            VALUE each_line()
+            {
+              VALUE rc = Qnil;
+              const wxRichTextLineVector &lines = $self->GetLines();
+              int lnr = 0;
+              for (const wxRichTextLine* line : lines)
+              {
+                VALUE rb_ln = SWIG_NewPointerObj(SWIG_as_voidptr(const_cast<wxRichTextLine*> (line)), SWIGTYPE_p_wxRichTextLine, 0);
+                rc = rb_yield(rb_ln);
+                ++lnr;
+              }
+              return rc;
             }
             __CODE
 

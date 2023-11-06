@@ -40,4 +40,20 @@ class SizerTests < WxRuby::Test::GUITests
     assert_not_nil(frame_win.get_sizer.prepend(szr))
   end
 
+  def test_children
+    frame_win.get_sizer.add(Wx::HBoxSizer.new)
+    frame_win.get_sizer.add_spacer(5)
+    frame_win.get_sizer.add(Wx::VBoxSizer.new)
+
+    assert_equal(3, frame_win.sizer.item_count)
+    children = frame_win.sizer.get_children
+    assert_equal(3, children.size)
+    assert_true(children[0].sizer?)
+    assert_true(children[1].spacer?)
+    assert_true(children[2].sizer?)
+    frame_win.sizer.each_child do |si|
+      assert_equal(children.shift, si)
+    end
+  end
+
 end

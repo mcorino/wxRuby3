@@ -6,5 +6,6 @@
 
 require_relative './events/evt_list'
 require_relative './keyword_defs'
+require_relative './styled_text_ctrl'
 
 Wx::Dialog.setup_dialog_functors(Wx::STC)

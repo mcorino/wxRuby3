@@ -193,7 +193,22 @@ module WXRuby3
           
               return do_paint_buffered(self);
             }
-          __HEREDOC
+
+            VALUE each_child() 
+            {
+              const wxWindowList& child_list = self->GetChildren();
+              VALUE rc = Qnil;
+              wxWindowList::compatibility_iterator node = child_list.GetFirst();
+              while (node)
+              {
+                wxObject *child = node->GetData();
+                VALUE rb_child = wxRuby_WrapWxObjectInRuby(child);
+                rc = rb_yield(rb_child);
+                node = node->GetNext();
+              }
+              return rc;
+            }
+            __HEREDOC
           spec.override_events 'wxWindow', 'EVT_ACTIVATE' => ['EVT_ACTIVATE', 0, 'wxActivateEvent']
         when 'wxNonOwnedWindow'
           spec.no_proxy('wxNonOwnedWindow')

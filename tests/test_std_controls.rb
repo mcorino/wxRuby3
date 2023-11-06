@@ -111,6 +111,34 @@ class TextCtrlTests < WxRuby::Test::GUITests
     assert_equal('', text.get_value)
   end
 
+  def test_stream_append
+    text << 'This is the number ' << 101 << '.'
+    assert_equal('This is the number 101.', text.get_value)
+  end
+
+  def test_enumerate_lines
+    text.destroy
+    @text = Wx::TextCtrl.new(frame_win, style: Wx::TE_MULTILINE, name: 'Text')
+    text << <<~__HEREDOC
+      This is line 1.
+      This is line 2.
+      This is line 3.
+      __HEREDOC
+    assert_equal(4, text.get_number_of_lines)
+    text.each_line.each_with_index do |txt, lnr|
+      if lnr < 3
+        assert("This is line #{lnr+1}.", txt)
+      else
+        assert('', txt)
+      end
+    end
+    txt = text.each_line { |l| break l if l.index('2')}
+    assert_equal('This is line 2.', txt)
+    line_enum = text.each_line
+    txt = line_enum.detect { |l| l.index('3') }
+    assert_equal('This is line 3.', txt)
+  end
+
   if has_ui_simulator?
   def test_max_length
     sim = get_ui_simulator
@@ -165,7 +193,7 @@ class ComboBoxTests < WxRuby::Test::GUITests
   def setup
     super
     @combo = Wx::ComboBox.new(frame_win, name: 'ComboBox', choices: %w[One Two Three])
-    @combo.clear
+    @combo.value = '' # don't use #clear as that also clears the choices
   end
 
   def cleanup
@@ -178,6 +206,19 @@ class ComboBoxTests < WxRuby::Test::GUITests
 
   def test_combo
     assert_equal('', combo.get_value)
+  end
+
+  def test_enumerate
+    strings = combo.get_strings
+    combo.each_string.each_with_index do |str, ix|
+      assert_equal(strings[ix], str)
+    end
+    combo.each_string { |s| assert_equal(strings.shift, s)}
+    str_enum = combo.each_string
+    assert_kind_of(::Enumerator, str_enum)
+    assert_true(str_enum.any? { |s| s == 'Three'})
+    assert_true(combo.each_string.none? { |s| s == 'Four'})
+    assert_equal('BREAK', combo.each_string { |_| break 'BREAK' })
   end
 
 end

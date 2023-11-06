@@ -94,7 +94,20 @@ module WXRuby3
             wxString const& title = $self->GetTitle();
             return &const_cast<wxString&> (title);
           }
-        __HEREDOC
+
+          VALUE each_item()
+          {
+            VALUE rc = Qnil;
+            for (size_t i=0; i<$self->GetMenuItemCount(); ++i)
+            {
+              wxMenuItem *wx_menu_item = $self->FindItemByPosition(i);
+              VALUE rb_menu_item = SWIG_NewPointerObj(SWIG_as_voidptr(wx_menu_item), 
+                                                      SWIGTYPE_p_wxMenuItem, 0);
+              rc = rb_yield(rb_menu_item);
+            }
+            return rc;
+          }
+          __HEREDOC
         super
       end
     end # class Menu

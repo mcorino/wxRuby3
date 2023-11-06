@@ -54,7 +54,30 @@ module WXRuby3
             {
               return (*self)[idx];
             }
-          __HEREDOC
+
+            VALUE each_label()
+            {
+              VALUE rc = Qnil;
+              for (unsigned int i=0; i<$self->GetCount() ;++i)
+              {
+                VALUE rb_lbl = WXSTR_TO_RSTR($self->GetLabel(i));
+                rc = rb_yield(rb_lbl);
+              }
+              return rc;
+            }
+
+            VALUE each_entry()
+            {
+              VALUE rc = Qnil;
+              for (unsigned int i=0; i<$self->GetCount() ;++i)
+              {
+                wxPGChoiceEntry *entry = &($self->Item(i));
+                VALUE rb_entry = SWIG_NewPointerObj(SWIG_as_voidptr(entry), SWIGTYPE_p_wxPGChoiceEntry, 0);
+                rc = rb_yield(rb_entry);
+              }
+              return rc;
+            }
+            __HEREDOC
           # for GetIndicesForStrings
           spec.map 'wxArrayString *unmatched' => 'Array,nil' do
 

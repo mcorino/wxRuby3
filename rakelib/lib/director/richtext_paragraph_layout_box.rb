@@ -83,13 +83,15 @@ module WXRuby3
                   return rb_rtsd;
               }
               __HEREDOC
-          # add undocumented convenience method
-          spec.extend_interface 'wxRichTextListStyleDefinition',
-                                'void SetAttributes(int i, int leftIndent, int leftSubIndent, int bulletStyle, const wxString& bulletSymbol = wxEmptyString)'
-          # undocumented methods
-          spec.extend_interface 'wxRichTextStyleSheet',
-                                'wxRichTextStyleSheet(const wxRichTextStyleSheet& sheet)',
-                                'void Copy(const wxRichTextStyleSheet& sheet)'
+          if Config.instance.wx_version < '3.3.0'
+            # add undocumented convenience method
+            spec.extend_interface 'wxRichTextListStyleDefinition',
+                                  'void SetAttributes(int i, int leftIndent, int leftSubIndent, int bulletStyle, const wxString& bulletSymbol = wxEmptyString)'
+            # undocumented methods
+            spec.extend_interface 'wxRichTextStyleSheet',
+                                  'wxRichTextStyleSheet(const wxRichTextStyleSheet& sheet)',
+                                  'void Copy(const wxRichTextStyleSheet& sheet)'
+          end
           # redefine these since we need to be able to selectively specify 'disown'
           spec.ignore 'wxRichTextStyleSheet::AddCharacterStyle',
                       'wxRichTextStyleSheet::AddListStyle',

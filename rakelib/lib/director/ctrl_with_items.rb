@@ -51,9 +51,11 @@ module WXRuby3
             'wxItemContainer::Append(const wxArrayString &, void **)',
             'wxItemContainer::Insert(const wxArrayString &, unsigned int, void **)',
             'wxItemContainer::Set(const wxArrayString &, void **)'], ignore_doc: false)
-          # add undocumented method
-          spec.extend_interface 'wxControlWithItems',
-                                'bool IsSorted() const'
+          if Config.instance.wx_version < '3.3.0'
+            # add undocumented method
+            spec.extend_interface 'wxControlWithItems',
+                                  'bool IsSorted() const'
+          end
           # for doc only
           spec.map 'void** clientData' => 'Array', swig: false do
             map_in code: ''
@@ -62,13 +64,23 @@ module WXRuby3
           # Replace the old Wx definition of this method (which segfaults)
           # Only need the setter as we cache data in Ruby and the getter
           # therefor can be pure Ruby
-          spec.add_extend_code('wxControlWithItems', <<~__HEREDOC
+          spec.add_extend_code 'wxControlWithItems', <<~__HEREDOC
             VALUE set_client_data(int n, VALUE item_data) {
               self->SetClientData(n, (void *)item_data);
               return item_data;
             }
+
+            VALUE each_string()
+            {
+              VALUE rc = Qnil;
+              for (unsigned int i=0; i<$self->GetCount() ;++i)
+              {
+                VALUE rb_s = WXSTR_TO_RSTR($self->GetString(i));
+                rc = rb_yield(rb_s);
+              }
+              return rc;
+            }
             __HEREDOC
-            )
        end
       end
 

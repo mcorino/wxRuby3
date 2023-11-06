@@ -11,12 +11,14 @@
 
 class Wx::ControlWithItems
 
-  # Make these Ruby enumerables so find, find_all, map etc are available
-  include Enumerable
-
-  # Passes each valid item index into the passed block
-  def each
-    get_count.times { | i | yield i }
+  # Overload to provide Enumerator without block
+  wx_each_string = instance_method :each_string
+  define_method :each_string do |&block|
+    if block
+      wx_each_string.bind(self).call(&block)
+    else
+      ::Enumerator.new { |y| wx_each_string.bind(self).call { |ln| y << ln } }
+    end
   end
 
   # We need to cache client data in Ruby variables as we cannot access items

@@ -19,8 +19,12 @@ class Wx::AUI::AuiNotebook
 
   # Convenience method for iterating pages
   def each_page
-    0.upto(get_page_count - 1) do | i |
-      yield get_page(i)
+    if block_given?
+      0.upto(get_page_count - 1) do | i |
+        yield get_page(i)
+      end
+    else
+      ::Enumerator.new { |y| each_page { |pg| y << pg } }
     end
   end
 end
