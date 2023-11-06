@@ -86,12 +86,28 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
     assert_equal('This is line 2.', txt)
     para = richtext.buffer.get_child_at_position(0)
     assert_kind_of(Wx::RTC::RichTextParagraph, para)
-    para.each_line do |rtl, lnr|
+    assert_equal(1, para.get_lines.size)
+    para.each_line do |rtl, _|
       txt = para.get_text_for_range(rtl.get_range)
-      if lnr < 3
-        assert("This is line #{lnr+1}.", txt)
+      assert("This is line 1.", txt)
+    end
+  end
+
+  def test_enumerate_children
+    richtext.write_text <<~__HEREDOC
+      This is line 1.
+      This is line 2.
+      This is line 3.
+      __HEREDOC
+    richtext.write_image(Wx.Bitmap(:wxruby, Wx::BitmapType::BITMAP_TYPE_PNG, art_section: 'test_art'))
+    assert_equal(4, richtext.buffer.get_child_count)
+    richtext.buffer.each_child.each_with_index do |c, i|
+      if i<3
+        assert_kind_of(Wx::RTC::RichTextParagraph, c)
+        assert_equal(1, c.get_lines.size)
       else
-        assert('', txt)
+        assert_equal(1, c.get_child_count)
+        c.each_child { |cc| assert_kind_of(Wx::RTC::RichTextImage, cc) }
       end
     end
   end
