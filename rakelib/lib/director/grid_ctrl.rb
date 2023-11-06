@@ -106,6 +106,34 @@ module WXRuby3
             }
             return rc;  
           }
+
+          VALUE each_selected_row_block()
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGridBlockCoordsVector sel = $self->GetSelectedRowBlocks();
+              for (const wxGridBlockCoords& gbc : sel)
+              {
+                rc = rb_yield (SWIG_NewPointerObj(new wxGridBlockCoords(gbc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+              }
+            }
+            return rc;  
+          }
+
+          VALUE each_selected_col_block()
+          {
+            VALUE rc = Qnil;
+            if (rb_block_given_p())
+            {
+              wxGridBlockCoordsVector sel = $self->GetSelectedColBlocks();
+              for (const wxGridBlockCoords& gbc : sel)
+              {
+                rc = rb_yield (SWIG_NewPointerObj(new wxGridBlockCoords(gbc), SWIGTYPE_p_wxGridBlockCoords, SWIG_POINTER_OWN));
+              }
+            }
+            return rc;  
+          }
           __HEREDOC
 
         spec.ignore 'wxGrid::GetGridWindowOffset(const wxGridWindow *, int &, int &) const'

@@ -26,6 +26,24 @@ module Wx
       end
       alias :selected_blocks :get_selected_blocks
 
+      wx_each_selected_row_block = instance_method :each_selected_row_block
+      define_method :each_selected_row_block do
+        if block_given?
+          wx_each_selected_row_block.bind(self).call
+        else
+          ::Enumerator.new { |y| wx_each_selected_row_block.bind(self).call { |sb| y << sb } }
+        end
+      end
+
+      wx_each_selected_col_block = instance_method :each_selected_col_block
+      define_method :each_selected_col_block do
+        if block_given?
+          wx_each_selected_col_block.bind(self).call
+        else
+          ::Enumerator.new { |y| wx_each_selected_col_block.bind(self).call { |sb| y << sb } }
+        end
+      end
+
     end
 
   end

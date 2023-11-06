@@ -24,9 +24,29 @@ module Wx::GRID
     # Iterates all selected blocks passing each corresponding Wx::GRID::GridBlockCoords to the given block
     # or returns an enumerator if no block given.
     # Notice that the blocks returned by this method are not ordered in any particular way and may overlap.
+    # For grids using rows or columns-only selection modes, #each_selected_row_block or #each_selected_col_block
+    # can be more convenient, as they return ordered and non-overlapping blocks.
     # @yieldparam [Wx::GRID::GridBlockCoords] selected_block
     # @return [Object,Enumerator] result of last block execution or an Enumerator if no block given
     def each_selected_block; end
+
+    # Iterates an ordered range of non-overlapping selected rows passing each corresponding Wx::GRID::GridBlockCoords
+    # to the given block or returns an enumerator if no block given.
+    #
+    # For the grids using GridSelectRows selection mode, iterates (possibly none) the coordinates of non-overlapping
+    # selected row blocks in the natural order, i.e. from smallest to the biggest row indices.
+    # @yieldparam [Wx::GRID::GridBlockCoords] selected_block
+    # @return [Object,Enumerator] result of last block execution or an Enumerator if no block given
+    def each_selected_row_block; end
+
+    # Iterates an ordered range of non-overlapping selected columns passing each corresponding Wx::GRID::GridBlockCoords
+    # to the given block or returns an enumerator if no block given.
+    #
+    # For the grids using GridSelectColumn selection mode, iterates (possibly none) the coordinates of non-overlapping
+    # selected column blocks in the natural order, i.e. from smallest to the biggest column indices.
+    # @yieldparam [Wx::GRID::GridBlockCoords] selected_block
+    # @return [Object,Enumerator] result of last block execution or an Enumerator if no block given
+    def each_selected_col_block; end
 
   end
 
