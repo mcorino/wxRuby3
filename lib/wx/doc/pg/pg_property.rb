@@ -22,4 +22,22 @@ module Wx::PG
 
   end
 
+  class PGChoices
+
+    # Iterate each label.
+    # Passes each label string to the given block.
+    # Returns an Enumerator if no block given.
+    # @yieldparam [String] label label string
+    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
+    def each_label; end
+
+    # Iterate each choice entry.
+    # Passes each choice entry to the given block.
+    # Returns an Enumerator if no block given.
+    # @yieldparam [Wx::PG::ChoiceEntry] entry choice entry
+    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
+    def each_entry; end
+
+  end
+
 end
