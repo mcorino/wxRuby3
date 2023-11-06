@@ -37,4 +37,26 @@ module Wx::PG
     alias :attributes= :set_attributes
   end
 
+  class PGChoices
+
+    wx_each_label = instance_method :each_label
+    define_method :each_label do
+      if block_given?
+        wx_each_label.bind(self).call
+      else
+        ::Enumerator.new { |y| wx_each_label.bind(self).call { |lbl| y << lbl } }
+      end
+    end
+
+    wx_each_entry = instance_method :each_entry
+    define_method :each_entry do
+      if block_given?
+        wx_each_entry.bind(self).call
+      else
+        ::Enumerator.new { |y| wx_each_entry.bind(self).call { |entry| y << entry } }
+      end
+    end
+    
+  end
+  
 end
