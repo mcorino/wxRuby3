@@ -76,7 +76,7 @@ module WXRuby3
               for (unsigned int i=0; i<$self->GetCount() ;++i)
               {
                 VALUE rb_s = WXSTR_TO_RSTR($self->GetString(i));
-                rc = rb_yield_values(2, rb_s, UINT2NUM(i));
+                rc = rb_yield(rb_s);
               }
               return rc;
             }

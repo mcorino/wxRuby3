@@ -17,7 +17,7 @@ class Wx::ControlWithItems
     if block
       wx_each_string.bind(self).call(&block)
     else
-      ::Enumerator.new { |y| wx_each_string.bind(self).call { |ln, ix| y << [ln, ix] } }
+      ::Enumerator.new { |y| wx_each_string.bind(self).call { |ln| y << ln } }
     end
   end
 

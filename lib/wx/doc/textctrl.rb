@@ -68,7 +68,6 @@ module Wx
     # Yield each line to the given block.
     # Returns an Enumerator if no block given.
     # @yieldparam [String] line the line yielded
-    # @yieldparam [Integer] line_nr the line nr
     # @return [Object,Enumerator] last result of block or Enumerator if no block given.
     def each_line; end
 

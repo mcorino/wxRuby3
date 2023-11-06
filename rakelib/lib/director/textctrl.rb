@@ -106,7 +106,7 @@ module WXRuby3
             for (int i=0; i<$self->GetNumberOfLines() ;++i)
             {
               VALUE rb_ln = WXSTR_TO_RSTR($self->GetLineText(i));
-              rc = rb_yield_values(2, rb_ln, INT2NUM(i));
+              rc = rb_yield(rb_ln);
             }
             return rc;
           }

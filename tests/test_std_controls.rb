@@ -125,16 +125,18 @@ class TextCtrlTests < WxRuby::Test::GUITests
       This is line 3.
       __HEREDOC
     assert_equal(4, text.get_number_of_lines)
-    text.each_line do |txt, lnr|
+    text.each_line.each_with_index do |txt, lnr|
       if lnr < 3
         assert("This is line #{lnr+1}.", txt)
       else
         assert('', txt)
       end
     end
-    line_enum = text.each_line
-    txt, _ = line_enum.detect { |t,l| l == 1 }
+    txt = text.each_line { |l| break l if l.index('2')}
     assert_equal('This is line 2.', txt)
+    line_enum = text.each_line
+    txt = line_enum.detect { |l| l.index('3') }
+    assert_equal('This is line 3.', txt)
   end
 
   if has_ui_simulator?
@@ -207,14 +209,16 @@ class ComboBoxTests < WxRuby::Test::GUITests
   end
 
   def test_enumerate
-    combo.each_string do |str, ix|
-      assert_equal(%w[One Two Three][ix], str)
+    strings = combo.get_strings
+    combo.each_string.each_with_index do |str, ix|
+      assert_equal(strings[ix], str)
     end
+    combo.each_string { |s| assert_equal(strings.shift, s)}
     str_enum = combo.each_string
     assert_kind_of(::Enumerator, str_enum)
-    assert_true(str_enum.any? { |s,_| s == 'Three'})
-    assert_true(combo.each_string.none? { |s,_| s == 'Four'})
-    assert_equal('BREAK', combo.each_string { |_,_| break 'BREAK' })
+    assert_true(str_enum.any? { |s| s == 'Three'})
+    assert_true(combo.each_string.none? { |s| s == 'Four'})
+    assert_equal('BREAK', combo.each_string { |_| break 'BREAK' })
   end
 
 end

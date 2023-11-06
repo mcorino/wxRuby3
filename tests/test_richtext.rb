@@ -74,7 +74,7 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
       This is line 3.
       __HEREDOC
     assert_equal(4, richtext.get_number_of_lines)
-    richtext.each_line do |txt, lnr|
+    richtext.each_line.each_with_index do |txt, lnr|
       if lnr < 3
         assert("This is line #{lnr+1}.", txt)
       else
@@ -82,12 +82,12 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
       end
     end
     line_enum = richtext.each_line
-    txt, _ = line_enum.detect { |t,l| l == 1 }
+    txt = line_enum.detect { |l| l.index('2') }
     assert_equal('This is line 2.', txt)
     para = richtext.buffer.get_child_at_position(0)
     assert_kind_of(Wx::RTC::RichTextParagraph, para)
     assert_equal(1, para.get_lines.size)
-    para.each_line do |rtl, _|
+    para.each_line do |rtl|
       txt = para.get_text_for_range(rtl.get_range)
       assert("This is line 1.", txt)
     end

@@ -14,7 +14,7 @@ module Wx
         if block
           wx_each_line.bind(self).call(&block)
         else
-          ::Enumerator.new { |y| wx_each_line.bind(self).call { |ln, lnr| y << [ln, lnr] } }
+          ::Enumerator.new { |y| wx_each_line.bind(self).call { |ln| y << ln } }
         end
       end
 

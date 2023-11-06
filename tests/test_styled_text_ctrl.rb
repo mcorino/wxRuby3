@@ -29,16 +29,18 @@ class StyledTextCtrlTests < WxRuby::Test::GUITests
       This is line 3.
       __HEREDOC
     assert_equal(4, text.get_number_of_lines)
-    text.each_line do |txt, lnr|
+    text.each_line.each_with_index do |txt, lnr|
       if lnr < 3
         assert("This is line #{lnr+1}.", txt)
       else
         assert('', txt)
       end
     end
-    line_enum = text.each_line
-    txt, _ = line_enum.detect { |t,l| l == 1 }
+    txt = text.each_line { |l| break l if l.index('2')}
     assert_equal('This is line 2.', txt)
+    line_enum = text.each_line
+    txt = line_enum.detect { |l| l.index('3') }
+    assert_equal('This is line 3.', txt)
   end
 
 end
