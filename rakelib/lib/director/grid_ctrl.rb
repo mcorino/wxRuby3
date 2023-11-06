@@ -87,10 +87,13 @@ module WXRuby3
             __CODE
         end
 
-        spec.ignore 'wxGrid::GetSelectedBlocks' # ignore
+        spec.ignore 'wxGrid::GetSelectedBlocks', ignore_doc: false  # ignore
+        spec.map 'wxGridBlocks' => 'Array<Wx::GRID::GridBlockCoords>', swig: false do
+          map_out code: ''
+        end
         # add rubified API (finish in pure Ruby)
         spec.add_extend_code 'wxGrid', <<~__HEREDOC
-          VALUE selected_blocks()
+          VALUE each_selected_block()
           {
             VALUE rc = Qnil;
             if (rb_block_given_p())
@@ -113,7 +116,7 @@ module WXRuby3
           typedef wxGrid::TabBehaviour TabBehaviour;
           __HEREDOC
 
-        spec.map 'wxGridBlockCoordsVector' => 'Array<Wx::GRID::GridBlockCoords' do
+        spec.map 'wxGridBlockCoordsVector' => 'Array<Wx::GRID::GridBlockCoords>' do
           map_out code: <<~__CODE
             $result = rb_ary_new();
             for (const wxGridBlockCoords& gbc: $1)

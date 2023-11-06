@@ -23,9 +23,10 @@ module Wx::GRID
 
     # Iterates all selected blocks passing each corresponding Wx::GRID::GridBlockCoords to the given block
     # or returns an enumerator if no block given.
+    # Notice that the blocks returned by this method are not ordered in any particular way and may overlap.
     # @yieldparam [Wx::GRID::GridBlockCoords] selected_block
     # @return [Object,Enumerator] result of last block execution or an Enumerator if no block given
-    def selected_blocks; end
+    def each_selected_block; end
 
   end
 
