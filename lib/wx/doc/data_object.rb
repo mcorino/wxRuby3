@@ -27,7 +27,7 @@ module Wx
   # so the number of virtual functions to be implemented is reduced.
   # This class is the base class for {Wx::TextDataObject}, {Wx::FileDataObject}, {Wx::BitmapDataObject},
   # {Wx::wxCustomDataObject} and others.
-  # ===
+  #
   #
   # Category:  Clipboard and Drag & Drop
   # @see Drag and Drop Overview
@@ -74,7 +74,7 @@ module Wx
   # The objects which may be set must override {Wx::DataObjectSimpleBase#_set_data} (which
   # returns <code>false</code>).
   # Of course, the objects supporting both operations must override all three methods.
-  # ===
+  #
   #
   # Category:  Clipboard and Drag & Drop
   # @see Drag and Drop Overview
