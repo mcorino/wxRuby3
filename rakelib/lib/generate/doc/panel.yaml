@@ -1,0 +1,7 @@
+---
+:wxPanel:
+  :detail:
+    :pre:
+      :simplesect:
+        - :pattern: !ruby/regexp /Tab\s+traversal\s+is\s+implemented.*/
+          :replace: ''
