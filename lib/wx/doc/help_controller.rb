@@ -5,16 +5,20 @@
 # :startdoc:
 
 
-class Wx::HelpController
+module Wx
 
-  # @return [void] Only does something for Wx::HTML::HtmlHelpController
-  def get_frame_parameters; end
+  class HelpController
 
-end
+    # @return [void] Only does something for Wx::HTML::HtmlHelpController
+    def get_frame_parameters; end
 
-class Wx::ExtHelpController
+  end
 
-  # @return [void] Only does something for Wx::HTML::HtmlHelpController
-  def get_frame_parameters; end
+  class ExtHelpController
+
+    # @return [void] Only does something for Wx::HTML::HtmlHelpController
+    def get_frame_parameters; end
+
+  end
 
 end

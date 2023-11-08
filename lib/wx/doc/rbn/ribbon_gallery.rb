@@ -5,11 +5,19 @@
 # :startdoc:
 
 
-class Wx::RBN::RibbonGallery
+module Wx
 
-  # Iterate gallery items if block given else return enumerator.
-  # @yieldparam [Integer] index Gallery item index
-  # @return [Object,Enumerator] result from last block execution or an enumerator
-  def items; end
+  module RBN
+
+    class RibbonGallery
+
+      # Iterate gallery items if block given else return enumerator.
+      # @yieldparam [Integer] index Gallery item index
+      # @return [Object,Enumerator] result from last block execution or an enumerator
+      def items; end
+
+    end
+
+  end
 
 end
