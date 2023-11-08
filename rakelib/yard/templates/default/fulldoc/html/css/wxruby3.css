@@ -1,7 +1,41 @@
 
-blockquote {
+blockquote.wxrb-note {
     background: #f7f7f9;
-    border-left: .25em solid #e1e1e8;
+    border-left: .6em solid #f3ba6f;
+    border-radius: 3px;
     margin: 14px;
     padding-left: 14px;
+}
+
+blockquote.wxrb-remark {
+    background: #f7f7f9;
+    border-left: .6em solid #f6f4ab;
+    border-radius: 3px;
+    margin: 14px;
+    padding-left: 14px;
+}
+
+div.wxrb-logo {
+    float: right;
+    padding-top: 12px;
+}
+
+div.wxrb-logo img {
+    vertical-align: middle;
+}
+
+div.wxrb-logo span.wxrb-name {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+div.wxrb-logo span.wxrb-name a {
+    color: black;
+}
+
+div.wxrb-logo span.wxrb-version {
+    font-size: medium;
+    font-weight: normal;
+    margin-right: 15px;
 }

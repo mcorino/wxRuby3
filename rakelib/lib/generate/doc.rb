@@ -151,8 +151,10 @@ module WXRuby3
       def text_to_doc(node)
         text = node.text
         # handle left-over doxygen tags
+        text.gsub!(/#(\w)/, '\#\1')
         text.gsub!(/@(end)?code/, '')
-        text.gsub!('@subsection', '==')
+        text.gsub!('@subsection', '##')
+        text = '' if text.strip == '##' # no empty headings
         text.gsub!('@remarks', '')
         text.gsub!(/@see.*\n/, '')
         text.gsub!('@ref', '')
@@ -233,6 +235,18 @@ module WXRuby3
             @see_list.concat node_to_doc(node).split(',')
           end
           ''
+        when 'note'
+          <<~__NOTE
+            > ### Note:
+            > #{node_to_doc(node).split("\n").join("\n> ")}
+            {: .wxrb-note }
+            __NOTE
+        when 'remark'
+          <<~__NOTE
+            > ### Remark:
+            > #{node_to_doc(node).split("\n").join("\n> ")}
+            {: .wxrb-remark }
+            __NOTE
         else
           node_to_doc(node)
         end
@@ -409,7 +423,8 @@ module WXRuby3
         lvl = 1+(node['level'] || '1').to_i
         txt = node_to_doc(node)
         event_section(/Events emitted by this class|Events using this class/i =~ txt)
-        "#{'#' * lvl} #{txt}"
+        txt.strip!
+        txt.empty? ? txt : "#{'#' * lvl} #{txt}"
       end
 
       # transform all itemizedlist
