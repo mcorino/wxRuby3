@@ -523,10 +523,12 @@ module WXRuby3
             # ----------------------------------------------------------------------------
 
   
-            class Wx::EvtHandler
+            module Wx
 
-          __HEREDOC
-          fdoc.indent do
+              class EvtHandler
+
+            __HEREDOC
+          fdoc.indent(2) do
             fdoc.doc.puts "@!group #{name} Event handler methods"
             fdoc.puts
             evts_handled = ::Set.new
@@ -556,6 +558,8 @@ module WXRuby3
             end
             fdoc.doc.puts '@!endgroup'
           end
+          fdoc.puts
+          fdoc.puts '  end'
           fdoc.puts
           fdoc.puts 'end'
         end
