@@ -14,4 +14,5 @@ group :samples, optional: true do
 end
 group :documentation, optional: true do
   gem 'yard', '~> 0.9'
+  gem 'kramdown'
 end

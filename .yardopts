@@ -2,7 +2,9 @@
 --load rakelib/yard/yard-custom-templates.rb
 --charset UTF-8
 --markup markdown
+--markup-provider kramdown
 --readme README.md
+--asset assets
 --title "wxRuby3 API Documentation"
 --output-dir rdoc
 --protected
