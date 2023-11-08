@@ -13,8 +13,6 @@
             the cursor for a window, as in X, rather than to set it globally as in MS Windows, although a global 
             {set_cursor} function is also available for MS Windows use.
             
-            === 
-            
             Category:  Graphics Device Interface (GDI)
             Predefined objects/pointers:
             - {Wx::NULL_CURSOR}

@@ -47,8 +47,6 @@
           
             but take care to not cause undesirable re-entrance when doing it (see {Wx::App#yield} for more details). The simplest way to do it is to use {Wx::WindowDisabler} class as illustrated in the above example.
             Note that a {Wx::BusyInfo} is always built with the {Wx::STAY_ON_TOP} window style (see {Wx::Frame} window styles for more info).
-            
-            ===
           
             Category:  Common Dialogs
           
