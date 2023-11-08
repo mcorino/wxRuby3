@@ -237,13 +237,13 @@ module WXRuby3
           ''
         when 'note'
           <<~__NOTE
-            > ### Note:
+            > **Note:**
             > #{node_to_doc(node).split("\n").join("\n> ")}
             {: .wxrb-note }
             __NOTE
         when 'remark'
           <<~__NOTE
-            > ### Remark:
+            > **Remark:**
             > #{node_to_doc(node).split("\n").join("\n> ")}
             {: .wxrb-remark }
             __NOTE
