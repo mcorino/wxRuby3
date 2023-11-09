@@ -229,7 +229,7 @@ module WXRuby3
             __CODE
         end
         # add convenience method providing efficient gc memory management
-        unless Config.platform == :linux
+        if Config.platform != :linux && Config.instance.features_set?('wxUSE_PRINTING_ARCHITECTURE')
           spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
             static VALUE draw_on(const wxPrinterDC& dc)
             {
