@@ -65,9 +65,6 @@ module WXRuby3
           # create a .so binary
           @extra_ldflags << '-shared'
 
-          # This class is not available on linux ports (wxGTK/wxQT/wxX11/wxMotif)
-          exclude_module('wxPrinterDC')
-
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
             @exec_env['LD_LIBRARY_PATH'] = "#{ENV['LD_LIBRARY_PATH']}:#{dest_dir}:#{libdirs.join(':')}"
