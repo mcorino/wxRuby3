@@ -456,7 +456,7 @@ protected:
   }
 
 #ifdef wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
-  virtual bool DoReadLongLong(const wxString& key, wxLongLong_t *pll) const
+  virtual bool DoReadLongLong(const wxString& key, wxLongLong_t *pll) const override
   {
     wxConfigPathChanger path(this, key);
 
@@ -487,7 +487,7 @@ protected:
   }
 #endif // wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
 
-  virtual bool DoReadDouble(const wxString& key, double* val) const
+  virtual bool DoReadDouble(const wxString& key, double* val) const override
   {
     wxConfigPathChanger path(this, key);
 
@@ -517,7 +517,7 @@ protected:
     }
   }
 
-  virtual bool DoReadBool(const wxString& key, bool* val) const
+  virtual bool DoReadBool(const wxString& key, bool* val) const override
   {
     wxConfigPathChanger path(this, key);
 
@@ -637,7 +637,7 @@ protected:
   }
 
 #ifdef wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
-  virtual bool DoWriteLongLong(const wxString& key, wxLongLong_t value)
+  virtual bool DoWriteLongLong(const wxString& key, wxLongLong_t value) override
   {
     wxConfigPathChanger     path(this, key);
     wxString                strName = path.Name();
@@ -675,7 +675,7 @@ protected:
   }
 #endif // wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
 
-  virtual bool DoWriteDouble(const wxString& key, double value)
+  virtual bool DoWriteDouble(const wxString& key, double value) override
   {
     wxConfigPathChanger     path(this, key);
     wxString                strName = path.Name();
@@ -712,7 +712,7 @@ protected:
     return true;
   }
 
-  virtual bool DoWriteBool(const wxString& key, bool value)
+  virtual bool DoWriteBool(const wxString& key, bool value) override
   {
     wxConfigPathChanger     path(this, key);
     wxString                strName = path.Name();
