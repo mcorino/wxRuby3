@@ -54,3 +54,12 @@ div.wxrb-logo span.wxrb-version {
     border-left: .6em solid #f3ba6f;
     margin: 14px;
 }
+
+.tags span.wxrb-require {
+    border-radius: 5px;
+    border: 1px solid #E1E1E8;
+    padding: 0px 3px 0px 3px;
+    background: #f3ba6f;
+    font-weight: bold;
+    font-size: 0.9em;
+}
