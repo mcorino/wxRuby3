@@ -94,7 +94,7 @@ module WXRuby3
 
       def each_package(&block)
         packages.each_value do |pkg|
-          pkg.each_package(&block) if Config.instance.features_set?(*pkg.required_features)
+          pkg.each_package(&block) if Package.full_docs? || Config.instance.features_set?(*pkg.required_features)
         end
       end
 

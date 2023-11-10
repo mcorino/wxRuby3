@@ -226,6 +226,10 @@ module WXRuby3
         end
       end
 
+      def onlyfor_to_doc(node)
+        '' # handled elsewhere
+      end
+
       def simplesect_to_doc(node)
         case node['kind']
         when 'since' # get rid of 'Since' notes
@@ -240,13 +244,13 @@ module WXRuby3
             > **Note:**
             > #{node_to_doc(node).split("\n").join("\n> ")}
             {: .wxrb-note }
-            __NOTE
+          __NOTE
         when 'remark'
           <<~__NOTE
             > **Remark:**
             > #{node_to_doc(node).split("\n").join("\n> ")}
             {: .wxrb-remark }
-            __NOTE
+          __NOTE
         else
           node_to_doc(node)
         end
@@ -733,6 +737,7 @@ module WXRuby3
 
     def gen_enum_doc(fdoc, enumname, enumdef, enum_table)
       fdoc.doc.puts get_enum_doc(enumdef)
+      gen_class_requirements(fdoc)
       fdoc.puts "class #{enumname} < Wx::Enum"
       fdoc.puts
       fdoc.indent do
@@ -911,6 +916,21 @@ module WXRuby3
       end
     end
 
+    def to_feature_text(feat)
+      feat.to_s.sub(/__(\w+)__/, '\1').sub(/\Awx/, '')
+    end
+    private :to_feature_text
+
+    def gen_class_requirements(fdoc)
+      fdoc.doc.puts '@wxrb_require ' + ((ifspec.requirements + ifspec.package.required_features.to_a).collect do |feat|
+                                           if Config::AnyOf === feat
+                                             feat.features.collect { |f| to_feature_text(f) }.join('|')
+                                           else
+                                             to_feature_text(feat)
+                                           end
+                                         end.join(','))
+    end
+
     def gen_class_doc(fdoc)
       const_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
       def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
@@ -926,9 +946,11 @@ module WXRuby3
             fdoc.doc.puts get_class_doc(item)
             if is_mixin?(item)
               fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
+              gen_class_requirements(fdoc)
               fdoc.puts "module #{clsnm}"
             else
               fdoc.doc.puts "\n@note This class is <b>untracked</b> and should not be derived from nor instances extended!" unless is_tracked?(item)
+              gen_class_requirements(fdoc)
               basecls = ifspec.classdef_name(base_class(item, doc: true))
               fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
             end
