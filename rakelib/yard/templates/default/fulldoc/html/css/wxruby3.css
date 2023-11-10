@@ -1,5 +1,5 @@
 
-blockquote.wxrb-note {
+div.wxrb-note {
     background: #f7f7f9;
     border-left: .6em solid #f3ba6f;
     border-radius: 3px;
@@ -9,7 +9,7 @@ blockquote.wxrb-note {
     padding-bottom: 10px;
 }
 
-blockquote.wxrb-remark {
+div.wxrb-remark {
     background: #f7f7f9;
     border-left: .6em solid #f6f4ab;
     border-radius: 3px;
@@ -19,8 +19,8 @@ blockquote.wxrb-remark {
     padding-bottom: 10px;
 }
 
-blockquote.wxrb-note p,
-blockquote.wxrb-remark p {
+div.wxrb-note p,
+div.wxrb-remark p {
     margin: 0;
 }
 

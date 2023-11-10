@@ -241,15 +241,19 @@ module WXRuby3
           ''
         when 'note'
           <<~__NOTE
-            > **Note:**
-            > #{node_to_doc(node).split("\n").join("\n> ")}
-            {: .wxrb-note }
+
+            <div class="wxrb-note">
+            <b>Note:</b>
+            <p>#{node_to_doc(node)}</p>
+            </div>
           __NOTE
         when 'remark'
           <<~__NOTE
-            > **Remark:**
-            > #{node_to_doc(node).split("\n").join("\n> ")}
-            {: .wxrb-remark }
+
+            <div class="wxrb-remark">
+            <b>Remark:</b>
+            <p>#{node_to_doc(node)}</p>
+            </div>>
           __NOTE
         else
           node_to_doc(node)
