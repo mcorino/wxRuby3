@@ -75,8 +75,8 @@ module WXRuby3
         "self.#{rb_method_name(rb_name || name)}"
       end
 
-      def rb_doc(xml_trans, type_maps)
-        ovls = all.select {|m| !m.docs_ignored && !m.deprecated }
+      def rb_doc(xml_trans, type_maps, fulldocs=false)
+        ovls = all.select {|m| !m.docs_ignored(fulldocs) && !m.deprecated }
         ovl_docs = ovls.collect { |mo| [mo]+mo.rb_doc_decl(xml_trans, type_maps) }
         ovl_docs.inject({}) do |docs, (movl, name, params, doc)|
           if docs.has_key?(name)

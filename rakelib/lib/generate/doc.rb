@@ -790,7 +790,7 @@ module WXRuby3
 
     def gen_constants_doc(fdoc)
       xref_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
-      def_items.select {|itm| !itm.docs_ignored }.each do |item|
+      def_items.select {|itm| !itm.docs_ignored(Director::Package.full_docs?) }.each do |item|
         case item
         when Extractor::GlobalVarDef
           unless no_gen?(:variables)
@@ -829,12 +829,12 @@ module WXRuby3
     end
 
     def get_function_doc(func)
-      func.rb_doc(@xml_trans, type_maps)
+      func.rb_doc(@xml_trans, type_maps, Director::Package.full_docs?)
     end
 
     def gen_functions_doc(fdoc)
-      def_items.select {|itm| !itm.docs_ignored }.each do |item|
-        if Extractor::FunctionDef === item && !item.docs_ignored
+      def_items.select {|itm| !itm.docs_ignored(Director::Package.full_docs?) }.each do |item|
+        if Extractor::FunctionDef === item
           get_method_doc(item).each_pair do |name, docs|
             if docs.size>1 # method with overloads?
               docs.each do |ovl, params, ovl_doc|
@@ -866,7 +866,7 @@ module WXRuby3
     end
 
     def get_method_doc(mtd)
-      mtd.rb_doc(@xml_trans, type_maps)
+      mtd.rb_doc(@xml_trans, type_maps, Director::Package.full_docs?)
     end
 
     def get_method_head(clsdef, mtdef)
@@ -958,7 +958,7 @@ module WXRuby3
 
     def gen_class_doc(fdoc)
       const_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
-      def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
+      def_items.select {|itm| !itm.docs_ignored(Director::Package.full_docs?) && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || template_as_class?(item.name)
           @xml_trans.for_class(item) do
             intf_class_name = if (item.is_template? && template_as_class?(item.name))

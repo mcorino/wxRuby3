@@ -275,8 +275,8 @@ module WXRuby3
         @ignored == true || (@ignored.is_a?(::Array) && !Config.instance.features_set?(*@ignored))
       end
 
-      def docs_ignored
-        @docs_ignored == true || (@docs_ignored.is_a?(::Array) && !Config.instance.features_set?(*@docs_ignored))
+      def docs_ignored(fulldocs)
+        @docs_ignored == true || (!fulldocs && @docs_ignored.is_a?(::Array) && !Config.instance.features_set?(*@docs_ignored))
       end
 
       def required_features_doc
