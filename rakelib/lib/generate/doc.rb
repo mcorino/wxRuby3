@@ -298,7 +298,9 @@ module WXRuby3
 
       def _ident_str_to_doc(s, ref_scope = nil)
         return s if no_idents?
-        return s if %w[wxRuby wxMSW wxOSX wxGTK wxX11 wxMac].any? { |w| s.start_with?(w) }
+        return s if s.start_with?('wxRuby')
+        return 'WXOSX' if s.start_with?('wxMac')
+        return s.sub(/\Awx/, 'WX') if %w[wxMSW wxOSX wxGTK wxX11 wxUNIVERSAL].any? { |w| s.start_with?(w) }
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
@@ -701,6 +703,36 @@ module WXRuby3
 
     protected
 
+    def to_feature_text(feat)
+      if Config::AnyOf === feat
+        feat.features.collect { |f| f.is_a?(::Array) ? f.join('&') : f }.join('|')
+      else
+        feat
+      end
+    end
+    private :to_feature_text
+
+    def gen_item_requirements(fdoc, item)
+      if item.required_features_doc
+        fdoc.doc.puts '@wxrb_require ' + item.required_features_doc.collect(&->(feat){ to_feature_text(feat) }).join(',')
+      end
+    end
+
+    def has_class_requirements?
+      !(ifspec.requirements.empty? && ifspec.package.required_features.empty?)
+    end
+
+    def get_class_requirements
+      ifspec.requirements + ifspec.package.required_features.to_a
+    end
+    private :get_class_requirements
+
+    def gen_class_requirements(fdoc)
+      if has_class_requirements?
+        fdoc.doc.puts '@wxrb_require ' + get_class_requirements.collect(&->(feat){ to_feature_text(feat) }).join(',')
+      end
+    end
+
     def get_constant_doc(const)
       @xml_trans.to_doc(const.brief_doc, item: const)
     end
@@ -801,14 +833,16 @@ module WXRuby3
         if Extractor::FunctionDef === item && !item.docs_ignored
           get_method_doc(item).each_pair do |name, docs|
             if docs.size>1 # method with overloads?
-              docs.each do |params, ovl_doc|
+              docs.each do |ovl, params, ovl_doc|
                 fdoc.doc.puts "@overload #{name}(#{params})"
                 fdoc.doc.indent { fdoc.doc.puts ovl_doc }
+                fdoc.doc.indent { gen_item_requirements(fdoc, ovl) }
               end
               fdoc.puts "def #{name}(*args) end"
             else
-              params, doc = docs.shift
+              mtd, params, doc = docs.shift
               fdoc.doc.puts doc
+              gen_item_requirements(fdoc, mtd)
               if params.empty?
                 fdoc.puts "def #{name}; end"
               else
@@ -856,14 +890,16 @@ module WXRuby3
             mtd_head = get_method_head(clsdef, cm)
             get_method_doc(mtd_head).each_pair do |name, docs|
               if docs.size>1 # method with overloads?
-                docs.each do |params, ovl_doc|
+                docs.each do |ovl, params, ovl_doc|
                   fdoc.doc.puts "@overload #{name}(#{params})"
                   fdoc.doc.indent { fdoc.doc.puts ovl_doc }
+                  fdoc.doc.indent { gen_item_requirements(fdoc, ovl) }
                 end
                 fdoc.puts "def #{name}(*args) end"
               else
-                params, doc = docs.shift
+                mtd, params, doc = docs.shift
                 fdoc.doc.puts doc
+                gen_item_requirements(fdoc, mtd)
                 if params.empty?
                   fdoc.puts "def #{name}; end"
                 else
@@ -914,21 +950,6 @@ module WXRuby3
           fdoc.puts
         end
       end
-    end
-
-    def to_feature_text(feat)
-      feat.to_s.sub(/__(\w+)__/, '\1').sub(/\Awx/, '')
-    end
-    private :to_feature_text
-
-    def gen_class_requirements(fdoc)
-      fdoc.doc.puts '@wxrb_require ' + ((ifspec.requirements + ifspec.package.required_features.to_a).collect do |feat|
-                                           if Config::AnyOf === feat
-                                             feat.features.collect { |f| to_feature_text(f) }.join('|')
-                                           else
-                                             to_feature_text(feat)
-                                           end
-                                         end.join(','))
     end
 
     def gen_class_doc(fdoc)

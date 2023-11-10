@@ -48,7 +48,7 @@ module WXRuby3
                               'bool IsUsingUniversalWidgets() const',
                               'bool ShowAssertDialog(const wxString& msg)',
                               'bool SafeMessageBox(const wxString &text, const wxString &title)'
-        if Config.instance.features_set?('wxUSE_STACKWALKER')
+        if Config.instance.features_set?('USE_STACKWALKER')
           spec.extend_interface 'wxAppTraits', 'wxString GetAssertStackTrace()'
         end
         spec.map_apply 'int * OUTPUT' => ['int *major', 'int *minor', 'int *micro']

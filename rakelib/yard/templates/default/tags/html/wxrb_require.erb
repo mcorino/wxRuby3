@@ -3,7 +3,7 @@
   <ul class="wxrb-require">
     <% wxruby_requires.each do |req| %>
       <li><div class='inline'>
-        <%= req.collect { |feat| %Q[<span class="wxrb-require">#{feat}</span>] }.join(' or ') %>
+        <%= req.join(' or ') %>
       </div></li>
     <% end %>
   </ul>

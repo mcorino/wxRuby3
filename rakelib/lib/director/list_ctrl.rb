@@ -55,7 +55,7 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
         __HEREDOC
-        unless Config.instance.features_set?('wxHAS_LISTCTRL_COLUMN_ORDER')
+        unless Config.instance.features_set?('HAS_LISTCTRL_COLUMN_ORDER')
           spec.ignore %w[wxListCtrl::GetColumnIndexFromOrder
                          wxListCtrl::GetColumnOrder
                          wxListCtrl::GetColumnsOrder

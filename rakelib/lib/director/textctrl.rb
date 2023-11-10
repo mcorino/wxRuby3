@@ -32,7 +32,7 @@ module WXRuby3
         # we will not wrap it but create a simplified interface when USE_SPELLCHECK is enabled which
         # we will complement in pure Ruby to provide Wx::TextProofOptions class
         spec.ignore('wxTextCtrl::EnableProofCheck', 'wxTextCtrl::GetProofCheckOptions')
-        if Config.instance.features_set?('wxUSE_SPELLCHECK')
+        if Config.instance.features_set?('USE_SPELLCHECK')
           spec.add_extend_code 'wxTextCtrl', <<~__HEREDOC
             VALUE DoEnableProofCheck(bool spelling, bool grammar, const wxString& language)
             {

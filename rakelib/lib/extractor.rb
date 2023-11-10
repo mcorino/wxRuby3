@@ -182,7 +182,7 @@ module WXRuby3
         extract(element) if element
       end
 
-      attr_accessor :name, :rb_name, :ignored, :docs_ignored, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
+      attr_accessor :name, :rb_name, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
 
       def extra_attributes
         @extra_attributes ||= {}
@@ -221,8 +221,10 @@ module WXRuby3
           @detailed_doc = element.xpath('detaileddescription')
           if (el = @detailed_doc.at_xpath('para/onlyfor'))
             @only_for = el.text.strip.split(',').collect { |s| s.downcase }
-            @ignored = @only_for.none? { |s| Config.instance.wx_port == s.to_sym }
-            @docs_ignored = @ignored
+            unless @only_for.empty?
+              @ignored = [Config::AnyOf.new(*@only_for.collect { |s| s.upcase })] # transform to feature ids like 'WXGTK'
+              @docs_ignored = @ignored
+            end
           end
         end
       end
@@ -257,9 +259,28 @@ module WXRuby3
       end
 
       def ignore(val = true, ignore_doc: nil)
-        @ignored = !!val
+        if val.is_a?(::Array)
+          @ignored = val
+        elsif val.is_a?(Config::AnyOf)
+          @ignored = [val]
+        else
+          @ignored = !!val
+        end
+        # ignore_doc will never be an Array itself but either nil or a boolean
         @docs_ignored = ignore_doc.nil? ? @ignored : ignore_doc
         self
+      end
+
+      def ignored
+        @ignored == true || (@ignored.is_a?(::Array) && !Config.instance.features_set?(*@ignored))
+      end
+
+      def docs_ignored
+        @docs_ignored == true || (@docs_ignored.is_a?(::Array) && !Config.instance.features_set?(*@docs_ignored))
+      end
+
+      def required_features_doc
+        @docs_ignored.is_a?(::Array) ? @docs_ignored : nil
       end
 
       def find(name)

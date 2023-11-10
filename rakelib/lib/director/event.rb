@@ -195,8 +195,8 @@ module WXRuby3
             }
             __HEREDOC
           spec.ignore 'wxQueueEvent'
-          spec.ignore('wxEVT_HOTKEY') unless Config.instance.features_set?('wxUSE_HOTKEY')
-          spec.ignore('wxEVT_MOUSE_CAPTURE_CHANGED', 'wxEVT_MOUSE_CAPTURE_LOST', 'wxEVT_DISPLAY_CHANGED') unless Config.instance.features_set?('__WXMSW__')
+          spec.ignore('wxEVT_HOTKEY') unless Config.instance.features_set?('USE_HOTKEY')
+          spec.ignore('wxEVT_MOUSE_CAPTURE_CHANGED', 'wxEVT_MOUSE_CAPTURE_LOST', 'wxEVT_DISPLAY_CHANGED') unless Config.instance.features_set?('WXMSW')
           # make sure this event constant definition exists
           spec.add_swig_code %Q{%constant wxEventType wxEVT_MENU_HIGHLIGHT_ALL = wxEVT_MENU_HIGHLIGHT;}
           # add event type constant missing from interface defs

@@ -78,8 +78,8 @@ module WXRuby3
           wxPoint::x wxPoint::y
           wxRealPoint::x wxRealPoint::y
           ]
-        spec.ignore('wxStockCursor.wxCURSOR_DEFAULT') unless Config.instance.features_set?('__WXGTK__')
-        unless Config.instance.features_set?('__X__')
+        spec.ignore('wxStockCursor.wxCURSOR_DEFAULT') unless Config.instance.features_set?('WXGTK')
+        unless Config.instance.features_set?('WXX11')
           spec.ignore %w{
             wxStockCursor.wxCURSOR_CROSS_REVERSE
             wxStockCursor.wxCURSOR_DOUBLE_ARROW
@@ -87,7 +87,7 @@ module WXRuby3
             wxStockCursor.wxCURSOR_BASED_ARROW_DOWN
           }
         end
-        spec.ignore('wxStockCursor.wxCURSOR_COPY_ARROW') unless Config.instance.features_set?('__WXOSX__')
+        spec.ignore('wxStockCursor.wxCURSOR_COPY_ARROW') unless Config.instance.features_set?('WXOSX')
         spec.add_extend_code 'wxRect', <<~__HEREDOC
           wxRect add(const wxRect &rect) const {
             return (*(const wxRect*)$self) + rect;

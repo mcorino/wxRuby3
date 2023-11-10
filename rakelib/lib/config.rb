@@ -617,12 +617,14 @@ module WXRuby3
 
             if is_configured? && wxwidgets_setup_h
               File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
-                features[$1] = $2.to_i.zero? ? false : true
+                feat_val = $2.to_i.zero? ? false : true
+                feat_id = $1.sub(/\Awx/i, '').gsub(/\A__|__\Z/, '')
+                features[feat_id] = feat_val
               end
               # make sure correct platform defines are included as well which will not be the case always
               # (for example __WXMSW__ and __WXOSX__ are not in setup.h)
-              features['__WXMSW__'] = true if features['__GNUWIN32__']
-              features['__WXOSX__'] = true if features['__DARWIN__']
+              features['WXMSW'] = true if features['GNUWIN32']
+              features['WXOSX'] = true if features['DARWIN']
             end
 
             features

@@ -21,7 +21,7 @@ module WXRuby3
         when 'wxFrame'
           spec.ignore %w[
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
-          if Config.instance.features_set?(*%w[__WXMSW__ wxUSE_TASKBARBUTTON])
+          if Config.instance.features_set?(*%w[WXMSW USE_TASKBARBUTTON])
             spec.items << 'wxTaskBarButton' << 'wxThumbBarButton'
             spec.no_proxy 'wxTaskBarButton'
             spec.gc_as_untracked 'wxTaskBarButton', 'wxThumbBarButton'

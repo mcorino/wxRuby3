@@ -136,7 +136,7 @@ module WXRuby3
         wx_libset = ::Set.new
         wx_libset.merge wx_config("--libs all").split(' ')
         # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
-        if features_set?('wxUSE_MEDIACTRL')
+        if features_set?('USE_MEDIACTRL')
           wx_libset.merge wx_config("--libs media").split(' ')
         end
         wx_libset.collect { |s| s.dup }

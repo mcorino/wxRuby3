@@ -75,7 +75,7 @@ module WXRuby3
           wxTreeCtrl::GetFocusedItem
           wxTreeCtrl::GetSelection
           ]
-        if Config.instance.features_set?('wxHAS_LAST_VISIBLE')
+        if Config.instance.features_set?('HAS_LAST_VISIBLE')
           spec.no_proxy 'wxTreeCtrl::GetLastVisible'
         end
         # simply a nuisance to support

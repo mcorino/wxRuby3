@@ -15,7 +15,7 @@ module WXRuby3
       include Typemap::TreeItemId
 
       def setup
-        unless Config.instance.features_set?('__WXUNIVERSAL__')
+        unless Config.instance.features_set?('WXUNIVERSAL')
           spec.ignore('wxDragImage::DoDrawImage', 'wxDragImage::GetImageRect', 'wxDragImage::UpdateBackingFromWindow')
         end
         super

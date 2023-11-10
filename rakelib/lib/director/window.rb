@@ -109,15 +109,15 @@ module WXRuby3
             spec.ignore 'wxWindow::EnableTouchEvents'
           end
           if Config.instance.wx_version >= '3.3.0'
-            spec.ignore('wxWindow::MSWDisableComposited') unless Config.instance.features_set?('__WXMSW__')
+            spec.ignore('wxWindow::MSWDisableComposited') unless Config.instance.features_set?('WXMSW')
           end
-          if Config.instance.features_set?('wxUSE_ACCESSIBILITY')
+          if Config.instance.features_set?('USE_ACCESSIBILITY')
             spec.disown 'wxAccessible *accessible'
           else
             spec.ignore('wxWindow::SetAccessible',
                         'wxWindow::GetAccessible')
           end
-          spec.ignore(%w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey]) unless Config.instance.features_set?('wxUSE_HOTKEY')
+          spec.ignore(%w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey]) unless Config.instance.features_set?('USE_HOTKEY')
           spec.ignore('wxWindow::SetSize(int, int)') # not useful as the wxSize variant will also accept an array
           spec.swig_import %w{
             swig/classes/include/wxObject.h

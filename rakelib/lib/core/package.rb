@@ -359,8 +359,7 @@ module WXRuby3
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
               Config.instance.features.each do |feature, val|
-                const_name = rb_wx_name(feature).gsub(/\A__|__\Z/, '')
-                fsrc.puts %Q{rb_define_const(mWxSetup, "#{const_name}", Q#{val});}
+                fsrc.puts %Q{rb_define_const(mWxSetup, "#{feature}", Q#{val});}
               end
             else
               fsrc.puts %Q{#{module_variable} = rb_define_module_under(wxRuby_Core(), "#{name}");}
