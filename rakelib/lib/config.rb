@@ -589,7 +589,7 @@ module WXRuby3
           private :any_feature_set?
 
           def features_set?(*featureset)
-            featureset.all? do |feature|
+            featureset.flatten.all? do |feature|
               if AnyOf === feature
                 any_feature_set?(*feature.features)
               else
