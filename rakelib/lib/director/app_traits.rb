@@ -38,8 +38,8 @@ module WXRuby3
           wxAppTraits::IsUsingUniversalWidgets
           wxAppTraits::ShowAssertDialog
           wxAppTraits::SafeMessageBox
-          wxAppTraits::GetAssertStackTrace
         ], ignore_doc: false
+        spec.ignore('wxAppTraits::GetAssertStackTrace', ignore_doc: 'USE_STACKWALKER')
         # redefine
         spec.extend_interface 'wxAppTraits',
                               'wxString GetDesktopEnvironment() const',

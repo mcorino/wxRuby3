@@ -15,9 +15,8 @@ module WXRuby3
       include Typemap::TreeItemId
 
       def setup
-        unless Config.instance.features_set?('WXUNIVERSAL')
-          spec.ignore('wxDragImage::DoDrawImage', 'wxDragImage::GetImageRect', 'wxDragImage::UpdateBackingFromWindow')
-        end
+        # If wxRuby ever supports WXUNIVERSAL this should change to #ignore_unless
+        spec.ignore('wxDragImage::DoDrawImage', 'wxDragImage::GetImageRect', 'wxDragImage::UpdateBackingFromWindow')
         super
       end
     end # class DragImage
