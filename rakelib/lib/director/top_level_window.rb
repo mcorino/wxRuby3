@@ -41,15 +41,14 @@ module WXRuby3
             wxTopLevelWindow::RestoreToGeometry
             wxTopLevelWindow::GeometrySerializer
           }
-          unless Config.instance.features_set?('WXUNIVERSAL')
-            spec.ignore %w{
+          # #ignore_unless if wxRuby one day supports 'WXUNIVERSAL'
+          spec.ignore %w{
             wxTopLevelWindow::IsUsingNativeDecorations
             wxTopLevelWindow::UseNativeDecorations
             wxTopLevelWindow::UseNativeDecorationsByDefault
             }
-          end
-          spec.ignore('wxTopLevelWindow::MSWGetSystemMenu') unless Config.instance.features_set?('WXMSW')
-          spec.ignore('wxTopLevelWindow::OSXSetModified','wxTopLevelWindow::OSXIsModified') unless Config.instance.features_set?('WXOSX')
+          spec.ignore_unless('WXMSW', 'wxTopLevelWindow::MSWGetSystemMenu')
+          spec.ignore_unless('WXOSX', 'wxTopLevelWindow::OSXSetModified','wxTopLevelWindow::OSXIsModified')
           spec.swig_import 'swig/classes/include/wxDefs.h'
           # incorrectly documented here
           spec.override_events 'wxTopLevelWindow',

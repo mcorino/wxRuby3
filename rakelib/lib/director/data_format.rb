@@ -20,7 +20,7 @@ module WXRuby3
           # The formal signature for these is NativeFormat; this is required on
           # MSVC as otherwise an impermissible implicit cast is tried, and so
           # doesn't compile
-          spec.ignore 'wxDataFormat::GetType'
+          spec.ignore 'wxDataFormat::GetType', ignore_doc: false
           spec.extend_interface 'wxDataFormat',
                                 'typedef unsigned short NativeFormat',
                                 'wxDataFormat::NativeFormat GetType() const'

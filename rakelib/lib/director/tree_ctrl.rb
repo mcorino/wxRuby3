@@ -94,10 +94,9 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
           __HEREDOC
-        if [:wxmsw, :wxqt].include?(Config.instance.wx_port)
-          spec.ignore('wxTreeCtrl::SetButtonsImageList')
-          spec.ignore('wxTreeCtrl::GetButtonsImageList')
-        end
+        spec.ignore_unless(Config::AnyOf.new(*%w[WXGTK WXOSX]),
+                           'wxTreeCtrl::SetButtonsImageList',
+                           'wxTreeCtrl::GetButtonsImageList')
         # these reimplemented window base methods need to be properly wrapped but
         # are missing from the XML docs
         spec.extend_interface('wxTreeCtrl',

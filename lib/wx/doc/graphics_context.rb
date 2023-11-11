@@ -35,6 +35,7 @@ module Wx
     #   @see  Printing Under Unix (GTK+)
     #   @param printerDC [Wx::PrinterDC]
     #   @return [Wx::GraphicsContext]
+    #   @wxrb_require USE_PRINTING_ARCHITECTURE,WXMSW|WXOSX|USE_GTKPRINT
     # @overload self.draw_on(image)
     #   Creates a {Wx::GraphicsContext} associated with a {Wx::Image} and passes that object to the given block.
     #   Deletes the gc object after the block returns.

@@ -28,9 +28,7 @@ module WXRuby3
           wxLanguageInfo::DescriptionNative
           wxLanguageInfo::LayoutDirection
           ]
-        if Config.instance.features_set?('WXMSW')
-          spec.regard('wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
-        end
+        spec.ignore_unless('WXMSW', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
       end
     end # class Locale
 

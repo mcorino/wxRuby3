@@ -231,7 +231,7 @@ module WXRuby3
   }
 
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|
-    Director.Spec(pkg, 'wxPrinterDC', director: Director::DerivedDC, requirements: Director.AnyOf(*%w[WXMSW WXOSX]))
+    Director.Spec(pkg, 'wxPrinterDC', director: Director::DerivedDC, requirements: Director.AnyOf(*%w[WXMSW WXOSX USE_GTKPRINT]))
     Director.Spec(pkg, 'wxPostScriptDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxPrintData')
     Director.Spec(pkg, 'wxPrintDialog')

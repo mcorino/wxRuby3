@@ -23,6 +23,7 @@ module Wx
   #   ````
   #
   # This class is only available if `Wx.has_feature?(:USE_SPELLCHECK)` returns true.
+  # @wxrb_require USE_SPELLCHECK
   class TextProofOptions
     def initialize(schk=false, gchk=false, lang='')end
 
@@ -79,6 +80,7 @@ module Wx
     #   When using WXGTK, this method only works if gspell library was available during the wxWidgets library build.
     #   @param [Wx::TextProofOptions] text_proof_options A Wx::TextProofOptions object specifying the desired behaviour of the proof checker (e.g. language to use, spell check, grammar check, etc.) and whether the proof checks should be enabled at all. By default, spelling checks for the current language are enabled. Passing Wx::TextProofOptions.disable disables all the checks.
     #   @return [Boolean] true if proof checking has been successfully enabled or disabled, false otherwise (usually because the corresponding functionality is not available under the current platform or for this type of text control).
+    #   @wxrb_require USE_SPELLCHECK
     # @overload enable_proof_check(spell_checking, grammar_checking, language)
     #   Enable or disable native spell checking on this text control if it is available on the current platform.
     #   Currently this is supported in WXMSW (when running under Windows 8 or later), WXGTK when using GTK 3 and wxOSX.
@@ -89,11 +91,13 @@ module Wx
     #   @param [Boolean] grammar_checking
     #   @param [String] language
     #   @return [Boolean] true if proof checking has been successfully enabled or disabled, false otherwise (usually because the corresponding functionality is not available under the current platform or for this type of text control).
+    #   @wxrb_require USE_SPELLCHECK
     def enable_proof_check(*opts) end
 
     # Returns the current text proofing options.
     # Only available if `Wx.has_feature?(:USE_SPELLCHECK)` returns true.
     # @return [Wx::TextProofOptions]
+    # @wxrb_require USE_SPELLCHECK
     def get_proof_check_options; end
 
   end

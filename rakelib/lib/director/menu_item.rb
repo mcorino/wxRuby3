@@ -21,11 +21,11 @@ module WXRuby3
         spec.ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText])
         # ignore this as there is no implementation anymore
         spec.ignore 'wxMenuItem::GetAccelFromString'
-        spec.ignore('wxMenuItem::GetAccel') unless Config.instance.features_set?('USE_ACCEL')
+        spec.ignore_unless('USE_ACCEL', 'wxMenuItem::GetAccel')
         spec.no_proxy 'wxMenuItem::GetAccel'
         spec.ignore 'wxMenuItem::GetBitmap(bool)' # not portable
         if Config.instance.wx_version >= '3.3.0'
-          spec.ignore('wxMenuItem::SetBackgroundColour','wxMenuItem::SetFont','wxMenuItem::SetTextColour') unless Config.instance.features_set?('WXMSW')
+          spec.ignore_unless('WXMSW', 'wxMenuItem::SetBackgroundColour','wxMenuItem::SetFont','wxMenuItem::SetTextColour')
         end
         super
       end

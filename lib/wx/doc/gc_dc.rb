@@ -21,7 +21,7 @@ module Wx
     #   @param [Wx::PrinterDC] target DC to draw on
     #   @yieldparam [Wx::GCDC] dc GCDC instance to draw on
     #   @return [Object] result from block
-    #   @wxrb_require USE_PRINTING_ARCHITECTURE,WXMSW|WXOSX
+    #   @wxrb_require USE_PRINTING_ARCHITECTURE,WXMSW|WXOSX|USE_GTKPRINT
     # @overload draw_on(gc)
     #   @param [Wx::GraphicsContext] gc GraphicsContext to draw on
     #   @yieldparam [Wx::GCDC] dc GCDC instance to draw on

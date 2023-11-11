@@ -53,16 +53,14 @@ module WXRuby3
         end
         spec.map_apply 'int * OUTPUT' => ['int *major', 'int *minor', 'int *micro']
 
-        unless Config.platform == :mingw
-          spec.ignore 'wxStandardPaths::DontIgnoreAppSubDir',
-                      'wxStandardPaths::IgnoreAppSubDir',
-                      'wxStandardPaths::IgnoreAppBuildSubDirs',
-                      'wxStandardPaths::MSWGetShellDir'
-        end
-        unless Config.platform == :linux
-          spec.ignore 'wxStandardPaths::SetInstallPrefix',
-                      'wxStandardPaths::GetInstallPrefix'
-        end
+        spec.ignore_unless('WXMSW',
+                           'wxStandardPaths::DontIgnoreAppSubDir',
+                           'wxStandardPaths::IgnoreAppSubDir',
+                           'wxStandardPaths::IgnoreAppBuildSubDirs',
+                           'wxStandardPaths::MSWGetShellDir')
+        spec.ignore_unless('WXGTK',
+                           'wxStandardPaths::SetInstallPrefix',
+                           'wxStandardPaths::GetInstallPrefix')
       end
     end
 
