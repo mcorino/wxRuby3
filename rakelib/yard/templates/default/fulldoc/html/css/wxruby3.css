@@ -49,6 +49,20 @@ div.wxrb-logo span.wxrb-version {
     margin-right: 15px;
 }
 
+div.wxrb-logo span.wxrb-wxver {
+    font-size: 0.9em;
+    font-weight: normal;
+    margin-right: 15px;
+}
+
+div.wxrb-logo table {
+    display: inline;
+}
+
+div.wxrb-logo table td {
+    margin: 0;
+}
+
 .discussion div.note {
     background: #f7f7f9;
     border-left: .6em solid #f3ba6f;
