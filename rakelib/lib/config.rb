@@ -625,6 +625,8 @@ module WXRuby3
               # (for example __WXMSW__ and __WXOSX__ are not in setup.h)
               features['WXMSW'] = true if features['GNUWIN32']
               features['WXOSX'] = true if features['DARWIN']
+              # prior to wxWidgets 3.3 this feature was not set for wxGTK builds
+              features['WXGTK'] = true if features['LINUX'] && !features['WXGTK'] && instance.wx_port == :wxgtk
             end
 
             features
