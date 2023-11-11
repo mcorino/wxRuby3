@@ -261,7 +261,7 @@ module WXRuby3
       def ignore(val = true, ignore_doc: nil)
         if val.is_a?(::Array)
           @ignored = val
-        elsif val.is_a?(Config::AnyOf)
+        elsif val.is_a?(Config::AnyOf) || val.is_a?(::String)
           @ignored = [val]
         else
           @ignored = !!val

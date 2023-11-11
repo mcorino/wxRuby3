@@ -269,7 +269,7 @@ module WXRuby3
     end
 
     def handle_item_ignore(defmod, fullname, ignore, ignoredoc)
-      action = ignore ? 'ignore' : 'regard'
+      action = (ignore==false) ? 'regard' : 'ignore'
       # find the item
       item = defmod.find_item(fullname)
       if item
@@ -361,8 +361,8 @@ module WXRuby3
       # extract the module definitions
       defmod = Extractor.extract_module(spec.package, spec.module_name, spec.name, spec.items, gendoc: gendoc)
       # handle ignores
-      spec.ignores.each_pair do |fullname, ignoredoc|
-        handle_item_ignore(defmod, fullname, true, ignoredoc)
+      spec.ignores.each_pair do |fullname, ignore_spec|
+        handle_item_ignore(defmod, fullname, ignore_spec[:ignore], ignore_spec[:ignore_doc])
       end
       # handle regards
       spec.regards.each_pair do |fullname, regarddoc|
