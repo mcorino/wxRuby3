@@ -40,6 +40,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPopupWindow')
     Director.Spec(pkg, 'wxTopLevelWindow')
     Director.Spec(pkg, 'wxFrame')
+    Director.Spec(pkg, 'wxTaskBarButton', requirements: %w[WXMSW USE_TASKBARBUTTON])
     Director.Spec(pkg, 'wxMiniFrame', director: Director::Frame)
     Director.Spec(pkg, 'wxGDIObject')
     Director.Spec(pkg, 'wxGraphicsObject', requirements: %w[USE_GRAPHICS_CONTEXT])
