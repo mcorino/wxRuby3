@@ -54,7 +54,7 @@ jobs:
             platform: 'x64'
             CXX: g++-12
             ruby: '2.7'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
             wxr_type: develop
@@ -62,7 +62,7 @@ jobs:
             platform: 'x64'
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
             wxr_type: develop
@@ -70,7 +70,7 @@ jobs:
             platform: 'x64'
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: develop
             wxr_type: develop
@@ -78,7 +78,7 @@ jobs:
             platform: 'x64'
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
             wxr_type: bingem
@@ -86,7 +86,7 @@ jobs:
             platform: 'x64'
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
             wxr_type: gem
