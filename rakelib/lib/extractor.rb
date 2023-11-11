@@ -258,16 +258,24 @@ module WXRuby3
         end
       end
 
-      def ignore(val = true, ignore_doc: nil)
+      def get_ignore_val(val)
         if val.is_a?(::Array)
-          @ignored = val
+          val
         elsif val.is_a?(Config::AnyOf) || val.is_a?(::String)
-          @ignored = [val]
+          [val]
         else
-          @ignored = !!val
+          !!val
         end
-        # ignore_doc will never be an Array itself but either nil or a boolean
-        @docs_ignored = ignore_doc.nil? ? @ignored : ignore_doc
+      end
+      private :get_ignore_val
+
+      def ignore(val = true, ignore_doc: nil)
+        @ignored = get_ignore_val(val)
+        @docs_ignored = if ignore_doc.nil?
+                          @ignored
+                        else
+                          get_ignore_val(ignore_doc)
+                        end
         self
       end
 
