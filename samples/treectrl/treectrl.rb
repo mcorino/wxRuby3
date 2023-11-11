@@ -369,7 +369,7 @@ class MyTreeCtrl < Wx::TreeCtrl
       set_item_font(root_id, Wx::ITALIC_FONT)
     end
 
-    ids = get_children(root_id)
+    ids = get_item_children(root_id)
 
     # make the first item blue
     set_item_text_colour(ids[0], Wx::BLUE)
