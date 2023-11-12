@@ -14,16 +14,13 @@ module WXRuby3
 
       def setup
         spec.gc_as_object %w[wxLog wxLogChain wxLogInterposer wxLogWindow]
-        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogStream wxLogTextCtrl wxLogInterposer wxLogWindow wxLogNull wxLogRecordInfo])
+        spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogTextCtrl wxLogInterposer wxLogWindow wxLogNull wxLogRecordInfo])
         spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogStderr wxLogTextCtrl wxLogWindow])
         spec.force_proxy(%w[wxLogInterposer])
         spec.ignore 'wxLog::SetFormatter'
         spec.regard %w[wxLog::DoLogRecord wxLog::DoLogTextAtLevel wxLog::DoLogText]
         spec.ignore 'wxLogBuffer::Flush'
         spec.ignore 'wxLogGui::Flush'
-        if Config.instance.features_set?('wxUSE_STD_IOSTREAM')
-          spec.ignore 'wxLogStream'
-        end
         # wxLogStderr
         spec.ignore 'wxLogStderr::wxLogStderr'
         spec.add_extend_code 'wxLogStderr', <<~__HEREDOC

@@ -47,9 +47,8 @@ module WXRuby3
                    (TYPE($input) == T_STRING && RSTRING_LEN($input) == 1) );
             __CODE
         end
-        unless Config.instance.features_set?('__WXMSW__')
-          spec.ignore('wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
-        end
+        spec.ignore_unless('WXMSW',
+                           'wxAcceleratorTable::wxAcceleratorTable(const wxString &)')
         spec.add_swig_code <<~__HEREDOC
           %warnfilter(509) wxAcceleratorTable::wxAcceleratorTable;
           __HEREDOC

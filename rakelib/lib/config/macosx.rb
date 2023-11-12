@@ -65,7 +65,7 @@ module WXRuby3
               end
             end
             # some weird thing with this; at least sometimes '--libs all' will not output media library even if feature active
-            if features_set?('wxUSE_MEDIACTRL')
+            if features_set?('USE_MEDIACTRL')
               lib_list = wx_config("--libs media").split(' ')
               until lib_list.empty?
                 s = lib_list.shift

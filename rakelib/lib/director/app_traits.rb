@@ -38,8 +38,8 @@ module WXRuby3
           wxAppTraits::IsUsingUniversalWidgets
           wxAppTraits::ShowAssertDialog
           wxAppTraits::SafeMessageBox
-          wxAppTraits::GetAssertStackTrace
         ], ignore_doc: false
+        spec.ignore('wxAppTraits::GetAssertStackTrace', ignore_doc: 'USE_STACKWALKER')
         # redefine
         spec.extend_interface 'wxAppTraits',
                               'wxString GetDesktopEnvironment() const',
@@ -48,21 +48,19 @@ module WXRuby3
                               'bool IsUsingUniversalWidgets() const',
                               'bool ShowAssertDialog(const wxString& msg)',
                               'bool SafeMessageBox(const wxString &text, const wxString &title)'
-        if Config.instance.features_set?('wxUSE_STACKWALKER')
+        if Config.instance.features_set?('USE_STACKWALKER')
           spec.extend_interface 'wxAppTraits', 'wxString GetAssertStackTrace()'
         end
         spec.map_apply 'int * OUTPUT' => ['int *major', 'int *minor', 'int *micro']
 
-        unless Config.platform == :mingw
-          spec.ignore 'wxStandardPaths::DontIgnoreAppSubDir',
-                      'wxStandardPaths::IgnoreAppSubDir',
-                      'wxStandardPaths::IgnoreAppBuildSubDirs',
-                      'wxStandardPaths::MSWGetShellDir'
-        end
-        unless Config.platform == :linux
-          spec.ignore 'wxStandardPaths::SetInstallPrefix',
-                      'wxStandardPaths::GetInstallPrefix'
-        end
+        spec.ignore_unless('WXMSW',
+                           'wxStandardPaths::DontIgnoreAppSubDir',
+                           'wxStandardPaths::IgnoreAppSubDir',
+                           'wxStandardPaths::IgnoreAppBuildSubDirs',
+                           'wxStandardPaths::MSWGetShellDir')
+        spec.ignore_unless('WXGTK',
+                           'wxStandardPaths::SetInstallPrefix',
+                           'wxStandardPaths::GetInstallPrefix')
       end
     end
 

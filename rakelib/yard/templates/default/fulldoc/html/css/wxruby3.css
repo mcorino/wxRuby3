@@ -1,7 +1,79 @@
 
-blockquote {
+div.wxrb-note {
     background: #f7f7f9;
-    border-left: .25em solid #e1e1e8;
+    border-left: .6em solid #f3ba6f;
+    border-radius: 3px;
     margin: 14px;
     padding-left: 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.wxrb-remark {
+    background: #f7f7f9;
+    border-left: .6em solid #f6f4ab;
+    border-radius: 3px;
+    margin: 14px;
+    padding-left: 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+div.wxrb-note p,
+div.wxrb-remark p {
+    margin: 0;
+}
+
+div.wxrb-logo {
+    float: right;
+    padding-top: 12px;
+}
+
+div.wxrb-logo img {
+    vertical-align: middle;
+}
+
+div.wxrb-logo span.wxrb-name {
+    font-size: large;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+div.wxrb-logo span.wxrb-name a {
+    color: black;
+}
+
+div.wxrb-logo span.wxrb-version {
+    font-size: medium;
+    font-weight: normal;
+    margin-right: 15px;
+}
+
+div.wxrb-logo span.wxrb-wxver {
+    font-size: 0.9em;
+    font-weight: normal;
+    margin-right: 15px;
+}
+
+div.wxrb-logo table {
+    display: inline;
+}
+
+div.wxrb-logo table td {
+    margin: 0;
+}
+
+.discussion div.note {
+    background: #f7f7f9;
+    border-left: .6em solid #f3ba6f;
+    margin: 14px;
+}
+
+.tags span.wxrb-require {
+    border-radius: 5px;
+    border: 1px solid #E1E1E8;
+    padding: 0px 3px 0px 3px;
+    background: #f3ba6f;
+    font-weight: bold;
+    font-size: 0.9em;
 }

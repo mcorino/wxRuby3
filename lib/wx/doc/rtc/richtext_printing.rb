@@ -5,16 +5,24 @@
 # :startdoc:
 
 
-class Wx::RTC::RichTextPrinting
+module Wx
 
-  # Returns (a copy of) the print data.
-  # @return [Wx::PRT::PrintData] print data copy
-  def get_print_data; end
-  alias :print_data :get_print_data
+  module RTC
 
-  # Returns (a copy of) the page setup data.
-  # @return [Wx::PRT::PageSetupDialogData] page setup data copy
-  def get_page_setup_data; end
-  alias :page_setup_data :get_page_setup_data
+    class RichTextPrinting
+
+      # Returns (a copy of) the print data.
+      # @return [Wx::PRT::PrintData] print data copy
+      def get_print_data; end
+      alias :print_data :get_print_data
+
+      # Returns (a copy of) the page setup data.
+      # @return [Wx::PRT::PageSetupDialogData] page setup data copy
+      def get_page_setup_data; end
+      alias :page_setup_data :get_page_setup_data
+
+    end
+
+  end
 
 end

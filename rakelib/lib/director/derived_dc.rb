@@ -278,7 +278,7 @@ module WXRuby3
           # like all DC this should best always be a temporary stack object
           # we do not allow creation in Ruby but rather provide class
           # methods for block execution on a temp dc
-          unless Config.platform == :linux
+          if Config.instance.features_set?('USE_PRINTING_ARCHITECTURE', Director.AnyOf(*%w[WXMSW WXOSX USE_GTKPRINT]))
             spec.add_extend_code 'wxGCDC', <<~__HEREDOC
               static VALUE draw_on(const wxPrinterDC& dc)
               {

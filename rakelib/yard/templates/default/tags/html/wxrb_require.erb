@@ -1,0 +1,10 @@
+<% if object.has_tag?(:wxrb_require) %>
+  <p class="tag_title">Requires:</p>
+  <ul class="wxrb-require">
+    <% wxruby_requires.each do |req| %>
+      <li><div class='inline'>
+        <%= req.join(' or ') %>
+      </div></li>
+    <% end %>
+  </ul>
+<% end %>

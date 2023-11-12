@@ -327,7 +327,12 @@ module WXRuby3
       end
 
       def ignore(*names, ignore_doc: true)
-        names.flatten.each {|n| @ignores[n] = ignore_doc}
+        names.flatten.each { |n| @ignores[n] = {ignore: true, ignore_doc: ignore_doc} }
+        self
+      end
+
+      def ignore_unless(feature_set, *names)
+        names.flatten.each { |n| @ignores[n] = {ignore: feature_set} }
         self
       end
 

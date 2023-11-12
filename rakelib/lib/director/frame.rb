@@ -21,17 +21,7 @@ module WXRuby3
         when 'wxFrame'
           spec.ignore %w[
             wxFrame::OnCreateStatusBar wxFrame::OnCreateToolBar]
-          if Config.instance.features_set?(*%w[__WXMSW__ wxUSE_TASKBARBUTTON])
-            spec.items << 'wxTaskBarButton' << 'wxThumbBarButton'
-            spec.no_proxy 'wxTaskBarButton'
-            spec.gc_as_untracked 'wxTaskBarButton', 'wxThumbBarButton'
-            spec.disown 'wxThumbBarButton *button'
-            # superfluous and causing trouble for disown policy (re-implemented in pure Ruby)
-            spec.ignore 'wxTaskBarButton::RemoveThumbBarButton(wxThumbBarButton*)', ignore_doc: false
-            spec.new_object 'wxTaskBarButton::RemoveThumbBarButton(int)'
-          else
-            spec.ignore('wxFrame::MSWGetTaskBarButton')
-          end
+          spec.ignore_unless(%w[WXMSW USE_TASKBARBUTTON], 'wxFrame::MSWGetTaskBarButton')
           # this reimplemented window base method need to be properly wrapped but
           # is missing from the XML docs
           spec.extend_interface('wxFrame', 'virtual void OnInternalIdle()')

@@ -87,7 +87,7 @@ module WXRuby3
       attr_reader :director, :classdef, :class_spec_name, :class_registry
 
       def item_ignored?(item)
-        @doc_gen ? item.docs_ignored : item.ignored
+        @doc_gen ? item.docs_ignored(Director::Package.full_docs?) : item.ignored
       end
       private :item_ignored?
 
@@ -482,12 +482,17 @@ module WXRuby3
         end
       end
 
+      def item_ignored(item, doc_gen)
+        doc_gen ? item.docs_ignored(Director::Package.full_docs?) : item.ignored
+      end
+      private :item_ignored
+
       def preprocess(enum_maps, doc_gen = false)
         STDERR.puts "** Preprocessing #{module_name}" if Director.trace?
         def_items.each do |item|
           case item
           when Extractor::ClassDef
-            if !(doc_gen ? item.docs_ignored : item.ignored) &&
+            if !item_ignored(item, doc_gen) &&
                   (!item.is_template? || template_as_class?(item.name)) &&
                   !is_folded_base?(item.name)
               clsproc = ClassProcessor.new(director, item, doc_gen)
@@ -536,7 +541,7 @@ module WXRuby3
           errors = []
           warnings = []
           def_items.each do |item|
-            if Extractor::ClassDef === item && !(doc_gen ? item.docs_ignored : item.ignored) &&
+            if Extractor::ClassDef === item && !item_ignored(item, doc_gen) &&
               (!item.is_template? || template_as_class?(item.name)) &&
               !is_folded_base?(item.name)
               intf_class_name = if item.is_template? || template_as_class?(item.name)

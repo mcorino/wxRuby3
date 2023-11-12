@@ -50,7 +50,7 @@ jobs:
             CC: gcc-9
             CXX: g++-9
             ruby: '2.5'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -61,7 +61,7 @@ jobs:
             CC: gcc-10
             CXX: g++-10
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -72,7 +72,7 @@ jobs:
             CC: gcc-11
             CXX: g++-11
             ruby: '3.0'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -83,7 +83,7 @@ jobs:
             CC: gcc-12
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -94,7 +94,7 @@ jobs:
             CC: gcc-12
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -105,7 +105,7 @@ jobs:
             CC: gcc-12
             CXX: g++-12
             ruby: '3.2'
-            wxWidgets: '3.2.2.1'
+            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true

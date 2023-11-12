@@ -5,16 +5,24 @@
 # :startdoc:
 
 
-class Wx::RTC::RichTextStyleSheet
+module Wx
 
-  # Copy ctor
-  # @param [Wx::RTC::RichTextStyleSheet] sheet
-  # @return [Wx::RTC::RichTextStyleSheet]
-  def initialize(sheet) end
+  module RTC
 
-  # Copy given style sheet
-  # @param [Wx::RTC::RichTextStyleSheet] sheet
-  # @return [void]
-  def copy(sheet) end
+    class RichTextStyleSheet
+
+      # Copy ctor
+      # @param [Wx::RTC::RichTextStyleSheet] sheet
+      # @return [Wx::RTC::RichTextStyleSheet]
+      def initialize(sheet) end
+
+      # Copy given style sheet
+      # @param [Wx::RTC::RichTextStyleSheet] sheet
+      # @return [void]
+      def copy(sheet) end
+
+    end
+
+  end
 
 end

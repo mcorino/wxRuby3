@@ -82,7 +82,7 @@ jobs:
 
       - name: Generate wxRuby3 docs
         run: |
-          BUILD_CMD="bundle exec rake doc"
+          BUILD_CMD="bundle exec rake doc WXRUBY_FULLDOCS=1"
           /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $BUILD_CMD 2>&1 | tee -a gembuild.out" || rc=$?
           if [ -n "$rc" ]; then
             if fgrep -q '(core dumped)' gembuild.out; then
@@ -95,10 +95,6 @@ jobs:
       - name: Build wxRuby3 HTML docs
         run: |
           bundle exec yardoc
-
-      - name: Copy assets into HTML output folder
-        run: |
-          cp -r assets rdoc
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

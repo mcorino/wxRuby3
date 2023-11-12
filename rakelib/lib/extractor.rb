@@ -182,7 +182,7 @@ module WXRuby3
         extract(element) if element
       end
 
-      attr_accessor :name, :rb_name, :ignored, :docs_ignored, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
+      attr_accessor :name, :rb_name, :brief_doc, :detailed_doc, :deprecated, :only_for, :items
 
       def extra_attributes
         @extra_attributes ||= {}
@@ -221,8 +221,10 @@ module WXRuby3
           @detailed_doc = element.xpath('detaileddescription')
           if (el = @detailed_doc.at_xpath('para/onlyfor'))
             @only_for = el.text.strip.split(',').collect { |s| s.downcase }
-            @ignored = @only_for.none? { |s| Config.instance.wx_port == s.to_sym }
-            @docs_ignored = @ignored
+            unless @only_for.empty?
+              @ignored = [Config::AnyOf.new(*@only_for.collect { |s| s.upcase })] # transform to feature ids like 'WXGTK'
+              @docs_ignored = @ignored
+            end
           end
         end
       end
@@ -256,10 +258,37 @@ module WXRuby3
         end
       end
 
+      def get_ignore_val(val)
+        if val.is_a?(::Array)
+          val
+        elsif val.is_a?(Config::AnyOf) || val.is_a?(::String)
+          [val]
+        else
+          !!val
+        end
+      end
+      private :get_ignore_val
+
       def ignore(val = true, ignore_doc: nil)
-        @ignored = !!val
-        @docs_ignored = ignore_doc.nil? ? @ignored : ignore_doc
+        @ignored = get_ignore_val(val)
+        @docs_ignored = if ignore_doc.nil?
+                          @ignored
+                        else
+                          get_ignore_val(ignore_doc)
+                        end
         self
+      end
+
+      def ignored
+        @ignored == true || (@ignored.is_a?(::Array) && !Config.instance.features_set?(*@ignored))
+      end
+
+      def docs_ignored(fulldocs)
+        @docs_ignored == true || (!fulldocs && @docs_ignored.is_a?(::Array) && !Config.instance.features_set?(*@docs_ignored))
+      end
+
+      def required_features_doc
+        @docs_ignored.is_a?(::Array) ? @docs_ignored : nil
       end
 
       def find(name)

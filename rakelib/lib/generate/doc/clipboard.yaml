@@ -37,7 +37,5 @@
             clipboard managers will automatically flush the clipboard after each new piece of data is added, while others 
             will not. The {Wx::Clipboard#flush} function will force the clipboard manager to flush the data.
             
-            === 
-            
             Category:  Clipboard and Drag & Drop
             @see  Wx::DataObject 

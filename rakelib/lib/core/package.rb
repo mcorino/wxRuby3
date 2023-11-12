@@ -105,7 +105,7 @@ module WXRuby3
       end
 
       def included_directors
-        directors.select { |dir| !Config.instance.excluded_module?(dir.spec) }
+        directors.select { |dir| Package.full_docs? || !Config.instance.excluded_module?(dir.spec) }
       end
 
       def director_for_class(class_name)
@@ -248,7 +248,7 @@ module WXRuby3
         end
 
         # next initialize all modules with classes depending (bases AND mixins) on classes in any modules already
-        # selected until there are no more modules left or none that are left depend on any selected ones
+        # selecteduntil there are no more modules left or none that are left depend on any selected ones
         while dir_inx = inc_dirs.find_index { |dir| !dir.spec.initialize_at_end && is_dir_with_fulfilled_deps?(dir, cls_set) }
           dir = inc_dirs[dir_inx]
           modreg = Spec.module_registry[dir.spec.module_name]
@@ -359,8 +359,7 @@ module WXRuby3
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
               Config.instance.features.each do |feature, val|
-                const_name = rb_wx_name(feature).gsub(/\A__|__\Z/, '')
-                fsrc.puts %Q{rb_define_const(mWxSetup, "#{const_name}", Q#{val});}
+                fsrc.puts %Q{rb_define_const(mWxSetup, "#{feature}", Q#{val});}
               end
             else
               fsrc.puts %Q{#{module_variable} = rb_define_module_under(wxRuby_Core(), "#{name}");}
@@ -523,10 +522,12 @@ module WXRuby3
             # ----------------------------------------------------------------------------
 
   
-            class Wx::EvtHandler
+            module Wx
 
-          __HEREDOC
-          fdoc.indent do
+              class EvtHandler
+
+            __HEREDOC
+          fdoc.indent(2) do
             fdoc.doc.puts "@!group #{name} Event handler methods"
             fdoc.puts
             evts_handled = ::Set.new
@@ -556,6 +557,8 @@ module WXRuby3
             end
             fdoc.doc.puts '@!endgroup'
           end
+          fdoc.puts
+          fdoc.puts '  end'
           fdoc.puts
           fdoc.puts 'end'
         end
@@ -633,6 +636,10 @@ module WXRuby3
         end
       end
       private :generate_core_doc
+
+      def self.full_docs?
+        !!ENV['WXRUBY_FULLDOCS']
+      end
 
       def generate_docs
         # make sure all modules have been extracted from xml

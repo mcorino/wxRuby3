@@ -57,16 +57,13 @@ module WXRuby3
         @dll_pfx = 'lib'
 
         if @wx_version
-          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
+          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized -Wno-format-security]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           @ruby_ldflags << '-s' if @release_build  # strip debug symbols for release build
 
           # create a .so binary
           @extra_ldflags << '-shared'
-
-          # This class is not available on linux ports (wxGTK/wxQT/wxX11/wxMotif)
-          exclude_module('wxPrinterDC')
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}

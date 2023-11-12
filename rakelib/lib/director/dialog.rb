@@ -24,6 +24,7 @@ module WXRuby3
         when 'wxDialog'
           spec.items << 'wxDialogLayoutAdapter'
           spec.gc_as_object 'wxDialogLayoutAdapter'
+          spec.suppress_warning(514, 'wxDialogLayoutAdapter')
           spec.disown 'wxDialogLayoutAdapter* adapter'
           spec.new_object 'wxDialog::SetLayoutAdapter'
           spec.ignore('wxDialog::GetContentWindow',

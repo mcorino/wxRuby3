@@ -55,12 +55,11 @@ module WXRuby3
             (void)self->EditLabel(item);
           }
         __HEREDOC
-        unless Config.instance.features_set?('wxHAS_LISTCTRL_COLUMN_ORDER')
-          spec.ignore %w[wxListCtrl::GetColumnIndexFromOrder
-                         wxListCtrl::GetColumnOrder
-                         wxListCtrl::GetColumnsOrder
-                         wxListCtrl::SetColumnsOrder]
-        end
+        spec.ignore_unless 'HAS_LISTCTRL_COLUMN_ORDER',
+                           %w[wxListCtrl::GetColumnIndexFromOrder
+                              wxListCtrl::GetColumnOrder
+                              wxListCtrl::GetColumnsOrder
+                              wxListCtrl::SetColumnsOrder]
         # these are protected so ignored by default but we want them here
         spec.regard %w[
             wxListCtrl::OnGetItemAttr

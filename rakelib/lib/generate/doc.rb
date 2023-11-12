@@ -151,8 +151,10 @@ module WXRuby3
       def text_to_doc(node)
         text = node.text
         # handle left-over doxygen tags
+        text.gsub!(/#(\w)/, '\#\1')
         text.gsub!(/@(end)?code/, '')
-        text.gsub!('@subsection', '==')
+        text.gsub!('@subsection', '##')
+        text = '' if text.strip == '##' # no empty headings
         text.gsub!('@remarks', '')
         text.gsub!(/@see.*\n/, '')
         text.gsub!('@ref', '')
@@ -224,6 +226,10 @@ module WXRuby3
         end
       end
 
+      def onlyfor_to_doc(node)
+        '' # handled elsewhere
+      end
+
       def simplesect_to_doc(node)
         case node['kind']
         when 'since' # get rid of 'Since' notes
@@ -233,6 +239,22 @@ module WXRuby3
             @see_list.concat node_to_doc(node).split(',')
           end
           ''
+        when 'note'
+          <<~__NOTE
+
+            <div class="wxrb-note">
+            <b>Note:</b>
+            <p>#{node_to_doc(node)}</p>
+            </div>
+          __NOTE
+        when 'remark'
+          <<~__NOTE
+
+            <div class="wxrb-remark">
+            <b>Remark:</b>
+            <p>#{node_to_doc(node)}</p>
+            </div>>
+          __NOTE
         else
           node_to_doc(node)
         end
@@ -280,7 +302,9 @@ module WXRuby3
 
       def _ident_str_to_doc(s, ref_scope = nil)
         return s if no_idents?
-        return s if %w[wxRuby wxMSW wxOSX wxGTK wxX11 wxMac].any? { |w| s.start_with?(w) }
+        return s if s.start_with?('wxRuby')
+        return 'WXOSX' if s.start_with?('wxMac')
+        return s.sub(/\Awx/, 'WX') if %w[wxMSW wxOSX wxGTK wxX11 wxUNIVERSAL].any? { |w| s.start_with?(w) }
         nmlist = s.split('::')
         nm_str = nmlist.shift.to_s
         constnm = rb_wx_name(nm_str)
@@ -409,7 +433,8 @@ module WXRuby3
         lvl = 1+(node['level'] || '1').to_i
         txt = node_to_doc(node)
         event_section(/Events emitted by this class|Events using this class/i =~ txt)
-        "#{'#' * lvl} #{txt}"
+        txt.strip!
+        txt.empty? ? txt : "#{'#' * lvl} #{txt}"
       end
 
       # transform all itemizedlist
@@ -682,6 +707,36 @@ module WXRuby3
 
     protected
 
+    def to_feature_text(feat)
+      if Config::AnyOf === feat
+        feat.features.collect { |f| f.is_a?(::Array) ? f.join('&') : f }.join('|')
+      else
+        feat
+      end
+    end
+    private :to_feature_text
+
+    def gen_item_requirements(fdoc, item)
+      if item.required_features_doc
+        fdoc.doc.puts '@wxrb_require ' + item.required_features_doc.collect(&->(feat){ to_feature_text(feat) }).join(',')
+      end
+    end
+
+    def has_class_requirements?
+      !(ifspec.requirements.empty? && ifspec.package.required_features.empty?)
+    end
+
+    def get_class_requirements
+      ifspec.requirements + ifspec.package.required_features.to_a
+    end
+    private :get_class_requirements
+
+    def gen_class_requirements(fdoc)
+      if has_class_requirements?
+        fdoc.doc.puts '@wxrb_require ' + get_class_requirements.collect(&->(feat){ to_feature_text(feat) }).join(',')
+      end
+    end
+
     def get_constant_doc(const)
       @xml_trans.to_doc(const.brief_doc, item: const)
     end
@@ -718,6 +773,7 @@ module WXRuby3
 
     def gen_enum_doc(fdoc, enumname, enumdef, enum_table)
       fdoc.doc.puts get_enum_doc(enumdef)
+      gen_class_requirements(fdoc)
       fdoc.puts "class #{enumname} < Wx::Enum"
       fdoc.puts
       fdoc.indent do
@@ -734,7 +790,7 @@ module WXRuby3
 
     def gen_constants_doc(fdoc)
       xref_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
-      def_items.select {|itm| !itm.docs_ignored }.each do |item|
+      def_items.select {|itm| !itm.docs_ignored(Director::Package.full_docs?) }.each do |item|
         case item
         when Extractor::GlobalVarDef
           unless no_gen?(:variables)
@@ -773,22 +829,24 @@ module WXRuby3
     end
 
     def get_function_doc(func)
-      func.rb_doc(@xml_trans, type_maps)
+      func.rb_doc(@xml_trans, type_maps, Director::Package.full_docs?)
     end
 
     def gen_functions_doc(fdoc)
-      def_items.select {|itm| !itm.docs_ignored }.each do |item|
-        if Extractor::FunctionDef === item && !item.docs_ignored
+      def_items.select {|itm| !itm.docs_ignored(Director::Package.full_docs?) }.each do |item|
+        if Extractor::FunctionDef === item
           get_method_doc(item).each_pair do |name, docs|
             if docs.size>1 # method with overloads?
-              docs.each do |params, ovl_doc|
+              docs.each do |ovl, params, ovl_doc|
                 fdoc.doc.puts "@overload #{name}(#{params})"
                 fdoc.doc.indent { fdoc.doc.puts ovl_doc }
+                fdoc.doc.indent { gen_item_requirements(fdoc, ovl) }
               end
               fdoc.puts "def #{name}(*args) end"
             else
-              params, doc = docs.shift
+              mtd, params, doc = docs.shift
               fdoc.doc.puts doc
+              gen_item_requirements(fdoc, mtd)
               if params.empty?
                 fdoc.puts "def #{name}; end"
               else
@@ -808,7 +866,7 @@ module WXRuby3
     end
 
     def get_method_doc(mtd)
-      mtd.rb_doc(@xml_trans, type_maps)
+      mtd.rb_doc(@xml_trans, type_maps, Director::Package.full_docs?)
     end
 
     def get_method_head(clsdef, mtdef)
@@ -836,14 +894,16 @@ module WXRuby3
             mtd_head = get_method_head(clsdef, cm)
             get_method_doc(mtd_head).each_pair do |name, docs|
               if docs.size>1 # method with overloads?
-                docs.each do |params, ovl_doc|
+                docs.each do |ovl, params, ovl_doc|
                   fdoc.doc.puts "@overload #{name}(#{params})"
                   fdoc.doc.indent { fdoc.doc.puts ovl_doc }
+                  fdoc.doc.indent { gen_item_requirements(fdoc, ovl) }
                 end
                 fdoc.puts "def #{name}(*args) end"
               else
-                params, doc = docs.shift
+                mtd, params, doc = docs.shift
                 fdoc.doc.puts doc
+                gen_item_requirements(fdoc, mtd)
                 if params.empty?
                   fdoc.puts "def #{name}; end"
                 else
@@ -898,7 +958,7 @@ module WXRuby3
 
     def gen_class_doc(fdoc)
       const_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
-      def_items.select {|itm| !itm.docs_ignored && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
+      def_items.select {|itm| !itm.docs_ignored(Director::Package.full_docs?) && Extractor::ClassDef === itm && !is_folded_base?(itm.name) }.each do |item|
         if !item.is_template? || template_as_class?(item.name)
           @xml_trans.for_class(item) do
             intf_class_name = if (item.is_template? && template_as_class?(item.name))
@@ -911,9 +971,11 @@ module WXRuby3
             fdoc.doc.puts get_class_doc(item)
             if is_mixin?(item)
               fdoc.doc.puts "\n@note  In wxRuby this is a mixin module instead of a (base) class."
+              gen_class_requirements(fdoc)
               fdoc.puts "module #{clsnm}"
             else
               fdoc.doc.puts "\n@note This class is <b>untracked</b> and should not be derived from nor instances extended!" unless is_tracked?(item)
+              gen_class_requirements(fdoc)
               basecls = ifspec.classdef_name(base_class(item, doc: true))
               fdoc.puts "class #{clsnm} < #{basecls ? basecls.sub(/\Awx/, '') : '::Object'}"
             end

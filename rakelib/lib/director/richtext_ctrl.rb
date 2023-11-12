@@ -15,7 +15,7 @@ module WXRuby3
     class RichTextCtrl < Window
 
       include Typemap::RichText
-      if Config.instance.features_set?('wxUSE_DATETIME')
+      if Config.instance.features_set?('USE_DATETIME')
         include Typemap::DateTime
       end
 
@@ -117,9 +117,7 @@ module WXRuby3
           wxRichTextCtrl::ProcessMouseMovement
           wxRichTextCtrl::ProcessBackKey
           ]
-        unless Config.instance.features_set?('wxUSE_DATETIME')
-          spec.ignore %w[wxRichTextCtrl::GetDragStartTime wxRichTextCtrl::SetDragStartTime]
-        end
+        spec.ignore_unless 'USE_DATETIME', %w[wxRichTextCtrl::GetDragStartTime wxRichTextCtrl::SetDragStartTime]
         spec.add_header_code 'extern VALUE wxRuby_RichTextObject2Ruby(const wxRichTextObject *wx_rto, int own);'
         spec.swig_import('swig/classes/include/wxTextAttr.h',
                          'swig/classes/include/wxRichTextObject.h',

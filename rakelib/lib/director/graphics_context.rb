@@ -34,9 +34,7 @@ module WXRuby3
                     'wxGraphicsContext::DrawLines(size_t, const wxPoint2DDouble *, wxPolygonFillMode)',
                     'wxGraphicsContext::StrokeLines(size_t, const wxPoint2DDouble *)',
                     'wxGraphicsContext::StrokeLines (size_t, const wxPoint2DDouble *, const wxPoint2DDouble *)'
-        if Config.platform == :linux
-          spec.ignore 'wxGraphicsContext::Create(const wxPrinterDC &)'
-        end
+        spec.ignore_unless(Config::AnyOf.new('WXMSW', 'WXOSX', 'USE_GTKPRINT'), 'wxGraphicsContext::Create(const wxPrinterDC &)')
         spec.add_header_code <<~__HEREDOC
           // special free funcs are needed to clean up Dashes array if it has been
           // set; wxWidgets does not do this automatically so will leak if not
@@ -229,7 +227,7 @@ module WXRuby3
             __CODE
         end
         # add convenience method providing efficient gc memory management
-        unless Config.platform == :linux
+        if Config.instance.features_set?('USE_PRINTING_ARCHITECTURE', Director.AnyOf(*%w[WXMSW WXOSX USE_GTKPRINT]))
           spec.add_extend_code 'wxGraphicsContext', <<~__HEREDOC
             static VALUE draw_on(const wxPrinterDC& dc)
             {

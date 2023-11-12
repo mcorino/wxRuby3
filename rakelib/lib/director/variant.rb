@@ -227,7 +227,7 @@ module WXRuby3
             $1 = rb_obj_is_kind_of($input, rb_const_get(mWxPG, var_ColourPropertyValue_id()));
           __CODE
         end
-        if Config.instance.features_set?('wxUSE_LONGLONG')
+        if Config.instance.features_set?('USE_LONGLONG')
           # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
           spec.map 'wxLongLong' => 'Integer' do
             map_in code: <<~__CODE
