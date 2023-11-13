@@ -24,7 +24,7 @@
     }
     else
     {
-      rb_raise(swigex.getError(), swigex.what());
+      rb_exc_raise(rb_exc_new_cstr(swigex.getError(), swigex.what()));
     }
   }
   catch (const std::exception& ex) {
