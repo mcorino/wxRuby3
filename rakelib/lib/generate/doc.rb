@@ -253,7 +253,7 @@ module WXRuby3
             <div class="wxrb-remark">
             <b>Remark:</b>
             <p>#{node_to_doc(node)}</p>
-            </div>>
+            </div>
           __NOTE
         else
           node_to_doc(node)
