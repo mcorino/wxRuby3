@@ -18,6 +18,11 @@ module WXRuby3
         when 'wxSizer'
           spec.items << 'wxSizerFlags'
           spec.gc_as_untracked('wxSizerFlags')
+          if Config.instance.wx_version < '3.3.0'
+            # missing from docs
+            spec.extend_interface 'wxSizerFlags',
+                                  'wxSizerFlags& HorzBorder()'
+          end
           spec.make_abstract('wxSizer')
           spec.ignore %w[wxSizer::IsShown wxSizer::SetVirtualSizeHints]
           # cannot use these with wxRuby
