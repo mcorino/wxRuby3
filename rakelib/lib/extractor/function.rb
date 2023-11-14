@@ -95,8 +95,9 @@ module WXRuby3
         params_doc.unlink if params_doc
         # get brief doc
         doc = xml_trans.to_doc(@brief_doc, item: self)
+        doc << "\n" if @detailed_doc # force empty line (paragraph break) between summary and detail
         # add detailed doc text without params doc
-        doc << xml_trans.to_doc(@detailed_doc, item: self, desc: :detail)
+        doc << xml_trans.to_doc(@detailed_doc, item: self, desc: :detail) if @detailed_doc
         # get mapped ruby parameter list
         params = []
         mapped_ret_args = nil

@@ -861,6 +861,7 @@ module WXRuby3
 
     def get_class_doc(cls)
       doc = @xml_trans.to_doc(cls.brief_doc, item: cls)
+      doc << "\n" if cls.detailed_doc # force empty line (paragraph break) between summary and detail
       doc << @xml_trans.to_doc(cls.detailed_doc, item: cls, desc: :detail) if cls.detailed_doc
       doc
     end
