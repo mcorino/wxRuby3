@@ -1,0 +1,822 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+#
+# Adapted for wxRuby from wxWidgets richtext sample
+# Copyright (c) 2001 Vadim Zeitlin
+
+require 'wx'
+
+module Widgets
+
+  if Wx.has_feature?(:USE_TREEBOOK)
+    BookCtrl = Wx::Treebook
+  elsif Wx.has_feature?(:USE_NOTEBOOK)
+    BookCtrl = Wx::Notebook
+  else
+    BookCtrl = Wx::Choicebook
+  end
+
+  ICON_SIZE = 16
+
+  NATIVE_PAGE = 0
+  GENERIC_PAGE = 1
+  PICKER_PAGE = 2
+  COMBO_PAGE = 3
+  WITH_ITEMS_PAGE = 4
+  EDITABLE_PAGE = 5
+  BOOK_PAGE = 6
+  ALL_PAGE = 7
+  MAX_PAGES = 8
+
+  NATIVE_CTRLS     = 1 << NATIVE_PAGE
+  GENERIC_CTRLS    = 1 << GENERIC_PAGE
+  PICKER_CTRLS     = 1 << PICKER_PAGE
+  COMBO_CTRLS      = 1 << COMBO_PAGE
+  WITH_ITEMS_CTRLS = 1 << WITH_ITEMS_PAGE
+  EDITABLE_CTRLS   = 1 << EDITABLE_PAGE
+  BOOK_CTRLS       = 1 << BOOK_PAGE
+  ALL_CTRLS        = 1 << ALL_PAGE
+  
+  class Attributes
+
+    attr_accessor :tool_tip if Wx.has_feature?(:USE_TOOLTIPS)
+    attr_accessor :font if Wx.has_feature?(:USE_FONTDLG)
+    attr_accessor :col_fg, :col_bg, :col_page_bg
+    attr_accessor :enabled, :show, :dir, :variant, :cursor, :default_flags
+
+    def initialize
+      @tool_tip = 'This is a tooltip'
+      @enabled = true
+      @show = true
+      @dir = Wx::LayoutDirection::Layout_Default
+      @variant = Wx::WindowVariant::WINDOW_VARIANT_NORMAL
+      @cursor = Wx::NULL_CURSOR
+      @default_flags = Wx::Border::BORDER_DEFAULT
+    end
+
+  end
+
+  class Page < Wx::Panel
+
+    ATTRS = Attributes.new
+
+    def initialize(book, images, icon)
+      super(book, Wx::ID_ANY, style: Wx::CLIP_CHILDREN | Wx::TAB_TRAVERSAL)
+      images << Wx.Image(icon).scale(ICON_SIZE, ICON_SIZE).to_bitmap
+    end
+
+    # return the control shown by this page
+    def get_widget
+      nil
+    end
+
+    # return the control shown by this page, if it supports text entry interface
+    def get_text_entry
+      nil
+    end
+
+    # lazy creation of the content
+    def create_content
+
+    end
+
+    # some pages show additional controls, in this case override this one to
+    # return all of them (including the one returned by GetWidget())
+    def get_widgets
+      [get_widget]
+    end
+
+    # recreate the control shown by this page
+    #
+    # this is currently used only to take into account the border flags
+    def recreate_widget
+
+    end
+
+    # apply current attributes to the widget(s)
+    def set_up_widget
+      widgets = get_widgets
+
+      widgets.each do |widget|
+        ::Kernel.raise 'nil widget' if widget.nil?
+
+        if Wx.has_feature?(:USE_TOOLTIPS)
+          widget.set_tool_tip(get_attrs.tooltip)
+        end # wxUSE_TOOLTIPS
+        if Wx.has_feature?(:USE_FONTDLG)
+          widget.set_font(get_attrs.font) if get_attrs.font.ok?
+        end # wxUSE_FONTDLG
+
+        widget.set_foreground_colour(get_attrs.col_fg) if get_attrs.col_fg.ok?
+        widget.set_background_colour(get_attrs.col_bg) if get_attrs.col_bg.ok?
+
+        widget.set_layout_direction(get_attrs.dir) if get_attrs.dir != Wx::LayoutDirection::Layout_Default
+
+        widget.enable(get_attrs.enabled)
+        widget.show(get_attrs.show)
+
+        widget.set_cursor(get_attrs.cursor)
+
+        widget.set_window_variant(get_attrs.variant)
+
+        widget.refresh
+      end
+
+      if get_attrs.col_page_bg.ok?
+        set_background_colour(get_attrs.col_page_bg)
+        refresh
+      end
+    end
+
+    # the default attributes for the widget
+    def get_attrs
+      Page::ATTRS
+    end
+
+    # return true if we're showing logs in the log window (always the case
+    # except during startup and shutdown)
+    def self.is_using_log_window
+      Wx.get_app.is_using_log_window
+    end
+
+    protected
+
+    # several helper functions for page creation
+
+    # create a horz sizer containing the given control and the text ctrl
+    # (pointer to which will be returned next to sizer)
+    # with the specified id
+    def create_sizer_with_text(control, id = Wx::ID_ANY)
+      sizerRow = Wx::HBoxSizer.new
+      text = Wx::TextCtrl.new(control.parent, id, style: Wx::TE_PROCESS_ENTER)
+
+      sizerRow.add(control, Wx::SizerFlags.new(0).border(Wx::RIGHT).centre_vertical)
+      sizerRow.add(text, Wx::SizerFlags.new(1).border(Wx::LEFT).centre_vertical)
+
+      [sizerRow, text]
+    end
+
+    # create a sizer containing a label and a text ctrl
+    def create_sizer_with_text_and_label(label, id = Wx::ID_ANY, statBoxParent = nil)
+      create_sizer_with_text(Wx::StaticText.new(statBoxParent ? statBoxParent: self, Wx::ID_ANY, label), id)
+    end
+
+    # create a sizer containing a button and a text ctrl
+    def create_sizer_with_text_and_button(idBtn, labelBtn, id = Wx::ID_ANY, statBoxParent = nil)
+      create_sizer_with_text(Wx::Button.new(statBoxParent ? statBoxParent: self, idBtn, label), id)
+    end
+
+    # create a checkbox and add it to the sizer
+    def create_check_box_and_add_to_sizer(sizer, label, id = Wx::ID_ANY, statBoxParent = nil)
+      checkbox = Wx::CheckBox.new(statBoxParent ? statBoxParent: self, id, label)
+      sizer.add(checkbox, Wx::SizerFlags.new.horz_border)
+      sizer.add_spacer(2)
+
+      checkbox
+    end
+
+    class << self
+      # the list containing info about all pages
+      def widget_pages
+        @widget_pages ||= []
+      end
+    end
+  end
+
+  class PageInfo
+    
+    # our ctor
+    def initialize(klass, label, categories)
+      @klass = klass
+      @label = label
+      @categories = categories
+      # dummy sorting: add and immediately sort in the list according to label
+      if Page.widget_pages.empty?
+        # add when first
+        Page.widget_pages << self
+      else
+        pg_gt = Page.widget_pages.bsearch_index { |p| p.label > @label }
+        Page.widget_pages.insert(pg_gt, self)
+      end
+    end
+
+    def create(book, images)
+      @klass.new(book, images)
+    end
+
+    # the label of the page
+    attr_reader :label
+
+    # the list (flags) for sharing page between categories
+    attr_reader :categories
+
+    # the class of this page
+    attr_reader :klass
+  end
+
+  if Wx.has_feature?(:USE_LOG)
+  # A log target which just redirects the messages to a listbox
+  class LboxLogger < Wx::Log
+
+    def initialize(lbox, logOld)
+      super()
+      @lbox = lbox
+      #@lbox->Disable() -- looks ugly under MSW
+      @logOld = logOld
+    end
+  
+    def reset
+      Wx::Log.set_active_target(@logOld)
+    end
+  
+    protected
+
+    # implement sink functions
+
+    def do_log_record(level, msg, info)
+      if level == Wx::LOG_Trace
+        @logOld.log_record(level, msg, info) if @logOld
+      else
+        super
+      end
+    end
+
+    def do_log_text_at_level(level, msg)
+      # if Wx.has_feature?(:WXUNIVERSAL)
+      #   @lbox.append_and_ensure_visible(msg)
+      # else # other ports don't have this method yet
+        @lbox.append(msg)
+        @lbox.set_first_item(@lbox.count - 1)
+      # end
+    end
+  
+  end
+  end # USE_LOG
+  
+  Categories = [
+      # if Wx.has_feature?(:WXUNIVERSAL)
+      #   'Universal'
+      # else
+        'Native',
+      # end,
+      'Generic',
+      'Pickers',
+      'Comboboxes',
+      'With items',
+      'Editable',
+      'Books',
+      'All controls'
+  ]
+  
+  class Frame < Wx::Frame
+
+    module ID
+      include Wx::IDHelper
+
+      Widgets_ClearLog = self.next_id
+      Widgets_Quit = self.next_id
+
+      Widgets_BookCtrl = self.next_id
+
+      if Wx.has_feature?(:USE_TOOLTIPS)
+      Widgets_SetTooltip = self.next_id
+      end # wxUSE_TOOLTIPS
+      Widgets_SetFgColour = self.next_id
+      Widgets_SetBgColour = self.next_id
+      Widgets_SetPageBg = self.next_id
+      Widgets_SetFont = self.next_id
+      Widgets_Enable = self.next_id
+      Widgets_Show = self.next_id
+
+      Widgets_BorderNone = self.next_id
+      Widgets_BorderStatic = self.next_id
+      Widgets_BorderSimple = self.next_id
+      Widgets_BorderRaised = self.next_id
+      Widgets_BorderSunken = self.next_id
+      Widgets_BorderDouble = self.next_id
+      Widgets_BorderDefault = self.next_id
+
+      Widgets_VariantNormal = self.next_id
+      Widgets_VariantSmall = self.next_id
+      Widgets_VariantMini = self.next_id
+      Widgets_VariantLarge = self.next_id
+
+      Widgets_LayoutDirection = self.next_id
+
+      Widgets_GlobalBusyCursor = self.next_id
+      Widgets_BusyCursor = self.next_id
+
+      Widgets_GoToPage = self.next_id
+      Widgets_GoToPageLast = self.next_id(Widgets_GoToPage + 100)
+
+
+      TextEntry_Begin = self.next_id
+      TextEntry_DisableAutoComplete = TextEntry_Begin
+      TextEntry_AutoCompleteFixed = self.next_id
+      TextEntry_AutoCompleteFilenames = self.next_id
+      TextEntry_AutoCompleteDirectories = self.next_id
+      TextEntry_AutoCompleteCustom = self.next_id
+      TextEntry_AutoCompleteKeyLength = self.next_id
+
+      TextEntry_SetHint = self.next_id
+      TextEntry_End = self.next_id
+    end
+
+    def initialize(title)
+      super(nil, Wx::ID_ANY, title)
+
+      set_icon(Wx.Icon(:sample, art_path: File.dirname(__dir__)))
+      
+      # init everything
+      if Wx.has_feature?(:USE_LOG)
+        @lboxLog = nil
+        @logTarget = nil
+      end # USE_LOG
+      @book = nil
+  
+      if Wx.has_feature?(:USE_MENUS)
+      # create the menubar
+      mbar = Wx::MenuBar.new
+      menuWidget = Wx::Menu.new
+      if Wx.has_feature?(:USE_TOOLTIPS)
+      menuWidget.append(ID::Widgets_SetTooltip, "Set &tooltip...\tCtrl-T")
+      menuWidget.append_separator
+      end # wxUSE_TOOLTIPS
+      menuWidget.append(ID::Widgets_SetFgColour, "Set &foreground...\tCtrl-F")
+      menuWidget.append(ID::Widgets_SetBgColour, "Set &background...\tCtrl-B")
+      menuWidget.append(ID::Widgets_SetPageBg,   "Set &page background...\tShift-Ctrl-B")
+      menuWidget.append(ID::Widgets_SetFont,     "Set f&ont...\tCtrl-O")
+      menuWidget.append_check_item(ID::Widgets_Enable,  "&Enable/disable\tCtrl-E")
+      menuWidget.append_check_item(ID::Widgets_Show, "Show/Hide")
+  
+      menuBorders = Wx::Menu.new
+      menuBorders.append_radio_item(ID::Widgets_BorderDefault, "De&fault\tCtrl-Shift-9")
+      menuBorders.append_radio_item(ID::Widgets_BorderNone,   "&None\tCtrl-Shift-0")
+      menuBorders.append_radio_item(ID::Widgets_BorderSimple, "&Simple\tCtrl-Shift-1")
+      menuBorders.append_radio_item(ID::Widgets_BorderDouble, "&Double\tCtrl-Shift-2")
+      menuBorders.append_radio_item(ID::Widgets_BorderStatic, "Stati&c\tCtrl-Shift-3")
+      menuBorders.append_radio_item(ID::Widgets_BorderRaised, "&Raised\tCtrl-Shift-4")
+      menuBorders.append_radio_item(ID::Widgets_BorderSunken, "S&unken\tCtrl-Shift-5")
+      menuWidget.append_sub_menu(menuBorders, "Set &border")
+  
+      menuVariants = Wx::Menu.new
+      menuVariants.append_radio_item(ID::Widgets_VariantMini, "&Mini\tCtrl-Shift-6")
+      menuVariants.append_radio_item(ID::Widgets_VariantSmall, "&Small\tCtrl-Shift-7")
+      menuVariants.append_radio_item(ID::Widgets_VariantNormal, "&Normal\tCtrl-Shift-8")
+      menuVariants.append_radio_item(ID::Widgets_VariantLarge, "&Large\tCtrl-Shift-9")
+      menuWidget.append_sub_menu(menuVariants, "Set &variant")
+  
+      menuWidget.append_separator
+      menuWidget.append_check_item(ID::Widgets_LayoutDirection,
+                                  "Toggle &layout direction\tCtrl-L")
+      menuWidget.check(ID::Widgets_LayoutDirection,
+                       get_layout_direction == Wx::LayoutDirection::Layout_RightToLeft)
+  
+      menuWidget.append_separator
+      menuWidget.append_check_item(ID::Widgets_GlobalBusyCursor,
+                                  "Toggle &global busy cursor\tCtrl-Shift-U")
+      menuWidget.append_check_item(ID::Widgets_BusyCursor,
+                                  "Toggle b&usy cursor\tCtrl-U")
+  
+      menuWidget.append_separator
+      menuWidget.append(Wx::ID_EXIT, "&Quit\tCtrl-Q")
+      mbar.append(menuWidget, "&Widget")
+  
+      menuTextEntry = Wx::Menu.new
+      menuTextEntry.append_radio_item(ID::TextEntry_DisableAutoComplete,
+                                     "&Disable auto-completion")
+      menuTextEntry.append_radio_item(ID::TextEntry_AutoCompleteFixed,
+                                     "Fixed-&list auto-completion")
+      menuTextEntry.append_radio_item(ID::TextEntry_AutoCompleteFilenames,
+                                     "&Files names auto-completion")
+      menuTextEntry.append_radio_item(ID::TextEntry_AutoCompleteDirectories,
+                                     "&Directories names auto-completion")
+      menuTextEntry.append_radio_item(ID::TextEntry_AutoCompleteCustom,
+                                     "&Custom auto-completion")
+      menuTextEntry.append_radio_item(ID::TextEntry_AutoCompleteKeyLength,
+                                     "Custom with &min length")
+      menuTextEntry.append_separator
+      menuTextEntry.append(ID::TextEntry_SetHint, "Set help &hint")
+  
+      mbar.append(menuTextEntry, "&Text")
+  
+      set_menu_bar(mbar)
+  
+      mbar.check(ID::Widgets_Enable, true)
+      mbar.check(ID::Widgets_Show, true)
+  
+      mbar.check(ID::Widgets_VariantNormal, true)
+      end # wxUSE_MENUS
+  
+      # create controls
+      @panel = Wx::Panel.new(self)
+  
+      sizerTop = Wx::VBoxSizer.new
+  
+      # we have 2 panes: book with pages demonstrating the controls in the
+      # upper one and the log window with some buttons in the lower
+  
+      style = Wx::BK_DEFAULT
+      # Uncomment to suppress page theme (draw in solid colour)
+      #style |= Wx::NB_NOPAGETHEME
+  
+      @book = Widgets::BookCtrl.new(@panel, ID::Widgets_BookCtrl,
+                                    style: style, name: 'Widgets')
+  
+      init_book
+  
+      # the lower one only has the log listbox and a button to clear it
+      if Wx.has_feature?(:USE_LOG)
+        sizerDown = Wx::StaticBoxSizer.new(Wx::VERTICAL, @panel, '&Log window')
+        sizerDownBox = sizerDown.get_static_box
+
+        @lboxLog = Wx::ListBox.new(sizerDownBox)
+        sizerDown.add(@lboxLog, Wx::SizerFlags.new(1).expand.border)
+        sizerDown.set_min_size(100, 150)
+      else
+        sizerDown = Wx::VBoxSizer.new
+      end # USE_LOG
+  
+      sizerBtns = Wx::HBoxSizer.new
+      if Wx.has_feature?(:USE_LOG)
+        btn = Wx::Button.new(sizerDownBox, ID::Widgets_ClearLog, 'Clear &log')
+        sizerBtns.add(btn)
+        sizerBtns.add_spacer(10)
+      end # USE_LOG
+      btn = Wx::Button.new(sizerDownBox, ID::Widgets_Quit, 'E&xit')
+      sizerBtns.add(btn)
+      sizerDown.add(sizerBtns, Wx::SizerFlags.new.border.right)
+  
+      # put everything together
+      sizerTop.add(@book, Wx::SizerFlags.new(1).expand.double_border(Wx::ALL & ~(Wx::TOP | Wx::BOTTOM)))
+      sizerTop.add_spacer(5)
+      sizerTop.add(sizerDown, Wx::SizerFlags.new(0).expand.double_border(Wx::ALL & ~Wx::TOP))
+  
+      @panel.set_sizer(sizerTop)
+
+      # TODO - review wxPersistenceManager
+      # sizeSet = wxPersistentRegisterAndRestore(this, "Main")
+  
+      sizeMin = @panel.get_best_size
+      # if ( !sizeSet )
+      #     SetClientSize(sizeMin)
+      set_min_client_size(sizeMin)
+
+      # connect the event handlers
+      if Wx.has_feature?(:USE_LOG)
+        evt_button(ID::Widgets_ClearLog, :on_button_clear_log)
+      end # USE_LOG
+      evt_button(ID::Widgets_Quit, :on_exit)
+
+      if Wx.has_feature?(:USE_TOOLTIPS)
+        evt_menu(ID::Widgets_SetTooltip, :on_set_tooltip)
+      end # wxUSE_TOOLTIPS
+
+      if Wx.has_feature?(:USE_MENUS)
+        if Wx.has_feature?(:USE_TREEBOOK)
+          evt_treebook_page_changing(Wx::ID_ANY, :on_page_changing)
+        elsif Wx.has_feature?(:USE_NOTEBOOK)
+          evt_notebook_page_changing(Wx::ID_ANY, :on_page_changing)
+        else
+          evt_choicebook_page_changing(Wx::ID_ANY, :on_page_changing)
+        end
+        evt_menu_range(ID::Widgets_GoToPage, ID::Widgets_GoToPageLast,
+                       :on_go_to_page)
+  
+        evt_menu(ID::Widgets_SetFgColour, :on_set_fg_col)
+        evt_menu(ID::Widgets_SetBgColour, :on_set_bg_col)
+        evt_menu(ID::Widgets_SetPageBg,   :on_set_page_bg)
+        evt_menu(ID::Widgets_SetFont,     :on_set_font)
+        evt_menu(ID::Widgets_Enable,      :on_enable)
+        evt_menu(ID::Widgets_Show,        :on_show)
+  
+        evt_menu_range(ID::Widgets_BorderNone, ID::Widgets_BorderDefault,
+                       :on_set_border)
+  
+        evt_menu_range(ID::Widgets_VariantNormal, ID::Widgets_VariantLarge,
+                       :on_set_variant)
+  
+        evt_menu(ID::Widgets_LayoutDirection,   :on_toggle_layout_direction)
+  
+        evt_menu(ID::Widgets_GlobalBusyCursor,  :on_toggle_global_busy_cursor)
+        evt_menu(ID::Widgets_BusyCursor,        :on_toggle_busy_cursor)
+  
+        evt_menu(ID::TextEntry_DisableAutoComplete,   :on_disable_auto_complete)
+        evt_menu(ID::TextEntry_AutoCompleteFixed,     :on_auto_complete_fixed)
+        evt_menu(ID::TextEntry_AutoCompleteFilenames, :on_auto_complete_filenames)
+        evt_menu(ID::TextEntry_AutoCompleteDirectories, :on_auto_complete_directories)
+        evt_menu(ID::TextEntry_AutoCompleteCustom,    :on_auto_complete_custom)
+        evt_menu(ID::TextEntry_AutoCompleteKeyLength, :on_auto_complete_key_length)
+  
+        evt_menu(ID::TextEntry_SetHint, :on_set_hint)
+  
+        evt_update_ui_range(ID::TextEntry_Begin, ID::TextEntry_End - 1,
+                            :on_update_text_ui)
+  
+        evt_menu(Wx::ID_EXIT, :on_exit)
+      end # wxUSE_MENUS
+
+      if Wx.has_feature?(:USE_LOG)
+        # now that everything is created we can redirect the log messages to the
+        # listbox
+        @logTarget = LboxLogger.new(@lboxLog, Wx::Log.get_active_target)
+        Wx::Log.set_active_target(@logTarget)
+      end
+    end
+
+    protected
+
+    if Wx.has_feature?(:USE_LOG)
+    def on_button_clear_log(event)
+      
+    end
+    end # USE_LOG
+    
+    def on_exit(event)
+      @logTarget.reset if @logTarget
+      @logTarget = nil
+      close
+    end
+
+    if Wx.has_feature?(:USE_MENUS)
+    def on_page_changing(event)
+      
+    end
+    def on_page_changed(event)
+      
+    end
+    def on_go_to_page(event)
+      
+    end
+    
+    if Wx.has_feature?(:USE_TOOLTIPS)
+    def on_set_tooltip(event)
+      
+    end
+    end # wxUSE_TOOLTIPS
+
+    def on_set_fg_col(event)
+
+    end
+    def on_set_bg_col(event)
+
+    end
+    def on_set_page_bg(event)
+
+    end
+    def on_set_font(event)
+
+    end
+    def on_enable(event)
+
+    end
+    def on_show(event)
+
+    end
+    def on_set_border(event)
+
+    end
+    def on_set_variant(event)
+
+    end
+
+    def on_toggle_layout_direction(event)
+
+    end
+
+    def on_toggle_global_busy_cursor(event)
+
+    end
+    def on_toggle_busy_cursor(event)
+
+    end
+
+    # wxTextEntry-specific tests
+    def on_disable_auto_complete(event)
+
+    end
+    def on_auto_complete_fixed(event)
+
+    end
+    def on_auto_complete_filenames(event)
+
+    end
+    def on_auto_complete_directories(event)
+
+    end
+    def on_auto_complete_custom(event)
+
+    end
+    def on_auto_complete_key_length(event)
+
+    end
+
+    def do_use_custom_auto_complete(minLength = 1)
+
+    end
+
+    def on_set_hint(event)
+
+    end
+
+    def on_update_text_ui(event)
+      event.enable( !current_page.get_text_entry.nil? )
+    end
+    end # wxUSE_MENUS
+
+    # initialize the book: add all pages to it
+    def init_book
+      images = []
+  
+      img = Wx.Image(:sample, art_path: File.dirname(__dir__))
+      images << img.scale(ICON_SIZE, ICON_SIZE).to_bitmap
+  
+      unless Wx.has_feature?(:USE_TREEBOOK)
+        books = []
+      end
+  
+      pages = []
+      labels = []
+  
+      menuPages = Wx::Menu.new
+      nPage = 0
+      imageId = 1
+  
+      # we need to first create all pages and only then add them to the book
+      # as we need the image list first
+      #
+      # we also construct the pages menu during this first iteration
+      MAX_PAGES.times do |cat|
+        if Wx.has_feature?(:USE_TREEBOOK)
+          nPage += 1 # increase for parent page
+        else
+          books << BookCtrl.new(@book, style: Wx::BK_DEFAULT)
+        end
+
+        pages << []
+        labels << []
+        Page.widget_pages.each do |info|
+          next if (info.categories & ( 1 << cat )) == 0
+
+          page = info.create(
+            if Wx.has_feature?(:USE_TREEBOOK)
+              @book
+            else
+              books.last
+            end,
+            images)
+          pages.last << page
+  
+          labels.last << info.label
+          if cat == ALL_PAGE
+            menuPages.append_radio_item(
+              ID::Widgets_GoToPage + nPage,
+              info.label)
+            unless Wx.has_feature?(:USE_TREEBOOK)
+              # consider only for book in book architecture
+              nPage += 1
+            end
+          end
+  
+          if Wx.has_feature?(:USE_TREEBOOK)
+              # consider only for treebook architecture (with subpages)
+            nPage += 1
+          end
+        end
+      end
+  
+      self.menu_bar.append(menuPages, '&Page')
+
+      images.collect! { |img| img.is_a?(Wx::BitmapBundle) ? img : Wx::BitmapBundle.new(img) }
+      @book.set_images(images)
+
+      MAX_PAGES.times do |cat|
+        if Wx.has_feature?(:USE_TREEBOOK)
+          @book.add_page(nil, Categories[cat],false,0)
+        else
+          @book.add_page(books[cat], Categories[cat],false,0)
+          books[cat].set_images(images)
+        end
+  
+        # now do add them
+        pages[cat].size.times do |n|
+          if Wx.has_feature?(:USE_TREEBOOK)
+            @book.add_sub_page(
+              pages[cat][n],
+              labels[cat][n],
+              false, # don't select
+              imageId
+            )
+          else
+            books[cat].add_page(
+              pages[cat][n],
+              labels[cat][n],
+              false, # don't select
+              imageId
+            )
+          end
+          imageId += 1
+        end
+      end
+
+      if Wx.has_feature?(:USE_TREEBOOK)
+        evt_treebook_page_changing(self, :on_page_changed)
+      elsif Wx.has_feature?(:USE_NOTEBOOK)
+        evt_notebook_page_changing(self, :on_page_changed)
+      else
+        evt_choicebook_page_changing(self, :on_page_changed)
+      end
+
+      # TODO - review wxPersistenceManager
+      # const bool pageSet = wxPersistentRegisterAndRestore(m_book)
+      pageSet = false
+  
+      if Wx.has_feature?(:USE_TREEBOOK)
+        # for treebook page #0 is empty parent page only so select the first page
+        # with some contents
+        @book.set_selection(1) if !pageSet || !@book.get_current_page
+
+        # but ensure that the top of the tree is shown nevertheless
+        tree = @book.get_tree_ctrl
+
+        first_child, _ = tree.get_first_child(tree.root_item)
+        tree.ensure_visible(first_child)
+      else
+        if !pageSet || !@book.get_current_page
+          # for other books set selection twice to force connected event handler
+          # to force lazy creation of initial visible content
+          @book.set_selection(1)
+          @book.set_selection(0)
+        end
+      end # USE_TREEBOOK
+    end
+
+    # return the currently selected page (never null)
+    def current_page
+      page = @book.get_current_page
+
+      unless Wx.has_feature?(:USE_TREEBOOK)
+        ::Kernel.raise 'no WidgetsBookCtrl?' unless page.is_a?(Wx::Treebook)
+
+        page = page.get_current_page
+      end # !USE_TREEBOOK
+
+      page
+    end
+
+    private
+
+    def on_widget_focus(event)
+
+    end
+    def on_widget_context_menu(event)
+
+    end
+
+    def connect_to_widget_events
+
+    end
+
+  end
+
+  class App < Wx::App
+    def initialize
+      super
+      if Wx.has_feature?(:USE_LOG)
+        @logTarget = nil
+      end
+    end
+
+    # this one is called on application startup and is a good place for the app
+    # initialization (doing it here and not in the ctor allows to have an error
+    # return: if OnInit() returns false, the application terminates)
+    def on_init
+      set_vendor_name('wxWidgets_Samples')
+  
+      # when running multiple copies of this sample side by side this is useful to see which one is which
+      title = ''
+      # if Wx.has_feature?(:WXUNIVERSAL)
+      #   title << "wxUniv/"
+      # end
+      title << Wx::PLATFORM
+
+      frame = Frame.new(title + ' widgets demo')
+      frame.show
+  
+      if Wx.has_feature?(:USE_LOG)
+        @logTarget = Wx::Log.get_active_target
+      end # USE_LOG
+  
+      true
+    end
+
+    # real implementation of WidgetsPage method with the same name
+    def is_using_log_window
+      Wx.has_feature?(:USE_LOG) && (Wx::Log.get_active_target == @logTarget)
+    end
+  end
+
+end
+
+Widgets::App.run
