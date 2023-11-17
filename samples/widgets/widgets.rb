@@ -321,6 +321,8 @@ module Widgets
 
       TextEntry_SetHint = self.next_id
       TextEntry_End = self.next_id
+
+      Last = self.next_id
     end
 
     def initialize(title)
@@ -818,5 +820,7 @@ module Widgets
   end
 
 end
+
+require_relative './button'
 
 Widgets::App.run
