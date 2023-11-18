@@ -17,6 +17,12 @@ class ValidatorTests  < WxRuby::Test::GUITests
     super
   end
 
+  def teardown
+    @text.destroy if @text
+    @text = nil
+    super
+  end
+
   attr_accessor :text
 
   class MyTextValidator < Wx::Validator
@@ -73,6 +79,12 @@ class TextValidatorTests < WxRuby::Test::GUITests
   end
 
   def cleanup
+    @text.destroy if @text
+    @text = nil
+    super
+  end
+
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -268,6 +280,12 @@ class IntegerValidatorTests < WxRuby::Test::GUITests
     super
   end
 
+  def teardown
+    @text.destroy if @text
+    @text = nil
+    super
+  end
+
   attr_accessor :text
 
   def test_transfer
@@ -337,6 +355,12 @@ class UnsignedValidatorTests < WxRuby::Test::GUITests
   end
 
   def cleanup
+    @text.destroy if @text
+    @text = nil
+    super
+  end
+
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -419,6 +443,12 @@ class FloatValidatorTests < WxRuby::Test::GUITests
     super
   end
 
+  def teardown
+    @text.destroy if @text
+    @text = nil
+    super
+  end
+
   attr_accessor :text
 
   def test_transfer
@@ -484,6 +514,179 @@ class FloatValidatorTests < WxRuby::Test::GUITests
 
     text.clear
     assert_false(text.transfer_data_from_window)
+  end
+
+end
+
+class GenericValidatorTests  < WxRuby::Test::GUITests
+
+  def setup
+    super
+    @control = nil
+  end
+
+  def cleanup
+    @control.destroy if @control
+    @control = nil
+    super
+  end
+
+  def teardown
+    @control.destroy if @control
+    @control = nil
+    super
+  end
+
+  attr_accessor :control
+
+  def test_text_ctrl
+    self.control = Wx::TextCtrl.new(frame_win, name: 'Text', validator: Wx::GenericValidator.new)
+
+    assert_equal('', control.value)
+    assert_nil(control.validator.value)
+
+    control.validator.value = 'Hello'
+    assert_true(control.transfer_data_to_window)
+    assert_equal('Hello', control.value)
+
+    control.change_value('Bye')
+    assert_true(control.transfer_data_from_window)
+    assert_equal('Bye', control.validator.value)
+  end
+
+  def test_boolean_ctrl
+    self.control = Wx::CheckBox.new(frame_win, name: 'Check', validator: Wx::GenericValidator.new)
+
+    assert_false(control.checked?)
+    assert_nil(control.validator.value)
+
+    control.validator.value = true
+    assert_true(control.transfer_data_to_window)
+    assert_true(control.checked?)
+
+    control.set_value(false)
+    assert_true(control.transfer_data_from_window)
+    assert_false(control.validator.value)
+  end
+
+  def test_integer_ctrl
+    self.control = Wx::Gauge.new(frame_win, range: 100, name: 'Gauge', validator: Wx::GenericValidator.new)
+
+    assert_equal(0, control.value)
+    assert_nil(control.validator.value)
+
+    control.validator.value = 10
+    assert_true(control.transfer_data_to_window)
+    assert_equal(10, control.value)
+
+    control.set_value(75)
+    assert_true(control.transfer_data_from_window)
+    assert_equal(75, control.validator.value)
+  end
+
+  def test_integer_ctrl_binding
+    integer_store = 0
+    self.control = Wx::Gauge.new(frame_win, range: 100, name: 'Gauge', validator: Wx::GenericValidator.new)
+    control.validator.on_transfer_to_window { integer_store }
+    control.validator.on_transfer_from_window { |data| integer_store = data }
+
+    assert_equal(0, control.value)
+    assert_nil(control.validator.value)
+
+    integer_store = 10
+    assert_true(control.transfer_data_to_window)
+    assert_equal(10, control.value)
+    assert_equal(10, control.validator.value)
+
+    control.set_value(75)
+    assert_true(control.transfer_data_from_window)
+    assert_equal(75, control.validator.value)
+    assert_equal(75, integer_store)
+  end
+
+  def test_single_list_ctrl
+    self.control = Wx::ListBox.new(frame_win, choices: %w[First Second Third Fourth Fifth], name: 'List', validator: Wx::GenericValidator.new)
+
+    assert_equal(0, control.selections.size)
+    assert_nil(control.validator.value)
+
+    control.validator.value = 1
+    assert_true(control.transfer_data_to_window)
+    assert_equal(1, control.selection)
+
+    control.deselect(1)
+    control.set_selection(3)
+    assert_true(control.transfer_data_from_window)
+    assert_equal(3, control.validator.value)
+  end
+
+  def test_array_ctrl
+    self.control = Wx::ListBox.new(frame_win, choices: %w[First Second Third Fourth Fifth], style: Wx::LB_MULTIPLE, name: 'List', validator: Wx::GenericValidator.new)
+
+    assert_equal(0, control.selections.size)
+    assert_nil(control.validator.value)
+
+    control.validator.value = [1, 3]
+    assert_true(control.transfer_data_to_window)
+    assert_equal([1,3], control.selections)
+
+    control.count.times { |i| control.deselect(i) }
+    [0, 2, 4].each { |i| control.set_selection(i) }
+    assert_true(control.transfer_data_from_window)
+    assert_equal([0, 2, 4], control.validator.value)
+  end
+
+  class Model
+
+    def initialize
+      @value = nil
+    end
+
+    attr_accessor :value
+
+    def load
+      @value
+    end
+
+    def store(v)
+      @value = v
+    end
+
+  end
+
+  class GenericModelValidator < Wx::GenericValidator
+
+    def initialize(arg)
+      if arg.is_a?(self.class)
+        super
+        @model = arg.model
+      else
+        super()
+        @model = arg
+        on_transfer_to_window { @model.load }
+        on_transfer_from_window { |data| @model.store(data) }
+      end
+    end
+
+    attr_reader :model
+
+  end
+
+  def test_custom_array_ctrl_validate
+    model = Model.new
+    self.control = Wx::ListBox.new(frame_win, choices: %w[First Second Third Fourth Fifth], style: Wx::LB_MULTIPLE, name: 'List', validator: GenericModelValidator.new(model))
+
+    assert_equal(0, control.selections.size)
+    assert_nil(model.value)
+
+    model.value = [1, 3]
+    assert_true(control.transfer_data_to_window)
+    assert_equal([1,3], control.selections)
+
+    control.count.times { |i| control.deselect(i) }
+    [0, 2, 4].each { |i| control.set_selection(i) }
+    assert_true(control.transfer_data_from_window)
+    assert_equal([0, 2, 4], model.value)
   end
 
 end
