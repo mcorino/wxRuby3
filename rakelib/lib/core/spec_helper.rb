@@ -382,7 +382,13 @@ module WXRuby3
 
     def interface_code
       if ifspec.interface_code && !ifspec.interface_code.empty?
-        ifspec.interface_code.join("\n")
+        if warn_filters.empty?
+          ''
+        else
+          "\n" + warn_filters.collect do |warn, decls|
+            decls.collect { |decl| "%warnfilter(#{warn}) #{decl};" }
+          end.flatten.join("\n")
+        end + ifspec.interface_code.join("\n")
       else
         %Q{%include "#{interface_include}"\n}
       end
