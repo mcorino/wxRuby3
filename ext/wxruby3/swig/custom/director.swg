@@ -195,6 +195,14 @@ namespace Swig {
     }
   };
 
+  /* wxRuby customization */
+  class WXRUBY_EXPORT DirectorRubyException : public DirectorException
+  {
+  public:
+    DirectorRubyException(VALUE error, VALUE rcvr, ID fn_id);
+
+  };
+
   /* Simple thread abstraction for pthreads on win32 */
 #ifdef __THREAD__
 # define __PTHREAD__

@@ -16,7 +16,7 @@ VALUE rb_get_backtrace(VALUE);
 
 namespace Swig
 {
-  class DirectorRubyException : public DirectorException
+  class WXRB_EXPORT_FLAG DirectorRubyException : public DirectorException
   {
   public:
     DirectorRubyException(VALUE error, VALUE rcvr, ID fn_id)
