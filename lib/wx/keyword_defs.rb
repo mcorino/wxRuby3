@@ -290,7 +290,12 @@ end
 # A button which stays pressed when clicked by user.
 Wx::define_keyword_ctors(Wx::ToggleButton) do
   wx_ctor_params :id, :label, :pos, :size, :style
-  wx_ctor_params :validator, :name => 'checkBox'
+  wx_ctor_params :validator, :name => 'toggleButton'
+end
+
+Wx::define_keyword_ctors(Wx::BitmapToggleButton) do
+  wx_ctor_params :id, :label, :pos, :size, :style
+  wx_ctor_params :validator, :name => 'bitmapToggleButton'
 end
 
 # Control showing an entire calendar month

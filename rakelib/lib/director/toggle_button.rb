@@ -15,6 +15,7 @@ module WXRuby3
     class ToggleButton < Window
 
       def setup
+        spec.items << 'wxBitmapToggleButton'
         spec.include('wx/tglbtn.h')
         super
       end
