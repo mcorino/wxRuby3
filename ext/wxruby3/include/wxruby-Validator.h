@@ -32,6 +32,8 @@ protected:
 
   virtual VALUE DoTransferFromWindow();
   virtual bool DoTransferToWindow(VALUE data);
+
+  virtual VALUE get_self() override;
 };
 
 #endif /* _WXRUBY_VALIDATOR_HASH_H */

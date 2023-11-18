@@ -24,12 +24,16 @@ module Wx
     # Overload for customized functionality.
     # @return [Object] retrieved data from window
     def do_transfer_from_window; end
+    protected :do_transfer_from_window
 
     # Method called when transferring data to window.
     # Should transfer the given data to the associated window and return true if successful.
     # By default does nothing and just returns true.
     # Overload for customized functionality.
+    # @param [Object] data
+    # @return [Boolean]
     def do_transfer_to_window(data) end
+    protected :do_transfer_to_window
 
     # Mixin module providing data binding options for validators.
     module Binding
@@ -83,6 +87,22 @@ module Wx
       # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc; to be supplied when no block is given
       # @yieldreturn [Object] the data to transfer to the window
       def on_transfer_to_window(meth=nil, &block) end
+
+      # Method called with data transferred from window.
+      # By default will call the on_transfer_from_window handler if defined.
+      # Returns true if successful or none defined.
+      # @param [Object] data
+      # @return [Boolean]
+      def do_on_transfer_from_window(data) end
+      protected :do_on_transfer_from_window
+
+      # Method called to get data to transfer to window.
+      # By default will call the on_transfer_to_window handler if defined.
+      # Returns the handler's result if successful.
+      # Otherwise returns nil.
+      # @return [Object]
+      def do_on_transfer_to_window; end
+      protected :do_on_transfer_to_window
 
     end
 

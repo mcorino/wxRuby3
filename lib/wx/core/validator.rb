@@ -20,11 +20,16 @@ class Wx::Validator
   def do_transfer_from_window
     nil # by default just return nil
   end
+  protected :do_transfer_from_window
 
   # overload for customized functionality
   def do_transfer_to_window(_data)
     true # by default just return true
   end
+  protected :do_transfer_to_window
+
+  protected :do_on_transfer_from_window
+  protected :do_on_transfer_to_window
 
   module Binding
     def self.included(base)

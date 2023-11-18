@@ -43,7 +43,7 @@ module WXRuby3
             wxObject* wxRubyValidator::Clone() const
             {
               bool ex_caught = false;
-              VALUE self = SWIG_RubyInstanceFor(const_cast<wxRubyValidator*> (this));
+              VALUE self = const_cast<wxRubyValidator*> (this)->get_self();
               VALUE rc = wxRuby_Funcall(ex_caught, self, clone_id(), 0);
               if (ex_caught)
               {
@@ -61,7 +61,7 @@ module WXRuby3
             void wxRubyValidator::SetWindow(wxWindow *win)
             {
               this->wxValidator::SetWindow(win);
-              VALUE self = SWIG_RubyInstanceFor(this);
+              VALUE self = this->get_self();
               // make sure Ruby does not own this validator instance anymore
               RDATA(self)->dfree = SWIG_RubyRemoveTracking;
             } 
@@ -78,29 +78,59 @@ module WXRuby3
             VALUE wxRubyValidator::DoTransferFromWindow()
             {
               bool ex_caught = false;
-              VALUE self = SWIG_RubyInstanceFor(this);
-              VALUE rc = wxRuby_Funcall(ex_caught, self, do_transfer_from_window_id(), 0);
+              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_transfer_from_window_id(), 0);
               if (ex_caught)
               {
-                throw Swig::DirectorRubyException(rc, self, do_transfer_from_window_id());
+                throw Swig::DirectorRubyException(rc, this->get_self(), do_transfer_from_window_id());
               }
               return rc; 
             } 
             bool wxRubyValidator::DoTransferToWindow(VALUE data)
             {
               bool ex_caught = false;
-              VALUE self = SWIG_RubyInstanceFor(this);
-              VALUE rc = wxRuby_Funcall(ex_caught, self, do_transfer_to_window_id(), 1, data);
+              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_transfer_to_window_id(), 1, data);
               if (ex_caught)
               {
-                throw Swig::DirectorRubyException(rc, self, do_transfer_to_window_id());
+                throw Swig::DirectorRubyException(rc, this->get_self(), do_transfer_to_window_id());
               }
               return (rc == Qtrue); 
             } 
 
+            VALUE wxRubyValidator::get_self()
+            {
+              if (NIL_P(this->self_))
+              {
+                this->self_ = SWIG_RubyInstanceFor(this);
+              }
+              return this->self_;
+            }
+
+            WxRuby_ID wxRubyValidatorBinding::do_on_transfer_from_window_id("do_on_transfer_from_window");
+            WxRuby_ID wxRubyValidatorBinding::do_on_transfer_to_window_id("do_on_transfer_to_window");
             WxRuby_ID wxRubyValidatorBinding::call_id("call");
 
             bool wxRubyValidatorBinding::DoOnTransferFromWindow(VALUE data)
+            {
+              bool ex_caught = false;
+              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_on_transfer_from_window_id(), 1, data);
+              if (ex_caught)
+              {
+                throw Swig::DirectorRubyException(rc, this->get_self(), do_on_transfer_from_window_id());
+              }
+              return (rc == Qtrue); 
+            } 
+            VALUE wxRubyValidatorBinding::DoOnTransferToWindow()
+            {
+              bool ex_caught = false;
+              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_on_transfer_to_window_id(), 0);
+              if (ex_caught)
+              {
+                throw Swig::DirectorRubyException(rc, this->get_self(), do_on_transfer_to_window_id());
+              }
+              return rc; 
+            } 
+
+            bool wxRubyValidatorBinding::OnTransferFromWindow(VALUE data)
             {
               if (!NIL_P(this->on_transfer_from_win_proc_))
               {
@@ -113,7 +143,7 @@ module WXRuby3
               }
               return true; 
             } 
-            VALUE wxRubyValidatorBinding::DoOnTransferToWindow()
+            VALUE wxRubyValidatorBinding::OnTransferToWindow()
             {
               if (!NIL_P(this->on_transfer_to_win_proc_))
               {
@@ -157,6 +187,14 @@ module WXRuby3
             void OnTransferToWindow(VALUE proc)
             {
               dynamic_cast<wxRubyValidatorBinding *>($self)->SetOnTransferToWindow(proc);
+            }
+            bool DoOnTransferFromWindow(VALUE data)
+            {
+              return dynamic_cast<wxRubyValidatorBinding *>($self)->OnTransferFromWindow(data);
+            }
+            VALUE DoOnTransferToWindow()
+            {
+              return dynamic_cast<wxRubyValidatorBinding *>($self)->OnTransferToWindow();
             }
             __HEREDOC
           # not provided in Ruby

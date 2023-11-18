@@ -102,22 +102,25 @@ module WXRuby3
           protected:
             static VALUE c_IntegerValidator; 
 
-            VALUE get_self()
+            virtual VALUE get_self() override
             {
-              VALUE self = SWIG_RubyInstanceFor(this);
-              // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
-              if (NIL_P(self))
+              if (NIL_P(this->self_))
               {
+                this->self_ = SWIG_RubyInstanceFor(this);
+                // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
+                if (NIL_P(this->self_))
+                {
                 if (NIL_P(c_IntegerValidator))
                 {
                   c_IntegerValidator = rb_const_get(mWxCore, rb_intern("IntegerValidator"));
                 }
                 swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_IntegerValidator);
-                self = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
+                  this->self_ = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
+                }
               }
-              return self; 
+              return this->self_; 
             }
-
+  
             LongestValueType m_valueCache {};         
           };
 
@@ -195,20 +198,23 @@ module WXRuby3
           protected:
             static VALUE c_UnsignedValidator; 
 
-            VALUE get_self()
+            virtual VALUE get_self() override
             {
-              VALUE self = SWIG_RubyInstanceFor(this);
-              // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
-              if (NIL_P(self))
+              if (NIL_P(this->self_))
               {
-                if (NIL_P(c_UnsignedValidator))
+                this->self_ = SWIG_RubyInstanceFor(this);
+                // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
+                if (NIL_P(this->self_))
                 {
-                  c_UnsignedValidator = rb_const_get(mWxCore, rb_intern("UnsignedValidator"));
+                  if (NIL_P(c_UnsignedValidator))
+                  {
+                    c_UnsignedValidator = rb_const_get(mWxCore, rb_intern("UnsignedValidator"));
+                  }
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_UnsignedValidator);
+                  this->self_ = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
                 }
-                swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_UnsignedValidator);
-                self = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
               }
-              return self; 
+              return this->self_; 
             }
 
             ULongestValueType m_valueCache {};         
@@ -286,20 +292,23 @@ module WXRuby3
           protected:
             static VALUE c_FloatValidator; 
 
-            VALUE get_self()
+            virtual VALUE get_self() override
             {
-              VALUE self = SWIG_RubyInstanceFor(this);
-              // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
-              if (NIL_P(self))
+              if (NIL_P(this->self_))
               {
-                if (NIL_P(c_FloatValidator))
+                this->self_ = SWIG_RubyInstanceFor(this);
+                // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
+                if (NIL_P(this->self_))
                 {
-                  c_FloatValidator = rb_const_get(mWxCore, rb_intern("FloatValidator"));
+                  if (NIL_P(c_FloatValidator))
+                  {
+                    c_FloatValidator = rb_const_get(mWxCore, rb_intern("FloatValidator"));
+                  }
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_FloatValidator);
+                  this->self_ = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
                 }
-                swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_FloatValidator);
-                self = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
               }
-              return self; 
+              return this->self_; 
             }
 
             double m_valueCache {};         

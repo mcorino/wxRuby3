@@ -82,20 +82,23 @@ module WXRuby3
           private:
             static VALUE c_NumericPropertyValidator; 
 
-            VALUE get_self()
+            virtual VALUE get_self() override
             {
-              VALUE self = SWIG_RubyInstanceFor(this);
-              // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
-              if (NIL_P(self))
+              if (NIL_P(this->self_))
               {
-                if (NIL_P(c_NumericPropertyValidator))
+                this->self_ = SWIG_RubyInstanceFor(this);
+                // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
+                if (NIL_P(this->self_))
                 {
-                  c_NumericPropertyValidator = rb_eval_string("Wx::PG::NumericPropertyValidator");
+                  if (NIL_P(c_NumericPropertyValidator))
+                  {
+                    c_NumericPropertyValidator = rb_eval_string("Wx::PG::NumericPropertyValidator");
+                  }
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_NumericPropertyValidator);
+                  this->self_ = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
                 }
-                swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_NumericPropertyValidator);
-                self = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
               }
-              return self; 
+              return this->self_; 
             }
 
             wxString m_valueCache;               

@@ -13,7 +13,8 @@ class WXRUBY_EXPORT wxRubyValidatorBinding
 {
 public:
   wxRubyValidatorBinding ()
-    : on_transfer_from_win_proc_(Qnil)
+    : self_(Qnil)
+    , on_transfer_from_win_proc_(Qnil)
     , on_transfer_to_win_proc_(Qnil)
   {}
 
@@ -26,8 +27,11 @@ public:
     this->on_transfer_to_win_proc_ = proc;
   }
 
-  bool DoOnTransferFromWindow(VALUE data);
   VALUE DoOnTransferToWindow();
+  bool DoOnTransferFromWindow(VALUE data);
+
+  bool OnTransferFromWindow(VALUE data);
+  VALUE OnTransferToWindow();
 
   void GC_Mark()
   {
@@ -36,14 +40,21 @@ public:
   }
 
 protected:
+  static WxRuby_ID do_on_transfer_from_window_id;
+  static WxRuby_ID do_on_transfer_to_window_id;
   static WxRuby_ID call_id;
 
   wxRubyValidatorBinding (const wxRubyValidatorBinding& vb)
-    : on_transfer_from_win_proc_(vb.on_transfer_from_win_proc_)
+    : self_(Qnil)
+    , on_transfer_from_win_proc_(vb.on_transfer_from_win_proc_)
     , on_transfer_to_win_proc_(vb.on_transfer_to_win_proc_)
   {}
 
   void CopyBindings(const wxRubyValidatorBinding* val_bind);
+
+  virtual VALUE get_self() = 0;
+
+  VALUE self_;
 
 private:
   VALUE on_transfer_from_win_proc_;

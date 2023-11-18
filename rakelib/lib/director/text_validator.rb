@@ -45,7 +45,7 @@ module WXRuby3
             virtual void SetWindow(wxWindow *win) override
             {
               this->wxTextValidator::SetWindow(win);
-              VALUE self = get_self();
+              VALUE self = this->get_self();
               // make sure Ruby does not own this validator instance anymore
               RDATA(self)->dfree = SWIG_RubyRemoveTracking;
             } 
@@ -80,20 +80,23 @@ module WXRuby3
           private:
             static VALUE c_TextValidator; 
 
-            VALUE get_self()
+            virtual VALUE get_self() override
             {
-              VALUE self = SWIG_RubyInstanceFor(this);
-              // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
-              if (NIL_P(self))
+              if (NIL_P(this->self_))
               {
-                if (NIL_P(c_TextValidator))
+                this->self_ = SWIG_RubyInstanceFor(this);
+                // if this is a C++ created clone (wxWidgets clones validators that are set) it's not tracked yet
+                if (NIL_P(this->self_))
                 {
-                  c_TextValidator = rb_const_get(mWxCore, rb_intern("TextValidator"));
+                  if (NIL_P(c_TextValidator))
+                  {
+                    c_TextValidator = rb_const_get(mWxCore, rb_intern("TextValidator"));
+                  }
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_TextValidator);
+                  this->self_ = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
                 }
-                swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(c_TextValidator);
-                self = SWIG_NewPointerObj(this, swig_type, 0); // wrap but don't make Ruby own it
               }
-              return self; 
+              return this->self_; 
             }
 
             wxString m_valueCache;               
