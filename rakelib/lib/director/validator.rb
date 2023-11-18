@@ -16,29 +16,160 @@ module WXRuby3
 
       def setup
         super
-        # make Ruby director and wrappers use custom implementation
-        spec.use_class_implementation('wxValidator', 'wxRubyValidator')
-        # provide custom wxRuby derivative of validator
-        spec.add_header_code <<~__HEREDOC
-          class wxRubyValidator : public wxValidator
-          {
-          public:
-            wxRubyValidator () : wxValidator () {}
-            virtual ~wxRubyValidator ()
+        if spec.module_name == 'wxValidator'
+          # make Ruby director and wrappers use custom implementation
+          spec.use_class_implementation('wxValidator', 'wxRubyValidator')
+          # provide custom wxRuby derivative of validator
+          spec.add_header_code <<~__HEREDOC
+            #include "wxruby-Validator.h"
+  
+            WxRuby_ID wxRubyValidator::do_transfer_from_window_id("do_transfer_from_window");
+            WxRuby_ID wxRubyValidator::do_transfer_to_window_id("do_transfer_to_window");
+            WxRuby_ID wxRubyValidator::clone_id("clone");
+
+            wxRubyValidator::wxRubyValidator () 
+              : wxValidator ()
+              , wxRubyValidatorBinding () 
+            {}
+            wxRubyValidator::wxRubyValidator (const wxRubyValidator& v)
+              : wxValidator (v)
+              , wxRubyValidatorBinding (v)
+            {}
+            wxRubyValidator::~wxRubyValidator ()
             {
               wxRuby_ReleaseEvtHandlerProcs(this);
-            }               
+            }
 
-            // these two methods are noops in wxRuby (since we do not support C++ data transfer there) 
-            // but we want them to always return true to prevent wxWidgets from complaining 
-            bool TransferFromWindow () override { return true; }
-            bool TransferToWindow () override { return true; }
-          };
-          __HEREDOC
-        # will be provided as a pure Ruby method
-        spec.ignore 'wxValidator::Clone'
-        # not provided in Ruby
-        spec.ignore %w[wxValidator::TransferFromWindow wxValidator::TransferToWindow]
+            wxObject* wxRubyValidator::Clone() const
+            {
+              bool ex_caught = false;
+              VALUE self = SWIG_RubyInstanceFor(const_cast<wxRubyValidator*> (this));
+              VALUE rc = wxRuby_Funcall(ex_caught, self, clone_id(), 0);
+              if (ex_caught)
+              {
+                throw Swig::DirectorRubyException(rc, self, clone_id());
+              }
+              void *ptr;
+              int res = SWIG_ConvertPtr(rc, &ptr, SWIGTYPE_p_wxValidator,  0);
+              if (!SWIG_IsOK(res)) 
+              {
+                Swig::DirectorTypeMismatchException::raise(self, "clone", SWIG_ErrorType(SWIG_ArgError(res)), "in output value of type '""Wx::Validator *""'");
+              }
+              return reinterpret_cast< wxValidator * >(ptr);
+            }
+
+            void wxRubyValidator::SetWindow(wxWindow *win)
+            {
+              this->wxValidator::SetWindow(win);
+              VALUE self = SWIG_RubyInstanceFor(this);
+              // make sure Ruby does not own this validator instance anymore
+              RDATA(self)->dfree = SWIG_RubyRemoveTracking;
+            } 
+
+            bool wxRubyValidator::TransferFromWindow() 
+            { 
+              return this->DoOnTransferFromWindow(this->DoTransferFromWindow());
+            }
+            bool wxRubyValidator::TransferToWindow() 
+            { 
+              return this->DoTransferToWindow(this->DoOnTransferToWindow());
+            }
+  
+            VALUE wxRubyValidator::DoTransferFromWindow()
+            {
+              bool ex_caught = false;
+              VALUE self = SWIG_RubyInstanceFor(this);
+              VALUE rc = wxRuby_Funcall(ex_caught, self, do_transfer_from_window_id(), 0);
+              if (ex_caught)
+              {
+                throw Swig::DirectorRubyException(rc, self, do_transfer_from_window_id());
+              }
+              return rc; 
+            } 
+            bool wxRubyValidator::DoTransferToWindow(VALUE data)
+            {
+              bool ex_caught = false;
+              VALUE self = SWIG_RubyInstanceFor(this);
+              VALUE rc = wxRuby_Funcall(ex_caught, self, do_transfer_to_window_id(), 1, data);
+              if (ex_caught)
+              {
+                throw Swig::DirectorRubyException(rc, self, do_transfer_to_window_id());
+              }
+              return (rc == Qtrue); 
+            } 
+
+            WxRuby_ID wxRubyValidatorBinding::call_id("call");
+
+            bool wxRubyValidatorBinding::DoOnTransferFromWindow(VALUE data)
+            {
+              if (!NIL_P(this->on_transfer_from_win_proc_))
+              {
+                bool ex_caught = false;
+                VALUE rc = wxRuby_Funcall(ex_caught, this->on_transfer_from_win_proc_, call_id(), 1, data);
+                if (ex_caught)
+                {
+                  throw Swig::DirectorRubyException(rc, this->on_transfer_from_win_proc_, call_id());
+                }
+              }
+              return true; 
+            } 
+            VALUE wxRubyValidatorBinding::DoOnTransferToWindow()
+            {
+              if (!NIL_P(this->on_transfer_to_win_proc_))
+              {
+                bool ex_caught = false;
+                VALUE rc = wxRuby_Funcall(ex_caught, this->on_transfer_to_win_proc_, call_id(), 0);
+                if (ex_caught)
+                {
+                  throw Swig::DirectorRubyException(rc, this->on_transfer_to_win_proc_, call_id());
+                }
+                return rc;
+              }
+              return Qnil; 
+            } 
+
+            void wxRubyValidatorBinding::CopyBindings(const wxRubyValidatorBinding* val_bind)
+            {
+              if (val_bind)
+              {
+                this->on_transfer_from_win_proc_ = val_bind->on_transfer_from_win_proc_;
+                this->on_transfer_to_win_proc_ = val_bind->on_transfer_to_win_proc_;
+              }
+            }
+  
+            static void GC_mark_wxValidator(void* ptr)
+            {
+              if (ptr)
+                reinterpret_cast<wxRubyValidator*> (ptr)->GC_Mark();
+            } 
+            __HEREDOC
+          spec.add_swig_code '%markfunc wxValidator "GC_mark_wxValidator";'
+          # will be provided as a pure Ruby method
+          spec.ignore 'wxValidator::Clone', ignore_doc: false
+          # add wxRuby specifics
+          spec.extend_interface 'wxValidator',
+                                'wxValidator(const wxValidator& other)'
+          spec.add_extend_code 'wxValidator', <<~__HEREDOC
+            void OnTransferFromWindow(VALUE proc)
+            {
+              dynamic_cast<wxRubyValidatorBinding *>($self)->SetOnTransferFromWindow(proc);
+            } 
+            void OnTransferToWindow(VALUE proc)
+            {
+              dynamic_cast<wxRubyValidatorBinding *>($self)->SetOnTransferToWindow(proc);
+            }
+            __HEREDOC
+          # not provided in Ruby
+          spec.ignore %w[wxValidator::TransferFromWindow wxValidator::TransferToWindow wxValidator::SetWindow]
+        else
+          spec.add_header_code <<~__HEREDOC
+            #include "wxruby-ValidatorBinding.h"
+            __HEREDOC
+        end
+        # overrule common typemap for parent arg of Validate
+        spec.map 'wxWindow* parent' do
+          map_check code: ''
+        end
       end
     end # class Validator
 
