@@ -404,29 +404,63 @@ module WXRuby3
             dir_cls_re_txt = class_list.select { |clsdef| has_proxy?(clsdef) }.collect { |cd| cd.name }.join('|')
             # create regexp for Director constructors (may not exist if no proxies are enabled)
             dir_ctor_re = /SwigDirector_\w+::SwigDirector_\w+\(.*\)\s*:\s*(#{dir_cls_re_txt})\(.*\)\s*,\s*Swig::Director.*{/
+            # create regexp for method wrappers other than 'initialize' wrappers
+            wrap_mtd_re = /_wrap_(#{cls_re_txt})_(\w+)\(.*\)/
           end
           found_new = false
           cpp_class = nil
           cpp_new_re = nil
+          found_wrap_mtd = false
+          wrap_mtd_name = nil
+          wrap_mtd_upcall_re = nil
           update_source do |line|
             if found_new # inside 'initialize' wrapper?
               if cpp_new_re =~ line # at C++ allocation of class instance?
-                # replace with the registered implementation class
-                line.sub!(/new\s+#{cpp_class}\(/, "new #{class_implementation(cpp_class)}(")
-                found_new = false # only 1 line will match per wrapper function so stop matching
+                if $1 # director allocation for derived class
+                  # in case of copy ctor replace type of argument
+                  # for director copy ctor
+                  line.sub!(/\((\w+),\s*\(#{cpp_class}\s+const\s+\&\)/, "(\\1,(#{class_implementation(cpp_class)} const &)")
+                else # allocation for actual class
+                  # replace with the registered implementation class
+                  line.sub!(/new\s+#{cpp_class}\(/, "new #{class_implementation(cpp_class)}(")
+                  # in case of copy ctor also replace type of argument
+                  # for class copy ctor
+                  line.sub!(/\(\(#{cpp_class}\s+const\s+\&\)/, "((#{class_implementation(cpp_class)} const &)")
+                end
               elsif /\A}/ =~ line # end of wrapper function?
                 # stop matching (in case of overloads there will be one matching wrapper function
                 # that does no actual allocation but just acts as a front for the overload wrappers)
                 found_new = false
               end
+            elsif found_wrap_mtd
+              if wrap_mtd_upcall_re =~ line # at upcall for possibly proxied wrapper?
+                line.gsub!(cpp_class, class_implementation(cpp_class))
+                # if the upcall does not yet cast the receiver instance to the correct implementation class
+                if /\((\w+)\)->/ =~ line
+                  # add required cast
+                  line.sub!(/\((\w+)\)->/, "((#{class_implementation(cpp_class)} *)\\1)->")
+                end
+                found_wrap_mtd = false # upcall found
+              elsif /\A}/ =~ line
+                found_wrap_mtd = false # end of wrapper method
+              end
             elsif new_re =~ line # are we at an 'initialize' wrapper?
               found_new = true
               cpp_class = $1
-              cpp_new_re = /new\s+#{cpp_class}\(.*\)/ # regexp for C++ new expression for this specific class
-            elsif proxies_enabled && dir_ctor_re =~ line # at director ctor?
-              # replace base class name by implementation name
-              cpp_class = $1
-              line.sub!(/:\s*#{cpp_class}\(/, ": #{class_implementation(cpp_class)}(")
+              cpp_new_re = /new\s+(SwigDirector_)?#{cpp_class}\(.*\)/ # regexp for C++ new expression for this specific class
+            elsif proxies_enabled
+              if dir_ctor_re =~ line # at director ctor?
+                # replace base class name by implementation name
+                cpp_class = $1
+                line.sub!(/:\s*#{cpp_class}\(/, ": #{class_implementation(cpp_class)}(")
+                # in case of copy ctor also replace type of argument
+                line.sub!(/\(VALUE\s+self,\s*#{cpp_class}\s+const\s+\&(\w+)\)/, "(VALUE self, #{class_implementation(cpp_class)} const &\\1)")
+              elsif wrap_mtd_re =~ line # at wrapper method other than 'initialize' wrapper
+                cpp_class = $1
+                wrap_mtd_name = $2
+                wrap_mtd_upcall_re = /-\>#{cpp_class}::#{wrap_mtd_name}\(/
+                found_wrap_mtd = true
+              end
             end
             line
           end
@@ -435,11 +469,23 @@ module WXRuby3
             # if so, we also need to update the header code (Director class declaration)
             # create regexp for 'initialize' wrappers (due to overloads this could be more than one per class)
             dir_re = /class\s+SwigDirector_\w+\s*:\s*public\s+(#{dir_cls_re_txt})\s*,\s*public\s+Swig::Director\s*{/
+            found_dir = false
+            copy_ctor_re = nil
             update_header do |line|
-              if dir_re =~ line # at Director class declaration?
+              if found_dir
+                if copy_ctor_re =~ line
+                  # replace copy ctor arg type
+                  arg = $1
+                  line.sub!(/#{cpp_class}\s+const\s+&#{arg}/, "#{class_implementation(cpp_class)} const &#{arg}")
+                elsif /\A};/ =~ line
+                  found_dir = false
+                end
+              elsif dir_re =~ line # at Director class declaration?
                 # replace base class name by implementation name
                 cpp_class = $1
                 line.sub!(/public\s+#{cpp_class}/, "public #{class_implementation(cpp_class)}")
+                copy_ctor_re = /SwigDirector_#{cpp_class}\(VALUE\s+self,\s*#{cpp_class}\s+const\s+&(\w+)\);/
+                found_dir = true
               end
               line
             end

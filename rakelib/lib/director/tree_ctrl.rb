@@ -50,6 +50,41 @@ module WXRuby3
           wxTreeCtrl::GetFirstChild
           wxTreeCtrl::GetNextChild
           ]
+        if Config.instance.wx_version >= '3.3.0'
+          # new method with bitmap bundle vector
+          spec.no_proxy 'wxTreeCtrl::SetStateImages'
+          spec.map 'const wxVector<wxBitmapBundle>& images' => 'Array<Wx::ImageBundle>' do
+            map_in temp: 'wxVector<wxBitmapBundle> tmp', code: <<~__CODE
+            if ($input != Qnil)
+            {
+              if (TYPE($input) == T_ARRAY)
+              {
+                for (int i=0; i<RARRAY_LEN($input) ;++i)
+                {
+                  void* ptr;
+                  VALUE rb_image = rb_ary_entry($input, i);
+                  int res = SWIG_ConvertPtr(rb_image, &ptr, wxRuby_GetSwigTypeForClassName("BitmapBundle"), 0);
+                  if (!SWIG_IsOK(res)) 
+                  {
+                    VALUE msg = rb_inspect(rb_image);
+                    rb_raise(rb_eTypeError, "Expected Wx::ImageBundle at index %d but got %s", i, StringValuePtr(msg));
+                  }
+                  tmp.push_back(*static_cast<wxBitmapBundle*>(ptr));
+                }
+              }
+              else
+              {
+                VALUE msg = rb_inspect($input);
+                rb_raise(rb_eArgError, "Expected Array of Wx::ImageBundle for $argnum but got %s", StringValuePtr(msg));
+              }
+            }
+            $1 = &tmp;
+            __CODE
+          end
+        end
+        # don't see how supporting overloading this one in Ruby is helpful
+        # (also seeing SetButtonsImageList isn't virtual at all)
+        spec.no_proxy 'wxTreeCtrl::SetStateImageList'
         # these are potentially involved in GC mark phase so
         # we can't have them redirecting to Ruby calls
         spec.no_proxy %w[

@@ -56,6 +56,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxCaret')
     Director.Spec(pkg, 'wxValidator', requirements: %[USE_VALIDATORS])
     Director.Spec(pkg, 'wxTextValidator', requirements: %[USE_VALIDATORS])
+    Director.Spec(pkg, 'wxNumValidator', requirements: %[USE_VALIDATORS])
     Director.Spec(pkg, 'wxAccelerator', requirements: %w[USE_ACCEL])
     Director.Spec(pkg, 'wxMenuItem', requirements: %w[USE_MENUS])
     Director.Spec(pkg, 'wxMenuBar', requirements: %w[USE_MENUBAR])
