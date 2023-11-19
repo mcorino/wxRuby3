@@ -109,7 +109,13 @@ module WXRuby3
           WXRUBY_EXPORT void GC_mark_wxNumericPropertyValidator(void* ptr)
           {
             if (ptr)
-              reinterpret_cast<WXRubyNumericPropertyValidator*> (ptr)->GC_Mark();
+            {
+              wxValidator* vp = reinterpret_cast<wxValidator*> (ptr);
+              WXRubyNumericPropertyValidator* rbvp = dynamic_cast<WXRubyNumericPropertyValidator*> (vp);
+              // This might be a pointer to a non-customized validator (or clone thereof) created internally 
+              // by wxWidgets C++ code 
+              if (rbvp) rbvp->GC_Mark();
+            }
           } 
           __HEREDOC
         spec.add_swig_code '%markfunc wxValidator "GC_mark_wxValidator";'

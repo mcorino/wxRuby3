@@ -107,7 +107,13 @@ module WXRuby3
           WXRUBY_EXPORT void GC_mark_wxTextValidator(void* ptr)
           {
             if (ptr)
-              reinterpret_cast<WXRubyTextValidator*> (ptr)->GC_Mark();
+            {
+              wxValidator* vp = reinterpret_cast<wxValidator*> (ptr);
+              WXRubyTextValidator* rbvp = dynamic_cast<WXRubyTextValidator*> (vp);
+              // This might be a pointer to a non-customized validator (or clone thereof) created internally 
+              // by wxWidgets C++ code 
+              if (rbvp) rbvp->GC_Mark();
+            }
           } 
 
           __HEREDOC

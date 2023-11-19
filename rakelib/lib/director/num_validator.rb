@@ -129,7 +129,13 @@ module WXRuby3
           WXRUBY_EXPORT void GC_mark_wxIntegerValidator(void* ptr)
           {
             if (ptr)
-              reinterpret_cast<WXIntegerValidator*> (ptr)->GC_Mark();
+            {
+              wxValidator* vp = reinterpret_cast<wxValidator*> (ptr);
+              WXIntegerValidator* rbvp = dynamic_cast<WXIntegerValidator*> (vp);
+              // This might be a pointer to a non-customized validator (or clone thereof) created internally 
+              // by wxWidgets C++ code 
+              if (rbvp) rbvp->GC_Mark();
+            }
           } 
 
           class WXUnsignedValidator : public wxIntegerValidator<ULongestValueType>, public wxRubyValidatorBinding
@@ -225,7 +231,13 @@ module WXRuby3
           WXRUBY_EXPORT void GC_mark_wxUnsignedValidator(void* ptr)
           {
             if (ptr)
-              reinterpret_cast<WXUnsignedValidator*> (ptr)->GC_Mark();
+            {
+              wxValidator* vp = reinterpret_cast<wxValidator*> (ptr);
+              WXUnsignedValidator* rbvp = dynamic_cast<WXUnsignedValidator*> (vp);
+              // This might be a pointer to a non-customized validator (or clone thereof) created internally 
+              // by wxWidgets C++ code 
+              if (rbvp) rbvp->GC_Mark();
+            }
           } 
 
           class WXFloatValidator : public wxFloatingPointValidator<double>, public wxRubyValidatorBinding
@@ -319,7 +331,13 @@ module WXRuby3
           WXRUBY_EXPORT void GC_mark_wxFloatValidator(void* ptr)
           {
             if (ptr)
-              reinterpret_cast<WXFloatValidator*> (ptr)->GC_Mark();
+            {
+              wxValidator* vp = reinterpret_cast<wxValidator*> (ptr);
+              WXFloatValidator* rbvp = dynamic_cast<WXFloatValidator*> (vp);
+              // This might be a pointer to a non-customized validator (or clone thereof) created internally 
+              // by wxWidgets C++ code 
+              if (rbvp) rbvp->GC_Mark();
+            }
           } 
         __HEREDOC
         spec.add_swig_code 'GC_MANAGE_AS_OBJECT(WXIntegerValidator);',

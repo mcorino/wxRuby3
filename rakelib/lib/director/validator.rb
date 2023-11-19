@@ -170,7 +170,13 @@ module WXRuby3
             static void GC_mark_wxValidator(void* ptr)
             {
               if (ptr)
-                reinterpret_cast<wxRubyValidator*> (ptr)->GC_Mark();
+              {
+                wxValidator* vp = reinterpret_cast<wxValidator*> (ptr);
+                wxRubyValidator* rbvp = dynamic_cast<wxRubyValidator*> (vp);
+                // This might be a pointer to the global constant wxDefaultValidator or one of it's clones 
+                // which are not wxRubyValidator-s 
+                if (rbvp) rbvp->GC_Mark();
+              }
             } 
             __HEREDOC
           spec.add_swig_code '%markfunc wxValidator "GC_mark_wxValidator";'
