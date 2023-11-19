@@ -288,13 +288,15 @@ module Wx
 
     GenericValidator.define_handler(Wx::ListBox) do |win, *val|
       if val.empty?
-        if (win.get_window_style & Wx::LB_SINGLE) == Wx::LB_SINGLE
+        # test this the hard since on WXOSX LB_SINGLE is default but does get set
+        # by default i.e. on WXOSX no selection type bit set == LB_SINGLE
+        if (win.get_window_style & (Wx::LB_MULTIPLE|Wx::LB_EXTENDED)) == 0
           win.get_selection
         else
           win.get_selections
         end
       else
-        if (win.get_window_style & Wx::LB_SINGLE) == Wx::LB_SINGLE
+        if (win.get_window_style & (Wx::LB_MULTIPLE|Wx::LB_EXTENDED)) == 0
           win.set_selection(val.shift)
         else
           win.get_count.times { |i| win.deselect(i) }
