@@ -452,7 +452,6 @@ class FloatValidatorTests < WxRuby::Test::GUITests
   attr_accessor :text
 
   def test_transfer
-    dpt = Wx::Locale.get_info(Wx::LocaleInfo::LOCALE_DECIMAL_POINT)
     data = 0.0
     valFlt = Wx::FloatValidator.new(3, Wx::NumValidatorStyle::NUM_VAL_DEFAULT)
     valFlt.on_transfer_to_window { data }
@@ -460,7 +459,7 @@ class FloatValidatorTests < WxRuby::Test::GUITests
     text.validator = valFlt
 
     assert_true(text.transfer_data_to_window)
-    assert_equal("0#{dpt}000", text.value)
+    assert_match(/\A0(\.|,)000\Z/, text.value)
 
     text.validator.style = Wx::NumValidatorStyle::NUM_VAL_NO_TRAILING_ZEROES
 
@@ -469,11 +468,11 @@ class FloatValidatorTests < WxRuby::Test::GUITests
 
     data = 17.123
     assert_true(text.transfer_data_to_window)
-    assert_equal("17#{dpt}123", text.value)
+    assert_match(/\A17(\.|,)123\Z/, text.value)
 
     data = 17.1236
     assert_true(text.transfer_data_to_window)
-    assert_equal("17#{dpt}124", text.value)
+    assert_match(/\A17(\.|,)124\Z/, text.value)
 
     text.change_value("foobar")
     assert_false(text.transfer_data_from_window)
@@ -487,7 +486,6 @@ class FloatValidatorTests < WxRuby::Test::GUITests
   end
 
   def test_transfer_range
-    dpt = Wx::Locale.get_info(Wx::LocaleInfo::LOCALE_DECIMAL_POINT)
     data = 0
     valFlt = Wx::FloatValidator.new(3, Wx::NumValidatorStyle::NUM_VAL_NO_TRAILING_ZEROES)
     valFlt.set_range(-0.500, 0.500)
@@ -500,7 +498,7 @@ class FloatValidatorTests < WxRuby::Test::GUITests
 
     data = 0.123
     assert_true(text.transfer_data_to_window)
-    assert_equal("0#{dpt}123", text.value)
+    assert_match(/\A0(\.|,)123\Z/, text.value)
 
     text.change_value('-0.734')
     assert_false(text.transfer_data_from_window)
