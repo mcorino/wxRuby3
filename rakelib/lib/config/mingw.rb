@@ -53,6 +53,17 @@ module WXRuby3
             "{#{dll_ext},dll}"
           end
 
+          def do_link(pkg)
+            # have to use option file for objects to link on windows because command line gets too long
+            ftmp = Tempfile.new('object')
+            ftmp.puts pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ')
+            ftmp.close # close but do not unlink
+            objs = "@#{ftmp.path}"
+            depsh = pkg.dep_libnames.collect { |dl| "#{dl}.#{dll_ext}" }.join(' ')
+            sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
+                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
+          end
+
           private
 
           def wx_make
