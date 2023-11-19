@@ -104,7 +104,7 @@ module WXRuby3
 
           VALUE WXRubyTextValidator::c_TextValidator = Qnil;
 
-          WXRUBY_EXPORT void GC_mark_wxTextValidator(void* ptr)
+          static void GC_mark_wxTextValidator(void* ptr)
           {
             if (ptr)
             {

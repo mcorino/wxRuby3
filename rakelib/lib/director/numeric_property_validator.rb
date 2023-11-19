@@ -106,7 +106,7 @@ module WXRuby3
 
           VALUE WXRubyNumericPropertyValidator::c_NumericPropertyValidator = Qnil;
 
-          WXRUBY_EXPORT void GC_mark_wxNumericPropertyValidator(void* ptr)
+          static void GC_mark_wxNumericPropertyValidator(void* ptr)
           {
             if (ptr)
             {

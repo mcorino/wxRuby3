@@ -126,7 +126,7 @@ module WXRuby3
 
           VALUE WXIntegerValidator::c_IntegerValidator = Qnil;
 
-          WXRUBY_EXPORT void GC_mark_wxIntegerValidator(void* ptr)
+          static void GC_mark_wxIntegerValidator(void* ptr)
           {
             if (ptr)
             {
@@ -228,7 +228,7 @@ module WXRuby3
 
           VALUE WXUnsignedValidator::c_UnsignedValidator = Qnil;
 
-          WXRUBY_EXPORT void GC_mark_wxUnsignedValidator(void* ptr)
+          static void GC_mark_wxUnsignedValidator(void* ptr)
           {
             if (ptr)
             {
@@ -328,7 +328,7 @@ module WXRuby3
 
           VALUE WXFloatValidator::c_FloatValidator = Qnil;
 
-          WXRUBY_EXPORT void GC_mark_wxFloatValidator(void* ptr)
+          static void GC_mark_wxFloatValidator(void* ptr)
           {
             if (ptr)
             {
