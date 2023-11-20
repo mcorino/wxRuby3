@@ -78,7 +78,7 @@ module Widgets
 
     # lazy creation of the content
     def create_content
-
+      ::Kernel.raise NotImplementedError
     end
 
     # some pages show additional controls, in this case override this one to
@@ -91,7 +91,7 @@ module Widgets
     #
     # this is currently used only to take into account the border flags
     def recreate_widget
-
+      ::Kernel.raise NotImplementedError
     end
 
     # apply current attributes to the widget(s)
@@ -102,14 +102,14 @@ module Widgets
         ::Kernel.raise 'nil widget' if widget.nil?
 
         if Wx.has_feature?(:USE_TOOLTIPS)
-          widget.set_tool_tip(get_attrs.tooltip)
+          widget.set_tool_tip(get_attrs.tool_tip)
         end # wxUSE_TOOLTIPS
         if Wx.has_feature?(:USE_FONTDLG)
-          widget.set_font(get_attrs.font) if get_attrs.font.ok?
+          widget.set_font(get_attrs.font) if get_attrs.font&.ok?
         end # wxUSE_FONTDLG
 
-        widget.set_foreground_colour(get_attrs.col_fg) if get_attrs.col_fg.ok?
-        widget.set_background_colour(get_attrs.col_bg) if get_attrs.col_bg.ok?
+        widget.set_foreground_colour(get_attrs.col_fg) if get_attrs.col_fg&.ok?
+        widget.set_background_colour(get_attrs.col_bg) if get_attrs.col_bg&.ok?
 
         widget.set_layout_direction(get_attrs.dir) if get_attrs.dir != Wx::LayoutDirection::Layout_Default
 
@@ -123,7 +123,7 @@ module Widgets
         widget.refresh
       end
 
-      if get_attrs.col_page_bg.ok?
+      if get_attrs.col_page_bg&.ok?
         set_background_colour(get_attrs.col_page_bg)
         refresh
       end
@@ -164,7 +164,7 @@ module Widgets
 
     # create a sizer containing a button and a text ctrl
     def create_sizer_with_text_and_button(idBtn, labelBtn, id = Wx::ID_ANY, statBoxParent = nil)
-      create_sizer_with_text(Wx::Button.new(statBoxParent ? statBoxParent: self, idBtn, label), id)
+      create_sizer_with_text(Wx::Button.new(statBoxParent ? statBoxParent: self, idBtn, labelBtn), id)
     end
 
     # create a checkbox and add it to the sizer
@@ -192,11 +192,10 @@ module Widgets
       @label = label
       @categories = categories
       # dummy sorting: add and immediately sort in the list according to label
-      if Page.widget_pages.empty?
-        # add when first
+      if Page.widget_pages.empty? || (pg_gt = Page.widget_pages.bsearch_index { |p| p.label > @label }).nil?
+        # add when first (or 'largest' label)
         Page.widget_pages << self
       else
-        pg_gt = Page.widget_pages.bsearch_index { |p| p.label > @label }
         Page.widget_pages.insert(pg_gt, self)
       end
     end
@@ -475,14 +474,14 @@ module Widgets
         evt_menu(ID::Widgets_SetTooltip, :on_set_tooltip)
       end # wxUSE_TOOLTIPS
 
+      if Wx.has_feature?(:USE_TREEBOOK)
+        evt_treebook_page_changing(Wx::ID_ANY, :on_page_changing)
+      elsif Wx.has_feature?(:USE_NOTEBOOK)
+        evt_notebook_page_changing(Wx::ID_ANY, :on_page_changing)
+      else
+        evt_choicebook_page_changing(Wx::ID_ANY, :on_page_changing)
+      end
       if Wx.has_feature?(:USE_MENUS)
-        if Wx.has_feature?(:USE_TREEBOOK)
-          evt_treebook_page_changing(Wx::ID_ANY, :on_page_changing)
-        elsif Wx.has_feature?(:USE_NOTEBOOK)
-          evt_notebook_page_changing(Wx::ID_ANY, :on_page_changing)
-        else
-          evt_choicebook_page_changing(Wx::ID_ANY, :on_page_changing)
-        end
         evt_menu_range(ID::Widgets_GoToPage, ID::Widgets_GoToPageLast,
                        :on_go_to_page)
   
@@ -542,14 +541,49 @@ module Widgets
     end
 
     if Wx.has_feature?(:USE_MENUS)
+
     def on_page_changing(event)
-      
+      if Wx.has_feature?(:USE_TREEBOOK)
+        # don't allow selection of entries without pages (categories)
+        event.veto if !@book.get_page(event.selection)
+      end
     end
+
     def on_page_changed(event)
-      
+      sel = event.selection
+  
+      # adjust "Page" menu selection
+      item, _ = get_menu_bar.find_item(ID::Widgets_GoToPage + sel)
+      item.check if item
+
+      get_menu_bar.check(ID::Widgets_BusyCursor, false)
+  
+      # create the pages on demand, otherwise the sample startup is too slow as
+      # it creates hundreds of controls
+      curPage = current_page
+      if curPage.get_children.empty?
+        Wx::WindowUpdateLocker.update(curPage) do
+          curPage.create_content
+          curPage.layout
+  
+          connect_to_widget_events
+        end
+      end
+  
+      # re-apply the attributes to the widget(s)
+      curPage.set_up_widget
+  
+      event.skip
     end
+
     def on_go_to_page(event)
-      
+      if Wx.has_feature?(:USE_TREEBOOK)
+        @book.set_selection(event.id - ID::Widgets_GoToPage)
+      else
+        @book.set_selection(@book.get_page_count-1)
+        book = @book.get_current_page
+        book.set_selection(event.id - ID::Widgets_GoToPage)
+      end
     end
     
     if Wx.has_feature?(:USE_TOOLTIPS)
@@ -574,7 +608,9 @@ module Widgets
 
     end
     def on_show(event)
+      Page::ATTRS.show = event.checked?
 
+      current_page.set_up_widget
     end
     def on_set_border(event)
 
@@ -723,11 +759,11 @@ module Widgets
       end
 
       if Wx.has_feature?(:USE_TREEBOOK)
-        evt_treebook_page_changing(self, :on_page_changed)
+        evt_treebook_page_changed(ID::Widgets_BookCtrl, :on_page_changed)
       elsif Wx.has_feature?(:USE_NOTEBOOK)
-        evt_notebook_page_changing(self, :on_page_changed)
+        evt_notebook_page_changed(ID::Widgets_BookCtrl, :on_page_changed)
       else
-        evt_choicebook_page_changing(self, :on_page_changed)
+        evt_choicebook_page_changed(ID::Widgets_BookCtrl, :on_page_changed)
       end
 
       # TODO - review wxPersistenceManager
@@ -770,14 +806,33 @@ module Widgets
     private
 
     def on_widget_focus(event)
-
+      # Don't show annoying message boxes when starting or closing the sample,
+      # only log these events in our own logger.
+      if Wx.get_app.is_using_log_window
+        win = event.get_event_object
+        Wx.log_message("Widget '#{win.class.name}' #{event.event_type == Wx::EVT_SET_FOCUS ? "got" : "lost"} focus")
+      end
+  
+      event.skip
     end
     def on_widget_context_menu(event)
+      win = event.get_event_object
+      Wx.log_message("Context menu event for #{win.class.name} at #{event.position.x}x#{event.position.y}")
 
+      event.skip
     end
 
     def connect_to_widget_events
+      widgets = current_page.get_widgets
 
+      widgets.each do |w|
+        ::Kernel.raise RuntimeError, 'nil widget' unless w
+
+        w.evt_set_focus self.method(:on_widget_focus)
+        w.evt_kill_focus self.method(:on_widget_focus)
+
+        w.evt_context_menu self.method(:on_widget_context_menu)
+      end
     end
 
   end
@@ -822,5 +877,6 @@ module Widgets
 end
 
 require_relative './button'
+require_relative './checkbox'
 
 Widgets::App.run
