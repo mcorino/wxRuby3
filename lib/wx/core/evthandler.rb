@@ -182,7 +182,7 @@ class Wx::EvtHandler
       # check arity <= 1
       if h_meth.arity>1
         Kernel.raise ArgumentError,
-                     "Event handler should not accept more than at most a single argument"
+                     "Event handler should not accept more than at most a single argument",
                      caller
       end
       # wrap method without any argument in anonymous proc to prevent strict argument checking
@@ -193,7 +193,7 @@ class Wx::EvtHandler
       end
     else
       Kernel.raise ArgumentError,
-                  "Specify event handler with a method, name, proc OR block"
+                  "Specify event handler with a method, name, proc OR block",
                   caller
     end
   end
