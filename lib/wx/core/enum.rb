@@ -29,11 +29,15 @@ class Wx::Enum
   end
 
   def !
-    self.to_i == 0
+    to_i == 0
   end
 
   def hash
     @value.hash
+  end
+
+  def to_s
+    to_i.to_s
   end
 
 end
