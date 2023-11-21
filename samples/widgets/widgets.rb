@@ -529,12 +529,12 @@ module Widgets
     protected
 
     if Wx.has_feature?(:USE_LOG)
-    def on_button_clear_log(event)
-      
+    def on_button_clear_log(_event)
+      @lboxLog.clear
     end
     end # USE_LOG
     
-    def on_exit(event)
+    def on_exit(_event)
       @logTarget.reset if @logTarget
       @logTarget = nil
       close
@@ -545,7 +545,7 @@ module Widgets
     def on_page_changing(event)
       if Wx.has_feature?(:USE_TREEBOOK)
         # don't allow selection of entries without pages (categories)
-        event.veto if !@book.get_page(event.selection)
+        event.veto unless @book.get_page(event.selection)
       end
     end
 
@@ -565,7 +565,7 @@ module Widgets
         Wx::WindowUpdateLocker.update(curPage) do
           curPage.create_content
           curPage.layout
-  
+
           connect_to_widget_events
         end
       end
@@ -587,75 +587,378 @@ module Widgets
     end
     
     if Wx.has_feature?(:USE_TOOLTIPS)
-    def on_set_tooltip(event)
-      
+    def on_set_tooltip(_event)
+      Wx.TextEntryDialog(self,
+                        'Tooltip text (may use \\n, leave empty to remove): ',
+                        'Widgets sample',
+                        Page::ATTRS.tool_tip) do |dialog|
+        return if dialog.show_modal != Wx::ID_OK
+
+        Page::ATTRS.tool_tip = dialog.value
+        Page::ATTRS.tool_tip.gsub!("\\n", "\n")
+      end
+
+      current_page.set_up_widget
     end
     end # wxUSE_TOOLTIPS
 
-    def on_set_fg_col(event)
-
+    # Trivial wrapper for wxGetColourFromUser() which also does something even if
+    # the colour dialog is not available in the current build (which may happen
+    # for the ports in development and it is still useful to see how colours work)
+    def get_colour_from_user(colDefault)
+      if Wx.has_feature?(:USE_COLOURDLG)
+        Wx.get_colour_from_user(self, colDefault)
+      else # !wxUSE_COLOURDLG
+        if colDefault == Wx::BLACK
+          Wx::WHITE
+        else
+          Wx::BLACK
+        end
+      end # wxUSE_COLOURDLG/!wxUSE_COLOURDLG
     end
-    def on_set_bg_col(event)
+    
+    def on_set_fg_col(_event)
+      # allow for debugging the default colour the first time this is called
+      page = current_page
+  
+      unless Page::ATTRS.col_fg&.ok?
+        Page::ATTRS.col_fg = page.get_foreground_colour
+      end
+  
+      col = get_colour_from_user(Page::ATTRS.col_fg)
+      return unless col&.ok?
 
+      Page::ATTRS.col_fg = col
+  
+      page.set_up_widget
     end
-    def on_set_page_bg(event)
 
-    end
-    def on_set_font(event)
+    def on_set_bg_col(_event)
+      # allow for debugging the default colour the first time this is called
+      page = current_page
 
+      unless Page::ATTRS.col_bg&.ok?
+        Page::ATTRS.col_bg = page.get_background_colour
+      end
+
+      col = get_colour_from_user(Page::ATTRS.col_bg)
+      return unless col&.ok?
+
+      Page::ATTRS.col_bg = col
+
+      page.set_up_widget
     end
+
+    def on_set_page_bg(_event)
+      col = get_colour_from_user(get_background_colour)
+      return unless col&.ok?
+
+      Page::ATTRS.col_page_bg = col
+
+      current_page.set_up_widget
+    end
+
+    def on_set_font(_event)
+      if Wx.has_feature?(:USE_FONTDLG)
+        page = current_page
+    
+        unless Page::ATTRS.font&.ok?
+          Page::ATTRS.font = page.get_font
+        end
+    
+        font = Wx.get_font_from_user(self, Page::ATTRS.font)
+        return unless font&.ok?
+
+        Page::ATTRS.font = font
+    
+        page.set_up_widget
+        # The best size of the widget could have changed after changing its font,
+        # so re-layout to show it correctly.
+        page.layout
+      else
+        Wx.log_message('Font selection dialog not available in current build.')
+      end
+    end
+
     def on_enable(event)
+      Page::ATTRS.enabled = event.checked?
 
+      current_page.set_up_widget
     end
+
     def on_show(event)
       Page::ATTRS.show = event.checked?
 
       current_page.set_up_widget
     end
+
     def on_set_border(event)
+      case event.id
+      when ID::Widgets_BorderNone
+        border = Wx::BORDER_NONE
+      when ID::Widgets_BorderStatic
+        border = Wx::BORDER_STATIC
+      when ID::Widgets_BorderSimple
+        border = Wx::BORDER_SIMPLE
+      when ID::Widgets_BorderRaised
+        border = Wx::BORDER_RAISED
+      when ID::Widgets_BorderSunken
+        border = Wx::BORDER_SUNKEN
+      when ID::Widgets_BorderDouble
+        border = Wx::BORDER_DOUBLE
+      when ID::Widgets_BorderDefault
+        border = Wx::BORDER_DEFAULT
+      else
+        ::Kernel.raise RuntimeError, 'unknown border style'
+      end
 
+      p border
+
+      Page::ATTRS.default_flags &= ~Wx::BORDER_MASK
+      Page::ATTRS.default_flags |= border
+  
+      page = current_page
+  
+      page.recreate_widget
+  
+      connect_to_widget_events
+  
+      # re-apply the attributes to the widget(s)
+      page.set_up_widget
     end
+
     def on_set_variant(event)
-
+      case event.id
+      when ID::Widgets_VariantSmall
+        v = Wx::WINDOW_VARIANT_SMALL
+      when ID::Widgets_VariantMini
+        v = Wx::WINDOW_VARIANT_MINI
+      when ID::Widgets_VariantLarge
+        v = Wx::WINDOW_VARIANT_LARGE
+      when ID::Widgets_VariantNormal
+        v = Wx::WINDOW_VARIANT_NORMAL
+      else
+        ::Kernel.raise RuntimeError, 'unknown window variant'
+      end
+  
+      Page::ATTRS.variant = v
+  
+      current_page.set_up_widget
+      current_page.layout
     end
 
-    def on_toggle_layout_direction(event)
-
+    def on_toggle_layout_direction(_event)
+      dir = Page::ATTRS.dir
+      dir = get_layout_direction if dir == Wx::LayoutDirection::Layout_Default
+      Page::ATTRS.dir =
+          (dir == Wx::LayoutDirection::Layout_LeftToRight) ?
+            Wx::LayoutDirection::Layout_RightToLeft :
+            Wx::LayoutDirection::Layout_LeftToRight
+  
+      current_page.set_up_widget
     end
 
     def on_toggle_global_busy_cursor(event)
-
+      if event.checked?
+        Wx.begin_busy_cursor
+      else
+        Wx.end_busy_cursor
+      end
     end
-    def on_toggle_busy_cursor(event)
 
+    def on_toggle_busy_cursor(event)
+      Page::ATTRS.cursor = event.checked? ? Wx::HOURGLASS_CURSOR : Wx::NULL_CURSOR
+
+      current_page.set_up_widget
     end
 
     # wxTextEntry-specific tests
-    def on_disable_auto_complete(event)
+    def on_disable_auto_complete(_event)
+      unless (entry = current_page.get_text_entry)
+        Wx.log_error('menu item should be disabled')
+        return
+      end
 
-    end
-    def on_auto_complete_fixed(event)
-
-    end
-    def on_auto_complete_filenames(event)
-
-    end
-    def on_auto_complete_directories(event)
-
-    end
-    def on_auto_complete_custom(event)
-
-    end
-    def on_auto_complete_key_length(event)
-
+      if entry.auto_complete(nil)
+        Wx.log_message('Disabled auto completion.')
+      else
+        Wx.log_message('auto_complete() failed.')
+      end
     end
 
-    def do_use_custom_auto_complete(minLength = 1)
+    def on_auto_complete_fixed(_event)
+      unless (entry = current_page.get_text_entry)
+        Wx.log_error('menu item should be disabled')
+        return
+      end
+  
+      completion_choices = (?a-?z).collect { |c| c*2 }
+      completion_choices <<
+        'is this string for test?' <<
+        'this is a test string' <<
+        'this is another test string' <<
+        'this string is for test'
+  
+      if entry.auto_complete(completion_choices)
+        Wx.log_message('Enabled auto completion of a set of fixed strings.')
+      else
+        Wx.log_message('auto_complete() failed.')
+      end
+    end
+
+    def on_auto_complete_filenames(_event)
+      unless (entry = current_page.get_text_entry)
+        Wx.log_error('menu item should be disabled')
+        return
+      end
+  
+      if entry.auto_complete_file_names
+        Wx.log_message('Enabled auto completion of file names.')
+      else
+        Wx.log_message('auto_complete_file_names failed.')
+      end
+    end
+
+    def on_auto_complete_directories(_event)
+      unless (entry = current_page.get_text_entry)
+        Wx.log_error('menu item should be disabled')
+        return
+      end
+
+      if entry.auto_complete_directories
+        Wx.log_message('Enabled auto completion of directories.')
+      else
+        Wx.log_message('AutoCompleteDirectories() failed.')
+      end
+    end
+
+    def on_auto_complete_custom(_event)
+      do_use_custom_auto_complete
+    end
+
+    def on_auto_complete_key_length(_event)
+      message = "The auto-completion is triggered if and only if\n" +
+                "the length of the search key (prefix) is at least [LENGTH].\n" +
+                "Hint: 0 disables the length check completely."
+      prompt = 'Enter the minimum key length:'
+      caption = 'Minimum key length'
+  
+      res = Wx.get_number_from_user(message, prompt, caption, 1, 0, 100, self)
+      return if res == -1
+
+      Wx.log_message("The minimum key length for autocomplete is #{res}.")
+  
+      do_use_custom_auto_complete(res)
+    end
+
+    # This is a simple (and hence rather useless) example of a custom
+    # completer class that completes the first word (only) initially and only
+    # build the list of the possible second words once the first word is
+    # known. This allows to avoid building the full 676000 item list of
+    # possible strings all at once as the we have 1000 possibilities for the
+    # first word (000..999) and 676 (aa..zz) for the second one.
+    class CustomTextCompleter < Wx::TextCompleterSimple
+
+      def initialize(min_length)
+        super()
+        @min_length = min_length
+      end
+
+      def get_completions(prefix)
+        res = []
+        begin
+          # Wait for enough text to be entered before proposing completions:
+          # this is done to avoid proposing too many of them when the
+          # control is empty, for example.
+          return if prefix.size < @min_length
+
+          # The only valid strings start with 3 digits so check for their
+          # presence proposing to complete the remaining ones.
+          return unless prefix.start_with?(/\d/)
+
+          if prefix.size == 1
+            10.times { |i| 10.times { |j| res << "#{prefix}#{i}#{j}"} }
+            return
+          else
+            return unless (?0..?9).include?(prefix[1])
+          end
+
+          if prefix.size == 2
+            10.times { |i| res << "#{prefix}#{i}" }
+            return
+          else
+            return unless (?0..?9).include?(prefix[2])
+          end
+
+          # Next we must have a space and two letters.
+          prefix2 = prefix.dup
+          if prefix.size == 3
+            prefix2 += ' '
+          elsif prefix[3] != ' '
+            return
+          end
+
+          if prefix2.size == 4
+            (?a..?z).each { |c| (?a..?z).each { |d| res << "#{prefix}#{c}#{d}"} }
+            return
+          else
+            return unless (?a..?z).include?(prefix[4])
+          end
+
+          if prefix.size == 5
+            (?a..?z).each { |c| res << "#{prefix}#{c}" }
+          end
+        ensure
+          # This is used for illustrative purposes only and shows how many
+          # completions we return every time when we're called.
+          Wx.log_message("Returning #{res.size} possible completions for prefix \"#{prefix}\"")
+        end
+      end
 
     end
 
-    def on_set_hint(event)
+    def do_use_custom_auto_complete(min_length = 1)
+      unless (entry = current_page.get_text_entry)
+        Wx.log_error('menu item should be disabled')
+        return
+      end
+  
+      if entry.auto_complete(CustomTextCompleter.new(min_length))
+        Wx.log_message('Enabled custom auto completer for "NNN XX" items ' +
+                       '(where N is a digit and X is a letter).')
+      else
+        Wx.log_message('auto_complete() failed.')
+      end
+    end
 
+    class << self
+
+      def s_hint
+        @s_hint ||= 'Type here'
+      end
+
+      def s_hint=(v)
+        @s_hint = v
+      end
+
+    end
+
+    def on_set_hint(_event)
+      unless (entry = current_page.get_text_entry)
+        Wx.log_error('menu item should be disabled')
+        return
+      end
+  
+      hint = Wx.get_text_from_user('Text hint:', 'Widgets sample', self.class.s_hint, self)
+      return if hint.empty?
+
+      self.class.s_hint = hint
+  
+      if entry.set_hint(hint)
+        Wx.log_message("Set hint to \"#{hint}\".")
+      else
+        Wx.log_message('Text hints not supported.')
+      end
     end
 
     def on_update_text_ui(event)
@@ -726,7 +1029,7 @@ module Widgets
   
       self.menu_bar.append(menuPages, '&Page')
 
-      images.collect! { |img| img.is_a?(Wx::BitmapBundle) ? img : Wx::BitmapBundle.new(img) }
+      images.collect! { |img_| img_.is_a?(Wx::BitmapBundle) ? img_ : Wx::BitmapBundle.new(img_) }
       @book.set_images(images)
 
       MAX_PAGES.times do |cat|

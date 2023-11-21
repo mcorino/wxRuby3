@@ -386,6 +386,7 @@ module Widgets
               @button = @cmdLnkButton
           else
               @button = Wx::Button.new(self, ID::Button, label, style: flags)
+              @cmdLnkButton = nil
           end
         end
 
