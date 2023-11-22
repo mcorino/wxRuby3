@@ -998,7 +998,7 @@ module Widgets
         pages << []
         labels << []
         Page.widget_pages.each do |info|
-          next if (info.categories & ( 1 << cat )) == 0
+          next if info.categories.nobits?(1 << cat)
 
           page = info.create(
             if Wx.has_feature?(:USE_TREEBOOK)
@@ -1181,5 +1181,6 @@ end
 
 require_relative './button'
 require_relative './checkbox'
+require_relative './textctrl'
 
 Widgets::App.run
