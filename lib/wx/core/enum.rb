@@ -32,6 +32,18 @@ class Wx::Enum
     self.to_i == 0
   end
 
+  def allbits?(mask)
+    to_i.allbits?(mask)
+  end
+
+  def anybits?(mask)
+    to_i.anybits?(mask)
+  end
+
+  def nobits?(mask)
+    to_i.nobits?(mask)
+  end
+
   def hash
     @value.hash
   end
