@@ -42,7 +42,7 @@ module WXRuby3
 
           // As the wxw logger will only make synchronous use of the filename, func and component pointers while
           // processing the log entry and never store them we simply gather pointers but no copies 
-          static void do_log(wxLogLevel lvl, int argc, VALUE *argv, ...)
+          static void do_log(wxLogLevel lvl, int argc, VALUE *argv)
           {
             const char* filename = nullptr;
             int line = 0;
@@ -66,7 +66,9 @@ module WXRuby3
                     wxLog::IsLevelEnabled(lvl, wxASCII_STR(component)) )
             {
               VALUE log_msg = argc==1 ? argv[0] : rb_f_sprintf(argc, argv);
-              wxLogger(lvl, filename, line, func, component).Log(RSTR_TO_WXSTR(log_msg));
+              wxLogRecordInfo info(filename, line, func, component);
+              info.timestampMS = wxGetUTCTimeMillis().GetValue();
+              wxLog::OnLog(lvl, RSTR_TO_WXSTR(log_msg), info);
             }
           }
 
