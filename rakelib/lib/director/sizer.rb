@@ -50,7 +50,7 @@ module WXRuby3
           spec.ignore 'wxSizer::Detach(wxSizer*)',
                       'wxSizer::Detach(int)', ignore_doc: false
           spec.add_extend_code 'wxSizer', <<~__HEREDOC
-            bool detach(wxSizer* szr)
+            bool Detach(wxSizer* szr)
             {
               if ($self->Detach(szr))
               {
@@ -65,7 +65,7 @@ module WXRuby3
               return false;
             }
 
-            bool detach(int itm_nr)
+            bool Detach(int itm_nr)
             {
               wxSizerItem* itm = $self->GetItem(itm_nr);
               if (itm)
