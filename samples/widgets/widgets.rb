@@ -461,7 +461,7 @@ module Widgets
   
       sizeMin = @panel.get_best_size
       # if ( !sizeSet )
-      #     SetClientSize(sizeMin)
+         set_client_size(sizeMin)
       set_min_client_size(sizeMin)
 
       # connect the event handlers
@@ -1179,6 +1179,7 @@ module Widgets
 
 end
 
+require_relative './activityindicator'
 require_relative './button'
 require_relative './checkbox'
 require_relative './textctrl'
