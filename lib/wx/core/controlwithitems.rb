@@ -30,15 +30,39 @@ class Wx::ControlWithItems
   end
   private :client_data_store
 
+  # installs callback triggered when client data has been unlinked
+  def on_unlink_client_data(meth=nil, &block)
+    @on_unlink = if block_given? and meth.nil?
+                   block
+                 else
+                   case meth
+                   when NilClass
+                     meth # reset
+                   when String, Symbol
+                     self.method(meth.to_sym)
+                   when Proc
+                     meth
+                   else
+                     ::Kernel.raise ArgumentError, 'meth (#0) must be (name of) Method or Proc'
+                   end
+                 end
+  end
+
+  def on_unlink_data(data, item)
+    @on_unlink.call(data, item) if @on_unlink && data
+  end
+  protected :on_unlink_data
+
   wx_set_client_data = instance_method :set_client_data
   define_method :set_client_data do |item, data|
-    item = item.to_i
+    old_data = client_data_store[item] if @on_unlink
     wx_set_client_data.bind(self).call(item, data)
     client_data_store[item] = data
+    on_unlink_data(old_data, item)
   end
 
   def get_client_data(item)
-    client_data_store[item.to_i]
+    client_data_store[item]
   end
 
   wx_append = instance_method :append
@@ -69,7 +93,7 @@ class Wx::ControlWithItems
       if ::Array === item
         if sorted?
           item.each_with_index do |itm, ix|
-            itm_pos = wx_append.bind(self).call(itm, data[ix])
+            itm_pos = wx_append.bind(self).call(itm)
             client_data_store.insert(itm_pos, nil)
           end
         else
@@ -143,15 +167,24 @@ class Wx::ControlWithItems
     end
   end
 
+  def clear_client_data
+    old_data_list = client_data_store.dup if @on_unlink
+    client_data_store.clear
+    old_data_list.each_with_index { |old_data, item| on_unlink_data(old_data, item) } if @on_unlink
+  end
+  protected :clear_client_data
+
   wx_clear = instance_method :clear
   define_method :clear do
     wx_clear.bind(self).call
-    client_data_store.clear
+    clear_client_data
   end
 
   wx_delete = instance_method :delete
   define_method :delete do |item|
-    wx_delete.bind(self).call(item.to_i)
-    client_data_store.slice!(item.to_i)
+    wx_delete.bind(self).call(item)
+    old_data = client_data_store[item] if @on_unlink
+    client_data_store.slice!(item)
+    on_unlink_data(old_data, item)
   end
 end
