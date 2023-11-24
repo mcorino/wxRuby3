@@ -61,8 +61,12 @@ module Wx
 
     alias :get_x :get_width
     alias :x :get_width
+    alias :set_x :set_width
+    alias :x= :set_width
     alias :get_y :get_height
     alias :y :get_height
+    alias :set_y :set_height
+    alias :y= :set_height
 
     # Set this size to the given size's width,height values
     # @param [Wx::Size] sz
