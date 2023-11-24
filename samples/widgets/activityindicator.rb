@@ -25,7 +25,7 @@ module Widgets
         @sizerIndicator = nil
       end
 
-      Info = Widgets::PageInfo.new(self, 'ActivityIndicator', Widgets::ALL_CTRLS | Widgets::NATIVE_CTRLS)
+      Info = Widgets::PageInfo.new(self, 'ActivityIndicator', Widgets::NATIVE_CTRLS)
 
       def get_widget
         @indicator

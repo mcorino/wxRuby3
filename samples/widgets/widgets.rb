@@ -190,7 +190,7 @@ module Widgets
     def initialize(klass, label, categories)
       @klass = klass
       @label = label
-      @categories = categories
+      @categories = Widgets::ALL_CTRLS | categories
       # dummy sorting: add and immediately sort in the list according to label
       if Page.widget_pages.empty? || (pg_gt = Page.widget_pages.bsearch_index { |p| p.label > @label }).nil?
         # add when first (or 'largest' label)
@@ -1180,6 +1180,7 @@ module Widgets
 end
 
 require_relative './activityindicator'
+require_relative './bmpcombobox'
 require_relative './button'
 require_relative './checkbox'
 require_relative './textctrl'

@@ -72,7 +72,7 @@ module Widgets
         @imageMarginV = 0
       end
 
-      Info = Widgets::PageInfo.new(self, 'Button', Widgets::ALL_CTRLS | Widgets::NATIVE_CTRLS)
+      Info = Widgets::PageInfo.new(self, 'Button', Widgets::NATIVE_CTRLS)
 
       def get_widget
         @button

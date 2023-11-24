@@ -39,7 +39,7 @@ module Widgets
         @textLabel = nil
       end
 
-      Info = Widgets::PageInfo.new(self, 'CheckBox', Widgets::ALL_CTRLS | Widgets::NATIVE_CTRLS)
+      Info = Widgets::PageInfo.new(self, 'CheckBox', Widgets::NATIVE_CTRLS)
 
       def get_widget
         @checkbox
