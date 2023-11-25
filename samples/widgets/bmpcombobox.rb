@@ -157,7 +157,7 @@ module Widgets
         sizerMiddle.add(sizerRow, 0, Wx::ALL | Wx::GROW, 5)
 
         sizerRow, @textInsert = create_sizer_with_text_and_button(ID::Insert,
-                                                                  '&Insert this text',
+                                                                  '&Insert this item',
                                                                   ID::InsertText,
                                                                   sizerMiddleBox)
         sizerMiddle.add(sizerRow, 0, Wx::ALL | Wx::GROW, 5)
@@ -312,7 +312,6 @@ module Widgets
 
       def on_button_add_several(_event)
         @combobox.append('First')
-        @combobox.append('first one')
         @combobox.append('another one')
         @combobox.append('and the last (very very very very very very very very very very long) one')
       end
