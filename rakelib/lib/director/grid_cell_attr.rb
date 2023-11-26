@@ -12,8 +12,6 @@ module WXRuby3
 
     class GridCellAttr < Director
 
-      include Typemap::GridClientData
-
       def setup
         super
         # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
