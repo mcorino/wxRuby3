@@ -12,6 +12,8 @@ module WXRuby3
 
     class EvtHandler < Director
 
+      include Typemap::ClientData
+
       def setup
         super
         # update generated code for all event handlers
@@ -22,8 +24,7 @@ module WXRuby3
               'wxEvtHandler::Connect',
               'wxEvtHandler::Disconnect')
           spec.ignore(%w[wxEVT_HOTKEY])
-          spec.ignore(%w[wxEvtHandler::SetClientData wxEvtHandler::GetClientData
-                         wxEvtHandler::SetClientObject wxEvtHandler::GetClientObject])
+          spec.ignore(%w[wxEvtHandler::SetClientData wxEvtHandler::GetClientData])
           # Do not see much point in allowing/supporting this to be overridden when we
           # have TryBefore and TryAfter to handle this much cleaner
           spec.no_proxy 'wxEvtHandler::ProcessEvent'

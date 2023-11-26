@@ -6,6 +6,27 @@ module Wx
 
   class OwnerDrawnComboBox
 
+    # make sure to honor the inherited common overloads
+    wx_get_client_object = instance_method :get_client_object
+    define_method :get_client_object do |*args|
+      if args.empty?
+        super()
+      else
+        wx_get_client_object.bind(self).call(*args)
+      end
+    end
+    wx_set_client_object = instance_method :set_client_object
+    define_method :set_client_object do |*args|
+      if args.size < 2
+        super(*args)
+      else
+        wx_set_client_object.bind(self).call(*args)
+      end
+    end
+    # redefine aliases
+    alias :client_object :get_client_object
+    alias :client_object= :set_client_object
+
     alias :get_client_data :get_client_object
     alias :set_client_data :set_client_object
 
