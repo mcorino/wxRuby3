@@ -9,6 +9,10 @@ module Wx
 
   class ControlWithItems
 
+    alias :get_client_data :get_client_object
+
+    alias :set_client_data :set_client_object
+
     # Yield each string to the given block.
     # Returns an Enumerator if no block given.
     # @yieldparam [String] string the string yielded
