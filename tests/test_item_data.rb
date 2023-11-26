@@ -87,9 +87,27 @@ class TestItemData < Test::Unit::TestCase
 
     GC.start
 
+    klass = Class.new do
+      def initialize(list)
+        @list = list
+        @list << self
+      end
+      def client_data_unlinked
+        @list.delete(self)
+      end
+    end
+    data_list = []
+    10.times { |i| f.control.append("test #{i}", klass.new(data_list)) }
+
+    assert_equal(10, data_list.size)
+    assert_equal(28, f.control.count)
+    assert_kind_of(klass, f.control.get_item_data(27))
+
     # clear all
     f.control.clear
     assert_equal(0, f.control.count)
+
+    assert_equal(0, data_list.size)
 
     GC.start
   end
