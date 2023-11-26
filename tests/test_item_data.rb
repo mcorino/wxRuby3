@@ -22,6 +22,9 @@ class TestItemData < Test::Unit::TestCase
   end
 
   def do_control_with_items_assertions(f)
+    f.control.set_client_object([:client, :object])
+    assert_equal([:client, :object], f.control.client_object)
+
     assert_retrievable_data(f.control, 0, { 'b' => 'B' })
     assert_retrievable_data(f.control, 1, 'string item data')
     assert_retrievable_data(f.control, 2, 42.3)
@@ -108,6 +111,9 @@ class TestItemData < Test::Unit::TestCase
     assert_equal(0, f.control.count)
 
     assert_equal(0, data_list.size)
+
+    # still there?
+    assert_equal([:client, :object], f.control.client_object)
 
     GC.start
   end
