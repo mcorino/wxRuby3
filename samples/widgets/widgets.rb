@@ -1185,6 +1185,7 @@ require_relative './button'
 require_relative './checkbox'
 require_relative './choice'
 require_relative './clrpicker'
+require_relative './combobox'
 require_relative './textctrl'
 
 Widgets::App.run
