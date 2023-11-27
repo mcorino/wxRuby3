@@ -141,10 +141,12 @@ module WXRuby3
           # make Ruby director and wrappers use custom implementation
           spec.use_class_implementation('wxCommandEvent', 'wxRubyCommandEvent')
           spec.ignore %w{
-            wxCommandEvent::GetClientObject
-            wxCommandEvent::SetClientObject
+            wxCommandEvent::GetClientData
+            wxCommandEvent::SetClientData
             wxCommandEvent::GetExtraLong
           }
+          # ignore but keep doc; will replace with custom versions
+          spec.ignore %w[wxCommandEvent::GetClientObject wxCommandEvent::SetClientObject], ignore_doc: false
           # need this to force alloc func
           spec.make_concrete 'wxCommandEvent'
           spec.add_header_code <<~__HEREDOC
@@ -187,6 +189,38 @@ module WXRuby3
                 return wx_ev;
               }
             };
+            __HEREDOC
+          # CommandEvent requires custom handling of client data.
+          # As command events do not 'own' their wxClientData objects we cannot use the regular support
+          # for setting client data from Ruby as that would cause memory leaks by creating wxRubyClientData
+          # instances that would never get deleted.
+          # On the other hand wxWidgets library code might still set wxClientData instances propagated from
+          # control of item data client data which need to be used for returning client data with GetClientObject.
+          # As wxRuby client data always is any arbitrary Ruby Object anyway we simply combine the two approaches wxWidgets
+          # offers here under 1 set of methods.
+          spec.include 'wxruby-ClientData.h'
+          spec.add_extend_code 'wxCommandEvent', <<~__HEREDOC
+            VALUE GetClientObject()
+            {
+              VALUE rc = Qnil;
+              // return Ruby client data depending on what's available
+              if ($self->GetClientData())
+              {
+                rc = (VALUE)$self->GetClientData();
+              }
+              else
+              {
+                wxRubyClientData* rbcd = dynamic_cast<wxRubyClientData*> ($self->GetClientObject());
+                if (rbcd) rc = rbcd->GetData();
+              }
+              return rc;
+            }
+
+            void SetClientObject(VALUE cd)
+            {
+              // use SetClientData as not to create memory leaks; GC marker for events will keep it alive
+              $self->SetClientData((void*)cd);
+            }
             __HEREDOC
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetDefaultEventClass() 

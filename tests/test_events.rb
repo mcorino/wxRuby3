@@ -21,8 +21,10 @@ class EventTests < Test::Unit::TestCase
 
   def test_command_event
     evt = Wx::CommandEvent.new(100, 1)
+    evt.set_client_object({one: 'first'})
     assert_equal(100, evt.event_type)
     assert_equal(1, evt.id)
+    assert_equal({one: 'first'}, evt.get_client_object)
     assert(evt.should_propagate)
     evt.skip
     assert(evt.skipped)
@@ -33,6 +35,7 @@ class EventTests < Test::Unit::TestCase
     assert_equal(evt.event_type, evt_dup.event_type)
     assert_equal(evt.id, evt_dup.id)
     assert_equal(evt.string, evt_dup.string)
+    assert_equal({one: 'first'}, evt_dup.get_client_object)
   end
 
   def test_event_clone

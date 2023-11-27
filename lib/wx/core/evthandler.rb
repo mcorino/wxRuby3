@@ -10,6 +10,12 @@
 # EvtHandler. This includes all Wx::Window subclasses and Wx::App.
 
 class Wx::EvtHandler
+
+  alias :set_client_data :set_client_object
+  alias :client_data= :set_client_object
+  alias :get_client_data :get_client_object
+  alias :client_data :get_client_object
+
   # EventType is an internal class that's used to set up event handlers
   # and mappings.
   # * 'name' is the name of the event handler method in ruby

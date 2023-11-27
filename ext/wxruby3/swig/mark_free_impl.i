@@ -333,8 +333,11 @@ WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
        wx_event->IsCommandEvent() )
 	{
 	  wxCommandEvent* wx_cm_event = (wxCommandEvent*)ptr;
-	  VALUE rb_client_data = (VALUE)wx_cm_event->GetClientData();
-	  rb_gc_mark(rb_client_data);
+	  if (wx_cm_event->GetClientData())
+	  {
+	    VALUE rb_client_data = (VALUE)wx_cm_event->GetClientData();
+	    rb_gc_mark(rb_client_data);
+    }
 	}
 
 #ifdef __WXRB_DEBUG__
