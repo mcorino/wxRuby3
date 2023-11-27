@@ -18,6 +18,8 @@ module WXRuby3
 
       include Typemap::PGCell
 
+      include Typemap::ClientData
+
       def setup
         super
         if spec.module_name == 'wxPGProperty'
@@ -113,7 +115,7 @@ module WXRuby3
           # obsolete
           spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
           # not of use in Ruby
-          spec.ignore(%w[wxPGProperty::GetClientObject wxPGProperty::SetClientObject])
+          spec.ignore(%w[wxPGProperty::GetClientData wxPGProperty::SetClientData])
           # only keep the const version
           spec.ignore 'wxPGProperty::GetCell'
           spec.regard 'wxPGProperty::GetCell(unsigned int) const'
@@ -146,32 +148,6 @@ module WXRuby3
           spec.suppress_warning(473,
                                 'wxPGProperty::DoGetEditorClass',
                                 'wxPGProperty::DoGetValidator')
-          spec.add_header_code <<~__HEREDOC
-            extern void GC_mark_wxPGProperty(void* ptr)
-            {
-            #ifdef __WXRB_DEBUG__
-              if (wxRuby_TraceLevel()>1)
-              {
-                std::wcout << "> GC_mark_wxPGProperty : " << ptr;
-                if (ptr) std::wcout << " (" << ((wxPGProperty*)ptr)->GetName() << ')';
-                std::wcout << std::endl;
-              }
-            #endif
-              if (ptr)
-              {
-                VALUE object = (VALUE)((wxPGProperty*)ptr)->GetClientData();
-                if (object && !NIL_P(object))
-                {
-            #ifdef __WXRB_DEBUG__
-                  if (wxRuby_TraceLevel()>2)
-                    std::wcout << "*** marking property data " << ptr << std::endl;
-            #endif
-                  rb_gc_mark(object);
-                }
-              }
-            }
-            __HEREDOC
-          spec.add_swig_code '%markfunc wxPGProperty "GC_mark_wxPGProperty";'
           spec.ignore 'wxPGProperty::m_clientData' # not wanted for wxRuby
           # take protected members into account
           spec.regard 'wxPGProperty::wxPGProperty',
@@ -237,7 +213,6 @@ module WXRuby3
             }
             __CODE
         else
-          spec.add_header_code 'extern void GC_mark_wxPGProperty(void* ptr);'
           spec.items.each do |itm|
             unless itm == 'wxColourPropertyValue'
               # add protected member methods and var to complement base class
@@ -250,7 +225,6 @@ module WXRuby3
                                     'wxVariant m_value',
                                     visibility: 'protected'
               spec.rename_for_ruby 'value_' => "#{itm}::m_value"
-              spec.add_swig_code %Q{%markfunc #{itm} "GC_mark_wxPGProperty";}
               spec.new_object %Q{#{itm}::GetEditorDialog}
               spec.suppress_warning(473, "#{itm}::GetEditorDialog")
             end

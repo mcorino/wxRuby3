@@ -29,6 +29,28 @@ module WXRuby3
         spec.rename_for_ruby(
           'SetTextSelectionRange' => 'wxComboBox::SetSelection(long, long)',
           'GetTextSelectionRange' => 'wxComboBox::GetSelection(long *, long *) const')
+        spec.ignore 'wxComboBox::SetSelection(long, long)',
+                    'wxComboBox::GetSelection(long *, long *) const',
+                    ignore_doc: false
+        # workaround because renaming and alias definitions clash
+        spec.add_extend_code 'wxComboBox', <<~__HEREDOC
+          void SetTextSelectionRange(long from, long to)
+          {
+            $self->SetSelection(from, to);
+          }
+
+          void GetTextSelectionRange(long *from, long *to)
+          {
+            $self->GetSelection(from, to);
+          }
+          __HEREDOC
+        # fix override of TextEntry#clear; to be finished in pure Ruby
+        spec.add_extend_code 'wxComboBox', <<~__HEREDOC
+          void ClearItems()
+          {
+            $self->Clear();
+          }
+          __HEREDOC
         spec.map_apply 'long * OUTPUT' => [ 'long *from', 'long *to' ]
       end
 

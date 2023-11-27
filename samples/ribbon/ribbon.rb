@@ -826,13 +826,13 @@ class MyFrame < Wx::Frame
       dc.select_object_as_source(Wx::NULL_BITMAP)
 
       item = gallery.append(bitmap, Wx::ID_ANY)
-      gallery.set_item_client_data(item, [colour, c])
+      gallery.set_item_client_object(item, [colour, c])
     end
     item
   end
 
   def get_gallery_colour(gallery, item)
-    gallery.get_item_client_data(item)
+    gallery.get_item_client_object(item)
   end
 
   def reset_gallery_art_providers

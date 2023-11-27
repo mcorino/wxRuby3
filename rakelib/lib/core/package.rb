@@ -327,6 +327,7 @@ module WXRuby3
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigdirector.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'funcall.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'enum.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'client_data.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'init.inc'))
             fsrc.puts
           end
@@ -361,6 +362,9 @@ module WXRuby3
               Config.instance.features.each do |feature, val|
                 fsrc.puts %Q{rb_define_const(mWxSetup, "#{feature}", Q#{val});}
               end
+              fsrc.puts
+              # install wxRubyClientData marker
+              fsrc.puts %Q{wxRuby_AppendMarker(wxRuby_GC_mark_ClientData);}
             else
               fsrc.puts %Q{#{module_variable} = rb_define_module_under(wxRuby_Core(), "#{name}");}
               # record package submodule in main module's list

@@ -71,7 +71,7 @@ module Wx
       # first log info instance of a repeating message sequence
 
       # format message
-      msg = fmt % args
+      msg = args.empty? ? fmt : fmt % args
       log_info = {
         filename: if filename
                     filename.to_s

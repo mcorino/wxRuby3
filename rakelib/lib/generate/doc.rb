@@ -901,6 +901,8 @@ module WXRuby3
                   fdoc.doc.indent { gen_item_requirements(fdoc, ovl) }
                 end
                 fdoc.puts "def #{name}(*args) end"
+                # in case all overloads were ignored there will be no SWIG generated alias
+                no_gen_alias = docs.all? { |ovl, _, _| ovl.ignored }
               else
                 mtd, params, doc = docs.shift
                 fdoc.doc.puts doc
@@ -910,9 +912,11 @@ module WXRuby3
                 else
                   fdoc.puts "def #{name}(#{params}) end"
                 end
+                # in case the documented method was ignored there will be no SWIG generated alias
+                no_gen_alias = mtd.ignored
               end
-              # check for SWIG generated aliases
-              if alias_methods.has_key?(cm.name)
+              # check for SWIG generated aliases (skip ignored method defs as these will not have SWIG generated aliases)
+              if !no_gen_alias && alias_methods.has_key?(cm.name)
                 fdoc.puts "alias_method :#{alias_methods[cm.name]}, :#{name}"
               else
                 # check for aliases that will be available from WxRubyStyleAccessors at runtime
@@ -921,7 +925,8 @@ module WXRuby3
                              when /\Aget_(\w+)/
                                $1
                              when /\Aset_(\w+)/
-                               if mtd_head.all.any? { |ovl| ovl.parameter_count > 0 && ovl.required_param_count < 2 }
+                               # only document alias if at least 1 method overload has a single required argument
+                               if docs.any? { |ovl, _, _| ovl.parameter_count > 0 && ovl.required_param_count < 2 }
                                  "#{$1}="
                                else
                                  nil

@@ -27,4 +27,16 @@ module Wx
 
   end
 
+  class CommandEvent < Event
+
+    alias :set_client_data :set_client_object
+
+    alias :client_data= :set_client_object
+
+    alias :get_client_data :get_client_object
+
+    alias :client_data :get_client_object
+
+  end
+
 end

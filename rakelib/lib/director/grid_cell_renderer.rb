@@ -12,8 +12,6 @@ module WXRuby3
 
     class GridCellRenderer < Director
 
-      include Typemap::GridClientData
-
       def setup
         super
         spec.gc_as_untracked

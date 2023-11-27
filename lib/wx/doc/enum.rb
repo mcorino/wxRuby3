@@ -68,6 +68,21 @@ module Wx
     # @return [Boolean]
     def !; end
 
+    # Returns true if all bits that are set (=1) in mask are also set in self; returns false otherwise.
+    # @param [Integer] mask
+    # @return [Boolean]
+    def allbits?(mask) end
+
+    # Returns true if any bit that is set (=1) in mask is also set in self; returns false otherwise.
+    # @param [Integer] mask
+    # @return [Boolean]
+    def anybits?(mask) end
+
+    # Returns true if no bit that is set (=1) in mask is also set in self; returns false otherwise.
+    # @param [Integer] mask
+    # @return [Boolean]
+    def nobits?(mask) end
+
     # Return next integer value from enum's value.
     # @return [Integer] next integer value
     def succ; end

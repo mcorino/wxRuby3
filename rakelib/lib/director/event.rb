@@ -141,33 +141,40 @@ module WXRuby3
           # make Ruby director and wrappers use custom implementation
           spec.use_class_implementation('wxCommandEvent', 'wxRubyCommandEvent')
           spec.ignore %w{
-            wxCommandEvent::GetClientObject
-            wxCommandEvent::SetClientObject
+            wxCommandEvent::GetClientData
+            wxCommandEvent::SetClientData
             wxCommandEvent::GetExtraLong
           }
+          # ignore but keep doc; will replace with custom versions
+          spec.ignore %w[wxCommandEvent::GetClientObject wxCommandEvent::SetClientObject], ignore_doc: false
+          # for doc gen only
+          spec.map 'wxClientData*' => 'Object', swig: false do
+            map_in code: ''
+            map_out code: ''
+          end
           # need this to force alloc func
           spec.make_concrete 'wxCommandEvent'
           spec.add_header_code <<~__HEREDOC
             // Cf wxEvent - has to be written as a C+++ subclass to ensure correct
             // GC/thread protection of Ruby instance variables when user-written
             // event classes are queued.
-            //
-            //
-            // FIXME : intermittent errors with CommandEvent losing the tracked
-            // object before handling - though the same code works fine with Wx::Event
             class WXRUBY_EXPORT wxRubyCommandEvent : public wxCommandEvent
             {
             public:
               wxRubyCommandEvent(wxEventType commandType = wxEVT_NULL, 
-                                 int id = 0) : 
-                wxCommandEvent(commandType, id) { }
-              wxRubyCommandEvent(const wxRubyCommandEvent& cev) :
-                wxCommandEvent(cev) { }
+                                 int id = 0) 
+                : wxCommandEvent(commandType, id) 
+              { }
+              wxRubyCommandEvent(const wxRubyCommandEvent& cev) 
+                : wxCommandEvent(cev) 
+                , has_ruby_data_(cev.has_ruby_data_) 
+              { }
             
               // When the C++ side event is destroyed, unlink from the Ruby object
               // and remove that object from the tracking hash so it can be
               // collected by GC.
-              virtual ~wxRubyCommandEvent() {
+              virtual ~wxRubyCommandEvent() 
+              {
                 SWIG_RubyUnlinkObjects((void*)this);
                 wxRuby_RemoveTracking((void*)this);
               }
@@ -176,7 +183,8 @@ module WXRuby3
               // (often when using Threads), because a clone is queued. So copy the
               // Wx C++ event, create a shallow (dup) of the Ruby event object, and
               // add to the tracking hash so that it is GC-protected
-              virtual wxCommandEvent* Clone() const {
+              virtual wxCommandEvent* Clone() const 
+              {
                 wxRubyCommandEvent* wx_ev = new wxRubyCommandEvent(*this);
             
                 VALUE r_obj = SWIG_RubyInstanceFor((void *)this);
@@ -186,7 +194,86 @@ module WXRuby3
                 wxRuby_AddTracking( (void*)wx_ev, r_obj_dup );
                 return wx_ev;
               }
+
+              bool has_ruby_data_ {};
             };
+
+
+            // wxRuby must preserve ruby objects attached as the ClientData of
+            // command events that have been user-defined in ruby. Some of the
+            // standard wxWidgets CommandEvent classes also use ClientData
+            // for their own purposes, and this must not be marked as the data is
+            // not a ruby object, and will thus crash.
+            WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
+            {
+            #ifdef __WXRB_DEBUG__
+              if (wxRuby_TraceLevel()>1)
+                std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
+            #endif
+            
+              if ( ! ptr ) return;
+              wxEvent* wx_event = (wxEvent*)ptr;
+            #ifdef __WXRB_DEBUG__
+              if (wxRuby_TraceLevel()>2)
+                std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
+            #endif
+              if (wx_event->IsCommandEvent())
+              {
+                wxCommandEvent* wx_cm_event = (wxCommandEvent*)ptr;
+                if (wx_cm_event->GetClientObject() == nullptr && wx_cm_event->GetClientData() != nullptr)
+                {
+                  wxRubyCommandEvent* rbcev = dynamic_cast<wxRubyCommandEvent*> (wx_cm_event);
+                  if (rbcev && rbcev->has_ruby_data_)
+                  {
+                    VALUE rb_client_data = (VALUE)wx_cm_event->GetClientData();
+                    rb_gc_mark(rb_client_data);
+                  }
+                }
+              }
+            
+            #ifdef __WXRB_DEBUG__
+              if (wxRuby_TraceLevel()>1)
+                std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
+            #endif
+            }
+            __HEREDOC
+          # CommandEvent requires custom handling of client data.
+          # As command events do not 'own' their wxClientData objects we cannot use the regular support
+          # for setting client data from Ruby as that would cause memory leaks by creating wxRubyClientData
+          # instances that would never get deleted.
+          # On the other hand wxWidgets library code might still set wxClientData instances propagated from
+          # control or item client data which needs to be used for returning client data with GetClientObject.
+          # As wxRuby client data always is any arbitrary Ruby Object anyway we simply combine the two approaches wxWidgets
+          # offers here under 1 set of methods.
+          spec.include 'wxruby-ClientData.h'
+          spec.add_extend_code 'wxCommandEvent', <<~__HEREDOC
+            VALUE GetClientObject()
+            {
+              VALUE rc = Qnil;
+              // return Ruby client data depending on what's available
+              if ($self->GetClientObject())
+              {
+                wxRubyClientData* rbcd = dynamic_cast<wxRubyClientData*> ($self->GetClientObject());
+                if (rbcd) rc = rbcd->GetData();
+              }
+              else if ($self->GetClientData() != nullptr)
+              {
+                wxRubyCommandEvent* rbcev = dynamic_cast<wxRubyCommandEvent*> ($self);
+                if (rbcev && rbcev->has_ruby_data_) rc = (VALUE)$self->GetClientData();
+              }
+              return rc;
+            }
+
+            void SetClientObject(VALUE cd)
+            {
+              wxRubyCommandEvent* rbcev = dynamic_cast<wxRubyCommandEvent*> ($self);
+              if (rbcev)
+              {
+                // use SetClientData as not to create memory leaks; GC marker for events will keep it alive
+                $self->SetClientData(NIL_P(cd) ? nullptr : (void*)cd);
+                rbcev->has_ruby_data_ = !NIL_P(cd);
+              }
+            }
             __HEREDOC
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetDefaultEventClass() 

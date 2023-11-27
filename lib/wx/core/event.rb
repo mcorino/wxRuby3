@@ -29,7 +29,7 @@ module Wx
     alias :id :get_id
   end
 
-  class Wx::CommandEvent
+  class CommandEvent
 
     # overload the #initialize method to add a check on a
     # correct match between EventType and event class
@@ -42,6 +42,11 @@ module Wx
         ::Kernel.raise ArgumentError, "Invalid event type #{Wx::EvtHandler.event_name_for_type(evt_type)}:#{evt_type} for class #{self.class}"
       end
     end
+
+    alias :set_client_data :set_client_object
+    alias :client_data= :set_client_object
+    alias :get_client_data :get_client_object
+    alias :client_data :get_client_object
 
   end
 
