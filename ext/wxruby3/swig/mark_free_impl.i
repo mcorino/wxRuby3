@@ -309,40 +309,4 @@ WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
     std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
 #endif
 }
-
-// wxRuby must preserve ruby objects attached as the ClientData of
-// command events that have been user-defined in ruby. Some of the
-// standard wxWidgets CommandEvent classes (which have a constant event
-// id less than wxEVT_USER_FIRST, from wx/event.h) also use ClientData
-// for their own purposes, and this must not be marked as the data is
-// not a ruby object, and will thus crash.
-WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
-{
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
-#endif
-
-  if ( ! ptr ) return;
-  wxEvent* wx_event = (wxEvent*)ptr;
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>2)
-    std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
-#endif
-  if ( wx_event->GetEventType() > wxEVT_USER_FIRST &&
-       wx_event->IsCommandEvent() )
-	{
-	  wxCommandEvent* wx_cm_event = (wxCommandEvent*)ptr;
-	  if (wx_cm_event->GetClientData())
-	  {
-	    VALUE rb_client_data = (VALUE)wx_cm_event->GetClientData();
-	    rb_gc_mark(rb_client_data);
-    }
-	}
-
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
-#endif
-}
 %}
