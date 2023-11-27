@@ -37,6 +37,9 @@ module Wx
     alias :get_client_data :get_client_object
     alias :set_client_data :set_client_object
 
+    alias :has_client_data :has_client_object_data
+    alias :has_client_data? :has_client_object_data
+
     alias :get_item_data :get_client_object
     alias :set_item_data :set_client_object
 
