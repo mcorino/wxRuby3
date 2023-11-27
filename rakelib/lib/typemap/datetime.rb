@@ -42,7 +42,7 @@ module WXRuby3
           map_directorin code: '$input = wxRuby_wxDateTimeToRuby($1);'
 
           map_typecheck precedence: 'SWIGOBJECT', code: <<~__CODE
-            $1 = rb_obj_is_kind_of($input, rb_cTime) || rb_respond_to($input, rb_intern ("to_time"));
+            $1 = NIL_P($input) || rb_obj_is_kind_of($input, rb_cTime) || rb_respond_to($input, rb_intern ("to_time"));
             __CODE
         end
 
