@@ -13,6 +13,10 @@ module Wx
 
     alias :set_client_data :set_client_object
 
+    alias :has_client_data :has_client_object_data
+
+    alias :has_client_data? :has_client_object_data
+
     # Yield each string to the given block.
     # Returns an Enumerator if no block given.
     # @yieldparam [String] string the string yielded
