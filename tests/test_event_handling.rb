@@ -13,10 +13,13 @@ class EventHandlingTests < Test::Unit::TestCase
     end
   end
 
+  CLIENT_DATA = {one: 'first'}
+
   class TestCmdEvent < Wx::CommandEvent
     EVT_TEST_CMD_EVENT = Wx::EvtHandler.register_class(self, nil, 'evt_test_cmd_event', 0)
     def initialize(id=0)
       super(EVT_TEST_CMD_EVENT, id)
+      set_client_object(CLIENT_DATA.dup) if id > 0
     end
   end
 
@@ -27,11 +30,18 @@ class EventHandlingTests < Test::Unit::TestCase
         super(parent)
         @test_event = false
         @test_cmd_event = false
+        @test_client_data = false
 
         evt_test_event { |evt| @test_event = true; evt.skip if evt.id > 0 }
-        evt_test_cmd_event { |evt| @test_cmd_event = true; evt.skip if evt.id > 0 }
+        evt_test_cmd_event do |evt|
+          @test_cmd_event = true
+          if evt.id > 0
+            @test_client_data = (evt.get_client_data == CLIENT_DATA)
+            evt.skip
+          end
+        end
       end
-      attr_reader :test_event, :test_cmd_event
+      attr_reader :test_event, :test_cmd_event, :test_client_data
 
       def reset
         @test_event = false
@@ -83,85 +93,93 @@ class EventHandlingTests < Test::Unit::TestCase
 
   def test_cmd_event
     win = TestFrame.new
-    assert(!win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.child.event_handler.process_event(TestCmdEvent.new)
-    assert(!win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_false(win.child.test_client_data)
     win.reset
     win.child.event_handler.process_event(TestCmdEvent.new(1))
-    assert(win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_true(win.child.test_client_data)
     win.reset
     win.event_handler.process_event(TestCmdEvent.new)
-    assert(win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.destroy
     Wx.get_app.yield
   end
 
   def test_queue_event
     win = TestFrame.new
-    assert(!win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.child.event_handler.queue_event(TestCmdEvent.new)
     Wx.get_app.yield
-    assert(!win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_false(win.child.test_client_data)
     win.reset
     win.child.event_handler.queue_event(TestCmdEvent.new(1))
     Wx.get_app.yield
-    assert(win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_true(win.child.test_client_data)
     win.reset
     win.event_handler.queue_event(TestCmdEvent.new)
     Wx.get_app.yield
-    assert(win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.destroy
     Wx.get_app.yield
   end
 
   def test_pending_event
     win = TestFrame.new
-    assert(!win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.child.event_handler.add_pending_event(TestCmdEvent.new)
     Wx.get_app.yield
-    assert(!win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_false(win.child.test_client_data)
     win.reset
     win.child.event_handler.add_pending_event(TestCmdEvent.new(1))
     Wx.get_app.yield
-    assert(win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_true(win.child.test_client_data)
     win.reset
     win.event_handler.add_pending_event(TestCmdEvent.new)
     Wx.get_app.yield
-    assert(win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.destroy
     Wx.get_app.yield
   end
 
   def test_post_event
     win = TestFrame.new
-    assert(!win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     Wx.post_event(win.child.event_handler, TestCmdEvent.new)
     Wx.get_app.yield
-    assert(!win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_false(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_false(win.child.test_client_data)
     win.reset
     Wx.post_event(win.child.event_handler, TestCmdEvent.new(1))
     Wx.get_app.yield
-    assert(win.test_cmd_event)
-    assert(win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_true(win.child.test_cmd_event)
+    assert_true(win.child.test_client_data)
     win.reset
     Wx.post_event(win.event_handler, TestCmdEvent.new)
     Wx.get_app.yield
-    assert(win.test_cmd_event)
-    assert(!win.child.test_cmd_event)
+    assert_true(win.test_cmd_event)
+    assert_false(win.child.test_cmd_event)
     win.destroy
     Wx.get_app.yield
   end
