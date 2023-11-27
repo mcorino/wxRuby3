@@ -25,13 +25,15 @@ module WXRuby3
           VALUE get_range() 
           {
             wxDateTime dt1, dt2;
-            $self->GetRange(&dt1, &dt2);
-       
-            VALUE items = rb_ary_new();
-            rb_ary_push(items, wxRuby_wxDateTimeToRuby(dt1));
-            rb_ary_push(items, wxRuby_wxDateTimeToRuby(dt2));
+            if ($self->GetRange(&dt1, &dt2))
+            {
+              VALUE items = rb_ary_new();
+              rb_ary_push(items, wxRuby_wxDateTimeToRuby(dt1));
+              rb_ary_push(items, wxRuby_wxDateTimeToRuby(dt2));
          
-            return items;
+              return items;
+            }
+            return Qnil;
           }
           __HEREDOC
       end
