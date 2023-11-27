@@ -19,6 +19,10 @@ module Widgets
           @tracker.__send__(:start_tracking_data)
         end
 
+        def client_data_unlinked
+          @tracker.__send__(:stop_tracking_data)
+        end
+
         def get_value
           @value
         end
@@ -34,8 +38,6 @@ module Widgets
       def on_button_test_item_container(event)
         @container = get_container
         ::Kernel.raise RuntimeError, 'Widget must have a test widget' unless @container
-
-        @container.on_unlink_client_data { stop_tracking_data }
 
         Wx.log_message('wxItemContainer test for %s, %s:',
                        get_widget.class.name,
@@ -70,8 +72,6 @@ module Widgets
           end
           end_test(expected_result)
         end
-
-        @container.on_unlink_client_data(nil)
       end
 
       def get_container
@@ -99,13 +99,12 @@ module Widgets
             break
           end
 
-          if @container.has_client_untyped_data
+          if @container.has_client_data?
             data = @container.get_client_data(i)
             if data && !verify_client_data(data.get_value, str)
               ok = false
               break
             end
-          # elsif @container.has_client_object_data  # NOT supported by wxRuby
           end
         end
 
@@ -158,7 +157,7 @@ module Widgets
 
         @container.each_string.each_with_index do |s, i|
           str << " - " << s << " ["
-          if @container.has_client_untyped_data
+          if @container.has_client_data?
               data = @container.get_client_data(i)
               str << data.get_value.to_s if data
           end
