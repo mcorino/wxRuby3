@@ -189,6 +189,24 @@ module WXRuby3
           __HEREDOC
         super
       end
+
+      def process(gendoc: false)
+        defmod = super
+        # fix documentation errors for generic dirctrl events
+        def_item = defmod.find_item('wxApp')
+        if def_item
+          def_item.event_types.each do |evt_spec|
+            case evt_spec.first
+            when 'EVT_DIALUP_CONNECTED', 'EVT_DIALUP_DISCONNECTED'
+              if evt_spec[3].nil?
+                evt_spec[3] = 'wxDialUpEvent' # missing from docs
+              end
+            end
+          end
+        end
+        defmod
+      end
+
     end
 
   end # class Director

@@ -20,6 +20,23 @@ module WXRuby3
         spec.do_not_generate(:variables, :defines, :enums, :functions) # already with DirFilterListCtrl
       end
 
+      def process(gendoc: false)
+        defmod = super
+        # fix documentation errors for generic dirctrl events
+        def_item = defmod.find_item('wxGenericDirCtrl')
+        if def_item
+          def_item.event_types.each do |evt_spec|
+            case evt_spec.first
+            when 'EVT_DIRCTRL_SELECTIONCHANGED', 'EVT_DIRCTRL_FILEACTIVATED'
+              if evt_spec[3].nil?
+                evt_spec[3] = 'wxTreeEvent' # missing from docs
+              end
+            end
+          end
+        end
+        defmod
+      end
+
     end # class GenericDirCtrl
 
   end # class Director
