@@ -185,7 +185,6 @@ module Widgets
 
       def on_sel_changed(event)
         if @dirCtrl
-          STDERR.puts "#{event.item}.ok? =  #{event.item.ok?} -> #{@dirCtrl.path(event.item)}"
           Wx.log_message("Selection changed to \"%s\"",
                          @dirCtrl.path(event.item))
         end
