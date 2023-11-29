@@ -1179,20 +1179,20 @@ module Widgets
 
 end
 
-require_relative './activityindicator'
-require_relative './bmpcombobox'
-require_relative './button'
-require_relative './checkbox'
-require_relative './choice'
-require_relative './clrpicker'
-require_relative './combobox'
-require_relative './datepick'
-require_relative './dirctrl'
-require_relative './dirpicker'
-require_relative './editlbox'
-require_relative './filectrl'
-require_relative './filepicker'
-require_relative './fontpicker'
+require_relative './activityindicator' if Wx.has_feature?(:USE_ACTIVITYINDICATOR)
+require_relative './bmpcombobox' if Wx.has_feature?(:USE_BITMAPCOMBOBOX)
+require_relative './button' if Wx.has_feature?(:USE_BUTTON)
+require_relative './checkbox' if Wx.has_feature?(:USE_CHECKBOX)
+require_relative './choice'  if Wx.has_feature?(:USE_CHOICE)
+require_relative './clrpicker' if Wx.has_feature?(:USE_COLOURPICKERCTRL) && Wx.has_feature?(:USE_COLOURDLG)
+require_relative './combobox' if Wx.has_feature?(:USE_COMBOBOX)
+require_relative './datepick' if Wx.has_feature?(:USE_DATEPICKCTRL)
+require_relative './dirctrl'  if Wx.has_feature?(:USE_FILEDLG) || Wx.has_feature?(:USE_DIRDLG)
+require_relative './dirpicker' if Wx.has_feature?(:USE_DIRPICKERCTRL) && Wx.has_feature?(:USE_DIRDLG)
+require_relative './editlbox' if Wx.has_feature?(:USE_EDITABLELISTBOX)
+require_relative './filectrl' if Wx.has_feature?(:USE_FILECTRL)
+require_relative './filepicker' if Wx.has_feature?(:USE_FILEPICKERCTRL) && Wx.has_feature?(:USE_FILEDLG)
+require_relative './fontpicker' if Wx.has_feature?(:USE_FONTPICKERCTRL) && Wx.has_feature?(:USE_FONTDLG)
 require_relative './textctrl'
 
 Widgets::App.run
