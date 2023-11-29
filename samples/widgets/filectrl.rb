@@ -22,8 +22,8 @@ module Widgets
         SetFilename = self.next_id
         Ctrl = self.next_id
 
-        ID::Open = 0
-        ID::Save = 1
+        FileCtrlMode_Open = 0
+        FileCtrlMode_Save = 1
       end
 
       def initialize(book, images)
@@ -161,7 +161,7 @@ module Widgets
       # reset the control parameters
       def reset
         @dir.set_value(@fileCtrl.directory)
-        @radioFileCtrlMode.set_selection(Wx::FC_DEFAULT_STYLE.allbits?(Wx::FC_OPEN) ? ID::Open : ID::Save)
+        @radioFileCtrlMode.set_selection(Wx::FC_DEFAULT_STYLE.allbits?(Wx::FC_OPEN) ? ID::FileCtrlMode_Open : ID::FileCtrlMode_Save)
       end
   
       # (re)create the m_fileCtrl
@@ -170,7 +170,7 @@ module Widgets
 
           style = get_attrs.default_flags
 
-          if @radioFileCtrlMode.selection == ID::Open
+          if @radioFileCtrlMode.selection == ID::FileCtrlMode_Open
             style |= Wx::FC_OPEN
             @chkMultiple.enable
             style |= Wx::FC_MULTIPLE if @chkMultiple.is_checked
