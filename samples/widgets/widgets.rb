@@ -1189,6 +1189,7 @@ require_relative './combobox'
 require_relative './datepick'
 require_relative './dirctrl'
 require_relative './dirpicker'
+require_relative './editlbox'
 require_relative './textctrl'
 
 Widgets::App.run
