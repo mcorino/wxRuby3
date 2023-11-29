@@ -1191,6 +1191,7 @@ require_relative './dirctrl'
 require_relative './dirpicker'
 require_relative './editlbox'
 require_relative './filectrl'
+require_relative './filepicker'
 require_relative './textctrl'
 
 Widgets::App.run
