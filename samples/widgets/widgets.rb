@@ -1193,6 +1193,7 @@ require_relative './editlbox' if Wx.has_feature?(:USE_EDITABLELISTBOX)
 require_relative './filectrl' if Wx.has_feature?(:USE_FILECTRL)
 require_relative './filepicker' if Wx.has_feature?(:USE_FILEPICKERCTRL) && Wx.has_feature?(:USE_FILEDLG)
 require_relative './fontpicker' if Wx.has_feature?(:USE_FONTPICKERCTRL) && Wx.has_feature?(:USE_FONTDLG)
+require_relative './gauge' if Wx.has_feature?(:USE_GAUGE)
 require_relative './textctrl'
 
 Widgets::App.run
