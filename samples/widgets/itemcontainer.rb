@@ -2,7 +2,7 @@
 #
 # This software is released under the MIT license.
 #
-# Adapted for wxRuby from wxWidgets richtext sample
+# Adapted for wxRuby from wxWidgets widgets sample
 # Copyright (c) 2001 Vadim Zeitlin
 
 module Widgets
