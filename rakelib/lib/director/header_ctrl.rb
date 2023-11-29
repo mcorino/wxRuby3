@@ -28,6 +28,11 @@ module WXRuby3
                               visibility: 'protected'
         # handled; can be suppressed
         spec.suppress_warning(473, 'wxHeaderCtrl::GetColumn', 'wxHeaderCtrlSimple::GetColumn')
+        # ignore here as already available through HeaderCtrlEvent
+        spec.ignore '@.wxHD_ALLOW_REORDER',
+                    '@.wxHD_ALLOW_HIDE',
+                    '@.wxHD_BITMAP_ON_RIGHT',
+                    '@.wxHD_DEFAULT_STYLE'
         spec.do_not_generate :typedefs, :variables, :defines, :functions
       end
     end # class HeaderCtrl
