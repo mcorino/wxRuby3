@@ -325,6 +325,12 @@ Wx::define_keyword_ctors(Wx::CheckListBox) do
   wx_ctor_params :validator, :name => 'listBox'
 end
 
+# wxEditableListBox - an editable listbox is composite control that lets the user easily enter, delete and reorder a list of strings.
+Wx::define_keyword_ctors(Wx::EditableListBox) do
+  wx_ctor_params :id, :label, :pos, :size, :style => Wx::EL_DEFAULT_STYLE
+  wx_ctor_params :name => 'editableListBox'
+end
+
 # wxChoice 	Choice control (a combobox without the editable area)
 Wx::define_keyword_ctors(Wx::Choice) do
   wx_ctor_params :id, :pos, :size, :choices, :style
