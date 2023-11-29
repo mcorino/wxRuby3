@@ -593,3 +593,9 @@ Wx::define_keyword_ctors(Wx::RearrangeCtrl) do
   wx_ctor_params :id, :pos, :size, :order, :items, :style
   wx_ctor_params :validator, :name => 'rearrangeCtrl'
 end
+
+Wx::define_keyword_ctors(Wx::HeaderCtrlSimple) do
+  wx_ctor_params :winid => Wx::ID_ANY
+  wx_ctor_params :pos, :size, :style => Wx::HD_DEFAULT_STYLE
+  wx_ctor_params :name => 'headerCtrlSimple'
+end
