@@ -120,29 +120,29 @@ module Widgets
       protected
       
       # event handlers
-      def on_button_set_directory(event)
+      def on_button_set_directory(_event)
         @fileCtrl.set_directory(@dir.value)
       end
 
-      def on_button_set_path(event)
+      def on_button_set_path(_event)
         @fileCtrl.set_path(@path.value)
       end
 
-      def on_button_set_filename(event)
+      def on_button_set_filename(_event)
         @fileCtrl.set_filename(@filename.value)
       end
 
-      def on_button_reset(event)
+      def on_button_reset(_event)
         reset
 
         create_file_ctrl
       end
 
-      def on_check_box(event)
+      def on_check_box(_event)
         create_file_ctrl
       end
 
-      def on_switch_mode(event)
+      def on_switch_mode(_event)
         create_file_ctrl
       end
 
