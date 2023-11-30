@@ -1196,6 +1196,7 @@ require_relative './fontpicker' if Wx.has_feature?(:USE_FONTPICKERCTRL) && Wx.ha
 require_relative './gauge' if Wx.has_feature?(:USE_GAUGE)
 require_relative './headerctrl'
 require_relative './hyperlink' if Wx.has_feature?(:USE_HYPERLINKCTRL)
+require_relative './listbox' if Wx.has_feature?(:USE_LISTBOX)
 require_relative './textctrl'
 
 Widgets::App.run
