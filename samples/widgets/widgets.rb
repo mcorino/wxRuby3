@@ -1197,6 +1197,7 @@ require_relative './gauge' if Wx.has_feature?(:USE_GAUGE)
 require_relative './headerctrl'
 require_relative './hyperlink' if Wx.has_feature?(:USE_HYPERLINKCTRL)
 require_relative './listbox' if Wx.has_feature?(:USE_LISTBOX)
+require_relative './notebook' if Wx.has_feature?(:USE_NOTEBOOK) || Wx.has_feature?(:USE_LISTBOOK) || Wx.has_feature?(:USE_CHOICEBOOK)
 require_relative './textctrl'
 
 Widgets::App.run
