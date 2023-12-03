@@ -267,6 +267,7 @@ module WXRuby3
                           "#{spec.class_name(citem)}::SetAcceleratorTable",
                           "#{spec.class_name(citem)}::SetBackgroundColour",
                           "#{spec.class_name(citem)}::SetBackgroundStyle",
+                          "#{spec.class_name(citem)}::HasTransparentBackground",
                           "#{spec.class_name(citem)}::SetCursor",
                           "#{spec.class_name(citem)}::SetFocus",
                           "#{spec.class_name(citem)}::SetFocusFromKbd",
