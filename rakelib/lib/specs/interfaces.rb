@@ -81,6 +81,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxComboBox', requirements: %w[USE_COMBOBOX])
     Director.Spec(pkg, 'wxBitmapComboBox', requirements: %w[USE_BITMAPCOMBOBOX])
     Director.Spec(pkg, 'wxComboCtrl', requirements: %w[USE_COMBOCTRL])
+    Director.Spec(pkg, 'wxOwnerDrawnComboBox', requirements: %w[USE_ODCOMBOBOX ])
     Director.Spec(pkg, 'wxRadioBox', requirements: %w[USE_RADIOBOX])
     Director.Spec(pkg, 'wxPanel')
     Director.Spec(pkg, 'wxWithImages')

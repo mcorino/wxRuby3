@@ -53,6 +53,15 @@ module Wx
       end
     end
 
+    # define these aliases so controls like ComboBox and OwnerDrawnComboBox and the like all end up with
+    # similar methods
+
+    alias :get_list_selection :get_selection
+    alias :set_list_selection :set_selection
+
+    alias :get_list_string_selection :get_string_selection
+    alias :set_list_string_selection :set_string_selection
+
   end
 
 end

@@ -360,6 +360,14 @@ Wx::define_keyword_ctors(Wx::ComboCtrl) do
   wx_ctor_params :validator, :name => 'comboCtrl'
 end
 
+# wxOwnerDrawnComboBox
+Wx::define_keyword_ctors(Wx::OwnerDrawnComboBox) do
+  wx_ctor_params :id, :value => ''
+  wx_ctor_params :pos, :size, :choices => []
+  wx_ctor_params :style
+  wx_ctor_params :validator, :name => 'ownerDrawnComboBox'
+end
+
 # wxGauge 	A control to represent a varying quantity, such as time
 # remaining
 Wx::define_keyword_ctors(Wx::Gauge) do
