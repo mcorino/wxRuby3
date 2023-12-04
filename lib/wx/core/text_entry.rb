@@ -14,6 +14,9 @@ module Wx
     define_method :auto_complete do |completer|
       if wx_auto_complete.bind(self).call(completer)
         @completer = completer.is_a?(Wx::TextCompleter) ? completer : nil # keep the Ruby object alive or cleanup
+        true
+      else
+        false
       end
     end
 
