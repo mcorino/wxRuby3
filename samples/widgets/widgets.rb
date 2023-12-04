@@ -790,7 +790,7 @@ module Widgets
         return
       end
   
-      completion_choices = (?a-?z).collect { |c| c*2 }
+      completion_choices = (?a..?z).collect { |c| c*2 }
       completion_choices <<
         'is this string for test?' <<
         'this is a test string' <<
@@ -864,28 +864,28 @@ module Widgets
 
       def get_completions(prefix)
         res = []
-        begin
+        1.times do
           # Wait for enough text to be entered before proposing completions:
           # this is done to avoid proposing too many of them when the
           # control is empty, for example.
-          return if prefix.size < @min_length
+          break if prefix.size < @min_length
 
           # The only valid strings start with 3 digits so check for their
           # presence proposing to complete the remaining ones.
-          return unless prefix.start_with?(/\d/)
+          break unless prefix.start_with?(/\d/)
 
           if prefix.size == 1
             10.times { |i| 10.times { |j| res << "#{prefix}#{i}#{j}"} }
-            return
+            break
           else
-            return unless (?0..?9).include?(prefix[1])
+            break unless (?0..?9).include?(prefix[1])
           end
 
           if prefix.size == 2
             10.times { |i| res << "#{prefix}#{i}" }
-            return
+            break
           else
-            return unless (?0..?9).include?(prefix[2])
+            break unless (?0..?9).include?(prefix[2])
           end
 
           # Next we must have a space and two letters.
@@ -893,14 +893,14 @@ module Widgets
           if prefix.size == 3
             prefix2 += ' '
           elsif prefix[3] != ' '
-            return
+            break
           end
 
           if prefix2.size == 4
-            (?a..?z).each { |c| (?a..?z).each { |d| res << "#{prefix}#{c}#{d}"} }
-            return
+            (?a..?z).each { |c| (?a..?z).each { |d| res << "#{prefix2}#{c}#{d}"} }
+            break
           else
-            return unless (?a..?z).include?(prefix[4])
+            break unless (?a..?z).include?(prefix[4])
           end
 
           if prefix.size == 5
@@ -911,6 +911,7 @@ module Widgets
           # completions we return every time when we're called.
           Wx.log_message("Returning #{res.size} possible completions for prefix \"#{prefix}\"")
         end
+        res
       end
 
     end
