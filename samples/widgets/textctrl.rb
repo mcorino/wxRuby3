@@ -145,7 +145,7 @@ module Widgets
         @selTo = -2 # not -1 which means "no selection"
       end
 
-      Info = Widgets::PageInfo.new(self, 'TextCtrl', Widgets::NATIVE_CTRLS | Widgets::EDITABLE_CTRLS)
+      Info = Widgets::PageInfo.new(self, 'Text', Widgets::NATIVE_CTRLS | Widgets::EDITABLE_CTRLS)
 
       def get_widget
         @text
