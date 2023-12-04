@@ -712,8 +712,6 @@ module Widgets
         ::Kernel.raise RuntimeError, 'unknown border style'
       end
 
-      p border
-
       Page::ATTRS.default_flags &= ~Wx::BORDER_MASK
       Page::ATTRS.default_flags |= border
   
@@ -1199,6 +1197,7 @@ require_relative './hyperlink' if Wx.has_feature?(:USE_HYPERLINKCTRL)
 require_relative './listbox' if Wx.has_feature?(:USE_LISTBOX)
 require_relative './notebook' if Wx.has_feature?(:USE_NOTEBOOK) || Wx.has_feature?(:USE_LISTBOOK) || Wx.has_feature?(:USE_CHOICEBOOK)
 require_relative './odcombobox' if Wx.has_feature?(:USE_ODCOMBOBOX)
+require_relative './radiobox' if Wx.has_feature?(:USE_RADIOBOX)
 require_relative './textctrl'
 
 Widgets::App.run
