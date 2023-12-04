@@ -26,6 +26,10 @@ module WXRuby3
         spec.add_header_code '#define wxTextEntry wxTextEntryBase'
         spec.disown 'wxTextCompleter *completer' # managed by wxWidgets after passing in
         spec.map_apply 'long * OUTPUT' => 'long *' # for GetSelection
+        # missing non-pure virtual overrides in docs for wxTextCompleterSimple
+        spec.extend_interface 'wxTextCompleterSimple',
+                              'virtual bool Start(const wxString &prefix)',
+                              'virtual wxString GetNext()'
         # for wxTextCompleterSimple::GetCompletions
         spec.map 'wxArrayString &res' => 'Array<String>' do
 
