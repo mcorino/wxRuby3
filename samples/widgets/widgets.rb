@@ -1201,6 +1201,7 @@ require_relative './odcombobox' if Wx.has_feature?(:USE_ODCOMBOBOX)
 require_relative './radiobox' if Wx.has_feature?(:USE_RADIOBOX)
 require_relative './searchctrl' if Wx.has_feature?(:USE_SEARCHCTRL)
 require_relative './slider' if Wx.has_feature?(:USE_SLIDER)
+require_relative './spinbtn' if Wx.has_feature?(:USE_SPINBTN)
 require_relative './textctrl'
 
 Widgets::App.run
