@@ -59,6 +59,7 @@ module Wx
       # @param [String,nil] art_path base path to look up the art file
       # @param [String,nil] art_section optional owner folder name for art files
       # @param [Wx::BitmapType,nil] bmp_type bitmap type of art file
+      # @return [String,nil] full path of art file or nil if not found
       def find_art(art_name, art_type: nil, art_path: nil, art_section: nil, bmp_type: nil) end
 
     end
