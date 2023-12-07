@@ -211,7 +211,8 @@ module WXRuby3
 
         map 'wxSize&' => 'Array(Integer, Integer), Wx::Size',
             'wxPoint&' => 'Array(Integer, Integer), Wx::Point' do
-          map_in code: <<~__CODE
+          add_header_code '#include <memory>'
+          map_in temp: 'std::unique_ptr<$1_basetype> tmp', code: <<~__CODE
             if ( TYPE($input) == T_DATA )
             {
               void* argp$argnum;
@@ -222,8 +223,7 @@ module WXRuby3
             {
               $1 = new $1_basetype( NUM2INT( rb_ary_entry($input, 0) ),
                                    NUM2INT( rb_ary_entry($input, 1) ) );
-              // Create a ruby object so the C++ obj is freed when GC runs
-              SWIG_NewPointerObj($1, $1_descriptor, 1);
+              tmp.reset($1); // auto destruct when method scope ends 
             }
             else
             {
