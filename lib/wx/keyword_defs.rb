@@ -440,9 +440,16 @@ Wx::define_keyword_ctors(Wx::StaticBitmap) do
   wx_ctor_params :id
   # autoconvert Bitmaps to BitmapBundles for downward compatibility
   wx_ctor_params :label
-  wx_ctor_params :pos, :size, :style, :name => Wx::StaticBitmapNameStr
+  wx_ctor_params :pos, :size, :style, :name => Wx::STATIC_BITMAP_NAME_STR
 end
 
+# wxGenericStaticBitmap 	A control to display a bitmap
+Wx::define_keyword_ctors(Wx::GenericStaticBitmap) do
+  wx_ctor_params :id
+  # autoconvert Bitmaps to BitmapBundles for downward compatibility
+  wx_ctor_params :label
+  wx_ctor_params :pos, :size, :style, :name => Wx::STATIC_BITMAP_NAME_STR
+end
 
 # wxRadioBox 	A group of radio buttons
 Wx::define_keyword_ctors(Wx::RadioBox) do
