@@ -52,7 +52,7 @@ class SizerTests < WxRuby::Test::GUITests
     assert_true(children[1].spacer?)
     assert_true(children[2].sizer?)
     frame_win.sizer.each_child do |si|
-      assert_equal(children.shift, si)
+      assert_equal(children.shift.ptr_addr, si.ptr_addr)
     end
   end
 
