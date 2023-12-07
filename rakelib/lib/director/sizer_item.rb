@@ -18,9 +18,12 @@ module WXRuby3
         # memory management of sizer items is a nightmare
         case spec.module_name
         when 'wxSizerItem'
+          spec.gc_as_untracked 'wxSizerItem'
           spec.make_abstract 'wxSizerItem'
           # ignore constructors
           spec.ignore 'wxSizerItem::wxSizerItem'
+          # not really useful in wxRuby
+          spec.ignore 'wxSizerItem::SetUserData', 'wxSizerItem::GetUserData'
           spec.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow])
           # need to adjust sizer arg name to apply disown specs
           spec.ignore 'wxSizerItem::AssignSizer(wxSizer *)', ignore_doc: false
@@ -45,6 +48,7 @@ module WXRuby3
             }
             __HEREDOC
         when 'wxGBSizerItem'
+          spec.gc_as_untracked 'wxGBSizerItem'
           spec.make_abstract 'wxGBSizerItem'
           # ignore constructors
           spec.ignore 'wxGBSizerItem::wxGBSizerItem',
