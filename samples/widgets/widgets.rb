@@ -187,7 +187,7 @@ module Widgets
   class PageInfo
     
     # our ctor
-    def initialize(klass, label, categories)
+    def initialize(klass, label, categories = 0)
       @klass = klass
       @label = label
       @categories = Widgets::ALL_CTRLS | categories
@@ -1202,6 +1202,7 @@ require_relative './radiobox' if Wx.has_feature?(:USE_RADIOBOX)
 require_relative './searchctrl' if Wx.has_feature?(:USE_SEARCHCTRL)
 require_relative './slider' if Wx.has_feature?(:USE_SLIDER)
 require_relative './spinbtn' if Wx.has_feature?(:USE_SPINBTN)
+require_relative './statbmp' if Wx.has_feature?(:USE_STATBMP)
 require_relative './textctrl'
 
 Widgets::App.run
