@@ -60,6 +60,7 @@ module Widgets
     
         @sizerSpin = nil
       end
+
       Info = Widgets::PageInfo.new(self, 'Spin',
                                    NATIVE_CTRLS | EDITABLE_CTRLS)
 
