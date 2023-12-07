@@ -366,7 +366,7 @@ module WXRuby3
         type_list = [type]
         type_list << "#{enum_scope}::#{type.split('::').pop}" unless enum_scope.empty?
         rb_enum_name = if !enum_scope.empty?
-                         "#{enum_scope}::#{rb_wx_name(type.split('::').pop)}"
+                         "#{rb_wx_name(enum_scope)}::#{rb_wx_name(type.split('::').pop)}"
                        else
                          rb_wx_name(type)
                        end
