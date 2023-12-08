@@ -56,4 +56,47 @@ class SizerTests < WxRuby::Test::GUITests
     end
   end
 
+  def test_user_data
+    frame_win.get_sizer.add(Wx::HBoxSizer.new, 0, 0, 0, 'This is user data')
+    frame_win.get_sizer.add(5,5, 0,0,0, %w[This is user data])
+    frame_win.get_sizer.add(Wx::VBoxSizer.new, 0, 0, 0, {1 => 'This', 2 => 'is', 3 => 'user', 4 => 'data'})
+
+    GC.start
+
+    assert_equal(3, frame_win.sizer.item_count)
+    children = frame_win.sizer.get_children
+    assert_equal(3, children.size)
+    assert_kind_of(::String, children[0].user_data)
+    assert_equal('This is user data', children[0].user_data)
+    assert_kind_of(::Array, children[1].user_data)
+    assert_equal(%w[This is user data], children[1].user_data)
+    assert_kind_of(::Hash, children[2].user_data)
+    assert_equal({1 => 'This', 2 => 'is', 3 => 'user', 4 => 'data'}, children[2].user_data)
+
+    klass = Class.new do
+      def initialize
+        @unlinked = false
+      end
+      def client_data_unlinked
+        @unlinked = true
+      end
+      attr_reader :unlinked
+    end
+
+    frame_win.get_sizer.add(Wx::HBoxSizer.new, 0, 0, 0, klass.new)
+
+    GC.start
+
+    assert_equal(4, frame_win.sizer.item_count)
+    assert_kind_of(klass, frame_win.get_sizer.get_item(3).user_data)
+    user_data = frame_win.get_sizer.get_item(3).user_data
+    assert_false(user_data.unlinked)
+    frame_win.get_sizer.get_item(3).set_user_data(nil)
+
+    GC.start
+
+    assert_true(user_data.unlinked)
+    assert_nil(frame_win.get_sizer.get_item(3).user_data)
+  end
+
 end
