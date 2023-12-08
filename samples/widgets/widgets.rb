@@ -1203,6 +1203,7 @@ require_relative './searchctrl' if Wx.has_feature?(:USE_SEARCHCTRL)
 require_relative './slider' if Wx.has_feature?(:USE_SLIDER)
 require_relative './spinbtn' if Wx.has_feature?(:USE_SPINBTN)
 require_relative './statbmp' if Wx.has_feature?(:USE_STATBMP)
+require_relative './static'
 require_relative './textctrl'
 
 Widgets::App.run
