@@ -35,6 +35,29 @@ module WXRuby3
           map_typecheck precedence: 'POINTER', code: '$1 = true;'
         end
 
+        map 'wxObject *userData' => 'Object' do
+          add_header_code <<~__CODE
+            #include "wxruby-ClientData.h"
+            __CODE
+          map_in code: '$1 = NIL_P($input) ? nullptr : new wxRubyUserData($input);'
+
+          map_typecheck precedence: 'POINTER', code: '$1 = true;'
+        end
+
+        # WxUserDataObject must be typedef for wxObject*
+        map 'WxUserDataObject' => 'Object' do
+
+          map_out code: <<~__CODE
+            $result = Qnil;
+            if ($1)
+            {
+              wxRubyUserData* rbud = dynamic_cast<wxRubyUserData*> ($1);
+              if (rbud) $result = rbud->GetData();
+            }
+          __CODE
+
+        end
+
       end
 
     end
