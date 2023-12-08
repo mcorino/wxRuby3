@@ -12,6 +12,8 @@ module WXRuby3
 
     class SizerItem < Director
 
+      include Typemap::ClientData
+
       def setup
         spec.disable_proxies
         # do not allow creating SizerItems in Ruby; this has limited benefits and
@@ -22,8 +24,15 @@ module WXRuby3
           spec.make_abstract 'wxSizerItem'
           # ignore constructors
           spec.ignore 'wxSizerItem::wxSizerItem'
-          # not really useful in wxRuby
-          spec.ignore 'wxSizerItem::SetUserData', 'wxSizerItem::GetUserData'
+          # needs more discriminating return type for type map
+          spec.ignore 'wxSizerItem::GetUserData', ignore_doc: false
+          spec.add_header_code 'typedef wxObject* WxUserDataObject;'
+          spec.extend_interface 'wxSizerItem',
+                                'WxUserDataObject GetUserData() const'
+          # for doc gen only
+          spec.map 'wxObject*' => 'Object', swig: false do
+            map_out code: ''
+          end
           spec.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow])
           # need to adjust sizer arg name to apply disown specs
           spec.ignore 'wxSizerItem::AssignSizer(wxSizer *)', ignore_doc: false
