@@ -1205,6 +1205,7 @@ require_relative './spinbtn' if Wx.has_feature?(:USE_SPINBTN)
 require_relative './statbmp' if Wx.has_feature?(:USE_STATBMP)
 require_relative './static'
 require_relative './timepick' if Wx.has_feature?(:USE_TIMEPICKCTRL)
+require_relative './toggle' if Wx.has_feature?(:USE_TOGGLEBTN)
 require_relative './textctrl'
 
 Widgets::App.run
