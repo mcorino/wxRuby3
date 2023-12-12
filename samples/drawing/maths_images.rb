@@ -10,6 +10,9 @@
 ###
 
 require 'wx'
+
+module MathImages
+
 include Wx
 
 # This sample was originally written by Alex Fenton as an answer to Ruby
@@ -31,6 +34,9 @@ include Wx
 
 # A canvas that draws and displays a mathematically generated image
 class MathsDrawing < Window
+
+  include Wx
+
   # The functions which return the colour components at each pixel
   attr_writer :red, :green, :blue
   # The time taken to render, whether re-rendering is needed, and the
@@ -118,6 +124,9 @@ end
 
 # A helper dialog for saving the image to a file
 class SaveImageDialog < FileDialog
+
+  include Wx
+
   # The image file formats on offer
   TYPES = [ [ "PNG file (*.png)|*.png", Wx::BITMAP_TYPE_PNG ],
             [ "TIF file (*.tif)|*.tif", Wx::BITMAP_TYPE_TIF ],
@@ -139,6 +148,9 @@ end
 
 # A Panel for displaying the image and controls to manipulate it
 class MathsPanel < Panel
+
+  include Wx
+
   include Math
 
   # Set functions to some nice initial values
@@ -269,6 +281,9 @@ class MathsPanel < Panel
 end
 
 class MathsFrame < Frame
+
+  include Wx
+
   def initialize
     super(nil, :title => 'Maths drawing', 
                :size => [400, 500], 
@@ -286,6 +301,8 @@ class MathsFrame < Frame
       status_bar.status_text = msg
     end
   end
+end
+
 end
 
 module MathImagesSample
@@ -318,7 +335,7 @@ module MathImagesSample
   end
 
   def self.activate
-    frame = MathsFrame.new
+    frame = MathImages::MathsFrame.new
     frame.show
     frame
   end

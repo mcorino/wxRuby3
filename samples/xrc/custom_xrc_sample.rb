@@ -11,51 +11,57 @@
 
 require 'wx'
 
-# Basic Frame Class. This creates the dialog window
-class SimpleFrame < Wx::Frame 
-  def initialize
-    super nil, :title => "Custom XRC Dialog Sample", :pos => [50, 50], :size => [300, 300]
+module XrcCustom
 
-    txt = "Choose 'Open Dialog' from the menu to see a dialog made with XRC"
-    Wx::StaticText.new self, :label => txt, :pos => [20, 20]
+  # Basic Frame Class. This creates the dialog window
+  class SimpleFrame < Wx::Frame
+    def initialize
+      super nil, :title => "Custom XRC Dialog Sample", :pos => [50, 50], :size => [300, 300]
 
-    # Create a new menu
-    self.menu_bar = Wx::MenuBar.new
-    menu = Wx::Menu.new
-    menu.append Wx::ID_OPEN, "Open Dialog"
-    menu.append Wx::ID_EXIT, "Quit"
-    menu_bar.append(menu,"File")
-    
-    # Assign the menu events
-    evt_menu(Wx::ID_OPEN) { (dlg = $xml.load_dialog(self, 'SAMPLE_DIALOG').setup_dialog).show_modal; dlg.destroy }
-    evt_menu(Wx::ID_EXIT) { close }
-  end
-end
+      self.icon = Wx.Icon(:sample, Wx::BITMAP_TYPE_XPM, art_path: File.join(__dir__, '..'))
 
-# Dialog subclass. The components within the dialog are loaded from XRC.
-class CustomDialog < Wx::Dialog
-  def setup_dialog
-    # Get the buttons. The xrcid method turns a string identifier
-    # used in an xml file into a numeric identifier as used in
-    # wxruby. 
-    @ok      = find_window_by_id( Wx::xrcid('wxID_OK') )
-    @cancel  = find_window_by_id( Wx::xrcid('wxID_CANCEL') )
-    @message = find_window_by_id( Wx::xrcid('SAMPLE_MESSAGE') )
+      txt = "Choose 'Open Dialog' from the menu to see a dialog made with XRC"
+      Wx::StaticText.new self, :label => txt, :pos => [20, 20]
 
-    # Bind the buttons to event handlers
-    evt_button(@ok) { end_modal(Wx::ID_OK) }
-    evt_button(@cancel) { end_modal(Wx::ID_CANCEL) }
-    evt_button(@message) do
-      Wx::message_box("And now a message from our sponsors.")
+      # Create a new menu
+      self.menu_bar = Wx::MenuBar.new
+      menu = Wx::Menu.new
+      menu.append Wx::ID_OPEN, "Open Dialog"
+      menu.append Wx::ID_EXIT, "Quit"
+      menu_bar.append(menu,"File")
+
+      # Assign the menu events
+      evt_menu(Wx::ID_OPEN) { (dlg = $xml.load_dialog(self, 'SAMPLE_DIALOG').setup_dialog).show_modal; dlg.destroy }
+      evt_menu(Wx::ID_EXIT) { close }
     end
-    self
   end
-end
 
-class CustomDialogXmlFactory < Wx::XmlSubclassFactory
-  def create(subclass)
-    subclass == 'CustomDialog' ? CustomDialog.new : nil
+  # Dialog subclass. The components within the dialog are loaded from XRC.
+  class CustomDialog < Wx::Dialog
+    def setup_dialog
+      # Get the buttons. The xrcid method turns a string identifier
+      # used in an xml file into a numeric identifier as used in
+      # wxruby.
+      @ok      = find_window_by_id( Wx::xrcid('wxID_OK') )
+      @cancel  = find_window_by_id( Wx::xrcid('wxID_CANCEL') )
+      @message = find_window_by_id( Wx::xrcid('SAMPLE_MESSAGE') )
+
+      # Bind the buttons to event handlers
+      evt_button(@ok) { end_modal(Wx::ID_OK) }
+      evt_button(@cancel) { end_modal(Wx::ID_CANCEL) }
+      evt_button(@message) do
+        Wx::message_box("And now a message from our sponsors.")
+      end
+      self
+    end
   end
+
+  class CustomDialogXmlFactory < Wx::XmlSubclassFactory
+    def create(subclass)
+      subclass == 'CustomDialog' ? CustomDialog.new : nil
+    end
+  end
+
 end
 
 module CustomXrcSample
@@ -71,13 +77,13 @@ module CustomXrcSample
 
   def self.activate
     # add the CustomDialog XML factory
-    Wx::XmlResource.add_subclass_factory(CustomDialogXmlFactory.new)
+    Wx::XmlResource.add_subclass_factory(XrcCustom::CustomDialogXmlFactory.new)
     # Get a new resources object
     xrc_file = File.join( File.dirname(__FILE__), 'custom_dialog.xrc' )
     $xml = Wx::XmlResource.new(xrc_file)
 
     # Show the main frame.
-    main = SimpleFrame.new
+    main = XrcCustom::SimpleFrame.new
     main.show(true)
     main
   end

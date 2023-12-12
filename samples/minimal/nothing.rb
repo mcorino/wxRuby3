@@ -23,6 +23,7 @@ module EmptySample
 
   def self.activate
     frame = Wx::Frame.new(nil, title: "Empty wxRuby App")
+    frame.icon = Wx.Icon(:sample, Wx::BITMAP_TYPE_XPM, art_path: File.join(__dir__, '..'))
     frame.show
     frame
   end

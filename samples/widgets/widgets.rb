@@ -1176,7 +1176,7 @@ module Widgets
     end
   end
 
-end
+end # module Widgets
 
 require_relative './activityindicator' if Wx.has_feature?(:USE_ACTIVITYINDICATOR)
 require_relative './bmpcombobox' if Wx.has_feature?(:USE_BITMAPCOMBOBOX)
@@ -1208,4 +1208,26 @@ require_relative './timepick' if Wx.has_feature?(:USE_TIMEPICKCTRL)
 require_relative './toggle' if Wx.has_feature?(:USE_TOGGLEBTN)
 require_relative './textctrl'
 
-Widgets::App.run
+module WidgetsSample
+
+  include WxRuby::Sample if defined? WxRuby::Sample
+
+  def self.describe
+    { file: __FILE__,
+      summary: 'wxRuby Widgets example.',
+      description: <<~__DESC
+        A Ruby port of the extensive wxWidgets widgets sample which showcases
+        a wide selection of widgets (controls).
+        __DESC
+    }
+  end
+
+  def self.run
+    execute(__FILE__)
+  end
+
+  if $0 == __FILE__
+    Widgets::App.run
+  end
+
+end
