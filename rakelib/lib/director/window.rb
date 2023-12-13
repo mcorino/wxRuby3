@@ -79,6 +79,9 @@ module WXRuby3
             'wxWindow::SendIdleEvents',
             'wxWindow::ClientToScreen(int*,int*)', # no need; prefer the wxPoint version
             'wxWindow::ScreenToClient(int*,int*)', # no need; prefer the wxPoint version
+            # provide (non-virtual) renamed alternatives (prevent Ruby keyword/standard clash)
+            'wxWindow::Raise',
+            'wxWindow::Lower'
           ]
           # no real docs and can't find actual examples of usage; ignore
           spec.ignore 'wxWindow::GetConstraints', 'wxWindow::SetConstraints'
@@ -89,6 +92,15 @@ module WXRuby3
             map_check code: ''
           end
           spec.add_extend_code 'wxWindow', <<~__HEREDOC
+            void raise_window()
+            {
+              $self->Raise();
+            }  
+            void lower_window()
+            {
+              $self->Lower();
+            }  
+
             static wxWindow* find_window_by_id(long id, const wxWindow *find_from_parent=0)
             {
               return wxWindow::FindWindowById(id, find_from_parent);

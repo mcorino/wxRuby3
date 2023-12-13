@@ -26,10 +26,8 @@ module WXRuby3
           # for upcalls
           spec.extend_interface('wxTopLevelWindow',
                                 'virtual bool Destroy() override',
-                                #'virtual bool IsTopLevel() override',
                                 'virtual void SetLayoutDirection(wxLayoutDirection dir) override',
                                 'virtual bool Show(bool show = true) override',
-                                'virtual void Raise() override',
                                 'virtual void Refresh(bool eraseBackground = true, wxRect const *rect = NULL) override')
           spec.add_wrapper_code <<~__HEREDOC
             extern VALUE wxRuby_GetTopLevelWindowClass() {
