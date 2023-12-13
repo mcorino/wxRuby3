@@ -18,7 +18,7 @@ wxRuby provides only a single option and more or less unifies the interface acro
 In Ruby anywhere the original wxWidgets library supports some type of client (or user) data attachment wxRuby will 
 support the attachment of any arbitrary Ruby `Object` by either the method `#set_client_object` (where C++ supports 
 `SetClientData` and `SetClientObject`) or `#set_user_data` (where C++ supports `SetUserData`). Data retrieval
-is supported by complementary `#get_client_object` or `#get_user_object` methods in all cases.
+is supported by complementary `#get_client_object` or `#get_user_data` methods in all cases.
 Wherever C++ supports `SetClientObject` wxRuby also provides the method aliases `#set_client_data` and `#get_client_data`.
 
 Another difference with C++ is that for typed client data in wxWidgets developers could leverage object destruction as 
