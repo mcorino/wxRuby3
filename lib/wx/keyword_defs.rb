@@ -325,6 +325,12 @@ Wx::define_keyword_ctors(Wx::CheckListBox) do
   wx_ctor_params :validator, :name => 'listBox'
 end
 
+# wxEditableListBox - an editable listbox is composite control that lets the user easily enter, delete and reorder a list of strings.
+Wx::define_keyword_ctors(Wx::EditableListBox) do
+  wx_ctor_params :id, :label, :pos, :size, :style => Wx::EL_DEFAULT_STYLE
+  wx_ctor_params :name => 'editableListBox'
+end
+
 # wxChoice 	Choice control (a combobox without the editable area)
 Wx::define_keyword_ctors(Wx::Choice) do
   wx_ctor_params :id, :pos, :size, :choices, :style
@@ -352,6 +358,14 @@ Wx::define_keyword_ctors(Wx::ComboCtrl) do
   wx_ctor_params :id, :value => ''
   wx_ctor_params :pos, :size, :style
   wx_ctor_params :validator, :name => 'comboCtrl'
+end
+
+# wxOwnerDrawnComboBox
+Wx::define_keyword_ctors(Wx::OwnerDrawnComboBox) do
+  wx_ctor_params :id, :value => ''
+  wx_ctor_params :pos, :size, :choices => []
+  wx_ctor_params :style
+  wx_ctor_params :validator, :name => 'ownerDrawnComboBox'
 end
 
 # wxGauge 	A control to represent a varying quantity, such as time
@@ -426,9 +440,16 @@ Wx::define_keyword_ctors(Wx::StaticBitmap) do
   wx_ctor_params :id
   # autoconvert Bitmaps to BitmapBundles for downward compatibility
   wx_ctor_params :label
-  wx_ctor_params :pos, :size, :style, :name => Wx::StaticBitmapNameStr
+  wx_ctor_params :pos, :size, :style, :name => Wx::STATIC_BITMAP_NAME_STR
 end
 
+# wxGenericStaticBitmap 	A control to display a bitmap
+Wx::define_keyword_ctors(Wx::GenericStaticBitmap) do
+  wx_ctor_params :id
+  # autoconvert Bitmaps to BitmapBundles for downward compatibility
+  wx_ctor_params :label
+  wx_ctor_params :pos, :size, :style, :name => Wx::STATIC_BITMAP_NAME_STR
+end
 
 # wxRadioBox 	A group of radio buttons
 Wx::define_keyword_ctors(Wx::RadioBox) do
@@ -586,4 +607,10 @@ end
 Wx::define_keyword_ctors(Wx::RearrangeCtrl) do
   wx_ctor_params :id, :pos, :size, :order, :items, :style
   wx_ctor_params :validator, :name => 'rearrangeCtrl'
+end
+
+Wx::define_keyword_ctors(Wx::HeaderCtrlSimple) do
+  wx_ctor_params :winid => Wx::ID_ANY
+  wx_ctor_params :pos, :size, :style => Wx::HD_DEFAULT_STYLE
+  wx_ctor_params :name => 'headerCtrlSimple'
 end

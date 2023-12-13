@@ -27,4 +27,22 @@ private:
   VALUE rb_data;
 };
 
+class WXRUBY_EXPORT wxRubyUserData;
+
+WXRUBY_EXPORT void wxRuby_RegisterUserData(wxRubyUserData* pud);
+WXRUBY_EXPORT void wxRuby_UnregisterUserData(wxRubyUserData* pud);
+
+class WXRUBY_EXPORT wxRubyUserData : public wxObject
+{
+public:
+  wxRubyUserData() : rb_data(Qnil) { }
+  wxRubyUserData (VALUE data) : rb_data(data) { wxRuby_RegisterUserData(this); }
+  virtual ~wxRubyUserData () { wxRuby_UnregisterUserData(this); }
+  VALUE GetData() const { return rb_data; }
+private:
+  VALUE rb_data;
+
+  wxDECLARE_NO_COPY_CLASS(wxRubyUserData);
+};
+
 #endif /* _WXRUBY_CLIENT_DATA_H */

@@ -12,8 +12,10 @@ module WXRuby3
 
     class Sizer < Director
 
+      include Typemap::ClientData
+
       def setup
-        # Any nested sizers passed to Add() in are owned by C++, not GC'd by Ruby
+        # Any nested sizers passed to Add() in are owned by C++, not GC-ed by Ruby
         case spec.module_name
         when 'wxSizer'
           spec.items << 'wxSizerFlags'
@@ -129,9 +131,13 @@ module WXRuby3
           spec.ignore 'wxGridBagSizer::Add(wxGBSizerItem *)'
           # need to adjust sizer arg name to apply disown specs
           spec.ignore 'wxGridBagSizer::Add(wxSizer *, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
+                      'wxGridBagSizer::Add(wxWindow *, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
+                      'wxGridBagSizer::Add(int, int, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
                       ignore_doc: false
           spec.extend_interface 'wxGridBagSizer',
-                                'wxSizerItem *Add(wxSizer *sizer_disown, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)'
+                                'wxSizerItem * Add(wxSizer *sizer_disown, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)',
+                                'wxSizerItem * Add(wxWindow *window, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)',
+                                'wxSizerItem * Add(int width, int height, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)'
           spec.disown 'wxSizer* sizer_disown'
         end
         # no real use for allowing these to be overloaded but a whole lot of grieve

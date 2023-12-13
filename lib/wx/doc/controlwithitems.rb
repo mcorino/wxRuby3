@@ -30,6 +30,14 @@ module Wx
     def is_sorted; end
     alias :sorted? :is_sorted
 
+    alias :get_list_selection :get_selection
+
+    alias :set_list_selection :set_selection
+
+    alias :get_list_string_selection :get_string_selection
+
+    alias :set_list_string_selection :set_string_selection
+
   end
 
 end

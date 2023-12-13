@@ -11,10 +11,16 @@
 #include <set>
 
 static std::set<wxRubyClientData*> __s_WxRubyClientDataSet;
+static std::set<wxRubyUserData*> __s_WxRubyUserDataSet;
 
 WXRB_EXPORT_FLAG void wxRuby_RegisterClientData(wxRubyClientData* pcd)
 {
   __s_WxRubyClientDataSet.insert(pcd);
+}
+
+WXRB_EXPORT_FLAG void wxRuby_RegisterUserData(wxRubyUserData* pud)
+{
+  __s_WxRubyUserDataSet.insert(pud);
 }
 
 static ID client_data_unlinked_id()
@@ -37,10 +43,22 @@ WXRB_EXPORT_FLAG void wxRuby_UnregisterClientData(wxRubyClientData* pcd)
   }
 }
 
+WXRB_EXPORT_FLAG void wxRuby_UnregisterUserData(wxRubyUserData* pud)
+{
+  VALUE rbud = pud->GetData();
+  __s_WxRubyUserDataSet.erase(pud);
+  if (!NIL_P(rbud) && rb_respond_to(rbud, client_data_unlinked_id()))
+  {
+    wxRuby_Funcall(rbud, client_data_unlinked_id(), 0);
+  }
+}
+
 static void wxRuby_GC_mark_ClientData()
 {
   for (wxRubyClientData* pcd : __s_WxRubyClientDataSet)
     rb_gc_mark(pcd->GetData());
+  for (wxRubyUserData* pud : __s_WxRubyUserDataSet)
+    rb_gc_mark(pud->GetData());
 }
 
 typedef void (*WXRBMarkFunction)();

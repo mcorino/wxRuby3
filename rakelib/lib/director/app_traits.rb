@@ -15,7 +15,9 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxStandardPaths'
-        spec.gc_as_object 'wxAppTraits', 'wxStandardPaths'
+        spec.gc_as_object 'wxAppTraits'
+        # stack based global; tracking unwanted
+        spec.gc_as_untracked 'wxStandardPaths'
         spec.no_proxy 'wxAppTraits', 'wxStandardPaths'
         spec.make_abstract 'wxAppTraits'
 

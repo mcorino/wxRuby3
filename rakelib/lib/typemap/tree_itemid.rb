@@ -50,7 +50,7 @@ module WXRuby3
 
           map_in temp: 'wxTreeItemId tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);
-            $1 = &tmpId;
+            $1 = tmpId;
             __CODE
 
           map_directorin code: '$input = _wxRuby_Wrap_wxTreeItemId($1);'
@@ -59,7 +59,7 @@ module WXRuby3
 
           map_directorout temp: 'wxTreeItemId tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = _wxRuby_Unwrap_wxTreeItemId($input);
-            $result = &tmpId;
+            $result = tmpId;
           __CODE
 
           map_typecheck precedence: 'POINTER', code: '$1 = _wxRuby_Is_wxTreeItemId($input);'

@@ -41,8 +41,22 @@ module WXRuby3
           wxNow
           wxDecToHex
           wxHexToDec
-          wxStripMenuCodes
           ]
+        # ignore these enum(erator)s
+        spec.ignore %w[
+          wxSignal
+          wxKillError
+          wxKillFlags
+          wxShutdownFlags
+          @.wxEXEC_ASYNC
+          @.wxEXEC_SYNC
+          @.wxEXEC_SHOW_CONSOLE
+          @.wxEXEC_MAKE_GROUP_LEADER
+          @.wxEXEC_NODISABLE
+          @.wxEXEC_NOEVENTS
+          @.wxEXEC_HIDE_CONSOLE
+          @.wxEXEC_BLOCK
+        ]
         spec.ignore 'wxPostDelete'  unless Config.instance.wx_version >= '3.3.0'
         spec.ignore 'wxGetEmailAddress(char *,int)',
                     'wxGetUserId(char *,int)',
@@ -53,7 +67,7 @@ module WXRuby3
             __CODE
         end
         # we want only the functions that are not ignored
-        spec.do_not_generate(:classes, :typedefs, :variables, :enums, :defines)
+        spec.do_not_generate(:classes, :typedefs, :variables, :defines)
         super
       end
     end # class Utils

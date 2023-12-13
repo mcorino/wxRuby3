@@ -14,8 +14,7 @@ class Wx::Sizer
   ADD_ITEM_PARAMS = [ Wx::Parameter[ :index, -1 ], 
                       Wx::Parameter[ :proportion, 0 ],
                       Wx::Parameter[ :flag, 0 ],
-                      Wx::Parameter[ :border, 0 ],
-                      Wx::Parameter[ :user_data, nil ] ]
+                      Wx::Parameter[ :border, 0 ] ]
   
   def add_item(item, *mixed_args)
 

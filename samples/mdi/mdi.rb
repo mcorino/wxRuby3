@@ -26,62 +26,67 @@ require 'wx'
 # development. Alternative interface strategies include using separate
 # frames, or the AUI classes.
 
-class MDIFrame < Wx::MDIParentFrame
-  def initialize(title)
-    super(nil, :title => title, :size => [ 500, 400 ] )
-    
-    @child_number = 0
-    
-    menuFile = Wx::Menu.new
-    menuFile.append(Wx::ID_EXIT, "E&xit\tAlt-X")
-    evt_menu(Wx::ID_EXIT) { self.close }
+module MDI
 
-    menuMDI = Wx::Menu.new
-    menuMDI.append(Wx::ID_FORWARD, "&Next Child\tCtrl-F6")
-    evt_menu(Wx::ID_FORWARD) { self.activate_next }
-    menuMDI.append(Wx::ID_BACKWARD, "&Previous Child")
-    evt_menu(Wx::ID_BACKWARD) { self.activate_previous }
-    menuMDI.append_separator
+  class MDIFrame < Wx::MDIParentFrame
+    def initialize(title)
+      super(nil, :title => title, :size => [ 500, 400 ] )
 
-    mi_cascade = menuMDI.append("&Cascade")
-    evt_menu(mi_cascade) { self.cascade }
-    mi_tile    = menuMDI.append("&Tile")
-    evt_menu(mi_tile) { self.tile }
-    menuMDI.append_separator
+      self.icon = Wx.Icon(:sample, Wx::BITMAP_TYPE_XPM, art_path: File.join(__dir__, '..'))
 
-    menuMDI.append(Wx::ID_NEW, "&Add Child")
-    evt_menu Wx::ID_NEW, :create_child
-    menuMDI.append(Wx::ID_CLOSE, "&Remove Child\tCtrl-F4")
-    evt_menu Wx::ID_CLOSE, :on_close_child
+      @child_number = 0
 
-    menuBar = Wx::MenuBar.new
-    menuBar.append(menuFile, "&File")
-    menuBar.append(menuMDI, "&Window")
+      menuFile = Wx::Menu.new
+      menuFile.append(Wx::ID_EXIT, "E&xit\tAlt-X")
+      evt_menu(Wx::ID_EXIT) { self.close }
 
-    self.menu_bar = menuBar
-    
-    create_status_bar(2).set_status_widths([100, -1])
-    set_status_text("Some features only work on MS Windows", 1)
+      menuMDI = Wx::Menu.new
+      menuMDI.append(Wx::ID_FORWARD, "&Next Child\tCtrl-F6")
+      evt_menu(Wx::ID_FORWARD) { self.activate_next }
+      menuMDI.append(Wx::ID_BACKWARD, "&Previous Child")
+      evt_menu(Wx::ID_BACKWARD) { self.activate_previous }
+      menuMDI.append_separator
 
-    3.times { create_child }
-  end
-  
-  def on_close_child
-    if active_child
-        active_child.close
+      mi_cascade = menuMDI.append("&Cascade")
+      evt_menu(mi_cascade) { self.cascade }
+      mi_tile    = menuMDI.append("&Tile")
+      evt_menu(mi_tile) { self.tile }
+      menuMDI.append_separator
+
+      menuMDI.append(Wx::ID_NEW, "&Add Child")
+      evt_menu Wx::ID_NEW, :create_child
+      menuMDI.append(Wx::ID_CLOSE, "&Remove Child\tCtrl-F4")
+      evt_menu Wx::ID_CLOSE, :on_close_child
+
+      menuBar = Wx::MenuBar.new
+      menuBar.append(menuFile, "&File")
+      menuBar.append(menuMDI, "&Window")
+
+      self.menu_bar = menuBar
+
+      create_status_bar(2).set_status_widths([100, -1])
+      set_status_text("Some features only work on MS Windows", 1)
+
+      3.times { create_child }
+    end
+
+    def on_close_child
+      if active_child
+          active_child.close
+      end
+    end
+
+    def create_child
+      @child_number += 1
+      name = "Child #{@child_number.to_s}"
+      child = Wx::MDIChildFrame.new(self, :title => name)
+      # Note that this is required on OS X; if no child frames are shown,
+      # then nothing is shown at all.
+      child.show
     end
   end
-  
-  def create_child
-    @child_number += 1
-    name = "Child #{@child_number.to_s}"
-    child = Wx::MDIChildFrame.new(self, :title => name)
-    # Note that this is required on OS X; if no child frames are shown,
-    # then nothing is shown at all.
-    child.show 
-  end
-end
 
+end
 
 module MDISample
 
@@ -111,7 +116,7 @@ module MDISample
   end
 
   def self.activate
-    frame = MDIFrame.new("MDI Application")
+    frame = MDI::MDIFrame.new("MDI Application")
     frame.show # may return false on OS X
     frame
   end

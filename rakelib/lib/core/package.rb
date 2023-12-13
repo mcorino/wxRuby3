@@ -412,7 +412,11 @@ module WXRuby3
         item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass, _|
           evh_name = evt_hnd.downcase
           unless evts_handled.include?(evh_name)
-            evt_klass ||= item.name
+            evt_klass ||= if item.event
+                            item.name
+                          else
+                            raise "Don't know Event class for #{evh_name} event type (from #{item.name})"
+                          end
             fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
                       self.register_event_type EventType[
                           '#{evh_name}', #{evt_arity},
@@ -422,6 +426,13 @@ module WXRuby3
             __HEREDOC
             evts_handled << evh_name
           end
+        end
+      end
+
+      class << self
+        # need to share these over all packages since events may be defined in multiple
+        def generated_events
+          @generated_events ||= ::Set.new
         end
       end
 
@@ -440,7 +451,7 @@ module WXRuby3
   
             class Wx::EvtHandler
           __HEREDOC
-          evts_handled = ::Set.new
+          evts_handled = self.class.generated_events
           # first iterate all event classes
           command_event = nil # special case
           included_directors.each do |dir|

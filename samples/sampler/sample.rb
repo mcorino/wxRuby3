@@ -295,23 +295,18 @@ module WxRuby
 
       def collect_samples(&block)
         read_count = 0
-        Dir[File.join(ROOT, '*')].each do |entry|
+        Dir[File.join(ROOT, '*')].sort.each do |entry|
           if File.directory?(entry)
             category = File.basename(entry)
-            unless 'bigdemo' ==  category || 'sampler' == category
+            unless 'sampler' == category
               category.modulize!
               Dir[File.join(entry, '*.rb')].each do |rb|
                 # only if this is a file (paranoia check) and contains 'include WxRuby::Sample'
-                if File.file?(rb) && (sample_lns = File.readlines(rb, encoding: 'utf-8')).any? { |ln| /\s+include\s+WxRuby::Sample/ =~ ln }
+                if File.file?(rb) && (sample_lns = File.readlines(rb, encoding: 'utf-8')).any? { |ln| /\A\s+include\s+WxRuby::Sample/ =~ ln }
                   # register currently required files
                   cur_loaded = ::Set.new($LOADED_FEATURES)
                   @loading_sample = rb
-                  # cannot use (Kernel#load with) an anonymous module because that will break the Wx::Dialog functor
-                  # functionality for one thing (that code will attempt to define a module method for a new dialog class
-                  # in the class/module scope in which the dialog class is defined working from the dialog class name;
-                  # this will fail for anonymous modules as these cannot be identified by name)
-                  sample_mod = Sample.const_set("SampleLoader_#{File.basename(rb, '.*').modulize!}", Module.new)
-                  sample_mod.module_eval File.read(rb, encoding: 'utf-8'), rb, 1
+                  ::Kernel.load(rb)
                   # determine additionally required files
                   new_loaded = ::Set.new($LOADED_FEATURES) - cur_loaded
                   sample_captures.each do |mod|

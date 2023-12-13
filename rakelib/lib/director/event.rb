@@ -138,6 +138,9 @@ module WXRuby3
               return INT2NUM(event_type_id);
             }
             __HEREDOC
+          spec.map 'wxObject*' => 'Wx::Object' do
+            map_out code: '$result = wxRuby_WrapWxObjectInRuby($1);'
+          end
           # make Ruby director and wrappers use custom implementation
           spec.use_class_implementation('wxCommandEvent', 'wxRubyCommandEvent')
           spec.ignore %w{

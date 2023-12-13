@@ -12,7 +12,7 @@ module WXRuby3
 
     # represents a basic parameter definition
     class ParameterBase
-      PTR_RE = /\A(\*|&)\s*([_a-zA-Z]\w*)?\Z/
+      PTR_RE = /\A([\*&]+)\s*([_a-zA-Z]\w*)?\Z/
       CONST_RE = /(\A|\W)const(\W|\Z)/
       MULTI_WORD_TYPES = %w[char short int long]
       def initialize(param)

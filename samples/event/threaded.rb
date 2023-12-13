@@ -27,6 +27,8 @@ require 'wx'
 # wxRuby's Timer class to explicitly allocate time for non-GUI threads
 # to run. The latter technique is shown here.
 
+module Threaded
+
 # A custom type of event associated with a target control. Note that for
 # user-defined controls, the associated event should inherit from
 # Wx::CommandEvent rather than Wx::Event.
@@ -55,6 +57,9 @@ class ProgressFrame < Wx::Frame
   STEPS = 20
   def initialize
     super(nil, :title => 'Threading demo')
+
+    self.icon = Wx.Icon(:sample, Wx::BITMAP_TYPE_XPM, art_path: File.join(__dir__, '..'))
+
     @gauges = []
     panel = Wx::Panel.new(self)
     sizer = Wx::BoxSizer.new(Wx::VERTICAL)
@@ -107,6 +112,8 @@ class GaugeApp < Wx::App
   end
 end
 
+end
+
 module ThreadSample
 
   include WxRuby::Sample if defined? WxRuby::Sample
@@ -140,7 +147,7 @@ module ThreadSample
   end
 
   if $0 == __FILE__
-    GaugeApp.run
+    Threaded::GaugeApp.run
   end
 
 end
