@@ -297,9 +297,7 @@ module WXRuby3
                           "#{spec.class_name(citem)}::EnableTouchEvents",
                           "#{spec.class_name(citem)}::WarpPointer",
                           "#{spec.class_name(citem)}::AdjustForLayoutDirection",
-                          "#{spec.class_name(citem)}::IsTransparentBackgroundSupported",
-                          "#{spec.class_name(citem)}::TransferDataFromWindow",
-                          "#{spec.class_name(citem)}::TransferDataToWindow")
+                          "#{spec.class_name(citem)}::IsTransparentBackgroundSupported")
           end
         end
         if spec.module_name == 'wxWindow'
