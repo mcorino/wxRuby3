@@ -10,14 +10,14 @@ Below are installation instructions for Linux, Windows, and Mac (both AMD64 and 
 
 The minimal requirements for installing any source based setup (gem, source package or Github clone) of wxRuby3 are:
 
-| Sofware                                       | Notes                                                                                                                                                                                                                                                             |
-|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Ruby                                          | A supported version of the Ruby interpreter needs to be installed.                                                                                                                                                                                                |
-| C++ compiler<br>(incl. dev tools like `make`) | On linux a recent version of the GNU C++ compiler (with c++-14 support) needs to be installed<br>On Windows the RubyInstaller MSYS2-Devkit needs to be installed<br>On MacOS XCode with commandline tools needs to be installed via `sudo xcode-select --install` |
-| Git version control toolkit                   |                                                                                                                                                                                                                                                                   |
-| SWIG >= 3.0.12                                | On MacOS install [Homebrew](https://brew.sh/) and than `brew install swig`                                                                                                                                                                                        |
-| Doxygen (>= 1.9.1, <= 1.9.6)                  | Doxygen > 1.9.6 has changes that cause problems with the wxWidgets doxygen files.<br>On MacOS: `brew tap mcorino/wxruby3` and than `brew install doxygen@1.9.6` (default brew recipe installs 1.9.7)                                                              |
-| wxWidgets (>= 3.2)                            | See [wxWidgets installation](#wxwidgets-installation)                                                                                                                                                                                                             |
+| Sofware                                       | Notes                                                                                                                                                                                                                                                                        |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ruby                                          | A supported version of the Ruby interpreter needs to be installed.                                                                                                                                                                                                           |
+| C++ compiler<br>(incl. dev tools like `make`) | On linux a recent version of the GNU C++ compiler (with c++-14 support) needs to be installed<br>On Windows the RubyInstaller MSYS2-Devkit needs to be installed<br>On MacOS XCode with commandline tools needs to be installed via <code>sudo xcode-select --install</code> |
+| Git version control toolkit                   |                                                                                                                                                                                                                                                                              |
+| SWIG >= 3.0.12                                | On MacOS install Homebrew (https://brew.sh) and than <code>brew install swig</code>                                                                                                                                                                                          |
+| Doxygen (>= 1.9.1, <= 1.9.6)                  | Doxygen > 1.9.6 has changes that cause problems with the wxWidgets doxygen files.<br>On MacOS: <code>brew tap mcorino/wxruby3</code> and than `brew install doxygen@1.9.6` (default brew recipe installs 1.9.7)                                                              |
+| wxWidgets (>= 3.2)                            | See the <b>wxWidgets installation</b> section below.                                                                                                                                                                                                                         |
 
 The wxRuby3 build process requires `git` to clone a copy of the wxWidgets Github repository to extract the interface 
 specifications from.<br>
@@ -57,46 +57,41 @@ gem install wxruby3 -- WITH_WXWIN=1
 
 Also a wxWidgets installation (version 3.2 or later) is required for which there are multiple options.
 
-1. System installed wxWidgets version (including development package)<br>
-   <br>
+1. System installed wxWidgets version (including development package)<br/>
+   <br/>
    This is the default method used when installing the source gem without any options.<br>
    The wxRuby build procedure will determine the availability and version of wxWidgets by locating and calling
    the `wx-config` utility script. In case no (compatible) wxWidgets version is found installation ends with an error.<br>
    Please note that even with this method a copy of the wxWidgets project will be checked out from GitHUb as the wxRuby3
    build procedure requires access to the wxWidgets interface specification sources which are not normally part of any of 
-   the standard distribution packages.
-   
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On MacOS, you can install wxWidgets via [Homebrew](https://brew.sh/):
-
-```shell
+   the standard distribution packages.<br/> 
+   <br/>
+   On MacOS, you can install wxWidgets via [Homebrew](https://brew.sh/):
+   ```shell
    brew install wxwidgets
-```
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Afterwards, you can install the Ruby gem and it will detect wxWidgets in the system automatically:
-
-```shell
+   ```
+   Afterwards, you can install the Ruby gem and it will detect wxWidgets in the system automatically:
+   ```shell
    gem install wxruby3
-```   
+   ```   
 
 2. User installed wxWidgets version<br>
    <br>
    In case the system being installed on does not provide (a compatible) wxWidgets version or a specific (possibly updated)
    wxWidgets version is required the source gem can be installed using a user installed version like this (where the 
    `WXWIN` path should provide the location where the wxWidgets binaries are installed under `<wxwin path>/bin`):<br>
-
-```shell
+   ```shell
    gem install wxruby3 -- WXWIN=/path/to/wx/install 
-```
+   ```
 
 3. Automatic installed, embedded, wxWidgets version<br>
    <br>
    This is the easiest method when the system being installed on does not provide (a compatible) wxWidgets version (and 
    no specific user defined version is required) and can be used by installing the source gem like this (which will
    cause automatic checkout and building of the latest stable wxWidgets release (>= 3.2) from GitHub:
-
-```shell
+   ```shell
    gem install wxruby3 -- WITH_WXWIN=1
-```
+   ```
 
 In case of option **2** it is also possible to do the doxygen XML generation as part of the wxWidgets user installation
 and use that for the gem installation. In that case the user is required to generate the XML interface specs using the
@@ -104,15 +99,26 @@ and use that for the gem installation. In that case the user is required to gene
 provided to the gem installation as follows:
 
 ```shell
-   gem install wxruby3 -- WXWIN=/path/to/wx/install WXXML=/path/to/wx/doxygen/xml
+gem install wxruby3 -- WXWIN=/path/to/wx/install WXXML=/path/to/wx/doxygen/xml
 ```
 
-Please also not that in case of option two the user is responsible to make sure the wxWidgets shared libraries can be
+Please also not that in case of option **2** the user is responsible to make sure the wxWidgets shared libraries can be
 found by the system's dynamic loader at runtime.
 
 > **NOTE:** Be patient when installing the source gem. Building wxRuby3 takes a while and when wxWidgets is included event more. 
 
 > **NOTE:** Be aware that for prerelease versions of the gem you should add the `--pre` argument to the `gem install` command. 
+
+### Bundled CLI
+
+Installing the wxRuby3 gem will also install the bundled `wxruby` CLI binary.
+
+Currently this binary can be used to run the bundled regression tests and access (run or copy) the bundled examples.
+Run the following command to see the options:
+
+```shell
+wxruby --help
+```
 
 ## Building from source
 
