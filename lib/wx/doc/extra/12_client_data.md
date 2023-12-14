@@ -13,6 +13,10 @@ To cater to various C++ use cases in most instances this support covers both spe
 wxClientData and wxObject instances) and untyped data pointers (represented as `void *`) with subtle but essential
 differences.
 
+wxRuby implements a fully compatible version of this support.    
+
+## Everything is an Object
+
 As Ruby does not do untyped data (everything is an Object), and having two different options is confusing anyway, 
 wxRuby provides only a single option and more or less unifies the interface across the entire library.
 In Ruby anywhere the original wxWidgets library supports some type of client (or user) data attachment wxRuby will 
