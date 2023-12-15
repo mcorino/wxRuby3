@@ -95,6 +95,8 @@ class TextValidatorTests < WxRuby::Test::GUITests
   def test_basic
     val = Wx::TextValidator.new(Wx::TextValidatorStyle::FILTER_NONE)
 
+    assert_empty(val.value)
+
     assert_empty(val.valid?("wx-90.?! @_~E+{"))
 
     val.set_style(Wx::TextValidatorStyle::FILTER_EMPTY)
@@ -182,21 +184,45 @@ class TextValidatorTests < WxRuby::Test::GUITests
   def test_text_ctrl_validate
     self.text = Wx::TextCtrl.new(frame_win, name: 'Text')
 
+    val = Wx::TextValidator.new(Wx::TextValidatorStyle::FILTER_ALPHA)
+    text.set_validator(val)
+
+    assert_empty(text)
+    assert_empty(text.validator.value)
+
+    text.validator.value = 'wxwidgets'
+
+    assert_true(text.transfer_data_to_window)
+
+    assert_equal('wxwidgets', text.value)
+
+    assert_equal('wxwidgets', text.validator.value)
+    text.value = 'wxRuby'
+    assert_true(text.transfer_data_from_window)
+    assert_equal('wxRuby', text.validator.value)
+  end
+
+  def test_text_ctrl_validate_transfer
+    self.text = Wx::TextCtrl.new(frame_win, name: 'Text')
+
     data = 'wxwidgets'
     val = Wx::TextValidator.new(Wx::TextValidatorStyle::FILTER_ALPHA)
     val.on_transfer_to_window { data }
     val.on_transfer_from_window { |v| data = v }
     text.set_validator(val)
 
-    assert_true(text.empty?)
+    assert_empty(text)
+    assert_empty(text.validator.value)
 
     assert_true(text.transfer_data_to_window)
 
     assert_equal('wxwidgets', text.value)
+    assert_equal('wxwidgets', text.validator.value)
 
     assert_equal('wxwidgets', data)
     text.value = 'wxRuby'
     assert_true(text.transfer_data_from_window)
+    assert_equal('wxRuby', text.validator.value)
     assert_equal('wxRuby', data)
   end
 
@@ -288,6 +314,34 @@ class IntegerValidatorTests < WxRuby::Test::GUITests
 
   attr_accessor :text
 
+  def test_no_custom_transfer
+    valInt = Wx::IntegerValidator.new
+    text.validator = valInt
+
+    assert_equal(0, text.validator.value)
+    assert_true(text.transfer_data_to_window)
+    assert_equal('0', text.value)
+
+    text.validator.value = 17
+    assert_true(text.transfer_data_to_window)
+    assert_equal('17', text.value)
+
+    text.change_value("foobar")
+    assert_false(text.transfer_data_from_window)
+    assert_equal(17, text.validator.value)
+
+    text.change_value('-234')
+    assert_true(text.transfer_data_from_window)
+    assert_equal(-234, text.validator.value)
+
+    text.change_value('9223372036854775808') # == LLONG_MAX + 1
+    assert_false(text.transfer_data_from_window)
+    assert_equal(-234, text.validator.value)
+
+    text.clear
+    assert_false(text.transfer_data_from_window)
+  end
+
   def test_transfer
     data = 0
     valInt = Wx::IntegerValidator.new
@@ -367,6 +421,34 @@ class UnsignedValidatorTests < WxRuby::Test::GUITests
   end
 
   attr_accessor :text
+
+  def test_no_custom_transfer
+    valInt = Wx::UnsignedValidator.new
+    text.validator = valInt
+
+    assert_equal(0, text.validator.value)
+    assert_true(text.transfer_data_to_window)
+    assert_equal('0', text.value)
+
+    text.validator.value = 17
+    assert_true(text.transfer_data_to_window)
+    assert_equal('17', text.value)
+
+    text.change_value('-1')
+    assert_false(text.transfer_data_from_window)
+    assert_equal(17, text.validator.value)
+
+    text.change_value('234')
+    assert_true(text.transfer_data_from_window)
+    assert_equal(234, text.validator.value)
+
+    text.change_value((2*64).to_s) # == ULLONG_MAX
+    assert_true(text.transfer_data_from_window)
+    assert_equal(2*64, text.validator.value)
+
+    text.clear
+    assert_false(text.transfer_data_from_window)
+  end
 
   def test_transfer
     data = 0
@@ -450,6 +532,39 @@ class FloatValidatorTests < WxRuby::Test::GUITests
   end
 
   attr_accessor :text
+
+  def test_no_custom_transfer
+    valFlt = Wx::FloatValidator.new(3, Wx::NumValidatorStyle::NUM_VAL_DEFAULT)
+    text.validator = valFlt
+
+    assert_equal(0.0, text.validator.value)
+    assert_true(text.transfer_data_to_window)
+    assert_match(/\A0(\.|,)000\Z/, text.value)
+
+    text.validator.style = Wx::NumValidatorStyle::NUM_VAL_NO_TRAILING_ZEROES
+
+    assert_true(text.transfer_data_to_window)
+    assert_equal('0', text.value)
+
+    text.validator.value = 17.123
+    assert_true(text.transfer_data_to_window)
+    assert_match(/\A17(\.|,)123\Z/, text.value)
+
+    text.validator.value = 17.1236
+    assert_true(text.transfer_data_to_window)
+    assert_match(/\A17(\.|,)124\Z/, text.value)
+
+    text.change_value("foobar")
+    assert_false(text.transfer_data_from_window)
+    assert_equal(17.1236, text.validator.value)
+
+    text.change_value('-234')
+    assert_true(text.transfer_data_from_window)
+    assert_equal(-234, text.validator.value)
+
+    text.clear
+    assert_false(text.transfer_data_from_window)
+  end
 
   def test_transfer
     data = 0.0

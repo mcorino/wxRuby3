@@ -20,7 +20,7 @@ module Wx
 
     # Method called when transferring data from window.
     # Should retrieve and return the data from the associated window (#get_window).
-    # By default returns nil.
+    # By default returns nil (which indicates there is no custom data to transfer).
     # Overload for customized functionality.
     # @return [Object] retrieved data from window
     def do_transfer_from_window; end
