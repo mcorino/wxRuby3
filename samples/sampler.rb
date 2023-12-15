@@ -108,7 +108,7 @@ module WxRuby
     def on_taskbar_activate(evt)
       @frame.iconize(false)
       @frame.show(true)
-      @frame.raise
+      @frame.raise_window
     end
   end
 

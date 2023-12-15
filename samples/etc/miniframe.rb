@@ -60,7 +60,7 @@ module MiniFrame
       mini.evt_window_destroy { |evt| @mini_destroyed = true }
 
       mini.show
-      mini.raise
+      mini.raise_window
     end
 
     def on_quit

@@ -26,13 +26,9 @@ class Wx::Window
   # In case a more explicit option is preferred.
   alias :wx_id :get_id
 
-  # The name of Wx::Window#raise conflicts with Ruby's core Kernel#raise
-  # method. This can cause unexpected errors when undecorated #raise is
-  # used inside a Window method. For wxRuby 2.0 it's too late to remove
-  # Window#raise completely, but for now, offer alternatives to
-  # raise/lower that could replace them in future versions.
-  alias :bring_to_front :raise
-  alias :send_to_back :lower
+  # Z-order alternatives
+  alias :bring_to_front :raise_window
+  alias :send_to_back :lower_window
 
   # Recursively searches all windows below +self+ and returns the first
   # window which has the id +an_id+. This corresponds to the find_window

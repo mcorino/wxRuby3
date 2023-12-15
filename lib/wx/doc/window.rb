@@ -9,6 +9,36 @@ module Wx
 
   class Window
 
+    # Lowers the window to the bottom of the window hierarchy (Z-order).
+    # This method has been renamed in wxRuby to be consistent with the renamed #raise_window method.
+    #
+    # <div class="wxrb-remark">
+    # <b>Remark:</b>
+    # <p>This function only works for {Wx::TopLevelWindow}-derived classes.
+    # </p>
+    # </div>
+    # @see Wx::Window#raise_window
+    # @return [void]
+    def lower_window; end
+    alias :send_to_back :lower_window
+
+    # Raises the window to the top of the window hierarchy (Z-order).
+    # This method has been renamed in wxRuby to avoid clashing with the standard Kernel#raise method.
+    #
+    # Notice that this function only requests the window manager to raise this window to the top of Z-order. Depending
+    # on its configuration, the window manager may raise the window, not do it at all or indicate that a window
+    # requested to be raised in some other way, e.g. by flashing its icon if it is minimized.
+    #
+    # <div class="wxrb-remark">
+    # <b>Remark:</b>
+    # <p>This function only works for {Wx::TopLevelWindow}-derived classes.
+    # </p>
+    # </div>
+    # @see Wx::Window#lower_window
+    # @return [void]
+    def raise_window; end
+    alias :bring_to_front :raise_window
+
     # Creates an appropriate (temporary) DC to paint on and
     # passes that to the given block. Deletes the DC when the block returns.
     # Creates a Wx::PaintDC when called from an evt_paint handler and a

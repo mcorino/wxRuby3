@@ -431,7 +431,6 @@ module Widgets
         case @radioListType.selection
         when ID::LboxType_CheckListBox, ID::LboxType_RearrangeList
           if Wx.has_feature?(:USE_CHECKLISTBOX) && @radioListType.selection == ID::LboxType_CheckListBox
-            p Wx::CheckListBox
             @lbox = Wx::CheckListBox.new(self, ID::Listbox,
                                          choices: items,
                                          style: flags)
