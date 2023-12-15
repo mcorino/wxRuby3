@@ -67,16 +67,23 @@ module WXRuby3
             { 
               // collect data from any defined binding handler
               VALUE data = this->DoOnTransferToWindow();
-              if (NIL_P(data))
-              {
-                m_valueCache.clear();
-              }
-              else
+              // if Qnil returned there is no data returned from handler so we just keep what's in the store
+              if (!NIL_P(data))
               {
                 m_valueCache = RSTR_TO_WXSTR(data);
               }
               // now allow standard functionality to transfer to window 
               return this->wxNumericPropertyValidator::TransferToWindow();
+            }
+
+            const wxString& GetValue () const
+            {
+              return m_valueCache;
+            }
+
+            void SetValue (const wxString& val)
+            {
+              m_valueCache = val;
             }
 
           private:
@@ -122,6 +129,24 @@ module WXRuby3
         # make Ruby director and wrappers use custom implementation
         spec.use_class_implementation 'wxNumericPropertyValidator', 'WXRubyNumericPropertyValidator'
         spec.new_object 'wxNumericPropertyValidator::Clone'
+        # add wxRuby extensions
+        spec.add_extend_code 'wxNumericPropertyValidator', <<~__HEREDOC
+          VALUE GetValue()
+          {
+            WXRubyNumericPropertyValidator* rb_self = dynamic_cast<WXRubyNumericPropertyValidator*> ($self);
+            if (rb_self)
+              return WXSTR_TO_RSTR(rb_self->GetValue());
+            else
+              return Qnil;
+          }
+
+          void SetValue(const wxString& val)
+          {
+            WXRubyNumericPropertyValidator* rb_self = dynamic_cast<WXRubyNumericPropertyValidator*> ($self);
+            if (rb_self)
+              rb_self->SetValue(val);
+          }
+          __HEREDOC
         # handle clone mapping
         spec.map 'wxObject *' => 'Wx::PG::NumericPropertyValidator' do
           map_out code: <<~__CODE

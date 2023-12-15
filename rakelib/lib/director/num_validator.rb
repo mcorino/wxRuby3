@@ -87,16 +87,23 @@ module WXRuby3
             { 
               // collect data from any defined binding handler
               VALUE data = this->DoOnTransferToWindow();
-              if (NIL_P(data))
-              {
-                m_valueCache = 0;
-              }
-              else
+              // if Qnil returned there is no data returned from handler so we just keep what's in the store
+              if (!NIL_P(data))
               {
                 m_valueCache = NUM2LL(data);
               }
               // now allow standard functionality to transfer to window 
               return this->wxIntegerValidator::TransferToWindow();
+            }
+
+            LongestValueType GetValue () const
+            {
+              return m_valueCache;
+            }
+
+            void SetValue (LongestValueType val)
+            {
+              m_valueCache = val;
             }
 
           protected:
@@ -189,16 +196,23 @@ module WXRuby3
             { 
               // collect data from any defined binding handler
               VALUE data = this->DoOnTransferToWindow();
-              if (NIL_P(data))
-              {
-                m_valueCache = 0;
-              }
-              else
+              // if Qnil returned there is no data returned from handler so we just keep what's in the store
+              if (!NIL_P(data))
               {
                 m_valueCache = NUM2ULL(data);
               }
               // now allow standard functionality to transfer to window 
               return this->wxIntegerValidator::TransferToWindow();
+            }
+
+            ULongestValueType GetValue () const
+            {
+              return m_valueCache;
+            }
+
+            void SetValue (ULongestValueType val)
+            {
+              m_valueCache = val;
             }
 
           protected:
@@ -289,16 +303,23 @@ module WXRuby3
             { 
               // collect data from any defined binding handler
               VALUE data = this->DoOnTransferToWindow();
-              if (NIL_P(data))
-              {
-                m_valueCache = 0.0;
-              }
-              else
+              // if Qnil returned there is no data returned from handler so we just keep what's in the store
+              if (!NIL_P(data))
               {
                 m_valueCache = NUM2DBL(data);
               }
               // now allow standard functionality to transfer to window 
               return this->wxFloatingPointValidator::TransferToWindow();
+            }
+
+            double GetValue () const
+            {
+              return m_valueCache;
+            }
+
+            void SetValue (double val)
+            {
+              m_valueCache = val;
             }
 
           protected:
@@ -370,6 +391,14 @@ module WXRuby3
               wxNUM_VAL_NO_TRAILING_ZEROES    = 0x4
           };
 
+          %alias WXIntegerValidator::GetMin "min";
+          %alias WXIntegerValidator::SetMin "min=";
+          %alias WXIntegerValidator::GetMax "max";
+          %alias WXIntegerValidator::SetMax "max=";
+          %alias WXIntegerValidator::SetStyle "style=";
+          %alias WXIntegerValidator::GetValue "value";
+          %alias WXIntegerValidator::SetValue "value=";
+
           class WXIntegerValidator : public wxValidator
           {
           public:
@@ -387,7 +416,19 @@ module WXRuby3
             void SetRange(wxLongLong_t min, wxLongLong_t max);
             void GetRange(wxLongLong_t& min, wxLongLong_t& max) const;
             void SetStyle(int style);
+
+            // wxRuby extensions
+            wxLongLong_t GetValue () const;
+            void SetValue (wxLongLong_t val);
           };
+
+          %alias WXUnsignedValidator::GetMin "min";
+          %alias WXUnsignedValidator::SetMin "min=";
+          %alias WXUnsignedValidator::GetMax "max";
+          %alias WXUnsignedValidator::SetMax "max=";
+          %alias WXUnsignedValidator::SetStyle "style=";
+          %alias WXUnsignedValidator::GetValue "value";
+          %alias WXUnsignedValidator::SetValue "value=";
           
           class WXUnsignedValidator : public wxValidator
           {
@@ -406,7 +447,19 @@ module WXRuby3
             void SetRange(wxULongLong_t min, wxULongLong_t max);
             void GetRange(wxULongLong_t& min, wxULongLong_t& max) const;
             void SetStyle(int style);
+
+            // wxRuby extensions
+            wxULongLong_t GetValue () const;
+            void SetValue (wxULongLong_t val);
           };          
+
+          %alias WXFloatValidator::GetMin "min";
+          %alias WXFloatValidator::SetMin "min=";
+          %alias WXFloatValidator::GetMax "max";
+          %alias WXFloatValidator::SetMax "max=";
+          %alias WXFloatValidator::SetStyle "style=";
+          %alias WXFloatValidator::GetValue "value";
+          %alias WXFloatValidator::SetValue "value=";
           
           class WXFloatValidator : public wxValidator
           {
@@ -428,6 +481,10 @@ module WXRuby3
 
             void SetPrecision(unsigned precision);
             void SetFactor(double factor);
+
+            // wxRuby extensions
+            double GetValue () const;
+            void SetValue (double val);
           };          
           __HEREDOC
       end

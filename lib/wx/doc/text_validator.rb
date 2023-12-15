@@ -17,6 +17,16 @@ module Wx
     #   @param [Integer] style One or more of the {Wx::TextValidatorStyle} styles. See #set_style.
     def initialize(*args) end
 
+    # Returns the value store attribute. Initially an empty string.
+    # @return [String]
+    def get_value; end
+    alias :value :get_value
+
+    # Sets the value store attribute.
+    # @param [String] val
+    def set_value(val) end
+    alias :value= :set_value
+
   end
 
 end

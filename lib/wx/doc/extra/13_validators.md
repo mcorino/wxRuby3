@@ -88,7 +88,7 @@ methods and a mixin module.
   before transfer to the associated window.<br>
   <br>
   The methods {Wx::Validator::Binding#on_transfer_from_window} and {Wx::Validator::Binding#on_transfer_to_window} provide
-  the means to specify user defined handlers for storing the data transferred from the associated window or retrieving the
+  the means to specify user defined binding handlers for storing the data transferred from the associated window or retrieving the
   data to transfer to the associated window. Like with event handling the handlers can be specified using a `String` or
   `Symbol`, a `Proc` or a `Method`.<br>
   <br>
@@ -122,12 +122,18 @@ text.get_validator.on_transfer_to_window { @data }
 text.get_validator.on_transfer_from_window { |v| @data = v }
 ```
 
+All derived, specialized, validators implement a dedicated value cache which can be accessed through the `#value` attribute
+accessor. Through this accessor the data collected from the associated window can get retrieved or the data to be transferred
+to the associated window set.
+With these classes it is therefor not necessary to define binding handlers. Defining binding handlers can however still be 
+useful to implement a custom, persistent, storage solution.
+
 ### Wx::GenericValidator
 
 The {Wx::GenericValidator} class provides an extendable standard implementation for data binding in combination with a 
 large collection of controls (see class documentation).
-The implementation provides a standard accessor {Wx::GenericValidator#value} to get access to the data value collected
-from the associated window or transfer to the associated window.
+The implementation provides a standard accessor {Wx::GenericValidator#value} to get the data value collected
+from the associated window or set the data to transfer to the associated window.
 
 To add support for any control unsupported by the standard implementation the method {Wx::GenericValidator.define_handler}
 is provided (see documentation for an example).

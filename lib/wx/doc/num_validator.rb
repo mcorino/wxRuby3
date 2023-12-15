@@ -115,6 +115,16 @@ module Wx
     def set_style(style) end
     alias :style= :set_style
 
+    # Returns the value store attribute. Initially 0.
+    # @return [Integer]
+    def get_value; end
+    alias :value :get_value
+
+    # Sets the value store attribute.
+    # @param [Integer] val
+    def set_value(val) end
+    alias :value= :set_value
+
   end
 
   # Validator for text entries used for unsigned integer entry.
@@ -221,6 +231,16 @@ module Wx
     # @param [Wx::NumValidatorStyle] style A combination of Wx::NumValidatorStyle enum values with the exception of Wx::NUM_VAL_NO_TRAILING_ZEROES which can't be used here.
     def set_style(style) end
     alias :style= :set_style
+
+    # Returns the value store attribute. Initially 0.
+    # @return [Integer]
+    def get_value; end
+    alias :value :get_value
+
+    # Sets the value store attribute.
+    # @param [Integer] val
+    def set_value(val) end
+    alias :value= :set_value
 
   end
 
@@ -351,6 +371,16 @@ module Wx
     # @param [Float] factor
     def set_factor(factor) end
     alias :factor= :set_factor
+
+    # Returns the value store attribute. Initially 0.
+    # @return [Float]
+    def get_value; end
+    alias :value :get_value
+
+    # Sets the value store attribute.
+    # @param [Float] val
+    def set_value(val) end
+    alias :value= :set_value
 
   end
 
