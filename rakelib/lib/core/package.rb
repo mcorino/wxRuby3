@@ -6,6 +6,8 @@
 # wxRuby3 extension library Package class
 ###
 
+require 'monitor'
+
 module WXRuby3
 
   class Director
@@ -434,9 +436,29 @@ module WXRuby3
         def generated_events
           @generated_events ||= ::Set.new
         end
+
+        def event_list_packages
+          unless @event_list_packages
+            @event_list_packages = ::Set.new
+            @event_list_packages.extend(MonitorMixin)
+          end
+          @event_list_packages
+        end
       end
 
       def generate_event_list
+        # make sure parent package has already generated event list
+        Package.event_list_packages.synchronize do
+          if parent && !Package.event_list_packages.include?(parent)
+            # make sure all included director modules have been extracted
+            parent.included_directors.each do |dir|
+              dir.extract_interface(false) # no need to generate anything here
+            end
+            parent.generate_event_list
+          end
+        end
+        # list ourselves as generated
+        Package.event_list_packages << self
         # determine Ruby library events root for package
         rbevt_root = File.join(ruby_classes_path, 'events')
         # create event list file
@@ -483,7 +505,6 @@ module WXRuby3
           fout.puts 'end'
         end
       end
-      private :generate_event_list
 
       def find_event_doc(evh_name)
         unless doc = event_docs[evh_name]
