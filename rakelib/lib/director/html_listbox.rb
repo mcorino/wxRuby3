@@ -95,7 +95,8 @@ module WXRuby3
                       'wxItemContainer::SetClientData',
                       'wxItemContainer::HasClientUntypedData',
                       'wxItemContainer::Clear'])
-        spec.ignore([ 'wxItemContainer::Append(const wxArrayString &, wxClientData **)',
+        spec.ignore([ 'wxItemContainer::DetachClientObject',
+                      'wxItemContainer::Append(const wxArrayString &, wxClientData **)',
                       'wxItemContainer::Insert(const wxArrayString &, unsigned int, wxClientData **)',
                       'wxItemContainer::Set(const wxArrayString &, wxClientData **)'], ignore_doc: false)
         # for doc only
