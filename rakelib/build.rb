@@ -48,7 +48,7 @@ if WXRuby3.is_bootstrapped?
       end
 
       # The main source module - which needs to initialize all the other modules in the package
-      file pkg.initializer_src => pkg.all_swig_files do |t|
+      file pkg.initializer_src => pkg.all_swig_files + (pkg.parent ? [pkg.parent.initializer_src] : []) do |t|
         pkg.generate_initializer
       end
 
