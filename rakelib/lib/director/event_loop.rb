@@ -15,7 +15,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxEventLoopBase'
-        spec.gc_as_untracked
+        spec.gc_as_marked # untracked but never disowned in Ruby
         spec.disable_proxies
         spec.make_concrete 'wxGUIEventLoop'
         spec.fold_bases 'wxGUIEventLoop' => 'wxEventLoopBase'
