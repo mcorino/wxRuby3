@@ -106,6 +106,12 @@ GC_NEVER(kls);
 %define GC_MANAGE_AS_UNTRACKED(kls)
 %enddef
 
+// Strategy for objects that are GC marked through customized, tailored, mechanisms outside
+// of the standard SWIG object tracking option.
+// The different naming is mostly to allow doc gen to properly recognize these objects.
+%define GC_MANAGE_AS_MARKED(kls)
+%enddef
+
 // Sizers attached to windows are automatically destroyed by wxWidgets,
 // so they should not be deleted.
 //
