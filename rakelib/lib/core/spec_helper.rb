@@ -121,7 +121,7 @@ module WXRuby3
 
     def get_base_module_list(hierarchy, foldedbases, list = ::Set.new)
       hierarchy.each_value do |super_def|
-        list << super_def.module unless foldedbases.include?(super_def.name)
+        list << super_def.module unless foldedbases.include?(super_def.name) || super_def.module == module_name
         get_base_module_list(super_def.supers, folded_bases(super_def.name), list)
       end
       list
