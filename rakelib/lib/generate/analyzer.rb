@@ -540,53 +540,53 @@ module WXRuby3
           # check the preprocessed definitions
           errors = []
           warnings = []
-          def_items.each do |item|
-            if Extractor::ClassDef === item && !item_ignored(item, doc_gen) &&
+          # select eligible ClassDef
+          cls_items = def_items.select do |item|
+            Extractor::ClassDef === item && !item_ignored(item, doc_gen) &&
               (!item.is_template? || template_as_class?(item.name)) &&
               !is_folded_base?(item.name)
-              intf_class_name = if item.is_template? || template_as_class?(item.name)
-                                  template_class_name(item.name)
-                                else
-                                  item.name
-                                end
-              # this should not happen
-              raise "Missing preprocessed data for class #{intf_class_name}" unless has_class_interface(intf_class_name)
-              # get the class's method registry
-              cls_mtdreg = class_interface_methods(intf_class_name)
-              # check all directly inherited generated methods
-              mtdlist = ::Set.new # remember handled signatures
-              base_list(item).each do |base_name|
-                # get 'real' base name (i.e. take renames into account)
-                base_name = ifspec.classdef_name(base_name)
-                # make sure the base class has been preprocessed
-                get_class_interface(package, base_name, doc_gen) unless has_class_interface(base_name)
-                # generate any required enum typemaps for inherited virtuals
-                gen_base_class_enum_typemaps(base_name, enum_maps)
-                # iterate the base class's method registrations
-                class_interface_methods(base_name).each_pair do |mtdsig, mtdreg|
-                  # only check on methods we have not handled yet
-                  if !mtdlist.include?(mtdsig)
-                    # did we inherit a virtual method that was not proxied in the base
-                    if mtdreg[:virtual] && !mtdreg[:proxy]
-                      # # if we did NOT generate a wrapper override and we do not have the proxy suppressed we're in trouble
-                      # if !cls_mtdreg.has_key?(mtdsig) && has_method_proxy?(item.name, mtdreg[:method])
-                      #   warnings << "* WARNING: disabling proxy for virtual method #{mtdreg[:method].signature} without wrapper implementation in class #{item.name} since it is NOT proxied in base class #{base_name}!"
-                      # els
-                      if cls_mtdreg.has_key?(mtdsig) && !cls_mtdreg[mtdsig][:extension] && !has_method_proxy?(item.name, cls_mtdreg[mtdsig][:method])
-                        # if this is not a custom extension and we do have an override wrapper and no proxy this is unnecessary code bloat
-                        warnings << " * WARNING: Unnecessary override #{mtdreg[:method].signature} in class #{item.name} for non-proxied base in #{base_name}. Ignoring."
-                        cls_mtdreg[mtdsig][:ignore] = true
-                      end
-                      # or did we inherit a virtual method that was proxied in the base
-                      # for which we DO generate a wrapper override
-                    elsif mtdreg[:virtual] && mtdreg[:proxy] && cls_mtdreg.has_key?(mtdsig)
-                      # if we do not have a proxy as well we're in trouble
-                      if !has_method_proxy?(item, mtdreg[:method])
-                        errors << "* ERROR: method #{mtdreg[:method].signature} is NOT proxied with an overriden wrapper implementation in class #{item.name} but is also implemented and proxied in base class #{base_name}!"
-                      end
+          end
+          cls_items.each do |item|
+            intf_class_name = if item.is_template? || template_as_class?(item.name)
+                                template_class_name(item.name)
+                              else
+                                item.name
+                              end
+            # this should not happen
+            raise "Missing preprocessed data for class #{intf_class_name}" unless has_class_interface(intf_class_name)
+            # get the class's method registry
+            cls_mtdreg = class_interface_methods(intf_class_name)
+            # check all directly inherited generated methods
+            mtdlist = ::Set.new # remember handled signatures
+            base_list(item).each do |base_name|
+              # make sure the base class has been preprocessed
+              get_class_interface(package, base_name, doc_gen) unless has_class_interface(base_name)
+              # generate any required enum typemaps for inherited virtuals
+              gen_base_class_enum_typemaps(base_name, enum_maps)
+              # iterate the base class's method registrations
+              class_interface_methods(base_name).each_pair do |mtdsig, mtdreg|
+                # only check on methods we have not handled yet
+                if !mtdlist.include?(mtdsig)
+                  # did we inherit a virtual method that was not proxied in the base
+                  if mtdreg[:virtual] && !mtdreg[:proxy]
+                    # # if we did NOT generate a wrapper override and we do not have the proxy suppressed we're in trouble
+                    # if !cls_mtdreg.has_key?(mtdsig) && has_method_proxy?(item.name, mtdreg[:method])
+                    #   warnings << "* WARNING: disabling proxy for virtual method #{mtdreg[:method].signature} without wrapper implementation in class #{item.name} since it is NOT proxied in base class #{base_name}!"
+                    # els
+                    if cls_mtdreg.has_key?(mtdsig) && !cls_mtdreg[mtdsig][:extension] && !has_method_proxy?(item.name, cls_mtdreg[mtdsig][:method])
+                      # if this is not a custom extension and we do have an override wrapper and no proxy this is unnecessary code bloat
+                      warnings << " * WARNING: Unnecessary override #{mtdreg[:method].signature} in class #{item.name} for non-proxied base in #{base_name}. Ignoring."
+                      cls_mtdreg[mtdsig][:ignore] = true
                     end
-                    mtdlist << mtdsig
+                    # or did we inherit a virtual method that was proxied in the base
+                    # for which we DO generate a wrapper override
+                  elsif mtdreg[:virtual] && mtdreg[:proxy] && cls_mtdreg.has_key?(mtdsig)
+                    # if we do not have a proxy as well we're in trouble
+                    if !has_method_proxy?(item, mtdreg[:method])
+                      errors << "* ERROR: method #{mtdreg[:method].signature} is NOT proxied with an overriden wrapper implementation in class #{item.name} but is also implemented and proxied in base class #{base_name}!"
+                    end
                   end
+                  mtdlist << mtdsig
                 end
               end
             end
