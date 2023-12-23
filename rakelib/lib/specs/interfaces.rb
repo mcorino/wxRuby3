@@ -230,6 +230,9 @@ module WXRuby3
     Director.Spec(pkg, 'wxFileSystem', requirements: %w[USE_FILESYSTEM])
     Director.Spec(pkg, 'wxDialUpManager', requirements: %w[USE_DIALUP_MANAGER])
     Director.Spec(pkg, 'wxDialUpEvent', requirements: %w[USE_DIALUP_MANAGER])
+    Director.Spec(pkg, 'wxPersistenceManager', requirements: %w[USE_CONFIG])
+    Director.Spec(pkg, 'wxPersistentObject', requirements: %w[USE_CONFIG])
+    Director.Spec(pkg, 'wxPersistentWindow', requirements: %w[USE_CONFIG])
   }
 
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|
