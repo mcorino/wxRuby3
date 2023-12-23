@@ -806,7 +806,7 @@ private:
 
   void SetRootPath()
   {
-    m_strPath.Empty();
+    m_strPath.Clear();
     m_cfgGroup = m_cfgHash;
     m_cfgGroupKeys = Qnil;
   }
@@ -815,7 +815,7 @@ private:
   // if path doesn't exist and createMissingComponents == false
   bool DoSetPath(const wxString& strPath, bool createMissingComponents)
   {
-    if ( strPath.empty() )
+    if ( strPath.IsEmpty() || strPath == cfgSepStr)
     {
         SetRootPath();
         return true;
