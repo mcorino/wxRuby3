@@ -456,12 +456,10 @@ module Widgets
   
       @panel.set_sizer(sizerTop)
 
-      # TODO - review wxPersistenceManager
-      # sizeSet = wxPersistentRegisterAndRestore(this, "Main")
-  
+      sizeSet = Wx.persistent_register_and_restore(self, "Main")
+
       sizeMin = @panel.get_best_size
-      # if ( !sizeSet )
-         set_client_size(sizeMin)
+      set_client_size(sizeMin) unless sizeSet
       set_min_client_size(sizeMin)
 
       # connect the event handlers
@@ -1068,10 +1066,8 @@ module Widgets
         evt_choicebook_page_changed(ID::Widgets_BookCtrl, :on_page_changed)
       end
 
-      # TODO - review wxPersistenceManager
-      # const bool pageSet = wxPersistentRegisterAndRestore(m_book)
-      pageSet = false
-  
+      pageSet = Wx.persistent_register_and_restore(@book)
+
       if Wx.has_feature?(:USE_TREEBOOK)
         # for treebook page #0 is empty parent page only so select the first page
         # with some contents
