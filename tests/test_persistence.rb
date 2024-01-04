@@ -35,6 +35,11 @@ class TopLevelPersistenceTests < WxRuby::Test::GUITests
     grp['w'] = 666
     grp['h'] = 333
 
+    assert_equal(444, Integer(grp['x']))
+    assert_equal(111, Integer(grp['y']))
+    assert_equal(666, Integer(grp.w))
+    assert_equal(333, Integer(grp.h))
+
     Wx.persistent_register_and_restore(frame_win, 'TestFrame')
 
     assert_equal(Wx::Size.new(666, 333), frame_win.size)
