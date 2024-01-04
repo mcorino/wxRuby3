@@ -44,6 +44,14 @@ module WXRuby3
             $input = wxRuby_ConfigBase2Ruby($1);
             __CODE
 
+          map_out code: <<~__CODE
+            $result = wxRuby_ConfigBase2Ruby($1);
+            __CODE
+
+          map_directorout code: <<~__CODE
+            $result = wxRuby_Ruby2ConfigBase($1); 
+            __CODE
+
         end
 
       end
