@@ -121,7 +121,7 @@ module Wx
         when ::Float == output || ::Float === output
           Kernel.Float(val)
         when ::TrueClass == output || ::FalseClass == output || output == true || output == false
-          !!val
+          val.is_a?(Integer) ? val != 0 : !!val
         else
           raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" if output
           val
@@ -450,7 +450,7 @@ module Wx
           when ::Float == output || ::Float === output
             Kernel.Float(val)
           when ::TrueClass == output || ::FalseClass == output || output == true || output == false
-            !!val
+            val.is_a?(::Integer) ? val != 0 :  !!val
           else
             raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" if output
             val
