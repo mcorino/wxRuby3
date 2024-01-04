@@ -52,19 +52,19 @@ class TestConfig < Test::Unit::TestCase
 
   def assert_true_cfg(val)
     assert_block('expected "1" or true') do
-      val == '1' || val == true
+      val == '1' || val == 1 || val == true
     end
   end
 
   def assert_false_cfg(val)
     assert_block("expected '0' or false") do
-      val == '0' || val == false
+      val == '0' || val == 0 || val == false
     end
   end
 
   def assert_equal_cfg(expected, val)
     assert_block("expected #{expected.is_a?(::Hash) ? stringified(expected) : %Q['#{stringified(expected)}']} \nor #{expected}\nbut got #{val}") do
-      expected == val || stringified(expected) == val
+      expected == val || stringified(expected) == stringified(val)
     end
   end
 
