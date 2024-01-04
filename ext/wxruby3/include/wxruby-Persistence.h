@@ -74,9 +74,6 @@ public:
   virtual ~WxRubyPersistentObject();
 protected:
   WxRubyPersistentObject(VALUE rb_obj);
-
-  bool SaveValue(const wxString& name, VALUE value);
-  VALUE RestoreValue(const wxString& name);
 };
 
 #endif /* _WXRUBY_PERSISTENCE_HASH_H */

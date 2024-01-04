@@ -28,27 +28,25 @@ module WXRuby3
               WxRubyPersistenceManager::UnregisterPersistentObject(
                 reinterpret_cast<VALUE> (this->GetObject()));
           } 
-
-          bool WxRubyPersistentObject::SaveValue(const wxString& name, VALUE value)
-          {
-            WxRubyPersistenceManager* wxrb_pm = dynamic_cast<WxRubyPersistenceManager*> (&wxPersistenceManager::Get());
-            return wxrb_pm ? wxrb_pm->SaveRubyValue(*this, name, value) : false;
-          }
-
-          VALUE WxRubyPersistentObject::RestoreValue(const wxString& name)
-          {
-            WxRubyPersistenceManager* wxrb_pm = dynamic_cast<WxRubyPersistenceManager*> (&wxPersistenceManager::Get());
-            return wxrb_pm ? wxrb_pm->RestoreRubyValue(*this, name) : Qnil;
-          } 
           __HEREDOC
         spec.use_class_implementation 'wxPersistentObject', 'WxRubyPersistentObject'
         spec.ignore %w[wxPersistentObject::GetObject wxPersistentObject::wxPersistentObject]
         spec.ignore %w[wxCreatePersistentObject wxPersistentRegisterAndRestore]
         spec.extend_interface 'wxPersistentObject',
                               'wxPersistentObject(VALUE rb_obj)',
-                              'bool SaveValue(const wxString& name, VALUE value)',
-                              'VALUE RestoreValue(const wxString& name)',
                               visibility: 'protected'
+        spec.add_extend_code 'wxPersistentObject', <<~__HEREDOC
+          bool SaveValue(const wxString& name, VALUE value)
+          {
+            WxRubyPersistenceManager* wxrb_pm = dynamic_cast<WxRubyPersistenceManager*> (&wxPersistenceManager::Get());
+            return wxrb_pm ? wxrb_pm->SaveRubyValue(*$self, name, value) : false;
+          }
+          VALUE RestoreValue(const wxString& name)
+          {
+            WxRubyPersistenceManager* wxrb_pm = dynamic_cast<WxRubyPersistenceManager*> (&wxPersistenceManager::Get());
+            return wxrb_pm ? wxrb_pm->RestoreRubyValue(*$self, name) : Qnil;
+          } 
+          __HEREDOC
         spec.add_extend_code 'wxPersistentObject', <<~__HEREDOC
           VALUE GetObject()
           {
