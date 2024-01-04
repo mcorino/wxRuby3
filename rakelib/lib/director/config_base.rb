@@ -270,8 +270,11 @@ module WXRuby3
             {
               case T_TRUE:
               case T_FALSE:
-                rc = cfg->Write(key, value == Qtrue);
+              {
+                PO_LONG v = (value == Qtrue ? 1 : 0);
+                rc = cfg->Write(key, v);
                 break;
+              }
         
               case T_FIXNUM:
                 rc = cfg->Write(key, PO_NUM2LONG(value));
