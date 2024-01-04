@@ -94,6 +94,25 @@ module Wx
       wx_rename.bind(self).call(old_key, new_key)
     end
 
+    # fix recursive number_of_xxx methods as wxRegConfig does not support this currently
+    wx_number_of_entries = instance_method :number_of_entries
+    define_method :number_of_entries do |recurse=false|
+      if recurse
+        each_group.inject(wx_number_of_entries.bind(self).call) { |c, (_, g)| c + g.number_of_entries(true) }
+      else
+        wx_number_of_entries.bind(self).call
+      end
+    end
+
+    wx_number_of_groups = instance_method :number_of_groups
+    define_method :number_of_groups do |recurse=false|
+      if recurse
+        each_group.inject(wx_number_of_groups.bind(self).call) { |c, (_, g)| c + g.number_of_groups(true) }
+      else
+        wx_number_of_groups.bind(self).call
+      end
+    end
+
     def root?
       true
     end
@@ -249,12 +268,12 @@ module Wx
         end
       end
 
-      def number_of_entries
-        root.__send__(:for_path, @path_str) { |cfg,_| cfg.number_of_entries }
+      def number_of_entries(recurse=false)
+        root.__send__(:for_path, @path_str) { |cfg,_| cfg.number_of_entries(recurse) }
       end
 
-      def number_of_groups
-        root.__send__(:for_path, @path_str) { |cfg,_| cfg.number_of_groups }
+      def number_of_groups(recurse=false)
+        root.__send__(:for_path, @path_str) { |cfg,_| cfg.number_of_groups(recurse) }
       end
 
       def get(key)
