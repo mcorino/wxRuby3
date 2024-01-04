@@ -12,6 +12,8 @@ module WXRuby3
 
     class PersistenceManager < Director
 
+      include Typemap::ConfigBase
+
       def setup
         super
         spec.gc_as_marked
