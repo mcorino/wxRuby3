@@ -367,9 +367,7 @@ module Wx
         group_data = if segments.empty?
                        data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
+                       segments = self.path + segments unless abs || root?
                        get_group_at(segments)
                      end
         !!(group_data && group_data.has_key?(entry) && !group_data[entry].is_a?(::Hash))
@@ -378,9 +376,7 @@ module Wx
       def has_group?(path_str)
         segments, abs = get_path(path_str)
         return root? if segments.empty?
-        unless abs || root?
-          segments = self.path + segments
-        end
+        segments = self.path + segments unless abs || root?
         !!get_group_at(segments)
       end
 
@@ -412,7 +408,7 @@ module Wx
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          hsh[key] = sanitize_value(val)
+          hsh[key] = val
         end
       end
 
@@ -423,13 +419,10 @@ module Wx
         group_data = if segments.empty?
                        data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
+                       segments = self.path + segments unless abs || root?
                        get_group_at(segments, create_missing_groups: false)
                      end
-        raise ArgumentError, "Unable to resolve path #{segments+[last]}" unless group_data
-        group_data.delete(last)
+        group_data ? group_data.delete(last) : nil
       end
 
       def rename(old_key, new_key)
@@ -450,20 +443,20 @@ module Wx
         return nil if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
+                       segments = self.path.dup unless abs || root?
                        data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
-                       get_group_at(segments, create_missing_groups: true)
+                       segments = self.path + segments unless abs || root?
+                       get_group_at(segments)
                      end
-        raise ArgumentError, "Unable to resolve path #{segments+[last]}" unless group_data
-        val = group_data[last]
+        val = group_data ? group_data[last] : nil
         if val.is_a?(::Hash)
           raise TypeError, "Cannot convert group" unless output.nil?
           Group.new(self, segments.dup.push(last))
         else
           case
+          when val.nil?
+            val
           when ::String == output || ::String === output
             val.to_s
           when ::Integer == output || ::Integer === output
@@ -485,11 +478,10 @@ module Wx
         return false if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
+                       segments = self.path.dup unless abs || root?
                        data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
+                       segments = self.path + segments unless abs || root?
                        get_group_at(segments, create_missing_groups: true)
                      end
         raise ArgumentError, "Unable to resolve path #{segments+[last]}" unless group_data
@@ -506,7 +498,7 @@ module Wx
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          group_data[last] = sanitize_value(val)
+          group_data[last] = val
         end
       end
       alias :[]= :write
@@ -528,21 +520,21 @@ module Wx
       end
       protected :get_path
 
-      def sanitize_value(val)
-        case val
-        when TrueClass, FalseClass, Numeric, String
-          val
-        else
-          if val.respond_to?(:to_int)
-            val.to_int
-          elsif val.respond_to?(:to_f)
-            val.to_f
-          else
-            val.to_s
-          end
-        end
-      end
-      protected :sanitize_value
+      # def sanitize_value(val)
+      #   case val
+      #   when TrueClass, FalseClass, Numeric, String
+      #     val
+      #   else
+      #     if val.respond_to?(:to_int)
+      #       val.to_int
+      #     elsif val.respond_to?(:to_f)
+      #       val.to_f
+      #     else
+      #       val.to_s
+      #     end
+      #   end
+      # end
+      # protected :sanitize_value
 
     end
 
