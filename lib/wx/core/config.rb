@@ -520,22 +520,6 @@ module Wx
       end
       protected :get_path
 
-      # def sanitize_value(val)
-      #   case val
-      #   when TrueClass, FalseClass, Numeric, String
-      #     val
-      #   else
-      #     if val.respond_to?(:to_int)
-      #       val.to_int
-      #     elsif val.respond_to?(:to_f)
-      #       val.to_f
-      #     else
-      #       val.to_s
-      #     end
-      #   end
-      # end
-      # protected :sanitize_value
-
     end
 
     class Group
