@@ -215,7 +215,7 @@ module WXRuby3
             {
               case wxConfigBase::Type_Boolean:
               {
-                bool v;
+                bool v = false;
                 if (cfg->Read(key, &v))
                 {
                   return v ? Qtrue : Qfalse;
@@ -224,7 +224,7 @@ module WXRuby3
               }
               case wxConfigBase::Type_Integer:
               {
-                PO_LONG v;
+                PO_LONG v = 0;
                 if (cfg->Read(key, &v))
                 {
                   return PO_LONG2NUM(v);
@@ -233,7 +233,7 @@ module WXRuby3
               }
               case wxConfigBase::Type_Float:
               {
-                double v;
+                double v = 0.0;
                 if (cfg->Read(key, &v))
                 {
                   return DBL2NUM(v);
