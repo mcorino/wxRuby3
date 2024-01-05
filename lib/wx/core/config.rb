@@ -330,17 +330,17 @@ module Wx
 
       def each_entry(&block)
         if block_given?
-          @data.select { |_,v| !v.is_a?(::Hash) }.each(&block)
+          data.select { |_,v| !v.is_a?(::Hash) }.each(&block)
         else
-          ::Enumerator.new { |y| @data.each_pair { |k,v| y << [k,v] if !v.is_a?(::Hash) } }
+          ::Enumerator.new { |y| data.each_pair { |k,v| y << [k,v] if !v.is_a?(::Hash) } }
         end
       end
 
       def each_group(&block)
         if block_given?
-          @data.select { |_,g| g.is_a?(::Hash) }.each { |k,g| block.call(k, Group.new(self, self.path.dup.push(k), g)) }
+          data.select { |_,g| g.is_a?(::Hash) }.each { |k,g| block.call(k, Group.new(self, self.path.dup.push(k))) }
         else
-          ::Enumerator.new { |y| @data.each_pair { |k,g| y << [k,Group.new(self, self.path.dup.push(k), g)] if g.is_a?(::Hash) } }
+          ::Enumerator.new { |y| data.each_pair { |k,g| y << [k,Group.new(self, self.path.dup.push(k))] if g.is_a?(::Hash) } }
         end
       end
 
@@ -365,7 +365,7 @@ module Wx
         return false if segments.empty?
         entry = segments.pop
         group_data = if segments.empty?
-                       @data
+                       data
                      else
                        unless abs || root?
                          segments = self.path + segments
@@ -387,9 +387,9 @@ module Wx
       def get(key)
         key = key.to_s
         raise ArgumentError, 'No paths allowed' if key.index(ConfigBase::SEPARATOR)
-        elem = @data[key]
+        elem = data[key]
         if elem.is_a?(::Hash)
-          Group.new(self, self.path.dup.push(key), elem)
+          Group.new(self, self.path.dup.push(key))
         else
           elem
         end
@@ -398,20 +398,21 @@ module Wx
       def set(key, val)
         key = key.to_s
         raise ArgumentError, 'No paths allowed' if key.index(ConfigBase::SEPARATOR)
-        exist = @data.has_key?(key)
-        elem = exist ? @data[key] : nil
+        hsh = data
+        exist = hsh.has_key?(key)
+        elem = exist ? hsh[key] : nil
         if val.nil?
-          @data.delete(key) if exist
+          hsh.delete(key) if exist
           nil
         elsif val.is_a?(::Hash)
           raise ArgumentError, 'Cannot change existing value entry to group.' if exist && !elem.is_a?(::Hash)
-          elem  = @data[key] = {} unless elem
-          group = Group.new(self, self.path.dup.push(key), elem)
+          elem  = hsh[key] = {} unless elem
+          group = Group.new(self, self.path.dup.push(key))
           val.each_pair { |k, v| group.set(k, v) }
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          @data[key] = sanitize_value(val)
+          hsh[key] = sanitize_value(val)
         end
       end
 
@@ -420,7 +421,7 @@ module Wx
         return nil if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
-                       @data
+                       data
                      else
                        unless abs || root?
                          segments = self.path + segments
@@ -435,8 +436,9 @@ module Wx
         old_key = old_key.to_s
         new_key = new_key.to_s
         raise ArgumentError, 'No paths allowed' if old_key.index(ConfigBase::SEPARATOR) || new_key.index(ConfigBase::SEPARATOR)
-        if @data.has_key?(old_key) && !@data.has_key?(new_key)
-          @data[new_key] = @data.delete(old_key)
+        hsh = data
+        if hsh.has_key?(old_key) && !hsh.has_key?(new_key)
+          hsh[new_key] = hsh.delete(old_key)
           true
         else
           false
@@ -448,7 +450,7 @@ module Wx
         return nil if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
-                       @data
+                       data
                      else
                        unless abs || root?
                          segments = self.path + segments
@@ -459,7 +461,7 @@ module Wx
         val = group_data[last]
         if val.is_a?(::Hash)
           raise TypeError, "Cannot convert group" unless output.nil?
-          Group.new(self, segments.dup.push(last), val)
+          Group.new(self, segments.dup.push(last))
         else
           case
           when ::String == output || ::String === output
@@ -483,7 +485,7 @@ module Wx
         return false if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
-                       @data
+                       data
                      else
                        unless abs || root?
                          segments = self.path + segments
@@ -499,7 +501,7 @@ module Wx
         elsif val.is_a?(::Hash)
           raise ArgumentError, 'Cannot change existing value entry to group.' if exist && !elem.is_a?(::Hash)
           elem  = group_data[last] = {} unless elem
-          group = Group.new(self, segments.dup.push(last), elem)
+          group = Group.new(self, segments.dup.push(last))
           val.each_pair { |k, v| group.set(k, v) }
           group
         else
@@ -514,7 +516,7 @@ module Wx
       end
 
       def to_h
-        @data
+        data
       end
 
       def get_path(path_str)
@@ -550,11 +552,15 @@ module Wx
 
       include Interface
 
-      def initialize(parent, path, data)
+      def initialize(parent, path)
         @parent = parent
         @path = path.freeze
-        @data = data
       end
+
+      def data
+        self.root.__send__(:get_group_at, @path, create_missing_groups: true, is_pruned: true)
+      end
+      protected :data
 
       def root?
         false
@@ -573,7 +579,7 @@ module Wx
       end
 
       def get_group_at(segments, create_missing_groups: false)
-        root.__send__(:get_group_at, segments)
+        root.__send__(:get_group_at, segments, create_missing_groups: create_missing_groups)
       end
       protected :get_group_at
 
@@ -585,6 +591,11 @@ module Wx
       @data = {}
       replace(hash) if hash
     end
+
+    def data
+      @data
+    end
+    protected :data
 
     def root?
       true
@@ -614,19 +625,21 @@ module Wx
       self
     end
 
-    def get_group_at(segments, create_missing_groups: false)
-      # prune segments (process relative segments)
-      segments = segments.inject([]) do |lst, seg|
-        case seg
-        when '..'
-          lst.pop # remove previous
-          # forget ..
-        when '.'
-          # forget
-        else
-          lst << seg
+    def get_group_at(segments, create_missing_groups: false, is_pruned: false)
+      unless is_pruned
+        # prune segments (process relative segments)
+        segments = segments.inject([]) do |lst, seg|
+          case seg
+          when '..'
+            lst.pop # remove previous
+            # forget ..
+          when '.'
+            # forget
+          else
+            lst << seg
+          end
+          lst
         end
-        lst
       end
       # find group matching segments
       segments.inject(@data) do |hsh, seg|
