@@ -18,7 +18,7 @@ module Wx
       def method_missing(sym, *args, &block)
         unless block_given? || args.size>1
           setter = false
-          key = sym.to_s.sub(/=\z/) { |s| setter = true; '' }
+          key = sym.to_s.sub(/=\z/) { |_| setter = true; '' }
           if (!setter && args.empty?) || (!has_group?(key) && setter && args.size==1)
             if setter
               return set(key, args.shift)
@@ -332,13 +332,13 @@ module Wx
         if block_given?
           data.select { |_,v| !v.is_a?(::Hash) }.each(&block)
         else
-          ::Enumerator.new { |y| data.each_pair { |k,v| y << [k,v] if !v.is_a?(::Hash) } }
+          ::Enumerator.new { |y| data.each_pair { |k,v| y << [k,v] unless v.is_a?(::Hash) } }
         end
       end
 
       def each_group(&block)
         if block_given?
-          data.select { |_,g| g.is_a?(::Hash) }.each { |k,g| block.call(k, Group.new(self, self.path.dup.push(k))) }
+          data.select { |_,g| g.is_a?(::Hash) }.each { |k,_| block.call(k, Group.new(self, self.path.dup.push(k))) }
         else
           ::Enumerator.new { |y| data.each_pair { |k,g| y << [k,Group.new(self, self.path.dup.push(k))] if g.is_a?(::Hash) } }
         end
@@ -402,7 +402,7 @@ module Wx
           nil
         elsif val.is_a?(::Hash)
           raise ArgumentError, 'Cannot change existing value entry to group.' if exist && !elem.is_a?(::Hash)
-          elem  = hsh[key] = {} unless elem
+          hsh[key] = {} unless elem
           group = Group.new(self, self.path.dup.push(key))
           val.each_pair { |k, v| group.set(k, v) }
           group
@@ -491,7 +491,7 @@ module Wx
           nil
         elsif val.is_a?(::Hash)
           raise ArgumentError, 'Cannot change existing value entry to group.' if exist && !elem.is_a?(::Hash)
-          elem  = group_data[last] = {} unless elem
+          group_data[last] = {} unless elem
           group = Group.new(self, segments.dup.push(last))
           val.each_pair { |k, v| group.set(k, v) }
           group
