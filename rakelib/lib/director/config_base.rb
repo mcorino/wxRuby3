@@ -17,6 +17,7 @@ module WXRuby3
         spec.items.clear
         spec.add_header_code <<~__HEREDOC
           #include "wxruby-Config.h"
+          #include <limits>
 
           static const char * __iv_ConfigBase_sc_config = "@config";
 
@@ -277,8 +278,14 @@ module WXRuby3
               }
         
               case T_FIXNUM:
-                rc = cfg->Write(key, PO_NUM2LONG(value));
+              {
+                PO_LONG v = PO_NUM2LONG(value);
+                if (v > std::numeric_limits<int32_t>::max())
+                { rc = cfg->Write(key, PO_NUM2LONG(value)); }
+                else
+                { rc = cfg->Write(key, static_cast<int32_t> (v)); }
                 break;
+              }
 
               case T_BIGNUM:
                 {
