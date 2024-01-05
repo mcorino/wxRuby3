@@ -272,7 +272,7 @@ module WXRuby3
               case T_TRUE:
               case T_FALSE:
               {
-                PO_LONG v = (value == Qtrue ? 1 : 0);
+                int32_t v = (value == Qtrue ? 1 : 0);
                 rc = cfg->Write(key, v);
                 break;
               }
