@@ -142,8 +142,8 @@ module Wx
         when ::TrueClass == output || ::FalseClass == output || output == true || output == false
           val.is_a?(Integer) ? val != 0 : !!val
         else
-          raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" if output
-          val
+          raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" unless output.nil? || output.is_a?(::Proc)
+          output ? output.call(val) : val
         end
       end
     end
@@ -454,9 +454,8 @@ module Wx
           raise TypeError, "Cannot convert group" unless output.nil?
           Group.new(self, segments.dup.push(last))
         else
+          return val unless val && output
           case
-          when val.nil?
-            val
           when ::String == output || ::String === output
             val.to_s
           when ::Integer == output || ::Integer === output
@@ -466,8 +465,8 @@ module Wx
           when ::TrueClass == output || ::FalseClass == output || output == true || output == false
             val.is_a?(::Integer) ? val != 0 :  !!val
           else
-            raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" if output
-            val
+            raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" unless output.nil? || output.is_a?(::Proc)
+            output ? output.call(val) : val
           end
         end
       end

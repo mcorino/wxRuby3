@@ -113,7 +113,7 @@ module Wx
       # By default returns un-coerced value.
       # Raises exception if incompatible coercion is specified.
       # @param [String] path_str
-      # @param [Class,nil] output output type to convert to
+      # @param [Class,Proc,nil] output output type (or converter proc) to convert to (with)
       # @return [Boolean,String,Integer,Float,Wx::Config::Group,nil] value entry value
       def read(path_str, output=nil) end
 

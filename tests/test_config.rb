@@ -192,6 +192,10 @@ class TestConfig < Test::Unit::TestCase
 
     cfg.Group1.Group1_2 = { 'Float' => 0.3330 }
     assert_equal_cfg(0.3330, cfg.Group1.Group1_2.get('Float'))
+
+    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float').to_f)
+    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float', Float))
+    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float', ->(v) { v.to_f }))
   end
 
   def test_basic
