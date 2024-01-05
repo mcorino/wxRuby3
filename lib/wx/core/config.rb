@@ -408,7 +408,7 @@ module Wx
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          hsh[key] = val
+          hsh[key] = sanitize(val)
         end
       end
 
@@ -497,7 +497,7 @@ module Wx
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          group_data[last] = val
+          group_data[last] = sanitize(val)
         end
       end
       alias :[]= :write
@@ -518,6 +518,27 @@ module Wx
         [segs, abs]
       end
       protected :get_path
+
+      def sanitize(val)
+        if root.expanding_env_vars? && ::String === val
+          brackets = '{('
+          brackets << '%' if Wx::PLATFORM == 'WXMSW'
+          val.gsub!(/([\\])?\$([#{brackets}])?(\w+)([})%])?/) do |s|
+            if $1.nil? &&
+              (($2.nil? && $4.nil?) ||
+                ($2 == '{' && $4 == '}') ||
+                ($2 == '(' && $4 == ')') ||
+                (win && $2 == '%' && $4 == '%')) &&
+              ENV[$3]
+              $1 ? $1+ENV[$3] : ENV[$3]
+            else
+              $1 ? s[1,s.size] : s
+            end
+          end
+        end
+        val
+      end
+      protected :sanitize
 
     end
 
@@ -563,6 +584,7 @@ module Wx
     include Interface
 
     def initialize(hash = nil)
+      @expand_env_vars = true
       @data = {}
       replace(hash) if hash
     end
@@ -599,6 +621,16 @@ module Wx
       hash.each_pair { |k,v| self.set(k, v) }
       self
     end
+
+    def is_expanding_env_vars
+      @expand_env_vars
+    end
+    alias :expanding_env_vars? :is_expanding_env_vars
+
+    def set_expand_env_vars(flag)
+      @expand_env_vars = !!flag
+    end
+    alias :expand_env_vars :set_expand_env_vars
 
     def get_group_at(segments, create_missing_groups: false, is_pruned: false)
       unless is_pruned

@@ -186,6 +186,16 @@ module Wx
     # @return [self]
     def replace(hash) end
 
+    # Returns true if we are expanding environment variables in string values, false otherwise.
+    # @return [Boolean]
+    def is_expanding_env_vars; end
+    alias :expanding_env_vars? :is_expanding_env_vars
+
+    # Determine whether we wish to expand environment variables in string values.
+    # @param [Boolean] flag enables expanding environment variables if true, disables otherwise
+    def set_expand_env_vars(flag) end
+    alias :expand_env_vars :set_expand_env_vars
+
   end
 
   # Configuration class for wxRuby which stores it's settings in a (possibly nested) Hash.
@@ -224,6 +234,16 @@ module Wx
     # @param [Hash] hash content to replace configuration
     # @return [self]
     def replace(hash) end
+
+    # Returns true if we are expanding environment variables in string values, false otherwise.
+    # @return [Boolean]
+    def is_expanding_env_vars; end
+    alias :expanding_env_vars? :is_expanding_env_vars
+
+    # Determine whether we wish to expand environment variables in string values.
+    # @param [Boolean] flag enables expanding environment variables if true, disables otherwise
+    def set_expand_env_vars(flag) end
+    alias :expand_env_vars :set_expand_env_vars
 
   end
 

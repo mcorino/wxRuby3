@@ -330,7 +330,7 @@ module WXRuby3
 
             if (argc < 1 || argc > 1) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             wxString name = RSTR_TO_WXSTR(argv[0]);
             wxConfigPathChanger path(cfg, name);
@@ -350,7 +350,7 @@ module WXRuby3
 
             if (argc < 1 || argc > 1) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             wxString key = RSTR_TO_WXSTR(argv[0]);
             VALUE rc = Qfalse;
@@ -372,7 +372,7 @@ module WXRuby3
 
             if (argc < 2 || argc > 2) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 2)", argc);
             }
             wxString key = RSTR_TO_WXSTR(argv[0]);
             wxString newKey = RSTR_TO_WXSTR(argv[1]);
@@ -395,7 +395,7 @@ module WXRuby3
 
             if (argc < 0 || argc > 0) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 0)", argc);
             }
             wxString key;
             long index = 0;
@@ -420,7 +420,7 @@ module WXRuby3
 
             if (argc < 0 || argc > 0) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 0)", argc);
             }
             wxString key;
             long index = 0;
@@ -445,7 +445,7 @@ module WXRuby3
 
             if (argc < 0 || argc > 2) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             bool recurse = argc>0 ? (argv[0] != Qfalse && argv[0] != Qnil) : false; 
             size_t n = cfg->GetNumberOfEntries(recurse);
@@ -459,7 +459,7 @@ module WXRuby3
 
             if (argc < 0 || argc > 2) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             bool recurse = argc>0 ? (argv[0] != Qfalse && argv[0] != Qnil) : false; 
             size_t n = cfg->GetNumberOfGroups(recurse);
@@ -486,7 +486,7 @@ module WXRuby3
 
             if (argc < 1 || argc > 1) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             wxString path = RSTR_TO_WXSTR(argv[0]);
             return cfg->HasGroup(path) ? Qtrue : Qfalse;
@@ -499,7 +499,7 @@ module WXRuby3
 
             if (argc < 0 || argc > 2) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             return WXSTR_TO_RSTR(cfg->GetPath());
           }
@@ -511,9 +511,35 @@ module WXRuby3
 
             if (argc < 0 || argc > 2) 
             {
-              rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)", argc);
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
             }
             return cfg->DeleteAll() ? Qtrue : Qfalse;
+          }
+
+          static VALUE config_wx_is_expanding_env_vars(int argc, VALUE *argv, VALUE self)
+          {
+            wxConfigBase *cfg;
+            Data_Get_Struct(self, wxConfigBase, cfg);
+
+            if (argc != 0) 
+            {
+              rb_raise(rb_eArgError, "No arguments expected");
+            }
+            return cfg->IsExpandingEnvVars() ? Qtrue : Qfalse;
+          }
+
+          static VALUE config_wx_set_expand_env_vars(int argc, VALUE *argv, VALUE self)
+          {
+            wxConfigBase *cfg;
+            Data_Get_Struct(self, wxConfigBase, cfg);
+
+            if (argc < 1 || argc > 1) 
+            {
+              rb_raise(rb_eArgError, "wrong # of arguments (%d for 1)", argc);
+            }
+            bool expand = (argv[0] != Qfalse && argv[0] != Qnil);
+            cfg->SetExpandEnvVars(expand);
+            return Qnil;
           }
           __HEREDOC
         spec.add_wrapper_code <<~__HEREDOC
@@ -563,6 +589,10 @@ module WXRuby3
           rb_define_method(g_cConfigWx, "rename", VALUEFUNC(config_wx_rename), -1);
           rb_define_method(g_cConfigWx, "path", VALUEFUNC(config_wx_path), -1);
           rb_define_method(g_cConfigWx, "clear", VALUEFUNC(config_wx_clear), -1);
+          rb_define_method(g_cConfigWx, "is_expanding_env_vars", VALUEFUNC(config_wx_is_expanding_env_vars), -1);
+          rb_define_alias(g_cConfigWx, "expanding_env_vars?", "is_expanding_env_vars");
+          rb_define_method(g_cConfigWx, "set_expand_env_vars", VALUEFUNC(config_wx_set_expand_env_vars), -1);
+          rb_define_alias(g_cConfigWx, "expand_env_vars=", "set_expand_env_vars");
 
           g_cConfig = rb_define_class_under(mWxCore, "Config", g_cConfigBase);
           rb_define_alloc_func(g_cConfig, config_allocate);
