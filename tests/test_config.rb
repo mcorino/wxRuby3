@@ -132,6 +132,10 @@ class TestConfig < Test::Unit::TestCase
     cfg['/Group1/Group1_2'] = { 'Float' => 0.3330 }
     assert_equal_cfg(0.3330, cfg['/Group1/Group1_2'].get('Float'))
 
+    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float').to_f)
+    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float', Float))
+    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float', ->(v) { v.to_f }))
+
     cfg.replace(DEMO_CONFIG) # reset
   end
 
@@ -193,9 +197,48 @@ class TestConfig < Test::Unit::TestCase
     cfg.Group1.Group1_2 = { 'Float' => 0.3330 }
     assert_equal_cfg(0.3330, cfg.Group1.Group1_2.get('Float'))
 
-    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float').to_f)
-    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float', Float))
-    assert_equal(0.3330, cfg.read('/Group1/Group1_2/Float', ->(v) { v.to_f }))
+    cfg.replace(DEMO_CONFIG) # reset
+  end
+
+  def run_env_var_tests(cfg)
+    # by default expansion is on
+
+    # add a number of entries for env var in new group 'Environment'
+    cfg['/Environment/HOME'] = '$HOME'
+    cfg['Environment'].USER = Wx::PLATFORM == 'WXMSW' ? '%USERNAME%' : '${USER}'
+    cfg['/Environment/PATH'] = '$(PATH)'
+
+    assert_equal(ENV['HOME'], cfg.Environment['HOME'])
+    assert_equal(ENV[Wx::PLATFORM == 'WXMSW' ?  'USERNAME' : 'USER'], cfg['/Environment/USER'])
+    assert_equal(ENV['PATH'], cfg.Environment.PATH)
+
+    # test escaping
+    cfg['/Environment/Escaped_HOME'] = '\$HOME'
+    cfg['/Environment/Escaped_HOME2'] = '\\$HOME'
+    cfg['/Environment/Escaped_HOME3'] = '\\\$HOME'
+
+    assert_equal('$HOME', cfg.Environment['Escaped_HOME'])
+    assert_equal('$HOME', cfg.Environment['Escaped_HOME2'])
+    assert_equal('\$HOME', cfg.Environment['Escaped_HOME3'])
+
+    cfg['/Environment/NONSENSE'] = '${NonExistingLongNonsenseVariable}'
+
+    assert_equal('${NonExistingLongNonsenseVariable}', cfg.Environment['NONSENSE'])
+
+    cfg['/Environment/MULTIPLE'] = "$HOME / #{Wx::PLATFORM == 'WXMSW' ? '%USERNAME%' : '${USER}'}"
+
+    assert_equal("#{ENV['HOME']} / #{Wx::PLATFORM == 'WXMSW' ? ENV['USERNAME'] : ENV['USER']}", cfg.Environment['MULTIPLE'])
+
+    # disable env var expansion
+    cfg.expand_env_vars = false
+    begin
+      cfg['/Environment/HOME'] = '$HOME'
+
+      assert_equal('$HOME', cfg.Environment['HOME'])
+    ensure
+      # re-enable
+      cfg.set_expand_env_vars(true)
+    end
   end
 
   def test_basic
@@ -203,6 +246,7 @@ class TestConfig < Test::Unit::TestCase
 
     run_config_tests(cfg)
     run_auto_accessor_tests(cfg)
+    run_env_var_tests(cfg)
   end
 
   def test_global
@@ -218,6 +262,7 @@ class TestConfig < Test::Unit::TestCase
 
     run_config_tests(cfg)
     run_auto_accessor_tests(cfg)
+    run_env_var_tests(cfg)
 
     cfg_old = Wx::ConfigBase.set(nil)
 
@@ -238,6 +283,7 @@ class TestConfig < Test::Unit::TestCase
 
     run_config_tests(cfg)
     run_auto_accessor_tests(cfg)
+    run_env_var_tests(cfg)
 
     assert_true(cfg.clear) # cleanup
   end
