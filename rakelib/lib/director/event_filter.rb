@@ -14,7 +14,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_untracked # no tracking
+        spec.gc_as_marked # not tracked but cached in Ruby
       end
     end # class EventFilter
 

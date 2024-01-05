@@ -272,6 +272,16 @@ module WXRuby3
         self
       end
 
+      def gc_as_marked(*names)
+        if names.empty?
+          @gc_type = :GC_MANAGE_AS_MARKED
+        else
+          @gc_type = ::Hash.new unless @gc_type.is_a?(::Hash)
+          names.flatten.each {|n| @gc_type[n] = :GC_MANAGE_AS_MARKED }
+        end
+        self
+      end
+
       def gc_type(name)
         @gc_type.is_a?(::Hash) ? @gc_type[name] : @gc_type
       end

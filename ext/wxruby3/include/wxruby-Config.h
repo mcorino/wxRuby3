@@ -53,6 +53,7 @@ static int wxrb_CountConfig(VALUE key, VALUE value, VALUE rbCounter)
 }
 
 static VALUE g_cConfigBase;
+static VALUE g_cConfigWx;
 static VALUE g_cConfig;
 
 /*
@@ -88,11 +89,17 @@ public:
 
   virtual ~wxRbHashConfig()
   {
-    DATA_PTR(m_cfgInstance) = 0; // make sure it never get's deleted twice
+    if (!NIL_P(m_cfgInstance))
+    {
+      DATA_PTR(m_cfgInstance) = 0; // make sure it never get's deleted twice
+    }
   }
 
-  // Get wrapped Ruby ConfigBase instance
+  // Get wrapped Ruby Config instance
   VALUE GetRubyConfig() const { return m_cfgInstance; }
+
+  // Reset wrapped Ruby Config instance
+  void ResetRubyConfig() { m_cfgInstance = Qnil; }
 
   // implement inherited pure virtual functions
   virtual void SetPath(const wxString& strPath) override { DoSetPath(strPath, true /* create missing components */); }
@@ -806,7 +813,7 @@ private:
 
   void SetRootPath()
   {
-    m_strPath.Empty();
+    m_strPath.Clear();
     m_cfgGroup = m_cfgHash;
     m_cfgGroupKeys = Qnil;
   }
@@ -815,7 +822,7 @@ private:
   // if path doesn't exist and createMissingComponents == false
   bool DoSetPath(const wxString& strPath, bool createMissingComponents)
   {
-    if ( strPath.empty() )
+    if ( strPath.IsEmpty() || strPath == cfgSepStr)
     {
         SetRootPath();
         return true;
@@ -913,7 +920,8 @@ static const char * __iv_Config_data = "@data";
 
 WXRUBY_EXPORT bool wxRuby_IsRubyConfig(VALUE rbConfig)
 {
-  return rb_obj_is_kind_of(rbConfig, g_cConfig) == Qtrue;
+  return rb_obj_is_kind_of(rbConfig, g_cConfig) == Qtrue ||
+    rb_obj_is_kind_of(rbConfig, g_cConfigWx) == Qtrue;
 }
 
 // Wrap a Ruby hash for input type mapping
@@ -933,6 +941,12 @@ WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbConfig)
     // return wrapper
     return config;
   }
+  else if (rb_obj_is_kind_of(rbConfig, g_cConfigWx) == Qtrue)
+  {
+    wxConfigBase* cfg;
+    Data_Get_Struct(rbConfig, wxConfigBase, cfg);
+    return cfg;
+  }
   return nullptr;
 }
 
@@ -945,6 +959,10 @@ WXRUBY_EXPORT VALUE wxRuby_ConfigBase2Ruby(wxConfigBase* config)
     if (hsh_config)
     {
       return hsh_config->GetRubyConfig();
+    }
+    else
+    {
+      return Data_Wrap_Struct(g_cConfigWx, 0, 0, config);
     }
   }
   return Qnil;

@@ -45,6 +45,10 @@ module WXRuby3
         spec.add_swig_code %Q{typedef wxStaticBitmap::ScaleMode ScaleMode; }
         spec.add_header_code %Q{typedef wxStaticBitmap::ScaleMode ScaleMode; }
         defmod.items << def_genstatbmp
+        # as we already called super before adding wxGenericStaticBitmap the no_proxy settings from the
+        # base Window director are missing; just copy all those set for wxStaticBitmap
+        list = spec.no_proxies.select { |name| name.start_with?('wxStaticBitmap::') }
+        spec.no_proxy(*list.collect { |name| name.sub(/\AwxStaticBitmap::/, 'wxGenericStaticBitmap::')})
         defmod
       end
 

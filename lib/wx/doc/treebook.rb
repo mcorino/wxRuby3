@@ -7,12 +7,17 @@
 
 module Wx
 
-  class Treebook
+  class Treebook < BookCtrlBase
 
     # Returns the Wx::TreeCtrl used for this Treebook
     # @return [Wx::TreeCtrl] the tree control
     def get_tree_ctrl; end
     alias :tree_ctrl :get_tree_ctrl
+
+    # Creates PersistentObject for this treebook control instance.
+    # @see Wx.create_persistent_object
+    # @return [Wx::PersistentTreeBookCtrl]
+    def create_persistent_object; end
 
   end
 

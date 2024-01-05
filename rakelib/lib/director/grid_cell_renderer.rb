@@ -14,7 +14,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_untracked
+        spec.gc_as_marked # tailored tracking
         # use custom free func to be able to account for more complex inheritance
         spec.add_header_code 'extern void GC_free_GridCellRenderer(void *ptr);'
         spec.add_swig_code '%feature("freefunc") wxGridCellRenderer "GC_free_GridCellRenderer";'

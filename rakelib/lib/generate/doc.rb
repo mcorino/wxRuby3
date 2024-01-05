@@ -480,7 +480,7 @@ module WXRuby3
              /\A\s*Include\s+file:/           # Include file note
           ''
         else
-          para.sub!(/Include\s+file:\s+\#include\s+\<[^>]+\>\s*\Z/, '')
+          para.sub!(/Include\s+file:\s+\\?#include\s+<[^>]+> */, '')
           if event_section?
             case para
             when /The following event handler macros redirect.*(\{.*})/

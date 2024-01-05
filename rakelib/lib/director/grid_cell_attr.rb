@@ -17,7 +17,7 @@ module WXRuby3
         # exposing the mixin wxClientDataContainer/wxSharedClientDataContainer has no real upside
         # for wxRuby; far easier to just use member variables in derived classes
         spec.override_inheritance_chain('wxGridCellAttr', [])
-        spec.gc_as_untracked('wxGridCellAttr')
+        spec.gc_as_marked('wxGridCellAttr') # tailored tracking
         # use custom free func to be able to account for more complex inheritance
         spec.add_header_code <<~__HEREDOC
           static void GC_free_GridCellAttr(void *ptr)

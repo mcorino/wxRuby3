@@ -17,6 +17,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxHeaderColumn' << 'wxHeaderCtrlSimple' << 'wxSettableHeaderColumn' << 'wxHeaderColumnSimple'
+        spec.gc_as_marked 'wxHeaderColumn', 'wxSettableHeaderColumn', 'wxHeaderColumnSimple'
         spec.regard 'wxHeaderCtrl::GetColumn',
                     'wxHeaderCtrl::UpdateColumnVisibility',
                     'wxHeaderCtrl::UpdateColumnsOrder',
@@ -25,6 +26,8 @@ module WXRuby3
         spec.regard 'wxHeaderCtrlSimple::GetBestFittingWidth'
         spec.extend_interface 'wxHeaderCtrlSimple',
                               'virtual const wxHeaderColumn& GetColumn(unsigned int idx) const',
+                              'virtual void UpdateColumnVisibility(unsigned int idx, bool show)',
+                              'virtual void UpdateColumnsOrder(const wxArrayInt& order)',
                               visibility: 'protected'
         # handled; can be suppressed
         spec.suppress_warning(473, 'wxHeaderCtrl::GetColumn', 'wxHeaderCtrlSimple::GetColumn')
