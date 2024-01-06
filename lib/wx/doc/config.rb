@@ -113,7 +113,7 @@ module Wx
       # By default returns un-coerced value.
       # Raises exception if incompatible coercion is specified.
       # @param [String] path_str
-      # @param [Class,nil] output output type to convert to
+      # @param [Class,Proc,nil] output output type (or converter proc) to convert to (with)
       # @return [Boolean,String,Integer,Float,Wx::Config::Group,nil] value entry value
       def read(path_str, output=nil) end
 
@@ -186,6 +186,16 @@ module Wx
     # @return [self]
     def replace(hash) end
 
+    # Returns true if we are expanding environment variables in string values, false otherwise.
+    # @return [Boolean]
+    def is_expanding_env_vars; end
+    alias :expanding_env_vars? :is_expanding_env_vars
+
+    # Determine whether we wish to expand environment variables in string values.
+    # @param [Boolean] flag enables expanding environment variables if true, disables otherwise
+    def set_expand_env_vars(flag) end
+    alias :expand_env_vars :set_expand_env_vars
+
   end
 
   # Configuration class for wxRuby which stores it's settings in a (possibly nested) Hash.
@@ -224,6 +234,16 @@ module Wx
     # @param [Hash] hash content to replace configuration
     # @return [self]
     def replace(hash) end
+
+    # Returns true if we are expanding environment variables in string values, false otherwise.
+    # @return [Boolean]
+    def is_expanding_env_vars; end
+    alias :expanding_env_vars? :is_expanding_env_vars
+
+    # Determine whether we wish to expand environment variables in string values.
+    # @param [Boolean] flag enables expanding environment variables if true, disables otherwise
+    def set_expand_env_vars(flag) end
+    alias :expand_env_vars :set_expand_env_vars
 
   end
 

@@ -18,7 +18,7 @@ module Wx
       def method_missing(sym, *args, &block)
         unless block_given? || args.size>1
           setter = false
-          key = sym.to_s.sub(/=\z/) { |s| setter = true; '' }
+          key = sym.to_s.sub(/=\z/) { |_| setter = true; '' }
           if (!setter && args.empty?) || (!has_group?(key) && setter && args.size==1)
             if setter
               return set(key, args.shift)
@@ -142,8 +142,8 @@ module Wx
         when ::TrueClass == output || ::FalseClass == output || output == true || output == false
           val.is_a?(Integer) ? val != 0 : !!val
         else
-          raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" if output
-          val
+          raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" unless output.nil? || output.is_a?(::Proc)
+          output ? output.call(val) : val
         end
       end
     end
@@ -330,17 +330,17 @@ module Wx
 
       def each_entry(&block)
         if block_given?
-          @data.select { |_,v| !v.is_a?(::Hash) }.each(&block)
+          data.select { |_,v| !v.is_a?(::Hash) }.each(&block)
         else
-          ::Enumerator.new { |y| @data.each_pair { |k,v| y << [k,v] if !v.is_a?(::Hash) } }
+          ::Enumerator.new { |y| data.each_pair { |k,v| y << [k, expand(v)] unless v.is_a?(::Hash) } }
         end
       end
 
       def each_group(&block)
         if block_given?
-          @data.select { |_,g| g.is_a?(::Hash) }.each { |k,g| block.call(k, Group.new(self, self.path.dup.push(k), g)) }
+          data.select { |_,g| g.is_a?(::Hash) }.each { |k,_| block.call(k, Group.new(self, self.path.dup.push(k))) }
         else
-          ::Enumerator.new { |y| @data.each_pair { |k,g| y << [k,Group.new(self, self.path.dup.push(k), g)] if g.is_a?(::Hash) } }
+          ::Enumerator.new { |y| data.each_pair { |k,g| y << [k,Group.new(self, self.path.dup.push(k))] if g.is_a?(::Hash) } }
         end
       end
 
@@ -365,11 +365,9 @@ module Wx
         return false if segments.empty?
         entry = segments.pop
         group_data = if segments.empty?
-                       @data
+                       data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
+                       segments = self.path + segments unless abs || root?
                        get_group_at(segments)
                      end
         !!(group_data && group_data.has_key?(entry) && !group_data[entry].is_a?(::Hash))
@@ -378,40 +376,39 @@ module Wx
       def has_group?(path_str)
         segments, abs = get_path(path_str)
         return root? if segments.empty?
-        unless abs || root?
-          segments = self.path + segments
-        end
+        segments = self.path + segments unless abs || root?
         !!get_group_at(segments)
       end
 
       def get(key)
         key = key.to_s
         raise ArgumentError, 'No paths allowed' if key.index(ConfigBase::SEPARATOR)
-        elem = @data[key]
+        elem = data[key]
         if elem.is_a?(::Hash)
-          Group.new(self, self.path.dup.push(key), elem)
+          Group.new(self, self.path.dup.push(key))
         else
-          elem
+          expand(elem)
         end
       end
 
       def set(key, val)
         key = key.to_s
         raise ArgumentError, 'No paths allowed' if key.index(ConfigBase::SEPARATOR)
-        exist = @data.has_key?(key)
-        elem = exist ? @data[key] : nil
+        hsh = data
+        exist = hsh.has_key?(key)
+        elem = exist ? hsh[key] : nil
         if val.nil?
-          @data.delete(key) if exist
+          hsh.delete(key) if exist
           nil
         elsif val.is_a?(::Hash)
           raise ArgumentError, 'Cannot change existing value entry to group.' if exist && !elem.is_a?(::Hash)
-          elem  = @data[key] = {} unless elem
-          group = Group.new(self, self.path.dup.push(key), elem)
+          hsh[key] = {} unless elem
+          group = Group.new(self, self.path.dup.push(key))
           val.each_pair { |k, v| group.set(k, v) }
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          @data[key] = sanitize_value(val)
+          hsh[key] = val
         end
       end
 
@@ -420,23 +417,21 @@ module Wx
         return nil if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
-                       @data
+                       data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
+                       segments = self.path + segments unless abs || root?
                        get_group_at(segments, create_missing_groups: false)
                      end
-        raise ArgumentError, "Unable to resolve path #{segments+[last]}" unless group_data
-        group_data.delete(last)
+        group_data ? group_data.delete(last) : nil
       end
 
       def rename(old_key, new_key)
         old_key = old_key.to_s
         new_key = new_key.to_s
         raise ArgumentError, 'No paths allowed' if old_key.index(ConfigBase::SEPARATOR) || new_key.index(ConfigBase::SEPARATOR)
-        if @data.has_key?(old_key) && !@data.has_key?(new_key)
-          @data[new_key] = @data.delete(old_key)
+        hsh = data
+        if hsh.has_key?(old_key) && !hsh.has_key?(new_key)
+          hsh[new_key] = hsh.delete(old_key)
           true
         else
           false
@@ -448,19 +443,19 @@ module Wx
         return nil if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
-                       @data
+                       segments = self.path.dup unless abs || root?
+                       data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
-                       get_group_at(segments, create_missing_groups: true)
+                       segments = self.path + segments unless abs || root?
+                       get_group_at(segments)
                      end
-        raise ArgumentError, "Unable to resolve path #{segments+[last]}" unless group_data
-        val = group_data[last]
+        val = group_data ? group_data[last] : nil
         if val.is_a?(::Hash)
           raise TypeError, "Cannot convert group" unless output.nil?
-          Group.new(self, segments.dup.push(last), val)
+          Group.new(self, segments.dup.push(last))
         else
+          val = expand(val)
+          return val unless val && output
           case
           when ::String == output || ::String === output
             val.to_s
@@ -471,8 +466,8 @@ module Wx
           when ::TrueClass == output || ::FalseClass == output || output == true || output == false
             val.is_a?(::Integer) ? val != 0 :  !!val
           else
-            raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" if output
-            val
+            raise ArgumentError, "Unknown coercion type #{output.is_a?(::Class) ? output : output.class}" unless output.nil? || output.is_a?(::Proc)
+            output ? output.call(val) : val
           end
         end
       end
@@ -483,11 +478,10 @@ module Wx
         return false if segments.empty?
         last = segments.pop
         group_data = if segments.empty?
-                       @data
+                       segments = self.path.dup unless abs || root?
+                       data
                      else
-                       unless abs || root?
-                         segments = self.path + segments
-                       end
+                       segments = self.path + segments unless abs || root?
                        get_group_at(segments, create_missing_groups: true)
                      end
         raise ArgumentError, "Unable to resolve path #{segments+[last]}" unless group_data
@@ -498,13 +492,13 @@ module Wx
           nil
         elsif val.is_a?(::Hash)
           raise ArgumentError, 'Cannot change existing value entry to group.' if exist && !elem.is_a?(::Hash)
-          elem  = group_data[last] = {} unless elem
-          group = Group.new(self, segments.dup.push(last), elem)
+          group_data[last] = {} unless elem
+          group = Group.new(self, segments.dup.push(last))
           val.each_pair { |k, v| group.set(k, v) }
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          group_data[last] = sanitize_value(val)
+          group_data[last] = val
         end
       end
       alias :[]= :write
@@ -514,7 +508,7 @@ module Wx
       end
 
       def to_h
-        @data
+        data
       end
 
       def get_path(path_str)
@@ -526,21 +520,33 @@ module Wx
       end
       protected :get_path
 
-      def sanitize_value(val)
-        case val
-        when TrueClass, FalseClass, Numeric, String
-          val
-        else
-          if val.respond_to?(:to_int)
-            val.to_int
-          elsif val.respond_to?(:to_f)
-            val.to_f
-          else
-            val.to_s
+      EXPAND_RE = if Wx::PLATFORM == 'WXMSW'
+                    /(\\)?([$][{(]?|%)(\w+)([})%])?/
+                  else
+                    /(\\)?([$][{(]?)(\w+)([})])?/
+                  end
+      private_constant :EXPAND_RE
+
+      def expand(val)
+        if root.expanding_env_vars? && ::String === val
+          val.gsub(EXPAND_RE) do |s|
+            if $1.nil? &&
+              (($2[0] == '$' &&
+                ($2.size == 1 && $4.nil?) ||
+                ($2[1] == '(' && $4 == ')') ||
+                ($2[1] == '{' && $4 == '}'))||
+               ($2[0] == '%' && $4 == '%')) &&
+              ENV[$3]
+              $1 ? $1+ENV[$3] : ENV[$3]
+            else
+              $1 ? s[1,s.size] : s
+            end
           end
+        else
+          val
         end
       end
-      protected :sanitize_value
+      protected :expand
 
     end
 
@@ -550,11 +556,15 @@ module Wx
 
       include Interface
 
-      def initialize(parent, path, data)
+      def initialize(parent, path)
         @parent = parent
         @path = path.freeze
-        @data = data
       end
+
+      def data
+        self.root.__send__(:get_group_at, @path, create_missing_groups: true, is_pruned: true)
+      end
+      protected :data
 
       def root?
         false
@@ -573,7 +583,7 @@ module Wx
       end
 
       def get_group_at(segments, create_missing_groups: false)
-        root.__send__(:get_group_at, segments)
+        root.__send__(:get_group_at, segments, create_missing_groups: create_missing_groups)
       end
       protected :get_group_at
 
@@ -582,9 +592,15 @@ module Wx
     include Interface
 
     def initialize(hash = nil)
+      @expand_env_vars = true
       @data = {}
       replace(hash) if hash
     end
+
+    def data
+      @data
+    end
+    protected :data
 
     def root?
       true
@@ -614,19 +630,31 @@ module Wx
       self
     end
 
-    def get_group_at(segments, create_missing_groups: false)
-      # prune segments (process relative segments)
-      segments = segments.inject([]) do |lst, seg|
-        case seg
-        when '..'
-          lst.pop # remove previous
-          # forget ..
-        when '.'
-          # forget
-        else
-          lst << seg
+    def is_expanding_env_vars
+      @expand_env_vars
+    end
+    alias :expanding_env_vars? :is_expanding_env_vars
+
+    def set_expand_env_vars(flag)
+      @expand_env_vars = !!flag
+    end
+    alias :expand_env_vars :set_expand_env_vars
+
+    def get_group_at(segments, create_missing_groups: false, is_pruned: false)
+      unless is_pruned
+        # prune segments (process relative segments)
+        segments = segments.inject([]) do |lst, seg|
+          case seg
+          when '..'
+            lst.pop # remove previous
+            # forget ..
+          when '.'
+            # forget
+          else
+            lst << seg
+          end
+          lst
         end
-        lst
       end
       # find group matching segments
       segments.inject(@data) do |hsh, seg|
