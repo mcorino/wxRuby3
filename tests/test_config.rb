@@ -232,8 +232,6 @@ class TestConfig < Test::Unit::TestCase
     # disable env var expansion
     cfg.expand_env_vars = false
     begin
-      cfg['/Environment/HOME'] = '$HOME'
-
       assert_equal('$HOME', cfg.Environment['HOME'])
     ensure
       # re-enable

@@ -520,24 +520,31 @@ module Wx
       end
       protected :get_path
 
+      EXPAND_RE = if Wx::PLATFORM == 'WXMSW'
+                    /(\\)?([$][{(]?|%)(\w+)([})%])?/
+                  else
+                    /(\\)?([$][{(]?)(\w+)([})])?/
+                  end
+      private_constant :EXPAND_RE
+
       def expand(val)
         if root.expanding_env_vars? && ::String === val
-          brackets = '{('
-          brackets << '%' if Wx::PLATFORM == 'WXMSW'
-          val.gsub!(/([\\])?\$([#{brackets}])?(\w+)([})%])?/) do |s|
+          val.gsub(EXPAND_RE) do |s|
             if $1.nil? &&
-              (($2.nil? && $4.nil?) ||
-                ($2 == '{' && $4 == '}') ||
-                ($2 == '(' && $4 == ')') ||
-                (win && $2 == '%' && $4 == '%')) &&
+              (($2[0] == '$' &&
+                ($2.size == 1 && $4.nil?) ||
+                ($2[1] == '(' && $4 == ')') ||
+                ($2[1] == '{' && $4 == '}'))||
+               ($2[0] == '%' && $4 == '%')) &&
               ENV[$3]
               $1 ? $1+ENV[$3] : ENV[$3]
             else
               $1 ? s[1,s.size] : s
             end
           end
+        else
+          val
         end
-        val
       end
       protected :expand
 
