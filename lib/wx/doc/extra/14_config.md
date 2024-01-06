@@ -20,9 +20,9 @@ mostly limited to that. That meant the information to be stored was intended to 
   that platform) for amounts of data more than a couple of kilobytes.
 * Not performance critical, neither from speed nor from a memory consumption point of view.
 
-As you will see wxRuby3 extends the support in this area and provides means forego a lot of these restrictions.
+As you will see wxRuby3 extends the support in this area and provides means to forego a lot of these restrictions.
 
-The config classes also are intended to abstract away a lot platform differences. In this area wxRuby3 extends the
+The config classes also are intended to abstract away a lot of platform differences. In this area wxRuby3 extends the
 support also.
 
 ## Default configuration support
@@ -52,16 +52,15 @@ Instead of the default, platform specific, config classes it is also possible to
 a config class which is implemented in pure Ruby and integrated in the wxWidgets configuration framework.
 To use an instance of this class as the global config instance the {Wx::ConfigBase.create} should be called at application
 initialization time with it's `:use_hash_config` keyword argument set to `true` (and possibly, to be sure, it's 
-`forced_create` argument set to `true` also). Alternatively a {Wx::Config} (or derivative) instance could be explicitly 
-instantiated in code and assigned as global instance with {Wx::ConfigBase.set}.  
-
-This would create an instance of {Wx::Config} and install that as the global config instance (if no other instance was
-yet installed or, overruling that condition, if `forced_create` was set to `true`).
+`forced_create` argument set to `true` also). This would create an instance of {Wx::Config} and install that as the global config instance (if no other instance was
+yet installed or, overruling that condition, if `forced_create` was set to `true`).<br>
+Alternatively a {Wx::Config} (or derivative) instance could be explicitly instantiated in code and assigned as global 
+instance with {Wx::ConfigBase.set}.
 
 As the keyword argument indicates {Wx::Config} is a Ruby `Hash` based config class implementation. 
 
-Value objects are stored Ruby-style as-is into it's internal hash table (maintaining full typing) and are also retrieved
-as-is by default (to maintain compatibility with the {Wx::ConfigWx} wrapper type coercion options are provided). 
+Value objects are stored Ruby-style as-is into it's internal hash table (maintaining full type information) and are also 
+retrieved as-is by default (to maintain compatibility with the {Wx::ConfigWx} wrapper type coercion options are provided). 
 Grouping is based of nested `Hash` instances.
 
 Because of the `Hash` based implementation and lack of (the need for) type coercion the {Wx::Config} class does have **any**
@@ -70,7 +69,7 @@ restrictions of the type of data stored. The only possible type restrictions to 
 * In case of value entries shared with wxWidgets framework code (like for example entries save by the persistence 
 framework; see [here](15_persistence.md)) value types should be restricted to those supported by the wxWidget platform
 specific classes and correspond to what the framework code expects.
-* In case of the need to save/restore the configuration data using a mechanism that imposes type restrictions these 
+* In case of the need to save/restore the configuration data to/from persistent storage which imposes type restrictions these 
 should be applied.
 
 With {Wx::Config} it would be perfectly alright to store arrays or any kind of arbitrary object (only be aware that `Hash`
@@ -78,7 +77,7 @@ instances will always be expected to provide configuration structure by default)
 expectations of framework code or storage mechanisms.
 
 With the standard Ruby YAML and JSON serialization support this also provides improved platform independent configuration 
-persistence options with full typing maintainability. 
+persistence options with full type information maintainability. 
 
 ## Differences between default and enhanced configuration support
 
