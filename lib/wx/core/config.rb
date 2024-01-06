@@ -332,7 +332,7 @@ module Wx
         if block_given?
           data.select { |_,v| !v.is_a?(::Hash) }.each(&block)
         else
-          ::Enumerator.new { |y| data.each_pair { |k,v| y << [k,v] unless v.is_a?(::Hash) } }
+          ::Enumerator.new { |y| data.each_pair { |k,v| y << [k, expand(v)] unless v.is_a?(::Hash) } }
         end
       end
 
@@ -387,7 +387,7 @@ module Wx
         if elem.is_a?(::Hash)
           Group.new(self, self.path.dup.push(key))
         else
-          elem
+          expand(elem)
         end
       end
 
@@ -408,7 +408,7 @@ module Wx
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          hsh[key] = sanitize(val)
+          hsh[key] = val
         end
       end
 
@@ -454,6 +454,7 @@ module Wx
           raise TypeError, "Cannot convert group" unless output.nil?
           Group.new(self, segments.dup.push(last))
         else
+          val = expand(val)
           return val unless val && output
           case
           when ::String == output || ::String === output
@@ -497,7 +498,7 @@ module Wx
           group
         else
           raise ArgumentError, 'Cannot change existing group to value entry.' if exist && elem.is_a?(::Hash)
-          group_data[last] = sanitize(val)
+          group_data[last] = val
         end
       end
       alias :[]= :write
@@ -519,7 +520,7 @@ module Wx
       end
       protected :get_path
 
-      def sanitize(val)
+      def expand(val)
         if root.expanding_env_vars? && ::String === val
           brackets = '{('
           brackets << '%' if Wx::PLATFORM == 'WXMSW'
@@ -538,7 +539,7 @@ module Wx
         end
         val
       end
-      protected :sanitize
+      protected :expand
 
     end
 
