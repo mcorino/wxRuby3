@@ -49,6 +49,10 @@ end
 ::Wx.include(WxRubyStyleAccessors)
 
 ::Wx.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)
+# Provide support for finding enumerator constants for nested enums in Wx::Object derived classes without
+# full scoping. This does not cover non Wx::Object derived classes with nested enums in the Wx hierarchy
+# but there should not be too many of those.
+::Wx::Object.include(WxEnumConstants)
 
 # Load in syntax sweeteners
 require 'wx/keyword_defs'
