@@ -1,0 +1,62 @@
+---
+:wxFileDialogCustomizeHook:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+            class EncryptHook < Wx::FileDialogCustomizeHook
+            
+              attr_reader :encrypt
+            
+              # Override to add custom controls using the provided customizer object.
+              def add_custom_controls(customizer)
+                # Suppose we can encrypt files when saving them.
+                @checkbox = customizer.add_check_box('Encrypt')
+       
+                # While @checkbox is not a Wx::CheckBox, it looks almost like one
+                # and, in particular, we can bind to custom control events as usual.
+                @checkbox.evt_checkbox(Wx::ID_ANY) do |event| 
+                   # We can also call Wx::Window-like functions on them.
+                   @button.enable(event.checked?)
+                end
+       
+                # The encryption parameters can be edited in a dedicated dialog.
+                @button = customizer.add_button('Parameters...')
+                @button.evt_button(Wx::ID_ANY) do |event|
+                   # ... show the encryption parameters dialog here ...
+                end
+              end
+          
+              # Override to save the values of the custom controls.
+              def transfer_data_from_custom_controls 
+                # Save the checkbox value, as we won't be able to use it any more
+                # once this function returns.
+                @encrypt = @checkbox.get_value
+              end
+          
+            end
+            
+            # ...
+            
+            def some_method
+              Wx.FileDialog(nil, 'Save document', '', 'file.my',
+                                 'My files (*.my)|*.my',
+                                 Wx::FD_SAVE | Wx::FD_OVERWRITE_PROMPT) do |dialog|
+           
+                # This object may be destroyed before the dialog, but must remain
+                # alive until #show_modal returns.
+                customize_hook = EncryptHook.new
+                dialog.set_customize_hook(custom_hook)
+           
+                if dialog.show_modal == Wx::ID_OK 
+                  if customize_hook.encrypt 
+                    # ... save with encryption ...
+                  else
+                    # ... save without encryption ...
+                  end
+                end
+            end
+            ```
