@@ -262,10 +262,10 @@ module WXRuby3
           def_items.each do |item|
             case item
             when Extractor::EnumDef
-              item.items.each { |e| enumerators[rb_wx_name(e.name)] = item } if item.is_type
+              item.items.each { |e| enumerators["#{rb_wx_name(item.name)}_#{e.name}"] = item } if item.is_type
             when Extractor::ClassDef
               item.items.select { |itm| Extractor::EnumDef === itm }.each do |enum|
-                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = enum } if enum.is_type
+                enum.items.each { |e| enumerators["#{rb_wx_name(item.name)}_#{e.name}"] = enum } if enum.is_type
               end
             end
           end
@@ -334,6 +334,7 @@ module WXRuby3
                     fix_enum = true
                     enum_item = enum_table[md[2]]
                     enum_name = rb_wx_name(enum_item.name)
+                    enumerator_name = rb_wx_name(md[2].sub(/\A#{enum_name}_/, ''))
                     enum_id = enum_item.scope.empty? ? enum_name : "#{rb_wx_name(enum_item.scope)}::#{enum_name}"
                     enum_var = enum_id.gsub('::', '_')
                     line = [
@@ -343,7 +344,7 @@ module WXRuby3
                       # add enum class constant to current module (use unscoped name)
                       "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_var}); // Inserted by fixmodule.rb",
                       # create enumerator value const under new enum class
-                      "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                      "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{enumerator_name}\"#{md[3]} // Updated by fixmodule.rb"
                     ].join("\n")
                   end
                 else
@@ -352,13 +353,15 @@ module WXRuby3
                     # of the same enum?
                     if enum_item && enum_table[md[2]] == enum_item
                       enum_name = rb_wx_name(enum_item.name)
+                      enumerator_name = rb_wx_name(md[2].sub(/\A#{enum_name}_/, ''))
                       enum_id = enum_item.scope.empty? ? enum_name : "#{rb_wx_name(enum_item.scope)}::#{enum_name}"
                       enum_var = enum_id.gsub('::', '_')
                       # create enumerator value const under new enum class
-                      line = "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                      line = "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{enumerator_name}\"#{md[3]} // Updated by fixmodule.rb"
                     else # we found the start of another enum
                       enum_item = enum_table[md[2]]
                       enum_name = rb_wx_name(enum_item.name)
+                      enumerator_name = rb_wx_name(md[2].sub(/\A#{enum_name}_/, ''))
                       enum_id = enum_item.scope.empty? ? enum_name : "#{rb_wx_name(enum_item.scope)}::#{enum_name}"
                       enum_var = enum_id.gsub('::', '_')
                       line = [
@@ -368,7 +371,7 @@ module WXRuby3
                         # add enum class constant to current module (use unscoped name)
                         "  rb_define_const(#{md[1]}, \"#{enum_name}\", cWx#{enum_var}); // Inserted by fixmodule.rb",
                         # create enumerator value const under new enum class
-                        "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{md[2]}\"#{md[3]} // Updated by fixmodule.rb"
+                        "  wxRuby_AddEnumValue(cWx#{enum_var}, \"#{enumerator_name}\"#{md[3]} // Updated by fixmodule.rb"
                       ].join("\n")
                     end
                   else # end of enum def
