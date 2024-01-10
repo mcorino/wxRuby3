@@ -383,13 +383,11 @@ module WXRuby3
         # hardcoded interface declarations
         spec.add_interface_code <<~__HEREDOC
           // Bit masks used for numeric validator styles.
-          enum wxNumValidatorStyle
-          {
-              wxNUM_VAL_DEFAULT               = 0x0,
-              wxNUM_VAL_THOUSANDS_SEPARATOR   = 0x1,
-              wxNUM_VAL_ZERO_AS_BLANK         = 0x2,
-              wxNUM_VAL_NO_TRAILING_ZEROES    = 0x4
-          };
+          enum wxNumValidatorStyle;
+          %constant int NumValidatorStyle_wxNUM_VAL_DEFAULT             = 0x0;
+          %constant int NumValidatorStyle_wxNUM_VAL_THOUSANDS_SEPARATOR = 0x1;
+          %constant int NumValidatorStyle_wxNUM_VAL_ZERO_AS_BLANK       = 0x2;
+          %constant int NumValidatorStyle_wxNUM_VAL_NO_TRAILING_ZEROES  = 0x4;
 
           %alias WXIntegerValidator::GetMin "min";
           %alias WXIntegerValidator::SetMin "min=";
