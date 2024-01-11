@@ -7,7 +7,11 @@
 
 module Wx
 
-  class OwnerDrawnComboBox
+  class OwnerDrawnComboBox < ComboCtrl
+
+    alias :get_item_data :get_client_object
+
+    alias :set_item_data :set_client_object
 
     # Returns the label of the selected item or an empty string if no item is selected.
     #
