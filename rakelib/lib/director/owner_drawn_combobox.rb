@@ -15,6 +15,7 @@ module WXRuby3
     class OwnerDrawnComboBox < Window
 
       include Typemap::ClientData
+      include Typemap::ComboPopup
 
       def setup
         super
