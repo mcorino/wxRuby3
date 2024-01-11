@@ -547,10 +547,18 @@ module WXRuby3
         if Extractor::EnumDef === item && !item.ignored && !item.items.all? {|e| e.ignored }
           fout.puts
           fout.puts "// from enum #{item.is_anonymous ? '' : item.name}"
-          fout.puts "enum #{item.name};" unless item.is_anonymous
-          item.items.each do |e|
-            unless e.ignored
-              fout.puts "%constant int #{e.name} = #{e.fqn};"
+          if item.is_anonymous
+            item.items.each do |e|
+              unless e.ignored
+                fout.puts "%constant int #{e.name} = #{e.fqn};"
+              end
+            end
+          else
+            fout.puts "enum #{item.name};"
+            item.items.each do |e|
+              unless e.ignored
+                fout.puts "%constant int #{item.name}_#{e.name} = #{e.fqn};"
+              end
             end
           end
         end

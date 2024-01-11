@@ -1,0 +1,135 @@
+---
+:wxComboCtrl:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxDECLARE_EVENT_TABLE/
+          :replace: |
+            
+            ```ruby
+            class ListViewComboPopup < Wx::ListView
+            
+              include Wx::ComboPopup
+              
+              # Allow only default ctor
+              def initialize
+                # call default control ctor; need to call Wx::ListView#create later
+                super
+              end
+              
+              # Initialize member variables
+              def init
+                @value = -1
+              end
+              
+              # Create popup control
+              def create(parent)
+                # need to finish creating the list view here
+                # as calling super here would just call Wx::ComboPopup#create and not Wx::ListView#create
+                # we need to use Ruby magic
+                wx_lv_create = (Wx::ListView.instance_method :create).bind(self)
+                wx_lv_create.call(parent, 1, [0,0], Wx::DEFAULT_SIZE)
+                evt_motion :on_mouse_move
+                evt_left_up :on_mouse_click
+                end
+              
+              # Return pointer to the created control
+              def get_control
+                self
+              end
+              
+              def lv_find_item(*args)
+                unless @wx_lv_find_item
+                @wx_lv_find_item = (Wx::ListView.instance_method :find_item).bind(self)
+                end
+                @wx_lv_find_item.call(*args)
+              end
+              protected :lv_find_item
+              
+              # Translate string into a list selection
+              def set_string_value(s)
+                n = lv_find_item(-1, s)
+                if n >= 0 && n < get_item_count
+                  select(n)
+                  @value = n
+                end
+              end
+              
+              # Get list selection as a string
+              def get_string_value
+                return get_item_text(@value) if @value >= 0
+                ''
+              end
+              
+              # Do mouse hot-tracking (which is typical in list popups)
+              def on_mouse_move(event)
+                # Move selection to cursor ...
+              end
+              
+              # On mouse left up, set the value and close the popup
+              def on_mouse_click(_event)
+                @value = get_first_selected
+                
+                # Send event as well ...
+                
+                dismiss
+              end
+            
+            end
+            ```
+        - :pattern: !ruby/regexp /wxComboCtrl/
+          :replace: |
+            
+            ```ruby
+              comboCtrl = Wx::ComboCtrl.new(self, Wx::ID_ANY, '')
+              
+              popupCtrl = ListViewComboPopup.new
+              
+              # It is important to call #set_popup_control as soon as possible
+              comboCtrl.set_popup_control(popupCtrl)
+              
+              # Populate using Wx::ListView methods
+              popupCtrl.insert_item((popupCtrl.item_count, 'First Item')
+              popupCtrl.insert_item((popupCtrl.item_count, 'Second Item')
+              popupCtrl.insert_item((popupCtrl.item_count, 'Third Item')
+            ```
+:wxComboCtrl.SetMainControl:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              # Create the combo control using its default ctor.
+              combo = Wx::ComboCtrl.new
+              
+              # Create the custom main control using its default ctor too.
+              main = SomeWindow.new
+              
+              # Set the custom main control before creating the combo.
+              combo.set_main_control(main)
+              
+              # And only create it now: Wx::TextCtrl won't be unnecessarily
+              # created because the combo already has a main window.
+              combo.create(panel, Wx::ID_ANY, '')
+              
+              # Finally create the main window itself, now that its parent was
+              # created.
+              main.create(combo, ...)
+            ```
+:wxComboCtrl.SetTextCtrlStyle:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              comboCtrl = Wx::ComboCtrl.new
+              
+              # Let's make the text right-aligned
+              comboCtrl.set_text_ctrl_style(Wx::TE_RIGHT)
+              
+              comboCtrl.create(parent, Wx::ID_ANY, '')
+            ```

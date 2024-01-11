@@ -15,6 +15,7 @@ module WXRuby3
     class RichTextStyleListBox < Window
 
       include Typemap::RichText
+      include Typemap::ComboPopup
 
       def setup
         super
@@ -28,6 +29,10 @@ module WXRuby3
                                            wxWindow
                                            wxEvtHandler
                                            wxObject])
+        # missing from docs; required so proxy calls correct override
+        spec.extend_interface 'wxRichTextStyleComboCtrl',
+                              'virtual void DoSetPopupControl(wxComboPopup* popup)',
+                              visibility: 'protected'
       end
 
     end

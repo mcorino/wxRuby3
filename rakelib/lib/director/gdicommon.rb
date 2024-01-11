@@ -49,6 +49,12 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &)',
           'wxRect::Union(const wxRect &)'
         ]
+        if Config.instance.wx_version >= '3.3.0'
+          # ignore these as they are supposed to specify unary minus but confuse
+          # SWIG
+          spec.ignore 'wxPoint::operator-(const wxPoint&)',
+                      'wxRealPoint::operator-(const wxRealPoint&)'
+        end
         spec.regard 'wxRect::Offset', regard_doc: false
         # overrule common wxPoint mapping for wxRect ctor to fix ctor ambiguities here wrt wxSize
         spec.map 'const wxPoint& topLeft', 'const wxPoint& bottomRight', as: 'Wx::Point' do
