@@ -1,0 +1,28 @@
+---
+:wxFileSystemHandler.CanOpen:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Example:/
+          :subst: ''
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxFileSystemHandler.GetMimeTypeFromExt:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Example:/
+          :subst: ''
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
+:wxMemoryFSHandler:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Example:/
+          :subst: ''
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
