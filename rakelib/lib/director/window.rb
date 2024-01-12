@@ -126,6 +126,10 @@ module WXRuby3
           else
             spec.ignore('wxWindow::SetAccessible',
                         'wxWindow::GetAccessible')
+            if Config.instance.wx_version > '3.2.4'
+              spec.ignore('wxWindow::CreateAccessible',
+                          'wxWindow::GetOrCreateAccessible')
+            end
           end
           spec.ignore_unless('USE_HOTKEY', %w[wxWindow::RegisterHotKey wxWindow::UnregisterHotKey])
           spec.ignore('wxWindow::SetSize(int, int)') # not useful as the wxSize variant will also accept an array

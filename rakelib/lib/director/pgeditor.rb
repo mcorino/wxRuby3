@@ -17,7 +17,7 @@ module WXRuby3
         spec.items.concat %w[wxPGCheckBoxEditor wxPGChoiceEditor wxPGChoiceAndButtonEditor wxPGComboBoxEditor
                              wxPGTextCtrlEditor wxPGSpinCtrlEditor wxPGTextCtrlAndButtonEditor wxPGEditorDialogAdapter]
         spec.includes << 'wx/propgrid/propgriddefs.h'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version > '3.2.4'
           # make sure SWIG knows this as enum type
           spec.add_swig_code 'enum wxPGPropertyFlags;'
         end
