@@ -20,7 +20,7 @@ module WXRuby3
         when 'wxSizer'
           spec.items << 'wxSizerFlags'
           spec.gc_as_untracked('wxSizerFlags')
-          if Config.instance.wx_version < '3.3.0'
+          unless Config.instance.wx_version > '3.2.4'
             # missing from docs
             spec.extend_interface 'wxSizerFlags',
                                   'wxSizerFlags& HorzBorder()'

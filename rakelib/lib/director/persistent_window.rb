@@ -14,8 +14,8 @@ module WXRuby3
 
       def setup
         spec.items << 'wxPersistentTLW' << 'wxPersistentBookCtrl' << 'wxPersistentTreeBookCtrl'
-        if Config.instance.wx_version >= '3.3.0'
-          # before 3.3.0 this was not properly available
+        if Config.instance.wx_version > '3.2.4'
+          # only after 3.2.4 properly available
           spec.items << 'wxPersistentComboBox'
         end
         super
