@@ -117,11 +117,26 @@ module WXRuby3
         when 'file', 'namespace'
           Extractor.extracting_msg(kind, element, 'compoundname')
           element.xpath('sectiondef/memberdef').each { |node| self.add_element(node) }
+          # from doxygen 1.9.7 onwards some members are not included in the same XML file
+          # but referenced from another XML file; so we need to resolve such references
+          # and than add the resolved element
+          element.xpath('sectiondef/member').each do |node|
+            node = self.resolveRefId(node)
+            self.add_element(node)
+          end
 
         else
           raise ExtractorError.new('Unknown module item kind: %s' % kind)
         end
         item
+      end
+
+      def resolveRefId(node)
+        refid = node['refid'].split('_')
+        refid.pop
+        fname = File.join(Extractor.xml_dir, refid.join('_')+'.xml')
+        root = File.open(fname) {|f| Nokogiri::XML(f) }.root
+        root.at_xpath(".//sectiondef/memberdef[@id='#{node['refid']}']")
       end
 
       # Add a new C++ function into the module that is written by hand, not
