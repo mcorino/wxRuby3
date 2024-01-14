@@ -123,16 +123,16 @@ jobs:
       - name: Download Doxygen tool
         if: steps.cache-doxygen.outputs.cache-hit != 'true'
         run: |
-          wget.exe https://www.doxygen.nl/files/doxygen-1.9.6.windows.x64.bin.zip
-          $hash = 'bdf1af97a733edd0a60fce2cf375c5c3'
-          if ((Get-FileHash doxygen-1.9.6.windows.x64.bin.zip -Algorithm MD5).Hash -ne $hash) {
-            del doxygen-1.9.6.windows.x64.bin.zip
+          wget.exe https://www.doxygen.nl/files/doxygen-1.10.0.windows.x64.bin.zip
+          $hash = '2135c1d5bdd6e067b3d0c40a4daac5d63d0fee1b3f4d6ef1e4f092db0d632d5b'
+          if ((Get-FileHash doxygen-1.10.0.windows.x64.bin.zip -Algorithm SHA-256).Hash -ne $hash) {
+            del doxygen-1.10.0.windows.x64.bin.zip
             throw "Doxygen Hash doesn't match!"
           }
 
       - name: Install Doxygen package
         run: |
-          Expand-Archive -LiteralPath '.\doxygen-1.9.6.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
+          Expand-Archive -LiteralPath '.\doxygen-1.10.0.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
           echo "$env:DOXYGEN_ROOT" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Display build environment

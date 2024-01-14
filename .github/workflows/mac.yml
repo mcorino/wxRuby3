@@ -172,10 +172,9 @@ jobs:
       run: |
         brew install swig
 
-    - name: Install doxygen 1.9.6
+    - name: Install doxygen
       run: |
-        brew tap mcorino/wxruby3
-        brew install doxygen@1.9.6
+        brew install doxygen
 
     - name: Show build environment
       run: |
