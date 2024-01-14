@@ -117,7 +117,7 @@ jobs:
         id: cache-doxygen
         uses: actions/cache@v3
         with:
-          path: doxygen-1.9.6.windows.x64.bin.zip
+          path: doxygen-1.10.0.windows.x64.bin.zip
           key: ${{ runner.os }}-doxygen
 
       - name: Download Doxygen tool
