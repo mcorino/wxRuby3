@@ -118,7 +118,7 @@ module WXRuby3
 
           def check_rpath_patch
             unless @rpath_patch
-              if system('which patchelf > /dev/null 2>&1')
+              if system('command -v patchelf > /dev/null')
                 @rpath_patch = 'patchelf --set-rpath'
               else
                 STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of the patchelf utility.'
@@ -138,10 +138,10 @@ module WXRuby3
 
           def check_pkgs
             pkg_deps = super
-            pkg_deps << 'patchelf' unless system('command -v patchelf')
-            pkg_deps << 'make' unless system('command -v make')
-            pkg_deps << 'git' unless system('command -v git')
-            pkg_deps << 'g++' unless system('command -v g++')
+            pkg_deps << 'patchelf' unless system('command -v patchelf>/dev/null')
+            pkg_deps << 'make' unless system('command -v make>/dev/null')
+            pkg_deps << 'git' unless system('command -v git>/dev/null')
+            pkg_deps << 'g++' unless system('command -v g++>/dev/null')
             pkg_deps
           end
 

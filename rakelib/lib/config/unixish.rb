@@ -57,8 +57,8 @@ module WXRuby3
 
       def check_pkgs
         pkg_deps = super
-        pkg_deps << 'doxygen' unless system('command -v doxygen')
-        pkg_deps << 'swig' unless system('command -v swig')
+        pkg_deps << 'doxygen' unless system('command -v doxygen>/dev/null')
+        pkg_deps << 'swig' unless system('command -v swig>/dev/null')
         pkg_deps
       end
 

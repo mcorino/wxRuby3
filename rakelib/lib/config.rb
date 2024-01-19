@@ -211,14 +211,14 @@ module WXRuby3
     end
 
     def check_git
-      unless system('command -v git')
+      unless system('command -v git>/dev/null')
         STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
         exit(1)
       end
     end
 
     def check_doxygen
-      unless system('command -v doxygen')
+      unless system('command -v doxygen>/dev/null')
         STDERR.puts "ERROR: Cannot find #{get_config('doxygen')}. Need Doxygen installed to run wxRuby3 bootstrap!"
         exit(1)
       end
