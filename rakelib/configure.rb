@@ -122,12 +122,6 @@ module WXRuby3
         # else we're are assumed to build wxWidgets ourselves so cannot test anything yet
         end
 
-        if get_cfg_string('wxxml').empty?
-          # no pre-generated XML specified so we are going to need Git and Doxygen
-          instance.check_git
-          instance.check_doxygen
-        end
-
       end
     end
 
