@@ -112,12 +112,24 @@ module WXRuby3
           # check wxWidgets availability through 'wx-config' command
           if instance.check_wx_config
             if instance.wx_config("--version") < '3.2.0'
-              STDERR.puts "ERROR: Incompatible wxWidgets version. wxRuby requires a wxWidgets >= 3.2.0 release."
-              exit(1)
+              if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty?
+                # no custom wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
+                set_config('with-wxwin', true)
+              else
+                # if someone wants to customize they HAVE to do it right
+                STDERR.puts "ERROR: Incompatible wxWidgets version. wxRuby requires a wxWidgets >= 3.2.0 release."
+                exit(1)
+              end
             end
           else
-            STDERR.puts "ERROR: Cannot find wxWidgets. wxRuby requires a wxWidgets >= 3.2.0 release."
-            exit(1)
+            if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty?
+              # no custom wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
+              set_config('with-wxwin', true)
+            else
+              # if someone wants to customize they HAVE to do it right
+              STDERR.puts "ERROR: Cannot find wxWidgets. wxRuby requires a wxWidgets >= 3.2.0 release."
+              exit(1)
+            end
           end
         # else we're are assumed to build wxWidgets ourselves so cannot test anything yet
         end
