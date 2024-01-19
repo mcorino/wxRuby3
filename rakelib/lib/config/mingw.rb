@@ -23,6 +23,10 @@ module WXRuby3
 
     module Platform
 
+      SWIG_URL = 'https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip/download'
+
+      DOXYGEN_URL = 'https://www.doxygen.nl/files/doxygen-1.10.0.windows.x64.bin.zip'
+
       def self.included(base)
         base.class_eval do
           include Config::UnixLike
@@ -65,7 +69,53 @@ module WXRuby3
             ftmp.unlink # cleanup
           end
 
+          def install_prerequisites
+            pkg_deps = super
+            # if SWIG was not found in the PATH
+            if pkg_deps.include?('swig')
+              # download and install SWIG
+              fname = download_and_install(SWIG_URL, 'swig.exe')
+              set_config('swig', fname)
+            end
+            # if doxygen was not found in the PATH
+            if pkg_deps.include?('doxygen')
+              # download and install doxygen
+              fname = download_and_install(DOXYGEN_URL, 'doxygen.exe', 'doxygen')
+              set_config('doxygen', fname)
+            end
+          end
+
           private
+
+          def download_and_install(url, exe, unpack_to=nil)
+            # make sure the download destination exists
+            mkdir(File.join(ENV['HOME'], '.wxruby3'))
+            # download
+            outfile = File.join(ENV['HOME'], '.wxruby3', File.basename(URI(url).path))
+            unless system("powershell Invoke-WebRequest -URI #{url} -OutFile #{outfile}")
+              STDERR.puts "ERROR: Failed to download installation package for #{exe}"
+              exit(1)
+            end
+            # unpack
+            dest = unpack_to ? File.join(ENV['HOME'], '.wxruby3', unpack_to) : File.join(ENV['HOME'], '.wxruby3', File.basename(URI(url).path, '.*'))
+            unless system("powershell Expand-Archive -LiteralPath '#{outfile}' -DestinationPath #{dest} -Force")
+              STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
+              exit(1)
+            end
+            # find executable
+            find_exe(dest, exe)
+          end
+
+          def find_exe(path, exe)
+            fp = Dir.glob(File.join(path, '*')).find { |p| File.file?(p) && File.basename(p) == exe }
+            unless fp
+              fp = Dir.glob(File.join(path, '*')).reduce(fp) do |memo, p|
+                memo = find_exe(p, exe) if File.directory?(p)
+                memo
+              end
+            end
+            fp
+          end
 
           def wx_make
             bash('make && make install')

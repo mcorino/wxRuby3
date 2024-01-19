@@ -55,6 +55,13 @@ module WXRuby3
              "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
       end
 
+      def check_pkgs
+        pkg_deps = super
+        pkg_deps << 'doxygen' unless system('command -v doxygen')
+        pkg_deps << 'swig' unless system('command -v swig')
+        pkg_deps
+      end
+
       def get_rpath_origin
         "$ORIGIN"
       end

@@ -73,7 +73,8 @@ module WXRuby3
                   'with-wxwin' => !!ENV['WITH_WXWIN'],
                   'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
                   'swig' => ENV['WXRUBY_SWIG'] || 'swig',
-                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
+                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen',
+                  'autoinstall' => ((ENV['WXRUBY_NO_AUTOINSTALL'] || '') != '1')
                 })
   BUILD_CFG = '.wxconfig'
 
@@ -210,14 +211,14 @@ module WXRuby3
     end
 
     def check_git
-      if expand("which git 2>/dev/null").chomp.empty?
+      unless system('command -v git')
         STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
         exit(1)
       end
     end
 
     def check_doxygen
-      if expand("which #{get_config('doxygen')} 2>/dev/null").chomp.empty?
+      unless system('command -v doxygen')
         STDERR.puts "ERROR: Cannot find #{get_config('doxygen')}. Need Doxygen installed to run wxRuby3 bootstrap!"
         exit(1)
       end
@@ -229,6 +230,24 @@ module WXRuby3
 
     def wx_config(_option)
       nil
+    end
+
+    def check_pkgs
+      []
+    end
+
+    def install_prerequisites
+      pkg_deps = check_pkgs
+      unless get_config('autoinstall')
+        STDERR.puts <<~__ERROR_TXT
+          ERROR: This system lacks installed versions of the following required software packages:
+            #{pkg_deps.join(', ')}
+            
+            Install these packages and try again.
+          __ERROR_TXT
+        exit(1)
+      end
+      pkg_deps
     end
 
     def get_config(key)
@@ -638,10 +657,7 @@ module WXRuby3
       private :create
 
       def instance
-        unless @instance
-          @instance = create
-        end
-        @instance
+        @instance ||= create
       end
 
       def get_config(key)
