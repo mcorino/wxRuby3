@@ -33,7 +33,7 @@ module WXRuby3
           end
 
           def run_zypper(cmd)
-            run("zypper -q -i #{cmd}")
+            run("zypper -t -i #{cmd}")
           end
 
           def make_install_cmd(pkgs)
