@@ -194,13 +194,16 @@ module WXRuby3
 
     def test(*tests, **options)
       errors = 0
+      excludes = (ENV['WXRUBY_TEXT_EXCLUDE'] || '').split(';')
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
-        unless File.exist?(test)
-          test = File.join(Config.instance.test_dir, test)
-          test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
+        unless excludes.include?(File.basename(test))
+          unless File.exist?(test)
+            test = File.join(Config.instance.test_dir, test)
+            test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
+          end
+          Rake.sh(Config.instance.exec_env, *make_ruby_cmd(test)) { |ok,status| errors += 1 unless ok }
         end
-        Rake.sh(Config.instance.exec_env, *make_ruby_cmd(test)) { |ok,status| errors += 1 unless ok }
       end
       fail "ERRORS: ##{errors} test scripts failed." if errors>0
     end
