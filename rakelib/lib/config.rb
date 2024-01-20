@@ -197,7 +197,7 @@ module WXRuby3
       excludes = (ENV['WXRUBY_TEXT_EXCLUDE'] || '').split(';')
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
-        unless excludes.include?(File.basename(test))
+        unless excludes.include?(File.basename(test, '.*'))
           unless File.exist?(test)
             test = File.join(Config.instance.test_dir, test)
             test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
