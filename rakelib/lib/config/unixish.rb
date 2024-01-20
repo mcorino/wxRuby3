@@ -55,7 +55,7 @@ module WXRuby3
              "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
       end
 
-      def check_pkgs
+      def check_tool_pkgs
         pkg_deps = super
         pkg_deps << 'doxygen' unless system('command -v doxygen>/dev/null')
         pkg_deps << 'swig' unless system('command -v swig>/dev/null')

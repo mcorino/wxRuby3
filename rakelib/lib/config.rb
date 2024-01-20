@@ -232,12 +232,12 @@ module WXRuby3
       nil
     end
 
-    def check_pkgs
+    def check_tool_pkgs
       []
     end
 
     def install_prerequisites
-      pkg_deps = check_pkgs
+      pkg_deps = check_tool_pkgs
       unless get_config('autoinstall')
         STDERR.puts <<~__ERROR_TXT
           ERROR: This system lacks installed versions of the following required software packages:
