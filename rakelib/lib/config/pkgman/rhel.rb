@@ -33,7 +33,7 @@ module WXRuby3
           end
 
           def run_dnf(cmd)
-            run("dnf -q #{cmd}")
+            run("dnf #{cmd}")
           end
 
           def make_install_cmd(pkgs)
