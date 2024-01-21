@@ -453,8 +453,10 @@ module WXRuby3
             @ruby_includes = [ RB_CONFIG["rubyhdrdir"],
                                RB_CONFIG["sitehdrdir"],
                                RB_CONFIG["vendorhdrdir"],
-                               File.join(RB_CONFIG["rubyhdrdir"],
-                               RB_CONFIG['arch']) ].compact
+                               RB_CONFIG['rubyarchhdrdir'] ?
+                                 RB_CONFIG['rubyarchhdrdir'] :
+                                 File.join(RB_CONFIG["rubyhdrdir"], RB_CONFIG['arch'])
+                              ].compact
             @ruby_includes << File.join(@wxruby_path, 'include')
 
             @ruby_cppflags    = [RB_CONFIG["CFLAGS"]].compact
