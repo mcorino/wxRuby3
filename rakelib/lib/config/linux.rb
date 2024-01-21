@@ -62,7 +62,7 @@ module WXRuby3
 
           def install_prerequisites
             pkg_deps = check_tool_pkgs
-            PkgManager.install(pkg_deps) unless pkg_deps.empty?
+            PkgManager.install(pkg_deps)
             []
           end
 
