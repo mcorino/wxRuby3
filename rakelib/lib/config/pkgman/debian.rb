@@ -28,7 +28,7 @@ module WXRuby3
           end
 
           def run_apt(cmd)
-            run("apt-get -q -o=Dpkg::Use-Pty=0 #{cmd}")
+            run("DEBIAN_FRONTEND=noninteractive apt-get -q -o=Dpkg::Use-Pty=0 #{cmd}")
           end
 
           def update_pkgs
