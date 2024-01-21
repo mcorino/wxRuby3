@@ -39,7 +39,7 @@ module WXRuby3
             # update cache
             update_pkgs
             # get list of available packages
-            apt_cache = `apt-cache`.chomp.split("\n").collect { |s| s.strip }
+            apt_cache = `apt-cache pkgnames`.chomp.split("\n").collect { |s| s.strip }
             # remove un-installables
             pkgs = pkgs.select { |pkg| apt_cache.include?(pkg) }
             # create install command
