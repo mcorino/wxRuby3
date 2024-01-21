@@ -43,7 +43,7 @@ module WXRuby3
             # remove un-installables
             pkgs = args.select { |pkg| apt_cache.include?(pkg) }
             # create install command
-            "install #{ pkgs.join(' ') }"
+            "install -y #{ pkgs.join(' ') }"
           end
 
         end
