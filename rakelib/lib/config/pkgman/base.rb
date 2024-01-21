@@ -72,7 +72,17 @@ module WXRuby3
                 hash
               end
               {
-                type: data['ID_LIKE'] ? data['ID_LIKE'].split.first.to_sym : data['ID'].to_sym,
+                type: if data['ID_LIKE']
+                        data['ID_LIKE'].split.first.to_sym
+                      elsif File.file?('/etc/redhat-release')
+                        :rhel
+                      elsif File.file?('/etc/SUSE-brand') || File.file?('/etc/SuSE-release')
+                        :suse
+                      elsif File.file?('/etc/debian_version')
+                        :debian
+                      else
+                        data['ID'].to_sym
+                      end,
                 distro: data['ID'].downcase,
                 release: data['VERSION_ID']
               }
