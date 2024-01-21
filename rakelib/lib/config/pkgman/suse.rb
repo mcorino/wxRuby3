@@ -29,7 +29,7 @@ module WXRuby3
               pkgs << 'gcc-c++'
             end
             # add platform library dependencies
-            pkgs << %w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg8-devel libpng16-devel]
+            pkgs.concat %w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg8-devel libpng16-devel]
           end
 
           def run_zypper(cmd)

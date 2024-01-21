@@ -24,7 +24,7 @@ module WXRuby3
 
           def add_platform_pkgs(pkgs)
             # add platform library dependencies
-            pkgs << %w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev]
+            pkgs.concat %w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev]
           end
 
           def run_apt(cmd)
