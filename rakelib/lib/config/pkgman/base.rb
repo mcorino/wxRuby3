@@ -119,7 +119,7 @@ module WXRuby3
             if File.file?('/etc/os-release') # works with most (if not all) recent distro releases
               data = File.readlines('/etc/os-release').reduce({}) do |hash, line|
                 val, var = line.split('=')
-                hash[val] = var.gsub(/(\A")|("\Z)/, '')
+                hash[val] = var.strip.gsub(/(\A")|("\Z)/, '')
                 hash
               end
               {
