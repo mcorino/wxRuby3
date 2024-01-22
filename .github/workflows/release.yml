@@ -311,7 +311,7 @@ jobs:
 
       - name: Cache Doxygen
         id: cache-doxygen
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: doxygen-1.10.0.windows.x64.bin.zip
           key: ${{ runner.os }}-doxygen
