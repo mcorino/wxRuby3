@@ -21,7 +21,7 @@ module WXRuby3
           private
 
           def do_install(distro, pkgs)
-            run_apt(make_install_cmd(pkgs))
+            run_pacman(make_install_cmd(pkgs))
           end
 
           def add_platform_pkgs(pkgs, no_check)
@@ -41,17 +41,13 @@ module WXRuby3
             end
           end
 
-          def run_apt(cmd)
+          def run_pacman(cmd)
             run("pacman -q --noconfirm #{cmd}")
-          end
-
-          def update_pkgs
-            run_apt('update')
           end
 
           def make_install_cmd(pkgs)
             # create install command
-            "install -S --needed #{ pkgs.join(' ') }"
+            "-S --needed #{ pkgs.join(' ') }"
           end
 
         end
