@@ -48,6 +48,7 @@ __EOT
 wxwin = ENV['WXWIN']
 wxxml = ENV['WXXML']
 with_wxwin = !!ENV['WITH_WXWIN']
+autoinstall = ENV['WXRUBY_AUTOINSTALL']
 
 # run configure with appropriate settings
 cfgargs = ''
@@ -55,6 +56,9 @@ if wxwin || with_wxwin
   cfgargs = ["--wxwin=#{wxwin}"]
   cfgargs << "--wxxml=#{wxxml}" if wxxml
   cfgargs << '--with-wxwin' if with_wxwin
+  if with_wxwin && (wxwin || '').empty? && autoinstall
+    cfgargs << (autoinstall == '0' ? '--no-autoinstall' : '--autoinstall')
+  end
   cfgargs = "[#{cfgargs.join(',')}]"
 end
 Dir.chdir('..') do
