@@ -14,7 +14,7 @@ module WXRuby3
 
       module PkgManager
 
-        PLATFORM_DEPS = %w[gtk webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12]
+        PLATFORM_DEPS = %w[gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12]
 
         class << self
 
