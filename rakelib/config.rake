@@ -28,12 +28,9 @@ namespace :wxruby do
     # Bootstrap the wxRuby3 build environment
     task :bootstrap => [WXRuby3.build_cfg, WXRuby3.config.wx_xml_path]
 
-    directory WXRuby3.config.wx_xml_path => 'wxruby:config:prerequisites' do
+    directory WXRuby3.config.wx_xml_path do
+      WXRuby3.config.install_prerequisites
       WXRuby3.config.do_bootstrap
-    end
-
-    task 'prerequisites' do
-      WXRuby3.config.install_prerequisites unless ENV['WXRUBY_NO_PREREQ_INSTALL'] == '1'
     end
 
     WXRuby3.config.build_paths.each do |p|

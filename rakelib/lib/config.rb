@@ -588,7 +588,7 @@ module WXRuby3
             # generate the doxygen XML output
             wx_generate_xml
             # now we need to respawn the rake command in place of this process
-            respawn_rake(['WXRUBY_NO_PREREQ_INSTALL=1']+ARGV)
+            respawn_rake
           end
 
           # Testing the relevant wxWidgets setup.h file to see what
