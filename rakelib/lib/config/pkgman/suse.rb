@@ -19,7 +19,7 @@ module WXRuby3
           private
 
           def do_install(distro, pkgs)
-            run_zypper(make_install_cmd(add_platform_pkgs(pkgs)))
+            run_zypper(make_install_cmd(pkgs))
           end
 
           def add_platform_pkgs(pkgs)

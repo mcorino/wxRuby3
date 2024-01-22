@@ -73,9 +73,9 @@ module WXRuby3
                   'with-wxwin' => !!ENV['WITH_WXWIN'],
                   'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
                   'swig' => ENV['WXRUBY_SWIG'] || 'swig',
-                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen',
-                  'autoinstall' => ((ENV['WXRUBY_NO_AUTOINSTALL'] || '') != '1')
+                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
                 })
+  CONFIG['autoinstall'] = (ENV['WXRUBY_AUTOINSTALL'] != '0') if ENV['WXRUBY_AUTOINSTALL']
   BUILD_CFG = '.wxconfig'
 
   # Ruby 2.5 is the minimum version for wxRuby3
@@ -241,7 +241,7 @@ module WXRuby3
 
     def install_prerequisites
       pkg_deps = check_tool_pkgs
-      unless get_config('autoinstall')
+      if get_config('autoinstall') == false
         STDERR.puts <<~__ERROR_TXT
           ERROR: This system lacks installed versions of the following required software packages:
             #{pkg_deps.join(', ')}

@@ -19,35 +19,70 @@ module WXRuby3
         class << self
 
           def install(pkgs)
-            distro = get_distro
-            begin
-              require_relative "./#{distro[:type]}"
-            rescue LoadError
-              STDERR.puts <<~__ERROR_TXT
-                ERROR: Do not know how to install required packages for distro type '#{distro[:type]}'.
-
-                Make sure the following packages (or equivalent) are installed and than try again with `WXRUBY_NO_AUTOINSTALL=1`:
-                #{(pkgs+MIN_GENERIC_PKGS).join(', ')}
-                __ERROR_TXT
-              exit(1)
+            # do we need to install anything?
+            if !pkgs.empty? || (get_config('with-wxwin') && get_cfg_string('wxwin').empty?)
+              # determine the linux distro specs
+              distro = get_distro
+              begin
+                # load distro installation support
+                require_relative "./#{distro[:type]}"
+              rescue LoadError
+                # do we need to build wxWidgets?
+                pkgs.concat(MIN_GENERIC_PKGS) if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
+                STDERR.puts <<~__ERROR_TXT
+                  ERROR: Do not know how to install required packages for distro type '#{distro[:type]}'.
+  
+                  Make sure the following packages (or equivalent) are installed and than try again with `WXRUBY_NO_AUTOINSTALL=1`:
+                  #{pkgs.join(', ')}
+                  __ERROR_TXT
+                exit(1)
+              end
+              # do we need to build wxWidgets?
+              if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
+                # add platform specific packages for wxWidgets
+                add_platform_pkgs(pkgs)
+              end
+              # autoinstall or not?
+              unless wants_autoinstall?
+                STDERR.puts <<~__ERROR_TXT
+                  ERROR: This system may lack installed versions of the following required software packages:
+                    #{pkgs.join(', ')}
+                    
+                    Install these packages and try again.
+                  __ERROR_TXT
+                exit(1)
+              end
+              # can we install?
+              unless has_sudo? || is_root?
+                STDERR.puts 'ERROR: Cannot install required packages. Please install sudo or run as root and try again.'
+                exit(1)
+              end
+              # do the actual install
+              do_install(distro, pkgs)
             end
-            unless Config.get_config('autoinstall')
-              STDERR.puts <<~__ERROR_TXT
-                ERROR: This system lacks installed versions of the following required software packages:
-                  #{add_platform_pkgs(pkg_deps).join(', ')}
-                  
-                  Install these packages and try again.
-                __ERROR_TXT
-              exit(1)
-            end
-            unless has_sudo? || is_root?
-              STDERR.puts 'ERROR: Cannot install required packages. Please install sudo or run as root and try again.'
-              exit(1)
-            end
-            do_install(distro, pkgs)
           end
 
           private
+
+          def wants_autoinstall?
+            flag = Config.get_config('autoinstall')
+            if flag.nil?
+              STDERR.puts <<~__Q_TEXT
+                [ --- ATTENTION! --- ]
+                wxRuby3 requires some software packages to be installed before being able to continue building.
+                If you like these can be automatically installed next (if you agree you may have to enter root 
+                credentials after answering).
+                Do you want to have the required software installed now? [Yn] : 
+                __Q_TEXT
+              answer = STDIN.gets(chomp: true).strip
+              while !answer.empty? && !%w[Y y N n].include?(answer)
+                STDERR.puts 'Please answer Y/y or N/n [Yn] : '
+                answer = STDIN.gets(chomp: true).strip
+              end
+              flag = answer.empty? || %w[Y y].include?(answer)
+            end
+            flag
+          end
 
           def has_sudo?
             system('command -v sudo > /dev/null')
