@@ -20,7 +20,7 @@ module WXRuby3
 
           def install(pkgs)
             # do we need to install anything?
-            if !pkgs.empty? || (get_config('with-wxwin') && get_cfg_string('wxwin').empty?)
+            if !pkgs.empty? || builds_wxwidgets?
               # determine the linux distro specs
               distro = get_distro
               begin
@@ -28,7 +28,7 @@ module WXRuby3
                 require_relative "./#{distro[:type]}"
               rescue LoadError
                 # do we need to build wxWidgets?
-                pkgs.concat(MIN_GENERIC_PKGS) if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
+                pkgs.concat(MIN_GENERIC_PKGS) if builds_wxwidgets?
                 STDERR.puts <<~__ERROR_TXT
                   ERROR: Do not know how to install required packages for distro type '#{distro[:type]}'.
   
@@ -38,7 +38,7 @@ module WXRuby3
                 exit(1)
               end
               # do we need to build wxWidgets?
-              if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
+              if builds_wxwidgets?
                 # add platform specific packages for wxWidgets
                 add_platform_pkgs(pkgs)
               end
@@ -63,6 +63,10 @@ module WXRuby3
           end
 
           private
+
+          def builds_wxwidgets?
+            Config.get_config('with-wxwin') && Config.get_cfg_string('wxwin').empty?
+          end
 
           def wants_autoinstall?
             flag = Config.get_config('autoinstall')
