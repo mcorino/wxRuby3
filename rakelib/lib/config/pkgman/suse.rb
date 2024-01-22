@@ -14,6 +14,8 @@ module WXRuby3
 
       module PkgManager
 
+        PLATFORM_DEPS = %w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg8-devel libpng16-devel]
+
         class << self
 
           private
@@ -22,14 +24,22 @@ module WXRuby3
             run_zypper(make_install_cmd(pkgs))
           end
 
-          def add_platform_pkgs(pkgs)
+          def add_platform_pkgs(pkgs, no_check)
             # add build tools
             if pkgs.include?('g++')
               pkgs.delete('g++')
               pkgs << 'gcc-c++'
             end
-            # add platform library dependencies
-            pkgs.concat %w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg8-devel libpng16-devel]
+            if pkgs.empty? && !no_check
+              # check if any platform library dependencies are needed
+              unless expand("zypper -q -i install -y -D #{PLATFORM_DEPS.join(' ')}").strip.empty?
+                # some pkgs would need installing at least
+                pkgs.concat PLATFORM_DEPS
+              end
+            else
+              # we're gonna need to install stuff anyway so just add the deps; installer will sort it out
+              pkgs.concat PLATFORM_DEPS
+            end
           end
 
           def run_zypper(cmd)

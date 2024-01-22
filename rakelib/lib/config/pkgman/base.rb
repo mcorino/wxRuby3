@@ -37,28 +37,31 @@ module WXRuby3
                   __ERROR_TXT
                 exit(1)
               end
+              # can we install?
+              unless no_autoinstall? || has_sudo? || is_root?
+                STDERR.puts 'ERROR: Cannot check for or install required packages. Please install sudo or run as root and try again.'
+                exit(1)
+              end
               # do we need to build wxWidgets?
               if builds_wxwidgets?
                 # add platform specific packages for wxWidgets
-                add_platform_pkgs(pkgs)
+                add_platform_pkgs(pkgs, no_autoinstall?)
               end
-              # autoinstall or not?
-              unless wants_autoinstall?
-                STDERR.puts <<~__ERROR_TXT
-                  ERROR: This system may lack installed versions of the following required software packages:
-                    #{pkgs.join(', ')}
-                    
-                    Install these packages and try again.
-                  __ERROR_TXT
-                exit(1)
+              # do we actually have any packages to install?
+              unless pkgs.empty?
+                # autoinstall or not?
+                unless wants_autoinstall?
+                  STDERR.puts <<~__ERROR_TXT
+                    ERROR: This system may lack installed versions of the following required software packages:
+                      #{pkgs.join(', ')}
+                      
+                      Install these packages and try again.
+                    __ERROR_TXT
+                  exit(1)
+                end
+                # do the actual install
+                do_install(distro, pkgs)
               end
-              # can we install?
-              unless has_sudo? || is_root?
-                STDERR.puts 'ERROR: Cannot install required packages. Please install sudo or run as root and try again.'
-                exit(1)
-              end
-              # do the actual install
-              do_install(distro, pkgs)
             end
           end
 
@@ -66,6 +69,10 @@ module WXRuby3
 
           def builds_wxwidgets?
             Config.get_config('with-wxwin') && Config.get_cfg_string('wxwin').empty?
+          end
+
+          def no_autoinstall?
+            Config.get_config('autoinstall') == false
           end
 
           def wants_autoinstall?
@@ -102,6 +109,10 @@ module WXRuby3
             rc = system("#{is_root? ? '' : 'sudo '}#{cmd}")
             STDERR.puts "FAILED!" unless rc
             rc
+          end
+
+          def expand(cmd)
+            `#{is_root? ? '' : 'sudo '}#{cmd}`
           end
 
           def get_distro
