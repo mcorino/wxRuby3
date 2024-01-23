@@ -76,7 +76,7 @@ module WXRuby3
           end
 
           def wants_autoinstall?
-            Config.config.wants_autoinstall?
+            WXRuby3.config.wants_autoinstall?
           end
 
           def has_sudo?
