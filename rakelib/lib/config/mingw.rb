@@ -112,7 +112,7 @@ module WXRuby3
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
             outfile = File.join(tmp_tool_root, File.basename(URI(url).path))
-            unless system("powershell Invoke-WebRequest -URI #{url} -OutFile #{outfile}")
+            unless system("wget #{url} -O #{outfile}")
               STDERR.puts "ERROR: Failed to download installation package for #{exe}"
               exit(1)
             end
