@@ -87,12 +87,14 @@ module WXRuby3
               # download and install SWIG
               fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
               set_config('swig', fname)
+              Config.save
             end
             # if doxygen was not found in the PATH
             if pkg_deps.include?('doxygen')
               # download and install doxygen
               fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
               set_config('doxygen', fname)
+              Config.save
             end
             []
           end
