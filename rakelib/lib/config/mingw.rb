@@ -27,6 +27,7 @@ module WXRuby3
     module Platform
 
       SWIG_URL = 'https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip/download'
+      SWIG_ZIP = 'swigwin-4.2.0.zip'
 
       DOXYGEN_URL = 'https://www.doxygen.nl/files/doxygen-1.10.0.windows.x64.bin.zip'
 
@@ -77,13 +78,13 @@ module WXRuby3
             # if SWIG was not found in the PATH
             if pkg_deps.include?('swig')
               # download and install SWIG
-              fname = download_and_install(SWIG_URL, 'swig.exe')
+              fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
               set_config('swig', fname)
             end
             # if doxygen was not found in the PATH
             if pkg_deps.include?('doxygen')
               # download and install doxygen
-              fname = download_and_install(DOXYGEN_URL, 'doxygen.exe', 'doxygen')
+              fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
               set_config('doxygen', fname)
             end
             []
@@ -106,23 +107,22 @@ module WXRuby3
 
           private
 
-          def download_and_install(url, exe, unpack_to=nil)
+          def download_and_install(url, zip, exe, unpack_to=nil)
             # make sure the download destination exists
             tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
-            outfile = File.join(tmp_tool_root, File.basename(URI(url).path))
             chdir(tmp_tool_root) do
-              unless system("wget #{url}")
+              unless system("curl -L #{url} --output #{zip}")
                 STDERR.puts "ERROR: Failed to download installation package for #{exe}"
                 exit(1)
               end
-            end
-            # unpack
-            dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(URI(url).path, '.*'))
-            unless system("powershell Expand-Archive -LiteralPath '#{outfile}' -DestinationPath #{dest} -Force")
-              STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
-              exit(1)
+              # unpack
+              dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(URI(url).path, '.*'))
+              unless system("powershell Expand-Archive -LiteralPath '#{zip}' -DestinationPath #{dest} -Force")
+                STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
+                exit(1)
+              end
             end
             # find executable
             find_exe(dest, exe)
