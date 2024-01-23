@@ -112,9 +112,11 @@ module WXRuby3
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
             outfile = File.join(tmp_tool_root, File.basename(URI(url).path))
-            unless system("wget #{url} -O #{outfile}")
-              STDERR.puts "ERROR: Failed to download installation package for #{exe}"
-              exit(1)
+            chdir(tmp_tool_root) do
+              unless system("wget #{url}")
+                STDERR.puts "ERROR: Failed to download installation package for #{exe}"
+                exit(1)
+              end
             end
             # unpack
             dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(URI(url).path, '.*'))
