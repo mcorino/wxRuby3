@@ -73,6 +73,13 @@ module WXRuby3
             ftmp.unlink # cleanup
           end
 
+          def check_git
+            unless !expand('which git 2>/dev/null').strip.empty?
+              STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
+              exit(1)
+            end
+          end
+
           def install_prerequisites
             pkg_deps = super
             # if SWIG was not found in the PATH
