@@ -118,7 +118,7 @@ module WXRuby3
                 exit(1)
               end
               # unpack
-              dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(URI(url).path, '.*'))
+              dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(zip, '.*'))
               unless system("powershell Expand-Archive -LiteralPath '#{zip}' -DestinationPath #{dest} -Force")
                 STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
                 exit(1)
