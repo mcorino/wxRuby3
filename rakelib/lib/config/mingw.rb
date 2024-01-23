@@ -8,6 +8,9 @@
 
 require_relative './unixish'
 
+require 'uri'
+
+
 if ENV['RI_DEVKIT'].nil?
   begin
     require 'devkit'
