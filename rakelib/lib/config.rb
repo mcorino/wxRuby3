@@ -220,13 +220,6 @@ module WXRuby3
       end
     end
 
-    def check_doxygen
-      unless system('command -v doxygen>/dev/null')
-        STDERR.puts "ERROR: Cannot find #{get_config('doxygen')}. Need Doxygen installed to run wxRuby3 bootstrap!"
-        exit(1)
-      end
-    end
-
     def check_wx_config
       false
     end
