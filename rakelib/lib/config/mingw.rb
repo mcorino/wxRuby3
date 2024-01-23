@@ -178,7 +178,7 @@ module WXRuby3
 
           def wx_generate_xml
             chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, 'regen.bat xml')
+              bash({ 'DOXYGEN' => nix_path(get_cfg_string("doxygen")),  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh', 'xml')
             end
           end
 
