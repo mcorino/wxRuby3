@@ -123,6 +123,8 @@ module WXRuby3
                 STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
                 exit(1)
               end
+              # cleanup
+              rm_f(zip)
             end
             # find executable
             find_exe(dest, exe)
