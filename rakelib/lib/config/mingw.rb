@@ -75,43 +75,48 @@ module WXRuby3
             ftmp.unlink # cleanup
           end
 
-          def check_git
-            unless !expand("which #{get_cfg_string('git')} 2>/dev/null").strip.empty?
-              STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
-              exit(1)
-            end
-          end
-
           def check_tool_pkgs
-            pkg_deps = super
+            pkg_deps = []
             pkg_deps << 'doxygen' if expand("which #{get_cfg_string('doxygen')} 2>/dev/null").strip.empty?
             pkg_deps << 'swig' if expand("which #{get_cfg_string('swig')} 2>/dev/null").strip.empty?
-            pkg_deps << 'git' if expand("'which #{get_cfg_string('git')} 2>/dev/null'").strip.empty?
+            pkg_deps << 'git' if expand("which #{get_cfg_string('git')} 2>/dev/null").strip.empty?
             pkg_deps
           end
 
           def install_prerequisites
             pkg_deps = super
-            # if SWIG was not found in the PATH
-            if pkg_deps.include?('swig')
-              # download and install SWIG
-              fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
-              set_config('swig', fname)
-              Config.save
-            end
-            # if doxygen was not found in the PATH
-            if pkg_deps.include?('doxygen')
-              # download and install doxygen
-              fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
-              set_config('doxygen', fname)
-              Config.save
-            end
-            # if git was not found in the PATH
-            if pkg_deps.include?('git')
-              # download and install doxygen
-              fname = download_and_install(GIT_URL, File.basename(URI(GIT_URL).path), 'git.exe', 'git')
-              set_config('git', fname)
-              Config.save
+            unless pkg_deps.empty?
+              # autoinstall or not?
+              unless wants_autoinstall?
+                STDERR.puts <<~__ERROR_TXT
+                  ERROR: This system lacks installed versions of the following required software packages:
+                    #{pkg_deps.join(', ')}
+                    
+                    Install these packages and try again.
+                  __ERROR_TXT
+                exit(1)
+              end
+              # if SWIG was not found in the PATH
+              if pkg_deps.include?('swig')
+                # download and install SWIG
+                fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
+                set_config('swig', fname)
+                Config.save
+              end
+              # if doxygen was not found in the PATH
+              if pkg_deps.include?('doxygen')
+                # download and install doxygen
+                fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
+                set_config('doxygen', fname)
+                Config.save
+              end
+              # if git was not found in the PATH
+              if pkg_deps.include?('git')
+                # download and install doxygen
+                fname = download_and_install(GIT_URL, File.basename(URI(GIT_URL).path), 'git.exe', 'git')
+                set_config('git', fname)
+                Config.save
+              end
             end
             []
           end
@@ -132,6 +137,27 @@ module WXRuby3
           end
 
           private
+
+          def wants_autoinstall?
+            flag = Config.get_config('autoinstall')
+            if flag.nil?
+              STDERR.puts <<~__Q_TEXT
+
+                [ --- ATTENTION! --- ]
+                wxRuby3 requires some software packages to be installed before being able to continue building.
+                If you like these can be automatically installed next (if you are building the source gem the
+                software will be removed again after building finishes).
+                Do you want to have the required software installed now? [yN] : 
+                __Q_TEXT
+              answer = STDIN.gets(chomp: true).strip
+              while !answer.empty? && !%w[Y y N n].include?(answer)
+                STDERR.puts 'Please answer Y/y or N/n [Yn] : '
+                answer = STDIN.gets(chomp: true).strip
+              end
+              flag = %w[Y y].include?(answer)
+            end
+            flag
+          end
 
           def download_and_install(url, zip, exe, unpack_to=nil)
             # make sure the download destination exists
@@ -159,9 +185,9 @@ module WXRuby3
           def find_exe(path, exe)
             fp = Dir.glob(File.join(path, '*')).find { |p| File.file?(p) && File.basename(p) == exe }
             unless fp
-              fp = Dir.glob(File.join(path, '*')).reduce(fp) do |memo, p|
-                memo = find_exe(p, exe) if File.directory?(p)
-                memo
+              Dir.glob(File.join(path, '*')).each do |p|
+                fp = find_exe(p, exe) if File.directory?(p)
+                return fp if fp
               end
             end
             fp

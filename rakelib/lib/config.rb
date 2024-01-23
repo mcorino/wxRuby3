@@ -214,13 +214,6 @@ module WXRuby3
       Rake.sh(Config.instance.exec_env, *make_ruby_cmd('-x', irb_cmd), **options)
     end
 
-    def check_git
-      unless system('command -v git>/dev/null')
-        STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
-        exit(1)
-      end
-    end
-
     def check_wx_config
       false
     end

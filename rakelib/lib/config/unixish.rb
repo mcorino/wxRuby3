@@ -69,7 +69,6 @@ module WXRuby3
       private
 
       def wx_checkout
-        check_git
         # clone wxWidgets GIT repository under ext_path
         chdir(ext_path) do
           if (rc = sh("#{get_cfg_string('git')} clone https://github.com/wxWidgets/wxWidgets.git"))
