@@ -72,15 +72,15 @@ module WXRuby3
         check_git
         # clone wxWidgets GIT repository under ext_path
         chdir(ext_path) do
-          if (rc = sh("git clone https://github.com/wxWidgets/wxWidgets.git"))
+          if (rc = sh("#{get_cfg_string('git')} clone https://github.com/wxWidgets/wxWidgets.git"))
             chdir('wxWidgets') do
               tag = if @wx_version
                       "v#{@wx_version}"
                     else
-                      expand('git tag').split("\n").select { |t| (/\Av3\.(\d+)/ =~ t) && $1.to_i >= 2  }.max
+                      expand("#{get_cfg_string('git')} tag").split("\n").select { |t| (/\Av3\.(\d+)/ =~ t) && $1.to_i >= 2  }.max
                     end
               # checkout the version we are building against
-              rc = sh("git checkout #{tag}")
+              rc = sh("#{get_cfg_string('git')} checkout #{tag}")
             end
           end
           unless rc
@@ -100,7 +100,7 @@ module WXRuby3
 
       def wx_build
         # initialize submodules
-        unless sh('git submodule update --init')
+        unless sh("#{get_cfg_string('git')} submodule update --init")
           STDERR.puts "ERROR: Failed to update wxWidgets submodules."
           exit(1)
         end

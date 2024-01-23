@@ -73,7 +73,8 @@ module WXRuby3
                   'with-wxwin' => !!ENV['WITH_WXWIN'],
                   'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
                   'swig' => ENV['WXRUBY_SWIG'] || 'swig',
-                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen'
+                  'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen',
+                  'git' => ENV['WXRUBY_GIT'] || 'git'
                 })
   CONFIG['autoinstall'] = (ENV['WXRUBY_AUTOINSTALL'] != '0') if ENV['WXRUBY_AUTOINSTALL']
   BUILD_CFG = '.wxconfig'

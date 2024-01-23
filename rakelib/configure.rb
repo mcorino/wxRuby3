@@ -70,6 +70,8 @@ module WXRuby3
                 "the path to swig executable [#{get_config('swig')}]")  {|v| CONFIG['swig'] = v}
         opts.on('--doxygen=path',
                 "the path to doxygen executable [#{get_config('doxygen')}]")  {|v| CONFIG['doxygen'] = v}
+        opts.on('--git=path',
+                "the path to git executable [#{get_config('git')}]")  {|v| CONFIG['git'] = v}
         opts.on('--[no-]autoinstall',
                 "do (not) attempt to automatically install any required packages")  {|v| CONFIG['autoinstall'] = !!v }
 

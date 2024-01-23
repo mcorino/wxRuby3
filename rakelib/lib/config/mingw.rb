@@ -31,6 +31,8 @@ module WXRuby3
 
       DOXYGEN_URL = 'https://www.doxygen.nl/files/doxygen-1.10.0.windows.x64.bin.zip'
 
+      GIT_URL = 'https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/MinGit-2.43.0-64-bit.zip'
+
       def self.included(base)
         base.class_eval do
           include Config::UnixLike
@@ -74,10 +76,18 @@ module WXRuby3
           end
 
           def check_git
-            unless !expand('which git 2>/dev/null').strip.empty?
+            unless !expand("which #{get_cfg_string('git')} 2>/dev/null").strip.empty?
               STDERR.puts 'ERROR: Need GIT installed to run wxRuby3 bootstrap!'
               exit(1)
             end
+          end
+
+          def check_tool_pkgs
+            pkg_deps = super
+            pkg_deps << 'doxygen' if expand("which #{get_cfg_string('doxygen')} 2>/dev/null").strip.empty?
+            pkg_deps << 'swig' if expand("which #{get_cfg_string('swig')} 2>/dev/null").strip.empty?
+            pkg_deps << 'git' if expand("'which #{get_cfg_string('git')} 2>/dev/null'").strip.empty?
+            pkg_deps
           end
 
           def install_prerequisites
@@ -94,6 +104,13 @@ module WXRuby3
               # download and install doxygen
               fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
               set_config('doxygen', fname)
+              Config.save
+            end
+            # if git was not found in the PATH
+            if pkg_deps.include?('git')
+              # download and install doxygen
+              fname = download_and_install(GIT_URL, File.basename(URI(GIT_URL).path), 'git.exe', 'git')
+              set_config('git', fname)
               Config.save
             end
             []
