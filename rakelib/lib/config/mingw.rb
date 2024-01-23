@@ -110,6 +110,7 @@ module WXRuby3
           def download_and_install(url, zip, exe, unpack_to=nil)
             # make sure the download destination exists
             tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
+            dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(zip, '.*'))
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
             chdir(tmp_tool_root) do
@@ -118,7 +119,6 @@ module WXRuby3
                 exit(1)
               end
               # unpack
-              dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(zip, '.*'))
               unless system("powershell Expand-Archive -LiteralPath '#{zip}' -DestinationPath #{dest} -Force")
                 STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
                 exit(1)
