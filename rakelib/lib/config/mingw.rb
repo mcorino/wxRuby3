@@ -83,6 +83,22 @@ module WXRuby3
               fname = download_and_install(DOXYGEN_URL, 'doxygen.exe', 'doxygen')
               set_config('doxygen', fname)
             end
+            []
+          end
+
+          # only called after src gem build
+          def cleanup_prerequisites
+            tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
+            path = get_cfg_string('swig')
+            unless path.empty? || !path.start_with?(tmp_tool_root)
+              path = File.dirname(path) while File.dirname(path) != tmp_tool_root
+              rm_rf(path)
+            end
+            path = get_cfg_string('doxygen')
+            unless path.empty? || !path.start_with?(tmp_tool_root)
+              path = File.dirname(path) while File.dirname(path) != tmp_tool_root
+              rm_rf(path)
+            end
           end
 
           private

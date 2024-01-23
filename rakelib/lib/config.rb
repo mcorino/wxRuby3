@@ -253,6 +253,11 @@ module WXRuby3
       pkg_deps
     end
 
+    # only called after src gem build
+    def cleanup_prerequisites
+      # noop
+    end
+
     def get_config(key)
       Config.get_config(key)
     end
@@ -574,7 +579,7 @@ module WXRuby3
           end
 
           def do_bootstrap
-            check_doxygen
+            install_prerequisites
             # do we have a local wxWidgets tree already?
             unless File.directory?(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen'))
               wx_checkout
@@ -589,6 +594,11 @@ module WXRuby3
             wx_generate_xml
             # now we need to respawn the rake command in place of this process
             respawn_rake
+          end
+
+          def cleanup_bootstrap
+            rm_rf(File.join(ext_path, 'wxWidgets')) if File.directory?(File.join(ext_path, 'wxWidgets'))
+            cleanup_prerequisites
           end
 
           # Testing the relevant wxWidgets setup.h file to see what

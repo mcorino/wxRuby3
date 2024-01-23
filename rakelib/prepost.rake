@@ -27,7 +27,7 @@ namespace 'wxruby' do
       # cleanup
       rm_rf('rakelib')
       rm_rf('ext/wxruby3')
-      rm_rf('ext/wxWidgets') if File.exist?('ext/wxWidgets')
+      WXRuby3.config.cleanup_bootstrap
     end
 
     task :bingem => 'gem:install' do

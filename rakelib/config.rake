@@ -29,7 +29,6 @@ namespace :wxruby do
     task :bootstrap => [WXRuby3.build_cfg, WXRuby3.config.wx_xml_path]
 
     directory WXRuby3.config.wx_xml_path do
-      WXRuby3.config.install_prerequisites
       WXRuby3.config.do_bootstrap
     end
 
