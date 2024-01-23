@@ -138,27 +138,6 @@ module WXRuby3
 
           private
 
-          def wants_autoinstall?
-            flag = Config.get_config('autoinstall')
-            if flag.nil?
-              STDERR.puts <<~__Q_TEXT
-
-                [ --- ATTENTION! --- ]
-                wxRuby3 requires some software packages to be installed before being able to continue building.
-                If you like these can be automatically installed next (if you are building the source gem the
-                software will be removed again after building finishes).
-                Do you want to have the required software installed now? [yN] : 
-                __Q_TEXT
-              answer = STDIN.gets(chomp: true).strip
-              while !answer.empty? && !%w[Y y N n].include?(answer)
-                STDERR.puts 'Please answer Y/y or N/n [Yn] : '
-                answer = STDIN.gets(chomp: true).strip
-              end
-              flag = %w[Y y].include?(answer)
-            end
-            flag
-          end
-
           def download_and_install(url, zip, exe, unpack_to=nil)
             # make sure the download destination exists
             tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
