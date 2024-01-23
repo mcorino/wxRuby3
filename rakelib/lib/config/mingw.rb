@@ -108,15 +108,16 @@ module WXRuby3
 
           def download_and_install(url, exe, unpack_to=nil)
             # make sure the download destination exists
-            mkdir(File.join(ENV['HOME'], '.wxruby3'))
+            tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
+            mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
-            outfile = File.join(ENV['HOME'], '.wxruby3', File.basename(URI(url).path))
+            outfile = File.join(tmp_tool_root, File.basename(URI(url).path))
             unless system("powershell Invoke-WebRequest -URI #{url} -OutFile #{outfile}")
               STDERR.puts "ERROR: Failed to download installation package for #{exe}"
               exit(1)
             end
             # unpack
-            dest = unpack_to ? File.join(ENV['HOME'], '.wxruby3', unpack_to) : File.join(ENV['HOME'], '.wxruby3', File.basename(URI(url).path, '.*'))
+            dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(URI(url).path, '.*'))
             unless system("powershell Expand-Archive -LiteralPath '#{outfile}' -DestinationPath #{dest} -Force")
               STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
               exit(1)
