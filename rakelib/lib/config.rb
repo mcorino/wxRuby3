@@ -258,8 +258,8 @@ module WXRuby3
                 __Q_TEXT
         answer = $stdin.gets(chomp: true).strip
         while !answer.empty? && !%w[Y y N n].include?(answer)
-          STDERR.puts 'Please answer Y/y or N/n [Yn] : '
-          answer = STDIN.gets(chomp: true).strip
+          $stdout.puts 'Please answer Y/y or N/n [Yn] : '
+          answer = $stdin.gets(chomp: true).strip
         end
         flag = %w[Y y].include?(answer)
       end
