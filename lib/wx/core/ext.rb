@@ -35,7 +35,7 @@ module Wx
       end
 
       def value
-        @block ? block.call : Kernel.eval(@code || 'nil')
+        @block ? @block.call : Kernel.eval(@code || 'nil')
       end
 
       def to_s
