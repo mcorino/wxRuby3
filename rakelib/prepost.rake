@@ -23,7 +23,10 @@ namespace 'wxruby' do
 
   namespace 'post' do
 
-    task :srcgem => %w[gem:wxwin gem:install wxruby:doc] do
+    task :srcgem => %w[gem:wxwin gem:install] do
+      $stdout.print "Generating wxRuby3 reference documentation..." if WXRuby3.config.run_silent?
+      Rake::Task['wxruby:doc'].invoke
+      $stdout.puts 'done!' if WXRuby3.config.run_silent?
       # cleanup
       rm_rf('rakelib', verbose: !WXRuby3.config.run_silent?)
       rm_rf('ext/wxruby3', verbose: !WXRuby3.config.run_silent?)
