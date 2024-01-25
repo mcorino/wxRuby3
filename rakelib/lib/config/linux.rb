@@ -53,12 +53,13 @@ module WXRuby3
 
           def check_tool_pkgs
             pkg_deps = super
+            # need g++ to build wxRuby3 extensions in any case
+            pkg_deps << 'g++' unless system('command -v g++>/dev/null')
             # do we need to build wxWidgets?
             if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
               pkg_deps << 'patchelf' unless system('command -v patchelf>/dev/null')
               pkg_deps << 'make' unless system('command -v make>/dev/null')
               pkg_deps << 'git' unless system('command -v git>/dev/null')
-              pkg_deps << 'g++' unless system('command -v g++>/dev/null')
             end
             pkg_deps
           end
