@@ -33,7 +33,9 @@ namespace :wxruby do
     end
 
     WXRuby3.config.build_paths.each do |p|
-      directory p
+      directory p do
+        mkdir_p(p, verbose: !WXRuby3.config.run_silent?)
+      end
     end
   end
 

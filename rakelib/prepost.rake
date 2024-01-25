@@ -25,8 +25,8 @@ namespace 'wxruby' do
 
     task :srcgem => %w[gem:wxwin gem:install wxruby:doc] do
       # cleanup
-      rm_rf('rakelib')
-      rm_rf('ext/wxruby3')
+      rm_rf('rakelib', verbose: !WXRuby3.config.run_silent?)
+      rm_rf('ext/wxruby3', verbose: !WXRuby3.config.run_silent?)
       WXRuby3.config.cleanup_bootstrap
     end
 

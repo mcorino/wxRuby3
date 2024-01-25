@@ -98,6 +98,7 @@ module WXRuby3
               end
               # if SWIG was not found in the PATH
               if pkg_deps.include?('swig')
+                $stdout.puts 'Installing SWIG...' if run_silent?
                 # download and install SWIG
                 fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
                 set_config('swig', fname)
@@ -105,6 +106,7 @@ module WXRuby3
               end
               # if doxygen was not found in the PATH
               if pkg_deps.include?('doxygen')
+                $stdout.puts 'Installing Doxygen...' if run_silent?
                 # download and install doxygen
                 fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
                 set_config('doxygen', fname)
@@ -112,6 +114,7 @@ module WXRuby3
               end
               # if git was not found in the PATH
               if pkg_deps.include?('git')
+                $stdout.puts 'Installing Git...' if run_silent?
                 # download and install doxygen
                 fname = download_and_install(GIT_URL, File.basename(URI(GIT_URL).path), 'git.exe', 'git')
                 set_config('git', fname)
@@ -136,6 +139,18 @@ module WXRuby3
             end
           end
 
+          def expand(cmd)
+            super("bash -c \"#{cmd}\"")
+          end
+
+          def bash(*cmd, **kwargs)
+            env = ::Hash === cmd.first ? cmd.shift : nil
+            opts = ::Hash === cmd.last ? cmd.pop : nil
+            cmd = ['bash', '-c', cmd.join(' ')]
+            cmd.unshift(env) if env
+            super(*cmd, **kwargs)
+          end
+
           private
 
           def download_and_install(url, zip, exe, unpack_to=nil)
@@ -145,12 +160,12 @@ module WXRuby3
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
             chdir(tmp_tool_root) do
-              unless system("curl -L #{url} --output #{zip}")
+              unless sh("curl -L #{url} --output #{zip}")
                 STDERR.puts "ERROR: Failed to download installation package for #{exe}"
                 exit(1)
               end
               # unpack
-              unless system("powershell Expand-Archive -LiteralPath '#{zip}' -DestinationPath #{dest} -Force")
+              unless sh("powershell Expand-Archive -LiteralPath '#{zip}' -DestinationPath #{dest} -Force")
                 STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
                 exit(1)
               end
@@ -184,18 +199,6 @@ module WXRuby3
 
           def respawn_rake(argv = ARGV)
             Kernel.exec('rake', *argv)
-          end
-
-          def expand(cmd)
-            super("bash -c \"#{cmd}\"")
-          end
-
-          def bash(*cmd, **kwargs)
-            env = ::Hash === cmd.first ? cmd.shift : nil
-            opts = ::Hash === cmd.last ? cmd.pop : nil
-            cmd = ['bash', '-c', cmd.join(' ')]
-            cmd.unshift(env) if env
-            super(*cmd, **kwargs)
           end
 
           def nix_path(winpath)

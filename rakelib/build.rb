@@ -102,7 +102,7 @@ if WXRuby3.is_bootstrapped?
 
   file WXRuby3::Director.enum_cache_control_path do |t_|
     WXRuby3::Director.all_packages.each { |p| p.extract(genint: false) }
-    touch(WXRuby3::Director.enum_cache_control_path)
+    touch(WXRuby3::Director.enum_cache_control_path, verbose: !WXRuby3.config.run_silent?)
   end
 
   # Compile an object file from a generated c++ source

@@ -9,6 +9,7 @@
 require 'rbconfig'
 require 'fileutils'
 require 'json'
+require 'open3'
 
 module FileUtils
   # add convenience methods
@@ -113,38 +114,101 @@ module WXRuby3
 
   module Config
 
-    def do_run(*cmd, capture: nil)
+    def run_silent?
+      ENV['WXRUBY_RUN_SILENT'] == '1'
+    end
+
+    PROGRESS_CH = '.|/-\\|/-\\|'
+
+    def silent_runner(os)
+      output = []
+      lc = 0
+      dc = 0
+      os.each do |ln|
+        lc += 1
+        $stdout.print "#{PROGRESS_CH[lc%10]}\b"
+        $stdout.flush
+        output << ln
+      end
+      output
+    end
+    private :silent_runner
+
+    def do_silent_run(*cmd, **kwargs)
+      verbose = kwargs.delete(:verbose)
+      if verbose? && verbose != false
+        if ::Hash === cmd.first
+          cmd = cmd.dup
+          env = cmd.shift
+          $stdout.print env.collect { |k,v| "#{k}=#{v}" }.join(' ')
+        end
+        $stdout.puts cmd.join(' ')
+      end
       output = nil
-      if capture
-        env_bup = exec_env.keys.inject({}) do |h, ev|
-          h[ev] = ENV[ev] ? ENV[ev].dup : nil
-          h
-        end
-        case capture
-        when :out
-          # default
-        when :no_err
-          # redirect stderr to null sink
-          cmd << '2> ' << (windows? ? 'NULL' : '/dev/null')
-        when :err, :all
-          cmd << '2>&1'
-        end
-        begin
-          # setup ENV for child execution
-          ENV.merge!(Config.instance.exec_env)
-          output = `#{cmd.join(' ')}`
-        ensure
-          # restore ENV
-          env_bup.each_pair do |k,v|
-            if v
-              ENV[k] = v
-            else
-              ENV.delete(k)
-            end
-          end
+      capture = kwargs.delete(:capture)
+      if capture == :out || capture == :no_err
+        kwargs[:err] = '/dev/null' if capture == :no_err
+        rc = Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
+          result = silent_runner(os)
+          output = result.join if capture
+          tw.value
         end
       else
-        Rake.sh(exec_env, *cmd, verbose: verbose?)
+        rc = Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
+          result = silent_runner(eos)
+          output = result.join if capture
+          tw.value
+        end
+      end
+      if capture
+        output
+      else
+        rc
+      end
+    end
+    private :do_silent_run
+
+    def do_run(*cmd, capture: nil)
+      output = nil
+      if run_silent?
+        result = do_silent_run(exec_env, *cmd, capture: capture)
+        if capture
+          output = result
+        else
+          fail "Command failed with status (#{rc}): #{cmd.join(' ')}" unless result == 0
+        end
+      else
+        if capture
+          env_bup = exec_env.keys.inject({}) do |h, ev|
+            h[ev] = ENV[ev] ? ENV[ev].dup : nil
+            h
+          end
+          case capture
+          when :out
+            # default
+          when :no_err
+            # redirect stderr to null sink
+            cmd << '2> ' << (windows? ? 'NULL' : '/dev/null')
+          when :err, :all
+            cmd << '2>&1'
+          end
+          begin
+            # setup ENV for child execution
+            ENV.merge!(Config.instance.exec_env)
+            output = `#{cmd.join(' ')}`
+          ensure
+            # restore ENV
+            env_bup.each_pair do |k,v|
+              if v
+                ENV[k] = v
+              else
+                ENV.delete(k)
+              end
+            end
+          end
+        else
+          Rake.sh(exec_env, *cmd, verbose: verbose?)
+        end
       end
       output
     end
@@ -184,14 +248,15 @@ module WXRuby3
     def expand(cmd)
       `#{cmd}`
     end
-    private :expand
 
     def sh(*cmd, **kwargs)
-      Rake.sh(*cmd, **kwargs) { |ok,_| !!ok }
+      if run_silent?
+        do_silent_run(*cmd, **kwargs) == 0
+      else
+        Rake.sh(*cmd, verbose: verbose?, **kwargs) { |ok,_| !!ok }
+      end
     end
-    private :sh
     alias :bash :sh
-    private :bash
 
     def test(*tests, **options)
       errors = 0
@@ -376,9 +441,9 @@ module WXRuby3
       def create
         load # load the build config (if any)
         klass = Class.new do
-          include Config
-
           include FileUtils
+
+          include Config
 
           def initialize
             @ruby_exe = RB_CONFIG["ruby_install_name"]
@@ -605,7 +670,7 @@ module WXRuby3
           end
 
           def cleanup_bootstrap
-            rm_rf(File.join(ext_path, 'wxWidgets')) if File.directory?(File.join(ext_path, 'wxWidgets'))
+            rm_rf(File.join(ext_path, 'wxWidgets'), verbose: !WXRuby3.config.run_silent?) if File.directory?(File.join(ext_path, 'wxWidgets'))
             cleanup_prerequisites
           end
 

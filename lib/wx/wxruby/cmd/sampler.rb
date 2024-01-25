@@ -48,6 +48,10 @@ module WxRuby
       end
     end
 
-    self.register('sampler', Sampler)
+    begin
+      require 'wx'
+      self.register('sampler', Sampler)
+    rescue LoadError
+    end
   end
 end

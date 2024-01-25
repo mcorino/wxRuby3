@@ -38,9 +38,9 @@ module WXRuby3
         manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
         manifest.include 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*', 'ext/wxruby3/include/**/*'
         manifest.exclude 'ext/wxruby3/swig/classes/**/*'
-        manifest.include 'ext/mkrf_conf_srcgem.rb'
         manifest.include 'rakelib/**/*'
-        manifest.exclude %w[rakefile/install.rake rakelib/help.* rakelib/package.* rakelib/gem.* rakelib/bin.* rakelib/memcheck.* rakelib/memcheck/**/*]
+        manifest.exclude %w[rakelib/run.* rakelib/help.* rakelib/package.* rakelib/memcheck.* rakelib/memcheck/**/*]
+        manifest.include 'rakefile'
       end
       manifest.include %w{LICENSE README.md CREDITS.md INSTALL.md .yardopts}
       manifest

@@ -30,7 +30,6 @@ module WxRuby
           :verbose => false
         }
       end
-      private :options
 
       def register(cmdid, cmdhandler)
         commands[cmdid.to_s] = case
@@ -71,7 +70,7 @@ module WxRuby
           exit(0)
         end
         opts.raise_unknown = false
-        opts.parse!(args)
+        opts.order!(args)
       end
     end
   end

@@ -69,6 +69,7 @@ module WXRuby3
       private
 
       def wx_checkout
+        $stdout.print 'Checking out wxWidgets...' if run_silent?
         # clone wxWidgets GIT repository under ext_path
         chdir(ext_path) do
           if (rc = sh("#{get_cfg_string('git')} clone https://github.com/wxWidgets/wxWidgets.git"))
@@ -82,8 +83,10 @@ module WXRuby3
               rc = sh("#{get_cfg_string('git')} checkout #{tag}")
             end
           end
-          unless rc
-            STDERR.puts "ERROR: Failed to checkout wxWidgets."
+          if rc
+            $stdout.puts 'done!' if run_silent?
+          else
+            $stderr.puts "ERROR: Failed to checkout wxWidgets."
             exit(1)
           end
         end
@@ -98,21 +101,25 @@ module WXRuby3
       end
 
       def wx_build
+        $stdout.print 'Configuring wxWidgets...' if run_silent?
         # initialize submodules
         unless sh("#{get_cfg_string('git')} submodule update --init")
-          STDERR.puts "ERROR: Failed to update wxWidgets submodules."
+          $stderr.puts "ERROR: Failed to update wxWidgets submodules."
           exit(1)
         end
         # configure wxWidgets
         unless wx_configure
-          STDERR.puts "ERROR: Failed to configure wxWidgets."
+          $stderr.puts "ERROR: Failed to configure wxWidgets."
           exit(1)
         end
+        $stdout.puts 'done!' if run_silent?
+        $stdout.print 'Building wxWidgets...' if run_silent?
         # make and install wxWidgets
         unless wx_make
-          STDERR.puts "ERROR: Failed to build wxWidgets libraries."
+          $stderr.puts "ERROR: Failed to build wxWidgets libraries."
           exit(1)
         end
+        $stdout.puts 'done!' if run_silent?
       end
 
       def wx_generate_xml

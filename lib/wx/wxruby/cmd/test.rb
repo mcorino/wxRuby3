@@ -25,6 +25,10 @@ module WxRuby
       end
     end
 
-    self.register('test', Test)
+    begin
+      require 'wx'
+      self.register('test', Test)
+    rescue LoadError
+    end
   end
 end

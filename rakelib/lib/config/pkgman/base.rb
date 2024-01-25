@@ -88,9 +88,9 @@ module WXRuby3
           end
 
           def run(cmd)
-            puts "Running #{cmd}"
-            rc = system("#{is_root? ? '' : 'sudo '}#{cmd}")
-            STDERR.puts "FAILED!" unless rc
+            $stdout.print "Running #{cmd}..."
+            rc = WXRuby3.config.sh("#{is_root? ? '' : 'sudo '}#{cmd}")
+            $stderr.puts (rc ? 'done!' : 'FAILED!')
             rc
           end
 
