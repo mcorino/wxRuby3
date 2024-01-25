@@ -115,7 +115,7 @@ module WXRuby3
   module Config
 
     def run_silent?
-      ENV['WXRUBY_RUN_SILENT'] == '1'
+      !!ENV['WXRUBY_RUN_SILENT']
     end
 
     PROGRESS_CH = '.|/-\\|/-\\|'
@@ -149,20 +149,21 @@ module WXRuby3
       if capture == :out || capture == :no_err
         kwargs[:err] = (windows? ? 'NULL' : '/dev/null') if capture == :no_err
         rc = Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
-          result = silent_runner(os)
-          output = result.join if capture
+          output = silent_runner(os)
           tw.value
         end
       else
         rc = Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
-          result = silent_runner(eos)
-          output = result.join if capture
+          output = silent_runner(eos)
           tw.value
         end
       end
       if capture
         output
       else
+        File.open(ENV['WXRUBY_RUN_SILENT'], 'a') do |f|
+          output.each { |l| f << l }
+        end if output
         rc
       end
     end

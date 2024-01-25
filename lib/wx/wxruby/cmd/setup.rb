@@ -77,7 +77,7 @@ module WxRuby
             ---
 
             __INFO_TXT
-          run_env = {'WXRUBY_RUN_SILENT' => '1'}
+          run_env = {'WXRUBY_RUN_SILENT' => "#{File.join(WxRuby::ROOT, 'setup.log')}"}
           run_env['WXRUBY_VERBOSE'] = '1' if Setup.options[:verbose]
           system(run_env, "#{cfg_cmd} && rake wxruby:gem:setup && gem rdoc wxruby3 --overwrite")
         end
