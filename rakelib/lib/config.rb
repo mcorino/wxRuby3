@@ -147,7 +147,7 @@ module WXRuby3
       output = nil
       capture = kwargs.delete(:capture)
       if capture == :out || capture == :no_err
-        kwargs[:err] = '/dev/null' if capture == :no_err
+        kwargs[:err] = (windows? ? 'NULL' : '/dev/null') if capture == :no_err
         rc = Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
           result = silent_runner(os)
           output = result.join if capture
