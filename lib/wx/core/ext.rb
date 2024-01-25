@@ -28,18 +28,37 @@ module Wx
       end
     end
 
+    class Value
+      def initialize(code, block)
+        @code = code
+        @block = block
+      end
+
+      def value
+        @block ? block.call : Kernel.eval(@code || 'nil')
+      end
+
+      def to_s
+        @code || ''
+      end
+    end
+
     def delayed_constants
       @delayed_constants ||= ::Hash.new
     end
 
     public
 
-    def add_delayed_constant(mod, sym, &block)
-      delayed_constants[Key.new(mod,sym)] = block
+    def add_delayed_constant(mod, sym, code='', &block)
+      delayed_constants[Key.new(mod,sym)] = Value.new(code, block)
+    end
+
+    def delayed_constants_for(mod)
+      delayed_constants.select { |k,v| k.mod == mod }
     end
 
     def load_delayed_constants
-      delayed_constants.each_pair { |key, blk| key.mod.const_set(key.sym, blk.call) }
+      delayed_constants.each_pair { |key, val| key.mod.const_set(key.sym, val.value) }
       delayed_constants.clear # cleanup
     end
 
