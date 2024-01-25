@@ -23,7 +23,7 @@ namespace :wxruby do
       task :setup => 'config:bootstrap' do
         $stdout.print "Building wxRuby3 extensions..." if WXRuby3.config.run_silent?
         WXRuby3.config.sh('rake', 'build')
-        $stdout.puts 'done!' if run_silent?
+        $stdout.puts 'done!' if WXRuby3.config.run_silent?
         Rake::Task['wxruby:post:srcgem'].invoke
         $stdout.puts <<~__MSG
       
