@@ -66,7 +66,7 @@ module WXRuby3
               rc = run('xcode-select --install')
             end
             # now check if we need any other packages (which need Homebrew)
-            if rc && !pkgs.empty
+            if rc && !pkgs.empty?
               unless system('command -v brew>/dev/null')
                 rc = sh({ 'NONINTERACTIVE' => '1' }, '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', title: 'Installing Homebrew...')
               end
