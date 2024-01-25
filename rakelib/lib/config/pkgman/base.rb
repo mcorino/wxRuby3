@@ -29,7 +29,7 @@ module WXRuby3
               rescue LoadError
                 # do we need to build wxWidgets?
                 pkgs.concat(MIN_GENERIC_PKGS) if builds_wxwidgets?
-                STDERR.puts <<~__ERROR_TXT
+                $stderr.puts <<~__ERROR_TXT
                   ERROR: Do not know how to install required packages for distro type '#{distro[:type]}'.
   
                   Make sure the following packages (or equivalent) are installed and than try again with `WXRUBY_NO_AUTOINSTALL=1`:
@@ -51,16 +51,24 @@ module WXRuby3
               unless pkgs.empty?
                 # autoinstall or not?
                 unless wants_autoinstall?
-                  STDERR.puts <<~__ERROR_TXT
+                  $stderr.puts <<~__ERROR_TXT
                     ERROR: This system may lack installed versions of the following required software packages:
                       #{pkgs.join(', ')}
                       
-                      Install these packages and try again.
+                    Install these packages and try again.
                     __ERROR_TXT
                   exit(1)
                 end
                 # do the actual install
-                do_install(distro, pkgs)
+                unless do_install(distro, pkgs)
+                  $stderr.puts <<~__ERROR_TXT
+                    ERROR: Failed to install all or some of the following required software packages:
+                    #{pkgs.join(', ')}
+                    
+                    Fix any problems or install these packages yourself and try again.
+                    __ERROR_TXT
+                  exit(1)
+                end
               end
             end
           end

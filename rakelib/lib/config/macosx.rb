@@ -7,6 +7,7 @@
 ###
 
 require_relative './unixish'
+require_relative 'pkgman/macosx'
 
 module WXRuby3
 
@@ -51,6 +52,21 @@ module WXRuby3
             changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
             sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
             true
+          end
+
+          def check_tool_pkgs
+            pkg_deps = super
+            # need g++ to build wxRuby3 extensions in any case
+            pkg_deps << 'gcc' unless system('command -v g++>/dev/null')
+            # need this to build anything (like wxRuby3 extensions itself)
+            pkg_deps << 'xcode' unless system('command -v install_name_tool>/dev/null')
+            pkg_deps
+          end
+
+          def install_prerequisites
+            pkg_deps = check_tool_pkgs
+            PkgManager.install(pkg_deps)
+            []
           end
 
           def get_wx_libs
