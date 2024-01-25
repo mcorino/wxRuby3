@@ -69,7 +69,6 @@ module WxRuby
           describe_all
           exit(0)
         end
-        opts.raise_unknown = false
         opts.order!(args)
       end
     end
