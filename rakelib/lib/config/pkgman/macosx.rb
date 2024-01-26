@@ -60,7 +60,7 @@ module WXRuby3
             # now check if we need any other packages (which need Homebrew or MacPorts)
             if rc && !pkgs.empty?
               # Has Ruby been installed through Homebrew?
-              if system('command -v brew>/dev/null') && expand('brew list -1 2>/dev/null').strip.split.include?('ruby')
+              if !is_root? && system('command -v brew>/dev/null') && expand('brew list -1 2>/dev/null').strip.split.include?('ruby')
                 pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
               elsif system('command -v port>/dev/null') &&
                       expand('port -q installed installed').strip.split.any? { |ln| ln.strip =~ /\Aruby\d+\s/ } # or through MacPorts
