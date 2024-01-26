@@ -39,7 +39,7 @@ module WXRuby3
               end
               # can we install?
               unless no_autoinstall? || has_sudo? || is_root?
-                STDERR.puts 'ERROR: Cannot check for or install required packages. Please install sudo or run as root and try again.'
+                $stderr.puts 'ERROR: Cannot check for or install required packages. Please install sudo or run as root and try again.'
                 exit(1)
               end
               # do we need to build wxWidgets?
@@ -67,6 +67,9 @@ module WXRuby3
                     
                     Fix any problems or install these packages yourself and try again.
                     __ERROR_TXT
+                  if WXRuby3.config.run_silent?
+                    $stderr.puts "For error details check #{WXRuby3.config.silent_log_name}"
+                  end
                   exit(1)
                 end
               end

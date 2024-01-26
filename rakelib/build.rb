@@ -109,15 +109,16 @@ if WXRuby3.is_bootstrapped?
   rule ".#{WXRuby3.config.obj_ext}" => [
     proc { |tn| "#{WXRuby3.config.src_dir}/#{File.basename(tn, ".*")}.cpp" }
   ] do | t |
-    sh "#{WXRuby3.config.cpp} -c #{WXRuby3.config.verbose_flag} " +
-         "#{WXRuby3.config.cxxflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
-         "#{WXRuby3.config.cpp_out_flag}#{t.name} #{t.source}"
+    WXRuby3.config.sh "#{WXRuby3.config.cpp} -c #{WXRuby3.config.verbose_flag} " +
+                        "#{WXRuby3.config.cxxflags} #{WXRuby3::Director.cpp_flags(t.source)} " +
+                        "#{WXRuby3.config.cpp_out_flag}#{t.name} #{t.source}",
+                      fail_on_error: true
   end
 
   if WXRuby3.config.windows?
     # compile an object file from the standard wxRuby resource file
     file File.join(WXRuby3.config.obj_dir, 'wx_rc.o') => File.join(WXRuby3.config.swig_dir, 'wx.rc') do |t|
-      sh "#{WXRuby3.config.rescomp} -i#{t.source} -o#{t.name}"
+      WXRuby3.config.sh "#{WXRuby3.config.rescomp} -i#{t.source} -o#{t.name}", fail_on_error: true
     end
   end
 

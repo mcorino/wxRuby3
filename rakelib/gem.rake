@@ -21,10 +21,23 @@ namespace :wxruby do
     # this task only exists for installed source gems (where package tasks have been removed)
     unless File.file?(File.join(__dir__, 'package.rake'))
       task :setup => 'config:bootstrap' do
-        $stdout.print "Building wxRuby3 extensions..." if WXRuby3.config.run_silent?
-        WXRuby3.config.sh('rake', 'build')
-        $stdout.puts 'done!' if WXRuby3.config.run_silent?
-        Rake::Task['wxruby:post:srcgem'].invoke
+        begin
+          $stdout.print "Building wxRuby3 extensions..." if WXRuby3.config.run_silent?
+          WXRuby3.config.set_silent_run_iterative
+          Rake::Task['wxruby:build'].invoke
+          WXRuby3.config.set_silent_run_discrete
+          $stdout.puts 'done!' if WXRuby3.config.run_silent?
+          Rake::Task['wxruby:post:srcgem'].invoke
+          # all is well -> cleanup
+          rm_f(WXRuby3.config.silent_log_name, verbose: WXRuby3.config.verbose?)
+        rescue Exception => ex
+          $stderr.puts <<~__ERR_TXT
+            #{ex.message}#{WXRuby3.config.verbose? ? "\n#{ex.backtrace.join("\n")}" : ''}
+
+            For error details check #{WXRuby3.config.silent_log_name}
+            __ERR_TXT
+          exit(1)
+        end
         $stdout.puts <<~__MSG
       
           wxRuby3 has been successfully installed including the 'wxruby' utility.

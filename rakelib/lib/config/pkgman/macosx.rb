@@ -24,13 +24,6 @@ module WXRuby3
                 STDERR.puts 'ERROR: Cannot check for or install required packages. Please install sudo or run as root and try again.'
                 exit(1)
               end
-              # # do we need to build wxWidgets?
-              # if builds_wxwidgets?
-              #   # add platform specific packages for wxWidgets
-              #   add_platform_pkgs(pkgs, no_autoinstall?)
-              # end
-              # do we actually have any packages to install?
-              # unless pkgs.empty?
 
               # autoinstall or not?
               unless wants_autoinstall?
@@ -52,7 +45,6 @@ module WXRuby3
                   __ERROR_TXT
                 exit(1)
               end
-              # end
             end
           end
 
@@ -65,12 +57,28 @@ module WXRuby3
               pkgs.delete('xcode')
               rc = run('xcode-select --install')
             end
-            # now check if we need any other packages (which need Homebrew)
+            # now check if we need any other packages (which need Homebrew or MacPorts)
             if rc && !pkgs.empty?
-              unless system('command -v brew>/dev/null')
-                rc = sh({ 'NONINTERACTIVE' => '1' }, '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', title: 'Installing Homebrew...')
+              # Has Ruby been installed through Homebrew?
+              if system('command -v brew>/dev/null') && expand('brew list -1').strip.split.include?('ruby')
+                pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
+              elsif system('command -v port>/dev/null') && !expand('port installed -q ruby').strip.empty? # or through MacPorts
+                # check if MacPorts has been installed without root privileges by trying to install Ruby
+                # yes, Ruby is already installed and 'port' will tell us so but if root privileges are required the
+                # command will fail otherwise we will just get a message without failing
+                if system('port -N install ruby >/dev/null 2>&1')
+                  pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
+                else
+                  pkgs.each { |pkg| rc &&= run("port install #{pkg}") }
+                end
+              else
+                $stderr.puts <<~__ERROR_TXT
+                  ERROR: Unsupported Ruby installation. wxRuby3 requires a Homebrew or MacPorts installed Ruby version.
+                    
+                  Install Ruby using either Homebrew or MacPorts and try again.
+                  __ERROR_TXT
+                exit(1)
               end
-              pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
             end
             rc
           end

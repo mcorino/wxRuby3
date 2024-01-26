@@ -83,7 +83,7 @@ module WXRuby3
   # Ruby 2.5 is the minimum version for wxRuby3
   __rb_ver = RUBY_VERSION.split('.').collect {|v| v.to_i}
   if (__rb_major = __rb_ver.shift) < 2 || (__rb_major == 2 && __rb_ver.shift < 5)
-    STDERR.puts 'ERROR: wxRuby3 requires Ruby >= 2.5.0!'
+    $stderr.puts 'ERROR: wxRuby3 requires Ruby >= 2.5.0!'
     exit(1)
   end
 
@@ -114,71 +114,136 @@ module WXRuby3
 
   module Config
 
+    def self.command_to_s(*cmd)
+      txt = if ::Hash === cmd.first
+              cmd = cmd.dup
+              env = cmd.shift
+              env.collect { |k, v| "#{k}=#{v}" }.join(' ') << ' '
+            else
+              ''
+            end
+      txt << cmd.join(' ')
+    end
+
     def run_silent?
       !!ENV['WXRUBY_RUN_SILENT']
     end
 
-    PROGRESS_CH = '.|/-\\|/-\\|'
+    def silent_log_name
+      ENV['WXRUBY_RUN_SILENT'] || 'silent_run.log'
+    end
 
-    def silent_runner(os, output)
-      lc = 0
-      dc = 0
-      os.each do |ln|
-        lc += 1
-        $stdout.print "#{PROGRESS_CH[lc%10]}\b"
-        $stdout.flush
-        output << ln
+    def log_progress(msg)
+      run_silent? ? silent_runner.log(msg) : $stdout.puts(msg)
+    end
+
+    class SilentRunner
+
+      PROGRESS_CH = '.|/-\\|/-\\|'
+
+      def initialize
+        @cout = 0
+        @iterative = false
       end
-      output
+
+      def iterative(f=true)
+        @iterative = !!f
+      end
+
+      def run(*cmd, **kwargs)
+        @cout = 0 unless @iterative
+        output = nil
+        verbose = kwargs.delete(:verbose)
+        capture = kwargs.delete(:capture)
+        if (Config.instance.verbose? && verbose != false) || !capture
+          txt = Config.command_to_s(*cmd)
+          if Config.instance.verbose? && verbose != false
+            $stdout.puts txt
+          end
+          if !capture
+            silent_log { |f| f.puts txt }
+          end
+        end
+        if capture
+          if capture == :out || capture == :no_err
+            kwargs[:err] = (Config.instance.windows? ? 'NULL' : '/dev/null') if capture == :no_err
+            Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
+              output = silent_runner(os)
+              tw.value
+            end
+          else
+            Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
+              output = silent_runner(eos)
+              tw.value
+            end
+          end
+          output.join
+        else
+          rc = silent_log do |fout|
+            Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
+              silent_runner(eos, fout)
+              v = tw.value.exitstatus
+              fout.puts "-> Exit code: #{v}"
+              v
+            end
+          end
+          rc
+        end
+      end
+
+      def log(msg)
+        silent_log { |f| f.puts(msg) }
+      end
+
+      private
+
+      def silent_runner(os, output=[])
+        os.each do |ln|
+          @cout += 1
+          $stdout.print "#{PROGRESS_CH[@cout%10]}\b"
+          $stdout.flush
+          output << ln
+        end
+        output
+      end
+
+      def silent_log(&block)
+        File.open(Config.instance.silent_log_name, 'a') do |fout|
+          block.call(fout)
+        end
+      end
+
+    end
+
+    def silent_runner
+      @silent_runner ||= SilentRunner.new
     end
     private :silent_runner
 
     def do_silent_run(*cmd, **kwargs)
-      verbose = kwargs.delete(:verbose)
-      if verbose? && verbose != false
-        if ::Hash === cmd.first
-          cmd = cmd.dup
-          env = cmd.shift
-          $stdout.print env.collect { |k,v| "#{k}=#{v}" }.join(' ')
-        end
-        $stdout.puts cmd.join(' ')
-      end
-      output = nil
-      capture = kwargs.delete(:capture)
-      if capture
-        if capture == :out || capture == :no_err
-          kwargs[:err] = (windows? ? 'NULL' : '/dev/null') if capture == :no_err
-          rc = Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
-            output = silent_runner(os, [])
-            tw.value
-          end
-        else
-          rc = Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
-            output = silent_runner(eos, [])
-            tw.value
-          end
-        end
-        output
-      else
-        rc = File.open(ENV['WXRUBY_RUN_SILENT'] || 'silent_run.log', 'a') do |fout|
-          Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
-            silent_runner(eos, fout)
-            tw.value
-          end
-        end
-        rc
-      end
+      silent_runner.run(*cmd, **kwargs)
     end
     private :do_silent_run
+
+    def do_silent_run_step(*cmd, **kwargs)
+      silent_runner.run_one(*cmd, **kwargs)
+    end
+    private :do_silent_run_step
+
+    def set_silent_run_iterative
+      silent_runner.iterative
+    end
+
+    def set_silent_run_discrete
+      silent_runner.iterative(false)
+    end
 
     def do_run(*cmd, capture: nil)
       output = nil
       if run_silent?
-        result = do_silent_run(exec_env, *cmd, capture: capture)
-        if capture
-          output = result
-        else
-          fail "Command failed with status (#{rc}): #{cmd.join(' ')}" unless result == 0
+        output = do_silent_run(exec_env, *cmd, capture: capture)
+        unless capture
+          fail "Command failed with status (#{rc}): #{Config.command_to_s(*cmd)}" unless output == 0
         end
       else
         if capture
@@ -252,9 +317,13 @@ module WXRuby3
       `#{cmd}`
     end
 
-    def sh(*cmd, **kwargs)
+    def sh(*cmd, fail_on_error: false, **kwargs)
       if run_silent?
-        do_silent_run(*cmd, **kwargs) == 0
+        rc = do_silent_run(*cmd, **kwargs)
+        fail "Command failed with status (#{rc}): #{Config.command_to_s(*cmd)}" if fail_on_error && rc != 0
+        rc == 0
+      elsif fail_on_error
+        Rake.sh(*cmd, verbose: verbose?, **kwargs)
       else
         Rake.sh(*cmd, verbose: verbose?, **kwargs) { |ok,_| !!ok }
       end
@@ -297,12 +366,12 @@ module WXRuby3
     def install_prerequisites
       pkg_deps = check_tool_pkgs
       if get_config('autoinstall') == false
-        STDERR.puts <<~__ERROR_TXT
+        $stderr.puts <<~__ERROR_TXT
           ERROR: This system lacks installed versions of the following required software packages:
             #{pkg_deps.join(', ')}
             
             Install these packages and try again.
-          __ERROR_TXT
+        __ERROR_TXT
         exit(1)
       end
       pkg_deps
@@ -318,12 +387,12 @@ module WXRuby3
       if flag.nil?
         $stdout.puts <<~__Q_TEXT
 
-                [ --- ATTENTION! --- ]
-                wxRuby3 requires some software packages to be installed before being able to continue building.
-                If you like these can be automatically installed next (if you are building the source gem the
-                software will be removed again after building finishes).
-                Do you want to have the required software installed now? [yN] : 
-                __Q_TEXT
+          [ --- ATTENTION! --- ]
+          wxRuby3 requires some software packages to be installed before being able to continue building.
+          If you like these can be automatically installed next (if you are building the source gem the
+          software will be removed again after building finishes).
+          Do you want to have the required software installed now? [yN] : 
+        __Q_TEXT
         answer = $stdin.gets(chomp: true).strip
         while !answer.empty? && !%w[Y y N n].include?(answer)
           $stdout.puts 'Please answer Y/y or N/n [Yn] : '
@@ -587,10 +656,9 @@ module WXRuby3
 
           def report
             if @debug_build
-              puts "Enabled DEBUG build"
-              puts "Enabled debugging output"
+              log_progress("Enabled DEBUG build")
             else
-              puts "Enabled RELEASE build"
+              log_progress("Enabled RELEASE build")
             end
           end
 

@@ -43,24 +43,23 @@ module WXRuby3
         @swig_version
       end
 
-
       def check_swig
         begin
           @swig_version = `#{WXRuby3::Config.get_config('swig')} -version`[/\d+\.\d+\.\d+/]
         rescue Exception
-          STDERR.puts "ERROR: Could not run SWIG (#{WXRuby3::Config.get_config('swig')})"
+          $stderr.puts "ERROR: Could not run SWIG (#{WXRuby3::Config.get_config('swig')})"
           exit(1)
         end
 
-        # Very old versions put --version on STDERR, not STDOUT
+        # Very old versions put --version on $stderr, not $stdout
         unless @swig_version
-          STDERR.puts "Could not get version info from SWIG; " +
+          $stderr.puts "Could not get version info from SWIG; " +
                         "is a very old version installed?.\n"
           exit(1)
         end
 
         if @swig_version < SWIG_MINIMUM_VERSION
-          STDERR.puts "SWIG version #{@swig_version} is installed, " +
+          $stderr.puts "SWIG version #{@swig_version} is installed, " +
                         "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
           exit(1)
         end
@@ -72,11 +71,12 @@ module WXRuby3
         check_swig unless swig_state
         inc_paths = "-I#{config.wxruby_dir} -I#{config.swig_dir}/custom"
         inc_paths << " -I#{config.swig_dir}/custom/swig#{swig_major}"
-        sh "#{config.get_config('swig')} #{config.wx_cppflags.join(' ')} " +
-             "#{config.extra_cppflags.join(' ')} #{config.verbose_flag} #{inc_paths} " +
-             #"-w401 -w801 -w515 -c++ -ruby " +
-             "-w801 -c++ -ruby " +
-             "-o #{target} #{source}"
+        WXRuby3.config.sh "#{config.get_config('swig')} #{config.wx_cppflags.join(' ')} " +
+                            "#{config.extra_cppflags.join(' ')} #{config.verbose_flag} #{inc_paths} " +
+                            #"-w401 -w801 -w515 -c++ -ruby " +
+                            "-w801 -c++ -ruby " +
+                            "-o #{target} #{source}",
+                          fail_on_error: true
       end
 
     end
@@ -205,7 +205,7 @@ module WXRuby3
       end
 
       def self.run(pid, director, target)
-        puts "Processor.#{pid}: #{target}"
+        Config.instance.log_progress("Processor.#{pid}: #{target}")
         const_get(camelize(pid.to_s)).new(director, target).run
       end
 
