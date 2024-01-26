@@ -64,14 +64,18 @@ module WXRuby3
                 pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
               elsif system('command -v port>/dev/null') &&
                     (ruby_info = expand('port -q installed installed').strip.split("\n").find { |ln| ln.strip =~ /\Aruby\d+\s/ }) # or through MacPorts
-                # check if MacPorts has been installed without root privileges by trying to install Ruby
-                # yes, Ruby is already installed and 'port' will tell us so but if root privileges are required the
-                # command will fail otherwise we will just get a message without failing
-                if system("port -N install #{ruby_info.strip.split.shift} >/dev/null 2>&1")
-                  pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
-                else
-                  pkgs.each { |pkg| rc &&= run("port install #{pkg}") }
+                # this is really crap; with MacPorts we need to install swig-ruby instead of simply swig
+                # which for whatever nonsensical reason will pull in another (older) Ruby version (probably 2.3 or such)
+                # although SWIG's Ruby support is version agnostic and has no binary bindings
+                if pkgs.include?('swig')
+                  pkgs.delete('swig')
+                  pkgs << 'swig-ruby'
                 end
+                # in case MacPorts was installed with root privileges this install would also have to be run
+                # with root privileges (otherwise it would fail early on with access problems) so we can
+                # just run without sudo as we either have root privileges for root-installed MacPorts or
+                # we're running without root privileges for user-installed MacPorts
+                pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
               else
                 $stderr.puts <<~__ERROR_TXT
                   ERROR: Unsupported Ruby installation. wxRuby3 requires a Homebrew or MacPorts installed Ruby version.
