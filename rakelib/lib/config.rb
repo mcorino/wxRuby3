@@ -120,8 +120,7 @@ module WXRuby3
 
     PROGRESS_CH = '.|/-\\|/-\\|'
 
-    def silent_runner(os)
-      output = []
+    def silent_runner(os, output)
       lc = 0
       dc = 0
       os.each do |ln|
@@ -146,24 +145,27 @@ module WXRuby3
       end
       output = nil
       capture = kwargs.delete(:capture)
-      if capture == :out || capture == :no_err
-        kwargs[:err] = (windows? ? 'NULL' : '/dev/null') if capture == :no_err
-        rc = Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
-          output = silent_runner(os)
-          tw.value
-        end
-      else
-        rc = Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
-          output = silent_runner(eos)
-          tw.value
-        end
-      end
       if capture
+        if capture == :out || capture == :no_err
+          kwargs[:err] = (windows? ? 'NULL' : '/dev/null') if capture == :no_err
+          rc = Open3.popen2(*cmd, **kwargs) do |_ins, os, tw|
+            output = silent_runner(os, [])
+            tw.value
+          end
+        else
+          rc = Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
+            output = silent_runner(eos, [])
+            tw.value
+          end
+        end
         output
       else
-        File.open(ENV['WXRUBY_RUN_SILENT'], 'a') do |f|
-          output.each { |l| f << l }
-        end if output
+        rc = File.open(ENV['WXRUBY_RUN_SILENT'] || 'silent_run.log', 'a') do |fout|
+          Open3.popen2e(*cmd, **kwargs) do |_ins, eos, tw|
+            silent_runner(eos, fout)
+            tw.value
+          end
+        end
         rc
       end
     end
