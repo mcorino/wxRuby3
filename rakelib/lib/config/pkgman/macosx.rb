@@ -60,9 +60,10 @@ module WXRuby3
             # now check if we need any other packages (which need Homebrew or MacPorts)
             if rc && !pkgs.empty?
               # Has Ruby been installed through Homebrew?
-              if system('command -v brew>/dev/null') && expand('brew list -1').strip.split.include?('ruby')
+              if system('command -v brew>/dev/null') && expand('brew list -1 2>/dev/null').strip.split.include?('ruby')
                 pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
-              elsif system('command -v port>/dev/null') && !expand('port installed -q ruby').strip.empty? # or through MacPorts
+              elsif system('command -v port>/dev/null') &&
+                      expand('port -q installed installed').strip.split.any? { |ln| ln.strip =~ /\Aruby\d+\s/ } # or through MacPorts
                 # check if MacPorts has been installed without root privileges by trying to install Ruby
                 # yes, Ruby is already installed and 'port' will tell us so but if root privileges are required the
                 # command will fail otherwise we will just get a message without failing
