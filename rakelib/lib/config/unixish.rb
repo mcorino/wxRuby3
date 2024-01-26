@@ -67,6 +67,13 @@ module WXRuby3
         "$ORIGIN"
       end
 
+      def expand(cmd)
+        STDERR.puts "> sh: #{cmd}" if verbose?
+        s = super
+        STDERR.puts "< #{s}" if verbose?
+        s
+      end
+
       private
 
       def wx_checkout
@@ -127,13 +134,6 @@ module WXRuby3
         chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
           sh({ 'DOXYGEN' => get_cfg_string("doxygen"),  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
         end
-      end
-
-      def expand(cmd)
-        STDERR.puts "> sh: #{cmd}" if verbose?
-        s = super
-        STDERR.puts "< #{s}" if verbose?
-        s
       end
 
       # Allow specification of custom wxWidgets build (mostly useful for
