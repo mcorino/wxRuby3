@@ -118,7 +118,7 @@ module WXRuby3
           end
 
           def expand(cmd)
-            Config.config.expand(cmd)
+            WXRuby3.config.expand(cmd)
           end
 
         end
