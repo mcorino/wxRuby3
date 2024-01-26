@@ -63,11 +63,11 @@ module WXRuby3
               if !is_root? && system('command -v brew>/dev/null') && expand('brew list -1 2>/dev/null').strip.split("\n").include?('ruby')
                 pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
               elsif system('command -v port>/dev/null') &&
-                      expand('port -q installed installed').strip.split("\n").any? { |ln| ln.strip =~ /\Aruby\d+\s/ } # or through MacPorts
+                    (ruby_info = expand('port -q installed installed').strip.split("\n").find { |ln| ln.strip =~ /\Aruby\d+\s/ }) # or through MacPorts
                 # check if MacPorts has been installed without root privileges by trying to install Ruby
                 # yes, Ruby is already installed and 'port' will tell us so but if root privileges are required the
                 # command will fail otherwise we will just get a message without failing
-                if system('port -N install ruby >/dev/null 2>&1')
+                if system("port -N install #{ruby_info.strip.split.shift} >/dev/null 2>&1")
                   pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
                 else
                   pkgs.each { |pkg| rc &&= run("port install #{pkg}") }
