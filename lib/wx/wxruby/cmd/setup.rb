@@ -39,8 +39,8 @@ module WxRuby
                 "the path to git executable [git]")  {|v| Setup.options['git'] = v}
         opts.on('--[no-]autoinstall',
                 "do (not) attempt to automatically install any required packages")  {|v| Setup.options['autoinstall'] = !!v }
-        opts.on('--keep-log',
-                "keep the log after the setup finishes successfully")  {|v| Setup.options['keep_log'] = true }
+        opts.on('--log=PATH',
+                "write log to PATH/setup.log (PATH must exist) and do not remove when finished")  {|v| Setup.options['log'] = v }
         opts.on('-h', '--help',
                 'Show this message.') do |v|
           puts opts
@@ -96,9 +96,18 @@ module WxRuby
             ---
 
             __INFO_TXT
-          run_env = {'WXRUBY_RUN_SILENT' => "#{File.join(WxRuby::ROOT, 'setup.log')}"}
+          log_file = File.join(WxRuby::ROOT, 'setup.log')
+          if Setup.options['log']
+            if File.directory?(Setup.options['log']) && File.writable?(Setup.options['log'])
+              log_file = File.join(Setup.options['log'], 'setup.log')
+            else
+              $stderr.puts "ERROR: cannot write log to #{Setup.options['log']}. Log path must exist and be writable."
+              exit(1)
+            end
+          end
+          run_env = {'WXRUBY_RUN_SILENT' => "#{log_file}"}
           run_env['WXRUBY_VERBOSE'] = '1' if Setup.options[:verbose]
-          system(run_env, "#{cfg_cmd} && rake -m wxruby:gem:setup#{Setup.options[:keep_log] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
+          system(run_env, "#{cfg_cmd} && rake -m wxruby:gem:setup#{Setup.options['log'] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
         end
         exit(result ? 0 : 1)
       end
