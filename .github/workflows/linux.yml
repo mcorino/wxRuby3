@@ -184,9 +184,11 @@ jobs:
         swig -version
         echo
         
-        echo "Doxygen version:"
-        doxygen -v
-        echo
+        if [ "${{ matrix.wxw_type }}" != "embed" ]; then
+          echo "Doxygen version:"
+          doxygen -v
+          echo
+        end
 
         echo "Compiler version:"
         ${CXX-g++} --version
