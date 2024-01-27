@@ -69,12 +69,29 @@ module WxRuby
         cfg_cmd << "[#{cfg_args.join(',')}]" unless cfg_args.empty?
 
         result = FileUtils.chdir(WxRuby::ROOT) do
+          steps = 0
+          actions_txt = if Setup.options['autoinstall'] != false
+                          steps = 1
+                          '(possibly) install required software'
+                        else
+                          ''
+                        end
+          if Setup.options['with-wxwin'] || Setup.options['wxwin'].nil?
+            actions_txt << ', ' if steps>0
+            actions_txt << 'build the wxWidgets libraries, '
+            actions_txt << "\n" if steps>0
+            steps += 1
+          else
+            actions_txt << ',' if steps>0
+          end
+          actions_txt << 'build the native wxRuby3 extensions '
+          actions_txt << "\n" if steps==1
+          actions_txt << 'and generate the wxRuby3 reference documentation.'
           puts <<~__INFO_TXT
 
             ---            
             Now running wxRuby3 post-install setup.
-            This will build the native wxRuby3 extensions (and possibly install required software 
-            and/or build the wxWidgets libraries).
+            This will #{actions_txt}
             Please be patient as this may take quite a while depending on your system.
             ---
 
