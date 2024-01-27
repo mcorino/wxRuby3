@@ -143,6 +143,7 @@ module WXRuby3
       PROGRESS_CH = '.|/-\\|/-\\|'
 
       def initialize
+        super
         @cout = 0
         @incremental = false
       end
