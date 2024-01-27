@@ -26,7 +26,7 @@ module WXRuby3
               end
 
               # autoinstall or not?
-              unless wants_autoinstall?
+              unless pkgs.empty? || wants_autoinstall?
                 $stderr.puts <<~__ERROR_TXT
                   ERROR: This system may lack installed versions of the following required software packages:
                     #{pkgs.join(', ')}
@@ -35,7 +35,7 @@ module WXRuby3
                   __ERROR_TXT
                 exit(1)
               end
-              # do the actual install
+              # do the actual install (or nothing)
               unless do_install(pkgs)
                 $stderr.puts <<~__ERROR_TXT
                   ERROR: Failed to install all or some of the following required software packages:
