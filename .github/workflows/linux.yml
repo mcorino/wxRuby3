@@ -67,6 +67,17 @@ jobs:
             use_xvfb: true
             wxw_type: develop
             wxr_type: develop
+          - os: ubuntu-20.04
+            gtk_version: 3
+            CC: gcc-9
+            CXX: g++-9
+            ruby: '2.5'
+            wxWidgets: '3.2.4'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: embed
+            wxr_type: gem
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-11
@@ -110,6 +121,17 @@ jobs:
             configure_flags:
             use_xvfb: true
             wxw_type: embed
+            wxr_type: gem
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.4'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: embed
             wxr_type: bingem
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
@@ -135,6 +157,7 @@ jobs:
         bundle install
 
     - name: checkout wxWidgets
+      if: matrix.wxw_type != 'embed'
       uses: actions/checkout@v4
       with:
         repository: wxWidgets/wxWidgets
@@ -143,11 +166,8 @@ jobs:
         submodules: 'recursive'
 
     - name: Set up build environment
+      if: matrix.wxw_type != 'embed'
       run: |
-        # Install locales used by our tests to run all the tests instead of
-        # skipping them.
-        sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
-        
         $WXWIDGETS_ROOT/build/tools/before_install.sh
 
     - name: Show build environment
@@ -205,14 +225,14 @@ jobs:
         fi
 
     - name: Remove wxWidgets
-      if: matrix.wxw_type != 'develop'
+      if: matrix.wxw_type == 'system'
       run: rm -rf $WXWIDGETS_ROOT
 
     - name: Configure wxRuby3
       if: matrix.wxr_type != 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-          bundle exec rake configure[--with-wxwin]
+          bundle exec rake configure[--with-wxwin,--autoinstall]
         elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure[--wxwin=$WXWIN_INSTALL,--wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml]
         else
@@ -253,17 +273,11 @@ jobs:
           gem install $(echo pkg/*.gem)
         else
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
-            BUILD_CMD="gem install $(echo pkg/*.gem)"
+            gem install $(echo pkg/*.gem) && wxruby setup
+          elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
           else
-            BUILD_CMD="gem install $(echo pkg/*.gem) -- WXWIN=$WXWIN_INSTALL"
-          fi
-          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $BUILD_CMD 2>&1 | tee -a gembuild.out" || rc=$?
-          if [ -n "$rc" ]; then
-            if fgrep -q '(core dumped)' gembuild.out; then
-              echo '*** Test crashed, trying to get more information ***'
-              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $BUILD_CMD
-            fi
-            exit $rc
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
           fi
         fi
 
