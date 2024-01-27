@@ -188,7 +188,7 @@ jobs:
           echo "Doxygen version:"
           doxygen -v
           echo
-        end
+        fi
 
         echo "Compiler version:"
         ${CXX-g++} --version
