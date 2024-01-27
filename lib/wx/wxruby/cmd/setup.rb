@@ -68,7 +68,8 @@ module WxRuby
         cfg_cmd = 'rake configure'
         cfg_cmd << "[#{cfg_args.join(',')}]" unless cfg_args.empty?
 
-        result = FileUtils.chdir(WxRuby::ROOT) do
+        result = false
+        FileUtils.chdir(WxRuby::ROOT) do
           steps = 0
           actions_txt = if Setup.options['autoinstall'] != false
                           steps = 1
@@ -107,7 +108,8 @@ module WxRuby
           end
           run_env = {'WXRUBY_RUN_SILENT' => "#{log_file}"}
           run_env['WXRUBY_VERBOSE'] = '1' if Setup.options[:verbose]
-          system(run_env, "#{cfg_cmd} && rake -m wxruby:gem:setup#{Setup.options['log'] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
+          # can't rely on FileUtils#chdir returning the block result (bug in older Rubies) so assign result here
+          result = system(run_env, "#{cfg_cmd} && rake -m wxruby:gem:setup#{Setup.options['log'] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
         end
         exit(result ? 0 : 1)
       end
