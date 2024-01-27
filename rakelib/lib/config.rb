@@ -323,9 +323,9 @@ module WXRuby3
         fail "Command failed with status (#{rc}): #{Config.command_to_s(*cmd)}" if fail_on_error && rc != 0
         rc == 0
       elsif fail_on_error
-        Rake.sh(*cmd, verbose: verbose?, **kwargs)
+        Rake.sh(*cmd, **kwargs)
       else
-        Rake.sh(*cmd, verbose: verbose?, **kwargs) { |ok,_| !!ok }
+        Rake.sh(*cmd, **kwargs) { |ok,_| !!ok }
       end
     end
     alias :bash :sh
