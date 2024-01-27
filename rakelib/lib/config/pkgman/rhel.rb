@@ -30,9 +30,9 @@ module WXRuby3
               pkgs.delete('git')
               pkgs << 'git-core'
             end
-            if pkgs.empty? && !no_check
+            if pkgs.empty?
               # check if any platform library dependencies are needed
-              unless expand("dnf -q --assumeno install #{PLATFORM_DEPS.join(' ')}").strip.empty?
+              unless no_check || expand("dnf -q --assumeno install #{PLATFORM_DEPS.join(' ')}").strip.empty?
                 # some pkgs would need installing at least
                 pkgs.concat PLATFORM_DEPS
               end

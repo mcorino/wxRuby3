@@ -25,9 +25,9 @@ module WXRuby3
           end
 
           def add_platform_pkgs(pkgs, no_check)
-            if pkgs.empty? && !no_check
+            if pkgs.empty?
               # check if any platform library dependencies are needed
-              unless expand("DEBIAN_FRONTEND=noninteractive apt-get -qq -s -o=Dpkg::Use-Pty=0 install #{PLATFORM_DEPS.join(' ')}").strip.empty?
+              unless no_check || expand("DEBIAN_FRONTEND=noninteractive apt-get -qq -s -o=Dpkg::Use-Pty=0 install #{PLATFORM_DEPS.join(' ')}").strip.empty?
                 # some pkgs would need installing at least
                 pkgs.concat PLATFORM_DEPS
               end

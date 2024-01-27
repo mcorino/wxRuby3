@@ -29,9 +29,9 @@ module WXRuby3
               pkgs.delete('g++')
               pkgs << 'gcc'
             end
-            if pkgs.empty? && !no_check
+            if pkgs.empty?
               # check if any platform library dependencies are needed
-              unless expand("pacman -q --noconfirm -S --needed -p #{PLATFORM_DEPS.join(' ')}").strip.empty?
+              unless no_check || expand("pacman -q --noconfirm -S --needed -p #{PLATFORM_DEPS.join(' ')}").strip.empty?
                 # some pkgs would need installing at least
                 pkgs.concat PLATFORM_DEPS
               end
