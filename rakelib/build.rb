@@ -11,8 +11,11 @@ require_relative './lib/config'
 
 if WXRuby3.is_bootstrapped?
 
-  Rake.application.options.always_multitask =
-    Rake.application.top_level_tasks.size == 1 && Rake.application.top_level_tasks.first == 'build'
+  # only if not part of installed Gem
+  if File.file?(File.join(__dir__, 'package.rake'))
+    Rake.application.options.always_multitask =
+      Rake.application.top_level_tasks.size == 1 && Rake.application.top_level_tasks.first == 'build'
+  end
 
   require_relative './lib/director'
 
