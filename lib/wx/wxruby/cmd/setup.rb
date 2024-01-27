@@ -39,6 +39,8 @@ module WxRuby
                 "the path to git executable [git]")  {|v| Setup.options['git'] = v}
         opts.on('--[no-]autoinstall',
                 "do (not) attempt to automatically install any required packages")  {|v| Setup.options['autoinstall'] = !!v }
+        opts.on('--keep-log',
+                "keep the log after the setup finishes successfully")  {|v| Setup.options['keep_log'] = true }
         opts.on('-h', '--help',
                 'Show this message.') do |v|
           puts opts
@@ -79,7 +81,7 @@ module WxRuby
             __INFO_TXT
           run_env = {'WXRUBY_RUN_SILENT' => "#{File.join(WxRuby::ROOT, 'setup.log')}"}
           run_env['WXRUBY_VERBOSE'] = '1' if Setup.options[:verbose]
-          system(run_env, "#{cfg_cmd} && rake wxruby:gem:setup && gem rdoc wxruby3 --overwrite")
+          system(run_env, "#{cfg_cmd} && rake wxruby:gem:setup#{Setup.options[:keep_log] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
         end
         exit(result ? 0 : 1)
       end

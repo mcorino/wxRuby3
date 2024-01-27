@@ -20,7 +20,7 @@ namespace :wxruby do
 
     # this task only exists for installed source gems (where package tasks have been removed)
     unless File.file?(File.join(__dir__, 'package.rake'))
-      task :setup => 'config:bootstrap' do
+      task :setup => 'config:bootstrap' do |_t, args|
         begin
           $stdout.print "Building wxRuby3 extensions..." if WXRuby3.config.run_silent?
           WXRuby3.config.set_silent_run_iterative
@@ -29,7 +29,11 @@ namespace :wxruby do
           $stdout.puts 'done!' if WXRuby3.config.run_silent?
           Rake::Task['wxruby:post:srcgem'].invoke
           # all is well -> cleanup
-          rm_f(WXRuby3.config.silent_log_name, verbose: WXRuby3.config.verbose?)
+          if args.extras.include?(':keep_log')
+            $stdout.puts "Log: #{WXRuby3.config.silent_log_name}"
+          else
+            rm_f(WXRuby3.config.silent_log_name, verbose: WXRuby3.config.verbose?)
+          end
         rescue Exception => ex
           $stderr.puts <<~__ERR_TXT
             #{ex.message}#{WXRuby3.config.verbose? ? "\n#{ex.backtrace.join("\n")}" : ''}
