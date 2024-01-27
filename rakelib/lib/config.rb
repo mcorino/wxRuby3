@@ -10,6 +10,7 @@ require 'rbconfig'
 require 'fileutils'
 require 'json'
 require 'open3'
+require 'monitor'
 
 module FileUtils
   # add convenience methods
@@ -137,21 +138,26 @@ module WXRuby3
       run_silent? ? silent_runner.log(msg) : $stdout.puts(msg)
     end
 
-    class SilentRunner
+    class SilentRunner < Monitor
 
       PROGRESS_CH = '.|/-\\|/-\\|'
 
       def initialize
         @cout = 0
-        @iterative = false
+        @incremental = false
       end
 
-      def iterative(f=true)
-        @iterative = !!f
+      def incremental(f=true)
+        synchronize do
+          @cout = 0
+          @incremental = !!f
+        end
       end
 
       def run(*cmd, **kwargs)
-        @cout = 0 unless @iterative
+        synchronize do
+          @cout = 0 unless @incremental
+        end
         output = nil
         verbose = kwargs.delete(:verbose)
         capture = kwargs.delete(:capture)
@@ -198,11 +204,22 @@ module WXRuby3
       private
 
       def silent_runner(os, output=[])
+        synchronize do
+          if @incremental
+            @cout += 1
+            $stdout.print "#{PROGRESS_CH[@cout%10]}\b"
+            $stdout.flush
+          end
+        end
         os.each do |ln|
-          @cout += 1
-          $stdout.print "#{PROGRESS_CH[@cout%10]}\b"
-          $stdout.flush
-          output << ln
+          synchronize do
+            unless @incremental
+              @cout += 1
+              $stdout.print "#{PROGRESS_CH[@cout%10]}\b"
+              $stdout.flush
+            end
+            output << ln
+          end
         end
         output
       end
@@ -230,12 +247,12 @@ module WXRuby3
     end
     private :do_silent_run_step
 
-    def set_silent_run_iterative
-      silent_runner.iterative
+    def set_silent_run_incremental
+      silent_runner.incremental
     end
 
-    def set_silent_run_discrete
-      silent_runner.iterative(false)
+    def set_silent_run_batched
+      silent_runner.incremental(false)
     end
 
     def do_run(*cmd, capture: nil)
