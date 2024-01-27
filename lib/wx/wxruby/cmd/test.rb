@@ -66,7 +66,7 @@ module WxRuby
                   end
                 end
         tests.each do |test|
-          unless Setup.options[:excludes].include?(File.basename(test, '.*'))
+          unless Test.options[:excludes].include?(File.basename(test, '.*'))
             exit(1) unless system(RUBY, test)
           end
         end
