@@ -58,6 +58,15 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: develop
+        - name: wxMac macOS 11
+          runner: macos-11
+          arch: x86_64
+          wxWidgets: '3.2.4'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: embed
+          wxr_type: gem
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
@@ -119,6 +128,7 @@ jobs:
         bundle install
 
     - name: checkout wxWidgets
+      if: matrix.wxw_type != 'embed'
       uses: actions/checkout@v4
       with:
         repository: wxWidgets/wxWidgets
@@ -163,6 +173,7 @@ jobs:
         echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
 
     - name: Before install
+      if: matrix.wxw_type != 'embed'
       working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         ./build/tools/before_install.sh
@@ -173,6 +184,7 @@ jobs:
         brew install swig
 
     - name: Install doxygen
+      if: matrix.wxw_type != 'embed'
       run: |
         brew install doxygen
 
@@ -190,9 +202,11 @@ jobs:
         swig -version
         echo
         
-        echo "Doxygen version:"
-        doxygen -v
-        echo
+        if [ "${{ matrix.wxw_type }}" != "embed" ]; then
+          echo "Doxygen version:"
+          doxygen -v
+          echo
+        fi
 
         echo "Compiler version:"
         ${CXX-g++} --version
@@ -297,12 +311,12 @@ jobs:
         if [ "${{ matrix.wxr_type }}" == "bingem" ]; then
           gem install $(echo pkg/*.gem)
         else
-          if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install $(echo pkg/*.gem) -- WITH_WXWIN=1
-          elif [ "${{ matrix.wxw_type }}" == "system" ]; then
-            gem install $(echo pkg/*.gem)
+          if [ "${{ matrix.wxw_type }}" == "system" ]; then
+            gem install $(echo pkg/*.gem) && wxruby setup
+          elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) -- WXWIN=$WXWIN_INSTALL
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
           fi
         fi
 
