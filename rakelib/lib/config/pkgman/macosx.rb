@@ -59,11 +59,9 @@ module WXRuby3
             end
             # now check if we need any other packages (which need Homebrew or MacPorts)
             if rc && !pkgs.empty?
-              # Has Ruby been installed through Homebrew?
-              if !is_root? && system('command -v brew>/dev/null') && expand('brew list -1 2>/dev/null').strip.split("\n").include?('ruby')
-                pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
-              elsif system('command -v port>/dev/null') &&
-                    (ruby_info = expand('port -q installed installed').strip.split("\n").find { |ln| ln.strip =~ /\Aruby\d+\s/ }) # or through MacPorts
+              # Has Ruby been installed through MacPorts?
+              if system('command -v port>/dev/null') &&
+                    (ruby_info = expand('port -q installed installed').strip.split("\n").find { |ln| ln.strip =~ /\Aruby\d+\s/ })
                 # this is really crap; with MacPorts we need to install swig-ruby instead of simply swig
                 # which for whatever nonsensical reason will pull in another (older) Ruby version (probably 2.3 or such)
                 # although SWIG's Ruby support is version agnostic and has no binary bindings
@@ -76,11 +74,14 @@ module WXRuby3
                 # just run without sudo as we either have root privileges for root-installed MacPorts or
                 # we're running without root privileges for user-installed MacPorts
                 pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
+              elsif !is_root? && system('command -v brew>/dev/null') # or are we running without root privileges and have Homebrew installed?
+                pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
               else
                 $stderr.puts <<~__ERROR_TXT
-                  ERROR: Unsupported Ruby installation. wxRuby3 requires a Homebrew or MacPorts installed Ruby version.
+                  ERROR: Unsupported Ruby installation. wxRuby3 requires either a 
+                         MacPorts installed Ruby version or must have Homebrew installed.
                     
-                  Install Ruby using either Homebrew or MacPorts and try again.
+                  Install either Homebrew or MacPorts and try again.
                   __ERROR_TXT
                 exit(1)
               end

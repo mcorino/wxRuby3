@@ -275,7 +275,7 @@ jobs:
       if: matrix.wxr_type != 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-          bundle exec rake configure WITH_WXWIN=1
+          bundle exec rake configure WITH_WXWIN=1 WXRUBY_AUTOINSTALL=1
         elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure WXWIN=$WXWIN_INSTALL WXXML=$WXWIDGETS_ROOT/docs/doxygen/out/xml WXRUBY_VERBOSE=1
         else
