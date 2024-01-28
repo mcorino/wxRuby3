@@ -60,7 +60,7 @@ module WXRuby3
             # now check if we need any other packages (which need Homebrew or MacPorts)
             if rc && !pkgs.empty?
               # Has Ruby been installed through MacPorts?
-              if system('command -v port>/dev/null') &&
+              if has_macports? &&
                     (ruby_info = expand('port -q installed installed').strip.split("\n").find { |ln| ln.strip =~ /\Aruby\d+\s/ })
                 # this is really crap; with MacPorts we need to install swig-ruby instead of simply swig
                 # which for whatever nonsensical reason will pull in another (older) Ruby version (probably 2.3 or such)
@@ -74,15 +74,24 @@ module WXRuby3
                 # just run without sudo as we either have root privileges for root-installed MacPorts or
                 # we're running without root privileges for user-installed MacPorts
                 pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
-              elsif !is_root? && system('command -v brew>/dev/null') # or are we running without root privileges and have Homebrew installed?
+              elsif !is_root? && has_homebrew? # or are we running without root privileges and have Homebrew installed?
                 pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
               else
-                $stderr.puts <<~__ERROR_TXT
-                  ERROR: Unsupported Ruby installation. wxRuby3 requires either a 
-                         MacPorts installed Ruby version or must have Homebrew installed.
-                    
-                  Install either Homebrew or MacPorts and try again.
-                  __ERROR_TXT
+                if has_homebrew? || is_root?
+                  $stderr.puts <<~__ERROR_TXT
+                    ERROR: Unsupported Ruby installation. wxRuby3 can only be installed for Ruby with root privileges
+                           in case Ruby was installed with MacPorts. Homebrew should not be run with root privileges.
+                      
+                    Re-install a supported Ruby setup and try again.
+                    __ERROR_TXT
+                else
+                  $stderr.puts <<~__ERROR_TXT
+                    ERROR: Unsupported Ruby installation. wxRuby3 requires either a MacPorts installed Ruby version 
+                           or a non-privileged Ruby installation and have Homebrew installed.
+                      
+                    Install either Homebrew or MacPorts and try again.
+                    __ERROR_TXT
+                end
                 exit(1)
               end
             end
@@ -106,7 +115,22 @@ module WXRuby3
           end
 
           def is_root?
-            `id -u 2>/dev/null`.chomp == '0'
+            if @is_root.nil?
+              @is_root = (`id -u 2>/dev/null`.chomp == '0')
+            end
+            @is_root
+          end
+
+          def has_macports?
+            if @has_macports.nil?
+              @has_macports = system('command -v port>/dev/null')
+            end
+          end
+
+          def has_homebrew?
+            if @has_homebrew.nil?
+              @has_homebrew = system('command -v brew>/dev/null')
+            end
           end
 
           def run(cmd)
