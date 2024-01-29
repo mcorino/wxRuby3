@@ -101,7 +101,8 @@ module WXRuby3
                 $stdout.print 'Installing SWIG...' if run_silent?
                 # download and install SWIG
                 fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
-                $stdout.puts 'done!'
+                $stdout.puts 'done!' if run_silent?
+                Config.instance.log_progress("Installed #{fname}")
                 set_config('swig', fname)
                 Config.save
               end
@@ -110,7 +111,8 @@ module WXRuby3
                 $stdout.print 'Installing Doxygen...' if run_silent?
                 # download and install doxygen
                 fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
-                $stdout.puts 'done!'
+                $stdout.puts 'done!' if run_silent?
+                Config.instance.log_progress("Installed #{fname}")
                 set_config('doxygen', fname)
                 Config.save
               end
@@ -119,7 +121,8 @@ module WXRuby3
                 $stdout.print 'Installing Git...' if run_silent?
                 # download and install doxygen
                 fname = download_and_install(GIT_URL, File.basename(URI(GIT_URL).path), 'git.exe', 'git')
-                $stdout.puts 'done!'
+                $stdout.puts 'done!' if run_silent?
+                Config.instance.log_progress("Installed #{fname}")
                 set_config('git', fname)
                 Config.save
               end
@@ -129,7 +132,7 @@ module WXRuby3
 
           # only called after src gem build
           def cleanup_prerequisites
-            tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
+            tmp_tool_root = File.join(ENV['HOME'].gsub("\\", '/'), '.wxruby3')
             path = get_cfg_string('swig')
             unless path.empty? || !path.start_with?(tmp_tool_root)
               path = File.dirname(path) while File.dirname(path) != tmp_tool_root
@@ -158,7 +161,7 @@ module WXRuby3
 
           def download_and_install(url, zip, exe, unpack_to=nil)
             # make sure the download destination exists
-            tmp_tool_root = File.join(ENV['HOME'], '.wxruby3')
+            tmp_tool_root = File.join(ENV['HOME'].gsub("\\", '/'), '.wxruby3')
             dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(zip, '.*'))
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
