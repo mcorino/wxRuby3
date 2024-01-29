@@ -195,8 +195,10 @@ module WXRuby3
           end
 
           def wx_generate_xml
+            doxygen = get_cfg_string("doxygen")
+            doxygen = nix_path(doxygen) unless doxygen == 'doxygen'
             chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              bash({ 'DOXYGEN' => nix_path(get_cfg_string("doxygen")),  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh', 'xml')
+              bash({ 'DOXYGEN' => doxygen,  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh', 'xml')
             end
           end
 
