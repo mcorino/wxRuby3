@@ -198,7 +198,10 @@ module WXRuby3
             doxygen = get_cfg_string("doxygen")
             doxygen = nix_path(doxygen) unless doxygen == 'doxygen'
             chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              bash({ 'DOXYGEN' => doxygen,  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh', 'xml')
+              unless bash({ 'DOXYGEN' => doxygen,  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh', 'xml')
+                $stderr.puts 'ERROR: Failed to generate wxWidgets XML API specifications for parsing by wxRuby3.'
+                exit(1)
+              end
             end
           end
 

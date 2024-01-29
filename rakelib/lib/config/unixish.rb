@@ -132,7 +132,10 @@ module WXRuby3
 
       def wx_generate_xml
         chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-          sh({ 'DOXYGEN' => get_cfg_string("doxygen"),  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
+          unless sh({ 'DOXYGEN' => get_cfg_string("doxygen"),  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
+            $stderr.puts 'ERROR: Failed to generate wxWidgets XML API specifications for parsing by wxRuby3.'
+            exit(1)
+          end
         end
       end
 
