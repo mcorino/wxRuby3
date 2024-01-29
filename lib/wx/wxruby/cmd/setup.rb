@@ -88,7 +88,7 @@ module WxRuby
           actions_txt << 'build the native wxRuby3 extensions '
           actions_txt << "\n" if steps==1
           actions_txt << 'and generate the wxRuby3 reference documentation.'
-          puts <<~__INFO_TXT
+          $stdout.puts <<~__INFO_TXT
 
             ---            
             Now running wxRuby3 post-install setup.
