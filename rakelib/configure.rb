@@ -136,6 +136,16 @@ module WXRuby3
         # else we're are assumed to build wxWidgets ourselves so cannot test anything yet
         end
 
+        if get_cfg_string('wxxml').empty? && !get_cfg_string('wxwin').empty?
+          # in case of a custom wxWidgets build and no explicit xml path check if the custom build holds this
+          xml_path = File.join(get_cfg_string('wxwin'), 'docs', 'doxygen', 'out', 'xml')
+          # if not there see if the standard setup 'wxw_root/<install dir>' was used
+          xml_path = File.join(get_cfg_string('wxwin'), '..', 'docs', 'doxygen', 'out', 'xml') unless File.directory?(xml_path)
+          if File.directory?(xml_path) && !Dir.glob(File.join(xml_path, '*.xml')).empty?
+            set_config('wxxml', xml_path)
+          end
+        end
+
       end
     end
 
