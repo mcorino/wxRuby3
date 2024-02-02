@@ -45,7 +45,7 @@ module WXRuby3
               # do we need to build wxWidgets?
               if builds_wxwidgets?
                 # add platform specific packages for wxWidgets
-                add_platform_pkgs(pkgs, no_autoinstall?)
+                add_platform_pkgs(pkgs)
               end
               # do we actually have any packages to install?
               unless pkgs.empty?

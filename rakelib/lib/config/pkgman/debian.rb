@@ -24,16 +24,14 @@ module WXRuby3
             run_apt(make_install_cmd(pkgs))
           end
 
-          def add_platform_pkgs(pkgs, no_check)
-            if pkgs.empty?
-              # check if any platform library dependencies are needed
-              unless no_check || expand("DEBIAN_FRONTEND=noninteractive apt-get -qq -s -o=Dpkg::Use-Pty=0 install #{PLATFORM_DEPS.join(' ')}").strip.empty?
-                # some pkgs would need installing at least
-                pkgs.concat PLATFORM_DEPS
-              end
-            else
-              # we're gonna need to install stuff anyway so just add the deps; installer will sort it out
-              pkgs.concat PLATFORM_DEPS
+          def add_platform_pkgs(pkgs)
+            # get architecture
+            arch = expand('dpkg --print-architecture').strip
+            # find pkgs we need
+            pkgs.concat PLATFORM_DEPS.select do |pkg|
+              !(system("dpkg-query -s \"#{pkg}:#{arch}\" >/dev/null 2>&1") ||
+                 system("dpkg-query -s \"#{pkg}:all\" >/dev/null 2>&1") ||
+                 (expand("dpkg-query -s \"#{pkg}\" 2>/dev/null").strip =~ /Architecture: (#{arch}|all)/))
             end
           end
 

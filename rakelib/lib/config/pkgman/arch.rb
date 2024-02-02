@@ -24,21 +24,13 @@ module WXRuby3
             run_pacman(make_install_cmd(pkgs))
           end
 
-          def add_platform_pkgs(pkgs, no_check)
+          def add_platform_pkgs(pkgs)
             if pkgs.include?('g++')
               pkgs.delete('g++')
               pkgs << 'gcc'
             end
-            if pkgs.empty?
-              # check if any platform library dependencies are needed
-              unless no_check || expand("pacman -q --noconfirm -S --needed -p #{PLATFORM_DEPS.join(' ')}").strip.empty?
-                # some pkgs would need installing at least
-                pkgs.concat PLATFORM_DEPS
-              end
-            else
-              # we're gonna need to install stuff anyway so just add the deps; installer will sort it out
-              pkgs.concat PLATFORM_DEPS
-            end
+            # find pkgs we need
+            pkgs.concat PLATFORM_DEPS.select { |pkg| !system("pacman -Qq #{pkg} >/dev/null 2>&1") }
           end
 
           def run_pacman(cmd)
