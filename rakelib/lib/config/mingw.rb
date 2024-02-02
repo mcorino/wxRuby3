@@ -143,6 +143,11 @@ module WXRuby3
               path = File.dirname(path) while File.dirname(path) != tmp_tool_root
               rm_rf(path)
             end
+            path = get_cfg_string('git')
+            unless path.empty? || !path.start_with?(tmp_tool_root)
+              path = File.dirname(path) while File.dirname(path) != tmp_tool_root
+              rm_rf(path)
+            end
           end
 
           def expand(cmd)
