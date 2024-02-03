@@ -1,0 +1,270 @@
+name: MacOS wxOSX master builds
+
+on:
+  schedule:
+    - cron: '0 5 * * 5'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    defaults:
+      run:
+        shell: /usr/bin/arch -arch ${{ matrix.arch }} /bin/bash --noprofile --norc -eo pipefail {0}
+
+    runs-on: ${{ matrix.runner }}
+
+    name: ${{ matrix.name }} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: 'master'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
+        - name: wxMac macOS 13
+          runner: macos-13
+          arch: x86_64
+          wxWidgets: 'master'
+          ruby: '3.2'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: system
+          wxr_type: gem
+
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      NSUnbufferedIO: YES
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+
+    steps:
+    - name: Show default Ruby
+      run: |
+        ruby -v
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: Setup Ruby gems
+      run: |
+        bundle install
+
+    - name: checkout wxWidgets
+      if: matrix.wxw_type != 'embed'
+      uses: actions/checkout@v4
+      with:
+        repository: wxWidgets/wxWidgets
+        path: ${{ env.WXWIDGETS_ROOT }}
+        ref: v${{ matrix.wxWidgets }}
+        submodules: 'recursive'
+
+    - name: Set environment variables
+      run: |
+        echo TZ=UTC >> $GITHUB_ENV
+        echo LD_LIBRARY_PATH=`pwd`/lib >> $GITHUB_ENV
+        wxPROC_COUNT=`sysctl -n hw.logicalcpu`
+        ((wxPROC_COUNT++))
+        echo wxPROC_COUNT=$wxPROC_COUNT >> $GITHUB_ENV
+        echo wxBUILD_ARGS=-j$wxPROC_COUNT >> $GITHUB_ENV
+        # Setting this variable suppresses "Error retrieving accessibility bus address"
+        # messages from WebKit tests that we're not interested in.
+        echo NO_AT_BRIDGE=1 >> $GITHUB_ENV
+        case "${{ matrix.compiler }}" in
+          clang)
+            echo CC=clang >> $GITHUB_ENV
+            echo CXX='clang++ -stdlib=libc++' >> $GITHUB_ENV
+            echo LD=clang++ >> $GITHUB_ENV
+            allow_warn_opt="-Wno-error=#warnings"
+            ;;
+          '')
+            # Assume gcc.
+            allow_warn_opt="-Wno-error=cpp"
+            ;;
+          *)
+            echo "*** Unknown compiler: ${{ matrix.compiler }} ***"
+            ;;
+        esac
+        if [ -z ${{ matrix.allow_warnings }} ]; then
+          error_opts="-Werror $allow_warn_opt"
+          if [ "${{ matrix.runner }}" != "macos-11" ]; then
+            error_opts="$error_opts -Wno-unused-but-set-variable" 
+          fi
+          echo "wxMAKEFILE_ERROR_CXXFLAGS=$error_opts" >> $GITHUB_ENV
+          echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
+        fi
+        echo "wxMAKEFILE_CXXFLAGS=$wxMAKEFILE_CXXFLAGS $error_opts" >> $GITHUB_ENV
+
+    - name: Before install
+      if: matrix.wxw_type != 'embed'
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
+      run: |
+        ./build/tools/before_install.sh
+
+    - name: Install SWIG
+      if: matrix.runner != 'macos-11'
+      run: |
+        brew install swig
+
+    - name: Install doxygen
+      if: matrix.wxw_type != 'embed'
+      run: |
+        brew install doxygen
+
+    - name: Show build environment
+      run: |
+        echo "Environment:"
+        env | sort
+        echo
+
+        echo "Ruby version:"
+        ruby -v
+        echo
+        
+        echo "SWIG version:"
+        swig -version
+        echo
+        
+        if [ "${{ matrix.wxw_type }}" != "embed" ]; then
+          echo "Doxygen version:"
+          doxygen -v
+          echo
+        fi
+
+        echo "Compiler version:"
+        ${CXX-g++} --version
+        echo
+
+    - name: Configuring wxWidgets
+      if: matrix.wxw_type != 'embed'
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
+      run: |
+        wxCONFIGURE_OPTIONS="--disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
+
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        else
+          ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=/usr/local --disable-tests --without-subdirs --disable-debug_info || rc=$?
+        fi
+        if [ -n "$rc" ]; then
+          echo '*** Configuring failed, contents of config.log follows: ***'
+          echo '-----------------------------------------------------------'
+          cat config.log
+          echo '-----------------------------------------------------------'
+          exit $rc
+        fi
+
+    - name: Build wxWidgets
+      if: matrix.wxw_type != 'embed'
+      working-directory: ${{ env.WXWIDGETS_ROOT }}
+      run: |
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          export WX_SKIP_DOXYGEN_VERSION_CHECK=1
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install && pushd docs/doxygen && ./regen.sh xml && popd 
+        else
+          make $wxBUILD_ARGS "CXXFLAGS=$wxMAKEFILE_ERROR_CXXFLAGS" && make install
+        fi
+
+    - name: Show wx-config
+      if: matrix.wxw_type != 'embed'
+      run: |
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          $WXWIN_INSTALL/bin/wx-config --prefix
+          $WXWIN_INSTALL/bin/wx-config --exec-prefix
+          $WXWIN_INSTALL/bin/wx-config --version-full
+          $WXWIN_INSTALL/bin/wx-config --selected-config
+          $WXWIN_INSTALL/bin/wx-config --cppflags
+          $WXWIN_INSTALL/bin/wx-config --cxx
+          $WXWIN_INSTALL/bin/wx-config --ld
+          $WXWIN_INSTALL/bin/wx-config --libs all
+          $WXWIN_INSTALL/bin/wx-config --libs media
+        else
+          wx-config --prefix
+          wx-config --exec-prefix
+          wx-config --version-full
+          wx-config --selected-config
+          wx-config --cppflags
+          wx-config --cxx
+          wx-config --ld
+          wx-config --libs all
+          wx-config --libs media
+        fi
+
+    - name: Remove wxWidgets
+      if: matrix.wxw_type != 'develop'
+      run: rm -rf $WXWIDGETS_ROOT
+
+    - name: Configure wxRuby3
+      if: matrix.wxr_type != 'gem'
+      run: |
+        if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+          bundle exec rake configure WXRUBY_AUTOINSTALL=1
+        elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          bundle exec rake configure WXWIN=$WXWIN_INSTALL WXXML=$WXWIDGETS_ROOT/docs/doxygen/out/xml
+        else
+          bundle exec rake configure
+        fi
+
+    - name: Build wxRuby3
+      if: matrix.wxr_type != 'gem'
+      run: |
+        bundle exec rake build
+
+    - name: Run wxRuby3 post-build checks
+      if: matrix.wxr_type != 'gem'
+      run: |
+        ruby tools/check_swig_types.rb
+
+    - name: Build wxRuby3 gem
+      if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
+      run: |
+        if [ "${{ matrix.wxr_type }}" == "gem" ]; then
+          bundle exec rake gem
+        else
+          bundle exec rake bingem
+        fi
+
+    - name: Remove wxWidgets
+      if: matrix.wxw_type == 'develop' && matrix.wxr_type == 'bingem'
+      run: rm -rf $WXWIDGETS_ROOT
+
+    - name: Install wxRuby3 gem
+      if: matrix.wxr_type != 'develop'
+      run: |
+        if [ "${{ matrix.wxr_type }}" == "bingem" ]; then
+          gem install $(echo pkg/*.gem)
+        else
+          if [ "${{ matrix.wxw_type }}" == "system" ]; then
+            gem install $(echo pkg/*.gem) && wxruby setup
+          elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
+          else
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
+          fi
+        fi
+
+    - name: Run wxRuby3 regression tests
+      run: |
+        if [ "${{ matrix.wxr_type }}" == "develop" ]; then
+          bundle exec rake test
+        else 
+          wxruby test
+        fi
