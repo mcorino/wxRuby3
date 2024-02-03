@@ -31,7 +31,7 @@ module WXRuby3
               pkgs << 'git-core'
             end
             # find pkgs we need
-            pkgs.concat PLATFORM_DEPS.select { |pkg| !system("dnf list installed #{pkg} >/dev/null 2>&1") }.to_a
+            PLATFORM_DEPS.inject(pkgs) { |list, pkg| list << pkg unless system("dnf list installed #{pkg} >/dev/null 2>&1"); list }
           end
 
           def run_dnf(cmd)

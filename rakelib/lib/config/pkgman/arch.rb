@@ -30,7 +30,7 @@ module WXRuby3
               pkgs << 'gcc'
             end
             # find pkgs we need
-            pkgs.concat PLATFORM_DEPS.select { |pkg| !system("pacman -Qq #{pkg} >/dev/null 2>&1") }
+            PLATFORM_DEPS.inject(pkgs) { |list, pkg| list << pkg unless system("pacman -Qq #{pkg} >/dev/null 2>&1"); list }
           end
 
           def run_pacman(cmd)

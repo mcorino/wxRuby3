@@ -28,11 +28,12 @@ module WXRuby3
             # get architecture
             arch = expand('dpkg --print-architecture').strip
             # find pkgs we need
-            pkgs.concat PLATFORM_DEPS.select do |pkg|
-              !(system("dpkg-query -s \"#{pkg}:#{arch}\" >/dev/null 2>&1") ||
-                 system("dpkg-query -s \"#{pkg}:all\" >/dev/null 2>&1") ||
-                 (expand("dpkg-query -s \"#{pkg}\" 2>/dev/null").strip =~ /Architecture: (#{arch}|all)/))
-            end.to_a
+            PLATFORM_DEPS.inject(pkgs) do |list, pkg|
+              list << pkg unless (system("dpkg-query -s \"#{pkg}:#{arch}\" >/dev/null 2>&1") ||
+                                    system("dpkg-query -s \"#{pkg}:all\" >/dev/null 2>&1") ||
+                                    (expand("dpkg-query -s \"#{pkg}\" 2>/dev/null").strip =~ /Architecture: (#{arch}|all)/))
+              list
+            end
           end
 
           def run_apt(cmd)
