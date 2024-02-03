@@ -25,7 +25,8 @@ Just follow the (very few and in some cases none) prompts at the start of the se
 > **NOTE**<br>
 > Currently installing the wxRuby3 gem for the system supplied Ruby on MacOSX systems does not work.<br>
 > The user is therefor required to install a Ruby interpreter using either [MacPorts](https://www.macports.org/) (both 
-> privileged and user installations are supported) or [Homebrew](https://brew.sh/) (only user installations supported).
+> privileged and user installations are supported) or [Homebrew](https://brew.sh/) or Ruby installers/version managers 
+> like [ruby-install](https://github.com/postmodern/ruby-install) or [RVM](https://rvm.io) (only user installations supported) .
 
 [Below](INSTALL.md#installing-software-requirements) more details regarding the software requirements for wxRuby3, the 
 setup procedure and various options to tweak and customize the installation (including platform specific details for 

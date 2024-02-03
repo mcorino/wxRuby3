@@ -96,11 +96,11 @@ of these products.
 
 Currently the following are fully supported:
 
-| Platform                                                                                                                          | Ruby version(s)                             | wxWidgets version(s) |
-|-----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------|----------------------|
-| Windows 10 (tested)<br>(most likely also Windows 11)                                                                              | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit) | wxWidgets >= 3.2     |
-| Linux (tested; all major AMD-64 distributions: Ubuntu, Debian, Fedora, OpenSuSE and ArchLinux)<br>(most likely also i686 and ARM) | Ruby >= 2.5                                 | wxWidgets >= 3.2     |
-| MacOS >= 10.10 using Cocoa (tested on AMD-64 and ARM64 M2 Chip)                                                                   | Ruby >= 2.5 (Homebrew or MacPorts)          | wxWidgets >= 3.2     |
+| Platform                                                                                                                          | Ruby version(s)                                     | wxWidgets version(s) |
+|-----------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|----------------------|
+| Windows 10 (tested)<br>(most likely also Windows 11)                                                                              | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit)         | wxWidgets >= 3.2     |
+| Linux (tested; all major AMD-64 distributions: Ubuntu, Debian, Fedora, OpenSuSE and ArchLinux)<br>(most likely also i686 and ARM) | Ruby >= 2.5                                         | wxWidgets >= 3.2     |
+| MacOS >= 10.10 using Cocoa (tested on AMD-64 and ARM64 M2 Chip)                                                                   | Ruby >= 2.5 (MacPorts, Homebrew, ruby-install, RVM) | wxWidgets >= 3.2     |
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
