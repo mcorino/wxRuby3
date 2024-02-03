@@ -73,10 +73,8 @@ module WxRuby
       end
     end
 
-    begin
-      require 'wx'
+    if self.setup_done?
       self.register('test', Test)
-    rescue LoadError
     end
   end
 end

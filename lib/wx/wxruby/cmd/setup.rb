@@ -79,7 +79,7 @@ module WxRuby
                         end
           if Setup.options['with-wxwin'] || Setup.options['wxwin'].nil?
             actions_txt << ', ' if steps>0
-            actions_txt << 'build the wxWidgets libraries, '
+            actions_txt << 'build the wxWidgets libraries (if needed), '
             actions_txt << "\n" if steps>0
             steps += 1
           else
@@ -115,9 +115,7 @@ module WxRuby
       end
     end
 
-    begin
-      require 'wx'
-    rescue LoadError
+    unless self.setup_done?
       self.register('setup', Setup)
     end
   end

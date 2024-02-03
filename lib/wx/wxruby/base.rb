@@ -25,6 +25,10 @@ module WxRuby
       end
       private :commands
 
+      def setup_done?
+        File.exist?(File.join(WxRuby::ROOT, 'ext', 'wxruby.setup.done'))
+      end
+
       def options
         @options ||= {
           :verbose => false
