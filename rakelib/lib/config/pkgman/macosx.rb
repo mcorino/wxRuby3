@@ -62,6 +62,7 @@ module WXRuby3
               # Has Ruby been installed through MacPorts?
               if has_macports? &&
                     (ruby_info = expand('port -q installed installed').strip.split("\n").find { |ln| ln.strip =~ /\Aruby\d+\s/ })
+
                 # this is really crap; with MacPorts we need to install swig-ruby instead of simply swig
                 # which for whatever nonsensical reason will pull in another (older) Ruby version (probably 2.3 or such)
                 # although SWIG's Ruby support is version agnostic and has no binary bindings
@@ -74,8 +75,28 @@ module WXRuby3
                 # just run without sudo as we either have root privileges for root-installed MacPorts or
                 # we're running without root privileges for user-installed MacPorts
                 pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
-              elsif !is_root? && has_homebrew? # or are we running without root privileges and have Homebrew installed?
+
+              # or are we running without root privileges and have Homebrew installed?
+              # (Ruby may be installed using Homebrew itself or using a Ruby version manager like RVM)
+              elsif !is_root? && has_homebrew?
+
                 pkgs.each { |pkg| rc &&= sh("brew install #{pkg}") }
+
+              # or do we have MacPorts (running either privileged or not) and
+              # a Ruby installed using a Ruby version manager.
+              elsif has_macports?
+
+                # same crap as above
+                if pkgs.include?('swig')
+                  pkgs.delete('swig')
+                  pkgs << 'swig-ruby'
+                end
+                # in case MacPorts was installed with root privileges this install would also have to be run
+                # with root privileges (otherwise it would fail early on with access problems) so we can
+                # just run without sudo as we either have root privileges for root-installed MacPorts or
+                # we're running without root privileges for user-installed MacPorts
+                pkgs.each { |pkg| rc &&= sh("port install #{pkg}") }
+
               else
                 if has_homebrew? || is_root?
                   $stderr.puts <<~__ERROR_TXT
