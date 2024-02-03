@@ -31,12 +31,18 @@ module YARD # rubocop:disable Style/Documentation
           if fnames.include?(href.path)
             link.replace "{file:#{href} #{link.inner_html}}"
           elsif href.path.end_with?('_md.html') && (fname = fnames.find {|fnm| fnm.end_with?(href.path.sub(/_md.html\Z/, '.md')) })
-            link.replace "{file:#{fname} #{link.inner_html}}"
+            link.replace "{file:#{fname}#{href.fragment ? "##{fragment_to_yard(href.fragment)}" : ''} #{link.inner_html}}"
           end
         end
       end
       super(html.to_s)
     end
+
+    # this does not work with mixed case labels but is good enough for us
+    def fragment_to_yard(s)
+      s.start_with?('label-') ? s : "label-#{s.gsub('-', '+').capitalize}"
+    end
+
   end
 
   Templates::Template.extra_includes << RelativeMarkdownLinks
