@@ -14,7 +14,7 @@ module WxRuby
       DESC = 'Run wxRuby3 post-install setup.'
 
       def self.description
-        "    setup [options]\t\t#{DESC}"
+        "    setup -h|[options]\t\t#{DESC}"
       end
 
       def self.options
@@ -23,7 +23,7 @@ module WxRuby
 
       def self.parse_args(args)
         opts = OptionParser.new
-        opts.banner = "#{DESC}\n\nUsage: wxruby setup [options]\n\n"
+        opts.banner = "#{DESC}\n\nUsage: wxruby setup -h|--help OR wxruby setup [options]\n\n"
         opts.separator ''
         opts.on('--wxwin=path',
                 "the installation root for the wxWidgets libraries and headers if not using the system default")  {|v| Setup.options['wxwin'] = File.expand_path(v)}

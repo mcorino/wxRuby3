@@ -62,7 +62,7 @@ module WxRuby
       def parse_args(args)
         opts = OptionParser.new
         opts.banner = "Usage: wxruby [global options] COMMAND [arguments]\n\n" +
-            "    COMMAND\t\t\tSpecifies wxruby command to execute."
+            "    COMMAND\t\t\t\tSpecifies wxruby command to execute."
         opts.separator ''
         opts.on('-v', '--verbose',
                 'Show verbose output') { |v| ::WxRuby::Commands.options[:verbose] = true }

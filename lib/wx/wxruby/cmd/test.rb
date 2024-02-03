@@ -14,7 +14,7 @@ module WxRuby
       DESC = 'Run wxRuby3 regression tests.'
 
       def self.description
-        "    test [options] [TEST [...]]\t\t#{DESC}"
+        "    test -h|[options] [TEST [...]]\t#{DESC}"
       end
 
       def self.options
@@ -23,7 +23,7 @@ module WxRuby
 
       def self.parse_args(args)
         opts = OptionParser.new
-        opts.banner = "#{DESC}\n\nUsage: wxruby test [options] [TEST [...]]\n\n" +
+        opts.banner = "#{DESC}\n\nUsage: wxruby test -h|--help OR wxruby test [options] [TEST [...]]\n\n" +
           "TEST == test name\n" +
           "Runs all tests (except any specified to exclude) if no test specified.\n\n"
         opts.separator ''
