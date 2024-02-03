@@ -31,7 +31,7 @@ module WXRuby3
               pkgs << 'gcc-c++'
             end
             # find pkgs we need
-            pkgs.concat PLATFORM_DEPS.select { |pkg| !system("rpm -q --whatprovides #{pkg} >/dev/null 2>&1") }
+            pkgs.concat PLATFORM_DEPS.select { |pkg| !system("rpm -q --whatprovides #{pkg} >/dev/null 2>&1") }.to_a
           end
 
           def run_zypper(cmd)

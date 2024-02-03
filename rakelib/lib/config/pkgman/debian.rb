@@ -32,7 +32,7 @@ module WXRuby3
               !(system("dpkg-query -s \"#{pkg}:#{arch}\" >/dev/null 2>&1") ||
                  system("dpkg-query -s \"#{pkg}:all\" >/dev/null 2>&1") ||
                  (expand("dpkg-query -s \"#{pkg}\" 2>/dev/null").strip =~ /Architecture: (#{arch}|all)/))
-            end
+            end.to_a
           end
 
           def run_apt(cmd)
