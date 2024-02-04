@@ -701,15 +701,22 @@ module WXRuby3
         # at least 2 newlines to make Yard skip/forget the header comment
         fdoc.puts
         fdoc.puts
-        fdoc.puts "module #{package.fullname}"
-        fdoc.puts
-        fdoc.indent do
+        mod_indent = 0
+        package.all_modules.each do |modnm|
+          fdoc.iputs("module #{package.fullname}", mod_indent)
+          fdoc.puts
+          mod_indent += 1
+        end
+        fdoc.indent(mod_indent) do
           gen_constants_doc(fdoc)
           gen_functions_doc(fdoc) unless no_gen?(:functions)
           gen_class_doc(fdoc) unless no_gen?(:classes)
         end
-        fdoc.puts
-        fdoc.puts 'end'
+        package.all_modules.each do |_|
+          fdoc.puts
+          fdoc.iputs('end', mod_indent)
+          mod_indent -= 1
+        end
       end
     end
 
