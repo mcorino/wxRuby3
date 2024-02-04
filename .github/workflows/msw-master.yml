@@ -129,10 +129,15 @@ jobs:
         if: matrix.wxr_type != 'develop'
         run: |
           If ("${{ matrix.wxw_type }}" -eq "embed") {
-            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- WITH_WXWIN=1 }
+            If ("${{ matrix.wxr_type }}" -eq "gem") {
+              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f && wxruby setup --autoinstall }
+            }
+            Else {
+              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f }
+            }
           }
           Else {
-            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f }
+            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f && wxruby setup --wxwin=$env:WXWIN_ROOT }
           }
 
       - name: Run wxRuby3 regression tests

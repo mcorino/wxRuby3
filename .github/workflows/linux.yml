@@ -289,6 +289,9 @@ jobs:
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           TEST_CMD="bundle exec rake test"
         else
+          if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
+          fi
           TEST_CMD="wxruby test"
         fi
         /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
