@@ -42,7 +42,7 @@ jobs:
           ruby: '3.2'
           swig: '4'
           configure_flags: --disable-sys-libs
-          wxw_type: system
+          wxw_type: develop
           wxr_type: gem
 
     env:
