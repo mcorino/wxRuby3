@@ -90,6 +90,14 @@ jobs:
             swig: '4'
             wxw_type: embed
             wxr_type: gem
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: '3.2'
+            wxWidgets: '3.2.4'
+            swig: '4'
+            wxw_type: develop
+            wxr_type: gem
 
     steps:
       - name: Checkout wxRuby3
@@ -114,6 +122,7 @@ jobs:
           bundle install
 
       - name: Cache Doxygen
+        if: matrix.wxw_type != 'embed' || matrix.wxr_type == 'develop'
         id: cache-doxygen
         uses: actions/cache@v4
         with:
@@ -121,7 +130,7 @@ jobs:
           key: ${{ runner.os }}-doxygen
 
       - name: Download Doxygen tool
-        if: steps.cache-doxygen.outputs.cache-hit != 'true'
+        if: steps.cache-doxygen.outputs.cache-hit != 'true' && (matrix.wxw_type != 'embed' || matrix.wxr_type == 'develop')
         run: |
           wget.exe https://www.doxygen.nl/files/doxygen-1.10.0.windows.x64.bin.zip
           $hash = '2135c1d5bdd6e067b3d0c40a4daac5d63d0fee1b3f4d6ef1e4f092db0d632d5b'
@@ -131,6 +140,7 @@ jobs:
           }
 
       - name: Install Doxygen package
+        if: matrix.wxw_type != 'embed' || matrix.wxr_type == 'develop'
         run: |
           Expand-Archive -LiteralPath '.\doxygen-1.10.0.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
           echo "$env:DOXYGEN_ROOT" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
@@ -139,7 +149,6 @@ jobs:
         run: |
           echo "$env:PATH"
           ruby -v
-          doxygen -v
           ridk exec bash -c 'gcc -v'
           ridk exec bash -c 'g++ -v'
 
@@ -159,10 +168,10 @@ jobs:
         if: matrix.wxr_type != 'gem'
         run: |
           If ("${{ matrix.wxw_type }}" -eq "embed") {
-            bundle exec rake configure[--with-wxwin]
+            bundle exec rake configure[--autoinstall]
           }
           Else {
-            bundle exec rake configure WXWIN=$env:WXWIN_ROOT WXRUBY_VERBOSE=1
+            bundle exec rake configure WXWIN=$env:WXWIN_ROOT
           }
 
       - name: Build wxRuby3
@@ -184,10 +193,15 @@ jobs:
         if: matrix.wxr_type != 'develop'
         run: |
           If ("${{ matrix.wxw_type }}" -eq "embed") {
-            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- WITH_WXWIN=1 }
+            If ("${{ matrix.wxr_type }}" -eq "gem") {
+              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f && wxruby setup --autoinstall }
+            }
+            Else {
+              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f }
+            }
           }
           Else {
-            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f }
+            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f && wxruby setup --wxwin=$env:WXWIN_ROOT }
           }
 
       - name: Run wxRuby3 regression tests

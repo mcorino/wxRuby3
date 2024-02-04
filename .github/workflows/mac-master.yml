@@ -1,35 +1,12 @@
-name: MacOS wxOSX builds
+name: MacOS wxOSX master builds
 
 on:
-  push:
-    branches:
-      - master
-    tags:
-      - v*
-    paths-ignore:
-      - '.github/workflows/**'
-      - 'assets/**'
-      - 'lib/wx/doc/**'
-      - 'lib/wx/version.rb'
-      - '**.md'
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - '.github/workflows/**'
-      - 'assets/**'
-      - 'lib/wx/doc/**'
-      - 'lib/wx/version.rb'
-      - 'rakelib/lib/**/*.yaml'
-      - '**.md'
-      - 'Gemfile'
-      - '.yardopts'
-      - '.gitignore'
-      - 'LICENSE'
+  schedule:
+    - cron: '0 5 * * 5'
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -49,28 +26,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: wxMac macOS 11
-          runner: macos-11
-          arch: x86_64
-          wxWidgets: '3.2.4'
-          ruby: '3.2'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: develop
-          wxr_type: develop
-        - name: wxMac macOS 11
-          runner: macos-11
-          arch: x86_64
-          wxWidgets: '3.2.4'
-          ruby: '3.2'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: embed
-          wxr_type: gem
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
-          wxWidgets: '3.2.4'
+          wxWidgets: 'master'
           ruby: '3.2'
           swig: '4'
           configure_flags: --disable-sys-libs
@@ -79,25 +38,7 @@ jobs:
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
-          wxWidgets: '3.2.4'
-          ruby: '3.2'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: embed
-          wxr_type: bingem
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
-          wxWidgets: '3.2.4'
-          ruby: '3.2'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: embed
-          wxr_type: gem
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
-          wxWidgets: '3.2.4'
+          wxWidgets: 'master'
           ruby: '3.2'
           swig: '4'
           configure_flags: --disable-sys-libs

@@ -77,3 +77,13 @@ div.wxrb-logo table td {
     font-weight: bold;
     font-size: 0.9em;
 }
+
+#filecontents blockquote {
+    border-left: .5em solid #e0e0e0;
+    margin: 10px;
+    padding-left: 10px;
+}
+
+#toc {
+    position: fixed;
+}

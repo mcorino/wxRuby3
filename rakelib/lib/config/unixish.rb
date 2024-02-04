@@ -52,32 +52,49 @@ module WXRuby3
         objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
         depsh = pkg.dep_libnames.collect { |dl| "#{dl}.#{dll_ext}" }.join(' ')
         sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
-             "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
+             "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
+           fail_on_error: true
+      end
+
+      def check_tool_pkgs
+        pkg_deps = super
+        pkg_deps << 'doxygen' unless system('command -v doxygen>/dev/null')
+        pkg_deps << 'swig' unless system('command -v swig>/dev/null')
+        pkg_deps
       end
 
       def get_rpath_origin
         "$ORIGIN"
       end
 
+      def expand(cmd)
+        STDERR.puts "> sh: #{cmd}" if verbose?
+        s = super
+        STDERR.puts "< #{s}" if verbose?
+        s
+      end
+
       private
 
       def wx_checkout
-        check_git
+        $stdout.print 'Checking out wxWidgets...' if run_silent?
         # clone wxWidgets GIT repository under ext_path
         chdir(ext_path) do
-          if (rc = sh("git clone https://github.com/wxWidgets/wxWidgets.git"))
+          if (rc = sh("#{get_cfg_string('git')} clone https://github.com/wxWidgets/wxWidgets.git"))
             chdir('wxWidgets') do
               tag = if @wx_version
                       "v#{@wx_version}"
                     else
-                      expand('git tag').split("\n").select { |t| (/\Av3\.(\d+)/ =~ t) && $1.to_i >= 2  }.max
+                      expand("#{get_cfg_string('git')} tag").split("\n").select { |t| (/\Av3\.(\d+)/ =~ t) && $1.to_i >= 2  }.max
                     end
               # checkout the version we are building against
-              rc = sh("git checkout #{tag}")
+              rc = sh("#{get_cfg_string('git')} checkout #{tag}")
             end
           end
-          unless rc
-            STDERR.puts "ERROR: Failed to checkout wxWidgets."
+          if rc
+            $stdout.puts 'done!' if run_silent?
+          else
+            $stderr.puts "ERROR: Failed to checkout wxWidgets."
             exit(1)
           end
         end
@@ -92,34 +109,34 @@ module WXRuby3
       end
 
       def wx_build
+        $stdout.print 'Configuring wxWidgets...' if run_silent?
         # initialize submodules
-        unless sh('git submodule update --init')
-          STDERR.puts "ERROR: Failed to update wxWidgets submodules."
+        unless sh("#{get_cfg_string('git')} submodule update --init")
+          $stderr.puts "ERROR: Failed to update wxWidgets submodules."
           exit(1)
         end
         # configure wxWidgets
         unless wx_configure
-          STDERR.puts "ERROR: Failed to configure wxWidgets."
+          $stderr.puts "ERROR: Failed to configure wxWidgets."
           exit(1)
         end
+        $stdout.puts 'done!' if run_silent?
+        $stdout.print 'Building wxWidgets...' if run_silent?
         # make and install wxWidgets
         unless wx_make
-          STDERR.puts "ERROR: Failed to build wxWidgets libraries."
+          $stderr.puts "ERROR: Failed to build wxWidgets libraries."
           exit(1)
         end
+        $stdout.puts 'done!' if run_silent?
       end
 
       def wx_generate_xml
         chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-          sh({ 'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
+          unless sh({ 'DOXYGEN' => get_cfg_string("doxygen"),  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh xml')
+            $stderr.puts 'ERROR: Failed to generate wxWidgets XML API specifications for parsing by wxRuby3.'
+            exit(1)
+          end
         end
-      end
-
-      def expand(cmd)
-        STDERR.puts "> sh: #{cmd}" if verbose?
-        s = super
-        STDERR.puts "< #{s}" if verbose?
-        s
       end
 
       # Allow specification of custom wxWidgets build (mostly useful for

@@ -7,6 +7,7 @@
 ###
 
 require_relative './unixish'
+require_relative 'pkgman/base'
 
 module WXRuby3
 
@@ -17,6 +18,7 @@ module WXRuby3
       def self.included(base)
         base.class_eval do
           include Config::UnixLike
+
           alias :base_ldflags :ldflags
           def ldflags(target)
             "-Wl,-soname,#{File.basename(target)} #{base_ldflags(target)}"
@@ -31,10 +33,10 @@ module WXRuby3
 
           def check_rpath_patch
             unless @rpath_patch
-              if system('which patchelf > /dev/null 2>&1')
+              if system('command -v patchelf > /dev/null')
                 @rpath_patch = 'patchelf --set-rpath'
               else
-                STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of either the patchelf utility.'
+                STDERR.puts 'Installation of binary gem with-wxwin requires an installed version of the patchelf utility.'
                 return false
               end
             end
@@ -48,6 +50,26 @@ module WXRuby3
             end
             false
           end
+
+          def check_tool_pkgs
+            pkg_deps = super
+            # need g++ to build wxRuby3 extensions in any case
+            pkg_deps << 'g++' unless system('command -v g++>/dev/null')
+            # do we need to build wxWidgets?
+            if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
+              pkg_deps << 'patchelf' unless system('command -v patchelf>/dev/null')
+              pkg_deps << 'make' unless system('command -v make>/dev/null')
+              pkg_deps << 'git' unless system('command -v git>/dev/null')
+            end
+            pkg_deps
+          end
+
+          def install_prerequisites
+            pkg_deps = check_tool_pkgs
+            PkgManager.install(pkg_deps)
+            []
+          end
+
         end
       end
 

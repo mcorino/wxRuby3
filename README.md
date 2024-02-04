@@ -96,11 +96,11 @@ of these products.
 
 Currently the following are fully supported:
 
-| Platform                                                                   | Ruby version(s)                             | wxWidgets version(s) |
-|----------------------------------------------------------------------------|---------------------------------------------|----------------------|
-| Windows 10 (tested)<br>(most likely also Windows 11)                       | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit) | wxWidgets >= 3.2     |
-| Linux (tested; any AMD-64 distribution)<br>(most likely also i686 and ARM) | Ruby >= 2.5                                 | wxWidgets >= 3.2     |
-| MacOS >= 10.10 using Cocoa (tested on AMD-64 and ARM64 M2 Chip)            | Ruby >= 2.5                                 | wxWidgets >= 3.2     |
+| Platform                                                                                                                          | Ruby version(s)                                     | wxWidgets version(s) |
+|-----------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|----------------------|
+| Windows 10 (tested)<br>(most likely also Windows 11)                                                                              | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit)         | wxWidgets >= 3.2     |
+| Linux (tested; all major AMD-64 distributions: Ubuntu, Debian, Fedora, OpenSuSE and ArchLinux)<br>(most likely also i686 and ARM) | Ruby >= 2.5                                         | wxWidgets >= 3.2     |
+| MacOS >= 10.10 using Cocoa (tested on AMD-64 and ARM64 M2 Chip)                                                                   | Ruby >= 2.5 (MacPorts, Homebrew, ruby-install, RVM) | wxWidgets >= 3.2     |
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
@@ -111,29 +111,40 @@ on legacy systems (eg Windows 98, Mac OS 9).
 
 wxRuby3 is distributed as a Ruby gem on [RubyGems](https://rubygems.org).<br>
 Apart from a regular source-only version of the gem there is also a binary gem version for Windows 10 provided (for the 
-latest stable Ruby version at the time of publishing) which includes an embedded wxWidgets installation (also latest 
+latest stable Ruby release at the time of publishing) which includes an embedded wxWidgets installation (also latest 
 stable version). 
 
-Installing the binary gem version on Windows requires no additional software to be installed except for a supported 
-version of the Ruby interpreter.<br>
-To install the source-only gem the following software is required:
+The wxRuby3 gem provides a **worry-free** installation procedure for all supported platforms.  
 
-| Sofware                                       | Notes                                                                                                                                                                                                                           |
-|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Ruby                                          | A supported version of the Ruby interpreter needs to be installed.                                                                                                                                                              |
-| C++ compiler<br>(incl. dev tools like `make`) | On linux a recent version of the GNU C++ compiler (with c++-14 support) needs to be installed<br>On Windows the RubyInstaller MSYS2-Devkit needs to be installed<br>On MacOS XCode with commandline tools needs to be installed |
-| Git version control toolkit                   |                                                                                                                                                                                                                                 |
-| SWIG >= 3.0.12                                | On MacOS install with Homebrew                                                                                                                                                                                                  |
-| Doxygen (>= 1.9.1)                            | On MacOS install with Homebrew                                                                                                                                                                                                  |
-| wxWidgets >= 3.2 (*OPTIONAL*)                 | On Linux most distributions provide system installable (development) packages for wxWidgets providing a supported version.<br>Alternatively you can fairly easily install your own preferred version manually.                  |    
-
-See the [INSTALL](INSTALL.md) document for more details.
-
-In case the prerequisites above are met the (source-only or binary) gem can be installed executing the following command:
+Installing the binary gem version on Windows (which is the default when installing for the latest stable Ruby release for 
+that platform) requires no additional installation steps and/or additional software to be installed except for a supported 
+version of the Ruby interpreter. So for this platform the following command is all it takes to get up and running: 
 
 ```shell
 gem install wxruby3
 ```
+
+For the platforms requiring a source based installation (Linux and MacOSX as well as Windows for older Ruby releases 
+or when explicitly selecting source based install) an additional (simple) setup step is required to finish installation.
+For these platforms the full installation sequence would be:
+
+```shell
+gem install wxruby3 && wxruby setup
+```
+
+The second part of this command sequence is a fully automated setup procedure provided by the wxRuby3 **CLI** installed with
+the gem. This procedure (by default) will analyze your system and install (after asking your consent) any missing software
+requirements and build the wxRuby3 extension libraries (including a embedded copy of wxWidgets if necessary). It may take
+quite a while depending on your system but you can mostly sit back and relax.
+
+> **NOTE**<br>
+> A source based installation requires the availability of the Ruby development headers. User installed Rubies in most cases
+> will already include those but (especially on Linux) system installed Rubies may require having an additional '-dev/-devel'
+> package installed.
+
+This install procedure can of course be tweaked and customized with commandline arguments.
+See the [INSTALL](INSTALL.md) document for more details.
+
 
 ### Where can I ask a question, or report a bug?
 

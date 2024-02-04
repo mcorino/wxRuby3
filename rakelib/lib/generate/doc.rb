@@ -26,22 +26,30 @@ module WXRuby3
           WX_GLOBAL_CONSTANTS=false
           require 'wx'
           def handle_module(mod, table)
+            Wx.delayed_constants_for(mod).each do |key, delayed_const|
+              table[key.sym.to_s] = { type: true, value: delayed_const.to_s }
+            end
             mod.constants.each do |c|
               a_const = mod.const_get(c)
               if (::Module === a_const || ::Class === a_const) && a_const.name.start_with?('Wx::')  # Wx:: Package submodule or Class (possibly Enum)
                 handle_module(a_const, table[c.to_s] = {})
               elsif Wx::Enum === a_const
-                table[c.to_s] = { type: a_const.class.name.split('::').last, value: "\#{a_const.class}.new(\#{a_const.to_i})" } 
-              elsif !(::Hash === a_const || ::Array === a_const) 
-                table[c.to_s] = { type: a_const.class.name.split('::').last, value: a_const } unless c == :THE_APP
+                table[c.to_s] = { type: true, value: "\#{a_const.class}.new(\#{a_const.to_i})" } 
+              elsif !(::Hash === a_const || ::Array === a_const)
+                case a_const
+                when Wx::Size
+                  table[c.to_s] = { type: true, value: "Wx::Size.new(\#{a_const.width}, \#{a_const.height})" }
+                when Wx::Point
+                  table[c.to_s] = { type: true, value: "Wx::Point.new(\#{a_const.x}, \#{a_const.y})" }
+                else 
+                  table[c.to_s] = { type: true, value: a_const } unless c == :THE_APP
+                end
               end
             end
           end
-          Wx::App.run do 
-            table = { 'Wx' => {}}
-            handle_module(Wx, table['Wx'])
-            STDOUT.puts JSON.dump(table)
-          end
+          table = { 'Wx' => {}}
+          handle_module(Wx, table['Wx'])
+          STDOUT.puts JSON.dump(table)
         __SCRIPT
         STDERR.puts "* executing constants collection script:\n#{script}" if Director.trace?
         begin
@@ -742,7 +750,7 @@ module WXRuby3
     end
 
     def gen_constant_value(val)
-      if ::String === val && /\A(#<(.*)>|[\w:]+\.new\(.*\))\Z/ =~ val
+      if ::String === val && /\A(#<(.*)>|[\w:]+\.\w+\(.*\))\Z/ =~ val
         if $2
           valstr = $2
           if /\Awx/ =~ valstr

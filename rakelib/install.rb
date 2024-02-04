@@ -57,6 +57,7 @@ module WXRuby3
 
       def install_wxwin_shlibs
         if WXRuby3.config.get_config('with-wxwin')
+          $stdout.print "Installing wxRuby3 extensions..." if WXRuby3.config.run_silent?
           # prepare required wxWidgets shared libs
           wxwin_inshlibs = []
           WXRuby3::Install.wxwin_shlibs.each do |shlib|
@@ -89,6 +90,7 @@ module WXRuby3
               exit(1)
             end
           end
+          $stdout.puts 'done!' if WXRuby3.config.run_silent?
         end
       end
 

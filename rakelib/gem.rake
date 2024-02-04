@@ -17,12 +17,55 @@ namespace :wxruby do
     if WXRuby3.is_bootstrapped?
       task :bingem => ['bin:build', File.join(WXRuby3.config.rb_docgen_path, 'window.rb'), WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin)]
     end
+
+    # this task only exists for installed source gems (where package tasks have been removed)
+    unless File.file?(File.join(__dir__, 'package.rake'))
+
+      task :setup => 'config:bootstrap' do |_t, args|
+        begin
+          $stdout.print "Building wxRuby3 extensions..." if WXRuby3.config.run_silent?
+          WXRuby3.config.set_silent_run_incremental
+          Rake::Task['wxruby:build'].invoke
+          WXRuby3.config.set_silent_run_batched
+          $stdout.puts 'done!' if WXRuby3.config.run_silent?
+          Rake::Task['wxruby:post:srcgem'].invoke
+          # all is well -> cleanup
+          if args.extras.include?(':keep_log')
+            $stdout.puts "Log: #{WXRuby3.config.silent_log_name}"
+          else
+            rm_f(WXRuby3.config.silent_log_name, verbose: WXRuby3.config.verbose?)
+          end
+        rescue Exception => ex
+          $stderr.puts <<~__ERR_TXT
+            #{ex.message}#{WXRuby3.config.verbose? ? "\n#{ex.backtrace.join("\n")}" : ''}
+
+            For error details check #{WXRuby3.config.silent_log_name}
+            __ERR_TXT
+          exit(1)
+        end
+        $stdout.puts <<~__MSG
+      
+          wxRuby3 has been successfully installed including the 'wxruby' utility.
+      
+          You can run the regression tests to verify the installation by executing:
+      
+          $ ./wxruby test
+      
+          The wxRuby3 sample selector can be run by executing:
+      
+          $ ./wxruby sampler
+      
+          Have fun using wxRuby3.
+          __MSG
+      end
+    end
+
   end
 
 end
 
 # source gem file
-file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.manifest + ['ext/mkrf_conf_srcgem.rb'] do
+file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.manifest do
   gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION) do |gem|
     gem.summary = %Q{wxWidgets extension for Ruby}
     gem.description = %Q{wxRuby3 is a Ruby library providing an extension for the wxWidgets C++ UI framework}
@@ -30,7 +73,6 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
     gem.homepage = "https://github.com/mcorino/wxRuby3"
     gem.authors = ['Martin Corino']
     gem.files = WXRuby3::Gem.manifest
-    gem.extensions = ['ext/mkrf_conf_srcgem.rb']
     gem.require_paths = %w{lib}
     gem.bindir = 'bin'
     gem.executables = WXRuby3::Bin.binaries
@@ -54,17 +96,12 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
     }
     gem.post_install_message = <<~__MSG
 
-      wxRuby3 has been successfully installed including the 'wxruby' utility.
+      The wxRuby3 Gem has been successfully installed.
+      Before being able to use wxRuby3 you need to run the post-install setup process
+      by executing the command 'wxruby setup'.
 
-      You can run the regression tests to verify the installation by executing:
+      Run 'wxruby setup -h' to see information on the available commandline options.
 
-      $ ./wxruby test
-
-      The wxRuby3 sample selector can be run by executing:
-
-      $ ./wxruby sampler
-
-      Have fun using wxRuby3.
       __MSG
   end
   WXRuby3::Gem.build_gem(gemspec)
@@ -105,6 +142,20 @@ if WXRuby3.is_bootstrapped?
           "documentation_uri" => "https://mcorino.github.io/wxRuby3",
           "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
         }
+        gem.post_install_message = <<~__MSG
+    
+          wxRuby3 has been successfully installed including the 'wxruby' utility.
+    
+          You can run the regression tests to verify the installation by executing:
+    
+          $ ./wxruby test
+    
+          The wxRuby3 sample selector can be run by executing:
+    
+          $ ./wxruby sampler
+    
+          Have fun using wxRuby3.
+          __MSG
       end
       WXRuby3::Gem.build_gem(gemspec)
     ensure

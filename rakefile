@@ -4,11 +4,8 @@
 ###
 
 # Influential environment variables
-# WXRUBY_DEBUG      : build a debug version if set to '1' (else build release version)
-# WXRUBY_TRACE      : define trace level (default 0 if undefined or 1 if defined but empty) for debug build
 # WXRUBY_VERBOSE    : define verbosity for (rake) build scripts
 # WXRUBY_VERSION    : define the version info (x.x.x) for this tree
-# WXRUBY_NO_UNICODE : try and build an ANSI version if set to '1'
 # WXRUBY_EXCLUDED   : exclude certain classes from being compiled, even if present
 #
 # WXWIN             : install folder of wxWidgets library if not system default

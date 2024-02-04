@@ -16,7 +16,9 @@ namespace :wxruby do
 
 end
 
-directory WXRuby3.config.rb_docgen_path
+directory WXRuby3.config.rb_docgen_path do
+  mkdir_p(WXRuby3.config.rb_docgen_path, verbose: !WXRuby3.config.run_silent?)
+end
 
 file File.join(WXRuby3.config.rb_docgen_path, 'window.rb') => [WXRuby3.config.rb_docgen_path, *all_doc_targets]
 

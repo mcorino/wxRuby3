@@ -25,12 +25,15 @@ module WxRuby
       end
       private :commands
 
+      def setup_done?
+        File.exist?(File.join(WxRuby::ROOT, 'ext', 'wxruby.setup.done'))
+      end
+
       def options
         @options ||= {
           :verbose => false
         }
       end
-      private :options
 
       def register(cmdid, cmdhandler)
         commands[cmdid.to_s] = case
@@ -59,7 +62,7 @@ module WxRuby
       def parse_args(args)
         opts = OptionParser.new
         opts.banner = "Usage: wxruby [global options] COMMAND [arguments]\n\n" +
-            "    COMMAND\t\t\tSpecifies wxruby command to execute."
+            "    COMMAND\t\t\t\tSpecifies wxruby command to execute."
         opts.separator ''
         opts.on('-v', '--verbose',
                 'Show verbose output') { |v| ::WxRuby::Commands.options[:verbose] = true }
@@ -70,8 +73,7 @@ module WxRuby
           describe_all
           exit(0)
         end
-        opts.raise_unknown = false
-        opts.parse!(args)
+        opts.order!(args)
       end
     end
   end

@@ -70,6 +70,10 @@ module WXRuby3
                 "the path to swig executable [#{get_config('swig')}]")  {|v| CONFIG['swig'] = v}
         opts.on('--doxygen=path',
                 "the path to doxygen executable [#{get_config('doxygen')}]")  {|v| CONFIG['doxygen'] = v}
+        opts.on('--git=path',
+                "the path to git executable [#{get_config('git')}]")  {|v| CONFIG['git'] = v}
+        opts.on('--[no-]autoinstall',
+                "do (not) attempt to automatically install any required packages")  {|v| CONFIG['autoinstall'] = !!v }
 
         opts.separator ""
 
@@ -110,20 +114,36 @@ module WXRuby3
           # check wxWidgets availability through 'wx-config' command
           if instance.check_wx_config
             if instance.wx_config("--version") < '3.2.0'
-              STDERR.puts "ERROR: Incompatible wxWidgets version. wxRuby requires a wxWidgets >= 3.2.0 release."
-              exit(1)
+              if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty?
+                # no custom wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
+                set_config('with-wxwin', true)
+              else
+                # if someone wants to customize they HAVE to do it right
+                STDERR.puts "ERROR: Incompatible wxWidgets version. wxRuby requires a wxWidgets >= 3.2.0 release."
+                exit(1)
+              end
             end
           else
-            STDERR.puts "ERROR: Cannot find wxWidgets. wxRuby requires a wxWidgets >= 3.2.0 release."
-            exit(1)
+            if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty?
+              # no custom wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
+              set_config('with-wxwin', true)
+            else
+              # if someone wants to customize they HAVE to do it right
+              STDERR.puts "ERROR: Cannot find wxWidgets. wxRuby requires a wxWidgets >= 3.2.0 release."
+              exit(1)
+            end
           end
         # else we're are assumed to build wxWidgets ourselves so cannot test anything yet
         end
 
-        if get_cfg_string('wxxml').empty?
-          # no pre-generated XML specified so we are going to need Git and Doxygen
-          instance.check_git
-          instance.check_doxygen
+        if get_cfg_string('wxxml').empty? && !get_cfg_string('wxwin').empty?
+          # in case of a custom wxWidgets build and no explicit xml path check if the custom build holds this
+          xml_path = File.join(get_cfg_string('wxwin'), 'docs', 'doxygen', 'out', 'xml')
+          # if not there see if the standard setup 'wxw_root/<install dir>' was used
+          xml_path = File.join(get_cfg_string('wxwin'), '..', 'docs', 'doxygen', 'out', 'xml') unless File.directory?(xml_path)
+          if File.directory?(xml_path) && !Dir.glob(File.join(xml_path, '*.xml')).empty?
+            set_config('wxxml', xml_path)
+          end
         end
 
       end
