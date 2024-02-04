@@ -615,16 +615,16 @@ module WXRuby3
               module Wx
               
                 # wxRuby version string
-                Wx::WXRUBY_VERSION = '\#{Wx::WXRUBY_VERSION}'
+                WXRUBY_VERSION = '\#{Wx::WXRUBY_VERSION}'
               
                 # wxRuby version release type (alpha, beta, rc)
-                Wx::WXRUBY_RELEASE_TYPE = '\#{Wx::WXRUBY_RELEASE_TYPE}'
+                WXRUBY_RELEASE_TYPE = '\#{Wx::WXRUBY_RELEASE_TYPE}'
                 # wxRuby major version number
-                Wx::WXRUBY_MAJOR = \#{Wx::WXRUBY_MAJOR}
+                WXRUBY_MAJOR = \#{Wx::WXRUBY_MAJOR}
                 # wxRuby minor version number
-                Wx::WXRUBY_MINOR = \#{Wx::WXRUBY_MINOR}
+                WXRUBY_MINOR = \#{Wx::WXRUBY_MINOR}
                 # wxRuby release number
-                Wx::WXRUBY_RELEASE = \#{Wx::WXRUBY_RELEASE}
+                WXRUBY_RELEASE = \#{Wx::WXRUBY_RELEASE}
               
                 # Convenience string for WxWidgets version info
                 WXWIDGETS_VERSION = '\#{Wx::WXWIDGETS_VERSION}'
