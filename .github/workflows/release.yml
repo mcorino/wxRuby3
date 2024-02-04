@@ -162,17 +162,9 @@ jobs:
       - name: Install wxRuby3 gem
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            BUILD_CMD="gem install wxruby3 -v $WXRUBY_VERSION --pre"
+            gem install wxruby3 -v $WXRUBY_VERSION --pre && wxruby setup --autoinstall
           else
-            BUILD_CMD="gem install wxruby3 -v $WXRUBY_VERSION"
-          fi
-          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $BUILD_CMD 2>&1 | tee -a gembuild.out" || rc=$?
-          if [ -n "$rc" ]; then
-            if fgrep -q '(core dumped)' gembuild.out; then
-              echo '*** Test crashed, trying to get more information ***'
-              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $BUILD_CMD
-            fi
-            exit $rc
+            gem install wxruby3 -v $WXRUBY_VERSION && wxruby setup --autoinstall
           fi
 
       - name: Run wxRuby3 regression tests
@@ -270,9 +262,9 @@ jobs:
       - name: Install wxRuby3 gem
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre -- WITH_WXWIN=1
+            gem install wxruby3 -v $WXRUBY_VERSION --pre  && wxruby setup --autoinstall
           else
-            gem install wxruby3 -v $WXRUBY_VERSION -- WITH_WXWIN=1
+            gem install wxruby3 -v $WXRUBY_VERSION  && wxruby setup --autoinstall
           fi
 
       - name: Run wxRuby3 regression tests
