@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 def init
-  # It seems YARD messes things up so that a number of classes are not properly
+  # It seems YARD messes things up so that a lot of classes and constants are not properly
   # registered in their enclosing namespaces.
   # This hack makes sure that if that is the case we fix that here.
-  all_classes = Registry.all(:class)
+  all_classes = Registry.all(:class, :constant)
   all_classes.each do |c|
     if (ns = c.namespace)
       unless ns.children.any? { |nsc| nsc.path == c.path }
-        ns.children << c # class missing from child list of enclosing namespace -> add here
+        ns.children << c # class/constant missing from child list of enclosing namespace -> add here
       end
     end
     if (ns = Registry[c.namespace.path])
       unless ns.children.any? { |nsc| nsc.path == c.path }
-        ns.children << c # class missing from child list of enclosing namespace -> add here
+        ns.children << c # class/constant missing from child list of enclosing namespace -> add here
       end
     end
   end
