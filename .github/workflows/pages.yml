@@ -88,15 +88,26 @@ jobs:
         run: |
           bundle exec yardoc
 
+      - name: Upload doc archive
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxRuby3-Reference-Docs
+          path: rdoc
+          overwrite: true
+
       - name: Setup Pages
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload Yard output only
-          path: 'rdoc'
+          path: rdoc
 
       - name: Deploy to GitHub Pages
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: deployment
         uses: actions/deploy-pages@v4
