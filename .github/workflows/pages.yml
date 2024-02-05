@@ -92,7 +92,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v4
         with:
-          name: wxRuby3-Reference-Docs
+          name: wxruby3-html-reference
           path: rdoc
           overwrite: true
 
@@ -111,3 +111,21 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Archive html references docs
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: |
+          tar \
+          --dereference --hard-dereference \
+          --directory "rdoc" \
+          -czf "$RUNNER_TEMP/wxruby3-html-reference.tar.gz" \
+          "."
+
+      - name: Upload doc archive as release asset
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ runner.temp }}/wxruby3-html-reference.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
