@@ -88,15 +88,44 @@ jobs:
         run: |
           bundle exec yardoc
 
+      - name: Upload doc archive
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxruby3-html-reference
+          path: rdoc
+          overwrite: true
+
       - name: Setup Pages
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload Yard output only
-          path: 'rdoc'
+          path: rdoc
 
       - name: Deploy to GitHub Pages
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Archive html references docs
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        run: |
+          tar \
+          --dereference --hard-dereference \
+          --directory "rdoc" \
+          -czf "$RUNNER_TEMP/wxruby3-html-reference.tar.gz" \
+          "."
+
+      - name: Upload doc archive as release asset
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ runner.temp }}/wxruby3-html-reference.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
