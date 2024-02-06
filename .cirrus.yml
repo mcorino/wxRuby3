@@ -21,7 +21,7 @@ task:
     locale
     locale -a
 
-  setup_ruby: |
+  setup_ruby_script: |
     curl -sSL https://rvm.io/mpapis.asc | gpg --import -
     \curl -sSL https://get.rvm.io | bash -s head
     export PATH="$PATH:$HOME/.rvm/bin"
@@ -30,9 +30,9 @@ task:
     
     ruby -v
 
-  configure: |
+  configure_script: |
     bundle install
     rake configure [--with-wxwin,--autoinstall]
 
-  build: |
+  build_script: |
     rake build
