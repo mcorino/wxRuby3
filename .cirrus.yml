@@ -14,7 +14,7 @@ task:
 
   before_script: |
 
-    sudo dnf install -y git xorg-x11-server-Xvfb xorg-x11-fonts-75dpi
+    sudo dnf install -y git xorg-x11-server-Xvfb xorg-x11-fonts-75dpi which gcc make
 
     curl -sSL https://rvm.io/mpapis.asc | gpg --import -
     \curl -sSL https://get.rvm.io | bash -s head
