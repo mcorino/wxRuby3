@@ -1,0 +1,31 @@
+# Continuous integration tasks running on Cirrus CI.
+#
+
+task:
+  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  matrix:
+    - name: Cirrus CI / Fedora 39
+      container:
+        image: fedora:39
+      env:
+        osname: linux
+        distro: fedora
+        arch: amd64
+
+  before_script: |
+
+    sudo dnf install -y git xorg-x11-server-Xvfb xorg-x11-fonts-75dpi
+
+    curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+    \curl -sSL https://get.rvm.io | bash -s head
+    export PATH="$PATH:$HOME/.rvm/bin"
+    . ~/.rvm/scripts/rvm && rvm install ruby-3.2
+    . ~/.rvm/scripts/rvm && rvm alias create default ruby-3.2
+
+    # Show some information about the system.
+    uname -a
+    c++ --version
+    locale
+    locale -a
+    
+    ruby -v

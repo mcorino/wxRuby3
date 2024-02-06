@@ -12,6 +12,7 @@ on:
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
       - '**.md'
+      - '.cirrus.yml'
   pull_request:
     branches:
       - master
@@ -26,6 +27,7 @@ on:
       - '.yardopts'
       - '.gitignore'
       - 'LICENSE'
+      - '.cirrus.yml'
   workflow_dispatch:
 
 concurrency:
