@@ -16,16 +16,23 @@ task:
 
     sudo dnf install -y git xorg-x11-server-Xvfb xorg-x11-fonts-75dpi which gcc make
 
+    # Show some information about the system.
+    uname -a
+    locale
+    locale -a
+
+  setup_ruby: |
     curl -sSL https://rvm.io/mpapis.asc | gpg --import -
     \curl -sSL https://get.rvm.io | bash -s head
     export PATH="$PATH:$HOME/.rvm/bin"
-    . ~/.rvm/scripts/rvm && rvm install ruby-3.2
-    . ~/.rvm/scripts/rvm && rvm alias create default ruby-3.2
-
-    # Show some information about the system.
-    uname -a
-    c++ --version
-    locale
-    locale -a
+    . /usr/local/rvm/scripts/rvm && rvm install ruby-3.2
+    . /usr/local/rvm/scripts/rvm && rvm alias create default ruby-3.2
     
     ruby -v
+
+  configure: |
+    bundle install
+    rake configure [--with-wxwin,--autoinstall]
+
+  build: |
+    rake build
