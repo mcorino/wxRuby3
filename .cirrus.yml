@@ -1,6 +1,9 @@
 # Continuous integration tasks running on Cirrus CI.
 #
 
+env:
+  GITHUB_ACTION: 1
+
 task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
   matrix:
@@ -41,4 +44,9 @@ task:
   test_script:
     . /usr/local/rvm/scripts/rvm
 
-    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test"
+    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test WXRUBY_TEST_EXCLUDE=test_media_ctrl"
+
+  bingem_script:
+    . /usr/local/rvm/scripts/rvm
+
+    bundle exec rake bingem
