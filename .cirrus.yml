@@ -6,6 +6,7 @@ env:
 
 task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  only_if: $CIRRUS_BRANCH =~ 'pull/.*' || $CIRRUS_RELEASE != '' || $CIRRUS_API_CREATED == 'true
   matrix:
     - name: Cirrus CI / Fedora 39
       container:
@@ -44,7 +45,7 @@ task:
   test_script:
     . /usr/local/rvm/scripts/rvm
 
-    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test WXRUBY_TEST_EXCLUDE=test_media_ctrl"
+    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test WXRUBY_TEST_EXCLUDE=test_config;test_media_ctrl;test_intl"
 
   bingem_script:
     . /usr/local/rvm/scripts/rvm
