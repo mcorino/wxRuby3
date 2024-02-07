@@ -47,7 +47,7 @@ module WXRuby3
     end
 
     def self.define_spec(name, version, gemtype = :src, &block)
-      gemspec = ::Gem::Specification.new(name, version)
+      gemspec = ::Gem::Specification.new(make_gem_name(name, gemtype), version)
       if gemtype == :bin
         platform = ::Gem::Platform.local.to_s
         gemspec.platform = platform
@@ -55,6 +55,15 @@ module WXRuby3
       gemspec.required_rubygems_version = ::Gem::Requirement.new(">= 0") if gemspec.respond_to? :required_rubygems_version=
       block.call(gemspec) if block_given?
       gemspec
+    end
+
+    def self.make_gem_name(name, gemtype)
+      if gemtype == :bin &&  WXRuby3.config.platform == :linux
+        distro = Config::Platform::PkgManager.distro
+        "#{name}-#{distro[:distro]}-#{distro[:release] || '0'}"
+      else
+        name
+      end
     end
 
     def self.gem_name(name, version, gemtype = :src)

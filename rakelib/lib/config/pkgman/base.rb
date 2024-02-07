@@ -18,11 +18,14 @@ module WXRuby3
 
         class << self
 
+          def distro
+            @distro ||= get_distro
+          end
+
           def install(pkgs)
             # do we need to install anything?
             if !pkgs.empty? || builds_wxwidgets?
               # determine the linux distro specs
-              distro = get_distro
               begin
                 # load distro installation support
                 require_relative "./#{distro[:type]}"
