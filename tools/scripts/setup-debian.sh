@@ -1,2 +1,2 @@
 apt-get update
-apt-get -y git make gcc gpg xvfb xfonts-75dpi
+apt-get install -y git make gcc gpg xvfb xfonts-75dpi
