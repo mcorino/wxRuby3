@@ -17,6 +17,38 @@ task:
       env:
         osname: linux
         distro: fedora
+    - name: Cirrus CI / OpenSuSE Leap AMD64
+      container:
+        image: opensuse/leap:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: opensuse
+    - name: Cirrus CI / Ubuntu AMD64
+      container:
+        image: ubuntu:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: ubuntu
+    - name: Cirrus CI / Ubuntu ARM64
+      arm_container:
+        image: ubuntu:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: ubuntu
+    - name: Cirrus CI / Debian AMD64
+      container:
+        image: debian:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: debian
     - name: Cirrus CI / Debian ARM64
       arm_container:
         image: debian:latest
