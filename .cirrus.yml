@@ -4,6 +4,7 @@
 env:
   GITHUB_ACTION: 1
   WXRUBY_TEST_EXCLUDE: 'test_config:test_intl:test_media_ctrl'
+  GEM_HOST_API_KEY: ENCRYPTED[e8fcba782448025637b583db644f6e73f3707ea9b79a87ee5cab26f6358768159a2cc5cfe84dca92a11277a506767a5d]
 
 task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
@@ -17,8 +18,24 @@ task:
       env:
         osname: linux
         distro: fedora
+    - name: Cirrus CI / Fedora ARM64
+      arm_container:
+        image: fedora:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: fedora
     - name: Cirrus CI / OpenSuSE Leap AMD64
       container:
+        image: opensuse/leap:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: opensuse
+    - name: Cirrus CI / OpenSuSE Leap ARM64
+      arm_container:
         image: opensuse/leap:latest
         cpu: 4
         memory: 8G
@@ -92,3 +109,5 @@ task:
     . /usr/local/rvm/scripts/rvm
 
     bundle exec rake bingem
+
+    gem push --host https://rubygems.pkg.github.com/mcorino $(echo pkg/*.gem)
