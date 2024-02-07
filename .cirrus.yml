@@ -3,24 +3,33 @@
 
 env:
   GITHUB_ACTION: 1
+  WXRUBY_TEST_EXCLUDE: 'test_config;test_intl;test_media_ctrl'
 
 task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
   only_if: $CIRRUS_BRANCH =~ 'pull/.*' || $CIRRUS_RELEASE != '' || $CIRRUS_BUILD_SOURCE == 'api'
   matrix:
-    - name: Cirrus CI / Fedora 39
+    - name: Cirrus CI / Fedora AMD64
       container:
-        image: fedora:39
+        image: fedora:latest
         cpu: 4
         memory: 8G
       env:
         osname: linux
         distro: fedora
-        arch: amd64
+    - name: Cirrus CI / Debian ARM64
+      arm_container:
+        image: debian:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: debian
+
 
   before_script: |
 
-    sudo dnf install -y git xorg-x11-server-Xvfb xorg-x11-fonts-75dpi which gcc make procps-ng
+    . tools/scripts/setup-$distro.sh
 
     # Show some information about the system.
     uname -a
@@ -45,7 +54,7 @@ task:
   test_script:
     . /usr/local/rvm/scripts/rvm
 
-    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test WXRUBY_TEST_EXCLUDE=test_config;test_media_ctrl;test_intl"
+    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test"
 
   bingem_script:
     . /usr/local/rvm/scripts/rvm
