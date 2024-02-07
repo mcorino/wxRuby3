@@ -3,7 +3,7 @@
 
 env:
   GITHUB_ACTION: 1
-  WXRUBY_TEST_EXCLUDE: 'test_config;test_intl;test_media_ctrl'
+  WXRUBY_TEST_EXCLUDE: 'test_config:test_intl:test_media_ctrl'
 
 task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"

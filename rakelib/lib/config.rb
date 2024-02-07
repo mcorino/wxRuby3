@@ -350,7 +350,7 @@ module WXRuby3
 
     def test(*tests, **options)
       errors = 0
-      excludes = (ENV['WXRUBY_TEST_EXCLUDE'] || '').split(';')
+      excludes = (ENV['WXRUBY_TEST_EXCLUDE'] || '').split(':')
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
         unless excludes.include?(File.basename(test, '.*'))
