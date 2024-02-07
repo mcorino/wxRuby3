@@ -7,6 +7,8 @@ task:
     - name: Cirrus CI / Fedora 39
       container:
         image: fedora:39
+        cpu: 4
+        memory: 8G
       env:
         osname: linux
         distro: fedora
