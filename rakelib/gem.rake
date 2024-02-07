@@ -93,6 +93,7 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
       "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
       "documentation_uri" => "https://mcorino.github.io/wxRuby3",
       "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
+      "github_repo"       => "https://github.com/mcorino/wxRuby3"
     }
     gem.post_install_message = <<~__MSG
 
@@ -141,6 +142,7 @@ if WXRuby3.is_bootstrapped?
           "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
           "documentation_uri" => "https://mcorino.github.io/wxRuby3",
           "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
+          "github_repo"       => "https://github.com/mcorino/wxRuby3"
         }
         gem.post_install_message = <<~__MSG
     
