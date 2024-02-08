@@ -15,7 +15,7 @@ namespace :wxruby do
     task :srcgem => ['bin:build', WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION)]
 
     if WXRuby3.is_bootstrapped?
-      task :binpkg => ['bin:build', File.join(WXRuby3.config.rb_docgen_path, 'window.rb'), WXRuby3::Gem.bin_pkg_file(WXRuby3::WXRUBY_VERSION)]
+      task :binpkg => ['wxruby:build', 'bin:build', WXRuby3::Gem.bin_pkg_file(WXRuby3::WXRUBY_VERSION)]
     end
 
     # this task only exists for installed source gems (where package tasks have been removed)
