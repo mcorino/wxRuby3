@@ -4,7 +4,7 @@
 env:
   GITHUB_ACTION: 1
   WXRUBY_TEST_EXCLUDE: 'test_config:test_intl:test_media_ctrl'
-  GEM_HOST_API_KEY: ENCRYPTED[e8fcba782448025637b583db644f6e73f3707ea9b79a87ee5cab26f6358768159a2cc5cfe84dca92a11277a506767a5d]
+  GITHUB_TOKEN: ENCRYPTED[2ce3914266dec78118dd9706c25d2e52fbd164f86713692efde9b8af5f0159099cb299934a8d6279e524da7a0790e025]
 
 task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
@@ -108,6 +108,6 @@ task:
   bingem_script:
     . /usr/local/rvm/scripts/rvm
 
-    bundle exec rake bingem
+    bundle exec rake binpkg
 
-    gem push --host https://rubygems.pkg.github.com/mcorino $(echo pkg/*.gem)
+    . tools/scripts/cirrus-upload-release-pkg.sh
