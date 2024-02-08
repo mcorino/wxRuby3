@@ -125,7 +125,7 @@ if WXRuby3.is_bootstrapped?
     end
   end
 
-  desc 'Build wxRuby 3 binary package'
+  desc 'Build wxRuby 3 binary release package'
   task :binpkg => 'wxruby:gem:binpkg'
 
 end
