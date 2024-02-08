@@ -18,8 +18,8 @@ namespace :wxruby do
       task :binpkg => ['wxruby:build', 'bin:build', WXRuby3::Gem.bin_pkg_file(WXRuby3::WXRUBY_VERSION)]
     end
 
-    # this task only exists for installed source gems (where package tasks have been removed)
-    unless File.file?(File.join(__dir__, 'package.rake'))
+    # this task only exists for installed (source) gems (where run tasks have been removed)
+    unless File.file?(File.join(__dir__, 'run.rake'))
 
       task :setup => 'config:bootstrap' do |_t, args|
         begin
@@ -65,13 +65,14 @@ namespace :wxruby do
 end
 
 # source gem file
-file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.manifest do
-  gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION) do |gem|
+file WXRuby3::Gem.gem_file(WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.manifest do
+  gemspec = WXRuby3::Gem.define_spec(WXRuby3::WXRUBY_VERSION) do |gem|
     gem.summary = %Q{wxWidgets extension for Ruby}
     gem.description = %Q{wxRuby3 is a Ruby library providing an extension for the wxWidgets C++ UI framework}
     gem.email = 'mcorino@m2c-software.nl'
     gem.homepage = "https://github.com/mcorino/wxRuby3"
     gem.authors = ['Martin Corino']
+    gem.extensions = ['ext/ext_conf.rb']
     gem.files = WXRuby3::Gem.manifest
     gem.require_paths = %w{lib}
     gem.bindir = 'bin'
@@ -111,21 +112,26 @@ end
 desc 'Build wxRuby 3 gem'
 task :gem => 'wxruby:gem:srcgem'
 
-if WXRuby3.is_bootstrapped?
+# these tasks only exists for installed (source) gems (where run tasks have been removed)
+unless File.file?(File.join(__dir__, 'run.rake'))
 
-  # binary package file
-  file WXRuby3::Gem.bin_pkg_file(WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.bin_pkg_manifest do |t|
-    WXRuby3::Install.install_wxwin_shlibs
-    begin
-      # create bin package
-      WXRuby3::Gem.build_bin_pkg(t.name, WXRuby3::Gem.bin_pkg_manifest)
-    ensure
-      # cleanup
-      WXRuby3::Install.remove_wxwin_shlibs
+  if WXRuby3.is_bootstrapped?
+
+    # binary package file
+    file WXRuby3::Gem.bin_pkg_file(WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.bin_pkg_manifest do |t|
+      WXRuby3::Install.install_wxwin_shlibs
+      begin
+        # create bin package
+        WXRuby3::Gem.build_bin_pkg(t.name, WXRuby3::Gem.bin_pkg_manifest)
+      ensure
+        # cleanup
+        WXRuby3::Install.remove_wxwin_shlibs
+      end
     end
-  end
 
-  desc 'Build wxRuby 3 binary release package'
-  task :binpkg => 'wxruby:gem:binpkg'
+    desc 'Build wxRuby 3 binary release package'
+    task :binpkg => 'wxruby:gem:binpkg'
+
+  end
 
 end

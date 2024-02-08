@@ -24,27 +24,18 @@ module WXRuby3
 
   module Gem
 
-    def self.manifest(gemtype = :src)
+    def self.manifest
       # create MANIFEST list with included files
       manifest = Rake::FileList.new
       manifest.include %w[bin/*] # *nix executables in bin/
       manifest.exclude %w[bin/*.bat] unless WXRuby3.config.windows?
       manifest.include %w[assets/**/* lib/**/* samples/**/* tests/**/*]
-      if gemtype == :bin
-        if WXRuby3.config.get_config('with-wxwin')
-          manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
-        end
-        manifest.include 'ext/mkrf_conf_bingem.rb'
-        manifest.include %w[rakelib/prepost.* rakelib/install.rb rakelib/lib/config.rb rakelib/lib/config/**/* rakelib/lib/ext/**/* rakelib/yard/**/*]
-        manifest.include WXRuby3::BUILD_CFG
-      else
-        manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
-        manifest.include 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*', 'ext/wxruby3/include/**/*'
-        manifest.exclude 'ext/wxruby3/swig/classes/**/*'
-        manifest.include 'rakelib/**/*'
-        manifest.exclude %w[rakelib/run.* rakelib/help.* rakelib/package.* rakelib/memcheck.* rakelib/memcheck/**/*]
-        manifest.include 'rakefile'
-      end
+      manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
+      manifest.include 'ext/ext_conf.rb', 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*', 'ext/wxruby3/include/**/*'
+      manifest.exclude 'ext/wxruby3/swig/classes/**/*'
+      manifest.include 'rakelib/**/*'
+      manifest.exclude %w[rakelib/run.* rakelib/help.* rakelib/package.* rakelib/memcheck.* rakelib/memcheck/**/*]
+      manifest.include 'rakefile'
       manifest.include %w{LICENSE README.md CREDITS.md INSTALL.md .yardopts}
       manifest
     end
@@ -59,32 +50,19 @@ module WXRuby3
       manifest
     end
 
-    def self.define_spec(name, version, gemtype = :src, &block)
-      gemspec = ::Gem::Specification.new(make_gem_name(name, gemtype), version)
-      if gemtype == :bin
-        platform = ::Gem::Platform.local.to_s
-        gemspec.platform = platform
-      end
+    def self.define_spec(version, &block)
+      gemspec = ::Gem::Specification.new('wxruby3', version)
       gemspec.required_rubygems_version = ::Gem::Requirement.new(">= 0") if gemspec.respond_to? :required_rubygems_version=
       block.call(gemspec) if block_given?
       gemspec
     end
 
-    def self.make_gem_name(name, gemtype)
-      if gemtype == :bin &&  WXRuby3.config.platform == :linux
-        distro = Config::Platform::PkgManager.distro
-        "#{name}-#{distro[:distro]}-#{distro[:release] || '0'}"
-      else
-        name
-      end
+    def self.gem_name(version)
+      define_spec(version).full_name
     end
 
-    def self.gem_name(name, version, gemtype = :src)
-      define_spec(name, version, gemtype).full_name
-    end
-
-    def self.gem_file(name, version, gemtype = :src)
-      File.join('pkg', "#{WXRuby3::Gem.gem_name(name, version, gemtype)}.gem")
+    def self.gem_file(version)
+      File.join('pkg', "#{WXRuby3::Gem.gem_name(version)}.gem")
     end
 
     def self.build_gem(gemspec)
@@ -119,6 +97,9 @@ module WXRuby3
     end
 
     def self.build_bin_pkg(fname, manifest)
+      # make sure pkg directory exists
+      FileUtils.mkdir_p('pkg')
+
       # package registry
       registry = []
       # package temp deflate stream
