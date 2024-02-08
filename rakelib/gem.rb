@@ -46,6 +46,16 @@ module WXRuby3
       manifest
     end
 
+    def self.bin_pkg_manifest
+      # create MANIFEST list with included files
+      manifest = Rake::FileList.new
+      manifest.include "lib/*.#{WXRuby3.config.dll_mask}"
+      if WXRuby3.config.get_config('with-wxwin')
+        manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
+      end
+      manifest
+    end
+
     def self.define_spec(name, version, gemtype = :src, &block)
       gemspec = ::Gem::Specification.new(make_gem_name(name, gemtype), version)
       if gemtype == :bin
@@ -84,6 +94,37 @@ module WXRuby3
       FileUtils.mkdir_p('pkg')
 
       FileUtils.mv(gem_file_name, 'pkg')
+    end
+
+    def self.make_bin_name
+      if WXRuby3.config.platform == :linux
+        distro = Config::Platform::PkgManager.distro
+        "wxruby3_#{distro[:distro]}_#{distro[:release] || '0'}"
+      else
+        "wxruby3_#{WXRuby3.config.platform}"
+      end
+    end
+
+    def self.bin_pkg_name(version)
+      gemspec = ::Gem::Specification.new(make_bin_name, version)
+      gemspec.platform = ::Gem::Platform.local.to_s
+      gemspec.full_name
+    end
+
+    def self.bin_pkg_ext
+      WXRuby3.config.windows? ? 'zip' : 'tar.gz'
+    end
+
+    def self.bin_pkg_file(version)
+      File.join('pkg', "#{WXRuby3::Gem.bin_pkg_name(version)}.#{bin_pkg_ext}")
+    end
+
+    def self.build_bin_pkg(fname, manifest)
+      if WXRuby3.config.windows?
+        WXRuby3.config.execute("powershell Compress-Archive #{manifest.collect { |p| "-Path '#{p}'"}}-DestinationPath #{fname} -Force")
+      else
+        WXRuby3.config.execute("tar -czf #{fname} #{manifest.to_s}")
+      end
     end
 
   end
