@@ -13,6 +13,9 @@ begin
   require 'rubygems/builder'
 rescue LoadError
 end
+require 'zlib'
+require 'tempfile'
+require 'json'
 
 require_relative './lib/config'
 require_relative './install'
@@ -111,19 +114,67 @@ module WXRuby3
       gemspec.full_name
     end
 
-    def self.bin_pkg_ext
-      WXRuby3.config.windows? ? 'zip' : 'tar.gz'
-    end
-
     def self.bin_pkg_file(version)
-      File.join('pkg', "#{WXRuby3::Gem.bin_pkg_name(version)}.#{bin_pkg_ext}")
+      File.join('pkg', "#{WXRuby3::Gem.bin_pkg_name(version)}.pkg")
     end
 
     def self.build_bin_pkg(fname, manifest)
-      if WXRuby3.config.windows?
-        WXRuby3.config.execute("powershell Compress-Archive -Path #{manifest.join(',')} -DestinationPath #{fname} -Force")
-      else
-        WXRuby3.config.execute("tar -czf #{fname} #{manifest.to_s}")
+      # package registry
+      registry = []
+      # package temp deflate stream
+      deflate_stream = Tempfile.new(File.basename(fname, '.*'), binmode: true)
+      begin
+        # pack binaries into temp deflate stream
+        manifest.each do |path|
+          pack = true
+          entry = [path, File.stat(path).mode, 0]
+          unless WXRuby3.config.windows?
+            if File.symlink?(path)
+              pack = false
+              entry << File.readlink(path)
+            end
+          end
+          if pack
+            offs = deflate_stream.tell
+            deflate_stream.write(Zlib::Deflate.deflate(File.read(path, binmode: true)))
+            entry[2] = deflate_stream.tell - offs # packed data size
+          end
+          registry << entry
+        end
+        # convert registry to deflated json string
+        registry_json_z = Zlib::Deflate.deflate(registry.to_json)
+        # create final package archive
+        deflate_stream.rewind
+        File.open(fname, 'w', binmode: true) do |fout|
+          fout.write([registry_json_z.size].pack('Q'))
+          fout.write(registry_json_z)
+          registry.each do |entry|
+            fout.write(deflate_stream.read(entry[2])) if entry[2] > 0
+          end
+        end
+      ensure
+        deflate_stream.close(true)
+      end
+    end
+
+    def self.install_bin_pkg(fname)
+      File.open(fname, 'r', binmode: true) do |fin|
+        # get packed registry size
+        registry_size = fin.read(8).unpack('Q').shift
+        # unpack registry
+        registry = JSON.parse!(Zlib::Inflate.inflate(fin.read(registry_size)))
+        # unpack and create binaries
+        registry.each do |entry|
+          path, mode, size, symlink = entry
+          if symlink
+            FileUtils.ln_s(symlink, path)
+          else
+            File.open(path, 'w', binmode: true) do |fbin|
+              fbin << Zlib::Inflate.inflate(fin.read(size))
+            end
+            File.chmod(mode, path)
+          end
+        end
       end
     end
 
