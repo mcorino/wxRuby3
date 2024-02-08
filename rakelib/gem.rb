@@ -121,7 +121,7 @@ module WXRuby3
 
     def self.build_bin_pkg(fname, manifest)
       if WXRuby3.config.windows?
-        WXRuby3.config.execute("powershell Compress-Archive #{manifest.collect { |p| "-Path '#{p}'"}}-DestinationPath #{fname} -Force")
+        WXRuby3.config.execute("powershell Compress-Archive -Path #{manifest.join(',')} -DestinationPath #{fname} -Force")
       else
         WXRuby3.config.execute("tar -czf #{fname} #{manifest.to_s}")
       end
