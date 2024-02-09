@@ -113,7 +113,7 @@ desc 'Build wxRuby 3 gem'
 task :gem => 'wxruby:gem:srcgem'
 
 # these tasks only exists for installed (source) gems (where run tasks have been removed)
-unless File.file?(File.join(__dir__, 'run.rake'))
+if File.file?(File.join(__dir__, 'run.rake'))
 
   if WXRuby3.is_bootstrapped?
 
