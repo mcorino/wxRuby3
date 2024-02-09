@@ -25,5 +25,5 @@ do
     -H "X-GitHub-Api-Version: 2022-11-28" \
     -H "Content-Type: $file_content_type" \
     $url_to_upload \
-    --data-binary @$fpath \
+    --data-binary @$fpath
 done
