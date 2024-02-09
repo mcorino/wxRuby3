@@ -132,7 +132,7 @@ if File.file?(File.join(__dir__, 'run.rake'))
     namespace :wxruby do
 
       namespace :gem do
-        task :binpkg => ['wxruby:build', 'bin:build', WXRuby3::Gem.bin_pkg_file]
+        task :binpkg => ['wxruby:build', 'wxruby:doc', 'bin:build', WXRuby3::Gem.bin_pkg_file]
       end
 
     end
