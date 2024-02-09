@@ -110,4 +110,4 @@ task:
 
     bundle exec rake binpkg
 
-    . tools/scripts/cirrus-upload-release-pkg.sh
+    ruby tools/scripts/cirrus-upload-release-pkg.rb
