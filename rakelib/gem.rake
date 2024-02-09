@@ -12,7 +12,7 @@ namespace :wxruby do
 
   namespace :gem do
 
-    task :srcgem => ['bin:build', WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION)]
+    task :srcgem => ['bin:build', WXRuby3::Gem.gem_file(WXRuby3::WXRUBY_VERSION)]
 
     if WXRuby3.is_bootstrapped?
       task :binpkg => ['wxruby:build', 'bin:build', WXRuby3::Gem.bin_pkg_file(WXRuby3::WXRUBY_VERSION)]
