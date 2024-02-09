@@ -31,20 +31,18 @@ module WXRuby3
       # Gem helpers
 
       def manifest
-        unless @gem_manifest
-          # create MANIFEST list with included files
-          @gem_manifest = Rake::FileList.new
-          @gem_manifest.include %w[bin/*] # *nix executables in bin/
-          @gem_manifest.exclude %w[bin/*.bat] unless WXRuby3.config.windows?
-          @gem_manifest.include %w[assets/**/* lib/**/* samples/**/* tests/**/*]
-          @gem_manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
-          @gem_manifest.include 'ext/mkrf_conf_ext.rb', 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*', 'ext/wxruby3/include/**/*'
-          @gem_manifest.exclude 'ext/wxruby3/swig/classes/**/*'
-          @gem_manifest.include 'rakelib/**/*'
-          @gem_manifest.exclude %w[rakelib/run.* rakelib/help.* rakelib/package.* rakelib/memcheck.* rakelib/memcheck/**/*]
-          @gem_manifest.include %w{LICENSE README.md CREDITS.md INSTALL.md .yardopts}
-        end
-        @gem_manifest
+        # create MANIFEST list with included files
+        manifest = Rake::FileList.new
+        manifest.include %w[bin/*] # *nix executables in bin/
+        manifest.exclude %w[bin/*.bat] unless WXRuby3.config.windows?
+        manifest.include %w[assets/**/* lib/**/* samples/**/* tests/**/*]
+        manifest.exclude "lib/*.#{WXRuby3.config.dll_mask}"
+        manifest.include 'ext/mkrf_conf_ext.rb', 'ext/wxruby3/wxruby.ico', 'ext/wxruby3/swig/**/*', 'ext/wxruby3/include/**/*'
+        manifest.exclude 'ext/wxruby3/swig/classes/**/*'
+        manifest.include 'rakelib/**/*'
+        manifest.exclude %w[rakelib/run.* rakelib/help.* rakelib/package.* rakelib/memcheck.* rakelib/memcheck/**/*]
+        manifest.include %w{LICENSE README.md CREDITS.md INSTALL.md .yardopts}
+        manifest
       end
 
       def define_spec(&block)
@@ -78,16 +76,14 @@ module WXRuby3
       # Binary package helpers
 
       def bin_pkg_manifest
-        unless @binpkg_manifest
-          # create MANIFEST list with included files
-          @binpkg_manifest = Rake::FileList.new
-          @binpkg_manifest.include "lib/*.#{WXRuby3.config.dll_mask}"
-          @binpkg_manifest.include "lib/wx/doc/gen/**/*.rb"
-          if WXRuby3.config.get_config('with-wxwin')
-            @binpkg_manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
-          end
+        # create MANIFEST list with included files
+        manifest = Rake::FileList.new
+        manifest.include "lib/*.#{WXRuby3.config.dll_mask}"
+        manifest.include "lib/wx/doc/gen/**/*.rb"
+        if WXRuby3.config.get_config('with-wxwin')
+          manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
         end
-        @binpkg_manifest
+        manifest
       end
 
       def make_bin_name
