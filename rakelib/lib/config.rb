@@ -381,6 +381,10 @@ module WXRuby3
       []
     end
 
+    def download_file(_url, _dest)
+      raise NoMethodError
+    end
+
     def install_prerequisites
       pkg_deps = check_tool_pkgs
       if get_config('autoinstall') == false

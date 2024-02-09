@@ -29,14 +29,19 @@ namespace 'wxruby' do
       $stdout.puts 'done!' if WXRuby3.config.run_silent?
       # cleanup
       rm_rf('rakelib', verbose: !WXRuby3.config.run_silent?)
+      rm_f('Rakefile')
+      rm_f('ext/mkrf_conf_ext.rb')
       rm_rf('ext/wxruby3', verbose: !WXRuby3.config.run_silent?)
       WXRuby3.config.cleanup_bootstrap
       File.open(File.join(WXRuby3::Config.wxruby_root, 'ext', 'wxruby.setup.done'), 'w') { |f| f << '1' }
     end
 
-    task :bingem => 'gem:install' do
+    task :binpkg => 'gem:install' do
       # cleanup
       rm_rf('rakelib')
+      rm_f('Rakefile')
+      rm_f('ext/mkrf_conf_ext.rb')
+      rm_f('*.pkg')
       File.open(File.join(WXRuby3::Config.wxruby_root, 'ext', 'wxruby.setup.done'), 'w') { |f| f << '1' }
     end
 

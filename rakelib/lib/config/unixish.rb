@@ -74,6 +74,10 @@ module WXRuby3
         s
       end
 
+      def download_file(url, dest)
+        sh("curl -L #{url} --output #{dest}")
+      end
+
       private
 
       def wx_checkout
