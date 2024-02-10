@@ -50,12 +50,28 @@ jobs:
       run: |
         bundle exec rake gem
 
+    - name: Create GPG signature for wxRuby3 gem
+      if: ${{ github.event_name != 'workflow_dispatch' }}
+      run: |
+        echo -n "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import
+        gpg --detach-sign --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --armor pkg/*.gem
+
     - name: Upload gem to release
       if: ${{ github.event_name != 'workflow_dispatch' }}
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: pkg/*.gem
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+    - name: Upload gem GPG signature to release
+      if: ${{ github.event_name != 'workflow_dispatch' }}
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: pkg/*.gem.asc
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
