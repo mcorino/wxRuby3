@@ -186,7 +186,7 @@ module WXRuby3
         end
         $stdout.puts "response #{response}" if WXRuby3.config.verbose?
         # directly found or with redirect
-        response.code.to_i == 200 || response.code.to_i == 302
+        Net::HTTPOK === response || Net::HTTPRedirection === response
       end
       private :has_release_package?
 
