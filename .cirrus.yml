@@ -182,7 +182,7 @@ release_task:
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
 
   latest_build_script:
-    ./tools/scripts/setup-ruby-install-latest.sh
+    ./tools/scripts/cirrus/setup-ruby-install-latest.sh
 
     ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log
     
