@@ -17,4 +17,4 @@ cd $RUBY_INSTALL_LATEST_DIR
 make install
 cd ..
 
-ruby-install --system ruby -- --disable-install-rdoc
+ruby-install --system ruby -- --disable-install-rdoc --enable-shared
