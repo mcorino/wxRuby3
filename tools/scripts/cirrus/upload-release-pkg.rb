@@ -27,8 +27,27 @@ if $CIRRUS_RELEASE.empty?
   end
 end
 
+$PGP_KEY = ENV['PGP_KEY'] || ''
+$PGP_PASSPHRASE = ENV['PGP_PASSPHRASE']
+if $PGP_KEY.empty?
+  $stderr.puts 'Provide PGP key for release signing via PGP_KEY environment variable!'
+  exit(1)
+end
+
+# import signing key
+unless system(%Q{echo -n "#{$PGP_KEY}" | base64 --decode | gpg --pinentry-mode loopback --batch --passphrase #{$PGP_PASSPHRASE} --import})
+  exit(1)
+end
+
 file_content_type="application/octet-stream"
 Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
+
+  # sign release
+  unless system(%Q{gpg --detach-sign --pinentry-mode loopback --batch --passphrase #{$PGP_PASSPHRASE} --armor #{fpath}})
+    $stderr.puts "Failed to sign release asset #{fpath}!"
+    exit(1)
+  end
+
   name = File.basename(fpath)
   url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_RELEASE}/assets?name=#{name}"
   puts "Uploading #{fpath} for release #{$CIRRUS_RELEASE} to #{url_to_upload}..."
@@ -38,12 +57,18 @@ Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
                           "-H \"Content-Type: #{file_content_type}\" " +
                           "#{url_to_upload} --data-binary @#{fpath}"
   result = `#{cmd}`
-  if $?.success?
-    data = JSON.parse!(result)
-    exit(0) if data['browser_download_url']
-    $stderr.puts "Failed to upload release asset [#{result}]!"
-  else
-    $stderr.puts "Curl failed to upload release asset!"
+  rc = $?.success? && JSON.parse!(result)['browser_download_url']
+  if rc
+    cmd = "curl -L -X POST -H \"Accept: application/vnd.github+json\" " +
+      "-H \"Authorization: token #{$GITHUB_TOKEN}\" " +
+      "-H \"X-GitHub-Api-Version: 2022-11-28\" " +
+      "-H \"Content-Type: #{file_content_type}\" " +
+      "#{url_to_upload}.asc --data-binary @#{fpath}.asc"
+    result = `#{cmd}`
+    rc = $?.success? && JSON.parse!(result)['browser_download_url']
   end
-  exit(1)
+  unless rc
+    $stderr.puts "Failed to upload release asset!"
+    exit(1)
+  end
 end

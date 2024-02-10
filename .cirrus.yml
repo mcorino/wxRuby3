@@ -93,6 +93,9 @@ verify_task:
 
 release_task:
   only_if: $CIRRUS_RELEASE != '' || $CIRRUS_BUILD_SOURCE == 'api'
+  env:
+    PGP_KEY: ENCRYPTED[7c3f8ed70455ee2b41ed3b2a0d012bd524a983666915491dc8fd5d460eec2b7b8c851656f36fa0b97dee836a38ee0d2a]
+    PGP_PASSPHRASE: ENCRYPTED[a6134f1d2c9813f1a8ae4ced6f185f2bad5ca0c434bb31618e0ab87824e7884025708c2580b128f7eda730b5deae8baf]
   matrix:
     - name: Cirrus CI / Fedora AMD64
       container:
