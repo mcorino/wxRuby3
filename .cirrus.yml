@@ -178,6 +178,7 @@ release_task:
     bundle exec rake clean
     rm -rf ext/wxWidgets
     rm -f .wxconfig
+    rm -f Gemfile.lock
     
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
 
