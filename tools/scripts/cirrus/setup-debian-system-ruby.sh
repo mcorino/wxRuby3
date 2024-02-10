@@ -3,5 +3,5 @@
 if [ "$1" == "remove" ]; then
   apt-get remove -y ruby ruby-dev
 else
-  apt-get install -y ruby ruby-dev
+  apt-get install -y ruby ruby-dev ruby-bundler
 fi
