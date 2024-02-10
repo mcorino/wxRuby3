@@ -280,7 +280,7 @@ module WXRuby3
           end
           begin
             # setup ENV for child execution
-            ENV.merge!(Config.instance.exec_env)
+            ENV.update(Config.instance.exec_env)
             output = `#{cmd.join(' ')}`
           ensure
             # restore ENV
