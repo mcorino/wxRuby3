@@ -89,9 +89,9 @@ module WXRuby3
       def make_bin_name
         if WXRuby3.config.platform == :linux
           distro = Config::Platform::PkgManager.distro
-          "wxruby3_#{distro[:distro]}_#{distro[:release] || '0'}_ruby#{WXRuby3.config.rb_ver_major}#{WXRuby3.config.rb_ver_minor}"
+          "wxruby3_#{distro[:distro]}_#{distro[:release] || '0'}_ruby#{WXRuby3::Config.rb_ver_major}#{WXRuby3::Config.rb_ver_minor}"
         else
-          "wxruby3_#{WXRuby3.config.platform}_ruby#{WXRuby3.config.rb_ver_major}#{WXRuby3.config.rb_ver_minor}"
+          "wxruby3_#{WXRuby3.config.platform}_ruby#{WXRuby3::Config.rb_ver_major}#{WXRuby3::Config.rb_ver_minor}"
         end
       end
       private :make_bin_name
