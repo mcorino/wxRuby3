@@ -16,6 +16,14 @@ module WXRuby3
 
         class << self
 
+          def distro
+            @distro ||= {
+              type: 'darwin',
+              distro: 'macosx',
+              release: WXRuby3.config.expand('sw_vers -productVersion').strip.split('.').first
+            }
+          end
+
           def install(pkgs)
             # do we need to install anything?
             if !pkgs.empty?
