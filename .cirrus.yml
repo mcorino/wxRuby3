@@ -92,7 +92,7 @@ verify_task:
     /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test"
 
 release_task:
-  only_if: $CIRRUS_RELEASE != '' || $CIRRUS_BUILD_SOURCE == 'api'
+  only_if: $CIRRUS_RELEASE != ''
   matrix:
     - name: Cirrus CI / Fedora AMD64
       container:
@@ -158,6 +158,60 @@ release_task:
       env:
         osname: linux
         distro: debian
+
+  before_script: |
+    ./tools/scripts/cirrus/setup-$distro.sh
+
+    # Show some information about the system.
+    uname -a
+    locale
+    locale -a
+
+  system_build_script: |
+    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
+
+    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
+
+    bundle exec rake binpkg
+
+  system_cleanup_script: |
+    bundle exec rake clean
+    rm -rf ext/wxWidgets
+    rm -f .wxconfig
+    rm -f Gemfile.lock
+    
+    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
+
+  latest_build_script:
+    ./tools/scripts/cirrus/setup-ruby-install-latest.sh
+
+    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log
+    
+    bundle exec rake binpkg
+
+  release_script:
+
+    ruby tools/scripts/cirrus/upload-release-pkg.rb
+
+test_release_task:
+  only_if: $CIRRUS_BUILD_SOURCE == 'api'
+  matrix:
+    - name: Cirrus CI / OpenSuSE Leap AMD64
+      container:
+        image: opensuse/leap:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: opensuse
+    - name: Cirrus CI / OpenSuSE Leap ARM64
+      arm_container:
+        image: opensuse/leap:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: opensuse
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
