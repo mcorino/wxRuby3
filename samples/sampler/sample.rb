@@ -6,6 +6,8 @@
 # wxRuby3 sampler application
 ###
 
+require 'set'
+
 module WxRuby
 
   ART_FOLDER = File.join(__dir__, '..', 'art')
