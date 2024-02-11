@@ -18,6 +18,7 @@ require 'tempfile'
 require 'json'
 require 'uri'
 require 'net/https'
+require 'fileutils'
 
 require_relative './lib/config'
 require_relative './install'
@@ -200,8 +201,10 @@ module WXRuby3
           registry.each do |entry|
             path, mode, size, symlink = entry
             if symlink
+              FileUtils.mkdir_p(File.dirname(symlink))
               FileUtils.ln_s(symlink, path)
             else
+              FileUtils.mkdir_p(File.dirname(path))
               File.open(path, 'w', binmode: true) do |fbin|
                 fbin << Zlib::Inflate.inflate(fin.read(size))
               end
