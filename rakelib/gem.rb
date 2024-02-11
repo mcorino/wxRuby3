@@ -80,6 +80,7 @@ module WXRuby3
         # create MANIFEST list with included files
         manifest = Rake::FileList.new
         manifest.include "lib/*.#{WXRuby3.config.dll_mask}"
+        manifest.include 'lib/wx/**/events/*.rb', 'lib/wx/**/ext/*.rb', 'lib/wx/core/font/*.rb'
         manifest.include "lib/wx/doc/gen/**/*.rb"
         if WXRuby3.config.get_config('with-wxwin')
           manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
