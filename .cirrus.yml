@@ -87,13 +87,13 @@ verify_task:
 
     ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
 
+  system_test_script:
+    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test"
+
   system_cleanup_script: |
     ./tools/scripts/cirrus/cleanup-wxruby3.sh
     
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
-
-  system_test_script:
-    /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' bundle exec rake test"
 
   latest_build_script:
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
