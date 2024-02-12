@@ -96,6 +96,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: macOS 12
+            runner: macos-12
+            arch: x86_64
+            ruby: '3.3'
           - name: macOS 13
             runner: macos-13
             arch: x86_64
