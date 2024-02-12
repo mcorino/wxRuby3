@@ -250,7 +250,7 @@ test_release_task:
     ./tools/scripts/cirrus/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log    
 
   system_cleanup_script: |
-    ./tools/scripts/cirrus/cleanup-wxruby.sh
+    ./tools/scripts/cirrus/cleanup-wxruby3.sh
     
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
 
