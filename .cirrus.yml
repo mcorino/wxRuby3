@@ -228,6 +228,13 @@ test_release_task:
       env:
         osname: linux
         distro: debian
+    - name: Cirrus CI / MacOSX Ventura M1
+      macos_instance:
+        image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
+      env:
+        osname: darwin
+        distro: macosx
+        latest_only: true
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -240,24 +247,17 @@ test_release_task:
   system_build_script: |
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
 
-    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
-
-    bundle exec rake binpkg
+    ./tools/scripts/cirrus/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log    
 
   system_cleanup_script: |
-    bundle exec rake clean
-    rm -rf ext/wxWidgets
-    rm -f .wxconfig
-    rm -f Gemfile.lock
+    ./tools/scripts/cirrus/cleanup-wxruby.sh
     
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
 
   latest_build_script:
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
 
-    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log
-    
-    bundle exec rake binpkg
+    ./tools/scripts/cirrus/build-wxruby3.sh --latest --binpkg 2>&1 | tee -a build-wxruby3.log
 
   release_script:
 
