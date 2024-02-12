@@ -15,9 +15,6 @@ jobs:
   release-windows-binpkg:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
-    env:
-      DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     strategy:
       fail-fast: false
       matrix:
@@ -91,11 +88,8 @@ jobs:
           overwrite: true
           file_glob: true
   release-macosx-binpkg:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
-    env:
-      DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     strategy:
       fail-fast: false
       matrix:
