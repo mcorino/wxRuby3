@@ -67,7 +67,7 @@ module Test
     class TestCase
 
       def self.is_ci_build?
-        !!ENV['GITHUB_ACTION']
+        (ENV['GITHUB_ACTION'] || ENV['CI'])
       end
 
       def is_ci_build?
