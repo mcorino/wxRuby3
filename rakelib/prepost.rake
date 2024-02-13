@@ -43,6 +43,7 @@ namespace 'wxruby' do
       rm_f('ext/mkrf_conf_ext.rb')
       rm_rf('ext/wxruby3')
       rm_f('*.pkg')
+      rm_f('*.sha')
       File.open(File.join(WXRuby3::Config.wxruby_root, 'ext', 'wxruby.setup.done'), 'w') { |f| f << '1' }
     end
 

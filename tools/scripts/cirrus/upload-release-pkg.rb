@@ -40,7 +40,20 @@ Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
   result = `#{cmd}`
   rc = $?.success? && JSON.parse!(result)['browser_download_url']
   unless rc
-    $stderr.puts "Failed to upload release asset!"
-    exit(1)
+    name = File.basename(name, '.*')+'.sha'
+    fpath = File.join(File.dirname(fpath), name)
+    url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_RELEASE}/assets?name=#{name}"
+    puts "Uploading #{fpath} for release #{$CIRRUS_RELEASE} to #{url_to_upload}..."
+    cmd = "curl -L -X POST -H \"Accept: application/vnd.github+json\" " +
+      "-H \"Authorization: token #{$GITHUB_TOKEN}\" " +
+      "-H \"X-GitHub-Api-Version: 2022-11-28\" " +
+      "-H \"Content-Type: #{file_content_type}\" " +
+      "#{url_to_upload} --data-binary @#{fpath}"
+    result = `#{cmd}`
+    rc = $?.success? && JSON.parse!(result)['browser_download_url']
+    unless rc
+      $stderr.puts "Failed to upload release asset!"
+      exit(1)
+    end
   end
 end

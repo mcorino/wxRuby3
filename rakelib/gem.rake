@@ -142,7 +142,7 @@ if File.file?(File.join(__dir__, 'run.rake'))
       WXRuby3::Install.install_wxwin_shlibs
       begin
         # create bin package
-        WXRuby3::Gem.build_bin_pkg(t.name)
+        WXRuby3::Gem.build_bin_pkg
       ensure
         # cleanup
         WXRuby3::Install.remove_wxwin_shlibs

@@ -19,6 +19,7 @@ require 'json'
 require 'uri'
 require 'net/https'
 require 'fileutils'
+require 'digest/sha2'
 
 require_relative './lib/config'
 require_relative './install'
@@ -26,6 +27,9 @@ require_relative './install'
 module WXRuby3
 
   module Gem
+
+    BINPKG_EXT = '.pkg'
+    DIGEST_EXT = '.sha'
 
     class << self
 
@@ -109,12 +113,14 @@ module WXRuby3
       private :bin_pkg_name
 
       def bin_pkg_file
-        File.join('pkg', "#{bin_pkg_name}.pkg")
+        File.join('pkg', bin_pkg_name+BINPKG_EXT)
       end
 
-      def build_bin_pkg(fname)
+      def build_bin_pkg
         # make sure pkg directory exists
         FileUtils.mkdir_p('pkg')
+
+        fname = bin_pkg_file
 
         # package registry
         registry = []
@@ -129,13 +135,23 @@ module WXRuby3
           registry_json_z = Zlib::Deflate.deflate(registry.to_json)
           # create final package archive
           deflate_stream.rewind
+          digest = Digest::SHA256.new
           File.open(fname, 'w', binmode: true) do |fout|
-            fout.write([registry_json_z.size].pack('Q'))
+            data = [registry_json_z.size].pack('Q')
+            digest << data
+            fout.write(data)
+            digest << registry_json_z
             fout.write(registry_json_z)
             registry.each do |entry|
-              fout.write(deflate_stream.read(entry[2])) if entry[2] > 0
+              if entry[2] > 0
+                data = deflate_stream.read(entry[2])
+                digest << data
+                fout.write(data)
+              end
             end
           end
+          sha_file = File.join('pkg', bin_pkg_name+DIGEST_EXT)
+          File.open(sha_file, 'w') { |fsha| fsha << digest.hexdigest! }
         ensure
           deflate_stream.close(true)
         end
@@ -162,28 +178,48 @@ module WXRuby3
       # Gem installation helpers
 
       def install_gem
+        # check if a user specified binary package is to be used
+        if ENV['WXRUBY_BINPKG']
+          if File.file?(ENV['WXRUBY_BINPKG'])
+            $stdout.puts "Installing user package #{ENV['WXRUBY_BINPKG']}..."
+            exit(1) unless install_bin_pkg(ENV['WXRUBY_BINPKG'])
+            $stdout.puts 'Done!'
+            true
+          else
+            $stderr.puts "ERROR: Cannot access file #{ENV['WXRUBY_BINPKG']}. Reverting to source install."
+            exit(1)
+            false
+          end
         # check if there exists a pre-built binary release package for the current platform
-        if has_release_package?
+        elsif has_release_package?
           # download the binary release package
-          $stdout.puts "Downloading #{bin_pkg_url}..."
-          if WXRuby3.config.download_file(bin_pkg_url, bin_pkg_name+'.pkg')
-            install_bin_pkg(bin_pkg_name+'.pkg')
+          $stdout.puts "Downloading #{bin_pkg_url(BINPKG_EXT)}..."
+          if WXRuby3.config.download_file(bin_pkg_url(BINPKG_EXT), bin_pkg_name+BINPKG_EXT)
+            unless WXRuby3.config.download_file(bin_pkg_url(DIGEST_EXT), bin_pkg_name+DIGEST_EXT)
+              $stderr.puts "ERROR: Unable to download digest signature for binary release package : #{bin_pkg_name}"
+              exit(1)
+            end
+            exit(1) unless install_bin_pkg(bin_pkg_name+BINPKG_EXT)
+            true
           else
             $stdout.puts "WARNING: Unable to download binary release package (#{bin_pkg_name})! Reverting to source install."
+            false
           end
+        else
+          false
         end
       end
 
-      def bin_pkg_url
+      def bin_pkg_url(ext)
         # which package are we looking for
         pkg_name = bin_pkg_name
-        "https://github.com/mcorino/wxRuby3/releases/download/v#{WXRuby3::WXRUBY_VERSION}/#{pkg_name}.pkg"
+        "https://github.com/mcorino/wxRuby3/releases/download/v#{WXRuby3::WXRUBY_VERSION}/#{pkg_name}#{ext}"
       end
       private :bin_pkg_url
 
       def has_release_package?
         # check if the release package exists on Github
-        uri = URI(bin_pkg_url)
+        uri = URI(bin_pkg_url(BINPKG_EXT))
         $stdout.print "Checking #{uri.to_s}..." if WXRuby3.config.verbose?
         response = Net::HTTP.start('github.com', use_ssl: true) do |http|
           request = Net::HTTP::Head.new(uri)
@@ -196,7 +232,24 @@ module WXRuby3
       private :has_release_package?
 
       def install_bin_pkg(fname)
+        # first get digest signature (if available)
+        sha_file = File.join(File.dirname(fname), File.basename(fname, '.*')+DIGEST_EXT)
+        unless File.file?(sha_file)
+          $stderr.puts "ERROR: Cannot access package digest signature file : #{sha_file}."
+          return false
+        end
+        sha_sig = File.read(sha_file)
         File.open(fname, 'r', binmode: true) do |fin|
+          # check digest signature
+          digest = Digest::SHA256.new
+          while (data = fin.read(1024*1024))
+            digest << data
+          end
+          if sha_sig != digest.hexdigest!
+            $stderr.puts 'ERROR: Package digest signature does NOT match.'
+            return false
+          end
+          fin.rewind
           # get packed registry size
           registry_size = fin.read(8).unpack('Q').shift
           # unpack registry
@@ -216,6 +269,7 @@ module WXRuby3
             end
           end
         end
+        true
       end
       private :install_bin_pkg
 
