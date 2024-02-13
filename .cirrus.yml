@@ -290,6 +290,7 @@ release_test_task:
     ruby tools/scripts/cirrus/upload-release-pkg.rb
 
 test_release_task:
+  only_if: $CIRRUS_BUILD_SOURCE == 'api'
   depends_on:
     - Cirrus CI / Fedora AMD64 Release
     - Cirrus CI / OpenSuSE Leap AMD64 Release
