@@ -103,121 +103,121 @@ verify_task:
   latest_test_script:
     ./tools/scripts/cirrus/test-wxruby3.sh
 
-release_task:
-  only_if: $CIRRUS_RELEASE != ''
-  matrix:
-    - name: Cirrus CI / Fedora AMD64 Release
-      container:
-        image: fedora:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: fedora
-    - name: Cirrus CI / Fedora ARM64 Release
-      arm_container:
-        image: fedora:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64 Release
-      container:
-        image: opensuse/leap:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: opensuse
-    - name: Cirrus CI / OpenSuSE Leap ARM64 Release
-      arm_container:
-        image: opensuse/leap:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: opensuse
-    - name: Cirrus CI / Ubuntu AMD64 Release
-      container:
-        image: ubuntu:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: ubuntu
-    - name: Cirrus CI / Ubuntu ARM64 Release
-      arm_container:
-        image: ubuntu:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: ubuntu
-    - name: Cirrus CI / Debian AMD64 Release
-      container:
-        image: debian:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: debian
-    - name: Cirrus CI / Debian ARM64 Release
-      arm_container:
-        image: debian:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: debian
-    - name: Cirrus CI / MacOSX Monterey M1 Release
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
-    - name: Cirrus CI / MacOSX Ventura M1 Release
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
-    - name: Cirrus CI / MacOSX Sonoma M1 Release
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
-
-  before_script: |
-    ./tools/scripts/cirrus/setup-$distro.sh
-
-    # Show some information about the system.
-    uname -a
-    locale
-    locale -a
-
-  system_build_script: |
-    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
-
-    ./tools/scripts/cirrus/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log    
-
-  system_cleanup_script: |
-    ./tools/scripts/cirrus/cleanup-wxruby3.sh
-    
-    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
-
-  latest_build_script:
-    ./tools/scripts/cirrus/setup-ruby-install-latest.sh
-
-    ./tools/scripts/cirrus/build-wxruby3.sh --latest --binpkg 2>&1 | tee -a build-wxruby3.log
-
-  release_script:
-
-    ruby tools/scripts/cirrus/upload-release-pkg.rb
+#release_task:
+#  only_if: $CIRRUS_RELEASE != ''
+#  matrix:
+#    - name: Cirrus CI / Fedora AMD64 Release
+#      container:
+#        image: fedora:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: fedora
+#    - name: Cirrus CI / Fedora ARM64 Release
+#      arm_container:
+#        image: fedora:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: fedora
+#    - name: Cirrus CI / OpenSuSE Leap AMD64 Release
+#      container:
+#        image: opensuse/leap:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: opensuse
+#    - name: Cirrus CI / OpenSuSE Leap ARM64 Release
+#      arm_container:
+#        image: opensuse/leap:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: opensuse
+#    - name: Cirrus CI / Ubuntu AMD64 Release
+#      container:
+#        image: ubuntu:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: ubuntu
+#    - name: Cirrus CI / Ubuntu ARM64 Release
+#      arm_container:
+#        image: ubuntu:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: ubuntu
+#    - name: Cirrus CI / Debian AMD64 Release
+#      container:
+#        image: debian:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: debian
+#    - name: Cirrus CI / Debian ARM64 Release
+#      arm_container:
+#        image: debian:latest
+#        cpu: 4
+#        memory: 8G
+#      env:
+#        osname: linux
+#        distro: debian
+#    - name: Cirrus CI / MacOSX Monterey M1 Release
+#      macos_instance:
+#        image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
+#      env:
+#        osname: darwin
+#        distro: macosx
+#        latest_only: true
+#    - name: Cirrus CI / MacOSX Ventura M1 Release
+#      macos_instance:
+#        image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
+#      env:
+#        osname: darwin
+#        distro: macosx
+#        latest_only: true
+#    - name: Cirrus CI / MacOSX Sonoma M1 Release
+#      macos_instance:
+#        image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
+#      env:
+#        osname: darwin
+#        distro: macosx
+#        latest_only: true
+#
+#  before_script: |
+#    ./tools/scripts/cirrus/setup-$distro.sh
+#
+#    # Show some information about the system.
+#    uname -a
+#    locale
+#    locale -a
+#
+#  system_build_script: |
+#    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
+#
+#    ./tools/scripts/cirrus/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log
+#
+#  system_cleanup_script: |
+#    ./tools/scripts/cirrus/cleanup-wxruby3.sh
+#
+#    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
+#
+#  latest_build_script:
+#    ./tools/scripts/cirrus/setup-ruby-install-latest.sh
+#
+#    ./tools/scripts/cirrus/build-wxruby3.sh --latest --binpkg 2>&1 | tee -a build-wxruby3.log
+#
+#  release_script:
+#
+#    ruby tools/scripts/cirrus/upload-release-pkg.rb
 
 release_test_task:
   only_if: $CIRRUS_BUILD_SOURCE == 'api'
