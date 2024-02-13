@@ -39,7 +39,7 @@ Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
                           "#{url_to_upload} --data-binary @#{fpath}"
   result = `#{cmd}`
   rc = $?.success? && JSON.parse!(result)['browser_download_url']
-  unless rc
+  if rc
     name = File.basename(name, '.*')+'.sha'
     fpath = File.join(File.dirname(fpath), name)
     url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_RELEASE}/assets?name=#{name}"
@@ -51,9 +51,9 @@ Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
       "#{url_to_upload} --data-binary @#{fpath}"
     result = `#{cmd}`
     rc = $?.success? && JSON.parse!(result)['browser_download_url']
-    unless rc
-      $stderr.puts "Failed to upload release asset!"
-      exit(1)
-    end
+  end
+  unless rc
+    $stderr.puts "Failed to upload release asset!"
+    exit(1)
   end
 end
