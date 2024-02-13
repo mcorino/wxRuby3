@@ -7,7 +7,7 @@ env:
 
 verify_task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
-  only_if: $CIRRUS_BRANCH =~ 'master' || $CIRRUS_BUILD_SOURCE == 'api'
+  only_if: $CIRRUS_BRANCH =~ 'master'
   matrix:
     - name: Cirrus CI / Fedora AMD64
       container:
@@ -219,8 +219,8 @@ release_task:
 
     ruby tools/scripts/cirrus/upload-release-pkg.rb
 
-test_release_task:
-  only_if: $CIRRUS_BUILD_SOURCE == 'XXX'
+release_test_task:
+  only_if: $CIRRUS_BUILD_SOURCE == 'api'
   matrix:
     - name: Cirrus CI / Fedora AMD64
       container:
@@ -288,3 +288,70 @@ test_release_task:
   release_script:
 
     ruby tools/scripts/cirrus/upload-release-pkg.rb
+
+test_release_task:
+  depends_on:
+    - release_test_task
+  matrix:
+    - name: Cirrus CI / Fedora AMD64
+      container:
+        image: fedora:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: fedora
+    - name: Cirrus CI / OpenSuSE Leap AMD64
+      container:
+        image: opensuse/leap:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: opensuse
+    - name: Cirrus CI / Ubuntu AMD64
+      container:
+        image: ubuntu:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: ubuntu
+    - name: Cirrus CI / Debian AMD64
+      container:
+        image: debian:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: debian
+    - name: Cirrus CI / MacOSX Ventura M1
+      macos_instance:
+        image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
+      env:
+        osname: darwin
+        distro: macosx
+        latest_only: true
+
+  before_script: |
+    ./tools/scripts/cirrus/setup-$distro.sh test
+
+    # Show some information about the system.
+    uname -a
+    locale
+    locale -a
+
+  system_test_script: |
+    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
+
+    ./tools/scripts/cirrus/test-wxruby3-release.sh
+
+  system_cleanup_script: |
+    ./tools/scripts/cirrus/cleanup-wxruby3.sh
+    
+    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
+
+  latest_test_script:
+    ./tools/scripts/cirrus/setup-ruby-install-latest.sh
+
+    ./tools/scripts/cirrus/test-wxruby3-release.sh
