@@ -9,7 +9,7 @@ verify_task:
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
   only_if: $CIRRUS_BRANCH =~ 'master'
   matrix:
-    - name: Cirrus CI / Fedora AMD64
+    - name: Cirrus CI / Fedora AMD64 Test
       container:
         image: fedora:latest
         cpu: 4
@@ -17,7 +17,7 @@ verify_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / Fedora ARM64
+    - name: Cirrus CI / Fedora ARM64 Test
       arm_container:
         image: fedora:latest
         cpu: 4
@@ -25,7 +25,7 @@ verify_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64
+    - name: Cirrus CI / OpenSuSE Leap AMD64 Test
       container:
         image: opensuse/leap:latest
         cpu: 4
@@ -33,7 +33,7 @@ verify_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / OpenSuSE Leap ARM64
+    - name: Cirrus CI / OpenSuSE Leap ARM64 Test
       arm_container:
         image: opensuse/leap:latest
         cpu: 4
@@ -41,7 +41,7 @@ verify_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / Ubuntu AMD64
+    - name: Cirrus CI / Ubuntu AMD64 Test
       container:
         image: ubuntu:latest
         cpu: 4
@@ -49,7 +49,7 @@ verify_task:
       env:
         osname: linux
         distro: ubuntu
-    - name: Cirrus CI / Ubuntu ARM64
+    - name: Cirrus CI / Ubuntu ARM64 Test
       arm_container:
         image: ubuntu:latest
         cpu: 4
@@ -57,7 +57,7 @@ verify_task:
       env:
         osname: linux
         distro: ubuntu
-    - name: Cirrus CI / Debian AMD64
+    - name: Cirrus CI / Debian AMD64 Test
       container:
         image: debian:latest
         cpu: 4
@@ -65,7 +65,7 @@ verify_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / Debian ARM64
+    - name: Cirrus CI / Debian ARM64 Test
       arm_container:
         image: debian:latest
         cpu: 4
@@ -106,7 +106,7 @@ verify_task:
 release_task:
   only_if: $CIRRUS_RELEASE != ''
   matrix:
-    - name: Cirrus CI / Fedora AMD64
+    - name: Cirrus CI / Fedora AMD64 Release
       container:
         image: fedora:latest
         cpu: 4
@@ -114,7 +114,7 @@ release_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / Fedora ARM64
+    - name: Cirrus CI / Fedora ARM64 Release
       arm_container:
         image: fedora:latest
         cpu: 4
@@ -122,7 +122,7 @@ release_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64
+    - name: Cirrus CI / OpenSuSE Leap AMD64 Release
       container:
         image: opensuse/leap:latest
         cpu: 4
@@ -130,7 +130,7 @@ release_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / OpenSuSE Leap ARM64
+    - name: Cirrus CI / OpenSuSE Leap ARM64 Release
       arm_container:
         image: opensuse/leap:latest
         cpu: 4
@@ -138,7 +138,7 @@ release_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / Ubuntu AMD64
+    - name: Cirrus CI / Ubuntu AMD64 Release
       container:
         image: ubuntu:latest
         cpu: 4
@@ -146,7 +146,7 @@ release_task:
       env:
         osname: linux
         distro: ubuntu
-    - name: Cirrus CI / Ubuntu ARM64
+    - name: Cirrus CI / Ubuntu ARM64 Release
       arm_container:
         image: ubuntu:latest
         cpu: 4
@@ -154,7 +154,7 @@ release_task:
       env:
         osname: linux
         distro: ubuntu
-    - name: Cirrus CI / Debian AMD64
+    - name: Cirrus CI / Debian AMD64 Release
       container:
         image: debian:latest
         cpu: 4
@@ -162,7 +162,7 @@ release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / Debian ARM64
+    - name: Cirrus CI / Debian ARM64 Release
       arm_container:
         image: debian:latest
         cpu: 4
@@ -170,21 +170,21 @@ release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Monterey M1
+    - name: Cirrus CI / MacOSX Monterey M1 Release
       macos_instance:
         image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
       env:
         osname: darwin
         distro: macosx
         latest_only: true
-    - name: Cirrus CI / MacOSX Ventura M1
+    - name: Cirrus CI / MacOSX Ventura M1 Release
       macos_instance:
         image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
       env:
         osname: darwin
         distro: macosx
         latest_only: true
-    - name: Cirrus CI / MacOSX Sonoma M1
+    - name: Cirrus CI / MacOSX Sonoma M1 Release
       macos_instance:
         image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
       env:
@@ -222,7 +222,7 @@ release_task:
 release_test_task:
   only_if: $CIRRUS_BUILD_SOURCE == 'api'
   matrix:
-    - name: Cirrus CI / Fedora AMD64
+    - name: Cirrus CI / Fedora AMD64 Release
       container:
         image: fedora:latest
         cpu: 4
@@ -230,7 +230,7 @@ release_test_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64
+    - name: Cirrus CI / OpenSuSE Leap AMD64 Release
       container:
         image: opensuse/leap:latest
         cpu: 4
@@ -238,7 +238,7 @@ release_test_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / Ubuntu AMD64
+    - name: Cirrus CI / Ubuntu AMD64 Release
       container:
         image: ubuntu:latest
         cpu: 4
@@ -246,7 +246,7 @@ release_test_task:
       env:
         osname: linux
         distro: ubuntu
-    - name: Cirrus CI / Debian AMD64
+    - name: Cirrus CI / Debian AMD64 Release
       container:
         image: debian:latest
         cpu: 4
@@ -254,7 +254,7 @@ release_test_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Ventura M1
+    - name: Cirrus CI / MacOSX Ventura M1 Release
       macos_instance:
         image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
       env:
@@ -291,9 +291,13 @@ release_test_task:
 
 test_release_task:
   depends_on:
-    - release_test_task
+    - Cirrus CI / Fedora AMD64 Release
+    - Cirrus CI / OpenSuSE Leap AMD64 Release
+    - Cirrus CI / Ubuntu AMD64 Release
+    - Cirrus CI / Debian AMD64 Release
+    - Cirrus CI / MacOSX Ventura M1 Release
   matrix:
-    - name: Cirrus CI / Fedora AMD64
+    - name: Cirrus CI / Fedora AMD64 Release Test
       container:
         image: fedora:latest
         cpu: 4
@@ -301,7 +305,7 @@ test_release_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64
+    - name: Cirrus CI / OpenSuSE Leap AMD64 Release Test
       container:
         image: opensuse/leap:latest
         cpu: 4
@@ -309,7 +313,7 @@ test_release_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / Ubuntu AMD64
+    - name: Cirrus CI / Ubuntu AMD64 Release Test
       container:
         image: ubuntu:latest
         cpu: 4
@@ -317,7 +321,7 @@ test_release_task:
       env:
         osname: linux
         distro: ubuntu
-    - name: Cirrus CI / Debian AMD64
+    - name: Cirrus CI / Debian AMD64 Release Test
       container:
         image: debian:latest
         cpu: 4
@@ -325,7 +329,7 @@ test_release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Ventura M1
+    - name: Cirrus CI / MacOSX Ventura M1 Release Test
       macos_instance:
         image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
       env:
