@@ -6,27 +6,40 @@
 # wxRuby3 extension configuration file for gems
 ###
 
-require 'optparse'
-
 OPTIONS = {
 }
 
-opts = OptionParser.new
-opts.banner = "wxRuby3 extension build script\n\nUsage: gem install wxruby3 -- -h|--help OR gem install wxruby3 [-- options]\n\n"
-opts.separator ''
-opts.on('--[no-]prebuilt',
-        "Specifies to either require ('--prebuilt') or avoid ('--no-prebuilt') installing prebuilt binary packages.",
-        "If not specified installing a prebuilt package will be attempted reverting to source install if none found.")  {|v| OPTIONS[:prebuilt] = !!v }
-opts.on('--package=URL',
-        "Specifies the http(s) url or absolute path to the prebuilt binary package to install.",
-        "Implies '--prebuilt'.")  {|v| OPTIONS[:package] = v }
-opts.on('-h', '--help',
-        'Show this message.') do |v|
-  puts opts
-  puts
-  exit(0)
+until ARGV.empty?
+  switch = ARGV.shift
+  case switch
+  when /^prebuilt=(none|only)$/
+    OPTIONS[:prebuilt] = $1 == 'only'
+  when /^package=(.+)$/
+    OPTIONS[:package] = $1
+  when 'help'
+    puts <<~__INFO_TXT
+      wxRuby3 extension build script
+
+      Usage: gem install wxruby3 -- help OR gem install wxruby3 [-- options [...]]
+
+        options:
+
+        prebuilt=OPT    Specifies to either require (OPT == 'only') or avoid (OPT == 'none') installing prebuilt 
+                        binary packages. If not specified installing a prebuilt package will be attempted reverting 
+                        to source install if none found.
+
+        package=URL     Specifies the http(s) url or absolute path to the prebuilt binary package to install.
+                        Implies 'prebuilt=only'.
+
+        help            Show this message.
+      __INFO_TXT
+    puts
+    exit(1)
+  else
+    $stderr.puts "ERROR: Invalid option [#{switch}] for wxRuby3 extension build script."
+    exit(1)
+  end
 end
-opts.parse(ARGV)
 
 task_args = ''
 unless OPTIONS[:prebuilt].nil?

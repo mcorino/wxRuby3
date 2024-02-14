@@ -379,9 +379,9 @@ jobs:
         if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre -- --prebuilt
+            gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=only
           else
-            gem install wxruby3 -v $WXRUBY_VERSION -- --prebuilt
+            gem install wxruby3 -v $WXRUBY_VERSION -- prebuilt=only
           fi
 
       - name: Install wxRuby3 gem with local build
@@ -389,15 +389,15 @@ jobs:
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-              gem install wxruby3 -v $WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --autoinstall
+              gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --autoinstall
             else
-              gem install wxruby3 -v $WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+              gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
             fi
           else
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-              gem install wxruby3 -v $WXRUBY_VERSION -- --no-prebuilt && wxruby setup --autoinstall
+              gem install wxruby3 -v $WXRUBY_VERSION -- prebuilt=none && wxruby setup --autoinstall
             else
-              gem install wxruby3 -v $WXRUBY_VERSION -- --no-prebuilt && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+              gem install wxruby3 -v $WXRUBY_VERSION -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
             fi
           fi
 
@@ -416,15 +416,15 @@ jobs:
       - name: Install wxRuby3 gem with binary package (release test)
         if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
         run: |
-          gem install ./$(wxruby3*.gem) -- --package=$(wxruby3*.pkg)
+          gem install ./$(wxruby3*.gem) -- package=$(wxruby3*.pkg)
 
       - name: Install wxRuby3 gem with local build (release test)
         if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
         run: |
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install ./$(wxruby3*.gem) -- --no-prebuilt && wxruby setup --autoinstall
+            gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
           else
-            gem install ./$(wxruby3*.gem) -- --no-prebuilt && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+            gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
           fi
 
       - name: Run wxRuby3 regression tests (XVFB)
@@ -482,20 +482,20 @@ jobs:
         if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
-            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- --prebuilt
+            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=only
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_VERSION -- --prebuilt
+            gem install wxruby3 -v $env:WXRUBY_VERSION -- prebuilt=only
           }
 
       - name: Install wxRuby3 gem with local build
         if: matrix.build == 'true' && github.event_name != 'workflow_dispatch'
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
-            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --autoinstall
+            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --autoinstall
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_VERSION -- --no-prebuilt && wxruby setup --autoinstall
+            gem install wxruby3 -v $env:WXRUBY_VERSION -- prebuilt=none && wxruby setup --autoinstall
           }
 
       - name: Download release test gem artifact
@@ -513,12 +513,12 @@ jobs:
       - name: Install wxRuby3 gem with binary package (release test)
         if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
         run: |
-          gem install ./$(wxruby3*.gem) -- --package=$(wxruby3*.pkg)
+          gem install ./$(wxruby3*.gem) -- package=$(wxruby3*.pkg)
 
       - name: Install wxRuby3 gem with local build (release test)
         if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
         run: |
-          gem install ./$(wxruby3*.gem) -- --no-prebuilt && wxruby setup --autoinstall
+          gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
 
       - name: Run wxRuby3 regression tests
         run: |
