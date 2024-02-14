@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  release-gem:
     strategy:
       fail-fast: false
       matrix:
@@ -91,208 +91,13 @@ jobs:
           echo "WXRUBY_PRERELEASE=0" >> "$GITHUB_OUTPUT"
         fi
 
-  verify-gem:
-    needs: release
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-22.04
-            gtk_version: 3
-            CC: gcc-12
-            CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: '3.2.4'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
+
+  release-windows-binpkg:
+    needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
-    env:
-      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
-      wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
-      wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
-      wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
-      wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
-      WX_EXTRA_PACKAGES: doxygen patchelf
-      CC: ${{ matrix.CC }}
-      CXX: ${{ matrix.CXX }}
-      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
-      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
-    steps:
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-
-      - name: checkout wxWidgets
-        uses: actions/checkout@v4
-        with:
-          repository: wxWidgets/wxWidgets
-          path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
-          submodules: 'recursive'
-
-      - name: Set up build environment
-        run: |
-          # Install locales used by our tests to run all the tests instead of
-          # skipping them.
-          sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
-          
-          $WXWIDGETS_ROOT/build/tools/before_install.sh
-
-      - name: Display build environment
-        run: |
-          echo $PATH
-          ruby -v
-          doxygen -v
-          gcc -v
-          g++ -v
-
-      - name: Configuring wxWidgets
-        working-directory: ${{ env.WXWIDGETS_ROOT }}
-        run: |
-          wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
-          if [ -n "${{ matrix.gtk_version }}" ]; then
-            wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
-          fi
-          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
-          if [ -n "$rc" ]; then
-            echo '*** Configuring failed, contents of config.log follows: ***'
-            echo '-----------------------------------------------------------'
-            cat $WXWIDGETS_ROOT/config.log
-            echo '-----------------------------------------------------------'
-            exit $rc
-          fi
-
-      - name: Build and install wxWidgets
-        working-directory: ${{ env.WXWIDGETS_ROOT }}
-        run: |
-          make && sudo make install && sudo ldconfig
-
-      - name: Remove wxWidgets
-        run: |
-          rm -rf $WXWIDGETS_ROOT
-
-      - name: Install wxRuby3 gem
-        run: |
-          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre && wxruby setup --autoinstall
-          else
-            gem install wxruby3 -v $WXRUBY_VERSION && wxruby setup --autoinstall
-          fi
-
-      - name: Run wxRuby3 regression tests
-        run: |
-          ulimit -c unlimited
-          TEST_CMD="wxruby test"
-          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
-          if [ -n "$rc" ]; then
-            if fgrep -q '(core dumped)' wxtest.out; then
-              echo '*** Test crashed, trying to get more information ***'
-              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $TEST_CMD
-            fi
-            exit $rc
-          fi
-
-  verify-gem-mac:
-    needs: release
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: wxMac macOS 13
-            runner: macos-13
-            arch: x86_64
-            wxWidgets: '3.2.4'
-            ruby: '3.2'
-            swig: '4'
-            configure_flags: --disable-sys-libs
-    runs-on: ${{ matrix.runner }}
-    name: ${{ matrix.name }} wxRuby Gem Test (${{ github.ref_name }})
-    env:
-      NSUnbufferedIO: YES
-      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
-      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
-      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
-
-    steps:
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-
-      - name: checkout wxWidgets
-        uses: actions/checkout@v4
-        with:
-          repository: wxWidgets/wxWidgets
-          path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
-
-      - name: Set environment variables
-        run: |
-          echo TZ=UTC >> $GITHUB_ENV
-          echo LD_LIBRARY_PATH=`pwd`/lib >> $GITHUB_ENV
-
-      - name: Before install
-        working-directory: ${{ env.WXWIDGETS_ROOT }}
-        run: |
-          ./build/tools/before_install.sh
-
-      - name: Install SWIG
-        run: |
-          brew install swig
-
-      - name: Install doxygen
-        run: |
-          brew install doxygen
-
-      - name: Show build environment
-        run: |
-          echo "Environment:"
-          env | sort
-          echo
-          
-          echo "Ruby version:"
-          ruby -v
-          echo
-          
-          echo "SWIG version:"
-          swig -version
-          echo
-          
-          echo "Doxygen version:"
-          doxygen -v
-          echo
-          
-          echo "Compiler version:"
-          ${CXX-g++} --version
-          echo
-
-      - name: Remove wxWidgets
-        run: |
-          rm -rf $WXWIDGETS_ROOT
-
-      - name: Install wxRuby3 gem
-        run: |
-          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre  && wxruby setup --autoinstall
-          else
-            gem install wxruby3 -v $WXRUBY_VERSION  && wxruby setup --autoinstall
-          fi
-
-      - name: Run wxRuby3 regression tests
-        run: |
-          wxruby test
-  release-bingem:
-    needs: release
-    runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Bingem Release (${{ github.ref_name }})
+    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
     env:
       DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     strategy:
       fail-fast: false
       matrix:
@@ -300,8 +105,7 @@ jobs:
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: '3.2.4'
+            ruby: '3.3'
             swig: '4'
 
     steps:
@@ -313,7 +117,6 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: Setup Ruby gems
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle install
 
@@ -335,13 +138,11 @@ jobs:
           }
 
       - name: Install Doxygen package
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           Expand-Archive -LiteralPath '.\doxygen-1.10.0.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
           echo "$env:DOXYGEN_ROOT" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Display build environment
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           echo "$env:PATH"
           ruby -v
@@ -350,32 +151,252 @@ jobs:
           ridk exec bash -c 'g++ -v'
 
       - name: Configure wxRuby3
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
-          bundle exec rake configure[--with-wxwin]
+          bundle exec rake configure[--with-wxwin,--autoinstall]
 
       - name: Build wxRuby3
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle exec rake build
 
-      - name: Build wxRuby3 gem
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      - name: Build wxRuby3 binpkg
         run: |
-          bundle exec rake bingem
+          bundle exec rake binpkg
 
-      - name: Publish Gem on RubyGems
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      - name: Upload bin pkg as release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.pkg
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg digest signature as release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+  release-macosx-binpkg:
+    needs: release-gem
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS 12
+            runner: macos-12
+            arch: x86_64
+            ruby: '3.3'
+          - name: macOS 13
+            runner: macos-13
+            arch: x86_64
+            ruby: '3.3'
+
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup Ruby gems
         run: |
-          gem push pkg/*.gem 
+          bundle install
 
-  verify-bingem:
-    needs: [release, release-bingem]
+      - name: Display build environment
+        run: |
+          echo "$env:PATH"
+          ruby -v
+
+      - name: Configure wxRuby3
+        run: |
+          bundle exec rake configure[--with-wxwin,--autoinstall]
+
+      - name: Build wxRuby3
+        run: |
+          bundle exec rake build
+
+      - name: Build wxRuby3 binpkg
+        run: |
+          bundle exec rake binpkg
+
+      - name: Upload bin pkg as release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.pkg
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg digest signature as release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+  verify-gem:
+    needs:
+      - release-macosx-binpkg
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: 'ruby'
+            wxWidgets: '3.2.4'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            build: true
+            wxw_type: develop
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: 'ruby'
+            wxWidgets: '3.2.4'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            build: true
+            wxw_type: embed
+          - name: macOS 12
+            runner: macos-12
+            arch: x86_64
+            ruby: 'ruby'
+            build: false
+          - name: macOS 13
+            runner: macos-13
+            arch: x86_64
+            ruby: 'ruby'
+            build: false
+
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Bingem Test (${{ github.ref_name }})
+    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
-      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
-      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+      wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
+      wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
+      wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
+      wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
+      WX_EXTRA_PACKAGES: doxygen patchelf
+      CC: ${{ matrix.CC }}
+      CXX: ${{ matrix.CXX }}
+      WXRUBY_VERSION: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: checkout wxWidgets
+        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        uses: actions/checkout@v4
+        with:
+          repository: wxWidgets/wxWidgets
+          path: ${{ env.WXWIDGETS_ROOT }}
+          ref: v${{ matrix.wxWidgets }}
+          submodules: 'recursive'
+
+      - name: Set up build environment
+        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        run: |
+          # Install locales used by our tests to run all the tests instead of
+          # skipping them.
+          sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
+          
+          $WXWIDGETS_ROOT/build/tools/before_install.sh
+
+      - name: Display build environment
+        run: |
+          echo $PATH
+          ruby -v
+
+      - name: Configuring wxWidgets
+        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
+        run: |
+          wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
+          if [ -n "${{ matrix.gtk_version }}" ]; then
+            wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
+          fi
+          ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          if [ -n "$rc" ]; then
+            echo '*** Configuring failed, contents of config.log follows: ***'
+            echo '-----------------------------------------------------------'
+            cat $WXWIDGETS_ROOT/config.log
+            echo '-----------------------------------------------------------'
+            exit $rc
+          fi
+
+      - name: Build and install wxWidgets
+        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
+        run: |
+          make && make install
+
+      - name: Install wxRuby3 gem with binary package
+        if: matrix.build != 'true'
+        run: |
+          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
+            gem install wxruby3 -v $WXRUBY_VERSION --pre -- --prebuilt
+          else
+            gem install wxruby3 -v $WXRUBY_VERSION -- --prebuilt
+          fi
+
+      - name: Install wxRuby3 gem with local build
+        if: matrix.build == 'true'
+        run: |
+          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
+            if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+              gem install wxruby3 -v $WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --autoinstall
+            else
+              gem install wxruby3 -v $WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+            fi
+          else
+            if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+              gem install wxruby3 -v $WXRUBY_VERSION -- --no-prebuilt && wxruby setup --autoinstall
+            else
+              gem install wxruby3 -v $WXRUBY_VERSION -- --no-prebuilt && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+            fi
+          fi
+
+      - name: Run wxRuby3 regression tests
+        run: |
+          ulimit -c unlimited
+          TEST_CMD="wxruby test"
+          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
+          if [ -n "$rc" ]; then
+            if fgrep -q '(core dumped)' wxtest.out; then
+              echo '*** Test crashed, trying to get more information ***'
+              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $TEST_CMD
+            fi
+            exit $rc
+          fi
+
+  verify-gem-windows:
+    needs:
+      - release-windows-binpkg
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    env:
+      WXRUBY_VERSION: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
     strategy:
       fail-fast: false
       matrix:
@@ -383,9 +404,14 @@ jobs:
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: '3.2.4'
+            ruby: 'ruby'
             swig: '4'
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            build: true
 
     steps:
       - name: Install Ruby
@@ -393,18 +419,24 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Wait for RubyGems
-        run: |
-          Start-Sleep -Seconds 300
-
-      - name: Install wxRuby3 gem
-        if: matrix.wxr_type != 'develop'
+      - name: Install wxRuby3 gem with binary package
+        if: matrix.build != 'true'
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
-            gem install wxruby3 -v $env:WXRUBY_VERSION --pre
+            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- --prebuilt
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_VERSION
+            gem install wxruby3 -v $env:WXRUBY_VERSION -- --prebuilt
+          }
+
+      - name: Install wxRuby3 gem with local build
+        if: matrix.build == 'true'
+        run: |
+          If ("$env:WXRUBY_PRERELEASE" -eq "1") {
+            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --autoinstall
+          }
+          Else {
+            gem install wxruby3 -v $env:WXRUBY_VERSION -- --no-prebuilt && wxruby setup --autoinstall
           }
 
       - name: Run wxRuby3 regression tests
