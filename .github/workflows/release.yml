@@ -481,7 +481,7 @@ jobs:
       - name: Install wxRuby3 gem with binary package
         if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
         run: |
-          If ("$env:WXRUBY_PRERELEASE" -eq "1") {
+          If ("$env:WXRUBY_PRERELEASE" -eq "1") {          
             gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=only
           }
           Else {
@@ -513,12 +513,12 @@ jobs:
       - name: Install wxRuby3 gem with binary package (release test)
         if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
         run: |
-          gem install ./$(wxruby3*.gem) -- package=$(wxruby3*.pkg)
+          foreach ($f in Get-ChildItem -Path pkg\wxruby3*.gem) { foreach ($p in Get-ChildItem -Path pkg\wxruby3*.pkg) {  gem install $f && wxruby setup -- package=$p } }
 
       - name: Install wxRuby3 gem with local build (release test)
         if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
         run: |
-          gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
+          foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall }
 
       - name: Run wxRuby3 regression tests
         run: |
