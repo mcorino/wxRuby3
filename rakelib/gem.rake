@@ -159,11 +159,30 @@ else # in case of installed source gem the following tasks exist
   namespace :wxruby do
 
     namespace :gem do
-
-      task :install do
-        if WXRuby3::Gem.install_gem
-          # binaries have been installed -> finish install
-          Rake::Task['wxruby:post:binpkg'].invoke
+      kwargs = {}
+      no_prebuilt = false
+      task :install do |_, args|
+        argv = args.extras
+        until argv.empty?
+          switch = argv.shift
+          case switch
+          when '--prebuilt'
+            kwargs[:prebuilt_only] = true
+          when '--no-prebuilt'
+            no_prebuilt = true unless kwargs[:package]
+          when '--package'
+            fail "Missing value for '--package' argument for wxruby:gem:install." if argv.empty?
+            kwargs[:package] = argv.shift
+            no_prebuilt = false
+          else
+            fail "Invalid argument #{switch} for wxruby:gem:install."
+          end
+        end
+        unless no_prebuilt # do not even try to find&install a binary package
+          if WXRuby3::Gem.install_gem(**kwargs)
+            # binaries have been installed -> finish install
+            Rake::Task['wxruby:post:binpkg'].invoke
+          end
         end
       end
 

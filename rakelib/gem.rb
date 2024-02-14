@@ -177,18 +177,38 @@ module WXRuby3
 
       # Gem installation helpers
 
-      def install_gem
+      def install_gem(prebuilt_only: false, package: nil)
         # check if a user specified binary package is to be used
-        if ENV['WXRUBY_BINPKG']
-          if File.file?(ENV['WXRUBY_BINPKG'])
-            $stdout.puts "Installing user package #{ENV['WXRUBY_BINPKG']}..."
-            exit(1) unless install_bin_pkg(ENV['WXRUBY_BINPKG'])
-            $stdout.puts 'Done!'
-            true
+        if package
+          uri = URI(package)
+          if uri.scheme == 'file' || uri.scheme.nil?
+            if File.file?(uri.path)
+              $stdout.puts "Installing user package #{uri.path}..."
+              exit(1) unless install_bin_pkg(uri.path)
+              $stdout.puts 'Done!'
+              true
+            else
+              $stderr.puts "ERROR: Cannot access file #{uri.path}. Reverting to source install."
+              exit(1)
+            end
+          elsif uri.scheme == 'http' || uri.scheme == 'https'
+            # download the binary release package
+            $stdout.puts "Downloading #{uri.path}..."
+            filename = File.basename(uri.path)
+            if WXRuby3.config.download_file(uri.path, filename)
+              sha_file = File.basename(filename, '.*')+DIGEST_EXT
+              uri.path = File.join(File.dirname(uri.path), sha_file)
+              unless WXRuby3.config.download_file(uri.path, sha_file)
+                $stderr.puts "ERROR: Unable to download digest signature for binary release package : #{package}"
+                exit(1)
+              end
+              exit(1) unless install_bin_pkg(filename)
+              true
+            else
+              $stderr.puts "ERROR: Unable to download binary release package (#{package})!"
+              exit(1)
+            end
           else
-            $stderr.puts "ERROR: Cannot access file #{ENV['WXRUBY_BINPKG']}. Reverting to source install."
-            exit(1)
-            false
           end
         # check if there exists a pre-built binary release package for the current platform
         elsif has_release_package?
@@ -202,10 +222,18 @@ module WXRuby3
             exit(1) unless install_bin_pkg(bin_pkg_name+BINPKG_EXT)
             true
           else
+            if prebuilt_only
+              $stderr.puts "ERROR: Unable to download binary release package (#{bin_pkg_name})!"
+              exit(1)
+            end
             $stdout.puts "WARNING: Unable to download binary release package (#{bin_pkg_name})! Reverting to source install."
             false
           end
         else
+          if prebuilt_only
+            $stderr.puts "ERROR: No binary release package available!"
+            exit(1)
+          end
           false
         end
       end
