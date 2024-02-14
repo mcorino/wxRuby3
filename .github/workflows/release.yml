@@ -23,7 +23,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            ruby: '3.2'
+            ruby: 'ruby'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Release (${{ github.ref_name }})
     env:
@@ -36,28 +36,24 @@ jobs:
       uses: actions/checkout@v4
 
     - uses: ruby/setup-ruby@v1
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       with:
         ruby-version: ${{ matrix.ruby }}
 
     - name: Setup Ruby gems
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       run: |
         bundle install
 
     - name: Build wxRuby3 gem
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       run: |
         bundle exec rake gem
 
     - name: Create GPG signature for wxRuby3 gem
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       run: |
         echo -n "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import
         gpg --detach-sign --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --armor pkg/*.gem
 
     - name: Upload gem to release
-      if: ${{ github.event_name != 'workflow_dispatch' }}
+      if: github.event_name != 'workflow_dispatch'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -67,7 +63,7 @@ jobs:
         file_glob: true
 
     - name: Upload gem GPG signature to release
-      if: ${{ github.event_name != 'workflow_dispatch' }}
+      if: github.event_name != 'workflow_dispatch'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -77,11 +73,19 @@ jobs:
         file_glob: true
 
     - name: Publish Gem on RubyGems
-      if: ${{ github.event_name != 'workflow_dispatch' }}
+      if: github.event_name != 'workflow_dispatch'
       run: |
-        gem push pkg/*.gem 
+        gem push pkg/*.gem
+
+    - name: Upload Gem as release test artifact
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/upload-artifact@v4
+      with:
+        name: wxruby3_release_test_gem
+        path: pkg/*.gem
 
     - name: Set version variables
+      if: github.event_name != 'workflow_dispatch'
       id: version_var
       run: |
         echo "WXRUBY_VERSION=${GITHUB_REF_NAME/#v/}" >> "$GITHUB_OUTPUT"
@@ -102,7 +106,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
+          - name: Windows2022
+            os: windows-2022
             platform: 'x64'
             CXX: g++-12
             ruby: '3.3'
@@ -163,6 +168,7 @@ jobs:
           bundle exec rake binpkg
 
       - name: Upload bin pkg as release asset
+        if: github.event_name != 'workflow_dispatch'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -172,6 +178,7 @@ jobs:
           file_glob: true
 
       - name: Upload bin pkg digest signature as release asset
+        if: github.event_name != 'workflow_dispatch'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -180,19 +187,26 @@ jobs:
           overwrite: true
           file_glob: true
 
+      - name: Upload bin pkg as release test artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+          path: pkg/*
+
   release-macosx-binpkg:
     needs: release-gem
     runs-on: ${{ matrix.runner }}
-    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: ${{ matrix.runner }} wxRuby Binpkg Release (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: macOS 12
+          - name: macOS12
             runner: macos-12
             arch: x86_64
             ruby: '3.3'
-          - name: macOS 13
+          - name: macOS13
             runner: macos-13
             arch: x86_64
             ruby: '3.3'
@@ -227,6 +241,7 @@ jobs:
           bundle exec rake binpkg
 
       - name: Upload bin pkg as release asset
+        if: github.event_name != 'workflow_dispatch'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -236,6 +251,7 @@ jobs:
           file_glob: true
 
       - name: Upload bin pkg digest signature as release asset
+        if: github.event_name != 'workflow_dispatch'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -244,6 +260,13 @@ jobs:
           overwrite: true
           file_glob: true
 
+      - name: Upload bin pkg as release test artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+          path: pkg/*
+
   verify-gem:
     needs:
       - release-macosx-binpkg
@@ -251,7 +274,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - name: Ubuntu2204
+            os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
             CXX: g++-12
@@ -262,7 +286,8 @@ jobs:
             use_xvfb: true
             build: true
             wxw_type: develop
-          - os: ubuntu-22.04
+          - name: Ubuntu2204
+            os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
             CXX: g++-12
@@ -273,12 +298,12 @@ jobs:
             use_xvfb: true
             build: true
             wxw_type: embed
-          - name: macOS 12
+          - name: macOS12
             runner: macos-12
             arch: x86_64
             ruby: 'ruby'
             build: false
-          - name: macOS 13
+          - name: macOS13
             runner: macos-13
             arch: x86_64
             ruby: 'ruby'
@@ -351,7 +376,7 @@ jobs:
           make && make install
 
       - name: Install wxRuby3 gem with binary package
-        if: matrix.build != 'true'
+        if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             gem install wxruby3 -v $WXRUBY_VERSION --pre -- --prebuilt
@@ -360,7 +385,7 @@ jobs:
           fi
 
       - name: Install wxRuby3 gem with local build
-        if: matrix.build == 'true'
+        if: matrix.build == 'true' && github.event_name != 'workflow_dispatch'
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
@@ -376,7 +401,34 @@ jobs:
             fi
           fi
 
-      - name: Run wxRuby3 regression tests
+      - name: Download release test gem artifact
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+
+      - name: Install wxRuby3 gem with binary package (release test)
+        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        run: |
+          gem install ./$(wxruby3*.gem) -- --package=$(wxruby3*.pkg)
+
+      - name: Install wxRuby3 gem with local build (release test)
+        if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
+        run: |
+          if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            gem install ./$(wxruby3*.gem) -- --no-prebuilt && wxruby setup --autoinstall
+          else
+            gem install ./$(wxruby3*.gem) -- --no-prebuilt && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+          fi
+
+      - name: Run wxRuby3 regression tests (XVFB)
+        if: matrix.use_xvfb == 'true'
         run: |
           ulimit -c unlimited
           TEST_CMD="wxruby test"
@@ -388,6 +440,11 @@ jobs:
             fi
             exit $rc
           fi
+
+      - name: Run wxRuby3 regression tests
+        if: matrix.use_xvfb != 'true'
+        run: |
+          wxruby test
 
   verify-gem-windows:
     needs:
@@ -401,12 +458,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
+          - name: Windows2022
+            os: windows-2022
             platform: 'x64'
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
-          - os: windows-2022
+          - name: Windows2022
+            os: windows-2022
             platform: 'x64'
             CXX: g++-12
             ruby: 'ruby'
@@ -420,7 +479,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: Install wxRuby3 gem with binary package
-        if: matrix.build != 'true'
+        if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
             gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- --prebuilt
@@ -430,7 +489,7 @@ jobs:
           }
 
       - name: Install wxRuby3 gem with local build
-        if: matrix.build == 'true'
+        if: matrix.build == 'true' && github.event_name != 'workflow_dispatch'
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
             gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- --no-prebuilt && wxruby setup --autoinstall
@@ -438,6 +497,28 @@ jobs:
           Else {
             gem install wxruby3 -v $env:WXRUBY_VERSION -- --no-prebuilt && wxruby setup --autoinstall
           }
+
+      - name: Download release test gem artifact
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+
+      - name: Install wxRuby3 gem with binary package (release test)
+        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        run: |
+          gem install ./$(wxruby3*.gem) -- --package=$(wxruby3*.pkg)
+
+      - name: Install wxRuby3 gem with local build (release test)
+        if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
+        run: |
+          gem install ./$(wxruby3*.gem) -- --no-prebuilt && wxruby setup --autoinstall
 
       - name: Run wxRuby3 regression tests
         run: |
