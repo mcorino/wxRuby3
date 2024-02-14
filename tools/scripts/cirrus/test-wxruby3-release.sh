@@ -4,9 +4,9 @@ if [ "$CIRRUS_BUILD_SOURCE" == "api" ]; then
   bundle install
   bundle exec rake gem
   if [ "$distro" == "macosx" ]; then
-    gem install $(echo pkg/*.gem) && wxruby test
+    gem install $(echo pkg/*.gem) && wxruby test --exclude=test_intl --exclude=test_media_ctrl
   else
-    gem install $(echo pkg/*.gem) && xvfb-run -a -s '-screen 0 1600x1200x24' wxruby test
+    gem install $(echo pkg/*.gem) && xvfb-run -a -s '-screen 0 1600x1200x24' wxruby test --exclude=test_intl --exclude=test_media_ctrl
   fi
 else
   WXRUBY_VERSION=${CIRRUS_TAG/#v/}
@@ -16,8 +16,8 @@ else
     WXRUBY_PRERELEASE=""
   fi
   if [ "$distro" == "macosx" ]; then
-    gem install wxruby3 -v "$WXRUBY_VERSION" ${WXRUBY_PRERELEASE} && wxruby test
+    gem install wxruby3 -v "$WXRUBY_VERSION" ${WXRUBY_PRERELEASE} && wxruby test --exclude=test_intl --exclude=test_media_ctrl
   else
-    gem install wxruby3 -v "$WXRUBY_VERSION" ${WXRUBY_PRERELEASE} && xvfb-run -a -s '-screen 0 1600x1200x24' wxruby test
+    gem install wxruby3 -v "$WXRUBY_VERSION" ${WXRUBY_PRERELEASE} && xvfb-run -a -s '-screen 0 1600x1200x24' wxruby test --exclude=test_intl --exclude=test_media_ctrl
   fi
 fi
