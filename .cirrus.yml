@@ -220,7 +220,7 @@ verify_task:
 #    ruby tools/scripts/cirrus/upload-release-pkg.rb
 
 release_test_task:
-  only_if: $CIRRUS_BUILD_SOURCE == 'api'
+  only_if: $CIRRUS_BUILD_SOURCE == 'XXX'
   matrix:
     - name: Cirrus CI / Fedora AMD64 Release
       container:
