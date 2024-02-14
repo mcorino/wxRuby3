@@ -43,11 +43,11 @@ end
 
 task_args = ''
 unless OPTIONS[:prebuilt].nil?
-  task_args << (OPTIONS[:prebuilt] ? '--prebuilt' : '--no-prebuilt')
+  task_args << "'#{(OPTIONS[:prebuilt] ? '--prebuilt' : '--no-prebuilt')}'"
 end
 if OPTIONS[:package]
   task_args << ', ' unless task_args.empty?
-  task_args << '--package, ' << OPTIONS[:package]
+  task_args << "'--package', " << "'#{OPTIONS[:package]}'"
 end
 
 # generate new rakefile with appropriate default task (calls actual task in rakelib)
