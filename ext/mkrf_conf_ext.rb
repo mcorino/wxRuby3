@@ -26,7 +26,7 @@ opts.on('-h', '--help',
   puts
   exit(0)
 end
-opts.parse!(args)
+opts.parse(ARGV)
 
 task_args = ''
 unless OPTIONS[:prebuilt].nil?
