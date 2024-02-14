@@ -89,6 +89,15 @@ jobs:
           tag: v0.9.7
           overwrite: true
           file_glob: true
+
+      - name: Upload bin pkg digest signature as release asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
   release-macosx-binpkg:
     runs-on: ${{ matrix.runner }}
     name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
