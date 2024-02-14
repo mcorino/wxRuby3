@@ -2,7 +2,7 @@
 #
 
 env:
-  WXRUBY_TEST_EXCLUDE: 'test_config:test_intl:test_media_ctrl'
+  WXRUBY_TEST_EXCLUDE: 'test_intl:test_media_ctrl'
   GITHUB_TOKEN: ENCRYPTED[2ce3914266dec78118dd9706c25d2e52fbd164f86713692efde9b8af5f0159099cb299934a8d6279e524da7a0790e025]
 
 verify_task:
