@@ -29,7 +29,7 @@ jobs:
     env:
       GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     outputs:
-      version: ${{ steps.version_var.outputs.WXRUBY_VERSION }}
+      version: ${{ steps.version_var.outputs.WXRUBY_RELEASE }}
       prerelease: ${{ steps.version_var.outputs.WXRUBY_PRERELEASE }}
     steps:
     - name: Checkout wxRuby3
@@ -88,7 +88,7 @@ jobs:
       if: github.event_name != 'workflow_dispatch'
       id: version_var
       run: |
-        echo "WXRUBY_VERSION=${GITHUB_REF_NAME/#v/}" >> "$GITHUB_OUTPUT"
+        echo "WXRUBY_RELEASE=${GITHUB_REF_NAME/#v/}" >> "$GITHUB_OUTPUT"
         if grep -q "\-[a-zA-Z]" <<< "$GITHUB_REF_NAME" ; then
           echo "WXRUBY_PRERELEASE=1" >> "$GITHUB_OUTPUT"
         else
@@ -321,7 +321,7 @@ jobs:
       WX_EXTRA_PACKAGES: doxygen patchelf
       CC: ${{ matrix.CC }}
       CXX: ${{ matrix.CXX }}
-      WXRUBY_VERSION: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
     steps:
       - name: Install Ruby
@@ -379,9 +379,9 @@ jobs:
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=only
+            gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=only
           else
-            gem install wxruby3 -v $WXRUBY_VERSION -- prebuilt=only
+            gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=only
           fi
 
       - name: Install wxRuby3 gem with local build
@@ -389,15 +389,15 @@ jobs:
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-              gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --autoinstall
+              gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --autoinstall
             else
-              gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+              gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
             fi
           else
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-              gem install wxruby3 -v $WXRUBY_VERSION -- prebuilt=none && wxruby setup --autoinstall
+              gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --autoinstall
             else
-              gem install wxruby3 -v $WXRUBY_VERSION -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+              gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
             fi
           fi
 
@@ -452,7 +452,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
-      WXRUBY_VERSION: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
     strategy:
       fail-fast: false
@@ -483,20 +483,20 @@ jobs:
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {          
-            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=only
+            gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=only
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_VERSION -- prebuilt=only
+            gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=only
           }
 
       - name: Install wxRuby3 gem with local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
-            gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --autoinstall
+            gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --autoinstall
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_VERSION -- prebuilt=none && wxruby setup --autoinstall
+            gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=none && wxruby setup --autoinstall
           }
 
       - name: Download release test gem artifact
