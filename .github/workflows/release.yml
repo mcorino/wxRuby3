@@ -196,18 +196,18 @@ jobs:
 
   release-macosx-binpkg:
     needs: release-gem
-    runs-on: ${{ matrix.runner }}
-    name: ${{ matrix.runner }} wxRuby Binpkg Release (${{ github.ref_name }})
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: macOS12
-            runner: macos-12
+            os: macos-12
             arch: x86_64
             ruby: '3.3'
           - name: macOS13
-            runner: macos-13
+            os: macos-13
             arch: x86_64
             ruby: '3.3'
 
@@ -299,12 +299,12 @@ jobs:
             build: true
             wxw_type: embed
           - name: macOS12
-            runner: macos-12
+            os: macos-12
             arch: x86_64
             ruby: 'ruby'
             build: false
           - name: macOS13
-            runner: macos-13
+            os: macos-13
             arch: x86_64
             ruby: 'ruby'
             build: false
@@ -330,7 +330,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: checkout wxWidgets
-        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
         uses: actions/checkout@v4
         with:
           repository: wxWidgets/wxWidgets
@@ -339,7 +339,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Set up build environment
-        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
         run: |
           # Install locales used by our tests to run all the tests instead of
           # skipping them.
@@ -353,7 +353,7 @@ jobs:
           ruby -v
 
       - name: Configuring wxWidgets
-        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
           wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
@@ -370,13 +370,13 @@ jobs:
           fi
 
       - name: Build and install wxWidgets
-        if: matrix.build == 'true' && matrix.wxw_type != 'embed'
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
           make && make install
 
       - name: Install wxRuby3 gem with binary package
-        if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
+        if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             gem install wxruby3 -v $WXRUBY_VERSION --pre -- prebuilt=only
@@ -385,7 +385,7 @@ jobs:
           fi
 
       - name: Install wxRuby3 gem with local build
-        if: matrix.build == 'true' && github.event_name != 'workflow_dispatch'
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
@@ -402,24 +402,24 @@ jobs:
           fi
 
       - name: Download release test gem artifact
-        if: github.event_name == 'workflow_dispatch'
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/download-artifact@v4
         with:
           name: wxruby3_release_test_gem
 
       - name: Download bin pkg artifacts
-        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         uses: actions/download-artifact@v4
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
 
       - name: Install wxRuby3 gem with binary package (release test)
-        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
           gem install ./$(wxruby3*.gem) -- package=$(wxruby3*.pkg)
 
       - name: Install wxRuby3 gem with local build (release test)
-        if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
@@ -428,7 +428,7 @@ jobs:
           fi
 
       - name: Run wxRuby3 regression tests (XVFB)
-        if: matrix.use_xvfb == 'true'
+        if: ${{ matrix.use_xvfb }}
         run: |
           ulimit -c unlimited
           TEST_CMD="wxruby test"
@@ -442,7 +442,7 @@ jobs:
           fi
 
       - name: Run wxRuby3 regression tests
-        if: matrix.use_xvfb != 'true'
+        if: ${{ !matrix.use_xvfb }}
         run: |
           wxruby test
 
@@ -464,6 +464,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            build: false
           - name: Windows2022
             os: windows-2022
             platform: 'x64'
@@ -479,7 +480,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: Install wxRuby3 gem with binary package
-        if: matrix.build != 'true' && github.event_name != 'workflow_dispatch'
+        if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {          
             gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=only
@@ -489,7 +490,7 @@ jobs:
           }
 
       - name: Install wxRuby3 gem with local build
-        if: matrix.build == 'true' && github.event_name != 'workflow_dispatch'
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
             gem install wxruby3 -v $env:WXRUBY_VERSION --pre -- prebuilt=none && wxruby setup --autoinstall
@@ -499,24 +500,24 @@ jobs:
           }
 
       - name: Download release test gem artifact
-        if: github.event_name == 'workflow_dispatch'
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/download-artifact@v4
         with:
           name: wxruby3_release_test_gem
 
       - name: Download bin pkg artifacts
-        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         uses: actions/download-artifact@v4
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
 
       - name: Install wxRuby3 gem with binary package (release test)
-        if: matrix.build != 'true' && github.event_name == 'workflow_dispatch'
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
-          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { foreach ($p in Get-ChildItem -Path wxruby3*.pkg) {  gem install $f && wxruby setup -- package=$p } }
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { foreach ($p in Get-ChildItem -Path wxruby3*.pkg) {  gem install $f -- package=$p } }
 
       - name: Install wxRuby3 gem with local build (release test)
-        if: matrix.build == 'true' && github.event_name == 'workflow_dispatch'
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
           foreach ($f in Get-ChildItem -Path wxruby3*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall }
 
