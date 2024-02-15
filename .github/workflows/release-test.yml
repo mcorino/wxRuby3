@@ -1,0 +1,36 @@
+name: Test workflow
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  runs-on: ${{ matrix.os }}
+  name: Ruby config test
+  strategy:
+    fail-fast: false
+    matrix:
+      include:
+        - name: macOS12
+          os: macos-12
+          arch: x86_64
+          ruby: '3.3'
+        - name: macOS13
+          os: macos-13
+          arch: x86_64
+          ruby: '3.3'
+
+  steps:
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: Show Ruby config
+      run: |
+        ruby -e "RbConfig::CONFIG.each_pair {|k,v| puts %Q{#{k}=#{v}} }"
