@@ -73,7 +73,7 @@ module WXRuby3
               # form the full path of the shared Ruby library linked
               ruby_lib = File.join(ruby_libdir.to_s, RB_CONFIG['LIBRUBY_SO'])
               # change the full path to a path relative to the Ruby executable
-              sh("install_name_tool -change #{ruby_lib} '@executable_path/#{rel_ruby_libdir.to_s}/#{}' #{shlib}")
+              sh("install_name_tool -change #{ruby_lib} '@executable_path/#{rel_ruby_libdir.to_s}/#{ruby_so}' #{shlib}")
               true
             else
               false
