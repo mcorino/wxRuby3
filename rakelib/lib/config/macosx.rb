@@ -9,6 +9,8 @@
 require_relative './unixish'
 require_relative 'pkgman/macosx'
 
+require 'pathname'
+
 module WXRuby3
 
   module Config
@@ -48,10 +50,45 @@ module WXRuby3
             true
           end
 
-          def update_shlib_loadpaths(shlib, deplibs)
-            changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
-            sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
-            true
+          # add deployment lookup paths for wxruby shared libraries
+          def update_wxruby_shlib_loadpaths(shlib)
+            # default lookup for any of the unixish platforms
+            if super
+              # fix lookup for the Ruby shared library
+              # on MacOSX the Ruby library will be linked with it's full path from the **development** environment
+              # which is no use after binary deployment so we change that to be relative to the executable's path
+              # loading the shared libs (which is always going to be the Ruby exe)
+
+              # get the development folder holding ruby lib
+              ruby_libdir = Pathname.new(RB_CONFIG['libdir'])
+              # determine the relative path to the lib directory from the executable dir
+              # (this remains constant for any similar deployed Ruby for this platform)
+              rel_ruby_libdir = ruby_libdir.relative_path_from(RB_CONFIG['bindir'])
+              # get the Ruby library name used for linking
+              ld_ruby_lib = (RB_CONFIG['LIBRUBYARG_SHARED'].split.find { |s| s =~ /^-lruby/ }).sub(/^-l/,'')
+              # match the full shared library name that will be linked
+              ruby_so = [RB_CONFIG['LIBRUBY_SO'], RB_CONFIG['LIBRUBY_SONAME'], *RB_CONFIG['LIBRUBY_ALIASES'].split].find do |soname|
+                soname =~ /^#{ld_ruby_lib}\./
+              end
+              # form the full path of the shared Ruby library linked
+              ruby_lib = File.join(ruby_libdir.to_s, RB_CONFIG['LIBRUBY_SO'])
+              # change the full path to a path relative to the Ruby executable
+              sh("install_name_tool -change #{ruby_lib} '@executable_path/#{rel_ruby_libdir.to_s}/#{}' #{shlib}")
+              true
+            else
+              false
+            end
+          end
+
+          # add deployment lookup paths for wxwidgets shared libraries
+          def update_wxwin_shlib_loadpaths(shlib, deplibs)
+            if super
+              changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
+              sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
+              true
+            else
+              false
+            end
           end
 
           def check_tool_pkgs

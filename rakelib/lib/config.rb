@@ -456,7 +456,11 @@ module WXRuby3
       true
     end
 
-    def update_shlib_loadpaths(_shlib, _deplibs)
+    def update_wxruby_shlib_loadpaths(_shlib)
+      true
+    end
+
+    def update_wxwin_shlib_loadpaths(_shlib, _deplibs)
       true
     end
 
