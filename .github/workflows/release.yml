@@ -416,7 +416,7 @@ jobs:
       - name: Install wxRuby3 gem with binary package (release test)
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
-          gem install ./$(echo wxruby3*.gem) -- package=$(echo wxruby3*.pkg)
+          gem install ./$(echo wxruby3*.gem) -- package=`pwd`/$(echo wxruby3*.pkg)
 
       - name: Install wxRuby3 gem with local build (release test)
         if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
@@ -514,7 +514,7 @@ jobs:
       - name: Install wxRuby3 gem with binary package (release test)
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
-          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { foreach ($p in Get-ChildItem -Path wxruby3*.pkg) {  gem install $f -- package=$p } }
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { foreach ($p in Get-ChildItem -Path wxruby3*.pkg) {  gem install $f -- package=$PWD\$p } }
 
       - name: Install wxRuby3 gem with local build (release test)
         if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
