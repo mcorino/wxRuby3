@@ -42,6 +42,7 @@ module WXRuby3
             end
             true
           end
+          protected :check_rpath_patch
 
           def patch_rpath(shlib, *rpath)
             if check_rpath_patch
@@ -50,6 +51,7 @@ module WXRuby3
             end
             false
           end
+          protected :patch_rpath
 
           def check_tool_pkgs
             pkg_deps = super

@@ -66,15 +66,11 @@ module WXRuby3
       def get_rpath_origin
         "$ORIGIN"
       end
+      protected :get_rpath_origin
 
       # add deployment lookup paths for wxruby shared libraries
-      def update_wxruby_shlib_loadpaths(shlib)
+      def update_shlib_loadpaths(shlib)
         WXRuby3.config.patch_rpath(shlib, WXRuby3.config.get_rpath_origin, "#{WXRuby3.config.get_rpath_origin}/../ext")
-      end
-
-      # add deployment lookup paths for wxwidgets shared libraries
-      def update_wxwin_shlib_loadpaths(shlib, _deplibs)
-        WXRuby3.config.patch_rpath(shlib, WXRuby3.config.get_rpath_origin)
       end
 
       def expand(cmd)

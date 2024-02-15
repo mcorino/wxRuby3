@@ -447,20 +447,22 @@ module WXRuby3
     def get_rpath_origin
       ''
     end
-
-    def check_rpath_patch
-      true
-    end
+    protected :get_rpath_origin
 
     def patch_rpath(_shlib, *)
       true
     end
+    protected :patch_rpath
 
-    def update_wxruby_shlib_loadpaths(_shlib)
+    def update_shlib_loadpaths(_shlib)
       true
     end
 
-    def update_wxwin_shlib_loadpaths(_shlib, _deplibs)
+    def update_shlib_ruby_libpath(_shlib)
+      true
+    end
+
+    def update_shlib_wxwin_libpaths(_shlib, _deplibs)
       true
     end
 
