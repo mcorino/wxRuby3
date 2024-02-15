@@ -416,15 +416,15 @@ jobs:
       - name: Install wxRuby3 gem with binary package (release test)
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
-          gem install ./$(wxruby3*.gem) -- package=$(wxruby3*.pkg)
+          gem install ./$(echo wxruby3*.gem) -- package=$(echo wxruby3*.pkg)
 
       - name: Install wxRuby3 gem with local build (release test)
         if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
+            gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
           else
-            gem install ./$(wxruby3*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+            gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
           fi
 
       - name: Run wxRuby3 regression tests (XVFB)
