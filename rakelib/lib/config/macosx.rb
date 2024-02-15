@@ -62,7 +62,7 @@ module WXRuby3
             ld_ruby_lib = (RB_CONFIG['LIBRUBYARG_SHARED'].split.find { |s| s =~ /^-lruby/ }).sub(/^-l/,'')
             # match the full shared library name that will be linked
             ruby_so = [RB_CONFIG['LIBRUBY_SO'], RB_CONFIG['LIBRUBY_SONAME'], *RB_CONFIG['LIBRUBY_ALIASES'].split].find do |soname|
-              soname =~ /^#{ld_ruby_lib}\./
+              soname =~ /^lib#{ld_ruby_lib}\./
             end
             # form the full path of the shared Ruby library linked
             ruby_lib = File.join(ruby_libdir.to_s, RB_CONFIG['LIBRUBY_SO'])
