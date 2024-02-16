@@ -124,7 +124,7 @@ module WXRuby3
 
         # package registry and essential config
         registry = []
-        config = %w{wxwin wxxml wxwininstdir with-wxwin}.reduce({}) { |h, k| h[k] = WXRuby3.config.get_config(k); h }
+        config = %w{wxwininstdir with-wxwin}.reduce({}) { |h, k| h[k] = WXRuby3.config.get_config(k); h }
         # package temp deflate stream
         deflate_stream = Tempfile.new(File.basename(fname, '.*'), binmode: true)
         begin
