@@ -86,7 +86,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
-          wxr_type: bingem
+          wxr_type: binpkg
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
@@ -295,30 +295,29 @@ jobs:
         ruby tools/check_swig_types.rb
 
     - name: Build wxRuby3 gem
-      if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'bingem'
+      if: matrix.wxr_type == 'gem' || matrix.wxr_type == 'binpkg'
       run: |
-        if [ "${{ matrix.wxr_type }}" == "gem" ]; then
-          bundle exec rake gem
-        else
-          bundle exec rake bingem
+        bundle exec rake gem
+        if [ "${{ matrix.wxr_type }}" == "binpkg" ]; then
+          bundle exec rake binpkg
         fi
 
     - name: Remove wxWidgets
-      if: matrix.wxw_type == 'develop' && matrix.wxr_type == 'bingem'
+      if: matrix.wxw_type == 'develop' && matrix.wxr_type == 'binpkg'
       run: rm -rf $WXWIDGETS_ROOT
 
     - name: Install wxRuby3 gem
       if: matrix.wxr_type != 'develop'
       run: |
-        if [ "${{ matrix.wxr_type }}" == "bingem" ]; then
-          gem install $(echo pkg/*.gem)
+        if [ "${{ matrix.wxr_type }}" == "binpkg" ]; then
+          gem install $(echo pkg/*.gem) -- package=`pwd`/$(echo pkg/*.pkg)
         else
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
-            gem install $(echo pkg/*.gem) && wxruby setup
+            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --wxwin=@system
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
+            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
+            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL
           fi
         fi
 
