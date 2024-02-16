@@ -28,6 +28,7 @@ jobs:
     name: ${{ matrix.os }} wxRuby Release (${{ github.ref_name }})
     env:
       GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+      CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
     outputs:
       version: ${{ steps.version_var.outputs.WXRUBY_RELEASE }}
       prerelease: ${{ steps.version_var.outputs.WXRUBY_PRERELEASE }}
@@ -76,6 +77,11 @@ jobs:
       if: github.event_name != 'workflow_dispatch'
       run: |
         gem push pkg/*.gem
+
+    - name: Trigger Cirrus CI Release Tasks
+      if: github.event_name != 'workflow_dispatch'
+      run: |
+        ruby tools/scripts/cirrus/start_release_tasks.rb
 
     - name: Upload Gem as release test artifact
       if: github.event_name == 'workflow_dispatch'
