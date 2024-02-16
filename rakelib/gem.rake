@@ -47,7 +47,7 @@ namespace :wxruby do
       
           $ ./wxruby test
       
-          The wxRuby3 sample selector can be run by executing:
+          The wxRuby3 sample explorer can be run by executing:
       
           $ ./wxruby sampler
       
@@ -108,7 +108,7 @@ file WXRuby3::Gem.gem_file => WXRuby3::Gem.manifest do
 
       $ wxruby test
 
-      The wxRuby3 sample selector can be run by executing:
+      The wxRuby3 sample explorer can be run by executing:
 
       $ wxruby sampler
 
