@@ -57,13 +57,26 @@ module WXRuby3
         opts.on('--sodir=path',
                 "the directory for ruby extensions [#{get_config('sodir')}]")  {|v| CONFIG['sodir'] = v}
         opts.on('--wxwin=path',
-                "the installation root for the wxWidgets libraries and headers if not using the system default")  {|v| CONFIG['wxwin'] = File.expand_path(v)}
+                "the installation root for the wxWidgets libraries and headers if not using the system default",
+                "(use '@system' to force using system default only)")  { |v|
+          if v.downcase == '@system'
+            CONFIG[WXW_SYS_KEY] = true
+            CONFIG['wxwin'] = nil
+            CONFIG['with-wxwin'] = false
+          else
+            CONFIG['wxwin'] = File.expand_path(v)
+            CONFIG[WXW_SYS_KEY] = false
+          end
+        }
         opts.on('--wxxml=path',
                 "the path to the doxygen generated wxWidgets XML interface specs if not using bootstrap")  {|v| CONFIG['wxxml'] = File.expand_path(v)}
         opts.on('--wxwininstdir=path',
-                "the directory where the wxWidgets dlls are to be installed for wxRuby [#{instance.get_config('wxwininstdir')}]") {|v| CONFIG['wxwininstdir'] = v}
+                "the directory where the wxWidgets dlls are installed (do not change if not absolutely needed) [#{instance.get_config('wxwininstdir')}]") {|v| CONFIG['wxwininstdir'] = v}
         opts.on('--with-wxwin',
-                "build a local copy of wxWidgets for use with wxRuby [false]")  {|v| CONFIG['with-wxwin'] = true}
+                "build a local copy of wxWidgets for use with wxRuby [false]")  { |v|
+          CONFIG['with-wxwin'] = true
+          CONFIG[WXW_SYS_KEY] = false
+        }
         opts.on('--with-debug',
                 "build with debugger support [#{instance.get_config('with-debug')}]")  {|v| CONFIG['with-debug'] = true}
         opts.on('--swig=path',
@@ -84,69 +97,64 @@ module WXRuby3
     def self.check
       instance.init # re-initialize
 
-      if Dir[File.join('ext', 'wxruby_*.so')].empty? # Don't check for wxWidgets installation when executed for binary gem install
+      # should we try to use a system or user defined wxWidgets installation?
+      if !get_config('with-wxwin')
 
-        if !get_config('with-wxwin')
-          # check if a user defined wxWidgets location is specified or we're using a system standard install
-          if get_cfg_string('wxwin').empty?
-            # assume system standard install; will be checked below
-            set_config('wxwininstdir', get_cfg_string('libdir')) if get_cfg_string('wxwininstdir').empty?
-          elsif get_cfg_string('wxwininstdir').empty?
-            if instance.windows?
-              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'bin'))
-            else
-              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'lib'))
-            end
+        # check if a user defined wxWidgets location is specified or should be using a system standard install
+        if get_cfg_string('wxwin').empty?
+          # assume/force system standard install; will be checked below
+          set_config('wxwininstdir', get_cfg_string('libdir')) if get_cfg_string('wxwininstdir').empty?
+        elsif get_cfg_string('wxwininstdir').empty? # if not explicitly specified derive from 'wxwin'
+          if instance.windows?
+            set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'bin'))
+          else
+            set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'lib'))
           end
-        elsif !get_cfg_string('wxwin').empty?
-          if get_cfg_string('wxwininstdir').empty?
-            if instance.windows?
-              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'bin'))
-            else
-              set_config('wxwininstdir', File.join(get_cfg_string('wxwin'), 'lib'))
-            end
-          end
-        else
-          set_config('wxwininstdir', get_cfg_string('sodir')) if get_cfg_string('wxwininstdir').empty?
         end
 
-        if !get_cfg_string('wxwin').empty? || !get_config('with-wxwin')
-          # check wxWidgets availability through 'wx-config' command
-          if instance.check_wx_config
-            if instance.wx_config("--version") < '3.2.0'
-              if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty?
-                # no custom wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
-                set_config('with-wxwin', true)
-              else
-                # if someone wants to customize they HAVE to do it right
-                STDERR.puts "ERROR: Incompatible wxWidgets version. wxRuby requires a wxWidgets >= 3.2.0 release."
-                exit(1)
-              end
-            end
-          else
-            if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty?
-              # no custom wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
+      # or should we use an embedded (automatically built) wxWidgets installation
+      else
+
+        set_config('wxwininstdir', instance.ext_dir)
+
+      end
+
+      if !get_cfg_string('wxwin').empty? || !get_config('with-wxwin')
+        # check wxWidgets availability through 'wx-config' command
+        if instance.check_wx_config
+          if instance.wx_config("--version") < '3.2.0'
+            if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty? && !get_config(WXW_SYS_KEY)
+              # no custom (or forced system) wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
               set_config('with-wxwin', true)
             else
               # if someone wants to customize they HAVE to do it right
-              STDERR.puts "ERROR: Cannot find wxWidgets. wxRuby requires a wxWidgets >= 3.2.0 release."
+              STDERR.puts "ERROR: Incompatible wxWidgets version. wxRuby requires a wxWidgets >= 3.2.0 release."
               exit(1)
             end
           end
-        # else we're are assumed to build wxWidgets ourselves so cannot test anything yet
-        end
-
-        if get_cfg_string('wxxml').empty? && !get_cfg_string('wxwin').empty?
-          # in case of a custom wxWidgets build and no explicit xml path check if the custom build holds this
-          xml_path = File.join(get_cfg_string('wxwin'), 'docs', 'doxygen', 'out', 'xml')
-          # if not there see if the standard setup 'wxw_root/<install dir>' was used
-          xml_path = File.join(get_cfg_string('wxwin'), '..', 'docs', 'doxygen', 'out', 'xml') unless File.directory?(xml_path)
-          if File.directory?(xml_path) && !Dir.glob(File.join(xml_path, '*.xml')).empty?
-            set_config('wxxml', xml_path)
+        else
+          if get_cfg_string('wxwin').empty? && get_cfg_string('wxxml').empty? && !get_config(WXW_SYS_KEY)
+            # no custom (or forced system) wxWidgets build specified so switch to assuming we should include building wxWidgets ourselves
+            set_config('with-wxwin', true)
+          else
+            # if someone wants to customize they HAVE to do it right
+            STDERR.puts "ERROR: Cannot find wxWidgets. wxRuby requires a wxWidgets >= 3.2.0 release."
+            exit(1)
           end
         end
-
+      # else we're assumed to build wxWidgets ourselves so cannot test anything yet
       end
+
+      if get_cfg_string('wxxml').empty? && !get_cfg_string('wxwin').empty?
+        # in case of a custom wxWidgets build and no explicit xml path check if the custom build holds this
+        xml_path = File.join(get_cfg_string('wxwin'), 'docs', 'doxygen', 'out', 'xml')
+        # if not there see if the standard setup 'wxw_root/<install dir>' was used
+        xml_path = File.join(get_cfg_string('wxwin'), '..', 'docs', 'doxygen', 'out', 'xml') unless File.directory?(xml_path)
+        if File.directory?(xml_path) && !Dir.glob(File.join(xml_path, '*.xml')).empty?
+          set_config('wxxml', xml_path)
+        end
+      end
+
     end
 
   end

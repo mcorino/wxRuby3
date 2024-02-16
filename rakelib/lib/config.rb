@@ -68,6 +68,7 @@ module WXRuby3
   }
 
   CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug swig doxygen git})
+  WXW_SYS_KEY = 'with-system-wxwin'
   CONFIG.merge!({
                   'wxwin' => ENV['WXWIN'] || '',
                   'wxxml' => ENV['WXXML'] || '',
@@ -504,15 +505,23 @@ module WXRuby3
       end
 
       def save
+        cfg = WXRuby3::CONFIG.dup
+        wxw_system = !!cfg.delete(WXW_SYS_KEY)
+        cfg['wxwin'] = '@system' if wxw_system
         File.open(build_cfg, 'w') do |f|
-          f << JSON.pretty_generate(WXRuby3::CONFIG)
+          f << JSON.pretty_generate(cfg)
         end
       end
 
       def load
         if File.file?(build_cfg)
           File.open(build_cfg, 'r') do |f|
-            WXRuby3::CONFIG.merge!(JSON.load(f.read))
+            cfg = JSON.load(f.read)
+            if cfg['wxwin'] == '@system'
+              cfg[WXW_SYS_KEY] = true
+              cfg.delete('wxwin')
+            end
+            WXRuby3::CONFIG.merge!(cfg)
           end
         end
       end
