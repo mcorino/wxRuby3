@@ -67,7 +67,7 @@ module WXRuby3
     'sodir' => '$siterubyverarch',
   }
 
-  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug swig doxygen})
+  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug swig doxygen git})
   CONFIG.merge!({
                   'wxwin' => ENV['WXWIN'] || '',
                   'wxxml' => ENV['WXXML'] || '',
