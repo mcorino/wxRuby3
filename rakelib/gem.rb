@@ -122,8 +122,9 @@ module WXRuby3
 
         fname = bin_pkg_file
 
-        # package registry
+        # package registry and essential config
         registry = []
+        config = %w{wxwin wxxml wxwininstdir with-wxwin}.reduce({}) { |h, k| h[k] = WXRuby3.config.get_config(k); h }
         # package temp deflate stream
         deflate_stream = Tempfile.new(File.basename(fname, '.*'), binmode: true)
         begin
@@ -131,17 +132,27 @@ module WXRuby3
           bin_pkg_manifest.each do |path|
             registry << pack_file(deflate_stream, path)
           end
-          # convert registry to deflated json string
+          # convert registry and config to deflated json string
           registry_json_z = Zlib::Deflate.deflate(registry.to_json)
+          config_json_z = Zlib::Deflate.deflate(config.to_json)
+
           # create final package archive
           deflate_stream.rewind
           digest = Digest::SHA256.new
           File.open(fname, 'w', binmode: true) do |fout|
+            # pack config
+            data = [config_json_z.size].pack('Q')
+            digest << data
+            fout.write(data)
+            digest << config_json_z
+            fout.write(config_json_z)
+            # pack registry
             data = [registry_json_z.size].pack('Q')
             digest << data
             fout.write(data)
             digest << registry_json_z
             fout.write(registry_json_z)
+            # pack files
             registry.each do |entry|
               if entry[2] > 0
                 data = deflate_stream.read(entry[2])
@@ -283,6 +294,10 @@ module WXRuby3
             return false
           end
           fin.rewind
+          # get packed config size
+          config_size = fin.read(8).unpack('Q').shift
+          # unpack config
+          config = JSON.parse!(Zlib::Inflate.inflate(fin.read(config_size)))
           # get packed registry size
           registry_size = fin.read(8).unpack('Q').shift
           # unpack registry
@@ -302,6 +317,8 @@ module WXRuby3
             end
           end
         end
+        # merge config
+        config.each_pair { |k,v| WXRuby3.config.set_config(k, v) }
         true
       end
       private :install_bin_pkg
