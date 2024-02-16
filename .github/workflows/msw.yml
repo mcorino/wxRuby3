@@ -206,7 +206,7 @@ jobs:
             }
           }
           Else {
-            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f --prebuilt=none && wxruby setup --wxwin=$env:WXWIN_ROOT }
+            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --wxwin=$env:WXWIN_ROOT }
           }
 
       - name: Run wxRuby3 regression tests
