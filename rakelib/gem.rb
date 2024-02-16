@@ -180,15 +180,20 @@ module WXRuby3
       def install_gem(prebuilt_only: false, package: nil)
         # check if a user specified binary package is to be used
         if package
-          uri = URI(package)
-          if uri.scheme == 'file' || uri.scheme.nil?
-            if File.file?(uri.path)
-              $stdout.puts "Installing user package #{uri.path}..."
-              exit(1) unless install_bin_pkg(uri.path)
+          uri = File.file?(package) ? nil : URI(package)
+          if uri.nil? || uri.scheme == 'file'
+            filename = package
+            if uri
+              filename = uri.host ? "#{uri.host}:#{uri.path}" : uri.path
+              filename = nil unless File.file?(filename)
+            end
+            if filename
+              $stdout.puts "Installing user package #{filename}..."
+              exit(1) unless install_bin_pkg(filename)
               $stdout.puts 'Done!'
               true
             else
-              $stderr.puts "ERROR: Cannot access file #{uri.path}. Reverting to source install."
+              $stderr.puts "ERROR: Cannot access file #{package}."
               exit(1)
             end
           elsif uri.scheme == 'http' || uri.scheme == 'https'

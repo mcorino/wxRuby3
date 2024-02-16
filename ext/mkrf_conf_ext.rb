@@ -47,7 +47,8 @@ unless OPTIONS[:prebuilt].nil?
 end
 if OPTIONS[:package]
   task_args << ', ' unless task_args.empty?
-  task_args << "'--package', " << "'#{OPTIONS[:package]}'"
+  pkg = RUBY_PLATFORM =~ /mingw/ ? pkg.gsub('\\', '/') : pkg # make sure the path is URI compatible
+  task_args << "'--package', " << "'#{pkg}'"
 end
 
 # generate new rakefile with appropriate default task (calls actual task in rakelib)
