@@ -316,9 +316,9 @@ module WXRuby3
               File.chmod(mode, path)
             end
           end
+          # merge config
+          config.each_pair { |k,v| WXRuby3.config.set_config(k, v) }
         end
-        # merge config
-        config.each_pair { |k,v| WXRuby3.config.set_config(k, v) }
         true
       end
       private :install_bin_pkg
