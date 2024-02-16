@@ -47,7 +47,7 @@ unless OPTIONS[:prebuilt].nil?
 end
 if OPTIONS[:package]
   task_args << ', ' unless task_args.empty?
-  pkg = RUBY_PLATFORM =~ /mingw/ ? pkg.gsub('\\', '/') : pkg # make sure the path is URI compatible
+  pkg = RUBY_PLATFORM =~ /mingw/ ? OPTIONS[:package].gsub('\\', '/') : OPTIONS[:package] # make sure the path is URI compatible
   task_args << "'--package', " << "'#{pkg}'"
 end
 
