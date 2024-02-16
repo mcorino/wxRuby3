@@ -285,7 +285,7 @@ jobs:
             configure_flags:
             use_xvfb: true
             build: true
-            wxw_type: develop
+            wxw_type: system
           - name: Ubuntu2204
             os: ubuntu-22.04
             gtk_version: 3
@@ -313,7 +313,6 @@ jobs:
     name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
@@ -360,7 +359,7 @@ jobs:
           if [ -n "${{ matrix.gtk_version }}" ]; then
             wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
           fi
-          ./configure $wxCONFIGURE_OPTIONS --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
           if [ -n "$rc" ]; then
             echo '*** Configuring failed, contents of config.log follows: ***'
             echo '-----------------------------------------------------------'
@@ -373,7 +372,7 @@ jobs:
         if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          make && make install
+          sudo make install && sudo ldconfig
 
       - name: Install wxRuby3 gem with binary package
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
@@ -391,13 +390,13 @@ jobs:
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
               gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --autoinstall
             else
-              gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+              gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --wxwin=@system --autoinstall
             fi
           else
             if [ "${{ matrix.wxw_type }}" == "embed" ]; then
               gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --autoinstall
             else
-              gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+              gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --wxwin=@system --autoinstall
             fi
           fi
 
@@ -424,7 +423,7 @@ jobs:
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
           else
-            gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL --autoinstall
+            gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --wxwin=@system --autoinstall
           fi
 
       - name: Run wxRuby3 regression tests (XVFB)
