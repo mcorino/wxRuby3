@@ -7,7 +7,7 @@ $CIRRUS_TOKEN = ENV['CIRRUS_TOKEN'] || ''
 
 # for an actual release we can just run the Cirrus tasks off the master branch since
 # the release tag has just be created against that
-$branch = ARGV.empty? ? 'master' : ARGV[0]
+$branch = ARGV.empty? ? 'master' : ARGV[0].split('/').last
 
 $cirrus_uri = URI('https://api.cirrus-ci.com/graphql')
 
