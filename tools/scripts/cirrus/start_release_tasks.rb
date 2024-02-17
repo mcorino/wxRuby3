@@ -22,7 +22,7 @@ if Net::HTTPOK === $response
   vars = {
     input: {
       repositoryId: "#{$repository_id}",
-      branch: "bin-packages",
+      branch: "v0.9.7",
       clientMutationId: "wxRuby3"
     }
   }
