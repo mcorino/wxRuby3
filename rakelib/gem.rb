@@ -107,7 +107,13 @@ module WXRuby3
 
       def bin_pkg_name
         gemspec = ::Gem::Specification.new(make_bin_name, WXRuby3::WXRUBY_VERSION)
-        gemspec.platform = ::Gem::Platform.local.to_s
+        platform = ::Gem::Platform.new(RB_CONFIG["arch"])
+        if platform.os == 'darwin'
+          # loose the version for darwin kernels as that does not seem to affect wxRuby runtime compatibility
+          # (until proven otherwise)
+          platform.version = nil
+        end
+        gemspec.platform = platform.to_s
         gemspec.full_name
       end
       private :bin_pkg_name
