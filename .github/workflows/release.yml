@@ -80,7 +80,11 @@ jobs:
 
     - name: Trigger Cirrus CI Release Tasks
       run: |
-        ruby tools/scripts/cirrus/start_release_tasks.rb
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          ruby tools/scripts/cirrus/start_release_tasks.rb ${{ github.ref }}
+        else
+          ruby tools/scripts/cirrus/start_release_tasks.rb
+        fi
 
     - name: Upload Gem as release test artifact
       if: github.event_name == 'workflow_dispatch'
