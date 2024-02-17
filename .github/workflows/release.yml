@@ -79,7 +79,6 @@ jobs:
         gem push pkg/*.gem
 
     - name: Trigger Cirrus CI Release Tasks
-      if: github.event_name != 'workflow_dispatch'
       run: |
         ruby tools/scripts/cirrus/start_release_tasks.rb
 
