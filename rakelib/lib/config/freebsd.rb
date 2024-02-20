@@ -6,4 +6,4 @@
 # wxRuby3 buildtools configuration
 ###
 
-raise "NETBSD platform is unsupported as yet."
+raise "Freebsd platform is unsupported as yet."
