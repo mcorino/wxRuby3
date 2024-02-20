@@ -87,9 +87,8 @@ file WXRuby3::Gem.gem_file => WXRuby3::Gem.manifest do
       "'--exclude=lib/wx/(aui|core|grid|html|pg|prt|rbn|rtc|stc|wxruby)/.*'"
     gem.metadata = {
       "bug_tracker_uri"   => "https://github.com/mcorino/wxRuby3/issues",
-      "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
-      "documentation_uri" => "https://mcorino.github.io/wxRuby3",
       "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
+      "documentation_uri" => "https://mcorino.github.io/wxRuby3",
       "github_repo"       => "https://github.com/mcorino/wxRuby3"
     }
     gem.post_install_message = <<~__MSG
