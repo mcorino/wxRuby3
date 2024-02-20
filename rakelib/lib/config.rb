@@ -610,11 +610,6 @@ module WXRuby3
 
             # Extra swig helper files to be built
             @helper_modules = %w|RubyStockObjects|
-              # if macosx?
-              #                   %w|RubyStockObjects Mac|
-              #                 else
-              #                   %w|RubyStockObjects|
-              #                 end
             # helper to initialize on startup (stock objects can only be initialized after App creation)
             @helper_inits = @helper_modules - %w|RubyStockObjects|
 
@@ -657,7 +652,7 @@ module WXRuby3
             @obj_ext          = RB_CONFIG["OBJEXT"]
             @dll_ext          = RB_CONFIG['DLEXT']
 
-            # Exclude certian classes from being built, even if they are present
+            # Exclude certain classes from being built, even if they are present
             # in the configuration of wxWidgets.
             if ENV['WXRUBY_EXCLUDED']
               ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| exclude_module(classname) }
@@ -721,16 +716,12 @@ module WXRuby3
             @wx_abi_version || ''
           end
 
-          def cygwin?
-            @platform == :cygwin
-          end
-
           def mingw?
             @platform == :mingw
           end
 
-          def netbsd?
-            @platform == :netbsd
+          def freebsd?
+            @platform == :freebsd
           end
 
           def macosx?
@@ -742,7 +733,7 @@ module WXRuby3
           end
 
           def windows?
-            mingw? || cygwin?
+            mingw?
           end
 
           def ldflags(_target)
