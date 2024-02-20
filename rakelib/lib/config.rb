@@ -534,8 +534,6 @@ module WXRuby3
         case RUBY_PLATFORM
         when /mingw/
           :mingw
-        when /cygwin/
-          :cygwin
         when /netbsd/
           :netbsd
         when /darwin/
