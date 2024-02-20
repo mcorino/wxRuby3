@@ -81,9 +81,7 @@ module WxRuby
   def self.run(argv = ARGV)
     # parse global options (upto first command)
     argv = WxRuby::Commands.parse_args(argv)
-    while !argv.empty?
-      WxRuby::Commands.run(argv.shift, argv)
-    end
+    WxRuby::Commands.run(argv.shift, argv) unless argv.empty?
   end
 end
 
