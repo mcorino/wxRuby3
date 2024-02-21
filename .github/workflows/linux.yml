@@ -276,6 +276,11 @@ jobs:
           fi
         fi
 
+    - name: Check wxRuby3 gem install
+      if: matrix.wxr_type != 'develop'
+      run: |
+        wxruby check
+
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited

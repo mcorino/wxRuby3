@@ -209,6 +209,11 @@ jobs:
             foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --wxwin=$env:WXWIN_ROOT }
           }
 
+      - name: Check wxRuby3 gem install
+        if: matrix.wxr_type != 'develop'
+        run: |
+          wxruby check
+
       - name: Run wxRuby3 regression tests
         run: |
           If ("${{ matrix.wxr_type }}" -eq "develop") {

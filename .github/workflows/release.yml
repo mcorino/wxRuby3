@@ -392,21 +392,25 @@ jobs:
             gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=only
           fi
 
-      - name: Install wxRuby3 gem with local build
+      - name: Install wxRuby3 gem for local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-              gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --autoinstall
-            else
-              gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --wxwin=@system --autoinstall
-            fi
+            gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none
           else
-            if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-              gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --autoinstall
-            else
-              gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none && wxruby setup --wxwin=@system --autoinstall
-            fi
+            gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none
+          fi
+          if wxruby check || [ "$?" != "1" ]; then
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+          fi
+
+      - name: Setup wxRuby3 gem with local build
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            wxruby setup --autoinstall
+          else
+            wxruby setup --wxwin=@system --autoinstall
           fi
 
       - name: Download release test gem artifact
@@ -426,14 +430,27 @@ jobs:
         run: |
           gem install ./$(echo wxruby3*.gem) -- package=`pwd`/$(echo wxruby3*.pkg)
 
-      - name: Install wxRuby3 gem with local build (release test)
+      - name: Install wxRuby3 gem for local build (release test)
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          gem install ./$(echo wxruby3*.gem) -- prebuilt=none
+          if wxruby check || [ "$?" != "1" ]; then
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+          fi
+
+      - name: Setup wxRuby3 gem with local build (release test)
         if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
           if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --autoinstall
+            wxruby setup --autoinstall
           else
-            gem install ./$(echo wxruby3*.gem) -- prebuilt=none && wxruby setup --wxwin=@system --autoinstall
+            wxruby setup --wxwin=@system --autoinstall
           fi
+
+      - name: Check wxRuby3 gem install
+        if: matrix.wxr_type != 'develop'
+        run: |
+          wxruby check
 
       - name: Run wxRuby3 regression tests (XVFB)
         if: ${{ matrix.use_xvfb }}
@@ -497,15 +514,25 @@ jobs:
             gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=only
           }
 
-      - name: Install wxRuby3 gem with local build
+      - name: Install wxRuby3 gem for local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
-            gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=none && wxruby setup --autoinstall
+            gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=none
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=none && wxruby setup --autoinstall
+            gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=none
           }
+          wxruby check
+          If ($LastExitCode -ne 1) {
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+            Exit $LastExitCode
+          }
+
+      - name: Setup wxRuby3 gem with local build
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          wxruby setup --autoinstall
 
       - name: Download release test gem artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -524,10 +551,25 @@ jobs:
         run: |
           foreach ($f in Get-ChildItem -Path wxruby3*.gem) { foreach ($p in Get-ChildItem -Path wxruby3*.pkg) {  gem install $f -- package=$p } }
 
-      - name: Install wxRuby3 gem with local build (release test)
+      - name: Install wxRuby3 gem for local build (release test)
         if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
         run: |
-          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall }
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { gem install $f -- prebuilt=none }
+          wxruby check
+          If ($LastExitCode -ne 1) {
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+            Exit $LastExitCode
+          }
+
+      - name: Setup wxRuby3 gem with local build (release test)
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { wxruby setup --autoinstall }
+
+      - name: Check wxRuby3 gem install
+        if: matrix.wxr_type != 'develop'
+        run: |
+          wxruby check
 
       - name: Run wxRuby3 regression tests
         run: |
