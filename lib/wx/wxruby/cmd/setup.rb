@@ -50,7 +50,7 @@ module WxRuby
           puts
           exit(0)
         end
-        opts.parse!(args)
+        opts.parse!(args) rescue ($stderr.puts $!.message; exit(127))
       end
 
       def self.run(argv)
