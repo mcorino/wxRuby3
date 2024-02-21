@@ -79,6 +79,7 @@ file WXRuby3::Gem.gem_file => WXRuby3::Gem.manifest do
     gem.add_dependency 'rake'
     gem.add_dependency 'minitest', '~> 5.15'
     gem.add_dependency 'test-unit', '~> 3.5'
+    gem.add_dependency 'plat4m', '~> 1.0'
     gem.rdoc_options <<
       '--exclude=\\.dll' <<
       '--exclude=\\.so' <<

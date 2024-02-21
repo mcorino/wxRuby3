@@ -7,7 +7,7 @@
 ###
 
 require_relative './unixish'
-require_relative 'pkgman/base'
+require_relative 'pkgman/linux'
 
 module WXRuby3
 

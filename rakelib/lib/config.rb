@@ -11,6 +11,7 @@ require 'fileutils'
 require 'json'
 require 'open3'
 require 'monitor'
+require 'plat4m'
 
 module FileUtils
   # add convenience methods
@@ -555,15 +556,26 @@ module WXRuby3
           def initialize
             @ruby_exe = RB_CONFIG["ruby_install_name"]
 
-            @extmk = /extmk\.rb/ =~ $0
-            @platform = Config.platform
-            require File.join(File.dirname(__FILE__), 'config', @platform.to_s)
+            @sysinfo = Plat4m.current rescue nil
+            @platform = if @sysinfo
+                          case @sysinfo.os.id
+                          when :darwin
+                            :macosx
+                          when :windows
+                            RUBY_PLATFORM =~ /mingw/ ? :mingw : :unknown
+                          else
+                            @sysinfo.os.id
+                          end
+                        else
+                          :unknown
+                        end
+            require_relative File.join('config', @platform.to_s)
             self.class.include(WXRuby3::Config::Platform)
 
             init # initialize settings
           end
 
-          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
+          attr_reader :ruby_exe, :sysinfo, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
           attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
