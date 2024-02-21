@@ -101,8 +101,14 @@ file WXRuby3::Gem.gem_file => WXRuby3::Gem.manifest do
 
       $ wxruby setup
 
-      Otherwise (or after you have successfully run the setup procedure) you can start
-      using wxRuby3.
+      To check whether wxRuby3 is ready to run or not you can at any time execute the 
+      following command:
+
+      $ wxruby check
+
+      Run 'wxruby check -h' for more information.
+
+      When the wxRuby3 setup has been fully completed you can start using wxRuby3.
  
       You can run the regression tests to verify the installation by executing:
 
