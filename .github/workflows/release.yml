@@ -526,8 +526,9 @@ jobs:
           wxruby check
           If ($LastExitCode -ne 1) {
             echo "ERROR: 'wxruby check' returned unexpected result!"
-            Exit $LastExitCode
+            Exit 1
           }
+          Exit 0
 
       - name: Setup wxRuby3 gem with local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
@@ -558,8 +559,9 @@ jobs:
           wxruby check
           If ($LastExitCode -ne 1) {
             echo "ERROR: 'wxruby check' returned unexpected result!"
-            Exit $LastExitCode
+            Exit 1
           }
+          Exit 0
 
       - name: Setup wxRuby3 gem with local build (release test)
         if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
