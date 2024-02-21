@@ -14,7 +14,7 @@ module WxRuby
       DESC = 'Run wxRuby3 post-install setup.'
 
       def self.description
-        "    setup -h|[options]\t\t#{DESC}"
+        "    setup -h|[options]\t\t\t#{DESC}"
       end
 
       def self.options
