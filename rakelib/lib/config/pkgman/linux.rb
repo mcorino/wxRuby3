@@ -20,6 +20,11 @@ module WXRuby3
           suse: %w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg-devel libpng-devel],
           arch: %w[pkg-config gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12]
         }
+        PLATFORM_ALTS = {
+          suse: { 'g++' => 'gcc-c++' },
+          rhel: { 'git' => 'git-core' },
+          arch: { 'g++' => 'gcc' }
+        }
         MIN_GENERIC_PKGS = %w[gtk3-devel patchelf g++ make git webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel]
 
         class << self
@@ -85,7 +90,11 @@ module WXRuby3
           end
 
           def platform_pkgs
-            PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym] || []
+            pkgs = PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym] || []
+            (PLATFORM_ALTS[WXRuby3.config.sysinfo.os.variant.to_sym] || {}).each_pair do |org, alt|
+              pkgs << alt if pkgs.delete(org)
+            end
+            pkgs
           end
 
           def add_platform_pkgs(pkgs)
