@@ -90,14 +90,15 @@ module WXRuby3
           end
 
           def platform_pkgs
-            pkgs = PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym] || []
-            (PLATFORM_ALTS[WXRuby3.config.sysinfo.os.variant.to_sym] || {}).each_pair do |org, alt|
-              pkgs << alt if pkgs.delete(org)
-            end
-            pkgs
+            PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym] || []
           end
 
           def add_platform_pkgs(pkgs)
+            # transform any platform specific package alternatives
+            (PLATFORM_ALTS[WXRuby3.config.sysinfo.os.variant.to_sym] || {}).each_pair do |org, alt|
+              pkgs << alt if pkgs.delete(org)
+            end
+            # add any other platform specific package dependencies
             pkgs.concat(pkgman.select_uninstalled(platform_pkgs))
           end
 
