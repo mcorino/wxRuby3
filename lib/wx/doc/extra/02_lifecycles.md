@@ -155,12 +155,12 @@ There are however quite a lot of wrapped native objects in wxRuby for which *obj
 object tracking has been disabled for their classes. This means these kind of classes/object should **not** be derived from
 (if even possible and/or useful) to add functionality/information or their identity used as key to link other information.<br>
 These classes include:
-* classes considered POD types like Wx::Size, Wx::Point, Wx::RealPoint, Wx::Rect, Wx::GBSpan, Wx::GBPosition, Wx::BusyInfoFlags,
+- classes considered POD types like Wx::Size, Wx::Point, Wx::RealPoint, Wx::Rect, Wx::GBSpan, Wx::GBPosition, Wx::BusyInfoFlags,
 Wx::AboutDialogInfo
-* final non-instantiatable classes like the Wx::DC (Device Context) class family, Wx::GraphicsContext, Wx::WindowsDisabler,
+- final non-instantiatable classes like the Wx::DC (Device Context) class family, Wx::GraphicsContext, Wx::WindowsDisabler,
 Wx::EventBlocker, Wx::BusyInfo
-* classes with native singleton objects like Wx::Clipboard
-* the reference counted GDI objects like Wx::Pen, Wx::Brush, Wx::Colour, Wx::Cursor, Wx::Bitmap, Wx::Icon and similar 
+- classes with native singleton objects like Wx::Clipboard
+- the reference counted GDI objects like Wx::Pen, Wx::Brush, Wx::Colour, Wx::Cursor, Wx::Bitmap, Wx::Icon and similar 
 reference counted objects like Wx::Font
 
 The reference documentation will note untracked object classes.
