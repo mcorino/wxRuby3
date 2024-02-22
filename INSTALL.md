@@ -8,25 +8,26 @@
 
 The wxRuby3 gem provides a **worry-free** installation for all supported platforms.
 
-The default gem installation commands 
+The default gem installation command
+
 ```shell
 gem install wxruby3
 ``` 
 
-for Windows and 
+and the setup command  
 
 ```shell
-gem install wxruby3 && wxruby setup
+wxruby setup
 ```
-for Linux and MacOSX (see Note below) and Windows (if installing for Ruby releases older than the latest stable release) 
-should always result in a successfully installed wxRuby3 version.<br>
-Just follow the (very few and in some cases none) prompts at the start of the setup procedure and sit back and relax.
+
+for installations without prebuilt binary packages should always result in a successfully installed wxRuby3 version.
 
 > **NOTE**<br>
 > Currently installing the wxRuby3 gem for the system supplied Ruby on MacOSX systems does not work.<br>
 > The user is therefor required to install a Ruby interpreter using either [MacPorts](https://www.macports.org/) (both 
 > privileged and user installations are supported) or [Homebrew](https://brew.sh/) or Ruby installers/version managers 
-> like [ruby-install](https://github.com/postmodern/ruby-install) or [RVM](https://rvm.io) (only user installations supported) .
+> like [ruby-install](https://github.com/postmodern/ruby-install) or [RVM](https://rvm.io) (only user installations 
+> supported) .
 
 [Below](INSTALL.md#installing-software-requirements) more details regarding the software requirements for wxRuby3, the 
 setup procedure and various options to tweak and customize the installation (including platform specific details for 
@@ -36,15 +37,64 @@ Linux, Windows and MacOSX) are described.
 
 Installing the wxRuby3 gem will also install the bundled `wxruby` CLI binary.
 
-For source gem installations the CLI will initially only provide the *setup* command.
+For source gem installations the CLI will initially only provide the `check` and `setup` commands.
 
-For binary gem installations and successfully set up source gem installations the *setup* command is replaced by other 
+For finalized installations (either from binary packages or source builds) the *setup* command is replaced by other 
 utility commands providing the ability to run the bundled regression tests and access (run or copy) the bundled examples.<br>
 Run the following command to see the available options at any time:
 
 ```shell
-wxruby --help
+wxruby -h
 ```
+
+## Binary packages
+
+The wxRuby3 gem installation process will by default attempt to match the current platform to any standard available
+binary packages and if found install the matched package.
+
+Binary packages are archives (custom format) containing prebuilt (extension) library artifacts for a single specific
+platform. Any such platform is identified by:
+
+- CPU architecture (x86_64, ARM64, etc.)
+- Operating system type (linux, darwin, windows, etc.)
+- OS distribution and release number (except for windows)
+- Ruby ABI version (i.e. {major}.{minor})
+
+The standard available binary packages provide both the wxRuby3 extension libraries as well as the embedded wxWidgets 
+libraries the extension libraries were built for.<br>
+This is however not mandatory. User created binary packages can be built for separately installed (either distribution 
+or user provided) wxWidgets libraries.
+
+### Standard packages
+
+The standard release artifacts at [Github](https://github.com/mcorino/wxRuby3/releases) provide a selection of binary
+packages for all supported OS platforms which are automatically built and uploaded for every release.<br>
+The following tables lists the packages provided by the current wxRuby3 release process:
+
+| OS      | Distributions                 | Architectures           | Rubies                                             |
+|---------|-------------------------------|-------------------------|----------------------------------------------------|
+| Linux   | OpenSuSE Leap (latest stable) | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
+| Linux   | Fedora (latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
+| Linux   | Debian (latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
+| Linux   | Ubuntu (latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |
+| Windows | NA                            | x86_64                  | Latest stable Ruby                                 |
+| OSX     | MacOSX 12                     | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
+| OSX     | MacOSX 13                     | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
+| OSX     | MacOSX 14                     | ARM64                   | Latest stable Ruby                                 |
+
+### User created packages
+
+Users can create their own wxRuby3 binary packages by building from source ([see here](#building-from-source)) and after
+successfully having built the wxWidgets extension libraries execute the `rake binpkg` command.<br>
+This creates two files in the `pkg` folder with names like<br>
+`wxruby3_{distribution}_ruby{abi version}_v{wxruby version}_{os}_{arch}.pkg`<br>
+and<br>
+`wxruby3_{distribution}_ruby{abi version}_v{wxruby version}_{os}_{arch}.sha`<br>
+where the `.pkg` file is the actual binary archive and the `.sha` file is the associated SHA256 digest signature of the 
+archive contents.
+
+Both files are required for installation and should be located at the same path (either local path or http(s) url).<br>
+[See here](#the-package-option) for information on how to use user created binary packages with the wxRuby3 gem installation process.
 
 ## Software requirements for wxRuby3
 
@@ -90,63 +140,129 @@ wxRuby3 can be built and installed for 3 different types of wxWidgets installati
    In this case the libraries and development files are most likely not found in standard locations and the wxRuby3 
    installation procedure will require specific options to have these locations provided. 
 3. An 'embedded' installation of wxWidgets setup by the wxRuby3 installation procedure.<br>
-   This is the default when the installation procedure does not detect a (compatible!) system installation or if an 
-   option has been provided explicitly specifying to install an embedded wxWidgets version.
+   This is the default when using a standard binary package or when installing from source and the setup procedure does 
+   not detect a (compatible!) system installation or if an option has been provided explicitly specifying to install an 
+   embedded wxWidgets version.
 
 Please note that in case of option **2** the user is responsible to make sure the wxWidgets shared libraries can be
 found by the system's dynamic loader at runtime.
 
-As described with option **3** a wxWidgets system installation must be compatible (>= version 3.2) to be selected. In case 
-the installed version does not meet this requirement it is ignored as if not installed.
+As described with option **3** a wxWidgets system installation must be compatible (>= version 3.2) to be selected for 
+source installation. In case the installed version does not meet this requirement it is ignored as if not installed.
 
 For more information on how to install wxWidgets see the [Installing software requirements](INSTALL.md#installing-software-requirements) section below.
 
 ## wxRuby3 gem installation details 
 
-The wxRuby3 project provides gems on [RubyGems](https://rubygems.org) which can be installed with the
+The wxRuby3 project provides a gem on [RubyGems](https://rubygems.org) which can be installed with the
 standard `gem install` command line this:
 
 ```shell
 gem install wxruby3
  ```
 
-On Linux and MacOSX systems this will install the source based gem which will require a follow-up command to build the native wxruby3 extension
-for the platform on which wxRuby3 is being installed.<br>
-On Windows systems a prebuilt binary gem is available for the latest stable release(s) of [RubyInstaller](https://rubyinstaller.org) 
-installed rubies that will be installed by default if installing for that platform (including an embedded, latest 
-stable version, wxWidgets installation).<br>
-Alternatively the source gem can be installed on Windows by installing with an explicit platform specification like this:
+Alternatively the gem can be downloaded from the [Github release assets](https://github.com/mcorino/wxRuby3/releases) and
+stored locally. This local gem can than be installed like this:
 
 ```shell
-gem install wxruby3 --platform=ruby
+gem install /path/to/local/wxruby3.gem
 ```
 
-> The result of installing the gem on a Linux platform should be something like this:
+This default installation command will allow the wxRuby3 installation process to scan available standard binary packages
+([see here](#standard-packages)) for a match to the platform being installed on and install any matched package or revert
+to a source install if none matched.<br>
+This command will therefor succeed if:
+- a matching binary package could be successfully downloaded and installed;
+- the installation reverted to source install.
+
+This command only fails when:
+- a matching digest signature for the downloaded binary package could not be downloaded;
+- the digest signature did not match the downloaded package contents.
+
+> The result of successfully installing the gem on a Linux platform should be something like this:
 > ```
 > $ gem install wxruby3 
+> Building native extensions. This could take a while...
 > 
-> The wxRuby3 Gem has been successfully installed.
-> Before being able to use wxRuby3 you need to run the post-install setup process
-> by executing the command 'wxruby setup'.
+> The wxRuby3 Gem has been successfully installed including the 'wxruby' utility.
 > 
-> Run 'wxruby setup -h' to see information on the available commandline options.
->
-> Successfully installed wxruby3-0.9.5
-> Parsing documentation for wxruby3-0.9.5
-> Installing ri documentation for wxruby3-0.9.5
-> Done installing documentation for wxruby3 after 10 seconds
+> In case no suitable binary release package was available for your platform you  
+> will need to run the post-install setup process by executing:
+> 
+> $ wxruby setup
+> 
+> To check whether wxRuby3 is ready to run or not you can at any time execute the
+> following command:
+> 
+> $ wxruby check
+> 
+> Run 'wxruby check -h' for more information.
+> 
+> When the wxRuby3 setup has been fully completed you can start using wxRuby3.
+> 
+> You can run the regression tests to verify the installation by executing:
+> 
+> $ wxruby test
+> 
+> The wxRuby3 sample explorer can be run by executing:
+> 
+> $ wxruby sampler
+> 
+> Have fun using wxRuby3.
+> 
+> Run 'wxruby -h' to see information on the available commands.
+> 
+> Successfully installed wxruby3-0.9.8
+> Parsing documentation for wxruby3-0.9.8
+> Installing ri documentation for wxruby3-0.9.8
+> Done installing documentation for wxruby3 after 2 seconds
 > 1 gem installed
 > ```
 
-As said, on Linux and MacOSX systems (also on Windows when installing the source gem) an additional command is required 
-to build the actual wxRuby3 extension libraries for the platform which is a wxRuby3 CLI command installed by the gem:
+### Gem installation options
+
+Two options are available to control the wxRuby3 gem installation process.
+
+#### The `prebuilt` option
+
+The `prebuilt=none|only` option can be used to either prevent binary package matching and installation (`prebuilt=none`)
+or make binary package installation mandatory (`prebuilt=only`).
+
+The following command therefor forces a wxRuby3 source installation and will never fail: 
+
+```shell
+gem install wxruby3 -- prebuilt=none
+```
+
+And the following command will force binary package installation and fails if no matching package could be installed:
+
+```shell
+gem install wxruby3 -- prebuilt=only
+```
+
+#### The `package` option
+
+The `package=URL` option can be used to explicitly specify a binary package to install. This option implies `prebuilt=only`.
+No package matching will be performed so mismatched binary packages will cause wxRuby3 to fail after installation.<br>
+The `URL` can be specified as:
+- an <b>absolute</b> local path like `/path/to/binary/package.pkg`
+- an absolute `file://` URI like `file:///path/to/binary/package.pkg`
+- an `http://` or `https://` URL
+
+In all cases the associated `.sha` file <b>must</b> be located at the same path as the package file itself. If not the
+installation will fail as well as when the signature does not match the digest of the package contents.
+
+### Gem source setup
+
+As said a gem-based source installation requires an additional command is to build the actual wxRuby3 extension libraries 
+for the platform installing on which is a wxRuby3 CLI command installed by the gem:
 
 ```shell
 wxruby setup
 ```
 
 The wxRuby3 CLI `wxruby` is installed by all wxRuby3 gems. In case of the source gem initially the CLI will provide only 
-a single command `wxruby setup` to finish wxRuby3 extension (build and) installation.
+the commands `wxruby setup` (to finish wxRuby3 extension installation) and `wxruby check`.
 
 For most (user) installations the default setup command as shown above will suffice nicely. In this case the setup 
 (or installation) procedure will analyze the system to see if it meets the software requirements described above and if not
@@ -184,7 +300,7 @@ The initial message shown (between lines starting with '---' ) is indicative of 
 on options passed to the setup command.<br>
 Building the wxRuby3 native extensions and generating reference documentation will always happen.
 
-### Disable prompting for automatic install 
+#### Disable prompting for automatic install 
 
 To prevent having the setup procedure asking consent the setup procedure can be started with the `--autoinstall` option 
 like this:
@@ -195,7 +311,7 @@ wxruby setup --autoinstall
 
 Note that on Linux that may still present a prompt in case the `sudo` command requires a password.
 
-### Prevent automatic installation of software requirements
+#### Prevent automatic installation of software requirements
 
 To prevent the setup procedure from considering to automatically install (with or without prompting) any missing software
 requirements the setup procedure can be started with the `--no-autoinstall` option like this: 
@@ -207,7 +323,7 @@ wxruby setup --no-autoinstall
 The setup procedure will still analyze the system for available software requirements and if it finds any missing it
 will end the procedure and show a message of what it found missing.
 
-### Force embedded wxWidgets installation
+#### Force embedded wxWidgets installation
 
 To prevent the setup procedure of using any system installed wxWidgets version the setup procedure can be started with 
 the `--with-wxwin` option like this:
@@ -218,7 +334,7 @@ wxruby setup --with-wxwin
 
 This will force the setup procedure to build and install an embedded wxWidgets version for wxRuby3.
 
-### Setup with user installed wxWidgets
+#### Setup with user installed wxWidgets
 
 In case of a (custom) user installation of wxWidgets the `--wxwin` (and optionally `--wxxml`) option(s) can be used to
 start the setup procedure to build for this installation like this:
@@ -241,7 +357,7 @@ wxruby setup --wxwin=/my/custom/wxWidgets --wxxml=/my/alternate/wxWidgets/xml
 > responsible for making sure the wxRuby3 extension library can find the wxWidgets libraries at runtime (normally this
 > requires updating the standard shared library search path for the platform).
 
-### Setup with customized tool paths
+#### Setup with customized tool paths
 
 If for whatever reason the required development tools `doxygen`, `swig` and/or `git` have been installed in a location
 not in the standard executable search path the full path to these tools can be passed on the setup procedure using the
@@ -251,7 +367,7 @@ not in the standard executable search path the full path to these tools can be p
 wxruby setup --doxygen=/my/path/to/doxygen
 ```
 
-### Redirect log to customized path
+#### Redirect log to customized path
 
 The setup procedure will log full build results to a file setup.log at the location where the gem contents is stored.
 If the setup fails the error message will display the log file location and by default if the setup succeeds the log 
@@ -364,7 +480,7 @@ Checkout the wxRuby3 sources from [GitHub](https://github.com/mcorino/wxRuby3) o
 Requirements are the same as for installing the source gem. Gem dependencies are listed in the Gemfile in the root
 of the wxRuby3 tree and should be installed by executing `bundle install`.<br>
 To be able to generate HTML documentation the optional `:documentation` group should be included.<br>
-To be able to run the Rake memory check task the option `:develop` group should be included.
+To be able to run the Rake memory check task the optional `:develop` group should be included.
 
 The wxRuby3 project provides a Rake based build system. Call `rake help` to get an overview of the available commands.
 As mentioned there the `rake configure` command is required as the very first command. Call `rake configure[--help]` to
@@ -375,5 +491,8 @@ When wxRuby3 has been configured the extensions can be build by calling the `rak
 commands are executed using parallel task execution by default.
 
 When the build has finished without errors the regression tests can be run by calling `rake test`.
+
+After successfully building the wxRuby3 extension libraries (and possibly embedded wxWidgets libraries) a binary package
+can be created by call `rake binpkg`.
 
 For more details concerning the wxRuby3 development strategy and build options see [here](TODO). 
