@@ -62,7 +62,7 @@ jobs:
             gtk_version: 3
             CC: gcc-10
             CXX: g++-10
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
@@ -95,7 +95,7 @@ jobs:
             gtk_version: 3
             CC: gcc-12
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
@@ -117,7 +117,7 @@ jobs:
             gtk_version: 3
             CC: gcc-12
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
@@ -128,7 +128,7 @@ jobs:
             gtk_version: 3
             CC: gcc-12
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:

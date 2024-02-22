@@ -55,7 +55,7 @@ jobs:
           runner: macos-11
           arch: x86_64
           wxWidgets: '3.2.4'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
@@ -64,7 +64,7 @@ jobs:
           runner: macos-11
           arch: x86_64
           wxWidgets: '3.2.4'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
@@ -73,7 +73,7 @@ jobs:
           runner: macos-13
           arch: x86_64
           wxWidgets: '3.2.4'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
@@ -82,7 +82,7 @@ jobs:
           runner: macos-13
           arch: x86_64
           wxWidgets: '3.2.4'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
@@ -91,7 +91,7 @@ jobs:
           runner: macos-13
           arch: x86_64
           wxWidgets: '3.2.4'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
@@ -100,7 +100,7 @@ jobs:
           runner: macos-13
           arch: x86_64
           wxWidgets: '3.2.4'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: system
