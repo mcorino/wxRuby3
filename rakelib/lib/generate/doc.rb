@@ -713,9 +713,9 @@ module WXRuby3
           gen_class_doc(fdoc) unless no_gen?(:classes)
         end
         package.all_modules.each do |_|
+          mod_indent -= 1
           fdoc.puts
           fdoc.iputs('end', mod_indent)
-          mod_indent -= 1
         end
       end
     end
