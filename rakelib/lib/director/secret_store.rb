@@ -67,7 +67,12 @@ module WXRuby3
             }
             __CODE
         end
-        spec.map_apply 'wxString&' => 'const wxString&'
+        # the type matching of the username argument is tricky here since there only is the const difference
+        # have to explicitly overrule here for Save() incl. explicitly negating the argout mapping
+        spec.map 'const wxString& username' => 'String' do
+          map_in temp: 'wxString tmp', code: 'tmp = RSTR_TO_WXSTR($input); $1 = &tmp;'
+          map_argout by_ref: true
+        end
       end
 
     end # class SecretStore
