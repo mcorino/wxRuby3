@@ -21,13 +21,33 @@ module WXRuby3
         spec.disable_proxies
         spec.make_abstract 'wxSecretStore'
 
-        spec.ignore 'wxSecretValue::wxSecretValue(size_t, const void *)',
-                    'wxSecretValue::GetAsString',
+        spec.include 'ruby/encoding.h'
+
+        spec.ignore 'wxSecretValue::GetAsString',
                     'wxSecretValue::GetSize',
+                    'wxSecretValue::GetData',
                     'wxSecretValue::Wipe',
                     'wxSecretValue::WipeString'
+        # customize ctor
+        spec.ignore 'wxSecretValue::wxSecretValue(const wxString&)', ignore_doc: false
+        spec.regard 'wxSecretValue::wxSecretValue(size_t, const void *)', regard_doc: false
+        spec.map 'size_t size, const void *data' do
+          map_in from: {type: 'String', index: 1}, temp: 'wxScopedCharBuffer tmp', code: <<~__CODE
+            if (RTEST($input) && TYPE($input) == T_STRING)
+            {
+              $1 = RSTRING_LEN($input);
+              $2 = (void*)StringValuePtr($input);
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected String for #0");
+            }
+            __CODE
+
+          map_typecheck precedence: 'pointer', code: '$1 = (TYPE($input) == T_STRING);'
+        end
+
         # customize GetData
-        spec.ignore 'wxSecretValue::GetData'
         spec.map 'const void*' => 'String', swig: false do
           map_out code: ''
         end
@@ -36,7 +56,14 @@ module WXRuby3
           {
             size_t sz = $self->GetSize();
             const void* data = $self->GetData();
-            return rb_str_new(static_cast<const char*>(data), sz);
+            return rb_enc_str_new(static_cast<const char*>(data), sz, rb_ascii8bit_encoding());
+          }
+
+          VALUE get_as_string() 
+          {
+            size_t sz = $self->GetSize();
+            const void* data = $self->GetData();
+            return rb_utf8_str_new(static_cast<const char*>(data), sz);
           }
           __HEREDOC
 
