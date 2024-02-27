@@ -39,7 +39,7 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: 'ruby'
 
       - name: Setup Ruby gems
         run: |

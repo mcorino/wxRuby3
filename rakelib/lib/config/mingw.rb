@@ -171,7 +171,7 @@ module WXRuby3
             mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
             # download
             chdir(tmp_tool_root) do
-              unless sh("curl -L #{url} --output #{zip}")
+              unless download_file(url, zip)
                 STDERR.puts "ERROR: Failed to download installation package for #{exe}"
                 exit(1)
               end

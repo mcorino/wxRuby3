@@ -87,7 +87,7 @@ Another difference is that {Wx::Config} will not automatically create missing gr
 happen when writing configuration values.
 
 A last difference is that the default support is by default backed up by persistent storage (windows registry or file) and
-the wxRuby enhanced support only provides in-memory storage (`Hash` instance) by default. +
+the wxRuby enhanced support only provides in-memory storage (`Hash` instance) by default.<br>
 Persisting configuration data from {Wx::Config} will require coding customized storage and retrieval operations (which is
 trivial using standard YAML or JSON support).  
 

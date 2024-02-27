@@ -13,6 +13,7 @@ on:
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
       - '**.md'
+      - '.cirrus.yml'
   pull_request:
     branches:
       - master
@@ -27,6 +28,7 @@ on:
       - '.yardopts'
       - '.gitignore'
       - 'LICENSE'
+      - '.cirrus.yml'
   workflow_dispatch:
 
 concurrency:
@@ -61,7 +63,7 @@ jobs:
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
@@ -69,7 +71,7 @@ jobs:
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: develop
@@ -77,15 +79,15 @@ jobs:
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
-            wxr_type: bingem
+            wxr_type: binpkg
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: embed
@@ -93,7 +95,7 @@ jobs:
           - os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
             wxw_type: develop
@@ -187,22 +189,30 @@ jobs:
       - name: Build wxRuby3 gem
         if: matrix.wxr_type != 'develop'
         run: |
-          bundle exec rake ${{ matrix.wxr_type }}
+          bundle exec rake gem
+          If ("${{ matrix.wxr_type }}" -eq "binpkg") {
+            bundle exec rake binpkg
+          }
 
       - name: Install wxRuby3 gem
         if: matrix.wxr_type != 'develop'
         run: |
           If ("${{ matrix.wxw_type }}" -eq "embed") {
             If ("${{ matrix.wxr_type }}" -eq "gem") {
-              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f && wxruby setup --autoinstall }
+              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall }
             }
             Else {
-              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f }
+              foreach ($f in Get-ChildItem -Path pkg\*.gem) { foreach ($p in Get-ChildItem -Path pkg\*.pkg) {  gem install $f -- package=$p } }
             }
           }
           Else {
-            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f && wxruby setup --wxwin=$env:WXWIN_ROOT }
+            foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --wxwin=$env:WXWIN_ROOT }
           }
+
+      - name: Check wxRuby3 gem install
+        if: matrix.wxr_type != 'develop'
+        run: |
+          wxruby check
 
       - name: Run wxRuby3 regression tests
         run: |

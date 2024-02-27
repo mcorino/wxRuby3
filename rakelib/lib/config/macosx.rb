@@ -9,6 +9,8 @@
 require_relative './unixish'
 require_relative 'pkgman/macosx'
 
+require 'pathname'
+
 module WXRuby3
 
   module Config
@@ -33,12 +35,7 @@ module WXRuby3
           def get_rpath_origin
             "@loader_path"
           end
-
-          def check_rpath_patch
-            # no need to check anything; install_name_tool is part of XCode cmdline tools
-            # and without these we couldn't build anything
-            true
-          end
+          protected :get_rpath_origin
 
           def patch_rpath(shlib, *rpath)
             # don't leave old rpath-s behind
@@ -47,11 +44,42 @@ module WXRuby3
             sh("install_name_tool #{rpath.collect {|rp| "-add_rpath '#{rp}'"}.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
             true
           end
+          protected :patch_rpath
 
-          def update_shlib_loadpaths(shlib, deplibs)
-            changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
-            sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
+          # add Ruby library path for wxruby shared libraries
+          def update_shlib_ruby_libpath(shlib)
+            # fix lookup for the Ruby shared library
+            # on MacOSX the Ruby library will be linked with it's full path from the **development** environment
+            # which is no use after binary deployment so we change that to be relative to the executable's path
+            # loading the shared libs (which is always going to be the Ruby exe)
+
+            # get the development folder holding ruby lib
+            ruby_libdir = Pathname.new(RB_CONFIG['libdir'])
+            # determine the relative path to the lib directory from the executable dir
+            # (this remains constant for any similar deployed Ruby for this platform)
+            rel_ruby_libdir = ruby_libdir.relative_path_from(RB_CONFIG['bindir'])
+            # get the Ruby library name used for linking
+            ld_ruby_lib = (RB_CONFIG['LIBRUBYARG_SHARED'].split.find { |s| s =~ /^-lruby/ }).sub(/^-l/,'')
+            # match the full shared library name that will be linked
+            ruby_so = [RB_CONFIG['LIBRUBY_SO'], RB_CONFIG['LIBRUBY_SONAME'], *RB_CONFIG['LIBRUBY_ALIASES'].split].find do |soname|
+              soname =~ /^lib#{ld_ruby_lib}\./
+            end
+            # form the full path of the shared Ruby library linked
+            ruby_lib = File.join(ruby_libdir.to_s, RB_CONFIG['LIBRUBY_SO'])
+            # change the full path to a path relative to the Ruby executable
+            sh("install_name_tool -change #{ruby_lib} '@executable_path/#{rel_ruby_libdir.to_s}/#{ruby_so}' #{shlib}")
             true
+          end
+
+          # add deployment lookup paths for wxwidgets shared libraries
+          def update_shlib_wxwin_libpaths(shlib, deplibs)
+            if super
+              changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
+              sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
+              true
+            else
+              false
+            end
           end
 
           def check_tool_pkgs
@@ -104,7 +132,7 @@ module WXRuby3
           private
 
           def wx_configure
-            bash('./configure --disable-optimise --disable-sys-libs --without-liblzma --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable"')
+            bash('./configure --disable-optimise --disable-sys-libs --without-liblzma --without-regex --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable"')
           end
 
           def wx_make

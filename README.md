@@ -96,11 +96,11 @@ of these products.
 
 Currently the following are fully supported:
 
-| Platform                                                                                                                          | Ruby version(s)                                     | wxWidgets version(s) |
-|-----------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|----------------------|
-| Windows 10 (tested)<br>(most likely also Windows 11)                                                                              | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit)         | wxWidgets >= 3.2     |
-| Linux (tested; all major AMD-64 distributions: Ubuntu, Debian, Fedora, OpenSuSE and ArchLinux)<br>(most likely also i686 and ARM) | Ruby >= 2.5                                         | wxWidgets >= 3.2     |
-| MacOS >= 10.10 using Cocoa (tested on AMD-64 and ARM64 M2 Chip)                                                                   | Ruby >= 2.5 (MacPorts, Homebrew, ruby-install, RVM) | wxWidgets >= 3.2     |
+| Platform                                                                                                                           | Ruby version(s)                                     | wxWidgets version(s) |
+|------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|----------------------|
+| Windows 10 (tested)<br>(most likely also Windows 11)                                                                               | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit)         | wxWidgets >= 3.2     |
+| Linux (tested; all major AMD64 and ARM64 distributions: Ubuntu, Debian, Fedora, OpenSuSE and ArchLinux)<br>(most likely also i686) | Ruby >= 2.5                                         | wxWidgets >= 3.2     |
+| MacOS >= 10.10 using Cocoa (tested on AMD64 and ARM64 M1/M2 Chip)                                                                  | Ruby >= 2.5 (MacPorts, Homebrew, ruby-install, RVM) | wxWidgets >= 3.2     |
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
@@ -109,42 +109,48 @@ on legacy systems (eg Windows 98, Mac OS 9).
 
 ### How can I install wxRuby3?
 
-wxRuby3 is distributed as a Ruby gem on [RubyGems](https://rubygems.org).<br>
-Apart from a regular source-only version of the gem there is also a binary gem version for Windows 10 provided (for the 
-latest stable Ruby release at the time of publishing) which includes an embedded wxWidgets installation (also latest 
-stable version). 
+wxRuby3 is distributed as a Ruby gem on [RubyGems](https://rubygems.org). This gem can also be downloaded from the release 
+assets on [Github](https://github.com/mcorino/wxRuby3/releases).
 
 The wxRuby3 gem provides a **worry-free** installation procedure for all supported platforms.  
 
-Installing the binary gem version on Windows (which is the default when installing for the latest stable Ruby release for 
-that platform) requires no additional installation steps and/or additional software to be installed except for a supported 
-version of the Ruby interpreter. So for this platform the following command is all it takes to get up and running: 
+Installing the gem requires no additional installation steps and/or additional software to be installed except for a 
+supported version of the Ruby interpreter. So the following command is all it takes to install: 
 
 ```shell
 gem install wxruby3
 ```
 
-For the platforms requiring a source based installation (Linux and MacOSX as well as Windows for older Ruby releases 
-or when explicitly selecting source based install) an additional (simple) setup step is required to finish installation.
-For these platforms the full installation sequence would be:
+The wxRuby3 installation procedure will check the availability of a, prebuilt, binary package matching the platform
+being installed on and if found will download and install that package resulting in a ready-to-run wxRuby3 installation.<br>
+If no matching package is found the installation reverts to a source installation which will require an additional setup
+step to finalize the wxRuby3 installation by executing the following command:
 
 ```shell
-gem install wxruby3 && wxruby setup
+wxruby setup
 ```
 
-The second part of this command sequence is a fully automated setup procedure provided by the wxRuby3 **CLI** installed with
-the gem. This procedure (by default) will analyze your system and install (after asking your consent) any missing software
-requirements and build the wxRuby3 extension libraries (including a embedded copy of wxWidgets if necessary). It may take
-quite a while depending on your system but you can mostly sit back and relax.
+This last command is a fully automated setup procedure provided by the wxRuby3 **CLI** installed with the gem. This 
+procedure (by default) will analyze your system and install (after asking your consent) any missing software 
+requirements and build the wxRuby3 extension libraries (including a embedded copy of wxWidgets if necessary). It may 
+take quite a while depending on your system but you can mostly sit back and relax.
 
 > **NOTE**<br>
 > A source based installation requires the availability of the Ruby development headers. User installed Rubies in most cases
 > will already include those but (especially on Linux) system installed Rubies may require having an additional '-dev/-devel'
-> package installed.
+> package installed (although actually you may already have needed those to install the gems that the wxRuby3 gem depends 
+> on like the nokogiri gem).
+
+The wxRuby3 CLI also provides a 'check' command with which the runtime status of the wxRuby3 installation can be checked
+at any time. By default running `wxruby check` will display a message reporting the runtime and suggestions on finalizing
+the installation if not finalized yet. No message is displayed if wxRuby3 is ready to run. Run `wxruby check -h` for 
+details concerning this command. 
+
+A selection of (prebuilt) binary packages is provided as release assets on [Github](https://github.com/mcorino/wxRuby3/releases).
+See the [INSTALL](INSTALL.md#binary-packages) document for more details.
 
 This install procedure can of course be tweaked and customized with commandline arguments.
 See the [INSTALL](INSTALL.md) document for more details.
-
 
 ### Where can I ask a question, or report a bug?
 

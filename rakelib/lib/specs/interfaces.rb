@@ -233,6 +233,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxPersistenceManager', requirements: %w[USE_CONFIG])
     Director.Spec(pkg, 'wxPersistentObject', requirements: %w[USE_CONFIG])
     Director.Spec(pkg, 'wxPersistentWindow', requirements: %w[USE_CONFIG])
+    Director.Spec(pkg, 'wxSecretStore', requirements: %w[USE_SECRETSTORE])
   }
 
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|

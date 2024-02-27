@@ -3,7 +3,8 @@
 # This software is released under the MIT license.
 
 ###
-# wxRuby3 buildtools configuration
+# wxRuby3 buildtools configuration fallback
 ###
 
-raise "NETBSD platform is unsupported as yet."
+$stderr.puts 'ERROR: Unsupported Ruby platform!'
+exit(1)

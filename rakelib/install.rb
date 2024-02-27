@@ -67,7 +67,7 @@ module WXRuby3
               FileUtils.ln_s(File.join('.', File.basename(src_shlib)), File.join('ext', File.basename(shlib)))
             else
               FileUtils.cp(shlib, inshlib = File.join('ext', File.basename(shlib)))
-              unless WXRuby3.config.patch_rpath(inshlib, WXRuby3.config.get_rpath_origin)
+              unless WXRuby3.config.update_shlib_loadpaths(inshlib)
                 # cleanup and exit
                 FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
                 exit(1)
@@ -77,14 +77,14 @@ module WXRuby3
           end
           # prepare wxRuby shared libs
           Dir["lib/*.#{WXRuby3.config.dll_mask}"].each do |shlib|
-            unless WXRuby3.config.patch_rpath(shlib, WXRuby3.config.get_rpath_origin, "#{WXRuby3.config.get_rpath_origin}/../ext")
+            unless WXRuby3.config.update_shlib_loadpaths(shlib) && WXRuby3.config.update_shlib_ruby_libpath(shlib)
               # cleanup and exit
               FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
               exit(1)
             end
           end
           (wxwin_inshlibs + Dir["lib/*.#{WXRuby3.config.dll_mask}"]).each do |shlib|
-            unless WXRuby3.config.update_shlib_loadpaths(shlib, WXRuby3::Install.wxwin_shlibs)
+            unless WXRuby3.config.update_shlib_wxwin_libpaths(shlib, WXRuby3::Install.wxwin_shlibs)
               # cleanup and exit
               FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
               exit(1)

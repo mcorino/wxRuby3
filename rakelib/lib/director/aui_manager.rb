@@ -53,7 +53,7 @@ module WXRuby3
               m_actionWindow = NULL;
               m_hoverButton = NULL;
               m_art = new wxAuiDefaultDockArt;
-              m_hintWnd = NULL;
+              #{Config.instance.wx_version < '3.3.0' ? 'm_hintWnd = NULL;' : ''}
               m_flags = wxAUI_MGR_DEFAULT;
               m_hasMaximized = false;
               m_dockConstraintX = 0.3;

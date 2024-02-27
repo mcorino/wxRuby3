@@ -66,12 +66,22 @@ module WXRuby3
       def get_rpath_origin
         "$ORIGIN"
       end
+      protected :get_rpath_origin
+
+      # add deployment lookup paths for wxruby shared libraries
+      def update_shlib_loadpaths(shlib)
+        WXRuby3.config.patch_rpath(shlib, WXRuby3.config.get_rpath_origin, "#{WXRuby3.config.get_rpath_origin}/../ext")
+      end
 
       def expand(cmd)
         STDERR.puts "> sh: #{cmd}" if verbose?
         s = super
         STDERR.puts "< #{s}" if verbose?
         s
+      end
+
+      def download_file(url, dest)
+        sh("curl -L #{url} --output #{dest}")
       end
 
       private
@@ -101,7 +111,7 @@ module WXRuby3
       end
 
       def wx_configure
-        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info')
+        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --disable-debug_info')
       end
 
       def wx_make

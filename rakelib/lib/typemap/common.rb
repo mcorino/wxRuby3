@@ -262,6 +262,16 @@ module WXRuby3
 
         end
 
+        # output typemaps for common value objects like wxPoint, wxSize, wxRect and wxRealPoint,
+        # making sure to ALWAYS create managed copies
+        %w[Point Size Rect RealPoint].each do |klass|
+          map "const wx#{klass}&", "const wx#{klass}*", as: "Wx::#{klass}" do
+            map_out code: <<~__CODE
+              $result = SWIG_NewPointerObj((new wx#{klass}(*static_cast< const wx#{klass}* >($1))), SWIGTYPE_p_wx#{klass}, SWIG_POINTER_OWN);
+              __CODE
+          end
+        end
+
         # Integer <> wxItemKind type mappings
 
         map 'wxItemKind' => 'Integer' do

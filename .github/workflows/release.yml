@@ -17,41 +17,44 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  release-gem:
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-22.04
-            ruby: '3.2'
+            ruby: 'ruby'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Release (${{ github.ref_name }})
     env:
       GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+      CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
     outputs:
-      version: ${{ steps.version_var.outputs.WXRUBY_VERSION }}
+      version: ${{ steps.version_var.outputs.WXRUBY_RELEASE }}
       prerelease: ${{ steps.version_var.outputs.WXRUBY_PRERELEASE }}
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v4
 
     - uses: ruby/setup-ruby@v1
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       with:
         ruby-version: ${{ matrix.ruby }}
 
     - name: Setup Ruby gems
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       run: |
         bundle install
 
     - name: Build wxRuby3 gem
-      if: ${{ github.event_name != 'workflow_dispatch' }}
       run: |
         bundle exec rake gem
 
+    - name: Create GPG signature for wxRuby3 gem
+      run: |
+        echo -n "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import
+        gpg --detach-sign --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --armor pkg/*.gem
+
     - name: Upload gem to release
-      if: ${{ github.event_name != 'workflow_dispatch' }}
+      if: github.event_name != 'workflow_dispatch'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -60,232 +63,63 @@ jobs:
         overwrite: true
         file_glob: true
 
+    - name: Upload gem GPG signature to release
+      if: github.event_name != 'workflow_dispatch'
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: pkg/*.gem.asc
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
     - name: Publish Gem on RubyGems
-      if: ${{ github.event_name != 'workflow_dispatch' }}
+      if: github.event_name != 'workflow_dispatch'
       run: |
-        gem push pkg/*.gem 
+        gem push pkg/*.gem
+
+    - name: Trigger Cirrus CI Release Tasks
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          ruby tools/scripts/cirrus/start_release_tasks.rb ${{ github.ref }}
+        else
+          ruby tools/scripts/cirrus/start_release_tasks.rb
+        fi
+
+    - name: Upload Gem as release test artifact
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/upload-artifact@v4
+      with:
+        name: wxruby3_release_test_gem
+        path: pkg/*.gem
 
     - name: Set version variables
+      if: github.event_name != 'workflow_dispatch'
       id: version_var
       run: |
-        echo "WXRUBY_VERSION=${GITHUB_REF_NAME/#v/}" >> "$GITHUB_OUTPUT"
+        echo "WXRUBY_RELEASE=${GITHUB_REF_NAME/#v/}" >> "$GITHUB_OUTPUT"
         if grep -q "\-[a-zA-Z]" <<< "$GITHUB_REF_NAME" ; then
           echo "WXRUBY_PRERELEASE=1" >> "$GITHUB_OUTPUT"
         else
           echo "WXRUBY_PRERELEASE=0" >> "$GITHUB_OUTPUT"
         fi
 
-  verify-gem:
-    needs: release
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-22.04
-            gtk_version: 3
-            CC: gcc-12
-            CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: '3.2.4'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
+
+  release-windows-binpkg:
+    needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
-    env:
-      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
-      wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
-      wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
-      wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
-      wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
-      WX_EXTRA_PACKAGES: doxygen patchelf
-      CC: ${{ matrix.CC }}
-      CXX: ${{ matrix.CXX }}
-      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
-      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
-    steps:
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-
-      - name: checkout wxWidgets
-        uses: actions/checkout@v4
-        with:
-          repository: wxWidgets/wxWidgets
-          path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
-          submodules: 'recursive'
-
-      - name: Set up build environment
-        run: |
-          # Install locales used by our tests to run all the tests instead of
-          # skipping them.
-          sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
-          
-          $WXWIDGETS_ROOT/build/tools/before_install.sh
-
-      - name: Display build environment
-        run: |
-          echo $PATH
-          ruby -v
-          doxygen -v
-          gcc -v
-          g++ -v
-
-      - name: Configuring wxWidgets
-        working-directory: ${{ env.WXWIDGETS_ROOT }}
-        run: |
-          wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
-          if [ -n "${{ matrix.gtk_version }}" ]; then
-            wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
-          fi
-          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
-          if [ -n "$rc" ]; then
-            echo '*** Configuring failed, contents of config.log follows: ***'
-            echo '-----------------------------------------------------------'
-            cat $WXWIDGETS_ROOT/config.log
-            echo '-----------------------------------------------------------'
-            exit $rc
-          fi
-
-      - name: Build and install wxWidgets
-        working-directory: ${{ env.WXWIDGETS_ROOT }}
-        run: |
-          make && sudo make install && sudo ldconfig
-
-      - name: Remove wxWidgets
-        run: |
-          rm -rf $WXWIDGETS_ROOT
-
-      - name: Install wxRuby3 gem
-        run: |
-          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre && wxruby setup --autoinstall
-          else
-            gem install wxruby3 -v $WXRUBY_VERSION && wxruby setup --autoinstall
-          fi
-
-      - name: Run wxRuby3 regression tests
-        run: |
-          ulimit -c unlimited
-          TEST_CMD="wxruby test"
-          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
-          if [ -n "$rc" ]; then
-            if fgrep -q '(core dumped)' wxtest.out; then
-              echo '*** Test crashed, trying to get more information ***'
-              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $TEST_CMD
-            fi
-            exit $rc
-          fi
-
-  verify-gem-mac:
-    needs: release
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: wxMac macOS 13
-            runner: macos-13
-            arch: x86_64
-            wxWidgets: '3.2.4'
-            ruby: '3.2'
-            swig: '4'
-            configure_flags: --disable-sys-libs
-    runs-on: ${{ matrix.runner }}
-    name: ${{ matrix.name }} wxRuby Gem Test (${{ github.ref_name }})
-    env:
-      NSUnbufferedIO: YES
-      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
-      WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
-      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
-      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
-
-    steps:
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-
-      - name: checkout wxWidgets
-        uses: actions/checkout@v4
-        with:
-          repository: wxWidgets/wxWidgets
-          path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
-
-      - name: Set environment variables
-        run: |
-          echo TZ=UTC >> $GITHUB_ENV
-          echo LD_LIBRARY_PATH=`pwd`/lib >> $GITHUB_ENV
-
-      - name: Before install
-        working-directory: ${{ env.WXWIDGETS_ROOT }}
-        run: |
-          ./build/tools/before_install.sh
-
-      - name: Install SWIG
-        run: |
-          brew install swig
-
-      - name: Install doxygen
-        run: |
-          brew install doxygen
-
-      - name: Show build environment
-        run: |
-          echo "Environment:"
-          env | sort
-          echo
-          
-          echo "Ruby version:"
-          ruby -v
-          echo
-          
-          echo "SWIG version:"
-          swig -version
-          echo
-          
-          echo "Doxygen version:"
-          doxygen -v
-          echo
-          
-          echo "Compiler version:"
-          ${CXX-g++} --version
-          echo
-
-      - name: Remove wxWidgets
-        run: |
-          rm -rf $WXWIDGETS_ROOT
-
-      - name: Install wxRuby3 gem
-        run: |
-          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
-            gem install wxruby3 -v $WXRUBY_VERSION --pre  && wxruby setup --autoinstall
-          else
-            gem install wxruby3 -v $WXRUBY_VERSION  && wxruby setup --autoinstall
-          fi
-
-      - name: Run wxRuby3 regression tests
-        run: |
-          wxruby test
-  release-bingem:
-    needs: release
-    runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Bingem Release (${{ github.ref_name }})
+    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
     env:
       DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
-      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
+          - name: Windows2022
+            os: windows-2022
             platform: 'x64'
             CXX: g++-12
-            ruby: '3.2'
-            wxWidgets: '3.2.4'
+            ruby: 'ruby'
             swig: '4'
 
     steps:
@@ -297,7 +131,6 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: Setup Ruby gems
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle install
 
@@ -319,13 +152,11 @@ jobs:
           }
 
       - name: Install Doxygen package
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           Expand-Archive -LiteralPath '.\doxygen-1.10.0.windows.x64.bin.zip' -DestinationPath $env:DOXYGEN_ROOT -Force
           echo "$env:DOXYGEN_ROOT" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Display build environment
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           echo "$env:PATH"
           ruby -v
@@ -334,42 +165,338 @@ jobs:
           ridk exec bash -c 'g++ -v'
 
       - name: Configure wxRuby3
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
-          bundle exec rake configure[--with-wxwin]
+          bundle exec rake configure[--with-wxwin,--autoinstall]
 
       - name: Build wxRuby3
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         run: |
           bundle exec rake build
 
-      - name: Build wxRuby3 gem
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      - name: Build wxRuby3 binpkg
         run: |
-          bundle exec rake bingem
+          bundle exec rake binpkg
 
-      - name: Publish Gem on RubyGems
-        if: ${{ github.event_name != 'workflow_dispatch' }}
-        run: |
-          gem push pkg/*.gem 
+      - name: Upload bin pkg as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.pkg
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
 
-  verify-bingem:
-    needs: [release, release-bingem]
+      - name: Upload bin pkg digest signature as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg as release test artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+          path: pkg/*
+
+  release-macosx-binpkg:
+    needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Bingem Test (${{ github.ref_name }})
-    env:
-      WXRUBY_VERSION: ${{ needs.release.outputs.version }}
-      WXRUBY_PRERELEASE: ${{ needs.release.outputs.prerelease }}
+    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
-            platform: 'x64'
+          - name: macOS12
+            os: macos-12
+            arch: x86_64
+            ruby: 'ruby'
+          - name: macOS13
+            os: macos-13
+            arch: x86_64
+            ruby: 'ruby'
+
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup Ruby gems
+        run: |
+          bundle install
+
+      - name: Display build environment
+        run: |
+          echo "$env:PATH"
+          ruby -v
+
+      - name: Configure wxRuby3
+        run: |
+          bundle exec rake configure[--with-wxwin,--autoinstall]
+
+      - name: Build wxRuby3
+        run: |
+          bundle exec rake build
+
+      - name: Build wxRuby3 binpkg
+        run: |
+          bundle exec rake binpkg
+
+      - name: Upload bin pkg as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.pkg
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg digest signature as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: v0.9.7
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg as release test artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+          path: pkg/*
+
+  verify-gem:
+    needs:
+      - release-macosx-binpkg
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu2204
+            os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
             CXX: g++-12
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: '3.2.4'
             swig: '4'
+            configure_flags:
+            use_xvfb: true
+            build: true
+            wxw_type: system
+          - name: Ubuntu2204
+            os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: 'ruby'
+            wxWidgets: '3.2.4'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            build: true
+            wxw_type: embed
+          - name: macOS12
+            os: macos-12
+            arch: x86_64
+            ruby: 'ruby'
+            build: false
+          - name: macOS13
+            os: macos-13
+            arch: x86_64
+            ruby: 'ruby'
+            build: false
+
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    env:
+      WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
+      wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
+      wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
+      wxUSE_XVFB: ${{ matrix.use_xvfb && 1 || 0 }}
+      WX_EXTRA_PACKAGES: doxygen patchelf
+      CC: ${{ matrix.CC }}
+      CXX: ${{ matrix.CXX }}
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
+    steps:
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: checkout wxWidgets
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
+        uses: actions/checkout@v4
+        with:
+          repository: wxWidgets/wxWidgets
+          path: ${{ env.WXWIDGETS_ROOT }}
+          ref: v${{ matrix.wxWidgets }}
+          submodules: 'recursive'
+
+      - name: Set up build environment
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
+        run: |
+          # Install locales used by our tests to run all the tests instead of
+          # skipping them.
+          sudo locale-gen de_DE.utf8 de_CH.utf8 en_US.utf8 fr_FR.utf8 sv_SE.utf8
+          
+          $WXWIDGETS_ROOT/build/tools/before_install.sh
+
+      - name: Display build environment
+        run: |
+          echo $PATH
+          ruby -v
+
+      - name: Configuring wxWidgets
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
+        run: |
+          wxCONFIGURE_OPTIONS="$wxCONFIGURE_FLAGS"
+          if [ -n "${{ matrix.gtk_version }}" ]; then
+            wxCONFIGURE_OPTIONS="--with-gtk=${{ matrix.gtk_version }} $wxCONFIGURE_OPTIONS"
+          fi
+          ./configure $wxCONFIGURE_OPTIONS --disable-tests --without-subdirs --disable-debug_info || rc=$?
+          if [ -n "$rc" ]; then
+            echo '*** Configuring failed, contents of config.log follows: ***'
+            echo '-----------------------------------------------------------'
+            cat $WXWIDGETS_ROOT/config.log
+            echo '-----------------------------------------------------------'
+            exit $rc
+          fi
+
+      - name: Build and install wxWidgets
+        if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
+        working-directory: ${{ env.WXWIDGETS_ROOT }}
+        run: |
+          sudo make install && sudo ldconfig
+
+      - name: Install wxRuby3 gem with binary package
+        if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
+            gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=only
+          else
+            gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=only
+          fi
+
+      - name: Install wxRuby3 gem for local build
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          if [ "$WXRUBY_PRERELEASE" == "1" ]; then
+            gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none
+          else
+            gem install wxruby3 -v $WXRUBY_RELEASE -- prebuilt=none
+          fi
+          if wxruby check || [ "$?" != "1" ]; then
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+          fi
+
+      - name: Setup wxRuby3 gem with local build
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            wxruby setup --autoinstall
+          else
+            wxruby setup --wxwin=@system --autoinstall
+          fi
+
+      - name: Download release test gem artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+
+      - name: Install wxRuby3 gem with binary package (release test)
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          gem install ./$(echo wxruby3*.gem) -- package=`pwd`/$(echo wxruby3*.pkg)
+
+      - name: Install wxRuby3 gem for local build (release test)
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          gem install ./$(echo wxruby3*.gem) -- prebuilt=none
+          if wxruby check || [ "$?" != "1" ]; then
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+          fi
+
+      - name: Setup wxRuby3 gem with local build (release test)
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ "${{ matrix.wxw_type }}" == "embed" ]; then
+            wxruby setup --autoinstall
+          else
+            wxruby setup --wxwin=@system --autoinstall
+          fi
+
+      - name: Check wxRuby3 gem install
+        if: matrix.wxr_type != 'develop'
+        run: |
+          wxruby check
+
+      - name: Run wxRuby3 regression tests (XVFB)
+        if: ${{ matrix.use_xvfb }}
+        run: |
+          ulimit -c unlimited
+          TEST_CMD="wxruby test"
+          /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
+          if [ -n "$rc" ]; then
+            if fgrep -q '(core dumped)' wxtest.out; then
+              echo '*** Test crashed, trying to get more information ***'
+              gdb --quiet --core=core -ex 'where' -ex 'thread apply all bt' -ex 'q' --args $TEST_CMD
+            fi
+            exit $rc
+          fi
+
+      - name: Run wxRuby3 regression tests
+        if: ${{ !matrix.use_xvfb }}
+        run: |
+          wxruby test
+
+  verify-gem-windows:
+    needs:
+      - release-windows-binpkg
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    env:
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows2022
+            os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            build: false
+          - name: Windows2022
+            os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            build: true
 
     steps:
       - name: Install Ruby
@@ -377,19 +504,74 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Wait for RubyGems
+      - name: Install wxRuby3 gem with binary package
+        if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
-          Start-Sleep -Seconds 300
-
-      - name: Install wxRuby3 gem
-        if: matrix.wxr_type != 'develop'
-        run: |
-          If ("$env:WXRUBY_PRERELEASE" -eq "1") {
-            gem install wxruby3 -v $env:WXRUBY_VERSION --pre
+          If ("$env:WXRUBY_PRERELEASE" -eq "1") {          
+            gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=only
           }
           Else {
-            gem install wxruby3 -v $env:WXRUBY_VERSION
+            gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=only
           }
+
+      - name: Install wxRuby3 gem for local build
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          If ("$env:WXRUBY_PRERELEASE" -eq "1") {
+            gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=none
+          }
+          Else {
+            gem install wxruby3 -v $env:WXRUBY_RELEASE -- prebuilt=none
+          }
+          wxruby check
+          If ($LastExitCode -ne 1) {
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+            Exit 1
+          }
+          Exit 0
+
+      - name: Setup wxRuby3 gem with local build
+        if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        run: |
+          wxruby setup --autoinstall
+
+      - name: Download release test gem artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+
+      - name: Install wxRuby3 gem with binary package (release test)
+        if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { foreach ($p in Get-ChildItem -Path wxruby3*.pkg) {  gem install $f -- package=$p } }
+
+      - name: Install wxRuby3 gem for local build (release test)
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { gem install $f -- prebuilt=none }
+          wxruby check
+          If ($LastExitCode -ne 1) {
+            echo "ERROR: 'wxruby check' returned unexpected result!"
+            Exit 1
+          }
+          Exit 0
+
+      - name: Setup wxRuby3 gem with local build (release test)
+        if: ${{ matrix.build && github.event_name == 'workflow_dispatch' }}
+        run: |
+          foreach ($f in Get-ChildItem -Path wxruby3*.gem) { wxruby setup --autoinstall }
+
+      - name: Check wxRuby3 gem install
+        if: matrix.wxr_type != 'develop'
+        run: |
+          wxruby check
 
       - name: Run wxRuby3 regression tests
         run: |

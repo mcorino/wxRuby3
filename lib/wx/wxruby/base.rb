@@ -20,7 +20,7 @@ module WxRuby
       def commands
         @commands ||= ::Hash.new do |hash, key|
           STDERR.puts "Unknown command #{key} specified."
-          exit(1)
+          exit(127)
         end
       end
       private :commands
@@ -73,7 +73,7 @@ module WxRuby
           describe_all
           exit(0)
         end
-        opts.order!(args)
+        opts.order!(args) rescue ($stderr.puts $!.message; exit(127))
       end
     end
   end
@@ -81,9 +81,7 @@ module WxRuby
   def self.run(argv = ARGV)
     # parse global options (upto first command)
     argv = WxRuby::Commands.parse_args(argv)
-    while !argv.empty?
-      WxRuby::Commands.run(argv.shift, argv)
-    end
+    WxRuby::Commands.run(argv.shift, argv) unless argv.empty?
   end
 end
 

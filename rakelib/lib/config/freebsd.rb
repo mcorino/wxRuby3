@@ -6,4 +6,4 @@
 # wxRuby3 buildtools configuration
 ###
 
-raise "Cygwin platform is unsupported as yet."
+raise "Freebsd platform is unsupported as yet."

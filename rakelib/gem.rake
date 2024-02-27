@@ -12,14 +12,10 @@ namespace :wxruby do
 
   namespace :gem do
 
-    task :srcgem => ['bin:build', WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION)]
+    task :srcgem => ['bin:build', WXRuby3::Gem.gem_file]
 
-    if WXRuby3.is_bootstrapped?
-      task :bingem => ['bin:build', File.join(WXRuby3.config.rb_docgen_path, 'window.rb'), WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin)]
-    end
-
-    # this task only exists for installed source gems (where package tasks have been removed)
-    unless File.file?(File.join(__dir__, 'package.rake'))
+    # this task only exists for installed (source) gems (where run tasks have been removed)
+    unless File.file?(File.join(__dir__, 'run.rake'))
 
       task :setup => 'config:bootstrap' do |_t, args|
         begin
@@ -51,7 +47,7 @@ namespace :wxruby do
       
           $ ./wxruby test
       
-          The wxRuby3 sample selector can be run by executing:
+          The wxRuby3 sample explorer can be run by executing:
       
           $ ./wxruby sampler
       
@@ -65,13 +61,14 @@ namespace :wxruby do
 end
 
 # source gem file
-file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.manifest do
-  gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION) do |gem|
+file WXRuby3::Gem.gem_file => WXRuby3::Gem.manifest do
+  gemspec = WXRuby3::Gem.define_spec do |gem|
     gem.summary = %Q{wxWidgets extension for Ruby}
     gem.description = %Q{wxRuby3 is a Ruby library providing an extension for the wxWidgets C++ UI framework}
     gem.email = 'mcorino@m2c-software.nl'
     gem.homepage = "https://github.com/mcorino/wxRuby3"
     gem.authors = ['Martin Corino']
+    gem.extensions = ['ext/mkrf_conf_ext.rb']
     gem.files = WXRuby3::Gem.manifest
     gem.require_paths = %w{lib}
     gem.bindir = 'bin'
@@ -82,6 +79,7 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
     gem.add_dependency 'rake'
     gem.add_dependency 'minitest', '~> 5.15'
     gem.add_dependency 'test-unit', '~> 3.5'
+    gem.add_dependency 'plat4m', '~> 1.0'
     gem.rdoc_options <<
       '--exclude=\\.dll' <<
       '--exclude=\\.so' <<
@@ -90,17 +88,39 @@ file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION) => WXRuby3::Gem.m
       "'--exclude=lib/wx/(aui|core|grid|html|pg|prt|rbn|rtc|stc|wxruby)/.*'"
     gem.metadata = {
       "bug_tracker_uri"   => "https://github.com/mcorino/wxRuby3/issues",
-      "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
-      "documentation_uri" => "https://mcorino.github.io/wxRuby3",
       "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
+      "documentation_uri" => "https://mcorino.github.io/wxRuby3",
+      "github_repo"       => "https://github.com/mcorino/wxRuby3"
     }
     gem.post_install_message = <<~__MSG
 
-      The wxRuby3 Gem has been successfully installed.
-      Before being able to use wxRuby3 you need to run the post-install setup process
-      by executing the command 'wxruby setup'.
+      The wxRuby3 Gem has been successfully installed including the 'wxruby' utility.
 
-      Run 'wxruby setup -h' to see information on the available commandline options.
+      In case no suitable binary release package was available for your platform you  
+      will need to run the post-install setup process by executing:
+
+      $ wxruby setup
+
+      To check whether wxRuby3 is ready to run or not you can at any time execute the 
+      following command:
+
+      $ wxruby check
+
+      Run 'wxruby check -h' for more information.
+
+      When the wxRuby3 setup has been fully completed you can start using wxRuby3.
+ 
+      You can run the regression tests to verify the installation by executing:
+
+      $ wxruby test
+
+      The wxRuby3 sample explorer can be run by executing:
+
+      $ wxruby sampler
+
+      Have fun using wxRuby3.
+
+      Run 'wxruby -h' to see information on the available commands.
 
       __MSG
   end
@@ -110,60 +130,70 @@ end
 desc 'Build wxRuby 3 gem'
 task :gem => 'wxruby:gem:srcgem'
 
-if WXRuby3.is_bootstrapped?
+# these tasks do not exist for installed (source) gems (where run tasks have been removed)
+if File.file?(File.join(__dir__, 'run.rake'))
 
-  # binary gem file
-  file WXRuby3::Gem.gem_file('wxruby3', WXRuby3::WXRUBY_VERSION, :bin) => WXRuby3::Gem.manifest(:bin) + ['ext/mkrf_conf_bingem.rb'] do
-    WXRuby3::Install.install_wxwin_shlibs
-    begin
-      # create gemspec
-      gemspec = WXRuby3::Gem.define_spec('wxruby3', WXRuby3::WXRUBY_VERSION, :bin) do |gem|
-        gem.summary = %Q{wxWidgets extension for Ruby}
-        gem.description = %Q{wxRuby3 is a Ruby library providing an extension for the wxWidgets C++ UI framework}
-        gem.email = 'mcorino@m2c-software.nl'
-        gem.homepage = "https://github.com/mcorino/wxRuby3"
-        gem.authors = ['Martin Corino']
-        gem.files = WXRuby3::Gem.manifest(:bin)
-        gem.require_paths = %w{lib}
-        gem.require_paths << 'ext' if WXRuby3.config.get_config('with-wxwin')
-        gem.bindir = 'bin'
-        gem.executables = WXRuby3::Bin.binaries
-        gem.extensions = ['ext/mkrf_conf_bingem.rb']
-        gem.required_ruby_version = ">= #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor}",
-                                    "< #{WXRuby3::Config.rb_ver_major}.#{WXRuby3::Config.rb_ver_minor+1}"
-        gem.licenses = ['MIT']
-        gem.add_dependency 'rake'
-        gem.add_dependency 'minitest', '~> 5.15'
-        gem.add_dependency 'test-unit', '~> 3.5'
-        gem.rdoc_options << '--exclude=\\.dll' << '--exclude=\\.so'
-        gem.metadata = {
-          "bug_tracker_uri"   => "https://github.com/mcorino/wxRuby3/issues",
-          "source_code_uri"   => "https://github.com/mcorino/wxRuby3",
-          "documentation_uri" => "https://mcorino.github.io/wxRuby3",
-          "homepage_uri"      => "https://github.com/mcorino/wxRuby3",
-        }
-        gem.post_install_message = <<~__MSG
-    
-          wxRuby3 has been successfully installed including the 'wxruby' utility.
-    
-          You can run the regression tests to verify the installation by executing:
-    
-          $ ./wxruby test
-    
-          The wxRuby3 sample selector can be run by executing:
-    
-          $ ./wxruby sampler
-    
-          Have fun using wxRuby3.
-          __MSG
+  if WXRuby3.is_bootstrapped?
+
+    namespace :wxruby do
+
+      namespace :gem do
+        task :binpkg => ['wxruby:build', 'wxruby:doc', 'bin:build', WXRuby3::Gem.bin_pkg_file]
       end
-      WXRuby3::Gem.build_gem(gemspec)
-    ensure
-      WXRuby3::Install.remove_wxwin_shlibs
+
     end
+
+    # binary package file
+    file WXRuby3::Gem.bin_pkg_file => WXRuby3::Gem.bin_pkg_manifest do |t|
+      WXRuby3::Install.install_wxwin_shlibs
+      begin
+        # create bin package
+        WXRuby3::Gem.build_bin_pkg
+      ensure
+        # cleanup
+        WXRuby3::Install.remove_wxwin_shlibs
+      end
+    end
+
+    desc 'Build wxRuby 3 binary release package'
+    task :binpkg => 'wxruby:gem:binpkg'
+
   end
 
-  desc 'Build wxRuby 3 binary gem'
-  task :bingem => 'wxruby:gem:bingem'
+else # in case of installed source gem the following tasks exist
+
+  namespace :wxruby do
+
+    namespace :gem do
+      kwargs = {}
+      no_prebuilt = false
+      task :install do |_, args|
+        argv = args.extras
+        until argv.empty?
+          switch = argv.shift
+          case switch
+          when '--prebuilt'
+            kwargs[:prebuilt_only] = true
+          when '--no-prebuilt'
+            no_prebuilt = true unless kwargs[:package]
+          when '--package'
+            fail "Missing value for '--package' argument for wxruby:gem:install." if argv.empty?
+            kwargs[:package] = argv.shift
+            no_prebuilt = false
+          else
+            fail "Invalid argument #{switch} for wxruby:gem:install."
+          end
+        end
+        unless no_prebuilt # do not even try to find&install a binary package
+          if WXRuby3::Gem.install_gem(**kwargs)
+            # binaries have been installed -> finish install
+            Rake::Task['wxruby:post:binpkg'].invoke
+          end
+        end
+      end
+
+    end
+
+  end
 
 end

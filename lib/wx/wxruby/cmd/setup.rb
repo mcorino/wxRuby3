@@ -14,7 +14,7 @@ module WxRuby
       DESC = 'Run wxRuby3 post-install setup.'
 
       def self.description
-        "    setup -h|[options]\t\t#{DESC}"
+        "    setup -h|[options]\t\t\t#{DESC}"
       end
 
       def self.options
@@ -26,7 +26,10 @@ module WxRuby
         opts.banner = "#{DESC}\n\nUsage: wxruby setup -h|--help OR wxruby setup [options]\n\n"
         opts.separator ''
         opts.on('--wxwin=path',
-                "the installation root for the wxWidgets libraries and headers if not using the system default")  {|v| Setup.options['wxwin'] = File.expand_path(v)}
+                "the installation root for the wxWidgets libraries and headers if not using the system default",
+                "(use '@system' to force using system default only)") do |v|
+          Setup.options['wxwin'] = (v.downcase == '@system') ? v : File.expand_path(v)
+        end
         opts.on('--wxxml=path',
                 "the path to the doxygen generated wxWidgets XML interface specs if not using bootstrap")  {|v| Setup.options['wxxml'] = File.expand_path(v)}
         opts.on('--with-wxwin',
@@ -47,7 +50,7 @@ module WxRuby
           puts
           exit(0)
         end
-        opts.parse!(args)
+        opts.parse!(args) rescue ($stderr.puts $!.message; exit(127))
       end
 
       def self.run(argv)

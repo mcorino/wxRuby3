@@ -11,6 +11,7 @@ require 'fileutils'
 require 'json'
 require 'open3'
 require 'monitor'
+require 'plat4m'
 
 module FileUtils
   # add convenience methods
@@ -67,7 +68,8 @@ module WXRuby3
     'sodir' => '$siterubyverarch',
   }
 
-  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug swig doxygen})
+  CFG_KEYS.concat(%w{wxwin wxxml wxwininstdir with-wxwin with-debug swig doxygen git})
+  WXW_SYS_KEY = 'with-system-wxwin'
   CONFIG.merge!({
                   'wxwin' => ENV['WXWIN'] || '',
                   'wxxml' => ENV['WXXML'] || '',
@@ -280,7 +282,7 @@ module WXRuby3
           end
           begin
             # setup ENV for child execution
-            ENV.merge!(Config.instance.exec_env)
+            ENV.update(Config.instance.exec_env)
             output = `#{cmd.join(' ')}`
           ensure
             # restore ENV
@@ -350,7 +352,7 @@ module WXRuby3
 
     def test(*tests, **options)
       errors = 0
-      excludes = (ENV['WXRUBY_TEST_EXCLUDE'] || '').split(';')
+      excludes = (ENV['WXRUBY_TEST_EXCLUDE'] || '').split(':')
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
         unless excludes.include?(File.basename(test, '.*'))
@@ -379,6 +381,10 @@ module WXRuby3
 
     def check_tool_pkgs
       []
+    end
+
+    def download_file(_url, _dest)
+      raise NoMethodError
     end
 
     def install_prerequisites
@@ -443,16 +449,22 @@ module WXRuby3
     def get_rpath_origin
       ''
     end
-
-    def check_rpath_patch
-      true
-    end
+    protected :get_rpath_origin
 
     def patch_rpath(_shlib, *)
       true
     end
+    protected :patch_rpath
 
-    def update_shlib_loadpaths(_shlib, _deplibs)
+    def update_shlib_loadpaths(_shlib)
+      true
+    end
+
+    def update_shlib_ruby_libpath(_shlib)
+      true
+    end
+
+    def update_shlib_wxwin_libpaths(_shlib, _deplibs)
       true
     end
 
@@ -494,15 +506,23 @@ module WXRuby3
       end
 
       def save
+        cfg = WXRuby3::CONFIG.dup
+        wxw_system = !!cfg.delete(WXW_SYS_KEY)
+        cfg['wxwin'] = '@system' if wxw_system
         File.open(build_cfg, 'w') do |f|
-          f << JSON.pretty_generate(WXRuby3::CONFIG)
+          f << JSON.pretty_generate(cfg)
         end
       end
 
       def load
         if File.file?(build_cfg)
           File.open(build_cfg, 'r') do |f|
-            WXRuby3::CONFIG.merge!(JSON.load(f.read))
+            cfg = JSON.load(f.read)
+            if cfg['wxwin'] == '@system'
+              cfg[WXW_SYS_KEY] = true
+              cfg.delete('wxwin')
+            end
+            WXRuby3::CONFIG.merge!(cfg)
           end
         end
       end
@@ -515,10 +535,8 @@ module WXRuby3
         case RUBY_PLATFORM
         when /mingw/
           :mingw
-        when /cygwin/
-          :cygwin
-        when /netbsd/
-          :netbsd
+        when /freebsd/
+          :freebsd
         when /darwin/
           :macosx
         when /linux/
@@ -538,15 +556,26 @@ module WXRuby3
           def initialize
             @ruby_exe = RB_CONFIG["ruby_install_name"]
 
-            @extmk = /extmk\.rb/ =~ $0
-            @platform = Config.platform
-            require File.join(File.dirname(__FILE__), 'config', @platform.to_s)
+            @sysinfo = Plat4m.current rescue nil
+            @platform = if @sysinfo
+                          case @sysinfo.os.id
+                          when :darwin
+                            :macosx
+                          when :windows
+                            RUBY_PLATFORM =~ /mingw/ ? :mingw : :unknown
+                          else
+                            @sysinfo.os.id
+                          end
+                        else
+                          :unknown
+                        end
+            require_relative File.join('config', @platform.to_s)
             self.class.include(WXRuby3::Config::Platform)
 
             init # initialize settings
           end
 
-          attr_reader :ruby_exe, :extmk, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
+          attr_reader :ruby_exe, :sysinfo, :platform, :helper_modules, :helper_inits, :include_modules, :verbosity
           attr_reader :release_build, :debug_build, :verbose_debug, :no_deprecate
           attr_reader :ruby_cppflags, :ruby_ldflags, :ruby_libs, :extra_cflags, :extra_cppflags, :extra_ldflags,
                       :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
@@ -593,11 +622,6 @@ module WXRuby3
 
             # Extra swig helper files to be built
             @helper_modules = %w|RubyStockObjects|
-              # if macosx?
-              #                   %w|RubyStockObjects Mac|
-              #                 else
-              #                   %w|RubyStockObjects|
-              #                 end
             # helper to initialize on startup (stock objects can only be initialized after App creation)
             @helper_inits = @helper_modules - %w|RubyStockObjects|
 
@@ -640,7 +664,7 @@ module WXRuby3
             @obj_ext          = RB_CONFIG["OBJEXT"]
             @dll_ext          = RB_CONFIG['DLEXT']
 
-            # Exclude certian classes from being built, even if they are present
+            # Exclude certain classes from being built, even if they are present
             # in the configuration of wxWidgets.
             if ENV['WXRUBY_EXCLUDED']
               ENV['WXRUBY_EXCLUDED'].split(",").each { |classname| exclude_module(classname) }
@@ -704,16 +728,12 @@ module WXRuby3
             @wx_abi_version || ''
           end
 
-          def cygwin?
-            @platform == :cygwin
-          end
-
           def mingw?
             @platform == :mingw
           end
 
-          def netbsd?
-            @platform == :netbsd
+          def freebsd?
+            @platform == :freebsd
           end
 
           def macosx?
@@ -725,7 +745,7 @@ module WXRuby3
           end
 
           def windows?
-            mingw? || cygwin?
+            mingw?
           end
 
           def ldflags(_target)
