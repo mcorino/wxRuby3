@@ -15,4 +15,24 @@ module Wx
 
   end
 
+  class SecretValue
+
+    # Redefine the initialize method to auto-convert UTF-16/-32 strings to UTF-8 if possible.
+    wx_init = self.instance_method(:initialize)
+    define_method(:initialize) do | *args |
+      if args.size == 1 && ::String === args.first
+        unless args.first.encoding == ::Encoding::UTF_8 || args.first.encoding == ::Encoding::ASCII_8BIT
+          # convert in place unless frozen
+          if !args.first.frozen?
+            args.first.encode!(::Encoding::UTF_8) rescue nil
+          else # create converted copy
+            (args = [args.first.encode(::Encoding::UTF_8)]) rescue nil
+          end
+        end
+      end
+      wx_init.bind(self).call(*args)
+    end
+
+  end
+
 end

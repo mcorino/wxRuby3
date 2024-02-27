@@ -27,25 +27,33 @@ module WXRuby3
                     'wxSecretValue::GetSize',
                     'wxSecretValue::GetData',
                     'wxSecretValue::Wipe',
-                    'wxSecretValue::WipeString'
-        # customize ctor
-        spec.ignore 'wxSecretValue::wxSecretValue(const wxString&)', ignore_doc: false
-        spec.regard 'wxSecretValue::wxSecretValue(size_t, const void *)', regard_doc: false
-        spec.map 'size_t size, const void *data' do
-          map_in from: {type: 'String', index: 1}, temp: 'wxScopedCharBuffer tmp', code: <<~__CODE
-            if (RTEST($input) && TYPE($input) == T_STRING)
+                    'wxSecretValue::WipeString',
+                    'wxSecretValue::wxSecretValue(const wxString&)',
+                    'wxSecretValue::wxSecretValue(size_t, const void *)'
+        spec.regard 'wxSecretValue::wxSecretValue()',
+                    'wxSecretValue::wxSecretValue(const wxSecretValue&)',
+                    regard_doc: false
+        # customize string arg ctor
+        spec.add_extend_code 'wxSecretValue', <<~__HEREDOC
+          wxSecretValue(VALUE secret_string)
+          {
+            if (RTEST(secret_string) && TYPE(secret_string) == T_STRING)
             {
-              $1 = RSTRING_LEN($input);
-              $2 = (void*)StringValuePtr($input);
+              if (ENCODING_GET(secret_string) == rb_utf8_encindex())
+              {
+                return new wxSecretValue(RSTR_TO_WXSTR(secret_string));
+              }
+              else
+              {
+                return new wxSecretValue(RSTRING_LEN(secret_string), (void*)StringValuePtr(secret_string));
+              }
             }
             else
             {
-              rb_raise(rb_eArgError, "Expected String for #0");
+              rb_raise(rb_eArgError, "Expected String or Wx::SecretValue for #0");
             }
-            __CODE
-
-          map_typecheck precedence: 'pointer', code: '$1 = (TYPE($input) == T_STRING);'
-        end
+          } 
+          __HEREDOC
 
         # customize GetData
         spec.map 'const void*' => 'String', swig: false do

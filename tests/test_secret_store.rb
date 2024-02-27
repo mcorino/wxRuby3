@@ -16,7 +16,11 @@ class TestSecretStore < Test::Unit::TestCase
       if state
         puts "SecretStore OK"
 
-        password = Digest::SHA256.digest('My Secret Password!')
+        if Wx::WXWIDGETS_VERSION > '3.2.4'
+          password = Digest::SHA256.digest('My Secret Password!')
+        else
+          password = Digest::SHA256.hexdigest('My Secret Password!') # binary secrets does not work
+        end
         secret_val = Wx::SecretValue.new(password)
         assert_true(Wx::SecretStore.get_default.save('My/Service', 'a_user', secret_val))
 
@@ -37,6 +41,32 @@ class TestSecretStore < Test::Unit::TestCase
         assert_equal('a_user', user)
         assert_equal(secret_val, secret_val2)
         assert_equal(password, secret_val2.get_as_string)
+
+        password = 'My Secret Password!'.encode('UTF-16')
+        secret_val = Wx::SecretValue.new(password)
+        assert_true(Wx::SecretStore.get_default.save('My/Service', 'a_user', secret_val))
+
+        secret_val2 = Wx::SecretValue.new
+        rc, user = Wx::SecretStore.get_default.load('My/Service', secret_val2)
+        assert_true(rc)
+        assert_equal('a_user', user)
+        assert_equal(secret_val, secret_val2)
+        assert_equal(password, secret_val2.get_as_string)
+        assert_not_equal('My Secret Password!'.encode('UTF-16'), secret_val2.get_as_string)
+        assert_equal('My Secret Password!'.encode('UTF-16'), secret_val2.get_as_string.encode('UTF-16'))
+
+        password = 'My Secret Password!'.encode('UTF-32')
+        secret_val = Wx::SecretValue.new(password)
+        assert_true(Wx::SecretStore.get_default.save('My/Service', 'a_user', secret_val))
+
+        secret_val2 = Wx::SecretValue.new
+        rc, user = Wx::SecretStore.get_default.load('My/Service', secret_val2)
+        assert_true(rc)
+        assert_equal('a_user', user)
+        assert_equal(secret_val, secret_val2)
+        assert_equal(password, secret_val2.get_as_string)
+        assert_not_equal('My Secret Password!'.encode('UTF-32'), secret_val2.get_as_string)
+        assert_equal('My Secret Password!'.encode('UTF-32'), secret_val2.get_as_string.encode('UTF-32'))
 
       else
         puts "Default SecretStore not usable : #{err}"
