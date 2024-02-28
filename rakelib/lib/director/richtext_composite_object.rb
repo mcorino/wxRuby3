@@ -93,9 +93,9 @@ module WXRuby3
             static const rb_data_type_t __wxRichTextFloatCollector_type = {
               "RichTextFloatCollector",
             #if RUBY_API_VERSION_MAJOR >= 3
-              { NULL, NULL, __wxRichTextFloatCollector_size, 0, 0},
+              { NULL, NULL, __wxRichTextFloatCollector_size, 0, {}},
             #else
-              { NULL, NULL, __wxRichTextFloatCollector_size, 0},
+              { NULL, NULL, __wxRichTextFloatCollector_size, {}},
             #endif 
               NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
             };
