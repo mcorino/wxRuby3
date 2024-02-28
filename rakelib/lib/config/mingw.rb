@@ -242,7 +242,7 @@ module WXRuby3
           @wx_cppflags.each { |flags| flags.gsub!(/-I(\S+)/) { |s| "-I#{win_path($1)}" } }
           @wx_libs.each { |libflag| libflag.gsub!(/-L(\S+)/) { |s| "-L#{win_path($1)}" } }
 
-          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
+          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           # create a .dll binary

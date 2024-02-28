@@ -55,9 +55,9 @@ module WXRuby3
           static const rb_data_type_t __wxTreeItemId_type = {
             "TreeItemId",
           #if RUBY_API_VERSION_MAJOR >= 3
-            { NULL, NULL, __wxTreeItemId_size, 0, 0},
+            { NULL, NULL, __wxTreeItemId_size, 0, {}},
           #else
-            { NULL, NULL, __wxTreeItemId_size, 0},
+            { NULL, NULL, __wxTreeItemId_size, {}},
           #endif 
             NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
           };

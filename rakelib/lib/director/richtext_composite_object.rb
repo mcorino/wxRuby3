@@ -93,9 +93,9 @@ module WXRuby3
             static const rb_data_type_t __wxRichTextFloatCollector_type = {
               "RichTextFloatCollector",
             #if RUBY_API_VERSION_MAJOR >= 3
-              { NULL, NULL, __wxRichTextFloatCollector_size, 0, 0},
+              { NULL, NULL, __wxRichTextFloatCollector_size, 0, {}},
             #else
-              { NULL, NULL, __wxRichTextFloatCollector_size, 0},
+              { NULL, NULL, __wxRichTextFloatCollector_size, {}},
             #endif 
               NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
             };
@@ -177,12 +177,10 @@ module WXRuby3
             {
               VALUE rc = Qnil;
               const wxRichTextLineVector &lines = $self->GetLines();
-              int lnr = 0;
               for (const wxRichTextLine* line : lines)
               {
                 VALUE rb_ln = SWIG_NewPointerObj(SWIG_as_voidptr(const_cast<wxRichTextLine*> (line)), SWIGTYPE_p_wxRichTextLine, 0);
                 rc = rb_yield(rb_ln);
-                ++lnr;
               }
               return rc;
             }

@@ -132,7 +132,10 @@ module WXRuby3
           private
 
           def wx_configure
-            bash('./configure --disable-optimise --disable-sys-libs --without-liblzma --without-regex --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info CFLAGS="-Wno-unused-but-set-variable"')
+            bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
+                   "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
+                   "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+                   "CFLAGS=\"-Wno-unused-but-set-variable\"")
           end
 
           def wx_make
