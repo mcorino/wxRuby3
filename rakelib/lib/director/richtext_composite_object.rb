@@ -177,12 +177,10 @@ module WXRuby3
             {
               VALUE rc = Qnil;
               const wxRichTextLineVector &lines = $self->GetLines();
-              int lnr = 0;
               for (const wxRichTextLine* line : lines)
               {
                 VALUE rb_ln = SWIG_NewPointerObj(SWIG_as_voidptr(const_cast<wxRichTextLine*> (line)), SWIGTYPE_p_wxRichTextLine, 0);
                 rc = rb_yield(rb_ln);
-                ++lnr;
               }
               return rc;
             }
