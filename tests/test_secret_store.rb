@@ -68,6 +68,8 @@ class TestSecretStore < Test::Unit::TestCase
         assert_not_equal('My Secret Password!'.encode('UTF-32'), secret_val2.get_as_string)
         assert_equal('My Secret Password!'.encode('UTF-32'), secret_val2.get_as_string.encode('UTF-32'))
 
+        assert_true(Wx::SecretStore.get_default.delete('My/Service'))
+
       else
         puts "Default SecretStore not usable : #{err}"
       end
