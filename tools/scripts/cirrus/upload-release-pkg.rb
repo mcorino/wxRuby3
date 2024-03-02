@@ -17,7 +17,13 @@ if $CIRRUS_RELEASE.empty?
     'X-GitHub-Api-Version' => '2022-11-28',
     'Authorization' => "Bearer #{ENV['GITHUB_TOKEN']}"
   }
-  rest_response = Net::HTTP.get_response(uri, headers)
+  rest_response = if RUBY_VERSION < '3.0.0'
+                    Net::HTTP.start(uri.hostname, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+                      http.request_get(uri, headers)
+                    end
+                  else
+                    Net::HTTP.get_response(uri, headers)
+                  end
   if rest_response.code.to_i == 200
     data = JSON.parse!(rest_response.body)
     $CIRRUS_RELEASE = data['id']
