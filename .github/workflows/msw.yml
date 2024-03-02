@@ -10,6 +10,7 @@ on:
     paths-ignore:
       - '.github/**'
       - 'assets/**'
+      - 'tools/**'
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
       - '**.md'
@@ -20,6 +21,7 @@ on:
     paths-ignore:
       - '.github/**'
       - 'assets/**'
+      - 'tools/**'
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
       - 'rakelib/lib/**/*.yaml'
