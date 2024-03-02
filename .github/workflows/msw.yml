@@ -8,8 +8,9 @@ on:
     tags:
       - v*
     paths-ignore:
-      - '.github/workflows/**'
+      - '.github/**'
       - 'assets/**'
+      - 'tools/**'
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
       - '**.md'
@@ -18,8 +19,9 @@ on:
     branches:
       - master
     paths-ignore:
-      - '.github/workflows/**'
+      - '.github/**'
       - 'assets/**'
+      - 'tools/**'
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
       - 'rakelib/lib/**/*.yaml'
