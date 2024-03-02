@@ -278,6 +278,7 @@ jobs:
 
   verify-gem:
     needs:
+      - release-gem
       - release-macosx-binpkg
     strategy:
       fail-fast: false
@@ -473,6 +474,7 @@ jobs:
 
   verify-gem-windows:
     needs:
+      - release-gem
       - release-windows-binpkg
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
