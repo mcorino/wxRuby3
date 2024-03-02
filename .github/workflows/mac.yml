@@ -7,7 +7,7 @@ on:
     tags:
       - v*
     paths-ignore:
-      - '.github/workflows/**'
+      - '.github/**'
       - 'assets/**'
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
@@ -17,7 +17,7 @@ on:
     branches:
       - master
     paths-ignore:
-      - '.github/workflows/**'
+      - '.github/**'
       - 'assets/**'
       - 'lib/wx/doc/**'
       - 'lib/wx/version.rb'
