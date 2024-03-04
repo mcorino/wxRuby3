@@ -14,6 +14,18 @@ module Wx::PG
 
   PG_DEFAULT_IMAGE_SIZE = Wx::DEFAULT_SIZE
 
+  if Wx::WXWIDGETS_VERSION >= '3.3.0'
+    # backward compatibility constants
+    PG_FULL_VALUE                     = PGPropValFormatFlags::FullValue
+    PG_REPORT_ERROR                   = PGPropValFormatFlags::ReportError
+    PG_PROPERTY_SPECIFIC              = PGPropValFormatFlags::PropertySpecific
+    PG_EDITABLE_VALUE                 = PGPropValFormatFlags::EditableValue
+    PG_COMPOSITE_FRAGMENT             = PGPropValFormatFlags::CompositeFragment
+    PG_UNEDITABLE_COMPOSITE_FRAGMENT  = PGPropValFormatFlags::UneditableCompositeFragment
+    PG_VALUE_IS_CURRENT               = PGPropValFormatFlags::ValueIsCurrent
+    PG_PROGRAMMATIC_VALUE             = PGPropValFormatFlags::ProgrammaticValue
+  end
+
   class PGProperty
 
     wx_each_attribute = instance_method :each_attribute
