@@ -174,6 +174,11 @@ else # in case of installed source gem the following tasks exist
           case switch
           when '--prebuilt'
             kwargs[:prebuilt_only] = true
+            if argv.first == 'head'
+              argv.shift # loose it
+              # set this config key to make binpkg name come out right
+              WXRuby3.config.set_config('with-wxhead', true)
+            end
           when '--no-prebuilt'
             no_prebuilt = true unless kwargs[:package]
           when '--package'

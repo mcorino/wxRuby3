@@ -12,8 +12,8 @@ OPTIONS = {
 until ARGV.empty?
   switch = ARGV.shift
   case switch
-  when /^prebuilt=(none|only)$/
-    OPTIONS[:prebuilt] = $1 == 'only'
+  when /^prebuilt=(none|only|head)$/
+    OPTIONS[:prebuilt] = $1.to_sym
   when /^package=(.+)$/
     OPTIONS[:package] = $1
   when 'help'
@@ -24,7 +24,7 @@ until ARGV.empty?
 
         options:
 
-        prebuilt=OPT    Specifies to either require (OPT == 'only') or avoid (OPT == 'none') installing prebuilt 
+        prebuilt=OPT    Specifies to either require (OPT == 'only' | 'head') or avoid (OPT == 'none') installing prebuilt 
                         binary packages. If not specified installing a prebuilt package will be attempted reverting 
                         to source install if none found.
 
@@ -41,14 +41,20 @@ until ARGV.empty?
   end
 end
 
-task_args = ''
+task_args = []
 unless OPTIONS[:prebuilt].nil?
-  task_args << "'#{(OPTIONS[:prebuilt] ? '--prebuilt' : '--no-prebuilt')}'"
+  case OPTIONS[:prebuilt]
+  when :only
+    task_args << "'--prebuilt'"
+  when :none
+    task_args << "'--no-prebuilt'"
+  when :head
+    task_args << "'--prebuilt'" << "'head'"
+  end
 end
 if OPTIONS[:package]
-  task_args << ', ' unless task_args.empty?
   pkg = RUBY_PLATFORM =~ /mingw/ ? OPTIONS[:package].gsub('\\', '/') : OPTIONS[:package] # make sure the path is URI compatible
-  task_args << "'--package', " << "'#{pkg}'"
+  task_args << "'--package'" << "'#{pkg}'"
 end
 
 # generate new rakefile with appropriate default task (calls actual task in rakelib)
@@ -61,7 +67,7 @@ File.open('../Rakefile', 'w') do |f|
 
 unless File.file?(File.join('lib', 'wx', 'wxruby_core.so'))
   task :default do
-    Rake::Task['wxruby:gem:install'].invoke(#{task_args})
+    Rake::Task['wxruby:gem:install'].invoke(#{task_args.join(', ')})
   end
 end
 EOF__
