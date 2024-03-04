@@ -373,7 +373,7 @@ class WxArrayDoubleProperty < Wx::PG::EditorDialogProperty
   end
 
   def value_to_string(value, argFlags=0)
-    if (argFlags & Wx::PG::PG_FULL_VALUE) != 0
+    if argFlags.allbits?(Wx::PG::PG_FULL_VALUE)
       generate_value_as_string(-1,false)
     elsif value.object == self.value.object
       @display # Display cached string only if value truly matches m_value
