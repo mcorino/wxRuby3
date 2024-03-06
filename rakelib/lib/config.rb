@@ -720,6 +720,10 @@ module WXRuby3
             get_config('with-wxwin')
           end
 
+          def with_wxhead?
+            get_config('with-wxhead')
+          end
+
           def wx_version
             @wx_version || ''
           end
@@ -759,6 +763,17 @@ module WXRuby3
           def build_paths
             [ rake_deps_path, src_path, src_gen_path, obj_path, classes_path, common_path, interface_path ]
           end
+
+          def wx_gitref
+            if @wx_version
+              "v#{@wx_version}"
+            elsif get_config('with-wxhead')
+              'master'
+            else
+              nil
+            end
+          end
+          private :wx_gitref
 
           def do_bootstrap
             install_prerequisites

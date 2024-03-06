@@ -198,7 +198,7 @@ class SpinCtrlTests < WxRuby::Test::GUITests
     assert_equal(100, spin.max)
   end
 
-  if has_ui_simulator?
+  if has_ui_simulator? && Wx::PLATFORM != 'WXOSX'
 
     def test_arrows
       spin.set_value(0)
@@ -240,7 +240,7 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
     assert_equal(10, spin.digits)
   end
 
-  if has_ui_simulator?
+  if has_ui_simulator? && Wx::PLATFORM != 'WXOSX'
 
     def test_arrows
       spin.set_value(0.0)

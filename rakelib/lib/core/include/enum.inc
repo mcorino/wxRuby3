@@ -266,7 +266,13 @@ WXRB_EXPORT_FLAG VALUE wxRuby_GetEnumValueObject(const char* enum_wx_class_name_
     VALUE enum_klass = rb_hash_aref(enum_hash, ID2SYM(rb_intern(enum_class_name)));
     VALUE enum_singleton_klass = rb_funcall(enum_klass, rb_intern("singleton_class"), 0, 0);
     VALUE enum_values_hash = rb_iv_get(enum_singleton_klass, __iv_enum_klass_values);
-    return rb_hash_aref(enum_values_hash, INT2NUM(enum_val));
+    VALUE rc = rb_hash_aref(enum_values_hash, INT2NUM(enum_val));
+    if (NIL_P(rc))
+    {
+      VALUE args[1] = { INT2NUM(enum_val) };
+      rc = rb_class_new_instance(1, args, enum_klass);
+    }
+    return rc;
   }
   return Qnil;
 }

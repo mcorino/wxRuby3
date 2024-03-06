@@ -225,7 +225,7 @@ Two options are available to control the wxRuby3 gem installation process.
 
 #### The `prebuilt` option
 
-The `prebuilt=none|only` option can be used to either prevent binary package matching and installation (`prebuilt=none`)
+The `prebuilt=none|only|head` option can be used to either prevent binary package matching and installation (`prebuilt=none`)
 or make binary package installation mandatory (`prebuilt=only`).
 
 The following command therefor forces a wxRuby3 source installation and will never fail: 
@@ -239,6 +239,15 @@ And the following command will force binary package installation and fails if no
 ```shell
 gem install wxruby3 -- prebuilt=only
 ```
+
+It is also possible to specify installing the, experimental, head (master) wxWidgets binary package version (`prebuilt=head`).
+This package version may not be as readily available as regular release packages depending on the development state of the
+wxWidgets master branch.
+
+> **NOTE**<br>
+> Although wxRuby3 endeavors to keep up to date with the wxWidgets master branch your mileage may vary. Any release
+> binary 'head' package should have basic stability at least but will not have been as extensively tested as regular
+> release packages.
 
 #### The `package` option
 
@@ -333,6 +342,21 @@ wxruby setup --with-wxwin
 ```
 
 This will force the setup procedure to build and install an embedded wxWidgets version for wxRuby3.
+
+#### Force embedded wxWidgets head installation
+
+To force the setup procedure to build and install an embedded wxWidgets head (master) version the setup procedure can 
+be started with the `--with-wxhead` option like this:
+
+```shell
+wxruby setup --with-wxhead
+```
+
+> **NOTE**<br>
+> Although wxRuby3 endeavors to keep up to date with the wxWidgets master branch your mileage may vary depending on
+> the development state of the wxWidgets master branch. You can check the latest results of the wxRuby3 CI master build 
+> workflows of the [wxRuby3 Github Actions](https://github.com/mcorino/wxRuby3/actions) to get a feel of the current 
+> integration state. 
 
 #### Setup with user installed wxWidgets
 

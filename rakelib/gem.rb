@@ -93,12 +93,13 @@ module WXRuby3
       end
 
       def make_bin_name
+        basename = "wxruby3#{WXRuby3.config.with_wxhead? ? '-head' : ''}"
         os = WXRuby3.config.sysinfo.os
         case os.id
         when :windows
-          "wxruby3_#{os.distro}_ruby#{WXRuby3::Config.rb_ver_major}#{WXRuby3::Config.rb_ver_minor}"
+          "#{basename}_#{os.distro}_ruby#{WXRuby3::Config.rb_ver_major}#{WXRuby3::Config.rb_ver_minor}"
         else
-          "wxruby3_#{os.distro}_#{os.release || '0'}_ruby#{WXRuby3::Config.rb_ver_major}#{WXRuby3::Config.rb_ver_minor}"
+          "#{basename}_#{os.distro}_#{os.release || '0'}_ruby#{WXRuby3::Config.rb_ver_major}#{WXRuby3::Config.rb_ver_minor}"
         end
       end
       private :make_bin_name

@@ -34,6 +34,8 @@ module WxRuby
                 "the path to the doxygen generated wxWidgets XML interface specs if not using bootstrap")  {|v| Setup.options['wxxml'] = File.expand_path(v)}
         opts.on('--with-wxwin',
                 "build a local copy of wxWidgets for use with wxRuby [false]")  {|v| Setup.options['with-wxwin'] = true}
+        opts.on('--with-wxhead',
+                "build with the head (master) version of wxWidgets [false]", "(implies '--with-wxwin')")  {|v| Setup.options['with-wxhead'] = true}
         opts.on('--swig=path',
                 "the path to swig executable [swig]")  {|v| Setup.options['swig'] = v}
         opts.on('--doxygen=path',
@@ -62,6 +64,7 @@ module WxRuby
         cfg_args << "--wxwin=#{Setup.options['wxwin']}" if Setup.options['wxwin']
         cfg_args << "--wxxml=#{Setup.options['wxxml']}" if Setup.options['wxxml']
         cfg_args << '--with-wxwin' if Setup.options['with-wxwin']
+        cfg_args << '--with-wxhead' if Setup.options['with-wxhead']
         cfg_args << "--swig=#{Setup.options['swig']}" if Setup.options['swig']
         cfg_args << "--doxygen=#{Setup.options['doxygen']}" if Setup.options['doxygen']
         cfg_args << "--git=#{Setup.options['git']}" if Setup.options['git']

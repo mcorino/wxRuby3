@@ -63,6 +63,7 @@ module WXRuby3
             CONFIG[WXW_SYS_KEY] = true
             CONFIG['wxwin'] = nil
             CONFIG['with-wxwin'] = false
+            CONFIG['with-wxhead'] = false
           else
             CONFIG['wxwin'] = File.expand_path(v)
             CONFIG[WXW_SYS_KEY] = false
@@ -74,6 +75,12 @@ module WXRuby3
                 "the directory where the wxWidgets dlls are installed (do not change if not absolutely needed) [#{instance.get_config('wxwininstdir')}]") {|v| CONFIG['wxwininstdir'] = v}
         opts.on('--with-wxwin',
                 "build a local copy of wxWidgets for use with wxRuby [false]")  { |v|
+          CONFIG['with-wxwin'] = true
+          CONFIG[WXW_SYS_KEY] = false
+        }
+        opts.on('--with-wxhead',
+                "build with the head (master) version of wxWidgets; implies '--with-wxwin'")  { |v|
+          CONFIG['with-wxhead'] = true
           CONFIG['with-wxwin'] = true
           CONFIG[WXW_SYS_KEY] = false
         }
