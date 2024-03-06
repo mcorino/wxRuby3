@@ -90,9 +90,8 @@ module WXRuby3
         # fix SWIG's problems with const& return value
         spec.ignore('wxMenu::GetTitle', ignore_doc: false) # keep doc
         spec.add_extend_code 'wxMenu', <<~__HEREDOC
-          wxString* GetTitle() const {
-            wxString const& title = $self->GetTitle();
-            return &const_cast<wxString&> (title);
+          wxString GetTitle() const {
+            return $self->GetTitle();
           }
 
           VALUE each_item()
