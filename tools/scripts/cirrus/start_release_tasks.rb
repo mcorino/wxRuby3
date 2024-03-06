@@ -2,12 +2,32 @@
 require 'uri'
 require 'net/https'
 require 'json'
+require 'yaml'
 
 $CIRRUS_TOKEN = ENV['CIRRUS_TOKEN'] || ''
 
-# for an actual release we can just run the Cirrus tasks off the master branch since
-# the release tag has just be created against that
-$branch = ARGV.empty? ? 'master' : ARGV[0].split('/').last
+$release = false # actual release or manual test run
+$refname = 'master'
+$task_cfg = File.join(__dir__, 'cirrus-release.yml')
+until ARGV.empty?
+  arg = ARGV.shift
+  case arg
+  when '--release'
+    $release = true
+  when '--config'
+    $task_cfg = ARGV.shift || ''
+  else
+    $refname = arg
+  end
+end
+
+# for an actual release use the master branch and get the actual sha for the release tag
+if $release
+  $branch = 'master'
+  $sha = `git rev-list -1 #{$refname}`
+else
+  $branch = $refname # run the test off the given branch
+end
 
 $cirrus_uri = URI('https://api.cirrus-ci.com/graphql')
 
@@ -27,9 +47,11 @@ if Net::HTTPOK === $response
     input: {
       repositoryId: "#{$repository_id}",
       branch: $branch,
+      configOverride: File.read($task_cfg),
       clientMutationId: "wxRuby3"
     }
   }
+  vars[:input][:sha] = $sha if $release
   $response = Net::HTTP.post($cirrus_uri, { query:  $mutation, variables: vars }.to_json, $headers)
   if Net::HTTPOK === $response
     response_data = JSON.parse($response.body)
