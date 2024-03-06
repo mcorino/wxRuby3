@@ -81,7 +81,7 @@ module WXRuby3
         @dll_pfx = 'lib'
 
         if @wx_version
-          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized]
+          @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-maybe-uninitialized -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           @ruby_ldflags << '-s' if @release_build  # strip debug symbols for release build
