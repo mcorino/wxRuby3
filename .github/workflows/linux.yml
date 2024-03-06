@@ -281,6 +281,9 @@ jobs:
     - name: Check wxRuby3 gem install
       if: matrix.wxr_type != 'develop'
       run: |
+        if [ "${{ matrix.wxw_type }}" == "develop" ]; then
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
+        fi
         wxruby check
 
     - name: Run wxRuby3 regression tests
