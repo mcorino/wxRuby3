@@ -295,9 +295,25 @@ module WXRuby3
                 line.sub!(/\"Wx#{core_name}::wx#{$1}/, "\"#{package.fullname}::#{$1}")
               end
 
+              # check for default reference value initializations based on temporary objects
+              # (prevent dangling references)
+              if line =~ /^(\s+)(wx\w+)\s+const\s+\&(\w+_defvalue)\s+=\s+(.*);$/
+
+                def_pfx = $1
+                def_type = $2
+                def_var = $3
+                def_val = $4.strip
+                if def_type == 'wxString'
+                  if def_val =~ /(wxString|_|wxGetTranslation)?\(?\"[^\"]*\"\)?/
+                    line = "#{def_pfx}#{def_type} #{def_var} = #{def_val};"
+                  end
+                elsif def_val =~ /^#{def_type}\(.*\)/
+                  line = "#{def_pfx}#{def_type} #{def_var} = #{def_val};"
+                end
+
               # at the top of our Init_ function, make sure we only initialize
               # ourselves once
-              if /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
+              elsif /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
                 line += "\n  static bool initialized;\n"
                 line += "  if(initialized) return;\n"
                 line += "  initialized = true;\n"

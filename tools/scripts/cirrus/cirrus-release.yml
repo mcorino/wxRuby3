@@ -6,6 +6,7 @@ env:
   GITHUB_TOKEN: ENCRYPTED[2ce3914266dec78118dd9706c25d2e52fbd164f86713692efde9b8af5f0159099cb299934a8d6279e524da7a0790e025]
 
 release_task:
+  timeout_in: 90m
   matrix:
     - name: Cirrus CI / Fedora AMD64 Release
       container:

@@ -212,14 +212,6 @@ module WXRuby3
                 return Qfalse;
             }
             __HEREDOC
-        when 'wxSymbolPickerDialog'
-          # redefine these to prevent problematic handling of title/caption defaults
-          spec.ignore 'wxSymbolPickerDialog::wxSymbolPickerDialog(const wxString &, const wxString &, const wxString &, wxWindow *, wxWindowID, const wxString &, const wxPoint &, const wxSize &, long)',
-                      'wxSymbolPickerDialog::Create',
-                      ignore_doc: false
-          spec.extend_interface 'wxSymbolPickerDialog',
-                                'wxSymbolPickerDialog(const wxString &symbol, const wxString &initialFont, const wxString &normalTextFont, wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size, long style)',
-                                'bool Create(const wxString &symbol, const wxString &initialFont, const wxString &normalTextFont, wxWindow *parent, wxWindowID id, const wxString &caption, const wxPoint &pos, const wxSize &size, long style)'
         when 'wxWizard'
           # special handling
           spec.ignore 'wxWizard::GetBitmap'
