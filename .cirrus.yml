@@ -5,7 +5,7 @@ env:
   WXRUBY_TEST_EXCLUDE: 'test_intl:test_media_ctrl'
   GITHUB_TOKEN: ENCRYPTED[2ce3914266dec78118dd9706c25d2e52fbd164f86713692efde9b8af5f0159099cb299934a8d6279e524da7a0790e025]
 
-pr_task:
+pr_task_1:
   timeout_in: 90m
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
   only_if: $CIRRUS_PR != ''
@@ -26,6 +26,28 @@ pr_task:
       env:
         osname: linux
         distro: opensuse
+
+  before_script: |
+    ./tools/scripts/cirrus/setup-$distro.sh
+
+    # Show some information about the system.
+    uname -a
+    locale
+    locale -a
+
+  system_build_script: |
+    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
+
+    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
+
+  system_test_script:
+    ./tools/scripts/cirrus/test-wxruby3.sh
+
+pr_task_2:
+  timeout_in: 90m
+  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  only_if: $CIRRUS_PR != ''
+  matrix:
     - name: Cirrus CI / Debian ARM64 Test
       arm_container:
         image: debian:latest
@@ -49,19 +71,6 @@ pr_task:
     locale
     locale -a
 
-  system_build_script: |
-    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
-
-    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
-
-  system_test_script:
-    ./tools/scripts/cirrus/test-wxruby3.sh
-
-  system_cleanup_script: |
-    ./tools/scripts/cirrus/cleanup-wxruby3.sh
-    
-    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
-
   latest_build_script:
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
 
@@ -70,7 +79,7 @@ pr_task:
   latest_test_script:
     ./tools/scripts/cirrus/test-wxruby3.sh
 
-verify_task:
+verify_task_1:
   timeout_in: 90m
   skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
   only_if: $CIRRUS_BRANCH =~ 'master' && $CIRRUS_BUILD_SOURCE != 'api'
@@ -91,6 +100,28 @@ verify_task:
       env:
         osname: linux
         distro: opensuse
+
+  before_script: |
+    ./tools/scripts/cirrus/setup-$distro.sh
+
+    # Show some information about the system.
+    uname -a
+    locale
+    locale -a
+
+  system_build_script: |
+    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
+
+    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
+
+  system_test_script:
+    ./tools/scripts/cirrus/test-wxruby3.sh
+
+verify_task_2:
+  timeout_in: 90m
+  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  only_if: $CIRRUS_BRANCH =~ 'master' && $CIRRUS_BUILD_SOURCE != 'api'
+  matrix:
     - name: Cirrus CI / OpenSuSE Leap ARM64 Test
       arm_container:
         image: opensuse/leap:latest
@@ -121,19 +152,6 @@ verify_task:
     uname -a
     locale
     locale -a
-
-  system_build_script: |
-    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
-
-    ./tools/scripts/cirrus/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log    
-
-  system_test_script:
-    ./tools/scripts/cirrus/test-wxruby3.sh
-
-  system_cleanup_script: |
-    ./tools/scripts/cirrus/cleanup-wxruby3.sh
-    
-    ./tools/scripts/cirrus/setup-$distro-system-ruby.sh remove
 
   latest_build_script:
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
