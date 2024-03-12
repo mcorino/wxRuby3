@@ -41,7 +41,8 @@ end
 
 Anyone who is familiar with wxWidgets should feel right at home since the API may be Ruby-fied, it is still easily 
 recognizable (but being Ruby-fied allowing for elegant and compact coding). And for those that do not have previous 
-experience, do not fear, wxRuby3 comes with detailed [documentation](https://mcorino.github.io/wxRuby3/file.00_starting.html) and lots of examples and tests.    
+experience, do not fear, wxRuby3 comes with an extensive [User Guide](https://github.com/mcorino/wxRuby3/wiki/User-Guide-%3A-Introduction) 
+and detailed [reference documentation](https://mcorino.github.io/wxRuby3) and lots of examples and tests.    
 
 ```ruby
 require 'wx'
@@ -177,13 +178,17 @@ some use a more modern coding style than others. Use the bundled `wxruby`
 CLI to access the samples (see the section **Bundled CLI** in 
 the [INSTALL](INSTALL.md) document for more details).
 
+An extensive [User Guide](https://github.com/mcorino/wxRuby3/wiki/User-Guide-%3A-Introduction) 
+is available at the [wxRuby3 Wiki](https://github.com/mcorino/wxRuby3/wiki) providing detailed
+information about how to build desktop applications with wxRuby3. 
+
 Complete (more or less) wxRuby API documentation should be part of any
 complete wxRuby3 build. This tends to focus on providing a reference
 of all available modules, classes and methods and how to use specific 
 classes and methods, rather than on how to construct an application 
 overall.
 This documentation (for the latest release) is also available online
-[here](https://mcorino.github.io/wxRuby3/file.00_starting.html).
+[here](https://mcorino.github.io/wxRuby3).
 
 One of the advantages of wxRuby3 is the much larger ecosystem of
 wxWidgets and wxPython resources out there. There is a book for
