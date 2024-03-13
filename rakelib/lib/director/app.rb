@@ -125,7 +125,7 @@ module WXRuby3
             {
               wxApp::s_macWindowMenuTitleName = title;
             }
-            static const wxString& get_mac_help_window_title()
+            static const wxString& get_mac_window_menu_title()
             {
               return wxApp::s_macWindowMenuTitleName;
             }
