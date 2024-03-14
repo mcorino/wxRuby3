@@ -14,6 +14,22 @@ require_relative './ext'
 # Controller class which creates and manages all windows.
 class Wx::App
 
+  if Wx::PLATFORM == 'WXOSX'
+    class << self
+      # provide aliases for macosx specials
+      alias :mac_about_menu_itemid= :set_mac_about_menu_itemid
+      alias :mac_about_menu_itemid :get_mac_about_menu_itemid
+      alias :mac_preferences_menu_itemid= :set_mac_preferences_menu_itemid
+      alias :mac_preferences_menu_itemid :get_mac_preferences_menu_itemid
+      alias :mac_exit_menu_itemid= :set_mac_exit_menu_itemid
+      alias :mac_exit_menu_itemid :get_mac_exit_menu_itemid
+      alias :mac_help_menu_title= :set_mac_help_menu_title
+      alias :mac_help_menu_title :get_mac_help_menu_title
+      alias :mac_window_menu_title= :set_mac_window_menu_title
+      alias :mac_window_menu_title :get_mac_window_menu_title
+    end
+  end
+
   # convenience method to retrieve global Wx::App instance
   def self.the_app
     if Wx::const_defined?(:THE_APP) and Wx::THE_APP.is_running

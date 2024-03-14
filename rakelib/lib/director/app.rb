@@ -87,31 +87,47 @@ module WXRuby3
           }
           __HEREDOC
         if Config.platform == :macosx
-          # add accessor methods for the standard OSX menu items
+          # add static accessor methods for the standard OSX menu items
           spec.add_extend_code 'wxApp', <<~__HEREDOC
-            void set_mac_about_menu_itemid(long menu_itemid)
+            static void set_mac_about_menu_itemid(long menu_itemid)
             {
-              $self->s_macAboutMenuItemId = menu_itemid;
+              wxApp::s_macAboutMenuItemId = menu_itemid;
             }
-            long get_mac_about_menu_itemid(long menu_itemid)
+            static long get_mac_about_menu_itemid(long menu_itemid)
             {
-              return $self->s_macAboutMenuItemId;
+              return wxApp::s_macAboutMenuItemId;
             }
-            void set_mac_preferences_menu_itemid(long menu_itemid)
+            static void set_mac_preferences_menu_itemid(long menu_itemid)
             {
-              $self->s_macPreferencesMenuItemId = menu_itemid;
+              wxApp::s_macPreferencesMenuItemId = menu_itemid;
             }
-            long get_mac_preferences_menu_itemid(long menu_itemid)
+            static long get_mac_preferences_menu_itemid(long menu_itemid)
             {
-              return $self->s_macPreferencesMenuItemId;
+              return wxApp::s_macPreferencesMenuItemId;
             }
-            void set_mac_exit_menu_itemid(long menu_itemid)
+            static void set_mac_exit_menu_itemid(long menu_itemid)
             {
-              $self->s_macExitMenuItemId = menu_itemid;
+              wxApp::s_macExitMenuItemId = menu_itemid;
             }
-            long get_mac_exit_menu_itemid(long menu_itemid)
+            static long get_mac_exit_menu_itemid(long menu_itemid)
             {
-              return $self->s_macExitMenuItemId;
+              return wxApp::s_macExitMenuItemId;
+            }
+            static void set_mac_help_menu_title(const wxString& title)
+            {
+              wxApp::s_macHelpMenuTitleName = title;
+            }
+            static const wxString& get_mac_help_menu_title()
+            {
+              return wxApp::s_macHelpMenuTitleName;
+            }
+            static void set_mac_window_menu_title(const wxString& title)
+            {
+              wxApp::s_macWindowMenuTitleName = title;
+            }
+            static const wxString& get_mac_window_menu_title()
+            {
+              return wxApp::s_macWindowMenuTitleName;
             }
             __HEREDOC
         end

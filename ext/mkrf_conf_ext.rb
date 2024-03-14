@@ -24,7 +24,7 @@ until ARGV.empty?
 
         options:
 
-        prebuilt=OPT    Specifies to either require (OPT == 'only' | 'head') or avoid (OPT == 'none') installing prebuilt 
+        prebuilt=OPT    Specifies to either require (OPT == 'only') or avoid (OPT == 'none') installing prebuilt 
                         binary packages. If not specified installing a prebuilt package will be attempted reverting 
                         to source install if none found.
 
@@ -48,8 +48,6 @@ unless OPTIONS[:prebuilt].nil?
     task_args << "'--prebuilt'"
   when :none
     task_args << "'--no-prebuilt'"
-  when :head
-    task_args << "'--prebuilt'" << "'head'"
   end
 end
 if OPTIONS[:package]

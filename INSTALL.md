@@ -225,7 +225,7 @@ Two options are available to control the wxRuby3 gem installation process.
 
 #### The `prebuilt` option
 
-The `prebuilt=none|only|head` option can be used to either prevent binary package matching and installation (`prebuilt=none`)
+The `prebuilt=none|only` option can be used to either prevent binary package matching and installation (`prebuilt=none`)
 or make binary package installation mandatory (`prebuilt=only`).
 
 The following command therefor forces a wxRuby3 source installation and will never fail: 
@@ -239,15 +239,6 @@ And the following command will force binary package installation and fails if no
 ```shell
 gem install wxruby3 -- prebuilt=only
 ```
-
-It is also possible to specify installing the, experimental, head (master) wxWidgets binary package version (`prebuilt=head`).
-This package version may not be as readily available as regular release packages depending on the development state of the
-wxWidgets master branch.
-
-> **NOTE**<br>
-> Although wxRuby3 endeavors to keep up to date with the wxWidgets master branch your mileage may vary. Any release
-> binary 'head' package should have basic stability at least but will not have been as extensively tested as regular
-> release packages.
 
 #### The `package` option
 
@@ -517,6 +508,6 @@ commands are executed using parallel task execution by default.
 When the build has finished without errors the regression tests can be run by calling `rake test`.
 
 After successfully building the wxRuby3 extension libraries (and possibly embedded wxWidgets libraries) a binary package
-can be created by call `rake binpkg`.
+can be created by calling `rake binpkg`.
 
 For more details concerning the wxRuby3 development strategy and build options see [here](TODO). 
