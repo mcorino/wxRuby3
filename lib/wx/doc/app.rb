@@ -15,6 +15,7 @@ module Wx
       # Default is {Wx::ID_ABOUT}. Setting to {Wx::ID_NONE} will disable moving the About item to the Application menu.
       # @param [Integer] id
       # @wxrb_require WXOSX
+      # @see Wx::App.get_mac_about_menu_itemid
       def set_mac_about_menu_itemid(id) end
       alias :mac_about_menu_itemid= :set_mac_about_menu_itemid
 
@@ -22,6 +23,7 @@ module Wx
       # Default is {Wx::ID_ABOUT}
       # @return [Integer]
       # @wxrb_require WXOSX
+      # @see Wx::App.set_mac_about_menu_itemid
       def get_mac_about_menu_itemid; end
       alias :mac_about_menu_itemid :get_mac_about_menu_itemid
 
@@ -29,6 +31,7 @@ module Wx
       # Default is {Wx::ID_PREFERENCES}
       # @param [Integer] id
       # @wxrb_require WXOSX
+      # @see Wx::App.get_mac_preferences_menu_itemid
       def set_mac_preferences_menu_itemid(id) end
       alias :mac_preferences_menu_itemid= :set_mac_preferences_menu_itemid
 
@@ -36,6 +39,7 @@ module Wx
       # Default is {Wx::ID_PREFERENCES}
       # @return [Integer]
       # @wxrb_require WXOSX
+      # @see Wx::App.set_mac_preferences_menu_itemid
       def get_mac_preferences_menu_itemid; end
       alias :mac_preferences_menu_itemid :get_mac_preferences_menu_itemid
 
@@ -43,6 +47,7 @@ module Wx
       # Default is {Wx::ID_EXIT}.  Setting to {Wx::ID_NONE} will disable hiding the exit item. Standard item will still be added to Application menu.
       # @param [Integer] id
       # @wxrb_require WXOSX
+      # @see Wx::App.get_mac_exit_menu_itemid
       def set_mac_exit_menu_itemid(id) end
       alias :mac_exit_menu_itemid= :set_mac_exit_menu_itemid
 
@@ -50,6 +55,7 @@ module Wx
       # Default is {Wx::ID_EXIT}
       # @return [Integer]
       # @wxrb_require WXOSX
+      # @see Wx::App.set_mac_exit_menu_itemid
       def get_mac_exit_menu_itemid; end
       alias :mac_exit_menu_itemid :get_mac_exit_menu_itemid
 
@@ -57,6 +63,7 @@ module Wx
       # Default is '&Help'
       # @param [String] title
       # @wxrb_require WXOSX
+      # @see Wx::App.get_mac_help_menu_title
       def set_mac_help_menu_title(title) end
       alias :mac_help_menu_title= :set_mac_help_menu_title
 
@@ -64,6 +71,7 @@ module Wx
       # Default is '&Help'
       # @return [String]
       # @wxrb_require WXOSX
+      # @see Wx::App.set_mac_help_menu_title
       def get_mac_help_menu_title; end
       alias :mac_help_menu_title :get_mac_help_menu_title
 
@@ -71,6 +79,7 @@ module Wx
       # Default is '&Window'
       # @param [String] title
       # @wxrb_require WXOSX
+      # @see Wx::App.get_mac_window_menu_title
       def set_mac_window_menu_title(title) end
       alias :mac_window_menu_title= :set_mac_window_menu_title
 
@@ -78,6 +87,7 @@ module Wx
       # Default is '&Window'
       # @return [String]
       # @wxrb_require WXOSX
+      # @see Wx::App.set_mac_window_menu_title
       def get_mac_window_menu_title; end
       alias :mac_window_menu_title :get_mac_window_menu_title
 
