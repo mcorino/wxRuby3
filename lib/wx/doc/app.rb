@@ -12,7 +12,7 @@ module Wx
     class << self
 
       # Set the menu item id for the About menu item.
-      # Default is {Wx::ID_ABOUT}
+      # Default is {Wx::ID_ABOUT}. Setting to {Wx::ID_NONE} will disable moving the About item to the Application menu.
       # @param [Integer] id
       # @wxrb_require WXOSX
       def set_mac_about_menu_itemid(id) end
@@ -40,7 +40,7 @@ module Wx
       alias :mac_preferences_menu_itemid :get_mac_preferences_menu_itemid
 
       # Set the menu item id for the Exit menu item.
-      # Default is {Wx::ID_EXIT}
+      # Default is {Wx::ID_EXIT}.  Setting to {Wx::ID_NONE} will disable hiding the exit item. Standard item will still be added to Application menu.
       # @param [Integer] id
       # @wxrb_require WXOSX
       def set_mac_exit_menu_itemid(id) end
