@@ -168,13 +168,15 @@ module WxRuby
       @sample_editor = nil
 
       menu_bar = Wx::MenuBar.new
-      # The "file" menu
-      menu_file = Wx::Menu.new
-      # Using Wx::ID_EXIT standard id means the menu item will be given
-      # the right label for the platform and language, and placed in the
-      # correct platform-specific menu - eg on OS X, in the Application's menu
-      menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit wxRuby Sampler")
-      menu_bar.append(menu_file, "&File")
+      unless Wx::PLATFORM == 'WXOSX'
+        # The "file" menu
+        menu_file = Wx::Menu.new
+        # Don't add a File menu with only Exit item on OSX as on OSX
+        # the Exit item there will be hidden and a standard one added to
+        # the Apple Application menu leaving an empty File menu
+        menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit wxRuby Sampler")
+        menu_bar.append(menu_file, "&File")
+      end
 
       # The "help" menu
       menu_help = Wx::Menu.new
