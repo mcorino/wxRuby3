@@ -359,9 +359,9 @@ module WxRuby
       destroy
     end
 
-    def on_iconize(_evt)
-      hide
-      _evt.skip
+    def on_iconize(evt)
+      hide if evt.iconized?
+      evt.skip
     end
 
     # End the application; it should finish automatically when the last
