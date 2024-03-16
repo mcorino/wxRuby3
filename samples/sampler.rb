@@ -360,7 +360,9 @@ module WxRuby
     end
 
     def on_iconize(evt)
-      hide if evt.iconized?
+      # hide is required to hide the application icon from the taskbar on Windows and Linux GTK
+      # but brings no benefits and causes problems on MacOSX so don't hide there
+      hide if evt.iconized? && Wx::PLATFORM != 'WXOSX'
       evt.skip
     end
 
