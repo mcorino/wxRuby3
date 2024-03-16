@@ -313,7 +313,7 @@ module WXRuby3
     private :make_ruby_cmd
 
     def execute(*cmd)
-      do_run(*cmd.flatten)
+      sh(exec_env.merge({'RUBYLIB'=>rb_lib_path}), cmd.flatten.join(' '), fail_on_error: true)
     end
 
     def run(*cmd, capture: nil, verbose: true)
