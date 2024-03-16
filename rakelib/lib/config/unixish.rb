@@ -219,8 +219,8 @@ module WXRuby3
           # add ruby defined shared ruby lib(s); not any other flags
           @ruby_libs.concat RB_CONFIG['LIBRUBYARG_SHARED'].split(' ').select { |s| s.start_with?('-l')}
 
-          # maintain minimum compatibility with ABI 3.0.0
-          @wx_abi_version = [ @wx_version, "3.0.0" ].min
+          # maintain minimum compatibility with ABI 3.0.1
+          @wx_abi_version = [ @wx_version, "3.0.1" ].min
           @wx_cppflags << "-DwxABI_VERSION=%s" % @wx_abi_version.tr(".", "0")
         end
       end
