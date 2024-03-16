@@ -86,28 +86,18 @@ module WXRuby3
 
       private
 
-      def wx_gitref
-        super ||
-          expand("#{get_cfg_string('git')} tag").split("\n").select do |t|
-            (/\Av(\d+)\.(\d+)\.\d+\Z/ =~ t) && (($1.to_i == 3 && $2.to_i >= 2) || $1.to_i > 3)
-          end.max
-      end
-
       def wx_checkout
         $stdout.print 'Checking out wxWidgets...' if run_silent?
         # clone wxWidgets GIT repository under ext_path
         chdir(ext_path) do
           if (rc = sh("#{get_cfg_string('git')} clone https://github.com/wxWidgets/wxWidgets.git"))
             chdir('wxWidgets') do
-              tag = if @wx_version
-                      "v#{@wx_version}"
-                    else
-                      expand("#{get_cfg_string('git')} tag").split("\n").select do |t|
-                        (/\Av(\d+)\.(\d+)\.\d+\Z/ =~ t) && (($1.to_i==3 && $2.to_i >= 2) || $1.to_i>3)
-                      end.max
-                    end
+              tag = wx_gitref ||
+                expand("#{get_cfg_string('git')} tag").split("\n").select do |t|
+                  (/\Av(\d+)\.(\d+)\.\d+\Z/ =~ t) && (($1.to_i == 3 && $2.to_i >= 2) || $1.to_i > 3)
+                end.max
               # checkout the version we are building against
-              rc = sh("#{get_cfg_string('git')} checkout #{wx_gitref}")
+              rc = sh("#{get_cfg_string('git')} checkout #{tag}")
             end
           end
           if rc
