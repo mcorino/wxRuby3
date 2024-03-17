@@ -220,7 +220,7 @@ jobs:
         if: matrix.wxw_type == 'embed'
         run: |
           If ("${{ matrix.wxr_type }}" -eq "develop") {
-            bundle exec rake "wxruby:exec[ruby,-r,wx,-e,'fail \"ERROR\" unless Wx::WXWIDGETS_VERSION == \"$env:WXWIDGETS_LATEST_STABLE\"']"        
+            bundle exec rake "wxruby:exec[ruby,-r,wx,-e,'fail \\"ERROR\\" unless Wx::WXWIDGETS_VERSION == \\"$env:WXWIDGETS_LATEST_STABLE\\"']"        
           }
           Else {
             ruby -r wx -e "fail 'ERROR' unless Wx::WXWIDGETS_VERSION == '$env:WXWIDGETS_LATEST_STABLE'"
