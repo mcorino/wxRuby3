@@ -333,9 +333,9 @@ jobs:
       if: matrix.wxw_type == 'embed'
       run: |
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
-          bundle exec rake wxruby:exec[ruby,-r,wx,-e,"\"fail 'ERROR' unless Wx::WXWIDGETS_VERSION == '$WXWIDGETS_LATEST_STABLE'\""]
+          bundle exec rake wxruby:exec[ruby,tools/check_wxw_version.rb,$env:WXWIDGETS_LATEST_STABLE]
         else
-          ruby -r wx -e "fail 'ERROR' unless Wx::WXWIDGETS_VERSION == '$WXWIDGETS_LATEST_STABLE'"
+          ruby tools/check_wxw_version.rb "$env:WXWIDGETS_LATEST_STABLE"
         fi
 
     - name: Run wxRuby3 regression tests
