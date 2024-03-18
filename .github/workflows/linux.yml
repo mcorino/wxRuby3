@@ -42,6 +42,7 @@ permissions:
 env:
   WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
   WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+  WXWIDGETS_LATEST_STABLE: 3.2.4
 
 jobs:
   build:
@@ -284,7 +285,16 @@ jobs:
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
         fi
-        wxruby check
+        wxruby check        
+
+    - name: Check embedded wxWidgets version
+      if: matrix.wxw_type == 'embed'
+      run: |
+        if [ "${{ matrix.wxr_type }}" == "develop" ]; then
+          bundle exec rake wxruby:exec[ruby,tools/check_wxw_version.rb,$WXWIDGETS_LATEST_STABLE]
+        else
+          ruby tools/check_wxw_version.rb "$WXWIDGETS_LATEST_STABLE"
+        fi
 
     - name: Run wxRuby3 regression tests
       run: |

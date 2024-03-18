@@ -23,9 +23,6 @@ module WXRuby3
                 'wxMenuBar::GetLabelTop',
                 'wxMenuBar::SetLabelTop',
                 'wxMenuBar::Refresh')
-        unless Config.instance.wx_version >= '3.3' || Config.instance.wx_abi_version > '3.0.0'
-          spec.ignore 'wxMenuBar::OSXGetAppleMenu'
-        end
         # for FindItem
         spec.map 'wxMenu **' => 'Wx::Menu' do
           map_in ignore: true, temp: 'wxMenu *tmp', code: '$1 = &tmp;'

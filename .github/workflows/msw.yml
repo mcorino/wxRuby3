@@ -44,7 +44,7 @@ env:
   DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
   WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
   WXWIN_ROOT: ${{ github.workspace }}\ext\wxWidgets\install
-#  WXRUBY_RELEASE: 1
+  WXWIDGETS_LATEST_STABLE: 3.2.4
 
 jobs:
   build:
@@ -215,6 +215,16 @@ jobs:
         if: matrix.wxr_type != 'develop'
         run: |
           wxruby check
+
+      - name: Check embedded wxWidgets version
+        if: matrix.wxw_type == 'embed'
+        run: |
+          If ("${{ matrix.wxr_type }}" -eq "develop") {
+            bundle exec rake "wxruby:exec[ruby,tools/check_wxw_version.rb,$env:WXWIDGETS_LATEST_STABLE]"        
+          }
+          Else {
+            ruby tools/check_wxw_version.rb "$env:WXWIDGETS_LATEST_STABLE"
+          }
 
       - name: Run wxRuby3 regression tests
         run: |

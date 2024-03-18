@@ -168,13 +168,15 @@ module WxRuby
       @sample_editor = nil
 
       menu_bar = Wx::MenuBar.new
-      # The "file" menu
-      menu_file = Wx::Menu.new
-      # Using Wx::ID_EXIT standard id means the menu item will be given
-      # the right label for the platform and language, and placed in the
-      # correct platform-specific menu - eg on OS X, in the Application's menu
-      menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit wxRuby Sampler")
-      menu_bar.append(menu_file, "&File")
+      unless Wx::PLATFORM == 'WXOSX'
+        # The "file" menu
+        menu_file = Wx::Menu.new
+        # Don't add a File menu with only Exit item on OSX as on OSX
+        # the Exit item there will be hidden and a standard one added to
+        # the Apple Application menu leaving an empty File menu
+        menu_file.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit wxRuby Sampler")
+        menu_bar.append(menu_file, "&File")
+      end
 
       # The "help" menu
       menu_help = Wx::Menu.new
@@ -357,9 +359,11 @@ module WxRuby
       destroy
     end
 
-    def on_iconize(_evt)
-      hide
-      _evt.skip
+    def on_iconize(evt)
+      # hide is required to hide the application icon from the taskbar on Windows and Linux GTK
+      # but brings no benefits and causes problems on MacOSX so don't hide there
+      hide if evt.iconized? && Wx::PLATFORM != 'WXOSX'
+      evt.skip
     end
 
     # End the application; it should finish automatically when the last
