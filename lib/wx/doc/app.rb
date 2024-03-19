@@ -9,6 +9,16 @@ module Wx
 
   class App
 
+    # Run the (main loop for) the application instance.
+    # Optionally runs a given block as the applications #on_init callback
+    # if no actual #on_init method has been defined.
+    # A given block will be ignored if an actual #on_init method has been defined.
+    def run(&block) end
+
+    # Convenience method to instantiate an application object of the class
+    # and call the {#run} method for that application object.
+    def self.run(&block) end
+
     class << self
 
       # Set the menu item id for the About menu item.
