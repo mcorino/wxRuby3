@@ -53,6 +53,8 @@ module Wx
 
   end
 
+  # @!group Art creation methods
+
   # Searches for an art file with basename 'name' and creates an Image if found.
   # Raises an ArgumentError if not found.
   # Wx::ArtLocator::find_art is used to look up the art file using ::Kernel#caller_locations to
@@ -67,5 +69,7 @@ module Wx
   # @return [Wx::Image]
   # @see Wx::ArtLocator::find_art
   def self.Image(name, bmp_type = nil, index=-1, art_path: nil, art_section: nil); end
+
+  # @!endgroup
 
 end

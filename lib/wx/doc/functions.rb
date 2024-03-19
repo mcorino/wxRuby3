@@ -102,10 +102,9 @@ module Wx
 
   # @!endgroup
 
-  # @!group Other class methods
-
   # Returns the global app object
-  # @return [Wx::App] the global app object
+  # Returns nil if no app instance is active.
+  # @return [Wx::App,nil] the global app object
   def self.get_app; end
 
   # Returns the pointer address of the underlying C++ object as a hex
@@ -123,8 +122,6 @@ module Wx
   def self.end_busy_cursor; end
   def self.bell; end
   def self.safe_yield(win = nil, only_if_needed = false) end
-
-  # @!endgroup
 
   # @!group System information
   

@@ -14,6 +14,8 @@ module Wx
   # Default BitmapType for current platform. Actual value is platform dependent.
   CURSOR_DEFAULT_TYPE = Wx::BitmapType::BITMAP_TYPE_ANY
 
+  # @!group Art creation methods
+
   # Searches for an art file with basename 'name' and creates a Bitmap if found.
   # Raises an ArgumentError if not found.
   # Wx::ArtLocator::find_art is used to look up the art file using ::Kernel#caller_locations to
@@ -27,5 +29,7 @@ module Wx
   # @return [Wx::Bitmap]
   # @see Wx::ArtLocator::find_art
   def self.Bitmap(name, bmp_type = nil, art_path: nil, art_section: nil); end
+
+  # @!endgroup
 
 end
