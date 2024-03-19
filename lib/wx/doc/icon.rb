@@ -7,6 +7,8 @@
 
 class Wx
 
+  # @!group Art creation methods
+
   # Searches for an art file with basename 'name' and creates an Icon if found.
   # Raises an ArgumentError if not found.
   # Wx::ArtLocator::find_art is used to look up the art file using ::Kernel#caller_locations to
@@ -22,5 +24,7 @@ class Wx
   # @return [Wx::Icon]
   # @see Wx::ArtLocator::find_art
   def self.Icon(name, bmp_type = nil, desired_width=-1, desired_height=-1, art_path: nil, art_section: nil); end
+
+  # @!endgroup
 
 end
