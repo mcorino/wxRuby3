@@ -494,9 +494,10 @@ module WXRuby3
             when /The following event handler macros redirect.*(\{.*})/
               event_ref = $1
               "The following event-handler methods redirect the events to member method or handler blocks for #{event_ref} events."
-            when /\AEVT_[A-Z]+/
-              if event_list? && /\A(EVT_[_A-Z]+)\((.*,)\s+\w+\):(.*)/ =~ para
+            when /\AEVT_[_A-Z0-9]+/
+              if event_list? && /\A(EVT_[_A-Z0-9]+)\((.*,)\s+\w+\):(.*)/ =~ para
                 evthnd_name = $1.downcase
+                docstr = $3.lstrip
                 if override_spec = get_event_override(evthnd_name)
                   evthnd_name, evt_type, evt_arity, evt_klass = override_spec
                   idarg = case evt_arity
@@ -511,10 +512,9 @@ module WXRuby3
                 else
                   arglist = "#{$2} meth = nil, &block"
                 end
-                docstr = $3.lstrip
                 package.event_docs[evthnd_name] = [arglist, docstr.dup] # register for eventlist doc gen
                 "{Wx::EvtHandler\##{evthnd_name}}(#{arglist}): #{docstr}"
-              elsif event_list? && /\A(EVT_[_A-Z]+)(\*)?\(\w+\):(.*)/ =~ para
+              elsif event_list? && /\A(EVT_[_A-Z0-9]+)(\*)?\(\w+\):(.*)/ =~ para
                 wildcard = ($2 == '*')
                 evthnd_name = $1.downcase
                 arglist = "meth = nil, &block"
