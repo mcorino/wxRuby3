@@ -51,7 +51,7 @@ module Wx
     #
     # @param [Integer] first_id The first ID of the identifier range associated with the event handler. Should be Wx::ANY_ID for events that have no associated identifiers.
     # @param [Integer] last_id The last ID of the identifier range associated with the event handler. Should be Wx::ANY_ID for events that have a single identifier associated.
-    # @param [Integer,Symbol] evt_id The event type identifier like {Wx::EVT_MENU} or event connector symbol (like `:evt_menu`).
+    # @param [Integer,Symbol,nil] evt_id The event type identifier like {Wx::EVT_MENU} or event connector symbol (like `:evt_menu`).
     # @return [Boolean] Returns true if any event handler found and removed, false otherwise.
     def disconnect(first_id, last_id, evt_id) end
 
