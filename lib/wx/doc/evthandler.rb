@@ -29,8 +29,30 @@ module Wx
     # @return [Integer] unique event type id
     def self.register_class(klass, konstant = nil, meth = nil, arity = nil) end
 
-    def connect(first_id, last_id, evt_type, handler) end
+    # Connects the given event handler dynamically for id(s) and event type.
+    #
+    # This is the core event connecting method.
+    # In Ruby using named event connector methods like {Wx::EvtHandler#evt_menu} is highly recommended as using #connect
+    # does not provide any better options (less even) than using named event connectors as all event connecting is dynamic.
+    #
+    # @param [Integer] first_id The first ID of the identifier range to be associated with the event handler. Should be Wx::ANY_ID for events that do not require identifiers.
+    # @param [Integer] last_id The last ID of the identifier range to be associated with the event handler. Should be Wx::ANY_ID for events requiring a single identifier (like {Wx::MenuEvt}).
+    # @param [Integer] evt_id The event type identifier like {Wx::EVT_MENU}.
+    # @param [Proc,Method] handler The event handler proc or method.
+    # @return [Boolean] Always returns true.
+    def connect(first_id, last_id, evt_id, handler) end
 
+    # Disconnects any event handler connected for the specified id(s) and event type.
+    #
+    # Looks up connected event handler(s) using the specified parameters as search criteria and returning true if (a)
+    # matching handler(s) has(have) been found and removed.
+    #
+    # @note Note that in wxRuby it is not possible to remove a specific handler if multiple (chained) handler(s) have been connected.
+    #
+    # @param [Integer] first_id The first ID of the identifier range associated with the event handler. Should be Wx::ANY_ID for events that have no associated identifiers.
+    # @param [Integer] last_id The last ID of the identifier range associated with the event handler. Should be Wx::ANY_ID for events that have a single identifier associated.
+    # @param [Integer,Symbol] evt_id The event type identifier like {Wx::EVT_MENU} or event connector symbol (like `:evt_menu`).
+    # @return [Boolean] Returns true if any event handler found and removed, false otherwise.
     def disconnect(first_id, last_id, evt_spec) end
 
     # Processes an event, searching event tables and calling zero or more suitable event handler function(s).
