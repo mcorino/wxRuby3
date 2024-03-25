@@ -28,6 +28,10 @@ module WXRuby3
           // ArtId and ArtClient are basically just strings ...
           typedef wxString wxArtID;
           typedef wxString wxArtClient;
+
+          // Missing from docs
+          %constant const char* wxART_STOP = wxART_STOP;
+          %constant const char* wxART_REFRESH = wxART_REFRESH;
           __HEREDOC
         spec.map *%w[wxArtID wxArtClient], as: 'String', swig: false do
           map_in
