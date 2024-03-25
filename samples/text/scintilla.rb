@@ -176,7 +176,7 @@ module STCSample
   end
 
   def self.activate
-    frame = Scintilla::MyFrame.new("wxRuby Scintilla App",Point.new(50, 50), Size.new(450, 340))
+    frame = Scintilla::MyFrame.new("wxRuby Scintilla App", [50, 50], [450, 340])
     frame.show(true)
     frame
   end
