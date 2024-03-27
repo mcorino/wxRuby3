@@ -271,7 +271,9 @@ module WxRuby
 
       menuFile = Wx::Menu.new
       menuFile.append(ID::SAVE, "&Save\tCtrl-S", 'Save the sample to a local folder')
-      menuFile.append(ID::RUN, "&Run\tCtrl-G", 'Run the (changed) sample')
+      runItem = Wx::MenuItem.new(menuFile, ID::RUN, "&Run\tCtrl-G", 'Run the (changed) sample')
+      runItem.set_bitmap(bitmap(:play))
+      menuFile.append(runItem)
       menuFile.append_separator
       menuFile.append(ID::QUIT, "&Close\tCtrl-Q", "Close the sample editor")
 
@@ -315,20 +317,20 @@ module WxRuby
       panel_szr = Wx::VBoxSizer.new
       @tbar = Wx::ToolBar.new(panel, style: Wx::TB_HORIZONTAL | Wx::NO_BORDER | Wx::TB_FLAT)
       @tbar.tool_bitmap_size = [ 16, 16 ]
-      @tbar.add_tool(ID::SAVE, 'Save', bitmap(:filesave), 'Save the sample to a local folder')
+      @tbar.add_tool(ID::SAVE, 'Save', Wx::ArtProvider.get_bitmap(Wx::ART_FILE_SAVE, Wx::ART_TOOLBAR, [16,16]), 'Save the sample to a local folder')
       @tbar.add_tool(ID::RUN, 'Run', bitmap(:play), 'Run the (changed) sample')
       @tbar.add_separator
-      @tbar.add_tool(ID::UNDO, 'Undo', bitmap(:undo), 'Undo change')
-      @tbar.add_tool(ID::REDO, 'Redo', bitmap(:redo), 'Redo change')
+      @tbar.add_tool(ID::UNDO, 'Undo', Wx::ArtProvider.get_bitmap(Wx::ART_UNDO, Wx::ART_TOOLBAR, [16,16]), 'Undo change')
+      @tbar.add_tool(ID::REDO, 'Redo', Wx::ArtProvider.get_bitmap(Wx::ART_REDO, Wx::ART_TOOLBAR, [16,16]), 'Redo change')
       @tbar.add_separator
-      @tbar.add_tool(ID::COPY, 'Copy', bitmap(:copy), 'Copy selection')
-      @tbar.add_tool(ID::CUT, 'Cut', bitmap(:cut), 'Cut selection')
-      @tbar.add_tool(ID::PASTE, 'Paste', bitmap(:paste), 'Paste selection')
+      @tbar.add_tool(ID::COPY, 'Copy', Wx::ArtProvider.get_bitmap(Wx::ART_COPY, Wx::ART_TOOLBAR, [16,16]), 'Copy selection')
+      @tbar.add_tool(ID::CUT, 'Cut', Wx::ArtProvider.get_bitmap(Wx::ART_CUT, Wx::ART_TOOLBAR, [16,16]), 'Cut selection')
+      @tbar.add_tool(ID::PASTE, 'Paste', Wx::ArtProvider.get_bitmap(Wx::ART_PASTE, Wx::ART_TOOLBAR, [16,16]), 'Paste selection')
       @tbar.add_separator
-      @tbar.add_tool(ID::FIND, 'Find', bitmap(:find), 'Show Find Dialog')
-      @tbar.add_tool(ID::FIND_NEXT, 'FindNext', bitmap(:forward), 'Find next occurrence of the search phrase')
-      @tbar.add_tool(ID::FIND_PREV, 'FindPrev', bitmap(:back), 'Find previous occurrence of the search phrase')
-      @tbar.add_tool(ID::REPLACE, 'Replace', bitmap(:findrepl), 'Show Replace Dialog')
+      @tbar.add_tool(ID::FIND, 'Find', Wx::ArtProvider.get_bitmap(Wx::ART_FIND, Wx::ART_TOOLBAR, [16,16]), 'Show Find Dialog')
+      @tbar.add_tool(ID::FIND_NEXT, 'FindNext', Wx::ArtProvider.get_bitmap(Wx::ART_GO_FORWARD, Wx::ART_TOOLBAR, [16,16]), 'Find next occurrence of the search phrase')
+      @tbar.add_tool(ID::FIND_PREV, 'FindPrev', Wx::ArtProvider.get_bitmap(Wx::ART_GO_BACK, Wx::ART_TOOLBAR, [16,16]), 'Find previous occurrence of the search phrase')
+      @tbar.add_tool(ID::REPLACE, 'Replace', Wx::ArtProvider.get_bitmap(Wx::ART_FIND_AND_REPLACE, Wx::ART_TOOLBAR, [16,16]), 'Show Replace Dialog')
       @tbar.realize
       panel_szr.add(@tbar)
 

@@ -13,10 +13,14 @@ module Wx
     # Optionally runs a given block as the applications #on_init callback
     # if no actual #on_init method has been defined.
     # A given block will be ignored if an actual #on_init method has been defined.
+    # @yieldreturn [Boolean] return true if init block succeeded, false otherwise
+    # @return [Integer] return code from the #on_exit callback (`0` if no #on_exit defined or called)
     def run(&block) end
 
     # Convenience method to instantiate an application object of the class
-    # and call the {#run} method for that application object.
+    # and call the {Wx::App#run} method for that application object.
+    # @yieldreturn [Boolean] return true if init block succeeded, false otherwise
+    # @return [Integer] return code from {Wx::App#run}
     def self.run(&block) end
 
     class << self
