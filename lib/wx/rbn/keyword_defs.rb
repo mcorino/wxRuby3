@@ -12,7 +12,7 @@
 # wxRibbonControl
 Wx::define_keyword_ctors(Wx::RBN::RibbonControl) do
   wx_ctor_params :id, :pos, :size, :style, :validator
-  wx_ctor_params :name => 'RibbonControl'
+  wx_ctor_params :name => Wx::CONTROL_NAME_STR
 end
 
 # wxRibbonBar

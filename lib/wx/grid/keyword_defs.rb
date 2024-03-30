@@ -13,5 +13,5 @@
 # wxGrid 	A grid (table) window
 Wx::define_keyword_ctors(Wx::GRID::Grid) do
   wx_ctor_params :id, :pos, :size, :style => Wx::WANTS_CHARS
-  wx_ctor_params :name => 'grid'
+  wx_ctor_params :name => Wx::GRID_NAME_STR
 end

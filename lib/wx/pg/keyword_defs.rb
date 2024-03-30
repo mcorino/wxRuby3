@@ -12,11 +12,11 @@
 # wxPropertyGrid
 Wx::define_keyword_ctors(Wx::PG::PropertyGrid) do
   wx_ctor_params :id, :pos, :size, :style => Wx::PG::PG_DEFAULT_STYLE
-  wx_ctor_params :name => 'PropertyGrid'
+  wx_ctor_params :name => Wx::PROPERTY_GRID_NAME_STR
 end
 
 # wxPropertyGridManager
 Wx::define_keyword_ctors(Wx::PG::PropertyGridManager) do
   wx_ctor_params :id, :pos, :size, :style => Wx::PG::PG_DEFAULT_STYLE
-  wx_ctor_params :name => 'PropertyGridManager'
+  wx_ctor_params :name => Wx::PROPERTY_GRID_MANAGER_NAME_STR
 end
