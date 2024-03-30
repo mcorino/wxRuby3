@@ -71,8 +71,14 @@ module Wx
   TREE_LIST_CTRL_NAME_STR = 'wxTreeListCtrl'
   HTML_LIST_BOX_NAME_STR = 'htmlListBox'
   SIMPLE_HTML_LIST_BOX_NAME_STR = 'simpleHtmlListBox'
+  HTML_WINDOW_NAME_STR = 'htmlWindow'
   EDITABLE_LIST_BOX_NAME_STR = 'editableListBox'
   V_LIST_BOX_NAME_STR = 'wxVListBox'
+  ACTIVITY_INDICATOR_NAME_STR = 'activityindicator'
+  TIME_PICKER_CTRL_NAME_STR = 'timectrl'
+  DATE_PICKER_CTRL_NAME_STR = 'datectrl'
+  CALENDAR_NAME_STR = 'CalendarCtrl'
+  SPIN_BUTTON_NAME_STR = 'wxSpinButton'
 
   # wxMSW only
   MSW_HEADER_CTRL_NAME_STR = 'wxMSWHeaderCtrl'
@@ -80,5 +86,15 @@ module Wx
   PROPERTY_GRID_MANAGER_NAME_STR = 'wxPropertyGridManager'
   PROPERTY_GRID_NAME_STR = 'wxPropertyGrid'
   STC_NAME_STR = 'stcwindow'
+
+  MEDIA_CTRL_NAME_STR = 'mediaCtrl'
+  SPIN_CTRL_NAME_STR = 'spinCtrl'
+  SPIN_CTRL_DOUBLE_NAME_STR = 'wxSpinCtrlDouble'
+  SPLITTER_WINDOW_NAME_STR = 'splitter'
+  TOOLBOOK_NAME_STR = 'toolbook'
+  TREEBOOK_NAME_STR = 'treebook'
+  SASH_WINDOW_NAME_STR = 'sashWindow'
+  SASH_LAYOUT_WINDOW_NAME_STR = 'layoutWindow'
+  SCROLLED_NAME_STR = 'SCROLLED_WINDOW'
 
 end
