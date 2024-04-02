@@ -16,7 +16,8 @@ module WXRuby3
         super
         spec.disable_proxies
         spec.gc_as_untracked spec.module_name
-        if spec.module_name == 'wxScreenDC'
+        case spec.module_name
+        when 'wxScreenDC'
           spec.make_abstract 'wxScreenDC'
           # as a ScreenDC should always be a temporary stack object
           # we do not allow creation in Ruby but rather provide a class
@@ -41,7 +42,7 @@ module WXRuby3
           spec.ignore 'wxScreenDC::StartDrawingOnTop',
                       'wxScreenDC::EndDrawingOnTop',
                       'wxScreenDC::wxScreenDC'
-        elsif spec.module_name == 'wxClientDC'
+        when 'wxClientDC'
           spec.make_abstract 'wxClientDC'
           spec.ignore 'wxClientDC::wxClientDC'
           # as a ClientDC should best always be a temporary stack object
@@ -63,10 +64,10 @@ module WXRuby3
               return rc;
             }
           __HEREDOC
-        elsif spec.module_name == 'wxPaintDC'
+        when 'wxPaintDC'
           spec.make_abstract 'wxPaintDC'
           spec.ignore 'wxPaintDC::wxPaintDC'
-        elsif spec.module_name == 'wxMemoryDC'
+        when 'wxMemoryDC'
           spec.items << 'wxBufferedDC' << 'wxBufferedPaintDC' << 'wxAutoBufferedPaintDC'
           spec.make_abstract 'wxMemoryDC'
           spec.make_abstract 'wxBufferedDC'
@@ -213,7 +214,7 @@ module WXRuby3
               return rc;
             }
           __HEREDOC
-        elsif spec.module_name == 'wxMirrorDC'
+        when 'wxMirrorDC'
           spec.make_abstract 'wxMirrorDC'
           spec.ignore 'wxMirrorDC::wxMirrorDC'
           # as a MirrorDC should best always be a temporary stack object
@@ -235,7 +236,7 @@ module WXRuby3
               return rc;
             }
           __HEREDOC
-        elsif spec.module_name == 'wxSVGFileDC'
+        when 'wxSVGFileDC'
           spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler]
           spec.make_abstract 'wxSVGFileDC'
           spec.ignore 'wxSVGFileDC::wxSVGFileDC'
@@ -272,7 +273,7 @@ module WXRuby3
                       'wxSVGFileDC::EndDoc',
                       'wxSVGFileDC::StartPage',
                       'wxSVGFileDC::EndPage'
-        elsif spec.module_name == 'wxGCDC'
+        when 'wxGCDC'
           spec.make_abstract 'wxGCDC'
           spec.ignore 'wxGCDC::wxGCDC'
           # like all DC this should best always be a temporary stack object
@@ -357,7 +358,7 @@ module WXRuby3
             }
           __HEREDOC
           spec.ignore 'wxGCDC::wxGCDC(const wxEnhMetaFileDC &)'
-        elsif spec.module_name == 'wxScaledDC'
+        when 'wxScaledDC'
           spec.items.clear # wxRuby extension; no XML docs
           spec.override_inheritance_chain('wxScaledDC', %w[wxDC wxObject])
           # as there are no dependencies parsed from XML make sure we're initialized after Wx::DC
@@ -398,7 +399,7 @@ module WXRuby3
               wxScaledDC(wxDC& target, double scale);
             };
             __HEREDOC
-        elsif spec.module_name == 'wxPrinterDC'
+        when 'wxPrinterDC'
           spec.make_abstract 'wxPrinterDC'
           spec.ignore 'wxPrinterDC::wxPrinterDC'
           # as a PrinterDC should best always be a temporary stack object
@@ -420,7 +421,7 @@ module WXRuby3
               return rc;
             }
           __HEREDOC
-        elsif spec.module_name == 'wxPostScriptDC'
+        when 'wxPostScriptDC'
           spec.make_abstract 'wxPostScriptDC'
           spec.ignore 'wxPostScriptDC::wxPostScriptDC'
           # as a PostScriptDC should best always be a temporary stack object
@@ -442,6 +443,40 @@ module WXRuby3
               return rc;
             }
           __HEREDOC
+        when 'wxDCOverlay'
+          spec.items << 'wxOverlay'
+          spec.make_abstract 'wxDCOverlay'
+          spec.ignore 'wxDCOverlay::wxDCOverlay'
+          spec.add_extend_code 'wxDCOverlay', <<~__HEREDOC
+            static VALUE draw_on(wxOverlay &overlay, wxDC *dc)
+            {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                wxDCOverlay ovl_dc(overlay, dc);
+                wxDCOverlay* ovl_dc_ptr = &ovl_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ovl_dc_ptr), SWIGTYPE_p_wxDCOverlay, 0);
+                rc = rb_yield(rb_dc);
+              }
+              return rc;
+            }
+            static VALUE draw_on(wxOverlay &overlay, wxDC *dc, int x, int y, int width, int height)
+            {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                wxDCOverlay ovl_dc(overlay, dc, x, y, width, height);
+                wxDCOverlay* ovl_dc_ptr = &ovl_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ovl_dc_ptr), SWIGTYPE_p_wxDCOverlay, 0);
+                rc = rb_yield(rb_dc);
+              }
+              return rc;
+            }
+            __HEREDOC
         else
           # ctors of all other derived DC require a running App
           spec.require_app spec.module_name

@@ -12,7 +12,7 @@
 Wx::define_keyword_ctors(Wx::RTC::RichTextCtrl) do
   wx_ctor_params :id, :value => ''
   wx_ctor_params :pos, :size, :style => Wx::TE_MULTILINE
-  wx_ctor_params :validator, :name => 'textCtrl'
+  wx_ctor_params :validator, :name => Wx::TEXT_CTRL_NAME_STR
 end
 
 Wx::define_keyword_ctors(Wx::RTC::RichTextStyleListBox) do

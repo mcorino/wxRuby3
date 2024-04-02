@@ -11,5 +11,5 @@
 
 Wx::define_keyword_ctors('StyledTextCtrl') do
   wx_ctor_params :id, :pos, :size, :style => 0
-  wx_ctor_params :name => 'styledTextCtrl'
+  wx_ctor_params :name => Wx::STC_NAME_STR
 end

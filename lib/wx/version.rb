@@ -3,5 +3,5 @@
 # This software is released under the MIT license.
 
 module Wx
-  WXRUBY_VERSION    = '0.9.8'
+  WXRUBY_VERSION    = '1.0.0'
 end
