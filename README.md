@@ -91,7 +91,9 @@ README and license files for details.
 See [here](CREDITS.md) for more details on and acknowledgement of the developers 
 of these products.
 
-## FAQ
+## (Some of the) Most Frequently Asked Questions
+
+(see the extended [FAQ](https://github.com/mcorino/wxRuby3/wiki/Frequently-Asked-Questions) in the [Wiki](https://github.com/mcorino/wxRuby3/wiki) for more information)
  
 ### What platforms and operating systems are supported in wxRuby3?
 
@@ -159,10 +161,10 @@ Use GitHUb Issues.
 
 When asking a question, if something is not working as you expect,
 please provide a *minimal*, *runnable* sample of code that demonstrates
-the problem, and say what you expected to happen, and what actually
+the problem, and describe clearly what you expected to happen and what actually
 happened. Please also provide basic details of your platform, Ruby,
 wxRuby and wxWidgets version, and make a reasonable effort to find answers 
-in the archive and documentation before posting. People are mostly happy
+in the archive, wiki and/or documentation before posting. People are mostly happy
 to help, but it's too much to expect them to guess what you're trying to
 do, or try and debug 1,000 lines of your application.
 Very important also; do not use offensive language and be **polite**.
@@ -204,18 +206,6 @@ example, if you wanted answers about the "Grid" class, try searching for
 "wxGrid" as this will turn up results relating to wxWidgets and wxPython
 which may be relevant.
 
-### What wxWidgets features are supported by wxRuby3?
-
-wxRuby supports almost all of the wxWidgets 3.2+ GUI API, providing over
-600 classes in total. wxWidgets classes that provide general and/or non-GUI 
-programming support features, such as strings, networking, threading, database
-access and such are not and will never be ported, as it's assumed that 
-in all these cases it's preferable to use pure Ruby features.
-
-If you know of a feature in wxWidgets that you would like to see
-supported in wxRuby3 you are free to ask but do not **EXPECT** unconditional 
-agreement or immediate response. 
-
 ### How does wxRuby3 relate to the wxRuby 2.0 (and even older 0.6.0) release?
 
 wxRuby 0.6.0 was the last in a series of releases developed using a
@@ -236,12 +226,3 @@ maintainable solution.
 
 Please double-check the instructions above and in the [INSTALL](INSTALL.md) document and search issue archives. If 
 this doesn't help, please post your question using GitHub Issues.
-
-### Is there another, more declarative way, for writing wxRuby3 desktop GUI applications?
-
-Yes. [Glimmer DSL for WX](https://github.com/AndyObtiva/glimmer-dsl-wx) enables software engineers to build GUI 
-using wxruby3 following the Ruby way with the least amount of code possible. That is by offering a minimalistic 
-declarative high-level DSL that maps visually to the way software engineers think about the GUI hierarchy in addition 
-to adopting Rails' strategy of Convention over Configuration via smart defaults and automation of wxruby3 low-level 
-details. You can check out the [Glimmer DSL for WX README "Coming From wxruby3" section](https://github.com/AndyObtiva/glimmer-dsl-wx#coming-from-wxruby3) for more information on 
-how to translate wxruby3 apps to [Glimmer DSL for WX](https://github.com/AndyObtiva/glimmer-dsl-wx) syntax.
