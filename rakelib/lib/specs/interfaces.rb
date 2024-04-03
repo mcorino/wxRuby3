@@ -236,6 +236,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxSecretStore', requirements: %w[USE_SECRETSTORE])
     Director.Spec(pkg, 'wxDCOverlay', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxGeometry', requirements: %w[USE_GEOMETRY])
+    Director.Spec(pkg, 'wxAffineMatrix2D', requirements: %w[USE_GEOMETRY])
   }
 
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|
