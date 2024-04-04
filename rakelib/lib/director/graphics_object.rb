@@ -14,15 +14,26 @@ module WXRuby3
 
       def setup
         super
-        spec.items.concat %w[wxGraphicsPen wxGraphicsBrush wxGraphicsPath wxGraphicsFont wxGraphicsMatrix wxGraphicsBitmap]
+        spec.items.concat %w[wxGraphicsPen wxGraphicsBrush wxGraphicsPath wxGraphicsFont wxGraphicsMatrix wxGraphicsBitmap wxGraphicsRenderer]
         spec.disable_proxies
-        spec.ignore 'wxGraphicsObject::GetRenderer'
         spec.ignore 'wxGraphicsMatrix::Concat(const wxGraphicsMatrix &)'
         spec.ignore 'wxGraphicsMatrix::IsEqual(const wxGraphicsMatrix &)'
         spec.ignore 'wxGraphicsMatrix::GetNativeMatrix'
         spec.ignore 'wxGraphicsBitmap::GetNativeBitmap'
         spec.ignore 'wxGraphicsPath::GetNativePath',
                     'wxGraphicsPath::UnGetNativePath'
+        spec.ignore 'wxGraphicsRenderer::CreateContextFromNativeHDC',
+                    'wxGraphicsRenderer::CreateBitmapFromNativeBitmap',
+                    'wxGraphicsRenderer::CreateContextFromNativeContext',
+                    'wxGraphicsRenderer::CreateContextFromNativeWindow',
+                    'wxGraphicsRenderer::CreateContext(const wxEnhMetaFileDC&)'
+        unless Config.instance.features_set?('USE_CAIRO')
+          spec.ignore 'wxGraphicsRenderer::GetCairoRenderer'
+        end
+        unless Config.instance.features_set?('WXMSW')
+          spec.ignore 'wxGraphicsRenderer::GetGDIPlusRenderer',
+                      'wxGraphicsRenderer::GetDirect2DRenderer'
+        end
         # Deal with GraphicsMatrix#get method
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
@@ -30,6 +41,8 @@ module WXRuby3
         spec.ignore 'wxGraphicsPath::GetBox() const',
                     'wxGraphicsPath::GetCurrentPoint(wxDouble*,wxDouble*) const'
         spec.map_apply 'double * OUTPUT' => 'wxDouble *'
+        # wxGraphicsRenderer::GetVersion
+        spec.map_apply 'int * OUTPUT' => ['int *major', 'int *minor', 'int *micro']
         if Config.platform == :mingw
           # it seems for WXMSW there is a problem cleaning up GraphicsObjects in GC after
           # the wxApp has ended (probably because some other wxWidgets cleanup already
