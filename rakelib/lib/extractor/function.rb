@@ -293,7 +293,7 @@ module WXRuby3
         @is_static = element['static'] == 'yes'
         @is_virtual = %w[virtual pure-virtual].include?(element['virt'])
         @is_pure_virtual = (element['virt'] == 'pure-virtual')
-        @args_string.sub!(/\s*=0/, '') if @is_pure_virtual
+        @args_string.sub!(/\)(\s*const)?\s*=0/, ')\1') if @is_pure_virtual
         @is_override = !!element.at_xpath('reimplements')
         @is_const = (element['const'] == 'yes')
         @is_ctor = (@name == @class_name)
