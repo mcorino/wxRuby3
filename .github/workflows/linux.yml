@@ -170,6 +170,11 @@ jobs:
         ref: v${{ matrix.wxWidgets }}
         submodules: 'recursive'
 
+    - name: Prepare package repos
+      if: matrix.wxw_type == 'embed'
+      run: |
+        sudo apt-get update
+
     - name: Set up build environment
       if: matrix.wxw_type != 'embed'
       run: |
