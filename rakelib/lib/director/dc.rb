@@ -36,13 +36,7 @@ module WXRuby3
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const',
           'wxDC::GetHandle'
         ]
-        # ignore Matrix Transformation methods until someone asks for them
-        # TODO : possibly wrap at a later time
-        spec.ignore 'wxDC::SetTransformMatrix',
-                    'wxDC::GetTransformMatrix',
-                    'wxDC::ResetTransformMatrix',
-                    'wxDC::CanUseTransformMatrix'
-        spec.disable_proxies
+       spec.disable_proxies
         spec.rename_for_ruby({
           'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *) const',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *, wxCoord *) const',
