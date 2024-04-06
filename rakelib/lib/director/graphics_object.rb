@@ -34,6 +34,7 @@ module WXRuby3
           spec.ignore 'wxGraphicsRenderer::GetGDIPlusRenderer',
                       'wxGraphicsRenderer::GetDirect2DRenderer'
         end
+        spec.new_object 'wxGraphicsRenderer::CreateContext'
         # Deal with GraphicsMatrix#get method
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
