@@ -69,6 +69,7 @@ module WXRuby3
           spec.ignore 'wxPaintDC::wxPaintDC'
         when 'wxMemoryDC'
           spec.items << 'wxBufferedDC' << 'wxBufferedPaintDC' << 'wxAutoBufferedPaintDC'
+          spec.gc_as_untracked %w[wxBufferedDC wxBufferedPaintDC wxAutoBufferedPaintDC]
           spec.make_abstract 'wxMemoryDC'
           spec.make_abstract 'wxBufferedDC'
           spec.make_abstract 'wxBufferedPaintDC'
