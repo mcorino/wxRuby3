@@ -151,13 +151,8 @@ module WXRuby3
             {
               VALUE rc = Qnil;
               wxAutoBufferedPaintDC dc(ptr);
-            #if wxALWAYS_NATIVE_DOUBLE_BUFFER
-              wxPaintDC* ptr_dc = &dc;
-              VALUE r_class = rb_const_get(mWxCore, rb_intern("PaintDC"));
-            #else
-              wxMemoryDC* ptr_dc = &dc;
-              VALUE r_class = rb_const_get(mWxCore, rb_intern("MemoryDC"));
-            #endif
+              wxAutoBufferedPaintDC* ptr_dc = &dc;
+              VALUE r_class = rb_const_get(mWxCore, rb_intern("AutoBufferedPaintDC"));
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
               VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ptr_dc), swig_type, 0);
               rc = rb_yield(rb_dc);
