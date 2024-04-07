@@ -16,8 +16,34 @@ module Wx
     # @return [Wx::Pen]
     def self.find_or_create_pen(colour, width=1, style=Wx::PenStyle::PENSTYLE_SOLID) end
 
+    # Associates an array of dash values with the pen.
+    #
+    # @see Wx::Pen#get_dashes
+    # @param dashes [Array<Integer>]
+    # @return [void]
+    def set_dashes(dashes) end
+
+    # Gets an array of dashes.
+    #
+    # @see Wx::Pen#set_dashes
+    # @return [Array<Integer>]
+    def get_dashes; end
+    alias_method :dashes, :get_dashes
+
   end
 
   ThePenList = Wx::Pen
+
+  class PenInfo
+
+    # @param dashes [Array<Integer>]
+    # @return [Wx::PenInfo]
+    def dashes(dashes) end
+
+    # @return [Array<Integer>]
+    def get_dashes; end
+    alias_method :dashes, :get_dashes
+
+  end
 
 end
