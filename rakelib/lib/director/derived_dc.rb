@@ -69,6 +69,7 @@ module WXRuby3
           spec.ignore 'wxPaintDC::wxPaintDC'
         when 'wxMemoryDC'
           spec.items << 'wxBufferedDC' << 'wxBufferedPaintDC' << 'wxAutoBufferedPaintDC'
+          spec.gc_as_untracked %w[wxBufferedDC wxBufferedPaintDC wxAutoBufferedPaintDC]
           spec.make_abstract 'wxMemoryDC'
           spec.make_abstract 'wxBufferedDC'
           spec.make_abstract 'wxBufferedPaintDC'
@@ -302,6 +303,24 @@ module WXRuby3
               __HEREDOC
           end
           spec.add_extend_code 'wxGCDC', <<~__HEREDOC
+            static VALUE draw_on()
+            {
+              if (!wxRuby_IsAppRunning()) 
+                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+              VALUE rc = Qnil;
+              if (rb_block_given_p ())
+              {
+                // Somehow there seems to be a problem with the Ruby GCDC value 
+                // being GC-ed unless we block GC for the duration of the block
+                // execution. Unclear why. We have similar code for other objects
+                // where this issue does not come up.
+                wxGCDC gc_dc;
+                wxGCDC* dc_ptr = &gc_dc;
+                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxGCDC, 0);
+                rc = rb_yield(rb_dc);
+              }
+              return rc;
+            }
             static VALUE draw_on(const wxWindowDC& dc)
             {
               if (!wxRuby_IsAppRunning()) 
@@ -356,7 +375,8 @@ module WXRuby3
               }
               return rc;
             }
-          __HEREDOC
+            __HEREDOC
+          spec.disown 'wxGraphicsContext *gc'
           spec.ignore 'wxGCDC::wxGCDC(const wxEnhMetaFileDC &)'
         when 'wxScaledDC'
           spec.items.clear # wxRuby extension; no XML docs

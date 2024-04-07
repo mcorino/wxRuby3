@@ -29,12 +29,13 @@ module WXRuby3
                     'wxGraphicsContext::CreateFromNativeHDC',
                     'wxGraphicsContext::CreateFromUnknownDC',
                     'wxGraphicsContext::GetNativeContext',
-                    'wxGraphicsContext::Create',
+                    'wxGraphicsContext::Create(const wxEnhMetaFileDC &)',
                     'wxGraphicsContext::CreateMatrix(const wxAffineMatrix2DBase &) const',
                     'wxGraphicsContext::DrawLines(size_t, const wxPoint2DDouble *, wxPolygonFillMode)',
                     'wxGraphicsContext::StrokeLines(size_t, const wxPoint2DDouble *)',
                     'wxGraphicsContext::StrokeLines (size_t, const wxPoint2DDouble *, const wxPoint2DDouble *)'
         spec.ignore_unless(Config::AnyOf.new('WXMSW', 'WXOSX', 'USE_GTKPRINT'), 'wxGraphicsContext::Create(const wxPrinterDC &)')
+        spec.new_object 'wxGraphicsContext::Create'
         spec.add_header_code <<~__HEREDOC
           // special free funcs are needed to clean up Dashes array if it has been
           // set; wxWidgets does not do this automatically so will leak if not

@@ -36,7 +36,8 @@ module WXRuby3
           'wxDC::GetLogicalOrigin(wxCoord *,wxCoord *) const',
           'wxDC::GetHandle'
         ]
-       spec.disable_proxies
+        spec.disable_proxies
+        spec.disown 'wxGraphicsContext *ctx'
         spec.rename_for_ruby({
           'GetDimensions' => 'wxDC::GetSize(wxCoord *, wxCoord *) const',
           'GetDimensionsMM' => 'wxDC::GetSizeMM(wxCoord *, wxCoord *) const',
