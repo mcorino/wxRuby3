@@ -6,6 +6,8 @@
 # Copyright 2004-2007, wxRuby development team
 # released under the MIT-like wxRuby2 license
 
+require_relative 'ext'
+
 module Wx
 
   Wx.add_delayed_constant(self, :TRANSPARENT_COLOUR, 'Wx::Colour.new(0, 0, 0, Wx::ALPHA_TRANSPARENT)') { Wx::Colour.new(0, 0, 0, Wx::ALPHA_TRANSPARENT) }
