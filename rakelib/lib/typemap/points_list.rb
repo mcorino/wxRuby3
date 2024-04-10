@@ -47,7 +47,8 @@ module WXRuby3
                 }
                 else
                 {
-                  rb_raise(rb_eTypeError, "Wrong type for wxPoint parameter %i", i);
+                  VALUE str = rb_inspect(rb_item);
+                  rb_raise(rb_eTypeError, "Wrong type for wxPoint parameter %i (%s)", i, StringValuePtr(str));
                 }
               }
             }
@@ -101,7 +102,12 @@ module WXRuby3
               // array of all the points
               VALUE all_points = rb_funcall($input, rb_intern("flatten"), 0);
               point_arr = std::make_unique<wxPoint[]>(RARRAY_LEN(all_points));
-              wxRuby_PointArrayRubyToC(all_points, point_arr.get());
+              wxPoint* point_ptr = point_arr.get();
+              for ( int i = 0; i < RARRAY_LEN($input); i++ )
+              {
+                wxRuby_PointArrayRubyToC(rb_ary_entry($input, i), point_ptr);
+                point_ptr += count_arr[i];
+              }
               $3 = point_arr.get();
             }
             __CODE
