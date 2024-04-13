@@ -108,6 +108,55 @@ module Wx
       hist_hash.extend Histogram
       hist_hash
     end
+
+    # import flattened nested classes
+    HSVValue = Wx::HSVValue
+    RGBValue = Wx::RGBValue
+
+  end
+
+  class HSVValue
+
+    # More informative output when converted to string
+    def to_s
+      "#<Wx::Image::HSVValue: (#{self.hue}, #{self.saturation}, #{self.value})>"
+    end
+
+    def inspect
+      to_s
+    end
+
+    # make HSVValue usable for parallel assignments like `x, y = pt`
+    def to_ary
+      [self.hue, self.saturation, self.value]
+    end
+
+    def to_rgb
+      Image::hsv_to_rgb(self)
+    end
+
+  end
+
+  class RGBValue
+
+    # More informative output when converted to string
+    def to_s
+      "#<Wx::Image::RGBValue: (#{self.red}, #{self.green}, #{self.blue})>"
+    end
+
+    def inspect
+      to_s
+    end
+
+    # make RGBValue usable for parallel assignments like `x, y = pt`
+    def to_ary
+      [self.red, self.green, self.blue]
+    end
+
+    def to_hsv
+      Image::rgb_to_hsv(self)
+    end
+
   end
 
   def self.Image(name, bmp_type = nil, *rest, art_path: nil, art_section: nil)
