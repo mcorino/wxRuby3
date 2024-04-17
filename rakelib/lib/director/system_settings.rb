@@ -22,7 +22,7 @@ module WXRuby3
                          'wxSystemSettings::HasFeature',
                          'wxSystemSettings::GetScreenType'
         spec.ignore 'wxSystemSettings::GetAppearance'
-        spec.add_extend_code <<~__HEREDOC
+        spec.add_extend_code 'wxSystemSettings', <<~__HEREDOC
           static wxString GetAppearanceName()
           {
             return wxSystemSettings::GetAppearance().GetName();

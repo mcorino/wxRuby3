@@ -212,6 +212,65 @@ module WXRuby3
             return rb_img_hist;
           }
           __HEREDOC
+        # make sure to wrap the public attributes
+        spec.regard 'wxImage::HSVValue::hue',
+                    'wxImage::HSVValue::saturation',
+                    'wxImage::HSVValue::value',
+                    'wxImage::RGBValue::red',
+                    'wxImage::RGBValue::green',
+                    'wxImage::RGBValue::blue'
+        # ignore these and add customs
+        spec.ignore 'wxImage::HSVtoRGB',
+                    'wxImage::RGBtoHSV'
+        spec.add_extend_code 'wxImage', <<~__HEREDOC
+          static wxImage::RGBValue hsv_to_rgb(VALUE arg)
+          {
+            std::unique_ptr<wxImage::HSVValue> tmp;
+            wxImage::HSVValue* p_hsv;
+            if ( TYPE(arg) == T_DATA )
+            {
+              void* argp;
+              SWIG_ConvertPtr(arg, &argp, SWIGTYPE_p_wxImage__HSVValue, 0);
+              p_hsv = reinterpret_cast< wxImage::HSVValue * >(argp);
+            }
+            else if ( TYPE(arg) == T_ARRAY && RARRAY_LEN(arg) == 3 )
+            {
+              p_hsv = new wxImage::HSVValue( NUM2DBL( rb_ary_entry(arg, 0) ),
+                                             NUM2DBL( rb_ary_entry(arg, 1) ),
+                                             NUM2DBL( rb_ary_entry(arg, 2) ) );
+              tmp.reset(p_hsv); // auto destruct when method scope ends 
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected either Array(Float,Float,Float) or Wx::Image::HSVValue for #0");
+            }
+            return wxImage::HSVtoRGB(*p_hsv);
+          }
+
+          static wxImage::HSVValue rgb_to_hsv(VALUE arg)
+          {
+            std::unique_ptr<wxImage::RGBValue> tmp;
+            wxImage::RGBValue* p_rgb;
+            if ( TYPE(arg) == T_DATA )
+            {
+              void* argp;
+              SWIG_ConvertPtr(arg, &argp, SWIGTYPE_p_wxImage__RGBValue, 0);
+              p_rgb = reinterpret_cast< wxImage::RGBValue * >(argp);
+            }
+            else if ( TYPE(arg) == T_ARRAY && RARRAY_LEN(arg) == 3 )
+            {
+              p_rgb = new wxImage::RGBValue( NUM2DBL( rb_ary_entry(arg, 0) ),
+                                             NUM2DBL( rb_ary_entry(arg, 1) ),
+                                             NUM2DBL( rb_ary_entry(arg, 2) ) );
+              tmp.reset(p_rgb); // auto destruct when method scope ends 
+            }
+            else
+            {
+              rb_raise(rb_eArgError, "Expected either Array(Float,Float,Float) or Wx::Image::RGBValue for #0");
+            }
+            return wxImage::RGBtoHSV(*p_rgb);
+          }
+          __HEREDOC
         spec.do_not_generate(:functions)
       end
     end # class Image

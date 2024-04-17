@@ -51,6 +51,58 @@ module Wx
     # @return [Hash] hash object extended with {Wx::Image::Histogram}
     def compute_histogram; end
 
+    # Converts a color in HSV colour space to RGB colour space.
+    # @param [Wx::Image::HSVValue,Array(Float,Float,Float)] arg HSV colour
+    def self.hsv_to_rgb(arg) end
+
+    # Converts a color in RGB colour space to HSV colour space.
+    # @param [Wx::Image::RGBValue,Array(Float,Float,Float)] arg RGB colour
+    def self.rgb_to_hsv(arg) end
+
+    class HSVValue
+
+      # Constructor for HSVValue, an object that contains values for hue, saturation and value which represent the value of a color.
+      # It is used by {Wx::Image.hsv_to_rgb} and {Wx::Image.rgb_to_hsv}, which convert between HSV color space and RGB color space.
+      # @param [Float] hue
+      # @param [Float] saturation
+      # @param [Float] value
+      # @return [Wx::Image::HSVValue]
+      def initialize(hue, saturation, value)end
+
+      attr :hue, :saturation, :value
+
+      # Make HSVValue usable for parallel assignments like `hue, saturation, value = hsv`
+      # @return [Array(Float,Float,Float)]
+      def to_ary; end
+
+      # Convert to {Wx::Image::RGBValue}
+      # @return [Wx::Image::RGBValue]
+      def to_rgb; end
+
+    end
+
+    class RGBValue
+
+      # Constructor for RGBValue, an object that contains values for red, green and blue which represent the value of a color.
+      # It is used by {Wx::Image.hsv_to_rgb} and {Wx::Image.rgb_to_hsv}, which convert between RGB color space and HSV color space.
+      # @param [Float] red
+      # @param [Float] green
+      # @param [Float] blue
+      # @return [Wx::Image::RGBValue]
+      def initialize(red, green, blue)end
+
+      attr :red, :green, :blue
+
+      # Make RGBValue usable for parallel assignments like `red, green, blue = rgb`
+      # @return [Array(Float,Float,Float)]
+      def to_ary; end
+
+      # Convert to {Wx::Image::HSVValue}
+      # @return [Wx::Image::HSVValue]
+      def to_hsv; end
+
+    end
+
   end
 
   # @!group Art creation methods

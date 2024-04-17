@@ -56,7 +56,19 @@ module Wx
     # @param col [Wx::Colour]  The colour of this stop. Note that the alpha component of the colour is honoured thus allowing the background colours to partially show through the gradient.
     # @param pos [Float]  The stop position, must be in [0, 1] range with 0 being the beginning and 1 the end of the gradient.
     # @return [Wx::GraphicsGradientStop]
-    def initialize(col=Wx::TransparentColour, pos=0.0) end
+    def initialize(col=Wx::TRANSPARENT_COLOUR, pos=0.0) end
+
+  end
+
+  class GraphicsPenInfo
+
+    # @param dashes [Array<Integer>]
+    # @return [Wx::GraphicsPenInfo]
+    def dashes(dashes) end
+
+    # @return [Array<Integer>]
+    def get_dashes; end
+    alias_method :dashes, :get_dashes
 
   end
 

@@ -11,6 +11,17 @@
 
 
 module Wx
+
+  # Convert degrees to radians.
+  # @param [Float] deg degrees
+  # @return [Float] radians
+  def self.deg_to_rad(deg) end
+
+  # Convert radians to degrees.
+  # @param [Float] rad radians
+  # @return [Float] degrees
+  def self.rad_to_deg(rad) end
+
   class Point2DInt
 
     # @return [Integer]

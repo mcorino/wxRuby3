@@ -56,7 +56,7 @@ module WXRuby3
         # dealt with below - these require special handling because of the use
         # of wxDash array, which cannot be freed until the peninfo is disposed of
         # or until a new dash pattern is specified.
-        spec.ignore(%w[wxGraphicsPenInfo::GetDashes wxGraphicsPenInfo::Dashes], ignore_doc: false)
+        spec.ignore(%w[wxGraphicsPenInfo::GetDashes wxGraphicsPenInfo::Dashes])
         spec.ignore 'wxGraphicsPenInfo::GetDash'
         spec.add_extend_code 'wxGraphicsPenInfo', <<~__HEREDOC
           // Returns a ruby array with the dash lengths

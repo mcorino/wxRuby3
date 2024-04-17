@@ -3,6 +3,15 @@
 # This software is released under the MIT license.
 
 module Wx
+
+  def self.deg_to_rad(deg)
+    (deg * Math::PI) / 180.0
+  end
+
+  def self.rad_to_deg(rad)
+    (rad * 180.0) / Math::PI
+  end
+
   class Point2DInt
 
     alias :x :get_x
