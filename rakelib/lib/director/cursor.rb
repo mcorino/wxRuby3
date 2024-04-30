@@ -20,8 +20,12 @@ module WXRuby3
                          'wxCursor::wxCursor(const wxImage &)',
                          'wxCursor::wxCursor(const char *const *)',
                          'wxCursor::wxCursor(const wxCursor &)'
-        spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[])',
-                    'wxCursor::wxCursor(const char *const *)'
+        spec.ignore 'wxCursor::wxCursor(const char *const *)'
+        if Config.instance.wx_version >= '3.3.0'
+          spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[], const wxColour*, const wxColour*)'
+        else
+          spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[])'
+        end
         # ignore stock object (see RubyStockObjects.i)
         spec.ignore %w[wxSTANDARD_CURSOR wxHOURGLASS_CURSOR wxCROSS_CURSOR]
         super

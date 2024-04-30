@@ -264,8 +264,13 @@ module WXRuby3
             when Extractor::EnumDef
               item.items.each { |e| enumerators["#{rb_wx_name(item.name)}_#{e.name}"] = item } if item.is_type
             when Extractor::ClassDef
-              item.items.select { |itm| Extractor::EnumDef === itm }.each do |enum|
-                enum.items.each { |e| enumerators[rb_wx_name(e.name)] = enum } if enum.is_type
+              item.items.select { |itm| Extractor::EnumDef === itm && itm.is_type }.each do |enum|
+                if enum.strong
+                  enum_pfx = rb_wx_name(enum.name)
+                  enum.items.each { |e| enumerators["#{enum_pfx}_#{rb_wx_name(e.name)}"] = enum }
+                else
+                  enum.items.each { |e| enumerators[rb_wx_name(e.name)] = enum }
+                end
               end
             end
           end

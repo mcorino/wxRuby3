@@ -277,10 +277,10 @@ module Drawing
             gdc.set_graphics_context(context)
             # Adjust scrolled contents for screen drawing operations only.
             if pdc.is_a?(Wx::BufferedPaintDC) || pdc.is_a?(Wx::PaintDC)
-              prepare_dc(pdc)
+              prepare_dc(gdc)
             end
 
-            @owner.prepare_dc(pdc)
+            @owner.prepare_dc(gdc)
 
             do_draw(gdc)
           end
@@ -1061,7 +1061,7 @@ module Drawing
       dc.set_pen(Wx::TRANSPARENT_PEN)
       dc.set_brush(Wx::GREEN_BRUSH)
       dc.draw_rectangle(x, dc.from_dip(10), rectSize, rectSize)
-      dc.draw_bitmap(@std_icon, x + dc.from_dip(5), dc.from_dip(15), true)
+      dc.draw_bitmap(@std_icon.to_bitmap, x + dc.from_dip(5), dc.from_dip(15), true)
       x += rectSize + dc.from_dip(10)
       dc.draw_rectangle(x, dc.from_dip(10), rectSize, rectSize)
       dc.draw_icon(@std_icon, x + dc.from_dip(5), dc.from_dip(15))
@@ -1840,7 +1840,7 @@ module Drawing
             evt_menu(ID::File_GC_GDIPlus, :on_graphic_context_gdi_plus)
           end
           if Wx.has_feature?(:USE_GRAPHICS_DIRECT2D)
-            evt_menu(ID::File_GC_Direct2D, :on_graphic_context_direct2_d)
+            evt_menu(ID::File_GC_Direct2D, :on_graphic_context_direct2d)
           end
         end # WXMSW
         evt_menu(ID::File_AntiAliasing, :on_anti_aliasing)
@@ -1925,8 +1925,8 @@ module Drawing
         end
 
         if Wx.has_feature?(:USE_GRAPHICS_DIRECT2D)
-          def on_graphic_context_direct2_d(_event)
-            @canvas.use_graphic_renderer(Wx::GraphicsRenderer.get_direct2_d_renderer)
+          def on_graphic_context_direct2d(_event)
+            @canvas.use_graphic_renderer(Wx::GraphicsRenderer.get_direct2d_renderer)
           end
         end
       end # WXMSW

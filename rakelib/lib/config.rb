@@ -847,9 +847,15 @@ module WXRuby3
             features = {}
 
             if is_configured? && wxwidgets_setup_h
-              File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01])/) do | define |
-                feat_val = $2.to_i.zero? ? false : true
-                feat_id = $1.sub(/\Awx/i, '').gsub(/\A__|__\Z/, '')
+              File.read(wxwidgets_setup_h).scan(/^\s*#define\s+(wx\w+|__\w+__)\s+([01]|wx\w+)/) do | define |
+                val_str = $2
+                feat_str = $1
+                if val_str.start_with?('wx')
+                  feat_val = !!features[val_str.sub(/\Awx/i, '')]
+                else
+                  feat_val = val_str.to_i.zero? ? false : true
+                end
+                feat_id = feat_str.sub(/\Awx/i, '').gsub(/\A__|__\Z/, '')
                 features[feat_id] = feat_val
               end
               # make sure correct platform defines are included as well which will not be the case always
