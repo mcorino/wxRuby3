@@ -1840,7 +1840,7 @@ module Drawing
             evt_menu(ID::File_GC_GDIPlus, :on_graphic_context_gdi_plus)
           end
           if Wx.has_feature?(:USE_GRAPHICS_DIRECT2D)
-            evt_menu(ID::File_GC_Direct2D, :on_graphic_context_direct2_d)
+            evt_menu(ID::File_GC_Direct2D, :on_graphic_context_direct2d)
           end
         end # WXMSW
         evt_menu(ID::File_AntiAliasing, :on_anti_aliasing)
@@ -1925,8 +1925,8 @@ module Drawing
         end
 
         if Wx.has_feature?(:USE_GRAPHICS_DIRECT2D)
-          def on_graphic_context_direct2_d(_event)
-            @canvas.use_graphic_renderer(Wx::GraphicsRenderer.get_direct2_d_renderer)
+          def on_graphic_context_direct2d(_event)
+            @canvas.use_graphic_renderer(Wx::GraphicsRenderer.get_direct2d_renderer)
           end
         end
       end # WXMSW
