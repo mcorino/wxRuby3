@@ -1061,7 +1061,7 @@ module Drawing
       dc.set_pen(Wx::TRANSPARENT_PEN)
       dc.set_brush(Wx::GREEN_BRUSH)
       dc.draw_rectangle(x, dc.from_dip(10), rectSize, rectSize)
-      dc.draw_bitmap(@std_icon, x + dc.from_dip(5), dc.from_dip(15), true)
+      dc.draw_bitmap(@std_icon.to_bitmap, x + dc.from_dip(5), dc.from_dip(15), true)
       x += rectSize + dc.from_dip(10)
       dc.draw_rectangle(x, dc.from_dip(10), rectSize, rectSize)
       dc.draw_icon(@std_icon, x + dc.from_dip(5), dc.from_dip(15))
