@@ -511,7 +511,7 @@ module WXRuby3
 
     def gen_interface_enum(fout, member, classdef)
       fout.puts "  // from #{classdef.name}::#{member.name}"
-      fout.puts "  enum #{member.is_anonymous ? '' : member.name} {"
+      fout.puts "  enum #{member.strong ? 'class ' : ''}#{member.is_anonymous ? '' : member.name} {"
       enum_size = member.items.size
       member.items.each_with_index do |e, i|
         fout.puts "    #{e.name}#{(i+1)<enum_size ? ',' : ''}" unless e.ignored
