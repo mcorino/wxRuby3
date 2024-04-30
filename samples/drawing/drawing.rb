@@ -277,10 +277,10 @@ module Drawing
             gdc.set_graphics_context(context)
             # Adjust scrolled contents for screen drawing operations only.
             if pdc.is_a?(Wx::BufferedPaintDC) || pdc.is_a?(Wx::PaintDC)
-              prepare_dc(pdc)
+              prepare_dc(gdc)
             end
 
-            @owner.prepare_dc(pdc)
+            @owner.prepare_dc(gdc)
 
             do_draw(gdc)
           end
