@@ -23,6 +23,23 @@ module WXRuby3
         # ranges of text selections with a special class. It doesn't add
         # anything much that Ruby's own range class doesn't, so deal with using
         # typemaps
+        map 'const wxRichTextRange&' => 'Range' do
+
+          map_in temp: 'wxRichTextRange rng', code: <<~__CODE
+            int start = NUM2INT( rb_funcall( $input, rb_intern("begin"), 0));
+            int end   = NUM2INT( rb_funcall( $input, rb_intern("end"), 0));
+            rng = wxRichTextRange(start, end);
+            $1 = &rng;
+            __CODE
+
+          map_typecheck precedence: 1, code: '$1 = ( CLASS_OF($input) == rb_cRange );'
+
+          map_out code: '$result = rb_range_new (LONG2NUM($1->GetStart()),LONG2NUM($1->GetEnd()),0);'
+
+          map_directorin code: '$input = rb_range_new (LONG2NUM($1.GetStart()),LONG2NUM($1.GetEnd()),0);'
+
+        end
+
         map 'wxRichTextRange&' => 'Range' do
 
           map_in temp: 'wxRichTextRange rng', code: <<~__CODE
