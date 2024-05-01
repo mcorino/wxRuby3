@@ -18,7 +18,7 @@ module Wx::PG
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
     #   @param reverse [true,false] iterate properties in reverse
     #   @yieldparam item [Wx::PG::PGProperty] property
-    #   @return [Object] result of last block execution
+    #   @return [::Object] result of last block execution
     # @overload each_property(flags, start, reverse:)
     #   @param flags [Integer] flags specifying iteration (see {Wx::PG::PG_ITERATOR_FLAGS})
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
@@ -35,7 +35,7 @@ module Wx::PG
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
     #   @param reverse [true,false] iterate properties in reverse
     #   @yieldparam item [Wx::PG::PGProperty] property
-    #   @return [Object] result of last block execution
+    #   @return [::Object] result of last block execution
     # @overload reverse_each_property(flags, start)
     #   @param flags [Integer] flags specifying iteration (see {Wx::PG::PG_ITERATOR_FLAGS})
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
@@ -50,7 +50,7 @@ module Wx::PG
     # @overload each_property_attribute(id , &block)
     #   @param id [String,Wx::PG::PGProperty] (name of) property to iterate attributes of
     #   @yieldparam item [Wx::Variant] attribute
-    #   @return [Object] result of last block execution
+    #   @return [::Object] result of last block execution
     # @overload each_property_attribute(id)
     #   @param id [String,Wx::PG::PGProperty] (name of) property to iterate attributes of
     #   @return [Enumerator] an enumerator

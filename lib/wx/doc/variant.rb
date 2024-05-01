@@ -16,7 +16,7 @@ module Wx
     # Returns an enumerator when no block is given.
     # @overload each(&block)
     #   @yieldparam item [Wx::Variant] variant list item
-    #   @return [Object] result of last block execution
+    #   @return [::Object] result of last block execution
     # @overload each
     #   @return [Enumerator] an enumerator
     def each; end
@@ -52,7 +52,7 @@ module Wx
     #   @return [self]
     # @overload assign(value)
     #   Equality test operator.
-    #   @param value [Object]
+    #   @param value [::Object]
     #   @return [self]
     # @overload assign(value)
     #   Equality test operator.

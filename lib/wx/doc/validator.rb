@@ -22,7 +22,7 @@ module Wx
     # Should retrieve and return the data from the associated window (#get_window).
     # By default returns nil (which indicates there is no custom data to transfer).
     # Overload for customized functionality.
-    # @return [Object] retrieved data from window
+    # @return [::Object] retrieved data from window
     def do_transfer_from_window; end
     protected :do_transfer_from_window
 
@@ -30,7 +30,7 @@ module Wx
     # Should transfer the given data to the associated window and return true if successful.
     # By default does nothing and just returns true.
     # Overload for customized functionality.
-    # @param [Object] data
+    # @param [::Object] data
     # @return [Boolean]
     def do_transfer_to_window(data) end
     protected :do_transfer_to_window
@@ -60,7 +60,7 @@ module Wx
       #   win.set_validator(val)
       #
       # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc; to be supplied when no block is given
-      # @yieldparam [Object] data the data retrieved from the window
+      # @yieldparam [::Object] data the data retrieved from the window
       def on_transfer_from_window(meth=nil, &block) end
 
       # Installs a callback handler to provide the data to transfer to the associated window.
@@ -85,13 +85,13 @@ module Wx
       #   win.set_validator(val)
       #
       # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc; to be supplied when no block is given
-      # @yieldreturn [Object] the data to transfer to the window
+      # @yieldreturn [::Object] the data to transfer to the window
       def on_transfer_to_window(meth=nil, &block) end
 
       # Method called with data transferred from window.
       # By default will call the on_transfer_from_window handler if defined.
       # Returns true if successful or none defined.
-      # @param [Object] data
+      # @param [::Object] data
       # @return [Boolean]
       def do_on_transfer_from_window(data) end
       protected :do_on_transfer_from_window
@@ -100,7 +100,7 @@ module Wx
       # By default will call the on_transfer_to_window handler if defined.
       # Returns the handler's result if successful.
       # Otherwise returns nil.
-      # @return [Object]
+      # @return [::Object]
       def do_on_transfer_to_window; end
       protected :do_on_transfer_to_window
 

@@ -13,13 +13,13 @@ module Wx
 
     # Iterates all items in the list control passing each item (id) to the given block.
     # @yieldparam [Integer] item
-    # @return [Object] result of last block iteration
+    # @return [::Object] result of last block iteration
     def each(&block) end
 
     # Iterates all selected items in the list control (like #get_next_item(item, Wx::LIST_NEXT_ALL, Wx::LIST_STATE_SELECTED))
     # passing each item (id) to the given block.
     # @yieldparam [Integer] item
-    # @return [Object] result of last block iteration
+    # @return [::Object] result of last block iteration
     def each_selected(&block) end
 
     # Returns array of selected items.
@@ -31,10 +31,10 @@ module Wx
     # passing the <b>item data</b> for each item as well as the `data` argument given to the #sort_items method.
     # The block should return 0 if the items are equal, negative value if the first item is less than the second
     # one and positive value if the first one is greater than the second one.
-    # @param [Object] data user data to pass on to the sorting block
-    # @yieldparam [Object] item_data1 data for first item
-    # @yieldparam [Object] item_data2 data for second item
-    # @yieldparam [Object] data propagated data argument
+    # @param [::Object] data user data to pass on to the sorting block
+    # @yieldparam [::Object] item_data1 data for first item
+    # @yieldparam [::Object] item_data2 data for second item
+    # @yieldparam [::Object] data propagated data argument
     def sort_items(data = nil, &block) end
 
   end

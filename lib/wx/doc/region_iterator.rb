@@ -31,7 +31,7 @@ module Wx
     # If no block is given an Enumerator is returned.
     # @overload each(&block)
     #   @yieldparam [Wx::Rect] rect
-    #   @return [Object]
+    #   @return [::Object]
     # @overload each()
     #   @return [Enumerator]
     def each; end

@@ -16,7 +16,7 @@ module Wx
     # @param [Wx::DC] target DC to draw on (scaled)
     # @param [Float] scale scale factor
     # @yieldparam [Wx::ScaledDC] dc scaled dc to draw on
-    # @return [Object] result from block
+    # @return [::Object] result from block
     def self.draw_on(target, scale) end
   end
 

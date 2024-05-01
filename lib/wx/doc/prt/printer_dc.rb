@@ -13,7 +13,7 @@ module Wx::PRT
     # it's single argument.
     # @param [Wx::PRT::PrintData] print_data print_data defining the print settings
     # @yieldparam [Wx::PrinterDC] dc the PrinterDC instance to paint on
-    # @return [Object] result of the block
+    # @return [::Object] result of the block
     def self.draw_on(print_data) end
 
   end
@@ -24,7 +24,7 @@ module Wx::PRT
     # it's single argument.
     # @param [Wx::PRT::PrintData] print_data print_data defining the print settings
     # @yieldparam [Wx::PostScriptDC] dc the PostScriptDC instance to paint on
-    # @return [Object] result of the block
+    # @return [::Object] result of the block
     def self.draw_on(print_data) end
 
   end
