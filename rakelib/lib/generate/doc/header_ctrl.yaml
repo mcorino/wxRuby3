@@ -1,0 +1,91 @@
+---
+:wxHeaderCtrl.Create:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              Wx::HD_DEFAULT_STYLE & ~Wx::HD_ALLOW_REORDER
+            ```
+:wxHeaderCtrl.AddColumnsItems:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              menu = Wx::Menu.new
+              menu.append(100, 'Some custom command')
+              menu.append_separator
+              add_columns_items(menu, 200)
+              rc = get_popup_menu_selection_from_user(menu, pt)
+              if rc >= 200
+                # ... toggle visibility of the column rc-200 ...
+              end
+            ```
+:wxHeaderCtrl.UpdateColumnWidthToFit:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              class MyHeaderColumn < Wx::HeaderColumn
+                # ...
+            
+                def set_width(width) 
+                  @width = width
+                end
+          
+                def get_width 
+                  @width
+                end
+            
+              end
+              
+              class MyHeaderCtrl < Wx::HeaderCtrl
+                # ...
+            
+                protected
+            
+                def get_column(idx)
+                  # @cols = Array<MyHeaderColumn>
+                  @cols[idx]
+                end
+              
+                def update_column_width_to_fit(idx, widthTitle)
+                  widthContents = # ... compute minimal width for column idx ...
+                  @cols[idx].set_width([widthContents, widthTitle].max)
+                  true
+                end
+            
+              end
+            ```
+:wxHeaderCtrlSimple.HideColumn:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              show_column(idx, false)
+            ```
+:wxHeaderColumnSimple:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              header = Wx::HeaderCtrlSimple.new(...)
+              col = Wx::HeaderColumnSimple.new('Title')
+              col.set_width(100)
+              col.set_sortable(100)
+              header.append_column(col)
+            ```

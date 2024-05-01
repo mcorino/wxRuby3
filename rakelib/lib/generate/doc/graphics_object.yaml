@@ -1,0 +1,12 @@
+---
+:wxGraphicsRenderer:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              # path = Wx::GraphicsPath from somewhere
+              brush = path.get_renderer.create_brush(Wx::BLACK_BRUSH)
+            ```

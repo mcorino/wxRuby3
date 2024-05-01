@@ -13,3 +13,13 @@
               animations.add("throbber_2x.gif")
               animationCtrl.play if animationCtrl.set_animation(animations)
             ```
+:wxAnimationCtrl.SetAnimation:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              animationCtrl.set_animation(Wx::AnimationBundle.new('progress.gif'))
+            ```

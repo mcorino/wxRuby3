@@ -9,3 +9,13 @@
             ```ruby
               get_icon(Wx::Size.new(size,size))
             ```
+:wxIconBundle.GetIcon:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              get_icon(Wx::Size.new(size,size))
+            ```

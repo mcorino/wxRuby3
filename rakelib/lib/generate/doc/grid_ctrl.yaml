@@ -23,3 +23,28 @@
             
               end
             ```
+:wxGrid.GetSelectedBlocks:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              grid.get_selected_blocks.each do |gbc|
+                break if gbc.intersects(my_block)
+              end
+            ```
+    :post:
+      - :pattern: !ruby/regexp /,\s+e\.g\.\s+with\s+range-for\s+loop:/
+        :subst: ':'
+:wxGridFitMode:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              grid.set_default_cell_fit_mode(Wx::GRID::GridFitMode.clip)
+            ```

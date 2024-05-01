@@ -1,11 +1,14 @@
 ---
-:wxPGEditor:
+:wxRearrangeList:
   :detail:
     :pre:
       :programlisting:
         - :pattern: !ruby/regexp /.*/
           :replace: |
-            
+
             ```ruby
-              editor = Wx::PG::PropertyGrid.register_editor_class(MyEditorClass.new)
+              order = [
+                  0,  # checked item #0
+                  ~1  # unchecked item #1
+                ]
             ```

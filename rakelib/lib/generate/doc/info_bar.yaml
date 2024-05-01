@@ -1,0 +1,27 @@
+---
+:wxInfoBar:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              class MyFrame < Wx::Frame
+              
+                def initialize()
+                  # ...
+                  @infoBar = Wx::InfoBar.new(self)
+              
+                  sizer = Wx::VBoxSizer.new
+                  sizer.add(@infoBar, Wx::SizerFlags.new.expand)
+                  # ... add other frame controls to the sizer ...
+                  set_sizer(sizer)
+                end
+                
+                def some_method
+                    @infoBar.show_message('Something happened', Wx::ICON_INFORMATION)
+                end
+            
+              end
+            ```

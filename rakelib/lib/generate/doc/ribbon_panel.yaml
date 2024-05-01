@@ -1,0 +1,15 @@
+---
+:wxRibbonPanel:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              panel = @ribbon.get_page(0).get_panel_by_id(ID_EDITOR_PANEL)
+              panel.show(!panel.is_shown) if panel
+              # Update the UI
+              @ribbon.realise
+              @ribbon.layout
+            ```

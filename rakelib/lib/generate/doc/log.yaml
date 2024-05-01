@@ -7,7 +7,7 @@
           :replace: |
             
             ```ruby
-              wxLog.set_component_level("wx/net", Wx::LOG_Error)
+              Wx::Log.set_component_level('wx/net', Wx::LOG_Error)
             ```
 :wxLog.LogRecord:
   :detail:

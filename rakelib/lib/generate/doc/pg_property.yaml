@@ -138,7 +138,7 @@
         - :pattern: !ruby/regexp /class.*MyProperty.*:.*public.*wxPGProperty/
           :replace: | 
             
-            ``` ruby
+            ```ruby
               class MyProperty < Wx::PG::PGProperty
               
                   # All arguments of this ctor must have a default value -
@@ -171,10 +171,10 @@
               end
             ```
     :post:
-      - :pattern: !ruby/regexp /==\swxIntProperty.*==\swxUIntProperty/m
+      - :pattern: !ruby/regexp /\#\#\swxIntProperty.*\#\#\swxUIntProperty/m
         :subst: |
           
-          == wxIntProperty
+          ## Wx::PG::IntProperty
           
           It derives from {Wx::PG::NumericProperty} and displays value as a signed long integer.
           Supported special attributes:
@@ -182,7 +182,7 @@
           - {Wx::PG::PG_ATTR_MIN}, {Wx::PG::PG_ATTR_MAX} to specify acceptable value range.
           - {Wx::PG::PG_ATTR_SPINCTRL_STEP}, {Wx::PG::PG_ATTR_SPINCTRL_WRAP}, {Wx::PG::PG_ATTR_SPINCTRL_MOTION}: Sets SpinCtrl editor parameters. 
           
-          == wxUIntProperty
+          ## Wx::PG::UIntProperty
 
       - :pattern: !ruby/regexp /Since\s\{Wx::PG::PGProperty\}\sderives.*For\sinstance:/m
         :subst: ''

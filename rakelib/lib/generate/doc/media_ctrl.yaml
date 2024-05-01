@@ -1,0 +1,27 @@
+---
+:wxMediaCtrl:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              class MyFrame < Wx::Frame
+            
+                def initialize()
+                  # ... setup frame controls ...
+                  # bind events
+                  # ...
+                  evt_media_stop MY_ID, :on_media_stop
+                end
+            
+                def on_media_stop(evt)
+                  if @userWantsToSeek
+                    @mediactrl.seek(@mediactrl.length - 1)
+                    evt.veto
+                  end
+                end
+            
+              end
+            ```
