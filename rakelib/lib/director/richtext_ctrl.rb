@@ -146,7 +146,7 @@ module WXRuby3
             {
               if (TYPE(result) == T_FIXNUM)
               {
-                *newPos = NUM2LONG(result);
+                if (newPos) *newPos = NUM2LONG(result);
                 c_result = true;
               }
               else
