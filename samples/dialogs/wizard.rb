@@ -32,25 +32,26 @@ module Wizard
       evt_menu Wx::ID_EXIT, :on_quit
       evt_menu Wx::ID_ABOUT, :on_about
 
-      w = Wx::Wizard.new(self, :title => 'The WxRuby Wizard')
-      p1 = Wx::WizardPageSimple.new(w)
-      s = Wx::StaticText.new(p1, :label => 'This is the first page')
+      Wx.Wizard(self, :title => 'The WxRuby Wizard') do |w|
+        p1 = Wx::WizardPageSimple.new(w)
+        s = Wx::StaticText.new(p1, :label => 'This is the first page')
 
-      p2 = Wx::WizardPageSimple.new(w, p1)
-      p1.set_next(p2)
-      s = Wx::StaticText.new(p2, :label => 'This is the second page')
+        p2 = Wx::WizardPageSimple.new(w, p1)
+        p1.set_next(p2)
+        s = Wx::StaticText.new(p2, :label => 'This is the second page')
 
-      p3 = Wx::WizardPageSimple.new(w, p2)
-      p2.set_next(p3)
-      s = Wx::StaticText.new(p3, :label => 'This is the final page')
+        p3 = Wx::WizardPageSimple.new(w, p2)
+        p2.set_next(p3)
+        s = Wx::StaticText.new(p3, :label => 'This is the final page')
 
-      evt_wizard_page_changed(w) { p "page changed" }
-      evt_wizard_page_changing(w) { p "page changing" }
-      evt_wizard_help(w) { p "wizard help" }
-      evt_wizard_cancel(w) { p "wizard cancelled" }
-      evt_wizard_finished(w) { p "wizard finished" }
+        evt_wizard_page_changed(w) { p "page changed" }
+        evt_wizard_page_changing(w) { p "page changing" }
+        evt_wizard_help(w) { p "wizard help" }
+        evt_wizard_cancel(w) { p "wizard cancelled" }
+        evt_wizard_finished(w) { p "wizard finished" }
 
-      w.run_wizard(p1)
+        w.run_wizard(p1)
+      end
     end
 
     def on_quit
