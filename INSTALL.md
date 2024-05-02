@@ -372,6 +372,13 @@ wxruby setup --wxwin=/my/custom/wxWidgets --wxxml=/my/alternate/wxWidgets/xml
 > responsible for making sure the wxRuby3 extension library can find the wxWidgets libraries at runtime (normally this
 > requires updating the standard shared library search path for the platform).
 
+> **NOTE 2**<br>
+> Please be aware that when building a user installation of wxWidgets on Windows this has to be done using the exact
+> same compiler suite as used for building Ruby (and it's standard native extensions) itself.<br>
+> Currently only RubyInstaller versions are supported which use the MingW64 compiler.
+> Do **NOT** install a separate MSYS2/MingW64 release but rather use a RubyInstaller version with integrated DevKit 
+> installation (which includes MSYS2 and the right MingW64 compiler suite).
+
 #### Setup with customized tool paths
 
 If for whatever reason the required development tools `doxygen`, `swig` and/or `git` have been installed in a location
