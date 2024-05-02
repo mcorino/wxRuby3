@@ -1,0 +1,22 @@
+---
+:wxPersistentComboBox:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              # Suppose you need to ask the user to select their favourite Linux
+              # distribution, for some reason:
+              combo = Wx::ComboBox.new(self, Wx::ID_ANY)
+              unless Wx.persistent_register_and_restore(combo, 'distribution')
+                # Seed it with some default contents.
+                combo.append("Debian")
+                combo.append("Fedora")
+                combo.append("Ubuntu")
+              end
+              
+              # Optionally, you might want to restore the last used entry:
+              combo.set_selection(0)
+            ```

@@ -14,7 +14,7 @@ module Wx
   # instance for the object it is called for.
   # This method raises a NoImplementError if the object class does not support persistence.
   # @see Defining Custom Persistent Windows
-  # @param obj [Object]
+  # @param obj [::Object]
   # @return [Wx::PersistentObject]
   def self.create_persistent_object(obj) end
 

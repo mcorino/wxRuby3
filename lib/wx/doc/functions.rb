@@ -109,7 +109,7 @@ module Wx
 
   # Returns the pointer address of the underlying C++ object as a hex
   # string - useful for debugging
-  # @param obj [Object] wrapped object
+  # @param obj [::Object] wrapped object
   # @return [String] string with address in hex format
   def self.ptr_addr(obj) end
 

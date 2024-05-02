@@ -37,7 +37,7 @@ module Wx
     #
     # Returns an invalid tree item if there are no further children.
     # @param [Wx::TreeItemId] parent_id the id of the parent tree item for which to iterate children
-    # @param [Object] cookie cookie value as returned from previous #get_first_cild or #get_next_child call.
+    # @param [::Object] cookie cookie value as returned from previous #get_first_cild or #get_next_child call.
     # @return [Array(Wx::TreeItemId, Object)] first child item id (if any) and cookie value
     def get_next_child(parent_id, cookie) end
 
@@ -74,7 +74,7 @@ module Wx
     # @param [Integer] pos child item's position to insert before
     # @param [Integer] image image index for unselected item
     # @param [Integer] selImage image index for selected item
-    # @param data [Object]
+    # @param data [::Object]
     # @return [Wx::TreeItemId] id of inserted tree item
     def insert_item_before(parent, pos, text, image=-1, selImage=-1, data=nil) end
 

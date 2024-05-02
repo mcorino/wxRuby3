@@ -18,7 +18,7 @@ module Wx
     #   @param [Wx::Overlay] overlay Overlay to connect
     #   @param [Wx::DC] dc Drawing DC
     #   @yieldparam [Wx::DCOverlay] ovl_dc DCOverlay instance to use
-    #   @return [Object] result from block
+    #   @return [::Object] result from block
     # @overload draw_on(overlay, dc, x, y, width, height)
     #   @param [Wx::Overlay] overlay Overlay to connect
     #   @param [Wx::DC] dc Drawing DC
@@ -27,7 +27,7 @@ module Wx
     #   @param [Integer] width  width of area to use
     #   @param [Integer] height height of area to use
     #   @yieldparam [Wx::DCOverlay] ovl_dc DCOverlay instance to use
-    #   @return [Object] result from block
+    #   @return [::Object] result from block
     def self.draw_on(*arg) end
   end
 

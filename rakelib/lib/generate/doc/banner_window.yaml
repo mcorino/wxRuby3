@@ -1,0 +1,35 @@
+---
+:wxBannerWindow:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+            
+                def initialize(...)
+            
+                  # ... create the frame itself ...
+            
+                  # Create and initialize the banner.
+                  banner = Wx::BannerWindow.new(self, Wx::TOP)
+                  banner.set_text("Welcome to my wonderful program",
+                                  "  Before doing anything else, you need to connect to the online server.\n" +
+                                  "  Please enter your credentials in the controls below.")
+             
+                  # And position it along the top edge of the window.
+                  sizer = Wx::VBoxSizer.new
+                  sizer.add(banner, Wx::SizerFlags.new.expand)
+             
+                  # ... add the rest of the window contents to the same sizer ...
+             
+                  set_sizer_and_fit(sizer)
+            
+                end
+            
+                # ...
+            
+              end
+            ```

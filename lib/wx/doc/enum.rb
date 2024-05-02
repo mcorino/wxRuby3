@@ -37,7 +37,7 @@ module Wx
     def method_missing(sym, *args) end
 
     # Checks type and value equality.
-    # @param [Object] o the object to compare
+    # @param [::Object] o the object to compare
     # @return [true,false] true if o is instance of same enum class as self **and** integer values are equal; false otherwise
     def eql?(o) end
 

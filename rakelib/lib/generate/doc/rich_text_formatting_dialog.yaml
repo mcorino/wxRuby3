@@ -1,0 +1,26 @@
+---
+:wxRichTextFormattingDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              range = if @richTextCtrl.has_selection
+                        @richTextCtrl.get_selection_range
+                      else
+                        (0..@richTextCtrl.get_last_position+1)
+                      end
+              
+              pages = Wx::RTC::RICHTEXT_FORMAT_FONT|Wx::RTC::RICHTEXT_FORMAT_INDENTS_SPACING|
+                          Wx::RTC::RICHTEXT_FORMAT_TABS|Wx::RTC::RICHTEXT_FORMAT_BULLETS
+              
+              Wx::RTC.RichTextFormattingDialog(pages, self) do |formatDlg|
+                formatDlg.GetStyle(m_richTextCtrl, range);
+              
+                if formatDlg.show_modal == Wx::ID_OK
+                  formatDlg.apply_style(@richTextCtrl, range)
+                end
+              end
+            ```

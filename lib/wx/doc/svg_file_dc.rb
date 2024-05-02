@@ -18,7 +18,7 @@ module Wx
     # @param [Float] dpi resolution for SVG image
     # @param [String] title readable name for the SVG document
     # @yieldparam [Wx::SVGFileDC] dc the SVGFileDC instance to paint on
-    # @return [Object] result of the block
+    # @return [::Object] result of the block
     def self.draw_on(filename, width=320, height=240, dpi=72, title='') end
 
   end

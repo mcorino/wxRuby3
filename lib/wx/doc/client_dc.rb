@@ -13,7 +13,7 @@ module Wx
     # it's single argument.
     # @param [Wx::Window] win window to draw on
     # @yieldparam [Wx::ClientDC] dc the ClientDC instance to paint on
-    # @return [Object] result of the block
+    # @return [::Object] result of the block
     def self.draw_on(win) end
 
   end
@@ -26,7 +26,7 @@ module Wx
     # @note In wxRuby this method mostly exists to be consistent with the other DC classes. It is however recommended to use Wx::Window#paint instead.
     # @param [Wx::Window] win window to draw on
     # @yieldparam [Wx::PaintDC] dc the PaintDC instance to paint on
-    # @return [Object] result of the block
+    # @return [::Object] result of the block
     def self.draw_on(win) end
 
   end

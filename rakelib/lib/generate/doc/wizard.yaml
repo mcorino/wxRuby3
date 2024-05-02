@@ -1,0 +1,27 @@
+---
+:wxWizard:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              class MyFrame < Wx::Frame
+            
+                # ...
+            
+                def on_run_wizard(_event)
+                  Wx.Wizard(self) do |wizard|
+              
+                    wizard.run_wizard(get_initial_page_from_some_where)
+              
+                    # The wizard is destroyed when the block ends.
+                  end
+                end
+            
+              end
+            ```
+    :post:
+      - :pattern: !ruby/regexp /Note\s+that\s+\{Wx::Wizard\}\s+inherits\s+from\s+\{Wx::Dialog\}.*typically\s+you\s+would\s+use\s+like\s+this:/
+        :subst: 'Note that {Wx::Wizard} inherits from {Wx::Dialog} so that typically you would use it like this:'

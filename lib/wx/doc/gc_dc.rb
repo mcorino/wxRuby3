@@ -15,15 +15,15 @@ module Wx
     # passes the instance to the given block to draw on.
     # @overload draw_on()
     #   @yieldparam [Wx::GCDC] dc GCDC instance to draw on
-    #   @return [Object] result from block
+    #   @return [::Object] result from block
     # @overload draw_on(dc)
     #   @param [Wx::WindowDC,Wx::MemoryDC] target DC to draw on
     #   @yieldparam [Wx::GCDC] dc GCDC instance to draw on
-    #   @return [Object] result from block
+    #   @return [::Object] result from block
     # @overload draw_on(dc)
     #   @param [Wx::PrinterDC] target DC to draw on
     #   @yieldparam [Wx::GCDC] dc GCDC instance to draw on
-    #   @return [Object] result from block
+    #   @return [::Object] result from block
     #   @wxrb_require USE_PRINTING_ARCHITECTURE,WXMSW|WXOSX|USE_GTKPRINT
     # @overload draw_on(gc)
     #   Note that the context will continue using the same font, pen and brush as before until #set_font, #set_pen
@@ -34,7 +34,7 @@ module Wx
     #   you need to call the setter methods to bring Wx::DC and Wx::GraphicsContext font, pen and brush in sync with each other.
     #   @param [Wx::GraphicsContext] gc GraphicsContext to draw on
     #   @yieldparam [Wx::GCDC] dc GCDC instance to draw on
-    #   @return [Object] result from block
+    #   @return [::Object] result from block
     def self.draw_on(*arg) end
   end
 

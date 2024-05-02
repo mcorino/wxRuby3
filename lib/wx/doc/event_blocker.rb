@@ -22,7 +22,7 @@ module Wx
       # @param [Wx::Window] win the window to block events for
       # @param [Integer] evt_type the event type to block
       # @yieldparam [Wx::EventBlocker] blkr the blocker object
-      # @return [Object] the value returned by the block
+      # @return [::Object] the value returned by the block
       def blocked_for(win, evt_type=Wx::EVT_ANY) end
       alias :block_for :blocked_for
 

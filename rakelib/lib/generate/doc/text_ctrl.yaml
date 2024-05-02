@@ -15,5 +15,5 @@
               text.append_text("Blue on grey text\n")
             ```
     :post:
-      - :pattern: !ruby/regexp /==\s+wxTextCtrl\s+and\s+C\+\+\s+Streams.*See\s+\{Wx::StreamToTextRedirector\}\s+for\s+more\s+details\./m
+      - :pattern: !ruby/regexp /\#\#\s+wxTextCtrl\s+and\s+C\+\+\s+Streams.*See\s+\{Wx::StreamToTextRedirector\}\s+for\s+more\s+details\./m
         :subst: ''

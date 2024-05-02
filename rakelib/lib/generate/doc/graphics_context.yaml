@@ -32,3 +32,15 @@
                 end
               end
             ```
+:wxGraphicsPenInfo:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+              ctx = Wx::GraphicsContext.create(dc)
+            
+              ctx.set_pen(Wx::GraphicsPenInfo.new(Wx::BLUE).width(1.25).style(Wx::PENSTYLE_DOT))
+            ```

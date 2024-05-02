@@ -734,6 +734,27 @@ module RichTextExt
       evt_menu(Wx::ID_SAVE,  :on_save)
       evt_menu(Wx::ID_SAVEAS,  :on_save_as)
 
+      ##
+      # In wxRuby we cannot use the ProcessEvent override 'hack' that is used in the C++ sample
+      # so we solve this properly here.
+
+      evt_menu(Wx::ID_CUT, :on_cut)
+      evt_menu(Wx::ID_COPY, :on_copy)
+      evt_menu(Wx::ID_PASTE, :on_paste)
+
+      evt_update_ui(Wx::ID_CUT, :on_update_cut)
+      evt_update_ui(Wx::ID_COPY, :on_update_copy)
+      evt_update_ui(Wx::ID_PASTE, :on_update_paste)
+
+      evt_menu(Wx::ID_UNDO, :on_undo)
+      evt_menu(Wx::ID_REDO, :on_redo)
+
+      evt_update_ui(Wx::ID_UNDO, :on_update_undo)
+      evt_update_ui(Wx::ID_REDO, :on_update_redo)
+
+      # End
+      ##
+
       evt_menu(ID::FORMAT_BOLD,  :on_bold)
       evt_menu(ID::FORMAT_ITALIC,  :on_italic)
       evt_menu(ID::FORMAT_UNDERLINE,  :on_underline)
@@ -884,6 +905,38 @@ module RichTextExt
           end
         end
       end
+    end
+
+    def on_cut(_event)
+      @richTextCtrl.cut
+    end
+    def on_update_cut(event)
+      event.enable(@richTextCtrl.can_cut?)
+    end
+    def on_copy(_event)
+      @richTextCtrl.copy
+    end
+    def on_update_copy(event)
+      event.enable(@richTextCtrl.can_copy?)
+    end
+    def on_paste(_event)
+      @richTextCtrl.paste
+    end
+    def on_update_paste(event)
+      event.enable(@richTextCtrl.can_paste?)
+    end
+
+    def on_undo(_event)
+      @richTextCtrl.undo
+    end
+    def on_update_undo(event)
+      event.enable(@richTextCtrl.can_undo?)
+    end
+    def on_redo(_event)
+      @richTextCtrl.redo_
+    end
+    def on_update_redo(event)
+      event.enable(@richTextCtrl.can_redo?)
     end
 
     def on_bold(_event)

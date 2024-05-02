@@ -62,7 +62,7 @@ module Wx
 
     # Appends the string representation of `obj` to the text value of the control.
     # Calls #to_s to get the string representation of `obj`.
-    # @param [Object] obj
+    # @param [::Object] obj
     # @return [self]
     def <<(obj) end
 
