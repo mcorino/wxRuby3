@@ -48,8 +48,24 @@ class Wx::Enum
     @value.hash
   end
 
+  def bitmask_to_s
+    return '' if to_i == 0
+    enums = []
+    mask = to_i
+    self.class.values.each_value do |enum|
+      if enum != 0 && mask.allbits?(enum)
+        enums << enum.to_s
+        mask &= ~enum
+        break if mask == 0
+      end
+    end
+    enums << mask.to_s if mask != 0
+    enums.join('|')
+  end
+  private :bitmask_to_s
+
   def to_s
-    to_i.to_s
+    self.class.values.has_key?(to_i) ? "#{self.class.name}::#{self.class.names_by_value[self]}" : bitmask_to_s
   end
 
 end

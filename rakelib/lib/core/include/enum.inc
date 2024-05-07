@@ -177,6 +177,7 @@ static VALUE wx_Enum_sc_create_enum_class(int argc, VALUE *argv, VALUE self)
   ID id_to_i = rb_intern("to_i");
   ID id_const_set = rb_intern("const_set");
   VALUE enum_klass = rb_funcall(rb_cClass, id_new, 1, cWxEnum, 0);
+  VALUE enum_singleton_klass = rb_funcall(enum_klass, rb_intern("singleton_class"), 0, 0);
   VALUE enum_values = rb_funcall(argv[1], rb_intern("keys"), 0, 0);
   for (int i=0; i<RARRAY_LEN(enum_values) ;++i)
   {
@@ -184,6 +185,8 @@ static VALUE wx_Enum_sc_create_enum_class(int argc, VALUE *argv, VALUE self)
     VALUE enum_value_num = rb_funcall(rb_hash_aref(argv[1], enum_value_name), id_to_i, 0, 0);
     VALUE enum_value = rb_funcall(enum_klass, id_new, 1, enum_value_num, 0);
     rb_funcall(enum_klass, id_const_set, 2, enum_value_name, enum_value, 0);
+    rb_hash_aset(rb_iv_get(enum_singleton_klass, __iv_enum_klass_values), enum_value_num, enum_value);
+    rb_hash_aset(rb_iv_get(enum_singleton_klass, __iv_enum_klass_values_by_name), rb_to_symbol(enum_value_name), enum_value);
   }
   rb_hash_aset(rb_iv_get(cEnum_Singleton, __iv_Enum_sc_enums), enum_name, enum_klass);
   return enum_klass;
@@ -230,10 +233,31 @@ static VALUE wx_Enum_sc_get_enum_value(int argc, VALUE *argv, VALUE self)
   return rb_hash_aref(rb_iv_get(enum_singleton_klass, __iv_enum_klass_values_by_name), rb_to_symbol(argv[0]));
 }
 
+static VALUE wx_Enum_sc_get_enum_values(VALUE self)
+{
+  VALUE enum_singleton_klass = rb_funcall(self, rb_intern("singleton_class"), 0, 0);
+  return rb_iv_get(enum_singleton_klass, __iv_enum_klass_values);
+}
+
+static VALUE wx_Enum_sc_get_enum_values_by_name(VALUE self)
+{
+  VALUE enum_singleton_klass = rb_funcall(self, rb_intern("singleton_class"), 0, 0);
+  return rb_iv_get(enum_singleton_klass, __iv_enum_klass_values_by_name);
+}
+
+static VALUE wx_Enum_sc_get_enum_names_by_value(VALUE self)
+{
+  VALUE enum_singleton_klass = rb_funcall(self, rb_intern("singleton_class"), 0, 0);
+  return rb_funcall(rb_iv_get(enum_singleton_klass, __iv_enum_klass_values_by_name), rb_intern("invert"), 0);
+}
+
 WXRB_EXPORT_FLAG VALUE wxRuby_CreateEnumClass(const char* enum_class_name_cstr)
 {
   VALUE enum_klass = rb_funcall(rb_cClass, rb_intern("new"), 1, cWxEnum, 0);
   rb_define_singleton_method(enum_klass, "[]", VALUEFUNC(wx_Enum_sc_get_enum_value), -1);
+  rb_define_singleton_method(enum_klass, "values", VALUEFUNC(wx_Enum_sc_get_enum_values), 0);
+  rb_define_singleton_method(enum_klass, "values_by_name", VALUEFUNC(wx_Enum_sc_get_enum_values_by_name), 0);
+  rb_define_singleton_method(enum_klass, "names_by_value", VALUEFUNC(wx_Enum_sc_get_enum_names_by_value), 0);
   VALUE enum_singleton_klass = rb_funcall(enum_klass, rb_intern("singleton_class"), 0, 0);
   rb_iv_set(enum_singleton_klass, __iv_enum_klass_values, rb_hash_new());
   rb_iv_set(enum_singleton_klass, __iv_enum_klass_values_by_name, rb_hash_new());
