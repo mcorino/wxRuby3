@@ -28,7 +28,7 @@ module Unicode
   " << File.read( $utf8_file )
 
     def initialize(parent, text = DEFAULT_TEXT)
-      super(parent, -1, text,
+      super(parent, Wx::ID_ANY, text,
             Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE, Wx::TE_MULTILINE)
     end
 
@@ -76,7 +76,7 @@ module Unicode
       sizer.add(text, 0, Wx::ALL, 5)
 
       sys_enc = Wx::Locale.get_system_encoding_name
-      text = Wx::StaticText.new(panel, -1, "System default encoding: #{sys_enc}")
+      text = Wx::StaticText.new(panel, Wx::ID_ANY, "System default encoding: #{sys_enc}")
       sizer.add(text, 0, Wx::ALL, 5)
 
       # The text input and display
@@ -84,9 +84,9 @@ module Unicode
       sizer.add(@textctrl, 3, Wx::GROW|Wx::ALL, 2)
 
       # The button to show what's selected
-      button = Wx::Button.new(panel, -1, 'Describe text selection')
+      button = Wx::Button.new(panel, label: 'Describe text selection')
       sizer.add(button, 0, Wx::ALL, 2 )
-      evt_button(button.get_id) { | e | on_click(e) }
+      evt_button(button, :on_click)
 
       @log = LogTextCtrl.new(panel)
       sizer.add(@log, 1, Wx::GROW|Wx::ALL, 2)

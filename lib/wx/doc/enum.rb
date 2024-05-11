@@ -94,6 +94,12 @@ module Wx
     def to_int; end
     alias :to_i :to_int
 
+    # Return string representation of enum value (mask).
+    # In case the enum value matches a single enumerator value of the enum class the (scoped) name
+    # of that enumerator is returned otherwise the enum mask value is analyzed and a string representation
+    # of a bitwise **or** expression is returned matching the mask.
+    def to_s; end
+
     # Create a new class and associated enum values.
     # @param [String,Symbol] name name of new enum class
     # @param [Hash] enum_values hash with enum value name and enum integer value pairs
