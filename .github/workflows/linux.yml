@@ -42,6 +42,7 @@ permissions:
 env:
   WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
   WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
+  WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
 
 jobs:
   build:
