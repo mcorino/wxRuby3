@@ -113,7 +113,6 @@ jobs:
       NSUnbufferedIO: YES
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
       WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
-      WXWIDGETS_LATEST_STABLE: 3.2.4
 
     steps:
     - name: Show default Ruby

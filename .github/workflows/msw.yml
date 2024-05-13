@@ -44,7 +44,6 @@ env:
   DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
   WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
   WXWIN_ROOT: ${{ github.workspace }}\ext\wxWidgets\install
-  WXWIDGETS_LATEST_STABLE: 3.2.4
 
 jobs:
   build:
