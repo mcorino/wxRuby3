@@ -88,7 +88,7 @@ end unless defined? PropGridMinimal
 
 if (!defined? WxRuby::Sample) || (WxRuby::Sample.loading_sample && WxRuby::Sample.loading_sample != __FILE__)
 
-  module MinimalSample
+  module PropGridMinimalSample
 
     include WxRuby::Sample if defined? WxRuby::Sample
 
