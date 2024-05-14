@@ -67,17 +67,35 @@ module WXRuby3
         when 'wxPaintDC'
           spec.make_abstract 'wxPaintDC'
           spec.ignore 'wxPaintDC::wxPaintDC'
+          spec.add_header_code <<~__HEREDOC
+            // we need this static method here because we do not want SWIG to parse the preprocessor 
+            // statements (#if/#else/#endif) which it does in %extend blocks
+            #include "wx/dcbuffer.h"
+            static VALUE do_check_native_double_buffer()
+            {
+            #if wxALWAYS_NATIVE_DOUBLE_BUFFER
+              return Qtrue;
+            #else
+              return Qfalse;
+            #endif
+            }
+            __HEREDOC
+          spec.add_extend_code 'wxPaintDC', <<~__HEREDOC
+            #include "wx/dcbuffer.h"
+            static VALUE has_native_double_buffer()
+            {
+              return do_check_native_double_buffer();
+            }  
+            __HEREDOC
         when 'wxMemoryDC'
-          spec.items << 'wxBufferedDC' << 'wxBufferedPaintDC' << 'wxAutoBufferedPaintDC'
-          spec.gc_as_untracked %w[wxBufferedDC wxBufferedPaintDC wxAutoBufferedPaintDC]
+          spec.items << 'wxBufferedDC' << 'wxBufferedPaintDC'
+          spec.gc_as_untracked %w[wxBufferedDC wxBufferedPaintDC]
           spec.make_abstract 'wxMemoryDC'
           spec.make_abstract 'wxBufferedDC'
           spec.make_abstract 'wxBufferedPaintDC'
-          spec.make_abstract 'wxAutoBufferedPaintDC'
           spec.ignore 'wxMemoryDC::wxMemoryDC',
                       'wxBufferedDC::wxBufferedDC',
-                      'wxBufferedPaintDC::wxBufferedPaintDC',
-                      'wxAutoBufferedPaintDC::wxAutoBufferedPaintDC'
+                      'wxBufferedPaintDC::wxBufferedPaintDC'
           # like all DC's these should best always be a temporary stack objects
           # we do not allow creation in Ruby but rather provide a class
           # method for block execution on a temp dc
@@ -194,22 +212,6 @@ module WXRuby3
                 wxBufferedPaintDC dc(tgt, buffer, style);
                 wxBufferedPaintDC* dc_ptr = &dc;
                 VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxBufferedPaintDC, 0);
-                rc = rb_yield(rb_dc);
-              }
-              return rc;
-            }
-          __HEREDOC
-          spec.add_extend_code 'wxAutoBufferedPaintDC', <<~__HEREDOC
-            static VALUE draw_on(wxWindow* tgt)
-            {
-              if (!wxRuby_IsAppRunning()) 
-                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
-              VALUE rc = Qnil;
-              if (rb_block_given_p ())
-              {
-                wxAutoBufferedPaintDC dc(tgt);
-                wxAutoBufferedPaintDC* dc_ptr = &dc;
-                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxAutoBufferedPaintDC, 0);
                 rc = rb_yield(rb_dc);
               }
               return rc;

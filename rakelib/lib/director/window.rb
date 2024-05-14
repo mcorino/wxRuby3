@@ -150,9 +150,15 @@ module WXRuby3
             static VALUE do_paint_buffered(wxWindow* ptr)
             {
               VALUE rc = Qnil;
-              wxAutoBufferedPaintDC dc(ptr);
-              wxAutoBufferedPaintDC* ptr_dc = &dc;
-              VALUE r_class = rb_const_get(mWxCore, rb_intern("AutoBufferedPaintDC"));
+            #if wxALWAYS_NATIVE_DOUBLE_BUFFER
+              wxPaintDC dc(ptr);
+              wxPaintDC* ptr_dc = &dc;
+              VALUE r_class = rb_const_get(mWxCore, rb_intern("PaintDC"));
+            #else
+              wxBufferedPaintDC dc(ptr);
+              wxBufferedPaintDC* ptr_dc = &dc;
+              VALUE r_class = rb_const_get(mWxCore, rb_intern("BufferedPaintDC"));
+            #endif
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
               VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ptr_dc), swig_type, 0);
               rc = rb_yield(rb_dc);
