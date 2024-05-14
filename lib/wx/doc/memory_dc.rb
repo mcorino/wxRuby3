@@ -66,16 +66,7 @@ module Wx
 
   end
 
-  class AutoBufferedPaintDC < Wx::BufferedPaintDC
-
-    # Creates a Buffered DC and passes that to the given block to draw on.
-    # Destroys the DC after the block returns.
-    # Pass a pointer to the window on which you wish to paint.
-    # @note In wxRuby this method mostly exists to be consistent with the other DC classes. It is however recommended to use Wx::Window#paint_buffered instead.
-    # @param [Wx::Window] win The underlying window; everything drawn to this object will be flushed to this window when this object is destroyed.
-    # @yieldparam [Wx::AutoBufferedPaintDC] dc
-    def self.draw_on(win, &block) end
-
-  end
+  # This constant is set to either Wx::PaintDC if the platform supports native double buffering or Wx::BufferedPaintDC otherwise.
+  AutoBufferedPaintDC = _
 
 end

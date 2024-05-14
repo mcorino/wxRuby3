@@ -6,10 +6,16 @@
 # Copyright 2004-2007, wxRuby development team
 # released under the MIT-like wxRuby2 license
 
-class Wx::PaintDC
+module Wx
 
-  def self.draw_on(win, &block)
-    win.paint(&block) if block
+  class PaintDC
+
+    def self.draw_on(win, &block)
+      win.paint(&block) if block
+    end
+
   end
+
+  AutoBufferedPaintDC = PaintDC.has_native_double_buffer ? Wx::PaintDC : Wx::BufferedPaintDC
 
 end

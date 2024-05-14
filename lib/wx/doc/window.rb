@@ -47,9 +47,10 @@ module Wx
     # @return [::Object] result from block
     def paint; end
 
-    # Similar to #paint but this time creates a Wx::AutoBufferedPaintDC when called
+    # Similar to #paint but this time creates a buffered paint DC (which will be either a 'regular' Wx::PaintDC if
+    # the platform natively supports double buffering or a Wx::BufferedPaintDC otherwise) when called
     # from an evt_paint handler and a Wx::ClientDC otherwise.
-    # @yieldparam [Wx::AutoBufferedPaintDC,Wx::ClientDC] dc dc to paint on
+    # @yieldparam [Wx::PaintDC,Wx::BufferedPaintDC,Wx::ClientDC] dc dc to paint on
     # @return [::Object] result from block
     def paint_buffered; end
 
