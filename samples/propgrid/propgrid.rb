@@ -609,7 +609,7 @@ module PropGrid
 
       menuHelp.append(ID::ABOUT, '&About', 'Show about dialog')
       if Wx::PLATFORM == 'WXOSX'
-        Wx.get_app.mac_about_menu_itemid = ID::ABOUT
+        Wx::App.mac_about_menu_itemid = ID::ABOUT
       end
 
       menuTools1.append(ID::APPENDPROP, 'Append New Property')
