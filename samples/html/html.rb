@@ -106,7 +106,7 @@ module Html
       @html_win.set_related_frame(self, 'HTML : %s')
       @html_win.set_related_status_bar(1)
 
-      @html_win.load_file('samples/html/test.htm')
+      @html_win.load_file(File.join(__dir__, 'test.htm'))
 
       text = Wx::TextCtrl.new(panel, Wx::ID_ANY, "",
                               Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
