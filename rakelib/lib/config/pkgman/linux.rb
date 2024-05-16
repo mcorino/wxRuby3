@@ -113,7 +113,7 @@ module WXRuby3
 
           def platform_pkgs
             deps = PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym]
-            deps ? deps.get(WXRuby3.config.sysinfo.os.variant.distro, release: WXRuby3.config.sysinfo.os.release) : []
+            deps ? deps.get(WXRuby3.config.sysinfo.os.distro, release: WXRuby3.config.sysinfo.os.release) : []
           end
 
           def add_platform_pkgs(pkgs)
