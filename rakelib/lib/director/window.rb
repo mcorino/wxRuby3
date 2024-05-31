@@ -315,6 +315,11 @@ module WXRuby3
                           "#{spec.class_name(citem)}::WarpPointer",
                           "#{spec.class_name(citem)}::AdjustForLayoutDirection",
                           "#{spec.class_name(citem)}::IsTransparentBackgroundSupported")
+            if Config.instance.features_set?('USE_ACCESSIBILITY')
+              if Config.instance.wx_version > '3.2.4'
+                spec.no_proxy "#{spec.class_name(citem)}::CreateAccessible"
+              end
+            end
           end
         end
         if spec.module_name == 'wxWindow'
