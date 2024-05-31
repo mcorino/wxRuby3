@@ -198,6 +198,10 @@ module WXRuby3
             fp
           end
 
+          def wx_configure
+            bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --with-expat=builtin --with-zlib=builtin --disable-debug_info')
+          end
+
           def wx_make
             bash('make && make install')
           end
