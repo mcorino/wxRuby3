@@ -12,14 +12,14 @@ class TestGDIObjects < Test::Unit::TestCase
     frame = Wx::Frame.new(nil)
     frame.set_icon(ico)
     GC.start
-    ico_cpy = frame.get_icon
+    ico_cpy = frame.get_icons.get_icon_by_index(0)
     GC.start
     assert(ico_cpy.ok?)
     assert_not_equal(ico.object_id, ico_cpy.object_id)
     ico = nil
     ico_cpy = nil
     GC.start
-    ico_cpy = frame.get_icon
+    ico_cpy = frame.get_icons.get_icon_by_index(0)
     GC.start
     assert(ico_cpy.ok?)
     assert_not_equal(ico.object_id, ico_cpy.object_id)
