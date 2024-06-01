@@ -27,13 +27,6 @@ module WXRuby3
 
     module Platform
 
-      # SWIG_URL = 'https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.2.0/swigwin-4.2.0.zip/download'
-      # SWIG_ZIP = 'swigwin-4.2.0.zip'
-      #
-      # DOXYGEN_URL = 'https://www.doxygen.nl/files/doxygen-1.10.0.windows.x64.bin.zip'
-      #
-      # GIT_URL = 'https://github.com/git-for-windows/git/releases/download/v2.43.0.windows.1/MinGit-2.43.0-64-bit.zip'
-
       def self.included(base)
         base.class_eval do
           include Config::UnixLike
@@ -87,70 +80,8 @@ module WXRuby3
           def install_prerequisites
             pkg_deps = super
             PkgManager.install(pkg_deps)
-            # unless pkg_deps.empty?
-            #   # autoinstall or not?
-            #   unless wants_autoinstall?
-            #     STDERR.puts <<~__ERROR_TXT
-            #       ERROR: This system lacks installed versions of the following required software packages:
-            #         #{pkg_deps.join(', ')}
-            #
-            #         Install these packages and try again.
-            #       __ERROR_TXT
-            #     exit(1)
-            #   end
-            #   # if SWIG was not found in the PATH
-            #   if pkg_deps.include?('swig')
-            #     $stdout.print 'Installing SWIG...' if run_silent?
-            #     # download and install SWIG
-            #     fname = download_and_install(SWIG_URL, SWIG_ZIP, 'swig.exe')
-            #     $stdout.puts 'done!' if run_silent?
-            #     Config.instance.log_progress("Installed #{fname}")
-            #     set_config('swig', fname)
-            #     Config.save
-            #   end
-            #   # if doxygen was not found in the PATH
-            #   if pkg_deps.include?('doxygen')
-            #     $stdout.print 'Installing Doxygen...' if run_silent?
-            #     # download and install doxygen
-            #     fname = download_and_install(DOXYGEN_URL, File.basename(URI(DOXYGEN_URL).path), 'doxygen.exe', 'doxygen')
-            #     $stdout.puts 'done!' if run_silent?
-            #     Config.instance.log_progress("Installed #{fname}")
-            #     set_config('doxygen', fname)
-            #     Config.save
-            #   end
-            #   # if git was not found in the PATH
-            #   if pkg_deps.include?('git')
-            #     $stdout.print 'Installing Git...' if run_silent?
-            #     # download and install doxygen
-            #     fname = download_and_install(GIT_URL, File.basename(URI(GIT_URL).path), 'git.exe', 'git')
-            #     $stdout.puts 'done!' if run_silent?
-            #     Config.instance.log_progress("Installed #{fname}")
-            #     set_config('git', fname)
-            #     Config.save
-            #   end
-            # end
             []
           end
-
-          # # only called after src gem build
-          # def cleanup_prerequisites
-          #   tmp_tool_root = File.join(ENV['HOME'].gsub("\\", '/'), '.wxruby3')
-          #   path = get_cfg_string('swig')
-          #   unless path.empty? || !path.start_with?(tmp_tool_root)
-          #     path = File.dirname(path) while File.dirname(path) != tmp_tool_root
-          #     rm_rf(path)
-          #   end
-          #   path = get_cfg_string('doxygen')
-          #   unless path.empty? || !path.start_with?(tmp_tool_root)
-          #     path = File.dirname(path) while File.dirname(path) != tmp_tool_root
-          #     rm_rf(path)
-          #   end
-          #   path = get_cfg_string('git')
-          #   unless path.empty? || !path.start_with?(tmp_tool_root)
-          #     path = File.dirname(path) while File.dirname(path) != tmp_tool_root
-          #     rm_rf(path)
-          #   end
-          # end
 
           def expand(cmd)
             super("bash -c \"#{cmd}\"")
@@ -165,40 +96,6 @@ module WXRuby3
           end
 
           private
-
-          # def download_and_install(url, zip, exe, unpack_to=nil)
-          #   # make sure the download destination exists
-          #   tmp_tool_root = File.join(ENV['HOME'].gsub("\\", '/'), '.wxruby3')
-          #   dest = unpack_to ? File.join(tmp_tool_root, unpack_to) : File.join(tmp_tool_root, File.basename(zip, '.*'))
-          #   mkdir(tmp_tool_root) unless File.directory?(tmp_tool_root)
-          #   # download
-          #   chdir(tmp_tool_root) do
-          #     unless download_file(url, zip)
-          #       STDERR.puts "ERROR: Failed to download installation package for #{exe}"
-          #       exit(1)
-          #     end
-          #     # unpack
-          #     unless sh("powershell Expand-Archive -LiteralPath '#{zip}' -DestinationPath #{dest} -Force")
-          #       STDERR.puts "ERROR: Failed to unpack installation package for #{exe}"
-          #       exit(1)
-          #     end
-          #     # cleanup
-          #     rm_f(zip)
-          #   end
-          #   # find executable
-          #   find_exe(dest, exe)
-          # end
-          #
-          # def find_exe(path, exe)
-          #   fp = Dir.glob(File.join(path, '*')).find { |p| File.file?(p) && File.basename(p) == exe }
-          #   unless fp
-          #     Dir.glob(File.join(path, '*')).each do |p|
-          #       fp = find_exe(p, exe) if File.directory?(p)
-          #       return fp if fp
-          #     end
-          #   end
-          #   fp
-          # end
 
           def wx_configure
             bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --with-expat=builtin --with-zlib=builtin --disable-debug_info')
