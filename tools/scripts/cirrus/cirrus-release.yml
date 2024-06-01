@@ -10,7 +10,7 @@ release_task:
   matrix:
     - name: Cirrus CI / Fedora AMD64 Release
       container:
-        image: fedora:latest
+        image: fedora:40
         cpu: 4
         memory: 8G
       env:
@@ -18,7 +18,7 @@ release_task:
         distro: fedora
     - name: Cirrus CI / Fedora ARM64 Release
       arm_container:
-        image: fedora:latest
+        image: fedora:40
         cpu: 4
         memory: 8G
       env:
@@ -26,7 +26,7 @@ release_task:
         distro: fedora
     - name: Cirrus CI / OpenSuSE Leap AMD64 Release
       container:
-        image: opensuse/leap:latest
+        image: opensuse/leap:15.5
         cpu: 4
         memory: 8G
       env:
@@ -34,7 +34,7 @@ release_task:
         distro: opensuse
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release
       arm_container:
-        image: opensuse/leap:latest
+        image: opensuse/leap:15.5
         cpu: 4
         memory: 8G
       env:
@@ -42,7 +42,7 @@ release_task:
         distro: opensuse
     - name: Cirrus CI / Ubuntu AMD64 Release
       container:
-        image: ubuntu:latest
+        image: ubuntu:24.04
         cpu: 4
         memory: 8G
       env:
@@ -50,7 +50,7 @@ release_task:
         distro: ubuntu
     - name: Cirrus CI / Ubuntu ARM64 Release
       arm_container:
-        image: ubuntu:latest
+        image: ubuntu:24.04
         cpu: 4
         memory: 8G
       env:
@@ -58,7 +58,7 @@ release_task:
         distro: ubuntu
     - name: Cirrus CI / Debian AMD64 Release
       container:
-        image: debian:latest
+        image: debian:12
         cpu: 4
         memory: 8G
       env:
@@ -66,19 +66,12 @@ release_task:
         distro: debian
     - name: Cirrus CI / Debian ARM64 Release
       arm_container:
-        image: debian:latest
+        image: debian:12
         cpu: 4
         memory: 8G
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Monterey M1 Release
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
     - name: Cirrus CI / MacOSX Ventura M1 Release
       macos_instance:
         image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
@@ -131,21 +124,20 @@ test_release_task:
     - Cirrus CI / OpenSuSE Leap ARM64 Release
     - Cirrus CI / Ubuntu ARM64 Release
     - Cirrus CI / Debian ARM64 Release
-    - Cirrus CI / MacOSX Monterey M1 Release
     - Cirrus CI / MacOSX Ventura M1 Release
     - Cirrus CI / MacOSX Sonoma M1 Release
   matrix:
-    - name: Cirrus CI / Fedora AMD64 Release Test
+    - name: Cirrus CI / Fedora Latest AMD64 Release Test
       container:
-        image: fedora:latest
+        image: fedora:40
         cpu: 4
         memory: 8G
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / Fedora ARM64 Release Test
+    - name: Cirrus CI / Fedora Latest ARM64 Release Test
       arm_container:
-        image: fedora:latest
+        image: fedora:40
         cpu: 4
         memory: 8G
       env:
@@ -153,7 +145,7 @@ test_release_task:
         distro: fedora
     - name: Cirrus CI / OpenSuSE Leap AMD64 Release Test
       container:
-        image: opensuse/leap:latest
+        image: opensuse/leap:15.5
         cpu: 4
         memory: 8G
       env:
@@ -161,7 +153,7 @@ test_release_task:
         distro: opensuse
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release Test
       arm_container:
-        image: opensuse/leap:latest
+        image: opensuse/leap:15.5
         cpu: 4
         memory: 8G
       env:
@@ -169,7 +161,7 @@ test_release_task:
         distro: opensuse
     - name: Cirrus CI / Ubuntu AMD64 Release Test
       container:
-        image: ubuntu:latest
+        image: ubuntu:24.04
         cpu: 4
         memory: 8G
       env:
@@ -177,7 +169,7 @@ test_release_task:
         distro: ubuntu
     - name: Cirrus CI / Ubuntu ARM64 Release Test
       arm_container:
-        image: ubuntu:latest
+        image: ubuntu:24.04
         cpu: 4
         memory: 8G
       env:
@@ -185,7 +177,7 @@ test_release_task:
         distro: ubuntu
     - name: Cirrus CI / Debian AMD64 Release Test
       container:
-        image: debian:latest
+        image: debian:12
         cpu: 4
         memory: 8G
       env:
@@ -193,19 +185,12 @@ test_release_task:
         distro: debian
     - name: Cirrus CI / Debian ARM64 Release Test
       arm_container:
-        image: debian:latest
+        image: debian:12
         cpu: 4
         memory: 8G
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Monterey M1 Release Test
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
     - name: Cirrus CI / MacOSX Ventura M1 Release Test
       macos_instance:
         image: ghcr.io/cirruslabs/macos-ventura-xcode:latest

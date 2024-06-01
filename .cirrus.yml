@@ -100,6 +100,14 @@ verify_1_task:
       env:
         osname: linux
         distro: opensuse
+    - name: Cirrus CI / Ubuntu AMD64 Release
+      container:
+        image: ubuntu:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: ubuntu
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh

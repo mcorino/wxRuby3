@@ -14,11 +14,33 @@ module WXRuby3
 
       module PkgManager
 
+        class PlatformDependencies
+          def initialize(*defaults)
+            @dependencies = ::Hash.new
+            @dependencies.default = ::Hash.new(defaults.flatten)
+          end
+
+          def add(distro, *deps, release: nil)
+            @dependencies[distro] ||= ::Hash.new
+            if release
+              @dependencies[distro][release] = deps.flatten
+            else
+              @dependencies[distro].default = deps.flatten
+            end
+            self
+          end
+
+          def get(distro, release: nil)
+            @dependencies[distro][release]
+          end
+        end
+
         PLATFORM_DEPS = {
-          debian: %w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev],
-          rhel: %w[expat-devel findutils gspell-devel gstreamer1-plugins-base-devel gtk3-devel libcurl-devel libjpeg-devel libnotify-devel libpng-devel libSM-devel libsecret-devel libtiff-devel SDL-devel webkit2gtk4.1-devel zlib-devel],
-          suse: %w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg-devel libpng-devel],
-          arch: %w[pkg-config gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12]
+          debian: PlatformDependencies.new(%w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev])
+                                      .add('ubuntu', %w[libgtk-3-dev libwebkit2gtk-4.1-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev], release: '24.04'),
+          rhel: PlatformDependencies.new(%w[expat-devel findutils gspell-devel gstreamer1-plugins-base-devel gtk3-devel libcurl-devel libjpeg-devel libnotify-devel libpng-devel libSM-devel libsecret-devel libtiff-devel SDL-devel webkit2gtk4.1-devel zlib-devel]),
+          suse: PlatformDependencies.new(%w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg-devel libpng-devel]),
+          arch: PlatformDependencies.new(%w[pkg-config gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12])
         }
         PLATFORM_ALTS = {
           suse: { 'g++' => 'gcc-c++' },
@@ -41,7 +63,7 @@ module WXRuby3
   
                   Make sure the following packages (or equivalent) are installed and than try again with `--no-autoinstall`:
                   #{pkgs.join(', ')}
-                  __ERROR_TXT
+                __ERROR_TXT
                 exit(1)
               end
               # can we install?
@@ -63,7 +85,7 @@ module WXRuby3
                       #{pkgs.join(', ')}
                       
                     Install these packages and try again.
-                    __ERROR_TXT
+                  __ERROR_TXT
                   exit(1)
                 end
                 # do the actual install
@@ -73,7 +95,7 @@ module WXRuby3
                     #{pkgs.join(', ')}
                     
                     Fix any problems or install these packages yourself and try again.
-                    __ERROR_TXT
+                  __ERROR_TXT
                   if WXRuby3.config.run_silent?
                     $stderr.puts "For error details check #{WXRuby3.config.silent_log_name}"
                   end
@@ -90,7 +112,8 @@ module WXRuby3
           end
 
           def platform_pkgs
-            PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym] || []
+            deps = PLATFORM_DEPS[WXRuby3.config.sysinfo.os.variant.to_sym]
+            deps ? deps.get(WXRuby3.config.sysinfo.os.distro, release: WXRuby3.config.sysinfo.os.release) : []
           end
 
           def add_platform_pkgs(pkgs)
