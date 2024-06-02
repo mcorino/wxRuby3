@@ -101,7 +101,7 @@ Currently the following are fully supported:
 
 | Platform                                                                                                                           | Ruby version(s)                                     | wxWidgets version(s) |
 |------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|----------------------|
-| Windows 10 (tested)<br>(most likely also Windows 11)                                                                               | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit)         | wxWidgets >= 3.2     |
+| Windows >= 10                                                                                                                      | Ruby >= 2.5<br>(RubyInstaller MSYS2-DevKit)         | wxWidgets >= 3.2     |
 | Linux (tested; all major AMD64 and ARM64 distributions: Ubuntu, Debian, Fedora, OpenSuSE and ArchLinux)<br>(most likely also i686) | Ruby >= 2.5                                         | wxWidgets >= 3.2     |
 | MacOS >= 10.10 using Cocoa (tested on AMD64 and ARM64 M1/M2 Chip)                                                                  | Ruby >= 2.5 (MacPorts, Homebrew, ruby-install, RVM) | wxWidgets >= 3.2     |
 
