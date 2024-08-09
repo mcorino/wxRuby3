@@ -67,7 +67,7 @@ module WXRuby3
             }
           __HEREDOC
         when 'wxPaintDC'
-          spec.override_inheritance_chain('wxPaintDC', ['wxClientDC', 'wxWindowDC' 'wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version >= '3.3.0'
+          spec.override_inheritance_chain('wxPaintDC', ['wxClientDC', 'wxWindowDC', 'wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version >= '3.3.0'
           spec.make_abstract 'wxPaintDC'
           spec.ignore 'wxPaintDC::wxPaintDC'
           spec.add_header_code <<~__HEREDOC
