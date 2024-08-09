@@ -534,7 +534,7 @@ module WXRuby3
               }
               return rc;
             }
-            static VALUE draw_on(wxOverlay &overlay, wxWindow *dc, const wxRect &rect)
+            static VALUE draw_on(wxOverlay &overlay, wxWindow *win, const wxRect &rect)
             {
               if (!wxRuby_IsAppRunning()) 
                 rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
