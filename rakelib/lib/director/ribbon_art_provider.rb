@@ -18,6 +18,7 @@ module WXRuby3
         spec.gc_as_object 'wxRibbonArtProvider'
         spec.make_abstract 'wxRibbonArtProvider'
         spec.gc_as_untracked 'wxRibbonPageTabInfo'
+        spec.disable_proxies
         spec.suppress_warning(473,
                               'wxRibbonArtProvider::Clone',
                               'wxRibbonMSWArtProvider::Clone',

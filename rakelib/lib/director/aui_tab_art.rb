@@ -16,6 +16,7 @@ module WXRuby3
         super
         spec.items << 'wxAuiDefaultTabArt' << 'wxAuiSimpleTabArt'
         spec.gc_as_object
+        spec.disable_proxies
         # missing from interface documentation
         spec.extend_interface('wxAuiTabArt',
                               'virtual ~wxAuiTabArt ()',
