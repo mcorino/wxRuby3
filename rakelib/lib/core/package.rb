@@ -286,6 +286,14 @@ module WXRuby3
           fsrc.puts '#include <ruby.h>'
           fsrc.puts '#include <ruby/version.h>'
           fsrc.puts <<~__HEREDOC
+            #if defined(__GNUC__)
+            #  if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+            #    ifndef GCC_HASCLASSVISIBILITY
+            #      define GCC_HASCLASSVISIBILITY
+            #    endif
+            #  endif
+            #endif
+
             #ifndef WXRB_EXPORT_FLAG
             # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
             #   if defined(WXRUBY_STATIC_BUILD)
