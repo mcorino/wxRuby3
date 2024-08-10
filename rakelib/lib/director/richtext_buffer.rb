@@ -20,6 +20,22 @@ module WXRuby3
         super
         spec.items << 'wxRichTextFontTable' << 'wxRichTextFieldType' << 'wxRichTextFieldTypeStandard' << 'wxRichTextDrawingHandler'
         spec.make_abstract 'wxRichTextFieldType'
+        if Config.instance.wx_version >= '3.3.0'
+          # make Ruby director and wrappers use custom implementation
+          spec.use_class_implementation('wxRichTextFieldType', 'wxRubyRichTextFieldType')
+          spec.add_header_code <<~__HEREDOC
+            class wxRubyRichTextFieldType : public wxRichTextFieldType
+            {
+            public:
+              virtual ~wxRubyRichTextFieldType() {}
+              wxRubyRichTextFieldType(const wxString &name=wxEmptyString) : wxRichTextFieldType(name) {}
+              wxRubyRichTextFieldType(const wxRichTextFieldType &fieldType) : wxRichTextFieldType(fieldType) {}
+              virtual bool Draw(wxRichTextField *, wxDC &, wxRichTextDrawingContext &, const wxRichTextRange &, const wxRichTextSelection &, const wxRect &, int , int ) { return false; }
+              virtual bool Layout(wxRichTextField *, wxReadOnlyDC &, wxRichTextDrawingContext &, const wxRect &, const wxRect &, int) { return false; }
+              virtual bool GetRangeSize(wxRichTextField *, const wxRichTextRange &, wxSize &, int &, wxReadOnlyDC &, wxRichTextDrawingContext &, int, const wxPoint &, const wxSize &, wxArrayInt *) const { return false; }
+            };
+            __HEREDOC
+        end
         spec.no_proxy 'wxRichTextFontTable'
         spec.include 'wx/richtext/richtextstyles.h'
         spec.ignore %w[
