@@ -81,7 +81,7 @@ module WXRuby3
                 if (rb_block_given_p ())
                 {
                   wxInfoDC info_dc(win);
-                  wxInfoDC* dc_ptr = &info_dc;
+                  wxReadOnlyDC* dc_ptr = &info_dc; // wxInfoDC::operator&() returns wxReadOnlyDC*
                   VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(dc_ptr), SWIGTYPE_p_wxInfoDC, 0);
                   rc = rb_yield(rb_dc);
                 }
