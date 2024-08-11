@@ -482,7 +482,14 @@ module WXRuby3
             # endif
             #endif
             __HEREDOC
+          fsrc.puts '#ifdef __cplusplus'
+          fsrc.puts 'extern "C"'
+          fsrc.puts '#endif'
           fsrc.puts "WXRB_IMPORT_FLAG void wxruby_init_#{libname}();"
+          fsrc.puts
+          fsrc.puts '#ifdef __cplusplus'
+          fsrc.puts 'extern "C"'
+          fsrc.puts '#endif'
           fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
           fsrc.puts '{'
           fsrc.indent do
