@@ -123,14 +123,14 @@ module WXRuby3
             wx_libset.collect { |s| s.dup }
           end
 
-          private
-
           def do_link(pkg)
             objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
             sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} " +
                  "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
                fail_on_error: true
           end
+
+          private
 
           def wx_configure
             bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
