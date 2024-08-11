@@ -123,12 +123,6 @@ module WXRuby3
             wx_libset.collect { |s| s.dup }
           end
 
-          def do_link(pkg)
-            objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
-            sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} " +
-                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
-          end
-
           private
 
           def wx_configure
@@ -158,7 +152,8 @@ module WXRuby3
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           # create a .dylib binary
-          @extra_ldflags << '-dynamic -bundle'
+          @dll_ext = 'dylib'
+          @extra_ldflags << '-dynamiclib'
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
