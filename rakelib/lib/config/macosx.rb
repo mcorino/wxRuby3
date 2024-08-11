@@ -124,7 +124,7 @@ module WXRuby3
           end
 
           def do_shlib_link(pkg)
-            objs = pkg.all_lib_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
+            objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
             depsh = pkg.dep_libs.join(' ')
             ldsh = WXRuby3.config.ld.sub(/-bundle/, '')
             ldsh.sub!(/-dynamic/, '-dynamiclib')

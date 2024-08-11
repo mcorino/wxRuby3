@@ -55,6 +55,11 @@ if WXRuby3.is_bootstrapped?
         pkg.generate_initializer
       end
 
+      # only for MacOSX
+      file pkg.initializer_loader_src => pkg.initializer_src do
+        pkg.generate_initializer_loader
+      end
+
       # Target to run the linker to create a final wxruby package shared library (MacOSX only)
       file pkg.shlib_target => [*pkg.all_obj_files, *pkg.dep_libs] do |t|
         WXRuby3.config.do_shlib_link(pkg)

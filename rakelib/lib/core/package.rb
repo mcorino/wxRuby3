@@ -160,25 +160,20 @@ module WXRuby3
         @all_obj_files
       end
 
-      def all_lib_obj_files
-        if Config.instance.macosx?
-          # everything EXCEPT the init module
-          all_build_modules.map { |mod| File.join(Config.instance.obj_dir,"#{mod}.#{Config.instance.obj_ext}") }
-        else
-          all_obj_files
-        end
-      end
-
       # only used for MacOSX
       def init_obj_file
-        File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
+        if Config.instance.macosx?
+          File.join(Config.instance.obj_dir, "#{libname}_init_loader.#{Config.instance.obj_ext}")
+        else
+          File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
+        end
       end
 
       def lib_target_deps
         if Config.instance.macosx?
           [init_obj_file, shlib_target, *dep_libs]
         else
-          [*all_obj_files, init_obj_file, *dep_libs]
+          [*all_obj_files, *dep_libs]
         end
       end
 
@@ -204,6 +199,11 @@ module WXRuby3
 
       def initializer_src
         File.join(Config.instance.src_dir, "#{libname}_init.cpp")
+      end
+
+      # only for MacOSX
+      def initializer_loader_src
+        File.join(Config.instance.src_dir, "#{libname}_init_loader.cpp")
       end
 
       def is_dir_with_fulfilled_deps?(dir, cls_set)
@@ -376,7 +376,11 @@ module WXRuby3
           fsrc.puts '#ifdef __cplusplus'
           fsrc.puts 'extern "C"'
           fsrc.puts '#endif'
-          fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
+          if Config.instance.macosx?
+            fsrc.puts "WXRB_EXPORT_FLAG void wxruby_init_#{libname}()"
+          else
+            fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
+          end
           fsrc.puts '{'
           fsrc.indent do
             fsrc.puts 'static bool initialized;'
@@ -427,6 +431,65 @@ module WXRuby3
         generate_initializer_src
 
         generate_event_list if included_directors.any? {|dir| dir.has_events? }
+      end
+
+      # only for MacOSX
+      def generate_initializer_loader
+        STDERR.puts "* generating package #{name} initializer : #{initializer_src}" if Director.verbose?
+
+        Stream.transaction do
+          fsrc = CodeStream.new(initializer_loader_src)
+          fsrc.puts '#include <ruby.h>'
+          fsrc.puts '#include <ruby/version.h>'
+          fsrc.puts <<~__HEREDOC
+            #if defined(__GNUC__)
+            #  if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+            #    ifndef GCC_HASCLASSVISIBILITY
+            #      define GCC_HASCLASSVISIBILITY
+            #    endif
+            #  endif
+            #endif
+
+            #ifndef WXRB_EXPORT_FLAG
+            # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+            #   if defined(WXRUBY_STATIC_BUILD)
+            #     define WXRB_EXPORT_FLAG
+            #   else
+            #     define WXRB_EXPORT_FLAG __declspec(dllexport)
+            #   endif
+            # else
+            #   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+            #     define WXRB_EXPORT_FLAG __attribute__ ((visibility("default")))
+            #   else
+            #     define WXRB_EXPORT_FLAG
+            #   endif
+            # endif
+            #endif
+
+            #ifndef WXRB_IMPORT_FLAG
+            # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+            #   if defined(WXRUBY_STATIC_BUILD)
+            #     define WXRB_IMPORT_FLAG
+            #   else
+            #     define WXRB_IMPORT_FLAG __declspec(dllimport)
+            #   endif
+            # else
+            #   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+            #     define WXRB_IMPORT_FLAG __attribute__ ((visibility("default")))
+            #   else
+            #     define WXRB_IMPORT_FLAG
+            #   endif
+            # endif
+            #endif
+            __HEREDOC
+          fsrc.puts "WXRB_IMPORT_FLAG void wxruby_init_#{libname}();"
+          fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
+          fsrc.puts '{'
+          fsrc.indent do
+            fsrc.puts "wxruby_init_#{libname}();"
+          end
+          fsrc.puts '}'
+        end
       end
 
       def extract(*mods, genint: true)

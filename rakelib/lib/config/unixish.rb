@@ -49,7 +49,7 @@ module WXRuby3
       end
 
       def do_link(pkg)
-        objs = pkg.all_lib_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
+        objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
         depsh = pkg.dep_libnames.collect { |dl| "#{dl}.#{dll_ext}" }.join(' ')
         sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
              "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
