@@ -161,7 +161,7 @@ module WXRuby3
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
           # create a .bundle binary
-          @extra_ldflags << '-Wl,-weak_reference_mismatches,weak'
+          @extra_ldflags << '-Wl,-ld_classic'
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
