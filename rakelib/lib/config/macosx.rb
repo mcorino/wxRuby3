@@ -125,9 +125,8 @@ module WXRuby3
 
           def do_shlib_link(pkg)
             objs = pkg.all_lib_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
-            depsh = pkg.dep_libnames.collect { |dl| "#{dl}.dylib" }.join(' ')
-            ldsh = WXRuby3.config.ld
-            ldsh.sub!(/-bundle/, '')
+            depsh = pkg.dep_libs.join(' ')
+            ldsh = WXRuby3.config.ld.sub(/-bundle/, '')
             ldsh.sub!(/-dynamic/, '-dynamiclib')
             sh "cd lib && " +
                  "#{ldsh} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
@@ -137,7 +136,7 @@ module WXRuby3
 
           def do_link(pkg)
             sh "cd lib && " +
-                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{pkg.init_obj_file} #{pkg.shlib_target} " +
+                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{File.join('..', pkg.init_obj_file)} #{pkg.shlib_target} " +
                     "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
                fail_on_error: true
           end
