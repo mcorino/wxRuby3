@@ -123,17 +123,21 @@ module WXRuby3
             wx_libset.collect { |s| s.dup }
           end
 
-          def do_link(pkg)
+          def do_shlib_link(pkg)
             objs = pkg.all_lib_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
             depsh = pkg.dep_libnames.collect { |dl| "#{dl}.dylib" }.join(' ')
-            shlib = pkg.lib_target.sub(/\.#{Config.instance.dll_ext}\Z/, '.dylib')
             ldsh = WXRuby3.config.ld
             ldsh.sub!(/-bundle/, '')
             ldsh.sub!(/-dynamic/, '-dynamiclib')
             sh "cd lib && " +
                  "#{ldsh} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
-                    "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{shlib} && " +
-                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{pkg.init_obj_file} #{shlib} " +
+                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.shlib_target}",
+               fail_on_error: true
+          end
+
+          def do_link(pkg)
+            sh "cd lib && " +
+                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{pkg.init_obj_file} #{pkg.shlib_target} " +
                     "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
                fail_on_error: true
           end

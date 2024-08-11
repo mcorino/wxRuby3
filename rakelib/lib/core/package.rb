@@ -69,6 +69,10 @@ module WXRuby3
         File.join(Config.instance.dest_dir, "#{libname}.#{Config.instance.dll_ext}")
       end
 
+      def shlib_target
+        Config.instance.macosx? ? File.join(Config.instance.dest_dir, "lib#{libname}.dylib") : nil
+      end
+
       def package(pkgname)
         subpackages[pkgname] ||= Package.new(pkgname, self)
       end
@@ -170,12 +174,20 @@ module WXRuby3
         File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
       end
 
+      def lib_target_deps
+        if Config.instance.macosx?
+          [init_obj_file, shlib_target, *dep_libs]
+        else
+          [*all_obj_files, init_obj_file, *dep_libs]
+        end
+      end
+
       def dep_libs
         if parent
           parent.dep_libs + if Config.instance.macosx?
-                              [File.join(Config.instance.dest_dir, "#{parent.libname}.dylib")]
+                              [parent.shlib_target]
                             else
-                              [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")]
+                              [parent.lib_target]
                             end
         else
           []
