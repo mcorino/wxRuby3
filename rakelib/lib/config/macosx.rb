@@ -125,6 +125,13 @@ module WXRuby3
 
           private
 
+          def do_link(pkg)
+            objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
+            sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} " +
+                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
+               fail_on_error: true
+          end
+
           def wx_configure
             bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
                    "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
@@ -145,15 +152,16 @@ module WXRuby3
 
         if @wx_version
           @cpp.sub!(/-std=gnu\+\+11/, '-std=gnu++14')
-          @ld.sub!(/-o\s*\Z/, '')
+          # on Mac OSX this differs from the wxWidgets linking setup
+          @ld = RB_CONFIG['LDSHAREDXX'] || 'g++ -std=gnu++14 -dynamic -bundle'
+          @ld.sub!(/-std=gnu\+\+11/, '-std=gnu++14')
 
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized
                                   -Wno-overloaded-virtual -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
 
-          # create a .dylib binary
-          @dll_ext = 'dylib'
-          @extra_ldflags << '-dynamiclib'
+          # create a .bundle binary
+          @extra_ldflags << '-Wl,-weak_reference_mismatches,weak'
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}
