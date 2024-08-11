@@ -152,7 +152,10 @@ module WXRuby3
         [File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx'), ['lib/wx'], 0644],
       ]
       # add wxRuby shared libraries
-      WXRuby3::Director.each_package { |pkg| specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), [pkg.lib_target], 0555] }
+      WXRuby3::Director.each_package do |pkg|
+        specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), [pkg.lib_target], 0555]
+        specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), [pkg.lib_target.sub(/\.#{WXRuby3.config.dll_ext}\Z/, '.dylib')], 0555] if WXRuby3.config.macosx?
+      end
       if WXRuby3.config.get_config('with-wxwin')
         specs << [WXRuby3.config.get_cfg_string('siterubyverarch'), Install.wxwin_shlibs, 0555]
       end

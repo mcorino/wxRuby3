@@ -124,9 +124,17 @@ module WXRuby3
           end
 
           def do_link(pkg)
-            objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
-            sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} " +
-                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
+            objs = pkg.all_lib_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
+            depsh = pkg.dep_libnames.collect { |dl| "#{dl}.dylib" }.join(' ')
+            shlib = pkg.lib_target.sub(/\.#{Config.instance.dll_ext}\Z/, '.dylib')
+            ldsh = WXRuby3.config.ld
+            ldsh.sub!(/-bundle/, '')
+            ldsh.sub!(/-dynamic/, '-dynamiclib')
+            sh "cd lib && " +
+                 "#{ldsh} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
+                    "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{shlib} && " +
+                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{pkg.init_obj_file} #{shlib} " +
+                    "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
                fail_on_error: true
           end
 
@@ -159,9 +167,6 @@ module WXRuby3
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized
                                   -Wno-overloaded-virtual -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
-
-          # create a .bundle binary
-          @extra_ldflags << '-Wl,-ld_classic'
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}

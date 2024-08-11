@@ -156,9 +156,27 @@ module WXRuby3
         @all_obj_files
       end
 
+      def all_lib_obj_files
+        if Config.instance.macosx?
+          # everything EXCEPT the init module
+          all_build_modules.map { |mod| File.join(Config.instance.obj_dir,"#{mod}.#{Config.instance.obj_ext}") }
+        else
+          all_obj_files
+        end
+      end
+
+      # only used for MacOSX
+      def init_obj_file
+        File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
+      end
+
       def dep_libs
         if parent
-          parent.dep_libs + [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")]
+          parent.dep_libs + if Config.instance.macosx?
+                              [File.join(Config.instance.dest_dir, "#{parent.libname}.dylib")]
+                            else
+                              [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")]
+                            end
         else
           []
         end
@@ -365,7 +383,7 @@ module WXRuby3
               fsrc << <<~__HERDOC
                 // define Enum class
                 wx_define_Enum_class();
-                __HERDOC
+              __HERDOC
               fsrc.puts
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
@@ -428,11 +446,11 @@ module WXRuby3
                             raise "Don't know Event class for #{evh_name} event type (from #{item.name})"
                           end
             fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
-                      self.register_event_type EventType[
-                          '#{evh_name}', #{evt_arity},
-                          #{fullname}::#{evt_type},
-                          #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
-                        ] if #{fullname}.const_defined?(:#{evt_type})
+              self.register_event_type EventType[
+                  '#{evh_name}', #{evt_arity},
+                  #{fullname}::#{evt_type},
+                  #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
+                ] if #{fullname}.const_defined?(:#{evt_type})
             __HEREDOC
             evts_handled << evh_name
           end
@@ -570,7 +588,7 @@ module WXRuby3
 
               class EvtHandler
 
-            __HEREDOC
+          __HEREDOC
           fdoc.indent(2) do
             fdoc.doc.puts "@!group #{name} Event handler methods"
             fdoc.puts
@@ -659,7 +677,7 @@ module WXRuby3
             
             end
             __HEREDOC
-          __SCRIPT
+        __SCRIPT
         begin
           tmpfile = Tempfile.new('script')
           ftmp_name = tmpfile.path.dup
