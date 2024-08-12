@@ -136,7 +136,8 @@ module WXRuby3
 
           def do_link(pkg)
             sh "cd lib && " +
-                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{File.join('..', pkg.init_obj_file)} #{pkg.shlib_target} " +
+                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{File.join('..', pkg.init_obj_file)} " +
+                    "-L. -l#{pkg.libname} " +
                     "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
                fail_on_error: true
           end
