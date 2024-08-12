@@ -219,10 +219,6 @@ jobs:
             os: macos-13
             arch: x86_64
             ruby: 'ruby'
-          - name: macOS14
-            os: macos-14
-            arch: x86_64
-            ruby: 'ruby'
 
     steps:
       - name: Checkout wxRuby3
@@ -317,11 +313,6 @@ jobs:
             build: false
           - name: macOS13
             os: macos-13
-            arch: x86_64
-            ruby: 'ruby'
-            build: false
-          - name: macOS14
-            os: macos-14
             arch: x86_64
             ruby: 'ruby'
             build: false
