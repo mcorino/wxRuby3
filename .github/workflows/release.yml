@@ -219,6 +219,10 @@ jobs:
             os: macos-13
             arch: x86_64
             ruby: 'ruby'
+          - name: macOS14
+            os: macos-14
+            arch: x86_64
+            ruby: 'ruby'
 
     steps:
       - name: Checkout wxRuby3
@@ -290,7 +294,6 @@ jobs:
             CC: gcc-12
             CXX: g++-12
             ruby: 'ruby'
-            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -302,7 +305,6 @@ jobs:
             CC: gcc-12
             CXX: g++-12
             ruby: 'ruby'
-            wxWidgets: '3.2.4'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -318,11 +320,17 @@ jobs:
             arch: x86_64
             ruby: 'ruby'
             build: false
+          - name: macOS14
+            os: macos-14
+            arch: x86_64
+            ruby: 'ruby'
+            build: false
 
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
+      WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
       wxUSE_ASAN: ${{ matrix.use_asan && 1 || 0 }}
@@ -344,7 +352,7 @@ jobs:
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ matrix.wxWidgets }}
+          ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
           submodules: 'recursive'
 
       - name: Prepare package repos

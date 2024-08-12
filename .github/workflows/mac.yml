@@ -47,7 +47,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
 
-    name: ${{ matrix.name }} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+    name: ${{ matrix.name }} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
 
     strategy:
       fail-fast: false
@@ -56,7 +56,6 @@ jobs:
         - name: wxMac macOS 12
           runner: macos-12
           arch: x86_64
-          wxWidgets: '3.2.4'
           ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
@@ -65,7 +64,6 @@ jobs:
         - name: wxMac macOS 12
           runner: macos-12
           arch: x86_64
-          wxWidgets: '3.2.4'
           ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
@@ -74,7 +72,6 @@ jobs:
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
-          wxWidgets: '3.2.4'
           ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
@@ -83,7 +80,6 @@ jobs:
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
-          wxWidgets: '3.2.4'
           ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
@@ -92,7 +88,6 @@ jobs:
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
-          wxWidgets: '3.2.4'
           ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
@@ -101,12 +96,19 @@ jobs:
         - name: wxMac macOS 13
           runner: macos-13
           arch: x86_64
-          wxWidgets: '3.2.4'
           ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: system
           wxr_type: gem
+        - name: wxMac macOS 14
+          runner: macos-14
+          arch: x86_64
+          ruby: 'ruby'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
@@ -138,7 +140,7 @@ jobs:
       with:
         repository: wxWidgets/wxWidgets
         path: ${{ env.WXWIDGETS_ROOT }}
-        ref: v${{ matrix.wxWidgets }}
+        ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
         submodules: 'recursive'
 
     - name: Set environment variables
