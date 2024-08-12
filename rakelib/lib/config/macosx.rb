@@ -46,6 +46,19 @@ module WXRuby3
           end
           protected :patch_rpath
 
+          # add deployment lookup paths for wxruby shared libraries
+          # and make loadpath for initializer dylibs relative
+          def update_shlib_loadpaths(shlib)
+            # in case of a .bundle library
+            if /\.bundle\Z/ =~ shlib
+              # change the full path of the complementary initializer .dylib to a path relative to any rpath-s
+              dylib = "lib#{File.basename(shlib, '.bundle')}.dylib"
+              dylib_path = File.expand_path(File.join(Config.instance.dest_dir, dylib))
+              sh("install_name_tool -change #{dylib_path} '@rpath/#{dylib}' #{shlib}")
+            end
+            super
+          end
+
           # add Ruby library path for wxruby shared libraries
           def update_shlib_ruby_libpath(shlib)
             # fix lookup for the Ruby shared library
@@ -136,7 +149,8 @@ module WXRuby3
 
           def do_link(pkg)
             sh "cd lib && " +
-                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{File.join('..', pkg.init_obj_file)} #{pkg.shlib_target} " +
+                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{File.join('..', pkg.init_obj_file)} " +
+                    "-L. -l#{pkg.libname} " +
                     "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
                fail_on_error: true
           end
