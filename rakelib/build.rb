@@ -55,8 +55,18 @@ if WXRuby3.is_bootstrapped?
         pkg.generate_initializer
       end
 
-      # Target to run the linker to create a final .so/.dll wxruby3 package library
-      file pkg.lib_target => [*pkg.all_obj_files, *pkg.dep_libs] do | t |
+      # only for MacOSX
+      file pkg.initializer_loader_src => pkg.initializer_src do
+        pkg.generate_initializer_loader
+      end
+
+      # Target to run the linker to create a final wxruby package shared library (MacOSX only)
+      file pkg.shlib_target => [*pkg.all_obj_files, *pkg.dep_libs] do |t|
+        WXRuby3.config.do_shlib_link(pkg)
+      end
+
+      # Target to run the linker to create a final .so/.dll/.bundle wxruby3 package library
+      file pkg.lib_target => pkg.lib_target_deps do | t |
         WXRuby3.config.do_link(pkg)
       end
 

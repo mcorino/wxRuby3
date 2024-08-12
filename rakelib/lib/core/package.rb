@@ -69,6 +69,10 @@ module WXRuby3
         File.join(Config.instance.dest_dir, "#{libname}.#{Config.instance.dll_ext}")
       end
 
+      def shlib_target
+        Config.instance.macosx? ? File.join(Config.instance.dest_dir, "lib#{libname}.dylib") : nil
+      end
+
       def package(pkgname)
         subpackages[pkgname] ||= Package.new(pkgname, self)
       end
@@ -156,9 +160,30 @@ module WXRuby3
         @all_obj_files
       end
 
+      # only used for MacOSX
+      def init_obj_file
+        if Config.instance.macosx?
+          File.join(Config.instance.obj_dir, "#{libname}_init_loader.#{Config.instance.obj_ext}")
+        else
+          File.join(Config.instance.obj_dir, "#{libname}_init.#{Config.instance.obj_ext}")
+        end
+      end
+
+      def lib_target_deps
+        if Config.instance.macosx?
+          [init_obj_file, shlib_target, *dep_libs]
+        else
+          [*all_obj_files, *dep_libs]
+        end
+      end
+
       def dep_libs
         if parent
-          parent.dep_libs + [File.join(Config.instance.dest_dir, "#{parent.libname}.#{Config.instance.dll_ext}")]
+          parent.dep_libs + if Config.instance.macosx?
+                              [parent.shlib_target]
+                            else
+                              [parent.lib_target]
+                            end
         else
           []
         end
@@ -174,6 +199,11 @@ module WXRuby3
 
       def initializer_src
         File.join(Config.instance.src_dir, "#{libname}_init.cpp")
+      end
+
+      # only for MacOSX
+      def initializer_loader_src
+        File.join(Config.instance.src_dir, "#{libname}_init_loader.cpp")
       end
 
       def is_dir_with_fulfilled_deps?(dir, cls_set)
@@ -286,6 +316,14 @@ module WXRuby3
           fsrc.puts '#include <ruby.h>'
           fsrc.puts '#include <ruby/version.h>'
           fsrc.puts <<~__HEREDOC
+            #if defined(__GNUC__)
+            #  if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+            #    ifndef GCC_HASCLASSVISIBILITY
+            #      define GCC_HASCLASSVISIBILITY
+            #    endif
+            #  endif
+            #endif
+
             #ifndef WXRB_EXPORT_FLAG
             # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
             #   if defined(WXRUBY_STATIC_BUILD)
@@ -338,7 +376,11 @@ module WXRuby3
           fsrc.puts '#ifdef __cplusplus'
           fsrc.puts 'extern "C"'
           fsrc.puts '#endif'
-          fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
+          if Config.instance.macosx?
+            fsrc.puts "WXRB_EXPORT_FLAG void wxruby_init_#{libname}()"
+          else
+            fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
+          end
           fsrc.puts '{'
           fsrc.indent do
             fsrc.puts 'static bool initialized;'
@@ -357,7 +399,7 @@ module WXRuby3
               fsrc << <<~__HERDOC
                 // define Enum class
                 wx_define_Enum_class();
-                __HERDOC
+              __HERDOC
               fsrc.puts
               # generate constant definitions for feature defines from setup.h
               fsrc.puts %Q{VALUE mWxSetup = rb_define_module_under(#{module_variable}, "Setup");}
@@ -391,6 +433,72 @@ module WXRuby3
         generate_event_list if included_directors.any? {|dir| dir.has_events? }
       end
 
+      # only for MacOSX
+      def generate_initializer_loader
+        STDERR.puts "* generating package #{name} initializer : #{initializer_src}" if Director.verbose?
+
+        Stream.transaction do
+          fsrc = CodeStream.new(initializer_loader_src)
+          fsrc.puts '#include <ruby.h>'
+          fsrc.puts '#include <ruby/version.h>'
+          fsrc.puts <<~__HEREDOC
+            #if defined(__GNUC__)
+            #  if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+            #    ifndef GCC_HASCLASSVISIBILITY
+            #      define GCC_HASCLASSVISIBILITY
+            #    endif
+            #  endif
+            #endif
+
+            #ifndef WXRB_EXPORT_FLAG
+            # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+            #   if defined(WXRUBY_STATIC_BUILD)
+            #     define WXRB_EXPORT_FLAG
+            #   else
+            #     define WXRB_EXPORT_FLAG __declspec(dllexport)
+            #   endif
+            # else
+            #   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+            #     define WXRB_EXPORT_FLAG __attribute__ ((visibility("default")))
+            #   else
+            #     define WXRB_EXPORT_FLAG
+            #   endif
+            # endif
+            #endif
+
+            #ifndef WXRB_IMPORT_FLAG
+            # if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+            #   if defined(WXRUBY_STATIC_BUILD)
+            #     define WXRB_IMPORT_FLAG
+            #   else
+            #     define WXRB_IMPORT_FLAG __declspec(dllimport)
+            #   endif
+            # else
+            #   if defined(__GNUC__) && defined(GCC_HASCLASSVISIBILITY)
+            #     define WXRB_IMPORT_FLAG __attribute__ ((visibility("default")))
+            #   else
+            #     define WXRB_IMPORT_FLAG
+            #   endif
+            # endif
+            #endif
+            __HEREDOC
+          fsrc.puts '#ifdef __cplusplus'
+          fsrc.puts 'extern "C"'
+          fsrc.puts '#endif'
+          fsrc.puts "WXRB_IMPORT_FLAG void wxruby_init_#{libname}();"
+          fsrc.puts
+          fsrc.puts '#ifdef __cplusplus'
+          fsrc.puts 'extern "C"'
+          fsrc.puts '#endif'
+          fsrc.puts "WXRB_EXPORT_FLAG void Init_#{libname}()"
+          fsrc.puts '{'
+          fsrc.indent do
+            fsrc.puts "wxruby_init_#{libname}();"
+          end
+          fsrc.puts '}'
+        end
+      end
+
       def extract(*mods, genint: true)
         included_directors.each do |dir|
           dir.extract_interface(genint) if (mods.empty? || mods.include?(dir.spec.name))
@@ -420,11 +528,11 @@ module WXRuby3
                             raise "Don't know Event class for #{evh_name} event type (from #{item.name})"
                           end
             fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
-                      self.register_event_type EventType[
-                          '#{evh_name}', #{evt_arity},
-                          #{fullname}::#{evt_type},
-                          #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
-                        ] if #{fullname}.const_defined?(:#{evt_type})
+              self.register_event_type EventType[
+                  '#{evh_name}', #{evt_arity},
+                  #{fullname}::#{evt_type},
+                  #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
+                ] if #{fullname}.const_defined?(:#{evt_type})
             __HEREDOC
             evts_handled << evh_name
           end
@@ -562,7 +670,7 @@ module WXRuby3
 
               class EvtHandler
 
-            __HEREDOC
+          __HEREDOC
           fdoc.indent(2) do
             fdoc.doc.puts "@!group #{name} Event handler methods"
             fdoc.puts
@@ -651,7 +759,7 @@ module WXRuby3
             
             end
             __HEREDOC
-          __SCRIPT
+        __SCRIPT
         begin
           tmpfile = Tempfile.new('script')
           ftmp_name = tmpfile.path.dup

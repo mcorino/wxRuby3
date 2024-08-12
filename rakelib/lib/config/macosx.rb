@@ -123,10 +123,22 @@ module WXRuby3
             wx_libset.collect { |s| s.dup }
           end
 
-          def do_link(pkg)
+          def do_shlib_link(pkg)
             objs = pkg.all_obj_files.collect { |o| File.join('..', o) }.join(' ') + ' '
-            sh "cd lib && #{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} " +
-                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}"
+            depsh = pkg.dep_libs.join(' ')
+            ldsh = WXRuby3.config.ld.sub(/-bundle/, '')
+            ldsh.sub!(/-dynamic/, '-dynamiclib')
+            sh "cd lib && " +
+                 "#{ldsh} #{WXRuby3.config.ldflags(pkg.lib_target)} #{objs} #{depsh} " +
+                 "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.shlib_target}",
+               fail_on_error: true
+          end
+
+          def do_link(pkg)
+            sh "cd lib && " +
+                 "#{WXRuby3.config.ld} #{WXRuby3.config.ldflags(pkg.lib_target)} #{File.join('..', pkg.init_obj_file)} #{pkg.shlib_target} " +
+                    "#{WXRuby3.config.libs} #{WXRuby3.config.link_output_flag}#{pkg.lib_target}",
+               fail_on_error: true
           end
 
           private
@@ -151,14 +163,13 @@ module WXRuby3
 
         if @wx_version
           @cpp.sub!(/-std=gnu\+\+11/, '-std=gnu++14')
-          @ld.sub!(/-o\s*\Z/, '')
+          # on Mac OSX this differs from the wxWidgets linking setup
+          @ld = RB_CONFIG['LDSHAREDXX'] || 'g++ -std=gnu++14 -dynamic -bundle'
+          @ld.sub!(/-std=gnu\+\+11/, '-std=gnu++14')
 
           @extra_cflags.concat %w[-Wno-unused-function -Wno-conversion-null -Wno-sometimes-uninitialized
                                   -Wno-overloaded-virtual -Wno-deprecated-copy]
           @extra_cflags << ' -Wno-deprecated-declarations' unless @no_deprecated
-
-          # create a .dylib binary
-          @extra_ldflags << '-dynamic -bundle'
 
           unless @wx_path.empty?
             libdirs = @wx_libs.select {|s| s.start_with?('-L')}.collect {|s| s.sub(/^-L/,'')}

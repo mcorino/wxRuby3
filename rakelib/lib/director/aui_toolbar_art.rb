@@ -16,7 +16,8 @@ module WXRuby3
         super
         spec.items << 'wxAuiDefaultToolBarArt'
         spec.gc_as_object
-        spec.extend_interface('wxAuiToolBarArt', 'virtual ~wxAuiToolBarArt ()')
+        spec.make_abstract 'wxAuiToolBarArt'
+        spec.disable_proxies
         spec.suppress_warning(473, 'wxAuiToolBarArt::Clone', 'wxAuiDefaultToolBarArt::Clone')
         spec.map 'const wxAuiToolBarItemArray&' => 'Array<Wx::AUI::AuiToolBarItem>,nil' do
           map_in temp: 'wxAuiToolBarItemArray tmp', code: <<~__CODE

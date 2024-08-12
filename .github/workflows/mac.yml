@@ -53,8 +53,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: wxMac macOS 11
-          runner: macos-11
+        - name: wxMac macOS 12
+          runner: macos-12
           arch: x86_64
           wxWidgets: '3.2.4'
           ruby: 'ruby'
@@ -62,8 +62,8 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: develop
-        - name: wxMac macOS 11
-          runner: macos-11
+        - name: wxMac macOS 12
+          runner: macos-12
           arch: x86_64
           wxWidgets: '3.2.4'
           ruby: 'ruby'
