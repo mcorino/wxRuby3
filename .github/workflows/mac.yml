@@ -303,6 +303,10 @@ jobs:
       if: matrix.wxw_type == 'develop' && matrix.wxr_type == 'binpkg'
       run: rm -rf $WXWIDGETS_ROOT
 
+    - name: Clean wxRuby3 build artifacts
+      if: matrix.wxr_type != 'develop'
+      run: bundle exec rake clean
+
     - name: Install wxRuby3 gem
       if: matrix.wxr_type != 'develop'
       run: |
