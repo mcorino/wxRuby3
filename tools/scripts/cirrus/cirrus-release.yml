@@ -74,7 +74,7 @@ release_task:
         distro: debian
     - name: Cirrus CI / MacOSX Sonoma M1 Release
       macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
+        image: ghcr.io/cirruslabs/macos-sonoma:latest
       env:
         osname: darwin
         distro: macosx
@@ -185,7 +185,7 @@ test_release_task:
         distro: debian
     - name: Cirrus CI / MacOSX Sonoma M1 Release Test
       macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
+        image: ghcr.io/cirruslabs/macos-sonoma:latest
       env:
         osname: darwin
         distro: macosx
