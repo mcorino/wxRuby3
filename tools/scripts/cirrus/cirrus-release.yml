@@ -72,16 +72,9 @@ release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Ventura M1 Release
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
     - name: Cirrus CI / MacOSX Sonoma M1 Release
       macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
+        image: ghcr.io/cirruslabs/macos-sonoma:latest
       env:
         osname: darwin
         distro: macosx
@@ -124,7 +117,6 @@ test_release_task:
     - Cirrus CI / OpenSuSE Leap ARM64 Release
     - Cirrus CI / Ubuntu ARM64 Release
     - Cirrus CI / Debian ARM64 Release
-    - Cirrus CI / MacOSX Ventura M1 Release
     - Cirrus CI / MacOSX Sonoma M1 Release
   matrix:
     - name: Cirrus CI / Fedora Latest AMD64 Release Test
@@ -145,7 +137,7 @@ test_release_task:
         distro: fedora
     - name: Cirrus CI / OpenSuSE Leap AMD64 Release Test
       container:
-        image: opensuse/leap:15.5
+        image: opensuse/leap:15.6
         cpu: 4
         memory: 8G
       env:
@@ -153,7 +145,7 @@ test_release_task:
         distro: opensuse
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release Test
       arm_container:
-        image: opensuse/leap:15.5
+        image: opensuse/leap:15.6
         cpu: 4
         memory: 8G
       env:
@@ -191,16 +183,9 @@ test_release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Ventura M1 Release Test
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
-      env:
-        osname: darwin
-        distro: macosx
-        latest_only: true
     - name: Cirrus CI / MacOSX Sonoma M1 Release Test
       macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
+        image: ghcr.io/cirruslabs/macos-sonoma:latest
       env:
         osname: darwin
         distro: macosx
