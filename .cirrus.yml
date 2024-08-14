@@ -7,7 +7,7 @@ env:
 
 pr_1_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_PR != ''
   matrix:
     - name: Cirrus CI / Fedora ARM64 Test
@@ -45,7 +45,7 @@ pr_1_task:
 
 pr_2_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_PR != ''
   matrix:
     - name: Cirrus CI / Debian ARM64 Test
@@ -56,7 +56,7 @@ pr_2_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Ventura M1 Release
+    - name: Cirrus CI / MacOSX Ventura M1 Test
       macos_instance:
         image: ghcr.io/cirruslabs/macos-ventura-xcode:latest
       env:
@@ -81,7 +81,7 @@ pr_2_task:
 
 verify_1_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_BRANCH =~ 'master' && $CIRRUS_BUILD_SOURCE != 'api'
   matrix:
     - name: Cirrus CI / Fedora AMD64 Test
@@ -100,7 +100,7 @@ verify_1_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / Ubuntu AMD64 Release
+    - name: Cirrus CI / Ubuntu AMD64 Test
       container:
         image: ubuntu:latest
         cpu: 4
@@ -127,7 +127,7 @@ verify_1_task:
 
 verify_2_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts','*.md','.circleci/**','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb')"
+  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_BRANCH =~ 'master' && $CIRRUS_BUILD_SOURCE != 'api'
   matrix:
     - name: Cirrus CI / OpenSuSE Leap ARM64 Test
@@ -146,7 +146,7 @@ verify_2_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Sonoma M1 Release
+    - name: Cirrus CI / MacOSX Sonoma M1 Test
       macos_instance:
         image: ghcr.io/cirruslabs/macos-sonoma-xcode:latest
       env:
