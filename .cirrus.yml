@@ -7,7 +7,7 @@ env:
 
 pr_1_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
+  skip: "changesIncludeOnly('.yardopts', '.cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_PR != ''
   matrix:
     - name: Cirrus CI / Fedora ARM64 Test
@@ -45,7 +45,7 @@ pr_1_task:
 
 pr_2_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
+  skip: "changesIncludeOnly('.yardopts', '.cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_PR != ''
   matrix:
     - name: Cirrus CI / Debian ARM64 Test
@@ -81,7 +81,7 @@ pr_2_task:
 
 verify_1_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
+  skip: "changesIncludeOnly('.yardopts', '.cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_BRANCH =~ 'master' && $CIRRUS_BUILD_SOURCE != 'api'
   matrix:
     - name: Cirrus CI / Fedora AMD64 Test
@@ -127,7 +127,7 @@ verify_1_task:
 
 verify_2_task:
   timeout_in: 90m
-  skip: "changesIncludeOnly('.yardopts', 'cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
+  skip: "changesIncludeOnly('.yardopts', '.cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_BRANCH =~ 'master' && $CIRRUS_BUILD_SOURCE != 'api'
   matrix:
     - name: Cirrus CI / OpenSuSE Leap ARM64 Test
