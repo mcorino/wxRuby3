@@ -703,7 +703,7 @@ module WXRuby3
         fdoc.puts
         mod_indent = 0
         package.all_modules.each do |modnm|
-          fdoc.iputs("module #{package.fullname}", mod_indent)
+          fdoc.iputs("module #{modnm}", mod_indent)
           fdoc.puts
           mod_indent += 1
         end
