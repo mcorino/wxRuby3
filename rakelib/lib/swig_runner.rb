@@ -628,7 +628,12 @@ module WXRuby3
         end
 
         def run
-          member_map = collect_methods rescue $!
+          begin
+            member_map = collect_methods
+          rescue Exception
+            STDERR.puts "#{$!}\n#{$!.backtrace.join("\n")}"
+            exit(1)
+          end
           return if member_map.empty?
 
           # create re match list for class names

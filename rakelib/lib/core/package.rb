@@ -114,11 +114,20 @@ module WXRuby3
         directors.select { |dir| Package.full_docs? || !Config.instance.excluded_module?(dir.spec) }
       end
 
-      def director_for_class(class_name)
-        dir = included_directors.detect { |dir| dir.spec.module_name == class_name || dir.spec.items.include?(class_name) }
-        subpackages.each_value.detect { |spkg| dir = spkg.director_for_class(class_name) } if dir.nil?
-        dependencies.detect { |pkgdep| dir = pkgdep.director_for_class(class_name) } if dir.nil?
-        dir = parent.director_for_class(class_name) if dir.nil? && parent
+      def director_for_class(class_name, pkg_stack=[])
+        dir = included_directors.detect { |dir| dir.spec.module_name == class_name || dir.spec.items.include?(dir.spec.classdef_name(class_name)) }
+        pkg_stack << self
+        subpackages.each_value.detect do |spkg|
+          unless pkg_stack.include?(spkg) # should never happen
+            dir = spkg.director_for_class(class_name, pkg_stack)
+          end
+        end if dir.nil?
+        dependencies.detect do |pkgdep|
+          unless pkg_stack.include?(pkgdep)
+            dir = pkgdep.director_for_class(class_name)
+          end
+        end if dir.nil?
+        dir = parent.director_for_class(class_name) if dir.nil? && parent && !pkg_stack.include?(parent)
         dir
       end
 
