@@ -43,6 +43,55 @@ module WXRuby3
         spec.add_swig_code '%markfunc wxDropSource "mark_wxDropSource";',
                            '%markfunc wxDropTarget "mark_wxDropTarget";'
         spec.extend_interface 'wxDropSource', 'virtual ~wxDropSource()' # correct interface omission
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxDropTarget', 'wxRubyDropTarget')
+        spec.make_concrete('wxDropTarget')
+        spec.no_proxy %w[wxDropTarget::OnData]  # prevent director overload; custom impl handles this
+        spec.add_header_code <<~__HEREDOC
+          class wxRubyDropTarget : public wxDropTarget
+          {
+          public:
+            wxRubyDropTarget(wxDataObject *dataObject = nullptr ) : wxDropTarget(dataObject) {} 
+
+            virtual wxDragResult OnData(wxCoord x, wxCoord y, wxDragResult dflt) override
+            {
+              static WxRuby_ID on_data_id("on_data");
+              wxDragResult c_result = wxDragError;
+              VALUE SWIGUNUSED result;
+              
+              VALUE rb_x = INT2NUM(static_cast< int >(x));
+              VALUE rb_y = INT2NUM(static_cast< int >(y));
+              VALUE rb_dflt = wxRuby_GetEnumValueObject("DragResult", static_cast<int>(dflt));
+              if (rb_dflt == Qnil)
+              {
+                std::cerr << "Unexpected argument error: invalid value for Wx::DragResult in wxDropTarget::OnData [" << dflt << "]" << std::endl;
+              }
+              else
+              {
+                VALUE self = SWIG_RubyInstanceFor(this);
+                bool ex = false;
+                result = wxRuby_Funcall(ex, self, rb_intern("on_data"), 3,rb_x, rb_y, rb_dflt);
+                if (ex)
+                {
+                  wxRuby_PrintException(result);
+                }
+                else
+                {
+                  int eval;
+                  if (!wxRuby_GetEnumValue("DragResult", result, eval))
+                  {
+                    std::cerr << "Type Error: invalid value for Wx::DragResult returned from Wx::DropTarget#on_data" << std::endl;
+                  }
+                  else
+                  {
+                    c_result = static_cast<wxDragResult>(eval);
+                  }
+                }
+              }
+              return (wxDragResult) c_result;
+            } 
+          };
+          __HEREDOC
         spec.ignore %w[wxFileDropTarget::OnDrop wxTextDropTarget::OnDrop]
         spec.no_proxy %w[wxFileDropTarget::OnDrop wxFileDropTarget::OnData]
         spec.no_proxy %w[wxTextDropTarget::OnDrop wxTextDropTarget::OnData]
