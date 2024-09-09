@@ -729,7 +729,8 @@ module WXRuby3
           end
 
           def wx_abi_version
-            @wx_abi_version || ''
+            # @wx_abi_version || ''
+            wx_version
           end
 
           def mingw?
