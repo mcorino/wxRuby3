@@ -58,7 +58,7 @@ pr_2_task:
         distro: debian
     - name: Cirrus CI / MacOSX Sonoma M1 Test
       macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma:latest
+        image: ghcr.io/cirruslabs/macos-runner:sonoma
       env:
         osname: darwin
         distro: macosx
@@ -148,7 +148,7 @@ verify_2_task:
         distro: debian
     - name: Cirrus CI / MacOSX Sonoma M1 Test
       macos_instance:
-        image: ghcr.io/cirruslabs/macos-sonoma:latest
+        image: ghcr.io/cirruslabs/macos-runner:sonoma
       env:
         osname: darwin
         distro: macosx
