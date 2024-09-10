@@ -728,11 +728,6 @@ module WXRuby3
             @wx_version || ''
           end
 
-          def wx_abi_version
-            # @wx_abi_version || ''
-            wx_version
-          end
-
           def mingw?
             @platform == :mingw
           end

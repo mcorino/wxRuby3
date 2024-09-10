@@ -69,7 +69,7 @@ module WXRuby3
           wxExit
         }
         spec.ignore 'wxApp::GetGUIInstance'
-        unless Config.instance.wx_abi_version >= '3.2.1' || Config.instance.wx_version < '3.2.1'
+        unless Config.instance.wx_version < '3.2.1'
           spec.ignore 'wxApp::GTKAllowDiagnosticsControl'
         end
         spec.add_extend_code 'wxApp', <<~__HEREDOC
