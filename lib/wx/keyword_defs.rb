@@ -530,7 +530,13 @@ Wx::define_keyword_ctors(Wx::SearchCtrl) do
 end
 
 Wx::define_keyword_ctors(Wx::AnimationCtrl) do
-  wx_ctor_params :id, :anim
+  wx_ctor_params :id, :anim => Wx::NULL_ANIMATION
+  wx_ctor_params :pos, :size, :style => Wx::AC_DEFAULT_STYLE
+  wx_ctor_params :name => Wx::ANIMATION_CTRL_NAME_STR
+end
+
+Wx::define_keyword_ctors(Wx::GenericAnimationCtrl) do
+  wx_ctor_params :id, :anim => Wx::NULL_ANIMATION
   wx_ctor_params :pos, :size, :style => Wx::AC_DEFAULT_STYLE
   wx_ctor_params :name => Wx::ANIMATION_CTRL_NAME_STR
 end
