@@ -100,17 +100,6 @@ module Wx
     # of a bitwise **or** expression is returned matching the mask.
     def to_s; end
 
-    # Create a new class and associated enum values.
-    # @param [String,Symbol] name name of new enum class
-    # @param [Hash] enum_values hash with enum value name and enum integer value pairs
-    # @return [Class] new enum class
-    def self.create(name, enum_values) end
-
-    # Returns enum class matching name or nil.
-    # @param [String,Symbol] name name of enum class
-    # @return [Class,nil] enum class
-    def self.[](name) end
-
   end
 
 end
