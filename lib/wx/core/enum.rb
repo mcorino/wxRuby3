@@ -8,6 +8,23 @@
 
 class Wx::Enum
 
+  class << self
+
+    def enumerators
+      self.constants(false).inject({}) do |tbl, cn|
+        cv = self.const_get(cn)
+        tbl[cv.to_i] = cn if self === cv
+        tbl
+      end
+    end
+
+    def [](enum_name)
+      return self.const_get(enum_name) if self.const_defined?(enum_name)
+      nil
+    end
+
+  end
+
   def |(other)
     if other.instance_of?(self.class)
       self.class.new(to_i | other.to_i)
@@ -52,10 +69,10 @@ class Wx::Enum
     return '' if to_i == 0
     enums = []
     mask = to_i
-    self.class.values.each_value do |enum|
-      if enum != 0 && mask.allbits?(enum)
-        enums << enum.to_s
-        mask &= ~enum
+    self.class.enumerators.each_pair do |eval, ename|
+      if eval != 0 && mask.allbits?(eval)
+        enums << ename
+        mask &= ~eval
         break if mask == 0
       end
     end
@@ -65,7 +82,7 @@ class Wx::Enum
   private :bitmask_to_s
 
   def to_s
-    self.class.values.has_key?(to_i) ? "#{self.class.name}::#{self.class.names_by_value[self]}" : bitmask_to_s
+    self.class.enumerators.has_key?(to_i) ? "#{self.class.name}::#{self.class.enumerators[to_i]}" : bitmask_to_s
   end
 
 end
