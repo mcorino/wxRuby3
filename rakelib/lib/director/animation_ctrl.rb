@@ -18,6 +18,9 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxGenericAnimationCtrl'
+        spec.include 'wx/animate.h'
+        spec.include 'wx/generic/animate.h'
         if Config.instance.wx_version >= '3.3.0'
           spec.items << 'wxAnimationBundle'
           spec.ignore 'wxAnimationBundle::GetAll', ignore_doc: false
@@ -38,6 +41,8 @@ module WXRuby3
             map_out code: ''
           end
         end
+        spec.ignore 'wxGenericAnimationCtrl::Play'
+        spec.extend_interface 'wxGenericAnimationCtrl', 'bool Play(bool looped=true)'
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class AnimationCtrl
