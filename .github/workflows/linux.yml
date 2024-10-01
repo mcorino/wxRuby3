@@ -328,6 +328,9 @@ jobs:
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
           fi
           TEST_CMD="wxruby test"
+          if [ ! -z "${{ matrix.wxr_test_exclude }}" ]; then
+            TEST_CMD="$TEST_CMD --exclude=${WXRUBY_TEST_EXCLUDE//;/ --exclude=}"
+          fi
         fi
         /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
         if [ -n "$rc" ]; then
