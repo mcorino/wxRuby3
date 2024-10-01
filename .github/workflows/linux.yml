@@ -279,15 +279,20 @@ jobs:
     - name: Install wxRuby3 gem
       if: matrix.wxr_type != 'develop'
       run: |
+        if [ "${{ matrix.ruby }}" == "system" ]; then
+          GEM_CMD_PFX="sudo "
+        else
+          GEM_CMD_PFX=""
+        fi
         if [ "${{ matrix.wxr_type }}" == "binpkg" ]; then
-          gem install $(echo pkg/*.gem) -- package=`pwd`/$(echo pkg/*.pkg)
+          $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- package=`pwd`/$(echo pkg/*.pkg)
         else
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup -- --wxwin=@system
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup -- --wxwin=@system
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --autoinstall
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --wxwin=$WXWIN_INSTALL
           fi
         fi
 
