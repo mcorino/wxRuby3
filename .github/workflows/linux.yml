@@ -60,31 +60,11 @@ jobs:
             use_xvfb: true
             wxw_type: system
             wxr_type: develop
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-10
-            CXX: g++-10
-            ruby: 'ruby'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '2.5'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: gem
           - os: ubuntu-22.04
             gtk_version: 3
-            CC: gcc-11
-            CXX: g++-11
-            ruby: '3.0'
+            CC: gcc
+            CXX: g++
+            ruby: 'system'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -130,6 +110,26 @@ jobs:
             use_xvfb: true
             wxw_type: embed
             wxr_type: binpkg
+          - os: ubuntu-24.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
+          - os: ubuntu-24.04
+            gtk_version: 3
+            CC: gcc
+            CXX: g++
+            ruby: 'system'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: gem
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
@@ -145,9 +145,19 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install Ruby
+      if: matrix.ruby != 'system'
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+
+    - name: Prepare package repos
+      run: |
+        sudo apt-get update
+
+    - name: Install Ruby packages
+      if: matrix.ruby == 'system'
+      run: |
+        sudo apt-get install -y ruby-bundler
 
     - name: Setup Ruby gems
       run: |
@@ -161,11 +171,6 @@ jobs:
         path: ${{ env.WXWIDGETS_ROOT }}
         ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
         submodules: 'recursive'
-
-    - name: Prepare package repos
-      if: matrix.wxw_type == 'embed'
-      run: |
-        sudo apt-get update
 
     - name: Set up build environment
       if: matrix.wxw_type != 'embed'
