@@ -40,7 +40,13 @@ module WXRuby3
           spec.map 'const std::vector<wxAnimation>&' => 'Array<Wx::Animation>', swig: false do
             map_out code: ''
           end
+          # adjust documentation for #set_animation argument
+          spec.map 'const wxAnimationBundle &animations', as: 'Wx::AnimationBundle,Wx::Animation', swig: false do
+            map_in code: ''
+          end
         end
+        # replace method signature by one that provides a default argument to correctly provide
+        # the two overloads the Ruby way
         spec.ignore 'wxGenericAnimationCtrl::Play'
         spec.extend_interface 'wxGenericAnimationCtrl', 'bool Play(bool looped=true)'
         spec.do_not_generate :variables, :enums, :defines, :functions

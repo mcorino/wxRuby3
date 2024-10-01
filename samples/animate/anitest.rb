@@ -81,16 +81,20 @@ module AniTest
 
       @animation_ctrl = Wx::AnimationCtrl.new(self, Wx::ID_ANY)
 
-      animations = Wx::AnimationBundle.new
+      if Wx::WXWIDGETS_VERSION >= '3.3.0'
+        animations = Wx::AnimationBundle.new
 
-      throbber = Wx::Animation.new(File.join(__dir__, 'throbber.gif'))
-      animations.add(throbber) if throbber.ok?
+        throbber = Wx::Animation.new(File.join(__dir__, 'throbber.gif'))
+        animations.add(throbber) if throbber.ok?
 
-      throbber2x = Wx::Animation.new(File.join(__dir__, 'throbber_2x.gif'))
-      animations.add(throbber2x) if throbber2x.ok?
+        throbber2x = Wx::Animation.new(File.join(__dir__, 'throbber_2x.gif'))
+        animations.add(throbber2x) if throbber2x.ok?
 
-      if animations.ok?
-        @animation_ctrl.set_animation(animations)
+        if animations.ok?
+          @animation_ctrl.set_animation(animations)
+          @animation_ctrl.play
+        end
+      elsif @animation_ctrl.load('throbber.gif')
         @animation_ctrl.play
       end
 
@@ -137,7 +141,7 @@ module AniTest
     end
 
     def on_set_null_animation(_event)
-      @animation_ctrl.set_animation(Wx::AnimationBundle.new(Wx::NULL_ANIMATION))
+      @animation_ctrl.set_animation(Wx::NULL_ANIMATION)
     end
 
     def on_set_inactive_bitmap(event)
@@ -195,7 +199,7 @@ module AniTest
                 return
               end
 
-              @animation_ctrl.set_animation(Wx::AnimationBundle.new(temp))
+              @animation_ctrl.set_animation(temp)
               @animation_ctrl.play
 
               get_sizer.layout

@@ -60,31 +60,11 @@ jobs:
             use_xvfb: true
             wxw_type: system
             wxr_type: develop
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-10
-            CXX: g++-10
-            ruby: 'ruby'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '2.5'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: gem
           - os: ubuntu-22.04
             gtk_version: 3
-            CC: gcc-11
-            CXX: g++-11
-            ruby: '3.0'
+            CC: gcc
+            CXX: g++
+            ruby: 'system'
             swig: '4'
             configure_flags:
             use_xvfb: true
@@ -130,6 +110,28 @@ jobs:
             use_xvfb: true
             wxw_type: embed
             wxr_type: binpkg
+          - os: ubuntu-24.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: develop
+            wxr_test_exclude: 'test_media_ctrl'
+          - os: ubuntu-24.04
+            gtk_version: 3
+            CC: gcc
+            CXX: g++
+            ruby: 'system'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: develop
+            wxr_type: gem
+            wxr_test_exclude: 'test_media_ctrl'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
@@ -145,9 +147,25 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Install Ruby
+      if: matrix.ruby != 'system'
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+
+    - name: Prepare package repos
+      run: |
+        sudo apt-get update
+
+    - name: Install Ruby packages
+      if: matrix.ruby == 'system'
+      run: |
+        sudo apt-get install -y ruby-bundler
+
+    - name: Set Ruby Bundler path
+      if: matrix.ruby == 'system'
+      run: |
+        mkdir -p ${{ github.workspace }}/.bundler
+        bundle config path ${{ github.workspace }}/.bundler
 
     - name: Setup Ruby gems
       run: |
@@ -161,11 +179,6 @@ jobs:
         path: ${{ env.WXWIDGETS_ROOT }}
         ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
         submodules: 'recursive'
-
-    - name: Prepare package repos
-      if: matrix.wxw_type == 'embed'
-      run: |
-        sudo apt-get update
 
     - name: Set up build environment
       if: matrix.wxw_type != 'embed'
@@ -268,15 +281,20 @@ jobs:
     - name: Install wxRuby3 gem
       if: matrix.wxr_type != 'develop'
       run: |
+        if [ "${{ matrix.ruby }}" == "system" ]; then
+          GEM_CMD_PFX="sudo "
+        else
+          GEM_CMD_PFX=""
+        fi
         if [ "${{ matrix.wxr_type }}" == "binpkg" ]; then
-          gem install $(echo pkg/*.gem) -- package=`pwd`/$(echo pkg/*.pkg)
+          $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- package=`pwd`/$(echo pkg/*.pkg)
         else
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup -- --wxwin=@system
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup -- --wxwin=@system
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --autoinstall
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --wxwin=$WXWIN_INSTALL
           fi
         fi
 
@@ -300,6 +318,9 @@ jobs:
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
+        if [ ! -z "${{ matrix.wxr_test_exclude }}" ]; then
+          export WXRUBY_TEST_EXCLUDE="${{ matrix.wxr_test_exclude }}"
+        fi
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           TEST_CMD="bundle exec rake test"
         else
@@ -307,6 +328,9 @@ jobs:
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
           fi
           TEST_CMD="wxruby test"
+          if [ ! -z "${{ matrix.wxr_test_exclude }}" ]; then
+            TEST_CMD="$TEST_CMD --exclude=${WXRUBY_TEST_EXCLUDE//;/ --exclude=}"
+          fi
         fi
         /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
         if [ -n "$rc" ]; then

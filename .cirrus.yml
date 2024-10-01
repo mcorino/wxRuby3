@@ -26,6 +26,14 @@ pr_1_task:
       env:
         osname: linux
         distro: opensuse
+    - name: Cirrus CI / ArchLinux AMD64 Test
+      container:
+        image: archlinux/archlinux:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: arch
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -71,7 +79,7 @@ pr_2_task:
     locale
     locale -a
 
-  latest_build_script:
+  latest_build_script: |
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
 
     ./tools/scripts/cirrus/build-wxruby3.sh --latest 2>&1 | tee -a build-wxruby3.log
@@ -152,6 +160,14 @@ verify_2_task:
       env:
         osname: darwin
         distro: macosx
+    - name: Cirrus CI / ArchLinux AMD64 Test
+      container:
+        image: archlinux/archlinux:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: arch
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -161,7 +177,7 @@ verify_2_task:
     locale
     locale -a
 
-  latest_build_script:
+  latest_build_script: |
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
 
     ./tools/scripts/cirrus/build-wxruby3.sh --latest 2>&1 | tee -a build-wxruby3.log

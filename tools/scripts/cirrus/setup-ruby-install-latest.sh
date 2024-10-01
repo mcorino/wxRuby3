@@ -3,6 +3,9 @@
 if [ "$distro" == "macosx" ]; then
   brew install ruby
 else
+  if [ "$distro" == "arch" ]; then
+    pacman -S --noconfirm core/bison
+  fi
   curl -s -L https://raw.github.com/postmodern/postmodern.github.io/main/postmodern.asc --output postmodern.asc
   gpg --import postmodern.asc
 
