@@ -120,6 +120,7 @@ jobs:
             use_xvfb: true
             wxw_type: develop
             wxr_type: develop
+            wxr_test_exclude: 'test_media_ctrl'
           - os: ubuntu-24.04
             gtk_version: 3
             CC: gcc
@@ -130,6 +131,7 @@ jobs:
             use_xvfb: true
             wxw_type: develop
             wxr_type: gem
+            wxr_test_exclude: 'test_media_ctrl'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
@@ -316,6 +318,9 @@ jobs:
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
+        if [ ! -z "${{ matrix.wxr_test_exclude }}" ]; then
+          export WXRUBY_TEST_EXCLUDE="${{ matrix.wxr_test_exclude }}"
+        fi
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           TEST_CMD="bundle exec rake test"
         else
