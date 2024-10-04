@@ -20,6 +20,7 @@ module WXRuby3
         spec.gc_as_marked 'wxFileDialogCustomizeHook' # not tracked but cached in Ruby
         spec.gc_as_untracked 'wxFileDialogCustomize'
         spec.make_abstract 'wxFileDialogCustomize'
+        spec.map_apply 'int n, const wxString* choices' => 'size_t n, const wxString *strings'
       end
     end # class FileDialogCustomizeHook
 
