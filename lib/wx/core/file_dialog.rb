@@ -28,6 +28,14 @@ module Wx
       super
     end
 
+    # provide default no-ops
+
+    def add_custom_controls(customizer) end
+
+    def update_custom_controls; end
+
+    def transfer_data_from_custom_controls; end
+
   end
 
 end

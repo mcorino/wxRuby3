@@ -28,6 +28,11 @@ module WXRuby3
         spec.no_proxy 'wxFileDialogCustomizeHook::AddCustomControls',
                       'wxFileDialogCustomizeHook::UpdateCustomControls',
                       'wxFileDialogCustomizeHook::TransferDataFromCustomControls'
+        # do not wrap these
+        spec.ignore 'wxFileDialogCustomizeHook::AddCustomControls',
+                    'wxFileDialogCustomizeHook::UpdateCustomControls',
+                    'wxFileDialogCustomizeHook::TransferDataFromCustomControls',
+                    ignore_doc: false
         spec.add_header_code <<~__HEREDOC
           class wxRubyFileDialogCustomizeHook : public wxFileDialogCustomizeHook
           {
