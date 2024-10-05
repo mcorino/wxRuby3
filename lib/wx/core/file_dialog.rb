@@ -20,4 +20,14 @@ module Wx
 
   end
 
+  class FileDialogCustomizeHook
+
+    # prevent construction of abstract base
+    def self.new(*)
+      raise NotImplementedError, 'Wx::FileDialogCustomizeHook is an abstract class.' if self == Wx::FileDialogCustomizeHook
+      super
+    end
+
+  end
+
 end
