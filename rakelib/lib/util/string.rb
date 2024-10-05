@@ -107,9 +107,10 @@ module WXRuby3
       end
 
       def rb_constant_expression(exp, const_xref)
-        exp.gsub(/(\w+(::\w+)*)(\s*\()?/) do |s|
+        exp.gsub(/(\w+(::\w+)*)(\s*\((\))?)?/) do |s|
           idstr = $1
-          is_call = !!$3
+          call_bracket = $3
+          is_empty_call = !!$4
           is_scoped = false
           ids = idstr.split('::')
           if ids.size > 1
@@ -120,18 +121,18 @@ module WXRuby3
             end
           end
           idstr = ids.shift
-          if is_call
+          if call_bracket
             # object ctor or static method call
             if is_scoped
               # static method
-              "#{scoped_name}.#{rb_method_name(idstr)}("
+              "#{scoped_name}.#{rb_method_name(idstr)}#{call_bracket}"
             else
               # ctor
               case idstr
               when 'wxString'
-                '('
+                is_empty_call ? "''" : call_bracket
               else
-                "#{idstr.start_with?('wx') ? 'Wx::' : ''}#{rb_wx_name(idstr)}.new("
+                "#{idstr.start_with?('wx') ? 'Wx::' : ''}#{rb_wx_name(idstr)}.new#{call_bracket}"
               end
             end
           else
