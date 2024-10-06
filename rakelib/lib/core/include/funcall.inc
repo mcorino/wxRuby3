@@ -16,24 +16,6 @@ VALUE rb_get_backtrace(VALUE);
 
 WXRB_EXPORT_FLAG void wxRuby_PrintException(VALUE err);
 
-namespace Swig
-{
-  class WXRB_EXPORT_FLAG DirectorRubyException : public DirectorException
-  {
-  public:
-    DirectorRubyException(VALUE error, VALUE rcvr, ID fn_id)
-      : DirectorException(Qnil)
-    {
-      VALUE msg = rb_sprintf("Caught exception in SWIG director method for %s#%s : ", rb_class2name(CLASS_OF(rcvr)), rb_id2name(fn_id));
-      rb_str_append(msg, rb_funcall(error, rb_intern("message"), 0));
-      this->swig_msg = StringValuePtr(msg);
-      swig_error = rb_exc_new_str(rb_eRuntimeError, msg);
-      VALUE bt = rb_funcall(error, rb_intern("backtrace"), 0);
-      rb_funcall(swig_error, rb_intern("set_backtrace"), 1, bt);
-    }
-  };
-}
-
 class WXRuby_RBFuncall
 {
 public:
