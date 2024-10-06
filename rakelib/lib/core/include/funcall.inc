@@ -14,6 +14,8 @@ typedef VALUE (*RUBY_INVOKE_FUNC) (VALUE);
 VALUE rb_exc_set_backtrace(VALUE, VALUE);
 VALUE rb_get_backtrace(VALUE);
 
+WXRB_EXPORT_FLAG void wxRuby_PrintException(VALUE err);
+
 namespace Swig
 {
   class WXRB_EXPORT_FLAG DirectorRubyException : public DirectorException
@@ -35,15 +37,15 @@ namespace Swig
 class WXRuby_RBFuncall
 {
 public:
-  WXRuby_RBFuncall (ID fnid, bool throw_on_ex=true)
+  WXRuby_RBFuncall (ID fnid, bool exit_on_ex=true)
    : fn_id_ (fnid),
-     throw_on_ex_ (throw_on_ex),
+     exit_on_ex_ (exit_on_ex),
      ex_caught_ (false)
   {
   }
-  WXRuby_RBFuncall (const char* fn, bool throw_on_ex=true)
+  WXRuby_RBFuncall (const char* fn, bool exit_on_ex=true)
   : fn_id_ (rb_intern (fn)),
-    throw_on_ex_ (throw_on_ex),
+    exit_on_ex_ (exit_on_ex),
     ex_caught_ (false)
   {
   }
@@ -89,11 +91,12 @@ protected:
                                &invoke_state);
     if (invoke_state)
     {
-      if (this->throw_on_ex_)
+      if (this->exit_on_ex_)
       {
         // handle exception
         VALUE rexc = this->get_exception ();
-        throw Swig::DirectorRubyException(rexc, fa.receiver_, this->fn_id_);
+        wxRuby_PrintException(rexc);
+        ::exit(255);
       }
       else
       {
@@ -158,7 +161,7 @@ protected:
 
 private:
   ID      fn_id_;
-  bool    throw_on_ex_;
+  bool    exit_on_ex_;
   bool    ex_caught_;
 };
 
