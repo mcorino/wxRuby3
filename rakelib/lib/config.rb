@@ -360,7 +360,7 @@ module WXRuby3
             test = File.join(Config.instance.test_dir, test)
             test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
           end
-          Rake.sh(Config.instance.exec_env, *make_ruby_cmd(test)) { |ok,status| errors += 1 unless ok }
+          Rake.sh(Config.instance.exec_env.merge({'RUBYLIB'=>rb_lib_path}), FileUtils::RUBY, test) { |ok,status| errors += 1 unless ok }
         end
       end
       fail "ERRORS: ##{errors} test scripts failed." if errors>0
