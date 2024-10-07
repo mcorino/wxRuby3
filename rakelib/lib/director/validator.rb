@@ -42,13 +42,8 @@ module WXRuby3
 
             wxObject* wxRubyValidator::Clone() const
             {
-              bool ex_caught = false;
               VALUE self = const_cast<wxRubyValidator*> (this)->get_self();
-              VALUE rc = wxRuby_Funcall(ex_caught, self, clone_id(), 0);
-              if (ex_caught)
-              {
-                throw Swig::DirectorRubyException(rc, self, clone_id());
-              }
+              VALUE rc = wxRuby_Funcall(self, clone_id(), 0);
               void *ptr;
               int res = SWIG_ConvertPtr(rc, &ptr, SWIGTYPE_p_wxValidator,  0);
               if (!SWIG_IsOK(res)) 
@@ -77,22 +72,12 @@ module WXRuby3
   
             VALUE wxRubyValidator::DoTransferFromWindow()
             {
-              bool ex_caught = false;
-              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_transfer_from_window_id(), 0);
-              if (ex_caught)
-              {
-                throw Swig::DirectorRubyException(rc, this->get_self(), do_transfer_from_window_id());
-              }
+              VALUE rc = wxRuby_Funcall(this->get_self(), do_transfer_from_window_id(), 0);
               return rc; 
             } 
             bool wxRubyValidator::DoTransferToWindow(VALUE data)
             {
-              bool ex_caught = false;
-              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_transfer_to_window_id(), 1, data);
-              if (ex_caught)
-              {
-                throw Swig::DirectorRubyException(rc, this->get_self(), do_transfer_to_window_id());
-              }
+              VALUE rc = wxRuby_Funcall(this->get_self(), do_transfer_to_window_id(), 1, data);
               return (rc == Qtrue); 
             } 
 
@@ -111,22 +96,12 @@ module WXRuby3
 
             bool wxRubyValidatorBinding::DoOnTransferFromWindow(VALUE data)
             {
-              bool ex_caught = false;
-              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_on_transfer_from_window_id(), 1, data);
-              if (ex_caught)
-              {
-                throw Swig::DirectorRubyException(rc, this->get_self(), do_on_transfer_from_window_id());
-              }
+              VALUE rc = wxRuby_Funcall(this->get_self(), do_on_transfer_from_window_id(), 1, data);
               return (rc == Qtrue); 
             } 
             VALUE wxRubyValidatorBinding::DoOnTransferToWindow()
             {
-              bool ex_caught = false;
-              VALUE rc = wxRuby_Funcall(ex_caught, this->get_self(), do_on_transfer_to_window_id(), 0);
-              if (ex_caught)
-              {
-                throw Swig::DirectorRubyException(rc, this->get_self(), do_on_transfer_to_window_id());
-              }
+              VALUE rc = wxRuby_Funcall(this->get_self(), do_on_transfer_to_window_id(), 0);
               return rc; 
             } 
 
@@ -134,12 +109,7 @@ module WXRuby3
             {
               if (!NIL_P(this->on_transfer_from_win_proc_))
               {
-                bool ex_caught = false;
-                VALUE rc = wxRuby_Funcall(ex_caught, this->on_transfer_from_win_proc_, call_id(), 1, data);
-                if (ex_caught)
-                {
-                  throw Swig::DirectorRubyException(rc, this->on_transfer_from_win_proc_, call_id());
-                }
+                wxRuby_Funcall(this->on_transfer_from_win_proc_, call_id(), 1, data);
               }
               return true; 
             } 
@@ -147,12 +117,7 @@ module WXRuby3
             {
               if (!NIL_P(this->on_transfer_to_win_proc_))
               {
-                bool ex_caught = false;
-                VALUE rc = wxRuby_Funcall(ex_caught, this->on_transfer_to_win_proc_, call_id(), 0);
-                if (ex_caught)
-                {
-                  throw Swig::DirectorRubyException(rc, this->on_transfer_to_win_proc_, call_id());
-                }
+                VALUE rc = wxRuby_Funcall(this->on_transfer_to_win_proc_, call_id(), 0);
                 return rc;
               }
               return Qnil; 

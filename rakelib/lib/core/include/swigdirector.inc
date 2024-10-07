@@ -188,22 +188,22 @@ namespace Swig
 
     DirectorTypeMismatchException(VALUE self, const char *method, VALUE error, const char *msg="");
 
-    static inline void raise(VALUE error, const char *msg)
-    {
-      throw DirectorTypeMismatchException(error, msg);
-    }
+    static void raise(VALUE error, const char *msg);
 
-    static inline void raise(const char *msg)
-    {
-      throw DirectorTypeMismatchException(msg);
-    }
+    static void raise(const char *msg);
 
-    static inline void raise(VALUE self, const char* method, VALUE error, const char *msg)
+    static void raise(VALUE self, const char* method, VALUE error, const char *msg);
+
+  private:
+    static void print(const DirectorTypeMismatchException& ex)
     {
-      throw DirectorTypeMismatchException(self, method, error, msg);
+      VALUE bt = rb_eval_string("caller");
+      bt = rb_funcall(bt, rb_intern("join"), 1, rb_str_new2("\n\tfrom "));
+      std::cerr << std::endl
+                << ' ' << ex.getMessage() << '(' << rb_class2name(ex.getType()) << ')' << std::endl
+                << "\tfrom " << StringValuePtr(bt) << std::endl << std::endl;
     }
   };
-
 
   DirectorTypeMismatchException::DirectorTypeMismatchException(VALUE self, const char *method, VALUE error, const char *msg)
     : DirectorException(Qnil)
@@ -215,6 +215,24 @@ namespace Swig
     this->swig_msg += "#";
     this->swig_msg += method;
     this->setup_error(rb_eTypeError);
+  }
+
+  void DirectorTypeMismatchException::raise(VALUE error, const char *msg)
+  {
+    print(DirectorTypeMismatchException(error, msg));
+    ::exit(254);
+  }
+
+  void DirectorTypeMismatchException::raise(const char *msg)
+  {
+    print(DirectorTypeMismatchException(msg));
+    ::exit(254);
+  }
+
+  void DirectorTypeMismatchException::raise(VALUE self, const char* method, VALUE error, const char *msg)
+  {
+    print(DirectorTypeMismatchException(self, method, error, msg));
+    ::exit(254);
   }
 
   /* Any Ruby exception that occurs during a director method call */

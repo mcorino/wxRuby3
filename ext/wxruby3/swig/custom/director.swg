@@ -147,20 +147,14 @@ namespace Swig {
 
     DirectorTypeMismatchException(VALUE self, const char *method, VALUE error, const char *msg="");
 
-    static inline void raise(VALUE error, const char *msg)
-    {
-      throw DirectorTypeMismatchException(error, msg);
-    }
+    static void raise(VALUE error, const char *msg);
 
-    static inline void raise(const char *msg)
-    {
-      throw DirectorTypeMismatchException(msg);
-    }
+    static void raise(const char *msg);
 
-    static inline void raise(VALUE self, const char* method, VALUE error, const char *msg)
-    {
-      throw DirectorTypeMismatchException(self, method, error, msg);
-    }
+    static void raise(VALUE self, const char* method, VALUE error, const char *msg);
+
+  private:
+    static void print(const DirectorTypeMismatchException& ex);
   };
 
   /* Any Ruby exception that occurs during a director method call */
@@ -193,14 +187,6 @@ namespace Swig {
     {
       throw DirectorPureVirtualException(msg);
     }
-  };
-
-  /* wxRuby customization */
-  class WXRUBY_EXPORT DirectorRubyException : public DirectorException
-  {
-  public:
-    DirectorRubyException(VALUE error, VALUE rcvr, ID fn_id);
-
   };
 
   /* Simple thread abstraction for pthreads on win32 */
