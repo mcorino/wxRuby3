@@ -16,7 +16,7 @@ module Wx
                              initial_selection: 0,
                              x:  Wx::DEFAULT_COORD,
                              y:  Wx::DEFAULT_COORD)
-    dialog = Wx::SingleChoiceDialog.new(parent, message, caption, choices, nil, Wx::CHOICEDLG_STYLE, [x, y])
+    dialog = Wx::SingleChoiceDialog.new(parent, message, caption, choices, Wx::CHOICEDLG_STYLE, [x, y])
 
     dialog.selection = initial_selection
     return dialog.show_modal == Wx::ID_OK ? dialog.get_string_selection : ''
@@ -30,7 +30,7 @@ module Wx
                                    initial_selection: 0,
                                    x:  Wx::DEFAULT_COORD,
                                    y:  Wx::DEFAULT_COORD)
-    dialog = Wx::SingleChoiceDialog.new(parent, message, caption, choices, nil, Wx::CHOICEDLG_STYLE, [x, y])
+    dialog = Wx::SingleChoiceDialog.new(parent, message, caption, choices, Wx::CHOICEDLG_STYLE, [x, y])
 
     dialog.selection = initial_selection
     return dialog.show_modal == Wx::ID_OK ? dialog.get_selection : -1
