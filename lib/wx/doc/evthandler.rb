@@ -142,6 +142,12 @@ module Wx
     # @yield [*args] optional arguments
     def call_after(meth = nil, *args, &block) end
 
+    # Process a {Wx::EVT_HOTKEY} event.
+    # @param [Integer] id hotkey id
+    # @param [String,Symbol,Method,Proc] meth (name of) method or handler proc
+    # @yieldparam [Wx::KeyEvent] event the event to handle
+    def evt_hotkey(id, meth = nil, &block) end
+
   end
 
 end
