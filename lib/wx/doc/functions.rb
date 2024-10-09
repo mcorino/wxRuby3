@@ -158,9 +158,41 @@ module Wx
   # @!group Dialog shortcuts
 
   # @return [Array<Integer>] Selected choices
-  def self.get_selected_choices(message, caption, choices,
-                                parent = nil, x = Wx::DEFAULT_COORD, y = Wx::DEFAULT_COORD,
-                                centre = true, width = Wx::CHOICE_WIDTH, height = Wx::CHOICE_HEIGHT) end
+
+  # Get the user selection as a string.
+  # @param [String] message
+  # @param [String] caption
+  # @param [Array<String>] choices choice strings
+  # @param [Wx::Window,nil] parent
+  # @param [Integer] initial_selection initial choice index
+  # @param [Wx::Point,Array(Integer,Integer)] pos
+  # @return [String] selected choice or '' if cancelled
+  def self.get_single_choice(message, caption, choices, parent = nil,
+                             initial_selection: 0,
+                             pos:  Wx::DEFAULT_POSITION) end
+
+  # Get the user selection as an index.
+  # @param [String] message
+  # @param [String] caption
+  # @param [Array<String>] choices choice strings
+  # @param [Wx::Window,nil] parent
+  # @param [Integer] initial_selection
+  # @param [Wx::Point,Array(Integer,Integer)] pos
+  # @return [Integer] selected choice index or -1 if cancelled
+  def self.get_single_choice_index(message, caption, choices, parent = nil,
+                                   initial_selection: 0,
+                                   pos:  Wx::DEFAULT_POSITION) end
+
+  # @param [String] message
+  # @param [String] caption
+  # @param [Array<String>] choices choice strings
+  # @param [Wx::Window,nil] parent
+  # @param [Array<Integer>] initial_selections array of initial choice indexes
+  # @param [Wx::Point,Array(Integer,Integer)] pos
+  # @return [Array<Integer>,nil] selected choice indexes (can be empty array if none selected) or nil if cancelled
+  def self.get_selected_choices(message, caption, choices, parent = nil,
+                                initial_selections: [],
+                                pos:  Wx::DEFAULT_POSITION) end
 
   # Pops up a file selector box.
   #
