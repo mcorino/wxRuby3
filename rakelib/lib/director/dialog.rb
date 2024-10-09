@@ -144,13 +144,6 @@ module WXRuby3
         when 'wxMultiChoiceDialog'
           # unnneeded and unwanted for Ruby
           spec.ignore 'wxMultiChoiceDialog::wxMultiChoiceDialog(wxWindow *,const wxString &,const wxString &,int,const wxString *,long,const wxPoint &)'
-          # Wx's MultiChoiceDialog offers the possibility of attaching client
-          # data to each choice. However this would need memory management, and a
-          # pure ruby implementation is trivial and likely to be more convenient
-          # on a per-case basis so just ignore this argument for Ruby.
-          spec.map 'char** clientData' do
-            map_in ignore: true, code: '$1 = (char **)NULL;'
-          end
           spec.do_not_generate(:functions, :enums, :defines)
         when 'wxDirDialog'
         when 'wxProgressDialog'
