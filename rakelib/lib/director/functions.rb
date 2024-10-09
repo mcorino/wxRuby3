@@ -208,18 +208,6 @@ module WXRuby3
           wxWindow * wxGetActiveWindow();
           
           // Dialog shortcuts
-          VOID_INT wxGetSelectedChoices(wxArrayInt& selections,
-                        const wxString& message,
-                        const wxString& caption,
-                        int n, const wxString *choices,
-                        wxWindow *parent = NULL,
-                        int x = wxDefaultCoord,
-                        int y = wxDefaultCoord,
-                        bool centre = true,
-                        int width = wxCHOICE_WIDTH,
-                        int height = wxCHOICE_HEIGHT);
-          
-          
           wxString wxFileSelector (const wxString &message,
                                    const wxString &default_path=wxEmptyString,
                                    const wxString &default_filename=wxEmptyString,
