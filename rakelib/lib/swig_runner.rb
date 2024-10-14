@@ -726,20 +726,23 @@ module WXRuby3
             elsif wrapper_re =~ line
               class_nm = $1
               mtd_nm = $2
+              if /(\w+)__SWIG_.+/ =~ mtd_nm # in case of method overloads
+                mtd_nm = $1
+              end
               at_wrapper = true
               if (mdef = member_map[class_nm].detect { |m| Extractor::MethodDef === m && (m.rb_name || m.name) == mtd_nm })
                 matched_wrapper = true
                 mtd_call_re = /(\s*)\S.*arg1\)?->#{mtd_nm}(\(.*\));/
-                line = [line, '  bool fpa_upcall = false;', '  Swig::Director *fpa_dir = 0;']
+                line = [line, '  bool SWIGUNUSED fpa_upcall = false;', '  Swig::Director* SWIGUNUSED fpa_dir = 0;']
               elsif (mdef = member_map[class_nm].detect { |m| Extractor::MemberVarDef === m && "#{m.rb_name || m.name}_get" == mtd_nm })
                 matched_wrapper = true
                 mtd_call_re = /(\s*)\S.*arg1\)?->#{mdef.name}\)?;/
-                line = [line, '  bool fpa_upcall = false;', '  Swig::Director *fpa_dir = 0;']
+                line = [line, '  bool SWIGUNUSED fpa_upcall = false;', '  Swig::Director* SWIGUNUSED fpa_dir = 0;']
               elsif (mdef = member_map[class_nm].detect { |m| Extractor::MemberVarDef === m && "#{m.rb_name || m.name}_set" == mtd_nm })
                 matched_wrapper = true
                 at_setter = true;
                 mtd_call_re = /(\s*)\S.*arg1\)?->#{mdef.name}(\s*=\s*.*);/
-                line = [line, '  bool fpa_upcall = false;', '  Swig::Director *fpa_dir = 0;']
+                line = [line, '  bool SWIGUNUSED fpa_upcall = false;', '  Swig::Director* SWIGUNUSED fpa_dir = 0;']
               end
             elsif /rb_define_method\(SwigClassWx(#{cls_re_txt}).klass\s*,\s*"(\w+)(=)?"\s*,\s*VALUEFUNC/ =~ line
               class_nm = $1
