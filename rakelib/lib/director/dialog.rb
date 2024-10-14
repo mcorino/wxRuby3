@@ -220,6 +220,9 @@ module WXRuby3
                                 'wxWizard::GetCurrentPage',
                                 'wxWizard::GetPageAreaSizer')
           spec.do_not_generate(:variables, :enums, :defines, :functions)
+        when 'wxCredentialEntryDialog'
+          spec.items << 'wxWebCredentials'
+          spec.do_not_generate(:functions, :enums, :defines)
         end
       end
 
