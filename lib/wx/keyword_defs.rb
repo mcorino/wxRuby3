@@ -267,6 +267,13 @@ Wx::define_keyword_ctors(Wx::PropertySheetDialog) do
   wx_ctor_params :name => Wx::DIALOG_NAME_STR
 end
 
+# Credentials entry dialog
+Wx::define_keyword_ctors(Wx::CredentialEntryDialog) do
+  wx_ctor_params :message => ''
+  wx_ctor_params :title => 'Enter credentials'
+  wx_ctor_params :cred => ->(cred) { cred || Wx::WebCredentials.new }
+end
+
 ### CONTROLS
 
 # Push button control, displaying text

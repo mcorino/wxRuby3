@@ -220,6 +220,21 @@ module WXRuby3
                                 'wxWizard::GetCurrentPage',
                                 'wxWizard::GetPageAreaSizer')
           spec.do_not_generate(:variables, :enums, :defines, :functions)
+        when 'wxCredentialEntryDialog'
+          spec.items << 'wxWebCredentials'
+          spec.do_not_generate(:functions, :enums, :defines)
+        when 'wxGenericAboutDialog'
+          # inheritance chain missing from wxw docs
+          spec.override_inheritance_chain(spec.module_name, %w[wxDialog wxTopLevelWindow wxNonOwnedWindow wxWindow wxEvtHandler wxObject])
+          spec.gc_as_dialog(spec.module_name)
+          # regard protected methods
+          spec.regard 'wxGenericAboutDialog::DoAddCustomControls',
+                      'wxGenericAboutDialog::AddControl',
+                      'wxGenericAboutDialog::AddText',
+                      'wxGenericAboutDialog::GetCustomControlParent'
+          if Config.instance.features_set?('USE_COLLPANE')
+            spec.regard 'wxGenericAboutDialog::AddCollapsiblePane'
+          end
         end
       end
 

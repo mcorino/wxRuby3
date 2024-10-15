@@ -27,9 +27,8 @@ module Wx
       out_args = []
       param_spec.each_with_index do | param, i |
         # has supplied list arg or the keyword arg?
-        if (arg = mixed_args[i]) || kwa.key?(param.name)
-          arg = kwa.delete(param.name) unless arg
-        end
+        arg = mixed_args[i]
+        arg = kwa.delete(param.name) if arg.nil? && kwa.key?(param.name)
         if Proc === param.default_or_proc
           arg = param.default_or_proc.call(arg) # provides default or converts arg
         elsif arg.nil?

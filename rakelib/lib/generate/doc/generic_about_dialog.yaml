@@ -1,0 +1,46 @@
+---
+:wxGenericAboutDialog:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+
+            ```ruby
+            class MyFrame < Wx::Frame
+            
+              # declare custom about dialog class                        
+              class MyAboutDlg < Wx::GenericAboutDialog
+            
+                def initialize(about_info, parent=nil)
+                  super()
+            
+                  create(about_info, parent)
+                end
+            
+                def do_add_custom_controls
+                  # add custom controls ...
+                end
+                protected :do_add_custom_controls
+            
+              end
+            
+              # fill in MyFrame class ...
+            
+              # handler for an About menu/button
+              def on_about(_evt)
+                aboutInfo = Wx::AboutDialogInfo.new
+                
+                aboutInfo.set_name('MyApp')
+                aboutInfo.set_version(MY_APP_VERSION_STRING)
+                aboutInfo.set_description('My wxWidgets-based application!')
+                aboutInfo.set_copyright('(C) 1992-2024')
+                aboutInfo.set_web_site('http://myapp.org')
+                aboutInfo.add_developer('My Self')
+                
+                MyFrame.MyAboutDlg(aboutInfo, self) do |dlgAbout|
+                  dlgAbout.show_modal
+                end
+              end
+            end
+            ```

@@ -168,6 +168,14 @@ module Wx
     # @return [true,false]
     def object?(klass=Object) end
 
+    # Copy constructs a Variant instance.
+    # @return [Wx::Variant]
+    def dup; end
+
+    # Calls #dup.
+    # @return [Wx::Variant]
+    def clone; end
+
   end
 
 end

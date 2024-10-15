@@ -45,6 +45,16 @@ module Wx
     def to_s
       "#<Wx::Colour: (#{red}, #{green}, #{blue} *#{alpha})>"
     end
+
+    # Copy ctor available.
+    def dup
+      self.class.new(self)
+    end
+
+    def clone
+      dup
+    end
+
   end
 
 end
