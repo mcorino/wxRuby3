@@ -223,6 +223,18 @@ module WXRuby3
         when 'wxCredentialEntryDialog'
           spec.items << 'wxWebCredentials'
           spec.do_not_generate(:functions, :enums, :defines)
+        when 'wxGenericAboutDialog'
+          # inheritance chain missing from wxw docs
+          spec.override_inheritance_chain(spec.module_name, %w[wxDialog wxTopLevelWindow wxNonOwnedWindow wxWindow wxEvtHandler wxObject])
+          spec.gc_as_dialog(spec.module_name)
+          # regard protected methods
+          spec.regard 'wxGenericAboutDialog::DoAddCustomControls',
+                      'wxGenericAboutDialog::AddControl',
+                      'wxGenericAboutDialog::AddText',
+                      'wxGenericAboutDialog::GetCustomControlParent'
+          if Config.instance.features_set?('USE_COLLPANE')
+            spec.regard 'wxGenericAboutDialog::AddCollapsiblePane'
+          end
         end
       end
 
