@@ -27,6 +27,7 @@ module Wx
     # The array is not altered.
     # @return [Wx::RealPoint]
     def to_real_point; end
+    alias :to_real :to_real_point
 
   end
 
