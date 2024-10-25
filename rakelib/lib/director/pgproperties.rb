@@ -162,7 +162,7 @@ module WXRuby3
           end
         else
           spec.ignore 'wxUIntProperty::wxUIntProperty(const wxString &, const wxString &, const wxULongLong &)',
-                      'wxIntProperty::wxUIntProperty(const wxString &, const wxString &, const wxLongLong &)'
+                      'wxIntProperty::wxIntProperty(const wxString &, const wxString &, const wxLongLong &)'
         end
         spec.new_object 'wxArrayStringProperty::CreateEditorDialog'
         spec.suppress_warning(473, 'wxArrayStringProperty::CreateEditorDialog')
