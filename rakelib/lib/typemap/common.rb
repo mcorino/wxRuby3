@@ -364,7 +364,7 @@ module WXRuby3
               }
           __CODE
           map_directorout code: <<~__CODE
-            if (TYPE($input) != T_ARRAY)
+            if (TYPE($input) == T_ARRAY)
             {
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
@@ -398,7 +398,7 @@ module WXRuby3
             }
             __CODE
           map_directorout code: <<~__CODE
-            if (TYPE($input) != T_ARRAY)
+            if (TYPE($input) == T_ARRAY)
             {
               for (int i = 0; i < RARRAY_LEN($input); i++)
               {
