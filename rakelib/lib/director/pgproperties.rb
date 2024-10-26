@@ -141,7 +141,7 @@ module WXRuby3
           spec.map_apply 'int * OUTPUT' => 'int* pIndex'
         end
         # for UIntProperty and IntProperty
-        if Config.instance.features_set?('USE_LONGLONG')
+        if Config.instance.features_set?('USE_LONGLONG') || Config.instance.wx_version >= '3.3.0'
           # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
           spec.map 'const wxLongLong&' => 'Integer' do
             map_in temp: 'wxLongLong tmp', code: <<~__CODE
@@ -162,7 +162,7 @@ module WXRuby3
           end
         else
           spec.ignore 'wxUIntProperty::wxUIntProperty(const wxString &, const wxString &, const wxULongLong &)',
-                      'wxIntProperty::wxUIntProperty(const wxString &, const wxString &, const wxLongLong &)'
+                      'wxIntProperty::wxIntProperty(const wxString &, const wxString &, const wxLongLong &)'
         end
         spec.new_object 'wxArrayStringProperty::CreateEditorDialog'
         spec.suppress_warning(473, 'wxArrayStringProperty::CreateEditorDialog')

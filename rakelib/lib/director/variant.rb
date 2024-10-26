@@ -142,7 +142,7 @@ module WXRuby3
                 {
                   return wxVariant(TYPE(rbval) == T_TRUE);
                 }
-          #ifdef wxUSE_LONGLONG
+          #if !defined(wxUSE_LONGLONG) || (wxUSE_LONGLONG == 1)
                 if ((sizeof(long) < 8) && (TYPE(rbval) == T_BIGNUM) && (rb_big_sign(rbval) == 0))
                 {
                   wxLongLong_t ll = rb_big2ll(rbval);
@@ -227,7 +227,7 @@ module WXRuby3
             $1 = rb_obj_is_kind_of($input, rb_const_get(mWxPG, var_ColourPropertyValue_id()));
           __CODE
         end
-        if Config.instance.features_set?('USE_LONGLONG')
+        if Config.instance.features_set?('USE_LONGLONG') || Config.instance.wx_version >= '3.3.0'
           # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
           spec.map 'wxLongLong' => 'Integer' do
             map_in code: <<~__CODE

@@ -59,9 +59,9 @@ extern "C" {
 #endif
 
 WXRB_EXPORT_FLAG VALUE
-SWIG_Ruby_AppendOutput(VALUE target, VALUE o)
+SWIG_wxRuby_AppendOutput(VALUE target, VALUE o, int is_void)
 {
-  if (NIL_P(target))
+  if (NIL_P(target) && is_void != 0)
   {
     target = o;
   }

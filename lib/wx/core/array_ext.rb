@@ -25,6 +25,7 @@ module Wx
       x, y = self
       Wx::RealPoint.new(x || Wx::DEFAULT_COORD, y || Wx::DEFAULT_COORD)
     end
+    alias :to_real :to_real_point
 
   end
 

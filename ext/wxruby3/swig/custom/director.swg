@@ -189,6 +189,9 @@ namespace Swig {
     }
   };
 
+// SWIG < 4.3.0
+#if SWIG_VERSION < 0x040300
+
   /* Simple thread abstraction for pthreads on win32 */
 #ifdef __THREAD__
 # define __PTHREAD__
@@ -219,8 +222,14 @@ namespace Swig {
     }
   };
 # define SWIG_GUARD(mutex) Guard _guard(mutex)
+# define SWIG_GUARD_DEFINITION(_cls, _mutex) pthread_mutex_t _cls::_mutex
+# define SWIG_GUARD_DECLARATION(_mutex) static pthread_mutex_t _mutex
 #else
 # define SWIG_GUARD(mutex)
+# define SWIG_GUARD_DEFINITION(_cls, _mutex)
+# define SWIG_GUARD_DECLARATION(_mutex)
+#endif
+
 #endif
 
   /* director base class */
@@ -258,9 +267,7 @@ namespace Swig {
   private:
     typedef std::map<void *, GCItem_var> swig_ownership_map;
     mutable swig_ownership_map swig_owner;
-#ifdef __PTHREAD__
-    static pthread_mutex_t swig_mutex_own;
-#endif
+    SWIG_GUARD_DECLARATION(swig_mutex_own);
 
   public:
     template <typename Type>
@@ -287,4 +294,5 @@ namespace Swig {
 
     swig_ruby_owntype swig_release_ownership(void *vptr) const;
   };
+  SWIG_GUARD_DEFINITION(Director, swig_mutex_own);
 }

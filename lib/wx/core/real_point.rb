@@ -111,6 +111,7 @@ class Wx::RealPoint
   def to_real_point
     self
   end
+  alias :to_real :to_real_point
 
   def dup
     Wx::RealPoint.new(self.x, self.y)

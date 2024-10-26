@@ -16,7 +16,98 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_object
+        spec.gc_as_object 'wxAuiManager'
+        if Config.instance.wx_version >= '3.3.0'
+          spec.items << 'wxAuiSerializer' << 'wxAuiDockInfo' << 'wxAuiDeserializer'
+          spec.gc_as_untracked 'wxAuiSerializer', 'wxAuiDockInfo'
+          spec.regard 'wxAuiDockInfo::rect',
+                      'wxAuiDockInfo::dock_direction',
+                      'wxAuiDockInfo::dock_layer',
+                      'wxAuiDockInfo::dock_row',
+                      'wxAuiDockInfo::size',
+                      'wxAuiDockInfo::min_size',
+                      'wxAuiDockInfo::resizable',
+                      'wxAuiDockInfo::toolbar',
+                      'wxAuiDockInfo::fixed',
+                      'wxAuiDockInfo::reserved1'
+          spec.make_readonly 'wxAuiDockInfo::rect',
+                             'wxAuiDockInfo::dock_direction',
+                             'wxAuiDockInfo::dock_layer',
+                             'wxAuiDockInfo::dock_row',
+                             'wxAuiDockInfo::size',
+                             'wxAuiDockInfo::min_size',
+                             'wxAuiDockInfo::resizable',
+                             'wxAuiDockInfo::toolbar',
+                             'wxAuiDockInfo::fixed',
+                             'wxAuiDockInfo::reserved1'
+          spec.add_extend_code 'wxAuiDockInfo', <<~__HEREDOC
+            VALUE each_pane()
+            {
+              wxAuiPaneInfoPtrArray panes = self->panes;
+              VALUE rc = Qnil;
+              for (wxAuiPaneInfo* pane : panes)
+              {
+                VALUE r_pane = SWIG_NewPointerObj(pane, SWIGTYPE_p_wxAuiPaneInfo, 0);
+                rc = rb_yield(r_pane);
+              }	
+              return rc;
+            }
+            __HEREDOC
+          spec.map 'std::vector<wxAuiPaneInfo>' => 'Array<Wx::AuiPaneInfo>' do
+            map_out code: <<~__CODE
+              $result = rb_ary_new();
+              std::vector<wxAuiPaneInfo>& panes = (std::vector<wxAuiPaneInfo>&)$1;
+              for (const wxAuiPaneInfo& pane : panes)
+              {
+                VALUE r_pane = SWIG_NewPointerObj(new wxAuiPaneInfo(pane), SWIGTYPE_p_wxAuiPaneInfo, SWIG_POINTER_OWN);
+                rb_ary_push($result, r_pane);
+              }
+              __CODE
+            map_directorout code: <<~__CODE
+              if (TYPE($input) == T_ARRAY)
+              {
+                for (int i = 0; i < RARRAY_LEN($input); i++)
+                {
+                  void *ptr;
+                  VALUE r_pane = rb_ary_entry($input, i);
+                  int res = SWIG_ConvertPtr(r_pane, &ptr, SWIGTYPE_p_wxAuiPaneInfo, 0);
+                  if (!SWIG_IsOK(res) || !ptr) {
+                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "load_panes", rb_eTypeError, "in return value. Expected Array of Wx::AuiPaneInfo"); 
+                  }
+                  wxAuiPaneInfo *pane = reinterpret_cast< wxAuiPaneInfo * >(ptr);
+                  $result.push_back(*pane);
+                }
+              }
+              __CODE
+          end
+          spec.map 'std::vector<wxAuiDockInfo>' => 'Array<Wx::AuiDockInfo>' do
+            map_out code: <<~__CODE
+              $result = rb_ary_new();
+              std::vector<wxAuiDockInfo>& docks = (std::vector<wxAuiDockInfo>&)$1;
+              for (const wxAuiDockInfo& dock : docks)
+              {
+                VALUE r_dock = SWIG_NewPointerObj(new wxAuiDockInfo(dock), SWIGTYPE_p_wxAuiDockInfo, SWIG_POINTER_OWN);
+                rb_ary_push($result, r_dock);
+              }
+              __CODE
+            map_directorout code: <<~__CODE
+              if (TYPE($input) == T_ARRAY)
+              {
+                for (int i = 0; i < RARRAY_LEN($input); i++)
+                {
+                  void *ptr;
+                  VALUE r_dock = rb_ary_entry($input, i);
+                  int res = SWIG_ConvertPtr(r_dock, &ptr, SWIGTYPE_p_wxAuiDockInfo, 0);
+                  if (!SWIG_IsOK(res) || !ptr) {
+                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "load_docks", rb_eTypeError, "in return value. Expected Array of Wx::AuiDockInfo"); 
+                  }
+                  wxAuiDockInfo *dock = reinterpret_cast< wxAuiDockInfo * >(ptr);
+                  $result.push_back(*dock);
+                }
+              }
+              __CODE
+          end
+        end
         # need a custom implementation to handle (event handler proc) cleanup
         spec.add_header_code <<~__HEREDOC
           #include "wx/aui/aui.h"
@@ -80,7 +171,7 @@ module WXRuby3
               rb_gc_mark( rb_art_prov );
             }
           }
-          __HEREDOC
+        __HEREDOC
         spec.add_swig_code '%markfunc wxAuiManager "GC_mark_wxAuiManager";'
         # provide pure Ruby implementation based on use custom alternative provided below
         spec.ignore('wxAuiManager::GetAllPanes')
@@ -110,11 +201,35 @@ module WXRuby3
             WXRubyAuiManager* aui_mng = dynamic_cast<WXRubyAuiManager*> (self);
             managedWnd->Bind(wxEVT_CLOSE_WINDOW, &WXRubyAuiManager::OnManagedWindowClose, aui_mng);
           }
-          __HEREDOC
+        __HEREDOC
         spec.suppress_warning(473, 'wxAuiManager::CreateFloatingFrame')
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with AuiPaneInfo
       end
+
+      def doc_generator
+        AuiManagerDocGenerator.new(self)
+      end
     end # class AuiManager
+
+    class AuiManagerDocGenerator < DocGenerator
+
+      def gen_class_doc_members(fdoc, clsdef, cls_members, alias_methods)
+        super
+        if Config.instance.wx_version >= '3.3.0' && clsdef.name == 'wxAuiDockInfo'
+          fdoc.doc.puts 'Yield each pane to the given block.'
+          fdoc.doc.puts 'If no block passed returns an Enumerator.'
+          fdoc.doc.puts '@yieldparam [Wx::AUI::AuiPaneInfo] pane the Aui pane info yielded'
+          fdoc.doc.puts '@return [::Object, ::Enumerator] result of last block execution or enumerator'
+          fdoc.puts 'def each_pane; end'
+          fdoc.puts
+          fdoc.doc.puts 'Returns an array of Wx::AuiPaneInfo for all panes managed by the frame manager.'
+          fdoc.doc.puts '@return [Array<Wx::AUI::AuiPaneInfo>] info for all managed panes'
+          fdoc.puts 'def get_panes; end'
+          fdoc.puts 'alias_method :panes, :get_panes'
+        end
+      end
+
+    end
 
   end # class Director
 

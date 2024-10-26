@@ -12,7 +12,9 @@ module Wx
     class AuiManager
 
       # Yield each pane to the given block.
+      # If no block passed returns an Enumerator.
       # @yieldparam [Wx::AUI::AuiPaneInfo] pane the Aui pane info yielded
+      # @return [::Object, ::Enumerator] result of last block execution or enumerator
       def each_pane; end
 
       # Returns an array of all panes managed by the frame manager.

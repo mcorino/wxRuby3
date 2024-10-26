@@ -209,6 +209,7 @@ module Wx
     # Returns self.
     # @return [self]
     def to_real_point; end
+    alias :to_real :to_real_point
 
     # Set this point to the given point's x,y values
     # @param [Wx::RealPoint] pt

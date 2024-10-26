@@ -39,9 +39,10 @@ module WXRuby3
         spec.extend_interface 'wxPropertyGridInterface',
                               'void SetPropertyValues(const wxVariant &list, const wxPGPropArgCls& defaultCategory = 0)'
         # optionals
-        spec.ignore_unless 'USE_LONGLONG',
-                           'wxPropertyGridInterface::GetPropertyValueAsLongLong',
-                           'wxPropertyGridInterface::GetPropertyValueAsULongLong'
+        unless Config.instance.features_set?('USE_LONGLONG') || Config.instance.wx_version >= '3.3.0'
+          spec.ignore_unless 'wxPropertyGridInterface::GetPropertyValueAsLongLong',
+                             'wxPropertyGridInterface::GetPropertyValueAsULongLong'
+        end
         spec.ignore_unless 'USE_DATETIME', 'wxPropertyGridInterface::GetPropertyValueAsDateTime'
         spec.ignore_unless 'USE_VALIDATORS', 'wxPropertyGridInterface::GetPropertyValidator'
         # fix incorrect XML documentation

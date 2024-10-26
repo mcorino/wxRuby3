@@ -230,8 +230,10 @@ module WXRuby3
           # regard protected methods
           spec.regard 'wxGenericAboutDialog::DoAddCustomControls',
                       'wxGenericAboutDialog::AddControl',
-                      'wxGenericAboutDialog::AddText',
-                      'wxGenericAboutDialog::GetCustomControlParent'
+                      'wxGenericAboutDialog::AddText'
+          if Config.instance.wx_version >= '3.3.0'
+            spec.regard 'wxGenericAboutDialog::GetCustomControlParent'
+          end
           if Config.instance.features_set?('USE_COLLPANE')
             spec.regard 'wxGenericAboutDialog::AddCollapsiblePane'
           end
