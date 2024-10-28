@@ -10,10 +10,23 @@ class Wx::Enum
 
   class << self
 
-    def enumerators
+    def set_non_distinct(lst)
+      raise TypeError, 'Expected Array of Symbols' unless lst.is_a?(Array) && lst.all? { |e| e.is_a?(Symbol) }
+      @non_distinct = lst
+    end
+    alias :non_distinct= :set_non_distinct
+
+    def non_distinct
+      @non_distinct || []
+    end
+
+    def enumerators(excludes = nil)
+      excludes ||= self.non_distinct
       self.constants(false).inject({}) do |tbl, cn|
-        cv = self.const_get(cn)
-        tbl[cv.to_i] = cn if self === cv
+        unless excludes&.include?(cn)
+          cv = self.const_get(cn)
+          tbl[cv.to_i] = cn if self === cv
+        end
         tbl
       end
     end

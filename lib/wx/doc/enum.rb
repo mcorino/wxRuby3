@@ -18,6 +18,32 @@ module Wx
   # type safety for arguments requiring the specific enum class.
   class Enum < Numeric
 
+    class << self
+
+      # Sets a class specific list of enumerator ids (symbols) that should be considered
+      # non-distinctive enum values (examples would be convenience constants combining
+      # multiple distinctive enumerators or enumerators denoting the first/lowest and/or last/highest
+      # distinctive enumerators).
+      # @param [Array<Symbol>] lst
+      def set_non_distinct(lst) end
+      alias :non_distinct= :set_non_distinct
+
+      # Returns the class specific list of enumerator ids (symbols) that should be considered
+      # non-distinctive enum values. Returns nil if not set.
+      # @see set_non_distinct
+      # @return [Array<Symbol>,nil]
+      def non_distinct; end
+
+      # Returns a hash table with enumerator value : enumerator id (symbol) pairs for the enum class.
+      # @param [Array<Symbol>, nil] excludes list of enumerator ids (symbols) to exclude (by default the non_distinct list is used if defined)
+      # @return [Hash(Integer, Symbol)]
+      def enumerators(excludes = nil) end
+
+      # Returns the enumerator for the given enumerator symbol or nil if no such enumerator exists.
+      # @return [Wx::Enum, nil]
+      def [](enum_name) end
+    end
+
     # Initialize a new enum value.
     # @param [Integer] val enum integer value
     def initialize(val)end
