@@ -9,14 +9,34 @@
 # Just a shortcut version for creating a horizontal box sizer
 
 class Wx::HBoxSizer < Wx::BoxSizer
-  def initialize
-    super(Wx::HORIZONTAL)
+  def initialize(&block)
+    super(Wx::HORIZONTAL, &nil)
+    if block
+      if block.arity == -1 or block.arity == 0
+        self.instance_eval(&block)
+      elsif block.arity == 1
+        block.call(self)
+      else
+        Kernel.raise ArgumentError,
+                     "Block to initialize should accept a single argument or none"
+      end
+    end
   end
 end
 
 # Just a shortcut version for creating a horizontal wrap sizer
 class Wx::HWrapSizer < Wx::WrapSizer
-  def initialize(flags=Wx::WRAPSIZER_DEFAULT_FLAGS)
-    super(Wx::HORIZONTAL)
+  def initialize(flags=Wx::WRAPSIZER_DEFAULT_FLAGS, &block)
+    super(Wx::HORIZONTAL, &nil)
+    if block
+      if block.arity == -1 or block.arity == 0
+        self.instance_eval(&block)
+      elsif block.arity == 1
+        block.call(self)
+      else
+        Kernel.raise ArgumentError,
+                     "Block to initialize should accept a single argument or none"
+      end
+    end
   end
 end
