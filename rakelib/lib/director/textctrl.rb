@@ -24,6 +24,13 @@ module WXRuby3
           spec.ignore 'wxTextCtrl::GTKGetTextBuffer',
                       'wxTextCtrl::GTKGetEditable'
         end
+        if Config.instance.wx_version >= '3.3.0' && Config.instance.wx_port == :wxmsw
+          spec.items << 'wxTextSearch' << 'wxTextSearchResult'
+          spec.regard 'wxTextSearchResult::m_start', 'wxTextSearchResult::m_end'
+          spec.make_readonly 'wxTextSearchResult::m_start', 'wxTextSearchResult::m_end'
+          spec.rename_for_ruby 'start' => 'wxTextSearchResult::m_start',
+                               'end' => 'wxTextSearchResult::m_end'
+        end
         if Config.instance.wx_port == :wxqt
           # not implemented
           spec.ignore 'wxTextCtrl::OnDropFiles'
