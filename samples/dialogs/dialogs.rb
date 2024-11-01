@@ -167,7 +167,7 @@ module Dialogs
       end
 
       create(parent, -1, "Preferences")
-      create_buttons(Wx::ID_OK|Wx::ID_CANCEL)
+      create_buttons(Wx::OK|Wx::CANCEL)
       book_ctrl.set_images(imgs)
       book_ctrl.add_page(file_panel(book_ctrl), "File", false, img_id1)
       book_ctrl.add_page(cdrom_panel(book_ctrl), "CD ROM", false, img_id2)
