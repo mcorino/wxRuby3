@@ -1,5 +1,13 @@
+# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+#
+# This software is released under the MIT license.
+#
+# Some parts are
+# Copyright 2004-2007, wxRuby development team
+# released under the MIT-like wxRuby2 license
 
 require_relative './font/encoding'
+require_relative './enum'
 
 module Wx
 
@@ -26,5 +34,11 @@ module Wx
   # make this simply an alias for the Font class so the #find_or_create_font methods
   # can be accessed through that name too.
   TheFontList = Font
+
+  class FontFlag < Wx::Enum
+
+    set_non_distinct(%x[FONTFLAG_MASK])
+
+  end
 
 end

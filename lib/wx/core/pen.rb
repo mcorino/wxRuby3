@@ -6,8 +6,28 @@
 # Copyright 2004-2007, wxRuby development team
 # released under the MIT-like wxRuby2 license
 
+require_relative './enum'
+
 module Wx
 
   ThePenList = Wx::Pen
+
+  class PenStyle < Wx::Enum
+
+    set_non_distinct(%x[PENSTYLE_INVALID PENSTYLE_FIRST_HATCH PENSTYLE_LAST_HATCH])
+
+  end
+
+  class PenJoin < Wx::Enum
+
+    set_non_distinct(%x[JOIN_INVALID])
+
+  end
+
+  class PenCap < Wx::Enum
+
+    set_non_distinct(%x[CAP_INVALID])
+
+  end
 
 end
