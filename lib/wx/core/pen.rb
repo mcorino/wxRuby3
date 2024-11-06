@@ -14,19 +14,19 @@ module Wx
 
   class PenStyle < Wx::Enum
 
-    set_non_distinct(%x[PENSTYLE_INVALID PENSTYLE_FIRST_HATCH PENSTYLE_LAST_HATCH])
+    set_non_distinct(%i[PENSTYLE_INVALID PENSTYLE_FIRST_HATCH PENSTYLE_LAST_HATCH])
 
   end
 
   class PenJoin < Wx::Enum
 
-    set_non_distinct(%x[JOIN_INVALID])
+    set_non_distinct(%i[JOIN_INVALID])
 
   end
 
   class PenCap < Wx::Enum
 
-    set_non_distinct(%x[CAP_INVALID])
+    set_non_distinct(%i[CAP_INVALID])
 
   end
 

@@ -14,7 +14,7 @@ module Wx
 
   class BrushStyle < Wx::Enum
 
-    set_non_distinct(%x[BRUSHSTYLE_INVALID BRUSHSTYLE_FIRST_HATCH BRUSHSTYLE_LAST_HATCH])
+    set_non_distinct(%i[BRUSHSTYLE_INVALID BRUSHSTYLE_FIRST_HATCH BRUSHSTYLE_LAST_HATCH])
 
   end
 

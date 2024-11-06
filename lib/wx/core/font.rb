@@ -37,7 +37,7 @@ module Wx
 
   class FontFlag < Wx::Enum
 
-    set_non_distinct(%x[FONTFLAG_MASK])
+    set_non_distinct(%i[FONTFLAG_MASK])
 
   end
 
