@@ -23,7 +23,7 @@ module Wx
       # Sets a class specific list of enumerator ids (symbols) that should be considered
       # non-distinctive enum values (examples would be convenience constants combining
       # multiple distinctive enumerators or enumerators denoting the first/lowest and/or last/highest
-      # distinctive enumerators).
+      # distinctive enumerators). Mostly useful for bitmask enum classes.
       # @param [Array<Symbol>] lst
       def set_non_distinct(lst) end
       alias :non_distinct= :set_non_distinct
