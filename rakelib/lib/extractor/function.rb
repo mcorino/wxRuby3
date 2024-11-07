@@ -49,6 +49,9 @@ module WXRuby3
           @template_params << txt
         end
         @args_string = element.at_xpath('argsstring').text
+        # transform unified initializers to ctor form (SWIG does not like unified initializers)
+        # (also see ParamDef#extract)
+        @args_string.gsub!(/(\w+(::\w+)*)\s*{([^}]*)}/) { |_| "#{$1}(#{$3})"}
         check_deprecated
         element.xpath('param').each do |node|
           p = ParamDef.new(node)
@@ -370,6 +373,8 @@ module WXRuby3
             end
             if element.at_xpath('defval')
               @default = BaseDef.flatten_node(element.at_xpath('defval'))
+              # transform unified initializers to ctor form (SWIG does not like unified initializers)
+              @default.sub!(/(\w+(::\w+)*)\s*{([^}]*)}/) { |_| "#{$1}(#{$3})"}
             end
           end
         rescue Exception
