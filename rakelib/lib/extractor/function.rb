@@ -370,6 +370,8 @@ module WXRuby3
             end
             if element.at_xpath('defval')
               @default = BaseDef.flatten_node(element.at_xpath('defval'))
+              # transform unified initializers to ctor form (SWIG does not like unified initializers)
+              @default.sub!(/(\w+(::\w+)*)\s*{([^}]*)}/) { |_| "(#{$3})"}
             end
           end
         rescue Exception
