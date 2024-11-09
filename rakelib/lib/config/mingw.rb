@@ -98,7 +98,7 @@ module WXRuby3
           private
 
           def wx_configure
-            bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --with-expat=builtin --with-zlib=builtin --disable-debug_info')
+            bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info')
           end
 
           def wx_make
