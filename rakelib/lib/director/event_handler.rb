@@ -273,8 +273,8 @@ module WXRuby3
                 else
                 {
                   // should never happen
-                  VALUE msg = rb_str_new2("UNEXPECTED ERROR: Asynchronous Proc Event has invalid call spec!"); 
-                  wxRuby_PrintException(rb_class_new_instance(1, &msg, rb_eRuntimeError));
+                  VALUE ex = rb_eval_string("x = RuntimeError.new('UNEXPECTED ERROR: Asynchronous Proc Event has invalid call spec!'); x.set_backtrace(caller); x"); 
+                  wxRuby_PrintException(ex);
                   exit(1);
                 }
                 if (ex_caught)
