@@ -245,7 +245,10 @@ module WXRuby3
   
               virtual wxEvent *Clone() const wxOVERRIDE
               {
-                return new RbAsyncProcCallEvent(*this);
+                RbAsyncProcCallEvent* evt_clone = new RbAsyncProcCallEvent(*this);
+                // make sure to track the clone and the call object too
+                wxRuby_AddTracking( (void*)evt_clone, evt_clone->m_rb_call);
+                return evt_clone;
               }
           
               virtual void Execute() wxOVERRIDE
@@ -257,12 +260,22 @@ module WXRuby3
                 if (TYPE(m_rb_call) == T_ARRAY)
                 {
                   VALUE proc = rb_ary_entry(m_rb_call, 0);
-                  VALUE args = rb_ary_subseq(m_rb_call, 1, RARRAY_LEN(m_rb_call)-1);
-                  rc = wxRuby_Funcall(ex_caught, proc, call_id(), args);
+                  if (RARRAY_LEN(m_rb_call) > 1)
+                  {
+                    VALUE args = rb_ary_subseq(m_rb_call, 1, RARRAY_LEN(m_rb_call)-1);
+                    rc = wxRuby_Funcall(ex_caught, proc, call_id(), args);
+                  }
+                  else
+                  {
+                    rc = wxRuby_Funcall(ex_caught, proc, call_id(), (int)0);
+                  } 
                 }
                 else
                 {
-                  rc = wxRuby_Funcall(ex_caught, m_rb_call, call_id(), (int)0);
+                  // should never happen
+                  VALUE msg = rb_str_new2("UNEXPECTED ERROR: Asynchronous Proc Event has invalid call spec!"); 
+                  wxRuby_PrintException(rb_class_new_instance(1, &msg, rb_eRuntimeError));
+                  exit(1);
                 }
                 if (ex_caught)
                 {
@@ -333,9 +346,9 @@ module WXRuby3
             void call_after(VALUE call)
             {
               // valid call object?
-              VALUE proc;
-              if (TYPE(call) == T_ARRAY && 
-                    (rb_obj_is_kind_of(proc = rb_ary_entry(call, 0), rb_cProc)
+              VALUE proc = TYPE(call) == T_ARRAY ? rb_ary_entry(call, 0) : Qnil;
+              if (!NIL_P(proc) && 
+                    (rb_obj_is_kind_of(proc, rb_cProc)
                      ||
                      rb_obj_is_kind_of(proc, rb_cMethod)))
               {
