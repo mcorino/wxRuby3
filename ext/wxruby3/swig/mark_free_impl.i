@@ -219,7 +219,7 @@ WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
       std::wcout << "* GC_mark_wxWindow - found sizer" << std::endl;
 #endif
     VALUE rb_sizer = SWIG_RubyInstanceFor(wx_sizer);
-	if ( rb_sizer != Qnil )
+	  if ( rb_sizer != Qnil )
       GC_mark_SizerBelongingToWindow(wx_sizer, rb_sizer);
   }
 
@@ -235,22 +235,28 @@ WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
       std::wcout << "* GC_mark_wxWindow - found caret" << std::endl;
 #endif
     VALUE rb_caret = SWIG_RubyInstanceFor(wx_caret);
-	rb_gc_mark(rb_caret);
+	  rb_gc_mark(rb_caret);
   }
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>2)
-    std::wcout << "* GC_mark_wxWindow - getting droptarget" << std::endl;
-#endif
-  wxDropTarget* wx_droptarget = wx_win->GetDropTarget();
-  if ( wx_droptarget )
+  static WXWidget WXWidget_NULL {};
+
+  // be careful; getting drop target may require fully created window (default ctors do  not call Create())
+  if (wx_win->GetHandle() != WXWidget_NULL)
   {
 #ifdef __WXRB_DEBUG__
     if (wxRuby_TraceLevel()>2)
-      std::wcout << "* GC_mark_wxWindow - found droptarget" << std::endl;
+      std::wcout << "* GC_mark_wxWindow - getting droptarget" << std::endl;
 #endif
-    VALUE rb_droptarget = SWIG_RubyInstanceFor(wx_droptarget);
-	rb_gc_mark(rb_droptarget);
+    wxDropTarget* wx_droptarget = wx_win->GetDropTarget();
+    if ( wx_droptarget )
+    {
+#ifdef __WXRB_DEBUG__
+      if (wxRuby_TraceLevel()>2)
+        std::wcout << "* GC_mark_wxWindow - found droptarget" << std::endl;
+#endif
+      VALUE rb_droptarget = SWIG_RubyInstanceFor(wx_droptarget);
+      rb_gc_mark(rb_droptarget);
+    }
   }
 
 #ifdef __WXRB_DEBUG__
