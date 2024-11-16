@@ -225,6 +225,10 @@ module WXRuby3
             }
             __HEREDOC
           spec.add_header_code <<~__HEREDOC
+            static VALUE WxRuby_GetAsyncProcCallEvent_Class();
+            static void GC_mark_AsyncMethodCallEvent(void *ptr);
+            static void free_AsyncMethodCallEvent(void *ptr);
+
             class RbAsyncProcCallEvent : public wxAsyncMethodCallEvent
             {
             public:
@@ -245,10 +249,14 @@ module WXRuby3
   
               virtual wxEvent *Clone() const wxOVERRIDE
               {
-                RbAsyncProcCallEvent* evt_clone = new RbAsyncProcCallEvent(*this);
-                // make sure to track the clone and the call object too
-                wxRuby_AddTracking( (void*)evt_clone, evt_clone->m_rb_call);
-                return evt_clone;
+                RbAsyncProcCallEvent* wx_ev = new RbAsyncProcCallEvent(*this);
+                // Create a new Ruby event object (owned) 
+                VALUE rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
+                                                VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
+                                                VOIDFUNC(free_AsyncMethodCallEvent), 
+                                                wx_ev);
+                wxRuby_AddTracking( (void*)wx_ev, rb_evt);
+                return wx_ev;
               }
           
               virtual void Execute() wxOVERRIDE
@@ -289,9 +297,39 @@ module WXRuby3
                 }
               }
           
+              void GC_Mark()
+              {
+                rb_gc_mark(m_rb_call);
+              }
+
             private:
               VALUE m_rb_call;
             };
+
+            static void GC_mark_AsyncMethodCallEvent(void *ptr)
+            {
+              if (ptr)
+              {
+                RbAsyncProcCallEvent* evt = (RbAsyncProcCallEvent*)ptr;
+                evt->GC_Mark();
+              }
+            }
+
+            static void free_AsyncMethodCallEvent(void *ptr)
+            {
+              RbAsyncProcCallEvent *wx_evt = (RbAsyncProcCallEvent *)ptr;
+              delete wx_evt;
+            }
+
+            static VALUE WxRuby_GetAsyncProcCallEvent_Class()
+            {
+              static VALUE WxRuby_cAsyncProcCallEvent = Qnil;
+              if (WxRuby_cAsyncProcCallEvent == Qnil)
+              {
+                WxRuby_cAsyncProcCallEvent = rb_eval_string("Wx::AsyncProcCallEvent");
+              } 
+              return WxRuby_cAsyncProcCallEvent;
+            }
             __HEREDOC
           spec.add_extend_code 'wxEvtHandler', <<~__HEREDOC
             // This provides the public Ruby 'connect' method
@@ -354,9 +392,14 @@ module WXRuby3
               {
                 // create C++ event
                 RbAsyncProcCallEvent * evt = new RbAsyncProcCallEvent(self, call);
+                // Create a new Ruby event object (leave ownership to wxWidgets C++) 
+                VALUE rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
+                                                VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
+                                                0, 
+                                                evt);
                 // track it and the call object
-                wxRuby_AddTracking( (void*)evt, call);
-                // queue it
+                wxRuby_AddTracking( (void*)evt, rb_evt);
+                // queue it (wxWidgets takes ownership of C++ event object)
                 self->QueueEvent(evt);
               }
             }

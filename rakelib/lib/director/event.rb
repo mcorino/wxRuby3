@@ -43,21 +43,11 @@ module WXRuby3
             static VALUE Evt_Type_Map = NULL;
             static VALUE wxRuby_WrapClonedWxEvent(wxEvent* wx_evt)
             {
-              if (wx_evt->GetEventType() == wxEVT_ASYNC_METHOD_CALL)
-              {
-                // async method call events use the custom RbAsyncProcCallEvent class (see event_handler)
-                // which has no mapped Ruby class and also has no distinct dynamic wx class 
-                // it should never be accessible nor cloned in Ruby space;
-                // let's report it and simply delete the event and return nil here if this somehow happens
-                std::wcerr << std::endl << "WARNING: invalid clone operation executed on AsyncMethodCallEvent" << std::endl;   
-                delete wx_evt;
-                return Qnil;
-              }
-
               wxString class_name( wx_evt->GetClassInfo()->GetClassName() );
               if (class_name == "wxEvent" || class_name == "wxCommandEvent")
               {
                 // special clones for Ruby derived events are already managed and tracked
+                // (this also covers Wx::AsyncProcCallEvent)
                 return SWIG_RubyInstanceFor((void *)wx_evt);
               }
 
