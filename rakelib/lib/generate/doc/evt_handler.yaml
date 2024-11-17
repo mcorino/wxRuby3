@@ -6,11 +6,28 @@
         - :pattern: !ruby/regexp /.*/
           :replace: ''
     :post:
-      - :pattern: !ruby/regexp /This\s+implies\s+that\s+the\s+event\s+should\s+be\s+allocated\s+on\s+the\s+heap\s+and/
-        :subst: 'This implies'
-      - :pattern: !ruby/regexp /\{Wx::EvtHandler#queue_event\}.*For\s+example:/
+      - :pattern: !ruby/regexp /\,\s+i\.e\.\s+it\s+will\s+delete\s+it\s+itself/
         :subst: ''
-      - :pattern: !ruby/regexp /Note.*problem:/
+      - :pattern: !ruby/regexp /This\s+implies\s+that\s+the\s+event\s+should\s+be\s+allocated.*deleted\s+at\s+any\s+moment\)/
+        :subst: "This implies that the event (or any of it's member objects) should not be used/changed after the function returns (as it can be handled and subsequently discarded at any moment)"
+      - :pattern: !ruby/regexp /\{Wx::EvtHandler#queue_event\}.*not\s+used\s+by\s+the\s+calling\s+thread\s+any\s+more\./
+        :subst: ''
+      - :pattern: !ruby/regexp /Care\s+should\s+still\s+be\s+taken\s+to\s+avoid\s+that\s+some\s+fields.*/
+        :subst: ''
+      - :pattern: !ruby/regexp /Example:/
+        :subst: ''
+      - :pattern: !ruby/regexp /Note\s+that\s+if\s+you\s+want\s+to\s+pass\s+more\s+data.*/
+        :subst: ''
+      - :pattern: !ruby/regexp /Reimplemented\s+in.*/
+        :subst: ''
+:wxEvtHandler.AddPendingEvent:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /This\s+function\s+is\s+similar\s+to\s+\{Wx::EvtHandler#queue_event\}.*/
+        :subst: 'This function is similar to {Wx::EvtHandler#queue_event}.'
+      - :pattern: !ruby/regexp /A\s+copy\s+of\s+event\s+is\s+made\s+by\s+the\s+function,.*/
+        :subst: 'Other than {Wx::EvtHandler#queue_event} this method creates a (shallow) copy of event before queueing the copied event. In case (user defined) event classes require deep copying of Ruby member object these classes should override the #initialize_clone method (**NOT** #clone as wxRuby3 does not currently support overriding event class #clone methods).'
+      - :pattern: !ruby/regexp /Reimplemented\s+in.*/
         :subst: ''
 :wxEvtHandler.SetNextHandler:
   :detail:
