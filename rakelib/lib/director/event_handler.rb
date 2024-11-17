@@ -29,41 +29,22 @@ module WXRuby3
           # have TryBefore and TryAfter to handle this much cleaner
           spec.no_proxy 'wxEvtHandler::ProcessEvent'
           spec.regard('wxEvtHandler::ProcessEvent', regard_doc: false) # we provide customized docs
+          # Do not see much use for allowing overrides for these either as wxWidgets do not either
+          spec.no_proxy 'wxEvtHandler::QueueEvent',
+                        'wxEvtHandler::AddPendingEvent'
           # make SWIG aware of these
           spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter'
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
-          # We need to create a shallow copy of the Ruby event instance (copying it's Ruby members if any),
-          # pass linkage of the C++ event to the copy and remove it from the original (input) Ruby
-          # instance (so it can not delete/or reference it anymore); also start tracking the copy
-          # (which effectively removes the tracking for the original).
+          # We need to disown Ruby with respect to the C++ event object but remain tracking the pair to keep
+          # the Ruby event object alive.
           # Queued (pending) events are cleaned up (deleted) by wxWidgets after (failing) handling
           # which will automatically unlink and un-track them releasing the Ruby instance to be GC-ed.
           spec.map 'wxEvent *event' => 'Wx::Event' do
             map_in code: <<~__CODE
               // get the wrapped wxEvent*
               wxEvent *wx_ev = (wxEvent*)DATA_PTR($input);
-              // check if this a user defined event
-              if ( wx_ev->GetEventType() > wxEVT_USER_FIRST )
-              {
-                // we need to preserve the Ruby state
-                // create a shallow copy of the Ruby object
-                VALUE r_evt_copy = rb_obj_clone($input);
-                // pass the wxEvent* over to the copy
-                DATA_PTR(r_evt_copy) = wx_ev;
-                // unlink the input
-                DATA_PTR($input) = 0;
-                // track the copy (this overwrites the record for the 
-                // original, effectively untracking it)
-                wxRuby_AddTracking( (void*)wx_ev, r_evt_copy);
-              }
-              else
-              {
-                // std wx event; no need to preserve the Ruby state
-                // simply untrack and unlink the input
-                wxRuby_RemoveTracking( (void*)wx_ev);
-                DATA_PTR($input) = 0;
-                // and just pass on the C++ event                
-              }
+              // disown Ruby; wxWidgets C++ now controls lifecycle wxEvent*
+              RDATA(argv[0])->dfree = 0; // disown
               // Queue the C++ event
               $1 = wx_ev;
               __CODE
@@ -400,7 +381,7 @@ module WXRuby3
                 // track it and the call object
                 wxRuby_AddTracking( (void*)evt, rb_evt);
                 // queue it (wxWidgets takes ownership of C++ event object)
-                self->QueueEvent(evt);
+                self->wxEvtHandler::QueueEvent(evt);
               }
             }
             __HEREDOC
@@ -427,6 +408,8 @@ module WXRuby3
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item && spec.is_derived_from?(def_item, 'wxEvtHandler')
               spec.no_proxy "#{spec.class_name(citem)}::ProcessEvent"
+              spec.no_proxy "#{spec.class_name(citem)}::QueueEvent"
+              spec.no_proxy "#{spec.class_name(citem)}::AddPendingEvent"
               is_evt_handler = true
             end
           end
