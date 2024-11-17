@@ -54,14 +54,16 @@ class EventHandlingTests < Test::Unit::TestCase
       @child = Child.new(self)
       @test_event = false
       @test_cmd_event = false
+      @focus_event = false
       @called_after = false
 
       evt_test_event { |evt| @test_event = true }
       evt_test_cmd_event { |evt| @test_cmd_event = true }
+      evt_set_focus { |evt| @focus_event = true }
     end
 
     attr_reader :child
-    attr_reader :test_event, :test_cmd_event
+    attr_reader :test_event, :test_cmd_event, :focus_event
     attr_accessor :called_after
 
     def reset
@@ -112,6 +114,16 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
   end
 
+  def test_queue_focus_event
+    win = TestFrame.new
+    assert_false(win.focus_event)
+    win.event_handler.queue_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
+    Wx.get_app.yield
+    assert_true(win.focus_event)
+    win.destroy
+    Wx.get_app.yield
+  end
+
   def test_queue_event
     win = TestFrame.new
     assert_false(win.test_cmd_event)
@@ -132,6 +144,16 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
+    win.destroy
+    Wx.get_app.yield
+  end
+
+  def test_pending_focus_event
+    win = TestFrame.new
+    assert_false(win.focus_event)
+    win.event_handler.add_pending_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
+    Wx.get_app.yield
+    assert_true(win.focus_event)
     win.destroy
     Wx.get_app.yield
   end
