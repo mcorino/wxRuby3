@@ -29,41 +29,22 @@ module WXRuby3
           # have TryBefore and TryAfter to handle this much cleaner
           spec.no_proxy 'wxEvtHandler::ProcessEvent'
           spec.regard('wxEvtHandler::ProcessEvent', regard_doc: false) # we provide customized docs
+          # Do not see much use for allowing overrides for these either as wxWidgets do not either
+          spec.no_proxy 'wxEvtHandler::QueueEvent',
+                        'wxEvtHandler::AddPendingEvent'
           # make SWIG aware of these
           spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter'
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
-          # We need to create a shallow copy of the Ruby event instance (copying it's Ruby members if any),
-          # pass linkage of the C++ event to the copy and remove it from the original (input) Ruby
-          # instance (so it can not delete/or reference it anymore); also start tracking the copy
-          # (which effectively removes the tracking for the original).
+          # We need to disown Ruby with respect to the C++ event object but remain tracking the pair to keep
+          # the Ruby event object alive.
           # Queued (pending) events are cleaned up (deleted) by wxWidgets after (failing) handling
           # which will automatically unlink and un-track them releasing the Ruby instance to be GC-ed.
           spec.map 'wxEvent *event' => 'Wx::Event' do
             map_in code: <<~__CODE
               // get the wrapped wxEvent*
               wxEvent *wx_ev = (wxEvent*)DATA_PTR($input);
-              // check if this a user defined event
-              if ( wx_ev->GetEventType() > wxEVT_USER_FIRST )
-              {
-                // we need to preserve the Ruby state
-                // create a shallow copy of the Ruby object
-                VALUE r_evt_copy = rb_obj_clone($input);
-                // pass the wxEvent* over to the copy
-                DATA_PTR(r_evt_copy) = wx_ev;
-                // unlink the input
-                DATA_PTR($input) = 0;
-                // track the copy (this overwrites the record for the 
-                // original, effectively untracking it)
-                wxRuby_AddTracking( (void*)wx_ev, r_evt_copy);
-              }
-              else
-              {
-                // std wx event; no need to preserve the Ruby state
-                // simply untrack and unlink the input
-                wxRuby_RemoveTracking( (void*)wx_ev);
-                DATA_PTR($input) = 0;
-                // and just pass on the C++ event                
-              }
+              // disown Ruby; wxWidgets C++ now controls lifecycle wxEvent*
+              RDATA(argv[0])->dfree = 0; // disown
               // Queue the C++ event
               $1 = wx_ev;
               __CODE
@@ -225,6 +206,10 @@ module WXRuby3
             }
             __HEREDOC
           spec.add_header_code <<~__HEREDOC
+            static VALUE WxRuby_GetAsyncProcCallEvent_Class();
+            static void GC_mark_AsyncMethodCallEvent(void *ptr);
+            static void free_AsyncMethodCallEvent(void *ptr);
+
             class RbAsyncProcCallEvent : public wxAsyncMethodCallEvent
             {
             public:
@@ -245,7 +230,14 @@ module WXRuby3
   
               virtual wxEvent *Clone() const wxOVERRIDE
               {
-                return new RbAsyncProcCallEvent(*this);
+                RbAsyncProcCallEvent* wx_ev = new RbAsyncProcCallEvent(*this);
+                // Create a new Ruby event object (owned) 
+                VALUE rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
+                                                VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
+                                                VOIDFUNC(free_AsyncMethodCallEvent), 
+                                                wx_ev);
+                wxRuby_AddTracking( (void*)wx_ev, rb_evt);
+                return wx_ev;
               }
           
               virtual void Execute() wxOVERRIDE
@@ -257,12 +249,22 @@ module WXRuby3
                 if (TYPE(m_rb_call) == T_ARRAY)
                 {
                   VALUE proc = rb_ary_entry(m_rb_call, 0);
-                  VALUE args = rb_ary_subseq(m_rb_call, 1, RARRAY_LEN(m_rb_call)-1);
-                  rc = wxRuby_Funcall(ex_caught, proc, call_id(), args);
+                  if (RARRAY_LEN(m_rb_call) > 1)
+                  {
+                    VALUE args = rb_ary_subseq(m_rb_call, 1, RARRAY_LEN(m_rb_call)-1);
+                    rc = wxRuby_Funcall(ex_caught, proc, call_id(), args);
+                  }
+                  else
+                  {
+                    rc = wxRuby_Funcall(ex_caught, proc, call_id(), (int)0);
+                  } 
                 }
                 else
                 {
-                  rc = wxRuby_Funcall(ex_caught, m_rb_call, call_id(), (int)0);
+                  // should never happen
+                  VALUE ex = rb_eval_string("x = RuntimeError.new('UNEXPECTED ERROR: Asynchronous Proc Event has invalid call spec!'); x.set_backtrace(caller); x"); 
+                  wxRuby_PrintException(ex);
+                  exit(1);
                 }
                 if (ex_caught)
                 {
@@ -276,9 +278,39 @@ module WXRuby3
                 }
               }
           
+              void GC_Mark()
+              {
+                rb_gc_mark(m_rb_call);
+              }
+
             private:
               VALUE m_rb_call;
             };
+
+            static void GC_mark_AsyncMethodCallEvent(void *ptr)
+            {
+              if (ptr)
+              {
+                RbAsyncProcCallEvent* evt = (RbAsyncProcCallEvent*)ptr;
+                evt->GC_Mark();
+              }
+            }
+
+            static void free_AsyncMethodCallEvent(void *ptr)
+            {
+              RbAsyncProcCallEvent *wx_evt = (RbAsyncProcCallEvent *)ptr;
+              delete wx_evt;
+            }
+
+            static VALUE WxRuby_GetAsyncProcCallEvent_Class()
+            {
+              static VALUE WxRuby_cAsyncProcCallEvent = Qnil;
+              if (WxRuby_cAsyncProcCallEvent == Qnil)
+              {
+                WxRuby_cAsyncProcCallEvent = rb_eval_string("Wx::AsyncProcCallEvent");
+              } 
+              return WxRuby_cAsyncProcCallEvent;
+            }
             __HEREDOC
           spec.add_extend_code 'wxEvtHandler', <<~__HEREDOC
             // This provides the public Ruby 'connect' method
@@ -333,18 +365,23 @@ module WXRuby3
             void call_after(VALUE call)
             {
               // valid call object?
-              VALUE proc;
-              if (TYPE(call) == T_ARRAY && 
-                    (rb_obj_is_kind_of(proc = rb_ary_entry(call, 0), rb_cProc)
+              VALUE proc = TYPE(call) == T_ARRAY ? rb_ary_entry(call, 0) : Qnil;
+              if (!NIL_P(proc) && 
+                    (rb_obj_is_kind_of(proc, rb_cProc)
                      ||
                      rb_obj_is_kind_of(proc, rb_cMethod)))
               {
                 // create C++ event
                 RbAsyncProcCallEvent * evt = new RbAsyncProcCallEvent(self, call);
+                // Create a new Ruby event object (leave ownership to wxWidgets C++) 
+                VALUE rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
+                                                VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
+                                                0, 
+                                                evt);
                 // track it and the call object
-                wxRuby_AddTracking( (void*)evt, call);
-                // queue it
-                self->QueueEvent(evt);
+                wxRuby_AddTracking( (void*)evt, rb_evt);
+                // queue it (wxWidgets takes ownership of C++ event object)
+                self->wxEvtHandler::QueueEvent(evt);
               }
             }
             __HEREDOC
@@ -371,6 +408,8 @@ module WXRuby3
             def_item = defmod.find_item(citem)
             if Extractor::ClassDef === def_item && spec.is_derived_from?(def_item, 'wxEvtHandler')
               spec.no_proxy "#{spec.class_name(citem)}::ProcessEvent"
+              spec.no_proxy "#{spec.class_name(citem)}::QueueEvent"
+              spec.no_proxy "#{spec.class_name(citem)}::AddPendingEvent"
               is_evt_handler = true
             end
           end

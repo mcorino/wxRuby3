@@ -47,6 +47,7 @@ module WXRuby3
               if (class_name == "wxEvent" || class_name == "wxCommandEvent")
               {
                 // special clones for Ruby derived events are already managed and tracked
+                // (this also covers Wx::AsyncProcCallEvent)
                 return SWIG_RubyInstanceFor((void *)wx_evt);
               }
 

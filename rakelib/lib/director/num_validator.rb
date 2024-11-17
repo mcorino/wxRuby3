@@ -370,6 +370,11 @@ module WXRuby3
         spec.new_object 'WXIntegerValidator::Clone',
                         'WXUnsignedValidator::Clone',
                         'WXFloatValidator::Clone'
+        %w[WXIntegerValidator WXUnsignedValidator WXFloatValidator].each do |klass|
+          spec.no_proxy "#{klass}::ProcessEvent"
+          spec.no_proxy "#{klass}::QueueEvent"
+          spec.no_proxy "#{klass}::AddPendingEvent"
+        end
         spec.suppress_warning(473,
                               'WXIntegerValidator::Clone',
                               'WXUnsignedValidator::Clone',

@@ -222,6 +222,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 // generated on the C++ side.
 // Cached reference to EvtHandler evt_type_id -> ruby_event_class map
 static VALUE Evt_Type_Map = NULL;
+static VALUE WxRuby_cAsyncProcCallEvent = Qnil;
 
 #ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent *wx_event)
@@ -240,17 +241,31 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
     std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
 #endif
 
-  // Then, look up the event type in this hash (MUCH faster than calling
-  // EvtHandler.evt_class_for_type method)
-  VALUE rb_event_type_id =  INT2NUM( wx_event->GetEventType() );
-  VALUE rb_event_class = rb_hash_aref(Evt_Type_Map, rb_event_type_id);
-
-  // Check we have a valid class; warn and map to default Wx::Event if not
-  if ( NIL_P(rb_event_class) )
+  VALUE rb_event_type_id = INT2NUM(wx_event->GetEventType());
+  VALUE rb_event_class = Qnil;
+  // wxEVT_ASYNC_METHOD_CALL is a special case which has no Ruby class mapping registered
+  if (wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL)
   {
-    rb_event_class = wxRuby_GetDefaultEventClass ();
-    wxString class_name( wx_event->GetClassInfo()->GetClassName() );
-    rb_warning("Unmapped event type %i (%s)", wx_event->GetEventType(), (const char *)class_name.mb_str());
+    if (WxRuby_cAsyncProcCallEvent == Qnil)
+    {
+      WxRuby_cAsyncProcCallEvent = rb_eval_string("Wx::AsyncProcCallEvent");
+    }
+    rb_event_class = WxRuby_cAsyncProcCallEvent;
+  }
+  else
+  {
+    // Then, look up the event type in this hash (MUCH faster than calling
+    // EvtHandler.evt_class_for_type method)
+    rb_event_type_id =  INT2NUM( wx_event->GetEventType());
+    rb_event_class = rb_hash_aref(Evt_Type_Map, rb_event_type_id);
+
+    // Check we have a valid class; warn and map to default Wx::Event if not
+    if (NIL_P(rb_event_class))
+    {
+      rb_event_class = wxRuby_GetDefaultEventClass ();
+      wxString class_name( wx_event->GetClassInfo()->GetClassName() );
+      rb_warning("Unmapped event type %i (%s)", wx_event->GetEventType(), (const char *)class_name.mb_str());
+    }
   }
 
   // Now, see if we have a tracked instance of this object already
@@ -264,7 +279,7 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   // really the right thing, and not some stale reference.
   if ( rb_event != Qnil )
   {
-    if ( rb_obj_is_kind_of(rb_event, rb_event_class )  )
+    if (rb_obj_is_kind_of(rb_event, rb_event_class))
       return rb_event; // OK
     else
       SWIG_RubyRemoveTracking((void *)wx_event); // Remove stale ref
@@ -275,7 +290,10 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   rb_event = Data_Wrap_Struct(rb_event_class, 0, 0, 0);
   DATA_PTR(rb_event) = wx_event;
   // do not forget to mark the instance with the mangled swig type name
-  swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
+  // (as there is no swig_type for the Wx::AsyncProcCallEvent class use it's base Wx::Event)
+  swig_type_info*  type = wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL ?
+                            wxRuby_GetSwigTypeForClass(wxRuby_GetDefaultEventClass()) :
+                            wxRuby_GetSwigTypeForClass(rb_event_class);
   rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
 #if __WXRB_DEBUG__

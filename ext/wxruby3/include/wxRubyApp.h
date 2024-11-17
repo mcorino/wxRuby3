@@ -68,15 +68,15 @@ public:
       else if (rb_obj_is_kind_of(rb_obj, wxRuby_GetDefaultEventClass()) )
         rb_gc_mark(rb_obj);
     }
-    else if (TYPE(rb_obj) == T_ARRAY )
-    {
-      VALUE proc = rb_ary_entry(rb_obj, 0);
-      if (rb_obj_is_kind_of(proc, rb_cProc) || rb_obj_is_kind_of(proc, rb_cMethod))
-      {
-        // keep the async call alive
-        rb_gc_mark(rb_obj);
-      }
-    }
+//    else if (TYPE(rb_obj) == T_ARRAY )
+//    {
+//      VALUE proc = rb_ary_entry(rb_obj, 0);
+//      if (rb_obj_is_kind_of(proc, rb_cProc) || rb_obj_is_kind_of(proc, rb_cMethod))
+//      {
+//        // keep the async call alive
+//        rb_gc_mark(rb_obj);
+//      }
+//    }
   }
 
   // Implements GC protection across wxRuby. Always called because

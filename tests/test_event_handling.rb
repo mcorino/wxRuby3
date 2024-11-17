@@ -10,6 +10,14 @@ class EventHandlingTests < Test::Unit::TestCase
     EVT_TEST_EVENT = Wx::EvtHandler.register_class(self, nil, 'evt_test_event', 0)
     def initialize(id=0)
       super(EVT_TEST_EVENT, id)
+      @value = nil
+    end
+
+    attr_accessor :value
+
+    def initialize_clone(org)
+      super
+      self.value = org.value.dup if org.value
     end
   end
 
@@ -53,15 +61,18 @@ class EventHandlingTests < Test::Unit::TestCase
       super(nil, size: [300,300])
       @child = Child.new(self)
       @test_event = false
+      @test_event_value = nil
       @test_cmd_event = false
+      @focus_event = false
       @called_after = false
 
-      evt_test_event { |evt| @test_event = true }
+      evt_test_event { |evt| @test_event = true; @test_event_value = evt.value }
       evt_test_cmd_event { |evt| @test_cmd_event = true }
+      evt_set_focus { |evt| @focus_event = true }
     end
 
     attr_reader :child
-    attr_reader :test_event, :test_cmd_event
+    attr_reader :test_event, :test_event_value, :test_cmd_event, :focus_event
     attr_accessor :called_after
 
     def reset
@@ -84,8 +95,12 @@ class EventHandlingTests < Test::Unit::TestCase
     assert(!win.test_event)
     assert(win.child.test_event)
     win.reset
-    win.event_handler.process_event(TestEvent.new)
+    evt = TestEvent.new
+    evt.value = 'Something happened'
+    win.event_handler.process_event(evt)
+    evt.value << ' again'
     assert(win.test_event)
+    assert_equal('Something happened again', win.test_event_value)
     assert(!win.child.test_event)
     win.destroy
     Wx.get_app.yield
@@ -112,6 +127,16 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
   end
 
+  def test_queue_focus_event
+    win = TestFrame.new
+    assert_false(win.focus_event)
+    win.event_handler.queue_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
+    Wx.get_app.yield
+    assert_true(win.focus_event)
+    win.destroy
+    Wx.get_app.yield
+  end
+
   def test_queue_event
     win = TestFrame.new
     assert_false(win.test_cmd_event)
@@ -132,6 +157,25 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
+    win.reset
+    evt = TestEvent.new
+    evt.value = 'Something happened'
+    win.event_handler.queue_event(evt)
+    evt.value << ' again'
+    Wx.get_app.yield
+    assert_true(win.test_event)
+    assert_equal('Something happened again', win.test_event_value)
+    assert_false(win.child.test_event)
+    win.destroy
+    Wx.get_app.yield
+  end
+
+  def test_pending_focus_event
+    win = TestFrame.new
+    assert_false(win.focus_event)
+    win.event_handler.add_pending_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
+    Wx.get_app.yield
+    assert_true(win.focus_event)
     win.destroy
     Wx.get_app.yield
   end
@@ -156,6 +200,15 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
+    win.reset
+    evt = TestEvent.new
+    evt.value = 'Something happened'
+    win.event_handler.add_pending_event(evt)
+    evt.value << ' again'
+    Wx.get_app.yield
+    assert_true(win.test_event)
+    assert_equal('Something happened', win.test_event_value)
+    assert_false(win.child.test_event)
     win.destroy
     Wx.get_app.yield
   end
