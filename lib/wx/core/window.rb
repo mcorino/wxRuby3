@@ -30,6 +30,52 @@ class Wx::Window
   alias :bring_to_front :raise_window
   alias :send_to_back :lower_window
 
+  # Event handling overrides
+  class << self
+    def process_event(evh, event)
+      (@m_process_event ||= Wx::EvtHandler.instance_method(:process_event)).bind(evh).call(event)
+    end
+    def process_event_locally(evh, event)
+      (@m_process_event_locally ||= Wx::EvtHandler.instance_method(:process_event_locally)).bind(evh).call(event)
+    end
+    def safely_process_event(evh, event)
+      (@m_safely_process_event ||= Wx::EvtHandler.instance_method(:safely_process_event)).bind(evh).call(event)
+    end
+    def process_pending_events(evh)
+      (@m_process_pending_events ||= Wx::EvtHandler.instance_method(:process_pending_events)).bind(evh).call
+    end
+    def queue_event(evh, event)
+      (@m_queue_event ||= Wx::EvtHandler.instance_method(:queue_event)).bind(evh).call(event)
+    end
+    def add_pending_event(evh, event)
+      (@m_add_pending_event ||= Wx::EvtHandler.instance_method(:add_pending_event)).bind(evh).call(event)
+    end
+  end
+
+  def process_event(event)
+    Wx::Window.process_event(get_event_handler, event)
+  end
+
+  def process_event_locally(event)
+    Wx::Window.process_event_locally(get_event_handler, event)
+  end
+
+  def safely_process_event(event)
+    Wx::Window.safely_process_event(get_event_handler, event)
+  end
+
+  def process_pending_events
+    Wx::Window.process_pending_events(get_event_handler)
+  end
+
+  def queue_event(event)
+    Wx::Window.queue_event(get_event_handler, event)
+  end
+
+  def add_pending_event(event)
+    Wx::Window.add_pending_event(get_event_handler, event)
+  end
+
   # Recursively searches all windows below +self+ and returns the first
   # window which has the id +an_id+. This corresponds to the find_window
   # method method in WxWidgets when called with an integer.
