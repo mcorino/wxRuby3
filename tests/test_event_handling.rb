@@ -87,17 +87,17 @@ class EventHandlingTests < Test::Unit::TestCase
     win = TestFrame.new
     assert(!win.test_event)
     assert(!win.child.test_event)
-    win.child.event_handler.process_event(TestEvent.new)
+    win.child.process_event(TestEvent.new)
     assert(!win.test_event)
     assert(win.child.test_event)
     win.reset
-    win.child.event_handler.process_event(TestEvent.new(1))
+    win.child.process_event(TestEvent.new(1))
     assert(!win.test_event)
     assert(win.child.test_event)
     win.reset
     evt = TestEvent.new
     evt.value = 'Something happened'
-    win.event_handler.process_event(evt)
+    win.process_event(evt)
     evt.value << ' again'
     assert(win.test_event)
     assert_equal('Something happened again', win.test_event_value)
@@ -110,17 +110,17 @@ class EventHandlingTests < Test::Unit::TestCase
     win = TestFrame.new
     assert_false(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
-    win.child.event_handler.process_event(TestCmdEvent.new)
+    win.child.process_event(TestCmdEvent.new)
     assert_false(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_false(win.child.test_client_data)
     win.reset
-    win.child.event_handler.process_event(TestCmdEvent.new(1))
+    win.child.process_event(TestCmdEvent.new(1))
     assert_true(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_true(win.child.test_client_data)
     win.reset
-    win.event_handler.process_event(TestCmdEvent.new)
+    win.process_event(TestCmdEvent.new)
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
     win.destroy
@@ -130,7 +130,7 @@ class EventHandlingTests < Test::Unit::TestCase
   def test_queue_focus_event
     win = TestFrame.new
     assert_false(win.focus_event)
-    win.event_handler.queue_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
+    win.queue_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
     Wx.get_app.yield
     assert_true(win.focus_event)
     win.destroy
@@ -141,26 +141,26 @@ class EventHandlingTests < Test::Unit::TestCase
     win = TestFrame.new
     assert_false(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
-    win.child.event_handler.queue_event(TestCmdEvent.new)
+    win.child.queue_event(TestCmdEvent.new)
     Wx.get_app.yield
     assert_false(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_false(win.child.test_client_data)
     win.reset
-    win.child.event_handler.queue_event(TestCmdEvent.new(1))
+    win.child.queue_event(TestCmdEvent.new(1))
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_true(win.child.test_client_data)
     win.reset
-    win.event_handler.queue_event(TestCmdEvent.new)
+    win.queue_event(TestCmdEvent.new)
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
     win.reset
     evt = TestEvent.new
     evt.value = 'Something happened'
-    win.event_handler.queue_event(evt)
+    win.queue_event(evt)
     evt.value << ' again'
     Wx.get_app.yield
     assert_true(win.test_event)
@@ -173,7 +173,7 @@ class EventHandlingTests < Test::Unit::TestCase
   def test_pending_focus_event
     win = TestFrame.new
     assert_false(win.focus_event)
-    win.event_handler.add_pending_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
+    win.add_pending_event(Wx::FocusEvent.new(Wx::EVT_SET_FOCUS))
     Wx.get_app.yield
     assert_true(win.focus_event)
     win.destroy
@@ -184,26 +184,26 @@ class EventHandlingTests < Test::Unit::TestCase
     win = TestFrame.new
     assert_false(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
-    win.child.event_handler.add_pending_event(TestCmdEvent.new)
+    win.child.add_pending_event(TestCmdEvent.new)
     Wx.get_app.yield
     assert_false(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_false(win.child.test_client_data)
     win.reset
-    win.child.event_handler.add_pending_event(TestCmdEvent.new(1))
+    win.child.add_pending_event(TestCmdEvent.new(1))
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_true(win.child.test_client_data)
     win.reset
-    win.event_handler.add_pending_event(TestCmdEvent.new)
+    win.add_pending_event(TestCmdEvent.new)
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
     win.reset
     evt = TestEvent.new
     evt.value = 'Something happened'
-    win.event_handler.add_pending_event(evt)
+    win.add_pending_event(evt)
     evt.value << ' again'
     Wx.get_app.yield
     assert_true(win.test_event)
@@ -217,19 +217,19 @@ class EventHandlingTests < Test::Unit::TestCase
     win = TestFrame.new
     assert_false(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
-    Wx.post_event(win.child.event_handler, TestCmdEvent.new)
+    Wx.post_event(win.child, TestCmdEvent.new)
     Wx.get_app.yield
     assert_false(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_false(win.child.test_client_data)
     win.reset
-    Wx.post_event(win.child.event_handler, TestCmdEvent.new(1))
+    Wx.post_event(win.child, TestCmdEvent.new(1))
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_true(win.child.test_cmd_event)
     assert_true(win.child.test_client_data)
     win.reset
-    Wx.post_event(win.event_handler, TestCmdEvent.new)
+    Wx.post_event(win, TestCmdEvent.new)
     Wx.get_app.yield
     assert_true(win.test_cmd_event)
     assert_false(win.child.test_cmd_event)
@@ -240,11 +240,11 @@ class EventHandlingTests < Test::Unit::TestCase
   def test_call_after
     win = TestFrame.new
     assert(!win.called_after)
-    win.event_handler.call_after { win.called_after = true }
+    win.call_after { win.called_after = true }
     Wx.get_app.yield
     assert(win.called_after)
     win.reset
-    win.child.event_handler.call_after { win.called_after = true }
+    win.child.call_after { win.called_after = true }
     Wx.get_app.yield
     assert(win.called_after)
     win.destroy
@@ -254,25 +254,25 @@ class EventHandlingTests < Test::Unit::TestCase
   def test_event_blocker
     win = TestFrame.new
     assert(!win.test_event)
-    win.event_handler.process_event(TestEvent.new)
+    win.process_event(TestEvent.new)
     assert(win.test_event)
     win.reset
     Wx::EventBlocker.blocked_for(win) do |blkr|
-      win.event_handler.process_event(TestEvent.new(1))
+      win.process_event(TestEvent.new(1))
     end
     assert(!win.test_event)
-    win.event_handler.process_event(TestEvent.new)
+    win.process_event(TestEvent.new)
     assert(win.test_event)
     win.reset
     Wx::EventBlocker.blocked_for(win, TestEvent::EVT_TEST_EVENT) do |blkr|
-      win.event_handler.process_event(TestEvent.new(1))
+      win.process_event(TestEvent.new(1))
     end
     assert(!win.test_event)
-    win.event_handler.process_event(TestEvent.new)
+    win.process_event(TestEvent.new)
     assert(win.test_event)
     win.reset
     Wx::EventBlocker.blocked_for(win, Wx::EVT_ACTIVATE) do |blkr|
-      win.event_handler.process_event(TestEvent.new(1))
+      win.process_event(TestEvent.new(1))
     end
     assert(win.test_event)
     win.destroy
@@ -298,16 +298,16 @@ class EventHandlingTests < Test::Unit::TestCase
     assert_nothing_raised { Wx::EvtHandler.add_filter(filter) }
     GC.start
     win = TestFrame.new
-    win.child.event_handler.process_event(TestEvent.new)
+    win.child.process_event(TestEvent.new)
     GC.start
     assert(filter.filtered)
     filter.filtered = false
-    win.child.event_handler.process_event(TestCmdEvent.new)
+    win.child.process_event(TestCmdEvent.new)
     GC.start
     assert(!filter.filtered)
     assert_nothing_raised { Wx::EvtHandler.remove_filter(filter) }
     GC.start
-    win.child.event_handler.process_event(TestEvent.new)
+    win.child.process_event(TestEvent.new)
     assert(!filter.filtered)
     GC.start
     win.destroy
@@ -330,16 +330,16 @@ class EventHandlingTests < Test::Unit::TestCase
     assert_nothing_raised { Wx::EvtHandler.add_filter(MyEventFilter2.new) }
     GC.start
     win = TestFrame.new
-    win.child.event_handler.process_event(TestEvent.new)
+    win.child.process_event(TestEvent.new)
     GC.start
     assert(MyEventFilter2.filtered)
     MyEventFilter2.filtered = false
-    win.child.event_handler.process_event(TestCmdEvent.new)
+    win.child.process_event(TestCmdEvent.new)
     GC.start
     assert(!MyEventFilter2.filtered)
     assert_nothing_raised { Wx::EvtHandler.clear_filters }
     GC.start
-    win.child.event_handler.process_event(TestEvent.new)
+    win.child.process_event(TestEvent.new)
     assert(!MyEventFilter2.filtered)
     GC.start
     win.destroy
