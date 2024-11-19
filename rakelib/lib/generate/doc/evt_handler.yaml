@@ -30,16 +30,18 @@
       - :pattern: !ruby/regexp /Reimplemented\s+in.*/
         :subst: ''
 :wxEvtHandler.SetNextHandler:
+  :brief:
+    :post:
+      - :pattern: !ruby/regexp /Sets\s+the\s+pointer\s+to\s+the\s+next\s+handler\./
+        :subst: 'Inserts the given handler as the next handler in the chain.'
   :detail:
     :pre:
-      :programlisting:
-        - :pattern: !ruby/regexp /.*/
-          :replace: |
-            
-            ```ruby
-              handlerA.set_next_handler(handlerB)
-              handlerB.set_previous_handler(handlerA)
-            ```
+      :para:
+        - :pattern: !ruby/regexp /See.*ProcessEvent\(\)/
+          :replace:  |
+            In wxRuby this fully handles double linking, i.e. wxRuby will take care of pointing the handler given
+            back to this handler as well. There is no need to call set_previous_handler so this method is not supported 
+            in wxRuby3.
 :wxEvtHandler.TryBefore:
   :detail:
     :pre:

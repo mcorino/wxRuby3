@@ -35,6 +35,8 @@ module WXRuby3
           # Do not see much point in allowing/supporting these to be overridden
           spec.no_proxy 'wxEvtHandler::SetNextHandler',
                         'wxEvtHandler::SetPreviousHandler'
+          # no doc for set_previous_handler
+          spec.regard('wxEvtHandler::SetPreviousHandler', regard_doc: false)
           # make SWIG aware of these
           spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter'
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
