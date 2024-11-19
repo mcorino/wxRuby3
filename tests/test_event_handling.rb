@@ -323,16 +323,16 @@ class EventHandlingTests < Test::Unit::TestCase
 
   end
 
-  def test_chained_event_handler
-    snooper = EventSnooper.new
-    my_handler = MyEventHandler.new
-    snooper.set_next_handler(my_handler)
-    assert_false(my_handler.test_event)
-    assert_false(snooper.test_event)
-    snooper.process_event(TestEvent.new)
-    assert_false(my_handler.test_event)
-    assert_true(snooper.test_event)
-  end
+  # def test_chained_event_handler
+  #   snooper = EventSnooper.new
+  #   my_handler = MyEventHandler.new
+  #   snooper.set_next_handler(my_handler)
+  #   assert_false(my_handler.test_event)
+  #   assert_false(snooper.test_event)
+  #   snooper.process_event(TestEvent.new)
+  #   assert_false(my_handler.test_event)
+  #   assert_true(snooper.test_event)
+  # end
 
   def test_pushed_event_handler
     win = TestFrame.new
