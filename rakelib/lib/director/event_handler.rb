@@ -32,6 +32,9 @@ module WXRuby3
           # Do not see much use for allowing overrides for these either as wxWidgets do not either
           spec.no_proxy 'wxEvtHandler::QueueEvent',
                         'wxEvtHandler::AddPendingEvent'
+          # Do not see much point in allowing/supporting these to be overridden
+          spec.no_proxy 'wxEvtHandler::SetNextHandler',
+                        'wxEvtHandler::SetPreviousHandler'
           # make SWIG aware of these
           spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter'
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
@@ -400,6 +403,8 @@ module WXRuby3
               spec.no_proxy "#{spec.class_name(citem)}::ProcessEvent"
               spec.no_proxy "#{spec.class_name(citem)}::QueueEvent"
               spec.no_proxy "#{spec.class_name(citem)}::AddPendingEvent"
+              spec.no_proxy "#{spec.class_name(citem)}::SetNextHandler"
+              spec.no_proxy "#{spec.class_name(citem)}::SetPreviousHandler"
               is_evt_handler = true
             end
           end
