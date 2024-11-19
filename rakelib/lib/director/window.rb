@@ -66,7 +66,6 @@ module WXRuby3
             __CODE
           end
           spec.ignore [
-            'wxWindow::PopEventHandler',
             'wxWindow::SetConstraints',
             'wxWindow::GetHandle',
             'wxWindow::GetSize(int *,int *) const', # no need; prefer the wxSize version
@@ -83,6 +82,15 @@ module WXRuby3
             'wxWindow::Raise',
             'wxWindow::Lower'
           ]
+
+          # Event handler chaining methods; pushed handlers always remain owned by Ruby
+          # wxRuby3 will automatically pop any remaining handlers when windows get deleted
+          # also ignore this
+          spec.ignore 'wxWindow::PopEventHandler', ignore_doc: false
+          # and instead add an argument-less version (will use default argument of C++ impl)
+          # as we do want C++ side to delete any popped handler
+          spec.extend_interface 'wxWindow', 'wxEvtHandler *PopEventHandler()'
+
           # no real docs and can't find actual examples of usage; ignore
           spec.ignore 'wxWindow::GetConstraints', 'wxWindow::SetConstraints'
           # redefine these so a nil parent is accepted

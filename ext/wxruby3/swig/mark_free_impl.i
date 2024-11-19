@@ -50,6 +50,21 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
   // garbage collected at next phase
   wxRuby_ReleaseEvtHandlerProcs(ptr);
 
+  // wxWidgets requires any pushed event handlers to be popped before
+  // the window gets destroyed. Handle this automatically in wxRuby3.
+  wxWindowBase* wxwin = (wxWindowBase*)ptr;
+  wxEvtHandler* wxevh = wxwin->GetEventHandler();
+  while (wxevh && wxevh != wxwin)
+  {
+    wxEvtHandler* wxevh_next = wxevh->GetNextHandler();
+    VALUE rb_evh = SWIG_RubyInstanceFor(wxevh);
+    // only remove tracked Ruby instantiated handlers since others are
+    // handlers internally set by wxWidgets C++ code and will be removed there
+    if (!NIL_P(rb_evh))
+      wxwin->RemoveEventHandler(wxevh); // remove and forget
+    wxevh = wxevh_next;
+  }
+
   // Wx calls this by standard after the window destroy event is
   // handled, but we need to call it before while the object link is
   // still around
@@ -221,6 +236,23 @@ WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
     VALUE rb_sizer = SWIG_RubyInstanceFor(wx_sizer);
 	  if ( rb_sizer != Qnil )
       GC_mark_SizerBelongingToWindow(wx_sizer, rb_sizer);
+  }
+
+  // mark any pushed event handlers
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>2)
+    std::wcout << "* GC_mark_wxWindow - getting event handler" << std::endl;
+#endif
+  wxEvtHandler* evh = wx_win->GetEventHandler();
+  while (evh && evh != wx_win)
+  {
+#ifdef __WXRB_DEBUG__
+    if (wxRuby_TraceLevel()>2)
+      std::wcout << "* GC_mark_wxWindow - marking event handler" << std::endl;
+#endif
+    VALUE rb_evh = SWIG_RubyInstanceFor(evh);
+	  rb_gc_mark(rb_evh);
+	  evh = evh->GetNextHandler();
   }
 
 #ifdef __WXRB_DEBUG__
