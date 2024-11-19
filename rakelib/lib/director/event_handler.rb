@@ -37,18 +37,8 @@ module WXRuby3
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
           # We need to disown Ruby with respect to the C++ event object but remain tracking the pair to keep
           # the Ruby event object alive.
-          # Queued (pending) events are cleaned up (deleted) by wxWidgets after (failing) handling
-          # which will automatically unlink and un-track them releasing the Ruby instance to be GC-ed.
-          spec.map 'wxEvent *event' => 'Wx::Event' do
-            map_in code: <<~__CODE
-              // get the wrapped wxEvent*
-              wxEvent *wx_ev = (wxEvent*)DATA_PTR($input);
-              // disown Ruby; wxWidgets C++ now controls lifecycle wxEvent*
-              RDATA(argv[0])->dfree = 0; // disown
-              // Queue the C++ event
-              $1 = wx_ev;
-              __CODE
-          end
+          spec.disown 'wxEvent *event'
+
           # add special mapping for event filters so we can accept the app instance as well
           # although Wx::App is not derived from Wx::EventFilter in wxRuby (no multiple inheritance)
           spec.map 'wxEventFilter*' => 'Wx::EventFilter,Wx::App' do
