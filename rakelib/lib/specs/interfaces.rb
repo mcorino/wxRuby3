@@ -201,6 +201,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxDragDrop', requirements: %w[USE_DRAG_AND_DROP])
     Director.Spec(pkg, 'wxContextHelpButton', requirements: %w[USE_HELP])
     Director.Spec(pkg, 'wxHelpProvider', requirements: %w[USE_HELP])
+    Director.Spec(pkg, 'wxTipWindow', requirements: %w[USE_HELP])
     Director.Spec(pkg, 'wxHelpController', requirements: %w[USE_HELP])
     Director.Spec(pkg, 'wxExtHelpController', director: Director::HelpController, requirements: %w[USE_HELP])
     Director.Spec(pkg, 'wxTaskBarIconEvent', director: Director::Event, requirements: %w[USE_TASKBARICON])

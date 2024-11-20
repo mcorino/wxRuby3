@@ -41,7 +41,7 @@ class Wx::SimpleHelpProvider < Wx::HelpProvider
   def show_help(win)
     help_text = get_help(win)
     return false if help_text.empty?
-    tip = Wx::TipWindow.new(win, help_text, 100)
+    Wx::TipWindow.new(win, help_text, 100)
     true
   end
 end
