@@ -148,7 +148,7 @@ module WXRuby3
             
             wxListCtrl* wx_lc = (wxListCtrl*) ptr;
             
-            // First check if there's ImageLists and mark if found
+            // First check if there are ImageLists and mark if found
             wxImageList* img_list;
             img_list= wx_lc->GetImageList(wxIMAGE_LIST_NORMAL);
             if ( img_list ) rb_gc_mark(SWIG_RubyInstanceFor(img_list));
@@ -161,18 +161,22 @@ module WXRuby3
             if ( wx_lc->GetWindowStyle() & wxLC_VIRTUAL )
               return;
             
-            int count = wx_lc->GetItemCount();
-            if ( count == 0 ) return;
-            
-            for (int i = 0; i < count; ++i)
+            // only mark items if window fully created
+            if (wx_lc->GetId() != wxID_ANY)
             {
-              wxUIntPtr data = wx_lc->GetItemData(i);
-              VALUE object = reinterpret_cast<VALUE> (data);
-              if ( object && object != Qnil ) 
+              int count = wx_lc->GetItemCount();
+              if ( count == 0 ) return;
+              
+              for (int i = 0; i < count; ++i)
               {
-                rb_gc_mark(object);
+                wxUIntPtr data = wx_lc->GetItemData(i);
+                VALUE object = reinterpret_cast<VALUE> (data);
+                if ( object && object != Qnil ) 
+                {
+                  rb_gc_mark(object);
+                }
               }
-            }
+            } 
           }
           __HEREDOC
         spec.add_extend_code 'wxListCtrl', <<~__HEREDOC
