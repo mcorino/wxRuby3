@@ -32,23 +32,18 @@ module WXRuby3
           # Do not see much use for allowing overrides for these either as wxWidgets do not either
           spec.no_proxy 'wxEvtHandler::QueueEvent',
                         'wxEvtHandler::AddPendingEvent'
+          # Do not see much point in allowing/supporting these to be overridden
+          spec.no_proxy 'wxEvtHandler::SetNextHandler',
+                        'wxEvtHandler::SetPreviousHandler'
+          # no doc for set_previous_handler
+          spec.regard('wxEvtHandler::SetPreviousHandler', regard_doc: false)
           # make SWIG aware of these
           spec.regard 'wxEvtHandler::TryBefore', 'wxEvtHandler::TryAfter'
           # Special type mapping for wxEvtHandler::QueueEvent which assumes ownership of the C++ event.
           # We need to disown Ruby with respect to the C++ event object but remain tracking the pair to keep
           # the Ruby event object alive.
-          # Queued (pending) events are cleaned up (deleted) by wxWidgets after (failing) handling
-          # which will automatically unlink and un-track them releasing the Ruby instance to be GC-ed.
-          spec.map 'wxEvent *event' => 'Wx::Event' do
-            map_in code: <<~__CODE
-              // get the wrapped wxEvent*
-              wxEvent *wx_ev = (wxEvent*)DATA_PTR($input);
-              // disown Ruby; wxWidgets C++ now controls lifecycle wxEvent*
-              RDATA(argv[0])->dfree = 0; // disown
-              // Queue the C++ event
-              $1 = wx_ev;
-              __CODE
-          end
+          spec.disown 'wxEvent *event'
+
           # add special mapping for event filters so we can accept the app instance as well
           # although Wx::App is not derived from Wx::EventFilter in wxRuby (no multiple inheritance)
           spec.map 'wxEventFilter*' => 'Wx::EventFilter,Wx::App' do
@@ -410,6 +405,8 @@ module WXRuby3
               spec.no_proxy "#{spec.class_name(citem)}::ProcessEvent"
               spec.no_proxy "#{spec.class_name(citem)}::QueueEvent"
               spec.no_proxy "#{spec.class_name(citem)}::AddPendingEvent"
+              spec.no_proxy "#{spec.class_name(citem)}::SetNextHandler"
+              spec.no_proxy "#{spec.class_name(citem)}::SetPreviousHandler"
               is_evt_handler = true
             end
           end

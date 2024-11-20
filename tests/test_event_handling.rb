@@ -279,6 +279,80 @@ class EventHandlingTests < Test::Unit::TestCase
     Wx.get_app.yield
   end
 
+  class MyEventHandler < Wx::EvtHandler
+
+    def initialize
+      super
+      @test_event = false
+      @test_cmd_event = false
+      evt_test_event :on_test_event
+      evt_test_cmd_event :on_test_cmd_event
+    end
+
+    attr_reader :test_event, :test_cmd_event
+
+    def on_test_event(_evt)
+      @test_event = true
+    end
+
+    def on_test_cmd_event(evt)
+      @test_cmd_event = true
+    end
+  end
+
+  class EventSnooper < Wx::EvtHandler
+
+    def initialize
+      super
+      @test_event = false
+      @test_cmd_event = false
+      evt_test_event :on_test_event
+      evt_test_cmd_event :on_test_cmd_event
+    end
+
+    attr_reader :test_event, :test_cmd_event
+
+    def on_test_event(_evt)
+      @test_event = true
+    end
+
+    def on_test_cmd_event(evt)
+      @test_cmd_event = true
+      evt.skip # make sure other handler(s) get this too
+    end
+
+  end
+
+  def test_chained_event_handler
+    snooper = EventSnooper.new
+    my_handler = MyEventHandler.new
+    snooper.set_next_handler(my_handler)
+    assert_false(my_handler.test_event)
+    assert_false(snooper.test_event)
+    snooper.process_event(TestEvent.new)
+    assert_false(my_handler.test_event)
+    assert_true(snooper.test_event)
+  end
+
+  def test_pushed_event_handler
+    win = TestFrame.new
+    snooper = EventSnooper.new
+    win.push_event_handler(snooper)
+    assert_false(win.test_event)
+    assert_false(snooper.test_event)
+    win.process_event(TestEvent.new)
+    assert_false(win.test_event)
+    assert_true(snooper.test_event)
+    win.reset
+    assert_false(win.test_cmd_event)
+    assert_false(snooper.test_cmd_event)
+    win.process_event(TestCmdEvent.new)
+    assert_true(win.test_cmd_event)
+    assert_true(snooper.test_cmd_event)
+    win.destroy
+    Wx.get_app.yield
+  end
+
   class MyEventFilter < Wx::EventFilter
     def initialize
       super

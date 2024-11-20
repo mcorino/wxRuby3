@@ -374,6 +374,8 @@ module WXRuby3
           spec.no_proxy "#{klass}::ProcessEvent"
           spec.no_proxy "#{klass}::QueueEvent"
           spec.no_proxy "#{klass}::AddPendingEvent"
+          spec.no_proxy "#{klass}::SetNextHandler"
+          spec.no_proxy "#{klass}::SetPreviousHandler"
         end
         spec.suppress_warning(473,
                               'WXIntegerValidator::Clone',

@@ -20,6 +20,29 @@ module Wx
     alias :get_client_data :get_client_object
     alias :client_data :get_client_object
 
+    # Simplify event chaining for wxRuby by handling double linking internally in  Ruby code.
+    #
+    wx_set_next_handler = instance_method :set_next_handler
+    wx_set_previous_handler = instance_method :set_previous_handler
+
+    define_method :set_next_handler do |evthnd|
+      # check if we have a different existing next handler
+      cur_next = get_next_handler
+      if cur_next && cur_next != evthnd
+        # cut the 'old' next handler from the chain
+        cur_next.unlink
+      end
+      wx_set_next_handler.bind(self).call(evthnd)
+      wx_set_previous_handler.bind(evthnd).call(self) if evthnd
+    end
+    alias :next_handler= :set_next_handler
+
+    # disable this in Ruby; set_next_handler handles double linking
+    define_method :set_previous_handler do |evthnd|
+      raise NoMethodError
+    end
+    alias :previous_handler= :set_previous_handler
+
     # EventType is an internal class that's used to set up event handlers
     # and mappings.
     # * 'name' is the name of the event handler method in ruby
