@@ -29,7 +29,7 @@ class Wx::Clipboard
         Kernel.raise "Could not open clipboard"
       end
       yield clip
-     ensure
+    ensure
        clip.close if clip
     end
   end
