@@ -23,6 +23,7 @@ class ComboCtrlCtrlTests < WxRuby::Test::GUITests
     end
 
     def create(parent)
+      GC.start
       # need to finish creating the list view here
       # as calling super here would just call Wx::ComboPopup#create and not Wx::ListView#create
       # we need to use Ruby magic
