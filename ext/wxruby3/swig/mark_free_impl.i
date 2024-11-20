@@ -270,10 +270,8 @@ WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
 	  rb_gc_mark(rb_caret);
   }
 
-  static WXWidget WXWidget_NULL {};
-
   // be careful; getting drop target may require fully created window (default ctors do  not call Create())
-  if (wx_win->GetHandle() != WXWidget_NULL)
+  if (wx_win->GetId() != wxID_ANY)  // any fully created window has an Id != wxID_ANY
   {
 #ifdef __WXRB_DEBUG__
     if (wxRuby_TraceLevel()>2)
