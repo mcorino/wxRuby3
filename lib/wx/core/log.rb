@@ -48,13 +48,13 @@ module Wx
   class LogChain
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |new_log|
+    wx_redefine_method :initialize do |new_log|
       wx_initialize.bind(self).call(new_log)
       @new_log = new_log # cache to prevent premature GC collection; old_log managed in C++ wrapper
     end
 
     wx_set_log = instance_method :set_log
-    define_method :set_log do |new_log|
+    wx_redefine_method :set_log do |new_log|
       wx_set_log.bind(self).call(new_log)
       @new_log = new_log # cache to prevent premature GC collection; old_log managed in C++ wrapper
     end
@@ -100,32 +100,32 @@ module Wx
     private :setup_log_info
 
     wx_log_generic = self.instance_method :log_generic
-    define_method :log_generic do |lvl, fmt, *args, filename: nil, line: 0, func: nil, component: nil|
+    wx_redefine_method :log_generic do |lvl, fmt, *args, filename: nil, line: 0, func: nil, component: nil|
       wx_log_generic.bind(self).call(lvl, *setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_info = self.instance_method :log_info
-    define_method :log_info do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
+    wx_redefine_method :log_info do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
       wx_log_info.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_verbose = self.instance_method :log_verbose
-    define_method :log_verbose do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
+    wx_redefine_method :log_verbose do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
       wx_log_verbose.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_message = self.instance_method :log_message
-    define_method :log_message do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
+    wx_redefine_method :log_message do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
       wx_log_message.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_warning = self.instance_method :log_warning
-    define_method :log_warning do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
+    wx_redefine_method :log_warning do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
       wx_log_warning.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 
     wx_log_error = self.instance_method :log_error
-    define_method :log_error do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
+    wx_redefine_method :log_error do |fmt, *args, filename: nil, line: 0, func: nil, component: nil|
       wx_log_error.bind(self).call(*setup_log_info(fmt, args, filename, line, func, component))
     end
 

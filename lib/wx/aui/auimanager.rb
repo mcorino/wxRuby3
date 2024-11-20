@@ -8,7 +8,7 @@ module Wx
     class AuiManager
 
       wx_each_pane = instance_method(:each_pane)
-      define_method(:each_pane) do |&block|
+      wx_redefine_method(:each_pane) do |&block|
         if block
           wx_each_pane.bind(self).call(&block)
         else
@@ -36,7 +36,7 @@ module Wx
       class AuiDockInfo
 
         wx_each_pane = instance_method(:each_pane)
-        define_method(:each_pane) do |&block|
+        wx_redefine_method(:each_pane) do |&block|
           if block
             wx_each_pane.bind(self).call(&block)
           else
@@ -54,7 +54,7 @@ module Wx
       class AuiDeserializer
 
         wx_initialize = instance_method(:initialize)
-        define_method(:initialize) do |manager|
+        wx_redefine_method(:initialize) do |manager|
           wx_initialize.bind(self).call(manager)
           @manager = manager # prevent GC for lifetime of deserializer
         end

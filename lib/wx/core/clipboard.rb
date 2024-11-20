@@ -41,19 +41,19 @@ class Wx::Clipboard
   # These methods affect the clipboard contents; each time, update the
   # record with the changed data contents
   wx_add_data = instance_method(:add_data)
-  define_method(:add_data) do | the_data |
+  wx_redefine_method(:add_data) do | the_data |
     @@__clip_data << the_data
     wx_add_data.bind(self).call(the_data)
   end
 
   wx_clear = instance_method(:clear)
-  define_method(:clear) do 
+  wx_redefine_method(:clear) do 
     wx_clear.bind(self).call
     @@__clip_data.clear
   end
 
   wx_set_data = instance_method(:set_data)
-  define_method(:set_data) do | the_data |
+  wx_redefine_method(:set_data) do | the_data |
     @@__clip_data = [ the_data ]
     wx_set_data.bind(self).call(the_data)
   end

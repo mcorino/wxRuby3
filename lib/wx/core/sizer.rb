@@ -52,7 +52,7 @@ module Wx
 
     # Overload to provide Enumerator without block
     wx_each_child = instance_method :each_child
-    define_method :each_child do |&block|
+    wx_redefine_method :each_child do |&block|
       if block
         wx_each_child.bind(self).call(&block)
       else
@@ -65,7 +65,7 @@ module Wx
   class BoxSizer < Sizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       if block
         if block.arity == -1 or block.arity == 0
@@ -84,7 +84,7 @@ module Wx
   class WrapSizer < BoxSizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       if block
         if block.arity == -1 or block.arity == 0
@@ -103,7 +103,7 @@ module Wx
   class StaticBoxSizer < BoxSizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       if block
         if block.arity == -1 or block.arity == 0
@@ -122,7 +122,7 @@ module Wx
   class StdDialogButtonSizer < BoxSizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       if block
         if block.arity == -1 or block.arity == 0
@@ -141,7 +141,7 @@ module Wx
   class GridSizer < Sizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       self.instance_eval(&block) if block
     end
@@ -151,7 +151,7 @@ module Wx
   class FlexGridSizer < GridSizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       if block
         if block.arity == -1 or block.arity == 0
@@ -170,7 +170,7 @@ module Wx
   class GridBagSizer < FlexGridSizer
 
     wx_initialize = instance_method :initialize
-    define_method :initialize do |*args, &block|
+    wx_redefine_method :initialize do |*args, &block|
       wx_initialize.bind(self).call(*args)
       if block
         if block.arity == -1 or block.arity == 0

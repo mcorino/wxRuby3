@@ -61,7 +61,7 @@ class Wx::Rect
   end
 
   # next provide new constant versions
-  def offset(*args)
+  wx_redefine_method :offset do |*args|
     self.dup.offset!(*args)
   end
 

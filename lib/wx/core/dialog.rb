@@ -13,7 +13,7 @@ class Wx::Dialog
   class << self
 
     wx_set_layout_adapter = instance_method :set_layout_adapter
-    define_method :set_layout_adapter do |adapter|
+    wx_redefine_method :set_layout_adapter do |adapter|
       prev_adapter = wx_set_layout_adapter.bind(self).call(adapter)
       @adapter = adapter # cache here to prevent premature GC collection
     end
@@ -50,7 +50,7 @@ class Wx::Dialog
         def self.inherited(sub)
           sub.include Wx::Dialog::Functor
         end
-      end
+      end unless klass.singleton_class.method_defined?(:inherited)
     end
   end
 

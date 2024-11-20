@@ -15,7 +15,7 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object
-        spec.ignore 'wxDataFormat::operator ==(wxDataFormatId)'
+        spec.ignore 'wxDataFormat::operator=='
         if Config.platform == :mingw
           # The formal signature for these is NativeFormat; this is required on
           # MSVC as otherwise an impermissible implicit cast is tried, and so

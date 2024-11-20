@@ -12,7 +12,7 @@ class Wx::TreeCtrl
 
   # Overload to provide Enumerator without block
   wx_traverse = instance_method :traverse
-  define_method :traverse do |start_id=nil, &block|
+  wx_redefine_method :traverse do |start_id=nil, &block|
     if block
       wx_traverse.bind(self).call(start_id, &block)
     else

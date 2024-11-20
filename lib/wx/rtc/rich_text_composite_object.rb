@@ -10,7 +10,7 @@ module Wx
 
       # Overload to provide Enumerator without block
       wx_each_child = instance_method :each_child
-      define_method :each_child do |&block|
+      wx_redefine_method :each_child do |&block|
         if block
           wx_each_child.bind(self).call(&block)
         else

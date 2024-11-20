@@ -191,7 +191,7 @@ module Wx
         # The new definition of initialize; accepts a parent arg
         # mixed_args, which may zero or more position args, optionally
         # terminated with hash keyword args, and an optional block
-        def initialize(parent = :default_ctor, *mixed_args, &block)
+        wx_redefine_method :initialize do |parent = :default_ctor, *mixed_args, &block|
           # allow zero-args ctor for use with XRC
           if parent == :default_ctor
             pre_wx_kwctor_init

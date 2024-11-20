@@ -7,5 +7,3 @@
 require_relative './keyword_defs'
 require_relative './previewframe'
 require_relative './page_setup_dialog'
-
-Wx::Dialog.setup_dialog_functors(Wx::PRT)

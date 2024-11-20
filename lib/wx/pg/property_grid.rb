@@ -29,7 +29,7 @@ module Wx::PG
       private :property_editors
 
       wx_do_register_editor_class = self.instance_method(:do_register_editor_class)
-      define_method(:do_register_editor_class) do |editor_class, name|
+      wx_redefine_method(:do_register_editor_class) do |editor_class, name|
         editor = wx_do_register_editor_class.bind(self).call(editor_class, name)
         property_editors[name] = editor # keep safe from GC and for lookup
       end
@@ -44,7 +44,7 @@ module Wx::PG
     end
 
     wx_set_sorter = instance_method :set_sorter
-    define_method :set_sorter do |meth, &block|
+    wx_redefine_method :set_sorter do |meth, &block|
       h_sorter = if block and not meth
                    block
                  elsif meth and not block

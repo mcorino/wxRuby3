@@ -16,7 +16,7 @@ class Wx::AcceleratorTable
   # and allow entries to be specified in terser form [mod, key, id]
   # rather than full AcceleratorEntry.new call.
   wx_init = self.instance_method(:initialize)
-  define_method(:initialize) do | *args |
+  wx_redefine_method(:initialize) do | *args |
     # Test for old-style arg passing in a single array
     if args.length == 1 and args.first.kind_of?(Array) and
        args.first.all? { | e | e.kind_of?(Wx::AcceleratorEntry) }

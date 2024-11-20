@@ -13,7 +13,7 @@ module Wx
       alias :table= :assign_table
 
       wx_each_selected_block = instance_method :each_selected_block
-      define_method :each_selected_block do
+      wx_redefine_method :each_selected_block do
         if block_given?
           wx_each_selected_block.bind(self).call
         else
@@ -27,7 +27,7 @@ module Wx
       alias :selected_blocks :get_selected_blocks
 
       wx_each_selected_row_block = instance_method :each_selected_row_block
-      define_method :each_selected_row_block do
+      wx_redefine_method :each_selected_row_block do
         if block_given?
           wx_each_selected_row_block.bind(self).call
         else
@@ -36,7 +36,7 @@ module Wx
       end
 
       wx_each_selected_col_block = instance_method :each_selected_col_block
-      define_method :each_selected_col_block do
+      wx_redefine_method :each_selected_col_block do
         if block_given?
           wx_each_selected_col_block.bind(self).call
         else

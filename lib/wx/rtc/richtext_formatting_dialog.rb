@@ -8,7 +8,7 @@ module Wx::RTC
     class << self
 
       wx_set_formatting_dialog_factory = instance_method :set_formatting_dialog_factory
-      define_method :set_formatting_dialog_factory do |factory|
+      wx_redefine_method :set_formatting_dialog_factory do |factory|
         wx_set_formatting_dialog_factory.bind(self).call(factory)
         @factory = factory # cache here to prevent GC collection
       end
@@ -23,7 +23,7 @@ module Wx::RTC
     end
 
     # now redefine the overridden ctor to account for deviating arglist
-    def initialize(flags = nil, parent = nil, *mixed_args, &block)
+    wx_redefine_method :initialize do |flags = nil, parent = nil, *mixed_args, &block|
       # allow zero-args ctor for use with XRC
       if flags.nil?
         pre_wx_kwctor_init

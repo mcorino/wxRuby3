@@ -78,7 +78,7 @@ module Wx
     # later. Also, be helpful and try to guess the bitmap type from the
     # filename if it's not specified
     wx_init = self.instance_method(:initialize)
-    define_method(:initialize) do | *args |
+    wx_redefine_method(:initialize) do | *args |
       # If creating from a file, check it exists
       if args[0].kind_of? String
         if not File.exist?( File.expand_path(args[0]) )

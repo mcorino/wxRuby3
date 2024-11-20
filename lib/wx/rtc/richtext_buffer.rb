@@ -6,7 +6,7 @@ class Wx::RTC::RichTextBuffer
 
   class << self
     wx_each_handler = instance_method :each_handler
-    define_method :each_handler do |&block|
+    wx_redefine_method :each_handler do |&block|
       if block_given?
         wx_each_handler.bind(self).call(&block)
       else
@@ -15,7 +15,7 @@ class Wx::RTC::RichTextBuffer
     end
 
     wx_each_field_type = instance_method :each_field_type
-    define_method :each_field_type do |&block|
+    wx_redefine_method :each_field_type do |&block|
       if block_given?
         wx_each_field_type.bind(self).call(&block)
       else
@@ -24,7 +24,7 @@ class Wx::RTC::RichTextBuffer
     end
 
     wx_each_drawing_handler = instance_method :each_drawing_handler
-    define_method :each_drawing_handler do |&block|
+    wx_redefine_method :each_drawing_handler do |&block|
       if block_given?
         wx_each_drawing_handler.bind(self).call(&block)
       else

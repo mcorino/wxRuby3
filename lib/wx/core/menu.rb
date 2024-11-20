@@ -28,7 +28,7 @@ class Wx::Menu
 
   # Overload to provide Enumerator without block
   wx_each_item = instance_method :each_item
-  define_method :each_item do |&block|
+  wx_redefine_method :each_item do |&block|
     if block
       wx_each_item.bind(self).call(&block)
     else
@@ -56,7 +56,7 @@ class Wx::Menu
     class_eval do 
       meth_names.each do | meth |
         old_meth = instance_method(meth)
-        define_method(meth) do | *args |
+        wx_redefine_method(meth) do | *args |
           case args.first
             when Integer, Wx::Enum then old_meth.bind(self).call(*args)
             when String then old_meth.bind(self).call(Wx::ID_ANY, *args)
@@ -79,7 +79,7 @@ class Wx::Menu
     class_eval do 
       meth_names.each do | meth |
         old_meth = instance_method(meth)
-        define_method(meth) do | pos, *args |
+        wx_redefine_method(meth) do | pos, *args |
           case args.first
             when Integer, Wx::Enum then old_meth.bind(self).call(pos, *args)
             when String then old_meth.bind(self).call(pos, Wx::ID_ANY, *args)

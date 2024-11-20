@@ -29,7 +29,7 @@ module Wx::PG
   class PGProperty
 
     wx_each_attribute = instance_method :each_attribute
-    define_method :each_attribute do
+    wx_redefine_method :each_attribute do
       if block_given?
         wx_each_attribute.bind(self).call
       else
@@ -52,7 +52,7 @@ module Wx::PG
   class PGChoices
 
     wx_each_label = instance_method :each_label
-    define_method :each_label do
+    wx_redefine_method :each_label do
       if block_given?
         wx_each_label.bind(self).call
       else
@@ -61,7 +61,7 @@ module Wx::PG
     end
 
     wx_each_entry = instance_method :each_entry
-    define_method :each_entry do
+    wx_redefine_method :each_entry do
       if block_given?
         wx_each_entry.bind(self).call
       else

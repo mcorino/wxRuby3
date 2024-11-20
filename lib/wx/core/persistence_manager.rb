@@ -22,12 +22,12 @@ module Wx
       # Cache the global instance to keep it safe from GC
 
       wx_get = instance_method :get
-      define_method :get do
+      wx_redefine_method :get do
         @the_manager ||= wx_get.bind(self).call
       end
 
       wx_set = instance_method :set
-      define_method :set do |pman|
+      wx_redefine_method :set do |pman|
         wx_set.bind(self).call(pman)
         @the_manager = pman
       end

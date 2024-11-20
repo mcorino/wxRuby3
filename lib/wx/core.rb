@@ -38,6 +38,8 @@ require 'wx/global_const'
 # ctor syntax sweeteners support
 require 'wx/keyword_ctors'
 
+require 'wx/core/module_ext'
+
 # Load in all the class extension methods written in ruby
 # evthandler must be required first b/c it sets up methods modified elsewhere
 require 'wx/core/evthandler.rb'

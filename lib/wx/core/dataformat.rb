@@ -11,10 +11,16 @@
 
 class Wx::DataFormat
   def ==(other)
-    if self.get_type > Wx::DataFormatId::DF_INVALID
-      self.get_type == other.get_type
+    if other.is_a?(Wx::DataFormatId)
+      self.get_type == other
+    elsif other.is_a?(self.class)
+      if self.get_type > Wx::DataFormatId::DF_INVALID
+        self.get_type == other.get_type
+      else
+        self.id == other.id
+      end
     else
-      self.id == other.id
+      false
     end
   end
 end

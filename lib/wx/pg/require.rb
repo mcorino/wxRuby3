@@ -11,5 +11,3 @@ require_relative './property_grid'
 require_relative './pg_property'
 require_relative './pg_properties'
 require_relative './pg_editor'
-
-Wx::Dialog.setup_dialog_functors(Wx::PG)

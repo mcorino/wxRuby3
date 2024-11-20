@@ -17,7 +17,7 @@ module Wx
     # invalid colour value is given. This might be an unknown colour
     # string (eg 'dark blue') or out-of-bounds integer values (<0 or >255)
     wx_init = self.instance_method(:initialize)
-    define_method(:initialize) do | *args |
+    wx_redefine_method(:initialize) do | *args |
       begin
         wx_init.bind(self).call(*args)
       # Invalid integer values raise SWIG 'no matching func'
