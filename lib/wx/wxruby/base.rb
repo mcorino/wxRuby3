@@ -55,6 +55,10 @@ module WxRuby
         puts
       end
 
+      def show_version
+        system(%Q[#{RUBY} -r wx -e 'puts "wxRuby3 v\#{Wx::WXRUBY_VERSION} (wxWidgets v\#{Wx::WXWIDGETS_VERSION})"' 2> /dev/null])
+      end
+
       def run(cmdid, args)
         commands[cmdid.to_s].call(args)
       end
@@ -65,9 +69,11 @@ module WxRuby
             "    COMMAND\t\t\t\tSpecifies wxruby command to execute."
         opts.separator ''
         opts.on('-v', '--verbose',
-                'Show verbose output') { |v| ::WxRuby::Commands.options[:verbose] = true }
+                'Show verbose output') { |_| ::WxRuby::Commands.options[:verbose] = true }
+        opts.on('-V', '--version',
+                'Show versions.') { |_| show_version } if setup_done?
         opts.on('-h', '--help',
-                 'Show this message.') do |v|
+                 'Show this message.') do |_|
           puts opts
           puts
           describe_all
