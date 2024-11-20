@@ -16,6 +16,7 @@ class Wx::Dialog
     wx_redefine_method :set_layout_adapter do |adapter|
       prev_adapter = wx_set_layout_adapter.bind(self).call(adapter)
       @adapter = adapter # cache here to prevent premature GC collection
+      prev_adapter
     end
 
   end
