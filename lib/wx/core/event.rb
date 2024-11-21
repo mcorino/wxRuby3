@@ -58,7 +58,7 @@ module Wx
     Wx::EVT_NC_PAINT,
     Wx::NcPaintEvent
   ]
-  if Wx.const_defined?(:EVT_HOTKEY)
+  if Wx.has_feature?(:USE_HOTKEY) && Wx.const_defined?(:EVT_HOTKEY)
     EvtHandler.register_event_type EvtHandler::EventType[
                                      'evt_hotkey', 1,
                                      Wx::EVT_HOTKEY,
