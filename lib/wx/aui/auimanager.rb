@@ -33,21 +33,10 @@ module Wx
 
     if WXWIDGETS_VERSION >= '3.3.0'
 
-      class AuiDockInfo
+      class AuiTabLayoutInfo < AuiDockLayoutInfo
 
-        wx_each_pane = instance_method(:each_pane)
-        wx_redefine_method(:each_pane) do |&block|
-          if block
-            wx_each_pane.bind(self).call(&block)
-          else
-            ::Enumerator.new { |y| wx_each_pane.bind(self).call { |p| y << p } }
-          end
-        end
-
-        def get_panes
-          each_pane.to_a
-        end
-        alias :panes :get_panes
+        alias :pages :get_pages
+        alias :pages= :set_pages
 
       end
 

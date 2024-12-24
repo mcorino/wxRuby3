@@ -18,48 +18,53 @@ module WXRuby3
         super
         spec.gc_as_object 'wxAuiManager'
         if Config.instance.wx_version >= '3.3.0'
-          spec.items << 'wxAuiSerializer' << 'wxAuiDockInfo' << 'wxAuiDeserializer'
-          spec.gc_as_untracked 'wxAuiSerializer', 'wxAuiDockInfo'
-          spec.regard 'wxAuiDockInfo::rect',
-                      'wxAuiDockInfo::dock_direction',
-                      'wxAuiDockInfo::dock_layer',
-                      'wxAuiDockInfo::dock_row',
-                      'wxAuiDockInfo::size',
-                      'wxAuiDockInfo::min_size',
-                      'wxAuiDockInfo::resizable',
-                      'wxAuiDockInfo::toolbar',
-                      'wxAuiDockInfo::fixed',
-                      'wxAuiDockInfo::reserved1'
-          spec.make_readonly 'wxAuiDockInfo::rect',
-                             'wxAuiDockInfo::dock_direction',
-                             'wxAuiDockInfo::dock_layer',
-                             'wxAuiDockInfo::dock_row',
-                             'wxAuiDockInfo::size',
-                             'wxAuiDockInfo::min_size',
-                             'wxAuiDockInfo::resizable',
-                             'wxAuiDockInfo::toolbar',
-                             'wxAuiDockInfo::fixed',
-                             'wxAuiDockInfo::reserved1'
-          spec.add_extend_code 'wxAuiDockInfo', <<~__HEREDOC
-            VALUE each_pane()
+          spec.items  << 'wxAuiSerializer' << 'wxAuiDockLayoutInfo' << 'wxAuiPaneLayoutInfo' << 'wxAuiTabLayoutInfo' << 'wxAuiDeserializer'
+          spec.gc_as_untracked 'wxAuiSerializer', 'wxAuiDeserializer', 'wxAuiDockLayoutInfo', 'wxAuiPaneLayoutInfo', 'wxAuiTabLayoutInfo'
+          spec.regard 'wxAuiDockLayoutInfo::dock_direction',
+                      'wxAuiDockLayoutInfo::dock_layer',
+                      'wxAuiDockLayoutInfo::dock_row',
+                      'wxAuiDockLayoutInfo::dock_pos',
+                      'wxAuiDockLayoutInfo::dock_proportion',
+                      'wxAuiDockLayoutInfo::dock_size',
+                      'wxAuiPaneLayoutInfo::name',
+                      'wxAuiPaneLayoutInfo::floating_pos',
+                      'wxAuiPaneLayoutInfo::floating_size',
+                      'wxAuiPaneLayoutInfo::is_maximized'
+          spec.add_extend_code 'wxAuiTabLayoutInfo', <<~__HEREDOC
+            VALUE get_pages()
             {
-              wxAuiPaneInfoPtrArray panes = self->panes;
-              VALUE rc = Qnil;
-              for (wxAuiPaneInfo* pane : panes)
+              VALUE rc = rb_ary_new();
+              for (int page : self->pages)
               {
-                VALUE r_pane = SWIG_NewPointerObj(pane, SWIGTYPE_p_wxAuiPaneInfo, 0);
-                rc = rb_yield(r_pane);
-              }	
+                rb_ary_push(rc, INT2NUM(page));
+              }
               return rc;
             }
+
+            void set_pages(VALUE rb_pages)
+            {
+              if (TYPE(rb_pages) == T_ARRAY) 
+              {
+                std::vector<int> pgs;
+                for (int i = 0; i < RARRAY_LEN(rb_pages); i++)
+                {
+                  pgs.push_back(NUM2INT(rb_ary_entry(rb_pages, i)));
+                }
+                self->pages = pgs;
+              }
+              else 
+              {
+                rb_raise(rb_eTypeError, "Expected Array of Integer for 1");
+              }
+            } 
             __HEREDOC
-          spec.map 'std::vector<wxAuiPaneInfo>' => 'Array<Wx::AuiPaneInfo>' do
+          spec.map 'std::vector<wxAuiPaneLayoutInfo>' => 'Array<Wx::AuiPaneLayoutInfo>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
-              std::vector<wxAuiPaneInfo>& panes = (std::vector<wxAuiPaneInfo>&)$1;
-              for (const wxAuiPaneInfo& pane : panes)
+              std::vector<wxAuiPaneLayoutInfo>& panes = (std::vector<wxAuiPaneLayoutInfo>&)$1;
+              for (const wxAuiPaneLayoutInfo& pane : panes)
               {
-                VALUE r_pane = SWIG_NewPointerObj(new wxAuiPaneInfo(pane), SWIGTYPE_p_wxAuiPaneInfo, SWIG_POINTER_OWN);
+                VALUE r_pane = SWIG_NewPointerObj(new wxAuiPaneLayoutInfo(pane), SWIGTYPE_p_wxAuiPaneLayoutInfo, SWIG_POINTER_OWN);
                 rb_ary_push($result, r_pane);
               }
               __CODE
@@ -70,24 +75,24 @@ module WXRuby3
                 {
                   void *ptr;
                   VALUE r_pane = rb_ary_entry($input, i);
-                  int res = SWIG_ConvertPtr(r_pane, &ptr, SWIGTYPE_p_wxAuiPaneInfo, 0);
+                  int res = SWIG_ConvertPtr(r_pane, &ptr, SWIGTYPE_p_wxAuiPaneLayoutInfo, 0);
                   if (!SWIG_IsOK(res) || !ptr) {
-                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "load_panes", rb_eTypeError, "in return value. Expected Array of Wx::AuiPaneInfo"); 
+                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "load_panes", rb_eTypeError, "in return value. Expected Array of Wx::AuiPaneLayoutInfo"); 
                   }
-                  wxAuiPaneInfo *pane = reinterpret_cast< wxAuiPaneInfo * >(ptr);
+                  wxAuiPaneLayoutInfo *pane = reinterpret_cast< wxAuiPaneLayoutInfo * >(ptr);
                   $result.push_back(*pane);
                 }
               }
               __CODE
           end
-          spec.map 'std::vector<wxAuiDockInfo>' => 'Array<Wx::AuiDockInfo>' do
+          spec.map 'std::vector<wxAuiTabLayoutInfo>' => 'Array<Wx::AuiTabLayoutInfo>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
-              std::vector<wxAuiDockInfo>& docks = (std::vector<wxAuiDockInfo>&)$1;
-              for (const wxAuiDockInfo& dock : docks)
+              std::vector<wxAuiTabLayoutInfo>& tabs = (std::vector<wxAuiTabLayoutInfo>&)$1;
+              for (const wxAuiTabLayoutInfo& tab : tabs)
               {
-                VALUE r_dock = SWIG_NewPointerObj(new wxAuiDockInfo(dock), SWIGTYPE_p_wxAuiDockInfo, SWIG_POINTER_OWN);
-                rb_ary_push($result, r_dock);
+                VALUE r_tab = SWIG_NewPointerObj(new wxAuiTabLayoutInfo(tab), SWIGTYPE_p_wxAuiTabLayoutInfo, SWIG_POINTER_OWN);
+                rb_ary_push($result, r_tab);
               }
               __CODE
             map_directorout code: <<~__CODE
@@ -96,13 +101,13 @@ module WXRuby3
                 for (int i = 0; i < RARRAY_LEN($input); i++)
                 {
                   void *ptr;
-                  VALUE r_dock = rb_ary_entry($input, i);
-                  int res = SWIG_ConvertPtr(r_dock, &ptr, SWIGTYPE_p_wxAuiDockInfo, 0);
+                  VALUE r_tab = rb_ary_entry($input, i);
+                  int res = SWIG_ConvertPtr(r_tab, &ptr, SWIGTYPE_p_wxAuiTabLayoutInfo, 0);
                   if (!SWIG_IsOK(res) || !ptr) {
-                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "load_docks", rb_eTypeError, "in return value. Expected Array of Wx::AuiDockInfo"); 
+                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "load_docks", rb_eTypeError, "in return value. Expected Array of Wx::AuiTabLayoutInfo"); 
                   }
-                  wxAuiDockInfo *dock = reinterpret_cast< wxAuiDockInfo * >(ptr);
-                  $result.push_back(*dock);
+                  wxAuiTabLayoutInfo *tab = reinterpret_cast< wxAuiTabLayoutInfo * >(ptr);
+                  $result.push_back(*tab);
                 }
               }
               __CODE
@@ -215,17 +220,18 @@ module WXRuby3
 
       def gen_class_doc_members(fdoc, clsdef, cls_members, alias_methods)
         super
-        if Config.instance.wx_version >= '3.3.0' && clsdef.name == 'wxAuiDockInfo'
-          fdoc.doc.puts 'Yield each pane to the given block.'
-          fdoc.doc.puts 'If no block passed returns an Enumerator.'
-          fdoc.doc.puts '@yieldparam [Wx::AUI::AuiPaneInfo] pane the Aui pane info yielded'
-          fdoc.doc.puts '@return [::Object, ::Enumerator] result of last block execution or enumerator'
-          fdoc.puts 'def each_pane; end'
+        if Config.instance.wx_version >= '3.3.0' && clsdef.name == 'wxAuiTabLayoutInfo'
+          fdoc.doc.puts 'Returns the indices of the pages in this tab control in their order on screen.'
+          fdoc.doc.puts 'If this array is empty, it means that the tab control contains all notebook pages in natural order.'
+          fdoc.doc.puts '@return [::Array<Integer>] indices of the pages in this tab control'
+          fdoc.puts 'def get_pages; end'
+          fdoc.puts 'alias :pages :get_pages'
           fdoc.puts
-          fdoc.doc.puts 'Returns an array of Wx::AuiPaneInfo for all panes managed by the frame manager.'
-          fdoc.doc.puts '@return [Array<Wx::AUI::AuiPaneInfo>] info for all managed panes'
-          fdoc.puts 'def get_panes; end'
-          fdoc.puts 'alias_method :panes, :get_panes'
+          fdoc.doc.puts 'Set the indices of the pages in this tab control in their order on screen.'
+          fdoc.doc.puts 'If this array is empty, it means that the tab control contains all notebook pages in natural order.'
+          fdoc.doc.puts '@param [::Array<Integer>] pages indices of the pages in this tab control'
+          fdoc.puts 'def set_pages(pages) end'
+          fdoc.puts 'alias :pages= :set_pages'
         end
       end
 
