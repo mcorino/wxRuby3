@@ -82,9 +82,9 @@ module Wx
 
           def self.param_spec=(val)
             singleton_class.class_eval do
-              if method_defined?(:param_spec) || private_method_defined?(:param_spec)
+              if method_defined?(:param_spec, false) || private_method_defined?(:param_spec, false)
                 begin
-                  remove_method(:param_spec);
+                  remove_method(:param_spec)
                 rescue NameError;
                 end
               end
@@ -93,9 +93,9 @@ module Wx
 
             if singleton_class?
               class_eval do
-                if method_defined?(:param_spec) || private_method_defined?(:param_spec)
+                if method_defined?(:param_spec, false) || private_method_defined?(:param_spec, false)
                   begin
-                    remove_method(:param_spec);
+                    remove_method(:param_spec)
                   rescue NameError;
                   end
                 end
@@ -108,9 +108,9 @@ module Wx
             val
           end
 
-          if method_defined?(:param_spec) || private_method_defined?(:param_spec)
+          if method_defined?(:param_spec, false) || private_method_defined?(:param_spec, false)
             begin
-              remove_method(:param_spec);
+              remove_method(:param_spec)
             rescue NameError;
             end
           end
