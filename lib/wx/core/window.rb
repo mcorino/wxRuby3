@@ -113,7 +113,7 @@ class Wx::Window
 
   # Overload the wrapper method to check for @__painting__
   wx_paint_buffered = instance_method :paint_buffered
-  define_method :paint_buffered do |&block|
+  wx_redefine_method :paint_buffered do |&block|
     if instance_variable_defined?('@__painting__')
       wx_paint_buffered.bind(self).call(&block)
     else
@@ -123,7 +123,7 @@ class Wx::Window
 
   # Overload to provide Enumerator without block
   wx_each_child = instance_method :each_child
-  define_method :each_child do |&block|
+  wx_redefine_method :each_child do |&block|
     if block
       wx_each_child.bind(self).call(&block)
     else

@@ -37,7 +37,7 @@ class Wx::GenericDirCtrl
   end
   
   wx_get_tree_ctrl = instance_method(:get_tree_ctrl)
-  define_method(:get_tree_ctrl) do 
+  wx_redefine_method(:get_tree_ctrl) do 
     tree = wx_get_tree_ctrl.bind(self).call
     tree.extend(DirCtrlTree)
     tree

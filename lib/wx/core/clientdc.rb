@@ -14,7 +14,7 @@ class Wx::ClientDC
   # always be used via Window#paint, which takes a block receiving the
   # DC. This ensures that the DC is cleaned up at the correct time,
   # avoiding errors and segfaults on exit.
-  define_method(:initialize) do | *args |
+  wx_redefine_method(:initialize) do | *args |
     Kernel.raise RuntimeError,
                  "Do not instantiate ClientDC directly; use Window#paint",
                  caller[1..-1]

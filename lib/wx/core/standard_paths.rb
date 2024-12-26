@@ -10,7 +10,7 @@ module Wx
     class << self
 
       wx_get = instance_method :get
-      define_method :get do
+      wx_redefine_method :get do
         # cache the global singleton
         @instance ||= wx_get.bind(self).call
       end

@@ -24,7 +24,7 @@ module Wx
 
     # make assign return self and add it's handy alias
     wx_assign = instance_method :assign
-    define_method :assign do |v|
+    wx_redefine_method :assign do |v|
       wx_assign.bind(self).call(v)
       self
     end
@@ -33,7 +33,7 @@ module Wx
     # extend to_s to arraylist and list (easier in pure Ruby)
 
     wx_to_s = instance_method :to_s
-    define_method :to_s do
+    wx_redefine_method :to_s do
       unless null?
         case type
         when 'list'

@@ -25,17 +25,17 @@ module Wx
     # using pure Ruby
 
     wx_get_data_size = instance_method :get_data_size
-    define_method :get_data_size do |format = nil|
+    wx_redefine_method :get_data_size do |format = nil|
       wx_get_data_size.bind(self).call(format || self.get_format)
     end
 
     wx_get_data_here = instance_method :get_data_here
-    define_method :get_data_here do |format = nil|
+    wx_redefine_method :get_data_here do |format = nil|
       wx_get_data_here.bind(self).call(format || self.get_format)
     end
 
     wx_set_data = instance_method :set_data
-    define_method :set_data do |*args|
+    wx_redefine_method :set_data do |*args|
       if args.size>1
         format, buf = args
       else
@@ -66,7 +66,7 @@ module Wx
       self._set_data(buf)
     end
 
-    def _get_data_size
+    wx_redefine_method :_get_data_size do
       (_get_data || '').bytesize
     end
     protected :_get_data_size

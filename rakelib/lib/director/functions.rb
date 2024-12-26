@@ -204,9 +204,6 @@ module WXRuby3
         spec.add_interface_code <<~__HEREDOC
           bool wxSafeYield(wxWindow* win = NULL, bool onlyIfNeeded = false);
           
-          // Mouse / keyboard information
-          wxWindow * wxGetActiveWindow();
-          
           // Dialog shortcuts
           wxString wxFileSelector (const wxString &message,
                                    const wxString &default_path=wxEmptyString,

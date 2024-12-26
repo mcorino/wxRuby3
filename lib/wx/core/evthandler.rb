@@ -25,7 +25,7 @@ module Wx
     wx_set_next_handler = instance_method :set_next_handler
     wx_set_previous_handler = instance_method :set_previous_handler
 
-    define_method :set_next_handler do |evthnd|
+    wx_redefine_method :set_next_handler do |evthnd|
       # check if we have a different existing next handler
       cur_next = get_next_handler
       if cur_next && cur_next != evthnd
@@ -38,7 +38,7 @@ module Wx
     alias :next_handler= :set_next_handler
 
     # disable this in Ruby; set_next_handler handles double linking
-    define_method :set_previous_handler do |evthnd|
+    wx_redefine_method :set_previous_handler do |evthnd|
       raise NoMethodError
     end
     alias :previous_handler= :set_previous_handler
@@ -88,13 +88,13 @@ module Wx
       private :event_filters
 
       wx_add_filter = instance_method :add_filter
-      define_method :add_filter do |filter|
+      wx_redefine_method :add_filter do |filter|
         wx_add_filter.bind(self).call(filter)
         event_filters << filter
       end
 
       wx_remove_filter = instance_method :remove_filter
-      define_method :remove_filter do |filter|
+      wx_redefine_method :remove_filter do |filter|
         wx_remove_filter.bind(self).call(filter)
         event_filters.delete(filter)
       end
@@ -249,7 +249,7 @@ module Wx
     private :acquire_id, :acquire_handler
 
     wx_call_after = instance_method(:call_after)
-    define_method(:call_after) do |*args, &block|
+    wx_redefine_method(:call_after) do |*args, &block|
       async_proc = if block
                      block
                    elsif !args.empty?

@@ -10,7 +10,7 @@ class Wx::ImageList
 
   # provide seamless support for adding icons on all platforms
   wx_add = instance_method :add
-  define_method :add do |*args|
+  wx_redefine_method :add do |*args|
     if Wx::PLATFORM == 'WXMSW' && args.size == 1 && Wx::Icon === args.first
       args[0] = args.first.to_bitmap
     end

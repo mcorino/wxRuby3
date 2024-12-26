@@ -47,14 +47,14 @@ class Wx::Timer
 
   # Redefine initialize
   wx_init = self.instance_method(:initialize)
-  define_method(:initialize) do | *args |
+  wx_redefine_method(:initialize) do | *args |
     setup_owner_destruction_hook(args[0])
     wx_init.bind(self).call(*args)
   end
 
   # Redefine set_owner
   wx_set_owner = self.instance_method(:set_owner)
-  define_method(:set_owner) do | *args |
+  wx_redefine_method(:set_owner) do | *args |
     setup_owner_destruction_hook(args[0])
     wx_set_owner.bind(self).call(*args)
   end

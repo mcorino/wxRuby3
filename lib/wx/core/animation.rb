@@ -13,7 +13,7 @@ module Wx
     # non-existent file is given to the constructor; otherwise, wx Widgets
     # just carries on with an empty bitmap, which may cause faults later
     wx_init = self.instance_method(:initialize)
-    define_method(:initialize) do | *args |
+    wx_redefine_method(:initialize) do | *args |
       if args[0].kind_of? String
         if not File.exist?( File.expand_path(args[0]) )
           Kernel.raise( ArgumentError,
@@ -33,7 +33,7 @@ module Wx
 
       # Redefine this method to accept either a single animation or an animation bundle
       wx_set_animation = self.instance_method(:set_animation)
-      define_method(:set_animation) do | arg |
+      wx_redefine_method(:set_animation) do | arg |
         if Wx::Animation === arg
           arg = Wx::AnimationBundle.new(arg)
         end

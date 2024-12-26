@@ -44,7 +44,7 @@ module Wx
     # just carries on with an empty icon, which may cause faults
     # later. Also guess icon type from filename, if not specified.
     wx_init = self.instance_method(:initialize)
-    define_method(:initialize) do | *args |
+    wx_redefine_method(:initialize) do | *args |
       if args[0].kind_of? String
         if not File.exist?( File.expand_path(args[0]) )
           Kernel.raise(ArgumentError, "Icon file does not exist: #{args[0]}")

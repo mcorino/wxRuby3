@@ -14,13 +14,13 @@ The default gem installation command
 gem install wxruby3
 ``` 
 
-and the setup command  
+and the setup command  (only needed for installations without matching prebuilt binary package) 
 
 ```shell
 wxruby setup
 ```
 
-for installations without prebuilt binary packages should always result in a successfully installed wxRuby3 version.
+should always result in a successfully installed wxRuby3 version.
 
 > **NOTE**<br>
 > Currently installing the wxRuby3 gem for the system supplied Ruby on MacOSX systems does not work.<br>
@@ -71,16 +71,15 @@ The standard release artifacts at [Github](https://github.com/mcorino/wxRuby3/re
 packages for all supported OS platforms which are automatically built and uploaded for every release.<br>
 The following tables lists the packages provided by the current wxRuby3 release process:
 
-| OS      | Distributions                 | Architectures           | Rubies                                             |
-|---------|-------------------------------|-------------------------|----------------------------------------------------|
-| Linux   | OpenSuSE Leap (latest stable) | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
-| Linux   | Fedora (latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
-| Linux   | Debian (latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
-| Linux   | Ubuntu (latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |
-| Windows | NA                            | x86_64                  | Latest stable Ruby                                 |
-| OSX     | MacOSX 12                     | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
-| OSX     | MacOSX 13                     | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
-| OSX     | MacOSX 14                     | ARM64                   | Latest stable Ruby                                 |
+| OS      | Distributions                          | Architectures           | Rubies                                             |
+|---------|----------------------------------------|-------------------------|----------------------------------------------------|
+| Linux   | OpenSuSE Leap (at least latest stable) | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
+| Linux   | Fedora (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
+| Linux   | Debian (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
+| Linux   | Ubuntu (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |
+| Windows | NA                                     | x86_64                  | Latest stable Ruby                                 |
+| OSX     | MacOSX 13                              | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
+| OSX     | MacOSX 14                              | ARM64                   | Latest stable Ruby                                 |
 
 ### User created packages
 
@@ -299,6 +298,11 @@ may require a 'sudo' password and on MacOSX using either [MacPorts](https://www.
 The initial message shown (between lines starting with '---' ) is indicative of what is going to happen depending 
 on options passed to the setup command.<br>
 Building the wxRuby3 native extensions and generating reference documentation will always happen.
+
+Depending on your configuration the `setup` command will take quite a while. On a recent, modern PC with multicore 
+high-end CPU and plenty of memory doing a full source build (both wxWidgets and wxRuby3 libraries) typically takes 
+10-15 minutes. For PC's with older CPU's this could however take up to a full hour (of which the larger part is take 
+up by building the wxWidgets libraries). 
 
 #### Disable prompting for automatic install 
 

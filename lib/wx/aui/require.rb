@@ -10,5 +10,3 @@ require_relative './auimanager'
 require_relative './auinotebook'
 require_relative './auifloatframe'
 require_relative './aui_tab_ctrl'
-
-Wx::Dialog.setup_dialog_functors(Wx::AUI)

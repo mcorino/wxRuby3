@@ -11,7 +11,7 @@ module Wx
   class BitmapComboBox < Wx::ComboBox
 
     wx_append = instance_method :append
-    define_method :append do |item, *rest| #bitmap=Wx::NULL_BITMAP, data=nil|
+    wx_redefine_method :append do |item, *rest| #bitmap=Wx::NULL_BITMAP, data=nil|
       if ::Array === item
         super(item, *rest)
       elsif rest.empty? || Wx::Bitmap === rest.first
@@ -22,7 +22,7 @@ module Wx
     end
 
     wx_insert = instance_method :insert
-    define_method :insert do |item, *rest| # bitmap, pos, data=nil|
+    wx_redefine_method :insert do |item, *rest| # bitmap, pos, data=nil|
       if ::Array === item
         super(item, *rest)
       elsif rest.empty? || Wx::Bitmap === rest.first

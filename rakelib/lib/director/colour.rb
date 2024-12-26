@@ -16,7 +16,7 @@ module WXRuby3
         spec.gc_as_untracked('wxColour')
         spec.require_app 'wxColour::wxColour(const wxColour&)'
         spec.ignore(%w[
-          wxColour::GetPixel wxTransparentColour wxColour::operator!=
+          wxColour::GetPixel wxTransparentColour wxColour::operator!= wxColour::operator==
           wxBLACK wxBLUE wxCYAN wxGREEN wxYELLOW wxLIGHT_GREY wxRED wxWHITE
           ])
         spec.map 'unsigned char *' => 'Integer' do

@@ -136,7 +136,8 @@ wxruby setup
 This last command is a fully automated setup procedure provided by the wxRuby3 **CLI** installed with the gem. This 
 procedure (by default) will analyze your system and install (after asking your consent) any missing software 
 requirements and build the wxRuby3 extension libraries (including a embedded copy of wxWidgets if necessary). It may 
-take quite a while depending on your system but you can mostly sit back and relax.
+take quite a while depending on your system (around 10-15 minutes on a modern PC but could be significantly longer
+on 'older' PC's) but you can mostly sit back and relax.
 
 > **NOTE**<br>
 > A source based installation requires the availability of the Ruby development headers. User installed Rubies in most cases

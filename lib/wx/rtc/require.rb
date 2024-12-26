@@ -14,5 +14,3 @@ require_relative './rich_text_paragraph'
 require_relative './richtext_formatting_dialog'
 require_relative './symbol_picker_dialog'
 require_relative './richtext_style_organiser_dialog'
-
-Wx::Dialog.setup_dialog_functors(Wx::RTC)

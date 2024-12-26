@@ -19,6 +19,7 @@ module WXRuby3
           map_check code: ''
         end
         super
+        spec.ignore 'wxGenericAboutBox' # wrapped with wxGenericAboutDialog
       end
     end # class AboutDialogInfo
 

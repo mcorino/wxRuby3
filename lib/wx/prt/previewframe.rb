@@ -11,7 +11,7 @@ class Wx::PRT::PreviewFrame
   # to assign it to an instance variable so it is marked correctly when
   # the frame displaying it is marked.
   wx_init = self.instance_method(:initialize)
-  define_method(:initialize) do | *args |
+  wx_redefine_method(:initialize) do | *args |
     wx_init.bind(self).call(*args)
     @__preview = args[0]
   end

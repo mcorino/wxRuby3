@@ -9,14 +9,14 @@
 class Wx::XmlResource
   class << self
     wx_get = self.instance_method(:get)
-    define_method(:get) do 
+    wx_redefine_method(:get) do 
       result = wx_get.bind(self).call
       result.init_all_handlers
       result
     end
 
     wx_add_subclass_factory = self.instance_method(:add_subclass_factory)
-    define_method(:add_subclass_factory) do |factory|
+    wx_redefine_method(:add_subclass_factory) do |factory|
       @factories ||= []
       @factories << factory # keep Ruby factories alive through GC
       wx_add_subclass_factory.bind(self).call(factory)
@@ -25,7 +25,7 @@ class Wx::XmlResource
 
   # Again, if created via new, switch subclassing off and init_all_handlers
   wx_init = self.instance_method(:initialize)
-  define_method(:initialize) do | *args |
+  wx_redefine_method(:initialize) do | *args |
     result = wx_init.bind(self).call(*args)
     result.init_all_handlers
   end
@@ -35,7 +35,7 @@ class Wx::XmlResource
   # file. In ruby, in these circumstances, it's more natural to raise an
   # Exception than expect the user to test the return value.
   wx_load = self.instance_method(:load)
-  define_method(:load) do | fname |
+  wx_redefine_method(:load) do | fname |
     result = wx_load.bind(self).call(fname)
     if not result
       Kernel.raise( RuntimeError,

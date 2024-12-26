@@ -23,7 +23,7 @@ module Wx
     private :add, :sub, :mul, :div
 
     wx_assign = instance_method :assign
-    define_method :assign do |pt|
+    wx_redefine_method :assign do |pt|
       wx_assign.bind(self).call(pt)
       self
     end
@@ -76,7 +76,7 @@ module Wx
     private :add, :sub, :mul, :div
 
     wx_assign = instance_method :assign
-    define_method :assign do |pt|
+    wx_redefine_method :assign do |pt|
       wx_assign.bind(self).call(pt)
       self
     end

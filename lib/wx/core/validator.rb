@@ -34,7 +34,7 @@ class Wx::Validator
   module Binding
     def self.included(base)
       wx_on_transfer_from_window = base.instance_method :on_transfer_from_window
-      base.define_method :on_transfer_from_window do |meth = nil, &block|
+      base.wx_redefine_method :on_transfer_from_window do |meth = nil, &block|
         proc = if block and not meth
                  block
                elsif meth and not block
@@ -54,7 +54,7 @@ class Wx::Validator
       end
 
       wx_on_transfer_to_window = base.instance_method :on_transfer_to_window
-      base.define_method :on_transfer_to_window do |meth = nil, &block|
+      base.wx_redefine_method :on_transfer_to_window do |meth = nil, &block|
         proc = if block and not meth
                  block
                elsif meth and not block

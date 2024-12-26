@@ -13,7 +13,7 @@ module Wx
     # Allow this to be called with keyword parameters, and avoid
     # segfaults on OS X with bad params
     wx_about_box = self.instance_method(:about_box)
-    define_method(:about_box) do | info, parent=nil |
+    wx_redefine_method(:about_box) do | info, parent=nil |
       case info
       when Wx::AboutDialogInfo
         ab_info = info

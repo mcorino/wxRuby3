@@ -14,7 +14,7 @@ module Wx
 
       # cache any explicitly assigned config for GC protection
       wx_use_config = instance_method(:use_config)
-      define_method :use_config do |cfg, *args|
+      wx_redefine_method :use_config do |cfg, *args|
         @configuration = cfg
         if get_help_window
           # also set config var for any associated help window (as wxWidgets propagates it too)

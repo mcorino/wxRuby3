@@ -13,7 +13,7 @@ module Wx
   class FileDialog
 
     wx_set_customize_hook = instance_method :set_customize_hook
-    define_method :set_customize_hook do |hook|
+    wx_redefine_method :set_customize_hook do |hook|
       wx_set_customize_hook.bind(self).call(hook)
       @hook = hook # cache hook to prevent premature GC collection
     end

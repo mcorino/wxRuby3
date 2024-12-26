@@ -29,6 +29,8 @@ module WXRuby3
           wxLanguageInfo::LayoutDirection
           ]
         spec.ignore_unless('WXMSW', 'wxLanguageInfo::WinLang', 'wxLanguageInfo::WinSublang')
+        # implemented in Ruby
+        spec.ignore 'wxLocale::GetSystemEncodingName'
       end
     end # class Locale
 

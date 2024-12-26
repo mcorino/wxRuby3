@@ -6,6 +6,7 @@
 #--------------------------------------------------------------------
 
 require 'fileutils'
+require 'json'
 
 module WxRuby
   module Commands
@@ -55,6 +56,16 @@ module WxRuby
         opts.parse!(args) rescue ($stderr.puts $!.message; exit(127))
       end
 
+      class << self
+
+        private
+
+        def check_wx_config
+          !(`which #{@wx_config} 2>/dev/null`).chomp.empty?
+        end
+
+      end
+
       def self.run(argv)
         return description if argv == :describe
 
@@ -74,48 +85,61 @@ module WxRuby
         cfg_cmd = 'rake configure'
         cfg_cmd << "[#{cfg_args.join(',')}]" unless cfg_args.empty?
 
-        result = false
-        FileUtils.chdir(WxRuby::ROOT) do
-          steps = 0
-          actions_txt = if Setup.options['autoinstall'] != false
-                          steps = 1
-                          '(possibly) install required software'
-                        else
-                          ''
-                        end
-          if Setup.options['with-wxwin'] || Setup.options['wxwin'].nil?
-            actions_txt << ', ' if steps>0
-            actions_txt << 'build the wxWidgets libraries (if needed), '
-            actions_txt << "\n" if steps>0
-            steps += 1
+        log_file = File.join(WxRuby::ROOT, 'setup.log')
+        if Setup.options['log']
+          if File.directory?(Setup.options['log']) && File.writable?(Setup.options['log'])
+            log_file = File.join(Setup.options['log'], 'setup.log')
           else
-            actions_txt << ',' if steps>0
+            $stderr.puts "ERROR: cannot write log to #{Setup.options['log']}. Log path must exist and be writable."
+            exit(1)
           end
-          actions_txt << 'build the native wxRuby3 extensions '
-          actions_txt << "\n" if steps==1
-          actions_txt << 'and generate the wxRuby3 reference documentation.'
-          $stdout.puts <<~__INFO_TXT
+        end
+        run_env = {'WXRUBY_RUN_SILENT' => "#{log_file}"}
+        run_env['WXRUBY_VERBOSE'] = '1' if Setup.options[:verbose]
 
-            ---            
-            Now running wxRuby3 post-install setup.
-            This will #{actions_txt}
-            Please be patient as this may take quite a while depending on your system.
-            ---
+        result = false
 
-            __INFO_TXT
-          log_file = File.join(WxRuby::ROOT, 'setup.log')
-          if Setup.options['log']
-            if File.directory?(Setup.options['log']) && File.writable?(Setup.options['log'])
-              log_file = File.join(Setup.options['log'], 'setup.log')
+        FileUtils.chdir(WxRuby::ROOT) do
+          # first run the configure command
+          result = system(run_env, "#{cfg_cmd}")
+
+          # if succeeded
+          if result
+            # load the wxRuby3 build config
+            build_cfg = ::JSON.load(File.read('.wxconfig'))
+
+            # now determine the steps to execute
+            steps = 0
+            actions_txt = if Setup.options['autoinstall'] != false
+                            steps = 1
+                            '(possibly) install required software'
+                          else
+                            ''
+                          end
+            if build_cfg['with-wxwin'] || (!build_cfg['wxwin'].to_s.empty? && build_cfg['wxwin'].to_s != '@system')
+              actions_txt << ', ' if steps>0
+              actions_txt << 'build the wxWidgets libraries, '
+              actions_txt << "\n" if steps>0
+              steps += 1
             else
-              $stderr.puts "ERROR: cannot write log to #{Setup.options['log']}. Log path must exist and be writable."
-              exit(1)
+              actions_txt << ',' if steps>0
             end
+            actions_txt << 'build the native wxRuby3 extensions '
+            actions_txt << "\n" if steps==1
+            actions_txt << 'and generate the wxRuby3 reference documentation.'
+            $stdout.puts <<~__INFO_TXT
+  
+              ---            
+              Now running wxRuby3 post-install setup.
+              This will #{actions_txt}
+              Please be patient as this may take quite a while depending on your system.
+              (#{steps >= 2 ? '10-15' : '5-10'} min on a modern PC with multicore CPU but longer with older/slower CPUs)
+              ---
+  
+              __INFO_TXT
+            # can't rely on FileUtils#chdir returning the block result (bug in older Rubies) so assign result here
+            result = system(run_env, "rake -m wxruby:gem:setup#{Setup.options['log'] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
           end
-          run_env = {'WXRUBY_RUN_SILENT' => "#{log_file}"}
-          run_env['WXRUBY_VERBOSE'] = '1' if Setup.options[:verbose]
-          # can't rely on FileUtils#chdir returning the block result (bug in older Rubies) so assign result here
-          result = system(run_env, "#{cfg_cmd} && rake -m wxruby:gem:setup#{Setup.options['log'] ? '[:keep_log]' : ''} && gem rdoc wxruby3 --overwrite")
         end
         exit(result ? 0 : 1)
       end

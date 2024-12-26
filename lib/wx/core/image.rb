@@ -58,7 +58,7 @@ module Wx
     # later. Also, if loading from a file, and the type is not specified,
     # try to guess it from the filename extension
     wx_init = self.instance_method(:initialize)
-    define_method(:initialize) do | *args |
+    wx_redefine_method(:initialize) do | *args |
       if args[0].kind_of? String
         if not File.exist?( File.expand_path(args[0]) )
           Kernel.raise(ArgumentError, "Image file does not exist: #{args[0]}")
@@ -103,7 +103,7 @@ module Wx
     end
 
     wx_compute_histogram = instance_method :compute_histogram
-    define_method :compute_histogram do
+    wx_redefine_method :compute_histogram do
       hist_hash = wx_compute_histogram.bind(self).call
       hist_hash.extend Histogram
       hist_hash

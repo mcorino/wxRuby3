@@ -42,7 +42,7 @@ module Wx
 
     # add protection against exceptions raised in blocks
     wx_for_path = instance_method :for_path
-    define_method :for_path do |path, &block|
+    wx_redefine_method :for_path do |path, &block|
       if block
         ex = nil
         rc = wx_for_path.bind(self).call(path) do |cfg, key|
@@ -64,7 +64,7 @@ module Wx
     # add Enumerator support
 
     wx_each_entry = instance_method :each_entry
-    define_method :each_entry do |&block|
+    wx_redefine_method :each_entry do |&block|
       if block_given?
         wx_each_entry.bind(self).call { |k| block.call(k, read(k)) }
       else
@@ -73,7 +73,7 @@ module Wx
     end
 
     wx_each_group = instance_method :each_group
-    define_method :each_group do |&block|
+    wx_redefine_method :each_group do |&block|
       if block_given?
         wx_each_group.bind(self).call { |k| block.call(k, Group.new(self, self.path.dup.push(k))) }
       else
@@ -83,20 +83,20 @@ module Wx
 
     # make this return a path array
     wx_path = instance_method :path
-    define_method :path do
+    wx_redefine_method :path do
       wx_path.bind(self).call.split(ConfigBase::SEPARATOR)
     end
 
     # protect against attempts to rename complete paths
     wx_rename = instance_method :rename
-    define_method :rename do |old_key, new_key|
+    wx_redefine_method :rename do |old_key, new_key|
       raise ArgumentError, 'No paths allowed' if old_key.index(ConfigBase::SEPARATOR) || new_key.index(ConfigBase::SEPARATOR)
       wx_rename.bind(self).call(old_key, new_key)
     end
 
     # fix recursive number_of_xxx methods as wxRegConfig does not support this currently
     wx_number_of_entries = instance_method :number_of_entries
-    define_method :number_of_entries do |recurse=false|
+    wx_redefine_method :number_of_entries do |recurse=false|
       if recurse
         each_group.inject(wx_number_of_entries.bind(self).call) { |c, (_, g)| c + g.number_of_entries(true) }
       else
@@ -105,7 +105,7 @@ module Wx
     end
 
     wx_number_of_groups = instance_method :number_of_groups
-    define_method :number_of_groups do |recurse=false|
+    wx_redefine_method :number_of_groups do |recurse=false|
       if recurse
         each_group.inject(wx_number_of_groups.bind(self).call) { |c, (_, g)| c + g.number_of_groups(true) }
       else

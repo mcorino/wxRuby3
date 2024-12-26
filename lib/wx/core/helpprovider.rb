@@ -16,7 +16,7 @@ class Wx::HelpProvider
     # easiest way is to make the currently set one an instance variable
     # of this class
     wx_set = instance_method :set
-    define_method(:set) do | help_provider |
+    wx_redefine_method(:set) do | help_provider |
       wx_set.bind(self).call(help_provider)
       @__hp__ = help_provider
     end

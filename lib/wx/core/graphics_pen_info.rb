@@ -10,7 +10,7 @@ class Wx::GraphicsPenInfo
 
   # make Wx::GraphicsPenInfo#dashes return self
   wx_dashes = instance_method :dashes
-  define_method :dashes do |*args|
+  wx_redefine_method :dashes do |*args|
     wx_dashes.bind(self).call(*args)
     self
   end
