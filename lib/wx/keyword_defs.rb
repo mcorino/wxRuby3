@@ -61,13 +61,13 @@ end
 # MISCELLANEOUS WINDOWS
 
 # OpenGL Canvas
-Wx::define_keyword_ctors('GLCanvas') do
-  wx_ctor_params :id
-  wx_ctor_params :pos, :size, :style => Wx::FULL_REPAINT_ON_RESIZE
-  wx_ctor_params :name => 'GLCanvas'
-  wx_ctor_params :attrib_list => [Wx::GL_RGBA, Wx::GL_DOUBLEBUFFER]
-  wx_ctor_params :palette => Wx::NULL_PALETTE
-end
+# Wx::define_keyword_ctors('GLCanvas') do
+#   wx_ctor_params :id
+#   wx_ctor_params :pos, :size, :style => Wx::FULL_REPAINT_ON_RESIZE
+#   wx_ctor_params :name => 'GLCanvas'
+#   wx_ctor_params :attrib_list => [Wx::GL_RGBA, Wx::GL_DOUBLEBUFFER]
+#   wx_ctor_params :palette => Wx::NULL_PALETTE
+# end
 
 # A window whose colour changes according to current user settings
 Wx::define_keyword_ctors(Wx::Panel) do

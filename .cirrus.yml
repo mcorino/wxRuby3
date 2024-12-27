@@ -26,14 +26,6 @@ pr_1_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / ArchLinux AMD64 Test
-      container:
-        image: archlinux/archlinux:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: arch
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -64,12 +56,14 @@ pr_2_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Sonoma M1 Test
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-runner:sonoma
+    - name: Cirrus CI / ArchLinux AMD64 Test
+      container:
+        image: archlinux/archlinux:latest
+        cpu: 4
+        memory: 8G
       env:
-        osname: darwin
-        distro: macosx
+        osname: linux
+        distro: arch
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -154,12 +148,6 @@ verify_2_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / MacOSX Sonoma M1 Test
-      macos_instance:
-        image: ghcr.io/cirruslabs/macos-runner:sonoma
-      env:
-        osname: darwin
-        distro: macosx
     - name: Cirrus CI / ArchLinux AMD64 Test
       container:
         image: archlinux/archlinux:latest
