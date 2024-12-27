@@ -211,6 +211,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: macOS15
+            os: macos-15
+            arch: arm64
+            ruby: 'ruby'
           - name: macOS14
             os: macos-14
             arch: arm64
@@ -306,6 +310,11 @@ jobs:
             use_xvfb: true
             build: true
             wxw_type: embed
+          - name: macOS15
+            os: macos-15
+            arch: arm64
+            ruby: 'ruby'
+            build: false
           - name: macOS14
             os: macos-14
             arch: arm64
