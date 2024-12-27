@@ -70,6 +70,13 @@ module Wx
     # This module defines an inheritable class attribute like the ones defined
     # by the Rails #class_attribute method.
     module ParamSpec
+
+      if RUBY_VERSION < '2.7.0'
+        PARAM_SPEC_ARG = [:param_spec]
+      else
+        PARAM_SPEC_ARG = [:param_spec, false]
+      end
+
       def self.included(mod)
         mod.class_eval do
           def self.param_spec
@@ -82,7 +89,7 @@ module Wx
 
           def self.param_spec=(val)
             singleton_class.class_eval do
-              if method_defined?(:param_spec, false) || private_method_defined?(:param_spec, false)
+              if method_defined?(*PARAM_SPEC_ARG) || private_method_defined?(*PARAM_SPEC_ARG)
                 begin
                   remove_method(:param_spec)
                 rescue NameError;
@@ -93,7 +100,7 @@ module Wx
 
             if singleton_class?
               class_eval do
-                if method_defined?(:param_spec, false) || private_method_defined?(:param_spec, false)
+                if method_defined?(*PARAM_SPEC_ARG) || private_method_defined?(*PARAM_SPEC_ARG)
                   begin
                     remove_method(:param_spec)
                   rescue NameError;
@@ -108,7 +115,7 @@ module Wx
             val
           end
 
-          if method_defined?(:param_spec, false) || private_method_defined?(:param_spec, false)
+          if method_defined?(*PARAM_SPEC_ARG) || private_method_defined?(*PARAM_SPEC_ARG)
             begin
               remove_method(:param_spec)
             rescue NameError;
