@@ -53,6 +53,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - name: wxMac macOS 15
+          runner: macos-15
+          arch: arm64
+          ruby: 'ruby'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
         - name: wxMac macOS 14
           runner: macos-14
           arch: arm64
