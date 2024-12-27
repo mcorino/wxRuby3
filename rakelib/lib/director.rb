@@ -6,7 +6,6 @@
 # wxRuby3 interface Director class
 ###
 
-require 'ostruct'
 require 'set'
 require 'pathname'
 require 'tempfile'
