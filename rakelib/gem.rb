@@ -214,16 +214,18 @@ module WXRuby3
             end
           elsif uri.scheme == 'http' || uri.scheme == 'https'
             # download the binary release package
-            $stdout.puts "Downloading #{uri.path}..."
+            $stdout.puts "Downloading #{uri}..."
             filename = File.basename(uri.path)
-            if WXRuby3.config.download_file(uri.path, filename)
+            if WXRuby3.config.download_file(uri.to_s, filename)
               sha_file = File.basename(filename, '.*')+DIGEST_EXT
-              uri.path = File.join(File.dirname(uri.path), sha_file)
-              unless WXRuby3.config.download_file(uri.path, sha_file)
+              sha_uri = File.join(File.dirname(uri.to_s), sha_file)
+              unless WXRuby3.config.download_file(sha_uri, sha_file)
                 $stderr.puts "ERROR: Unable to download digest signature for binary release package : #{package}"
                 exit(1)
               end
               exit(1) unless install_bin_pkg(filename)
+              # cleanup, remove downloaded files
+              FileUtils.rm_f([filename, sha_file])
               true
             else
               $stderr.puts "ERROR: Unable to download binary release package (#{package})!"
@@ -241,6 +243,8 @@ module WXRuby3
               exit(1)
             end
             exit(1) unless install_bin_pkg(bin_pkg_name+BINPKG_EXT)
+            # cleanup, remove downloaded files
+            FileUtils.rm_f([bin_pkg_name+BINPKG_EXT, bin_pkg_name+DIGEST_EXT])
             true
           else
             if prebuilt_only

@@ -96,7 +96,7 @@ class EventHandlingTests < Test::Unit::TestCase
     assert(win.child.test_event)
     win.reset
     evt = TestEvent.new
-    evt.value = 'Something happened'
+    evt.value = 'Something happened'.dup
     win.process_event(evt)
     evt.value << ' again'
     assert(win.test_event)
@@ -159,7 +159,7 @@ class EventHandlingTests < Test::Unit::TestCase
     assert_false(win.child.test_cmd_event)
     win.reset
     evt = TestEvent.new
-    evt.value = 'Something happened'
+    evt.value = 'Something happened'.dup
     win.queue_event(evt)
     evt.value << ' again'
     Wx.get_app.yield
@@ -202,7 +202,7 @@ class EventHandlingTests < Test::Unit::TestCase
     assert_false(win.child.test_cmd_event)
     win.reset
     evt = TestEvent.new
-    evt.value = 'Something happened'
+    evt.value = 'Something happened'.dup
     win.add_pending_event(evt)
     evt.value << ' again'
     Wx.get_app.yield
