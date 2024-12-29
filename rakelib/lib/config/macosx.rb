@@ -158,10 +158,18 @@ module WXRuby3
           private
 
           def wx_configure
-            bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
-                   "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
-                   "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
-                   "CFLAGS=\"-Wno-unused-but-set-variable\"")
+            if @wx_version <= '3.2.6' && WXRuby3.config.sysinfo.os.release >= '15'
+              # circumvent compilation problems on MacOS 15 or higher with older wxWidgets releases
+              bash("./configure " +
+                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
+                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+                     "CFLAGS=\"-Wno-unused-but-set-variable\"")
+            else
+              bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
+                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
+                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+                     "CFLAGS=\"-Wno-unused-but-set-variable\"")
+            end
           end
 
           def wx_make
