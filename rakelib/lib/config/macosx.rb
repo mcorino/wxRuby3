@@ -158,10 +158,37 @@ module WXRuby3
           private
 
           def wx_configure
-            bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
-                   "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
-                   "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
-                   "CFLAGS=\"-Wno-unused-but-set-variable\"")
+            wxw_ver = nil
+            if WXRuby3.config.sysinfo.os.release >= '15'
+              # try to detect wxWidgets version
+              verfile = File.join(ext_path, 'wxWidgets', 'include', 'wx', 'version.h')
+              if File.exist?(verfile)
+                v_major = v_minor = v_release = nil
+                File.foreach(verfile) do |line|
+                  case line
+                  when /\#define\s+wxMAJOR_VERSION\s+(\d+)/
+                    v_major = $1.to_i
+                  when /\#define\s+wxMINOR_VERSION\s+(\d+)/
+                    v_minor = $1.to_i
+                  when /\#define\s+wxRELEASE_NUMBER\s+(\d+)/
+                    v_release = $1.to_i
+                  end
+                end
+                wxw_ver = "#{v_major}.#{v_minor}.#{v_release}"
+              end
+            end
+            if WXRuby3.config.sysinfo.os.release >= '15' && (wxw_ver.nil? || wxw_ver <= '3.2.6')
+              # circumvent compilation problems on MacOS 15 or higher with older wxWidgets releases
+              bash("./configure " +
+                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
+                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+                     "CFLAGS=\"-Wno-unused-but-set-variable\"")
+            else
+              bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
+                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
+                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+                     "CFLAGS=\"-Wno-unused-but-set-variable\"")
+            end
           end
 
           def wx_make

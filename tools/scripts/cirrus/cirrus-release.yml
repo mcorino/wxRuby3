@@ -10,7 +10,7 @@ release_task:
   matrix:
     - name: Cirrus CI / Fedora AMD64 Release
       container:
-        image: fedora:40
+        image: fedora:41
         cpu: 4
         memory: 8G
       env:
@@ -18,7 +18,7 @@ release_task:
         distro: fedora
     - name: Cirrus CI / Fedora ARM64 Release
       arm_container:
-        image: fedora:40
+        image: fedora:41
         cpu: 4
         memory: 8G
       env:
@@ -113,7 +113,7 @@ test_release_task:
   matrix:
     - name: Cirrus CI / Fedora Latest AMD64 Release Test
       container:
-        image: fedora:40
+        image: fedora:41
         cpu: 4
         memory: 8G
       env:
@@ -121,7 +121,7 @@ test_release_task:
         distro: fedora
     - name: Cirrus CI / Fedora Latest ARM64 Release Test
       arm_container:
-        image: fedora:40
+        image: fedora:41
         cpu: 4
         memory: 8G
       env:
