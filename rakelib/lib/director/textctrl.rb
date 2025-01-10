@@ -24,11 +24,28 @@ module WXRuby3
           spec.ignore 'wxTextCtrl::GTKGetTextBuffer',
                       'wxTextCtrl::GTKGetEditable'
         end
-        if Config.instance.wx_version >= '3.3.0' && Config.instance.wx_port == :wxmsw
+        if Config.instance.wx_version >= '3.3.0' && Config.instance.wx_port != :wxosx
           spec.items << 'wxTextSearch' << 'wxTextSearchResult'
-          spec.regard 'wxTextSearchResult::m_start', 'wxTextSearchResult::m_end'
-          spec.make_readonly 'wxTextSearchResult::m_start', 'wxTextSearchResult::m_end'
-          spec.rename_for_ruby 'start' => 'wxTextSearchResult::m_start',
+          spec.regard 'wxTextSearch::m_searchValue',
+                      'wxTextSearch::m_startingPosition',
+                      'wxTextSearch::m_matchCase',
+                      'wxTextSearch::m_wholeWord',
+                      'wxTextSearch::m_direction',
+                      'wxTextSearchResult::m_start',
+                      'wxTextSearchResult::m_end'
+          spec.make_readonly 'wxTextSearch::m_searchValue',
+                             'wxTextSearch::m_startingPosition',
+                             'wxTextSearch::m_matchCase',
+                             'wxTextSearch::m_wholeWord',
+                             'wxTextSearch::m_direction',
+                             'wxTextSearchResult::m_start',
+                             'wxTextSearchResult::m_end'
+          spec.rename_for_ruby 'get_search_value' => 'wxTextSearch::m_searchValue',
+                               'get_starting_position' => 'wxTextSearch::m_startingPosition',
+                               'match_case?' => 'wxTextSearch::m_matchCase',
+                               'whole_word?' => 'wxTextSearch::m_wholeWord',
+                               'get_direction' => 'wxTextSearch::m_direction',
+                               'start' => 'wxTextSearchResult::m_start',
                                'end' => 'wxTextSearchResult::m_end'
         end
         if Config.instance.wx_port == :wxqt

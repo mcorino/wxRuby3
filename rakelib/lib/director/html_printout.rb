@@ -12,6 +12,8 @@ module WXRuby3
 
     class HtmlPrintout < Director
 
+      include Typemap::PrintPageRange
+
       def setup
         super
         spec.override_inheritance_chain('wxHtmlPrintout', {'wxPrintout' => 'wxPrinter'}, 'wxObject')
