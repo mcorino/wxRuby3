@@ -12,6 +12,8 @@ module WXRuby3
 
     class PrintData < Director
 
+      include Typemap::PrintPageRange
+
       def setup
         super
         spec.gc_as_untracked
@@ -21,6 +23,11 @@ module WXRuby3
         # only keep the const version
         spec.ignore 'wxPageSetupDialogData::GetPrintData'
         spec.regard 'wxPageSetupDialogData::GetPrintData() const'
+        if Config.instance.wx_version >= '3.3.0'
+          # new since 3.3.0
+          spec.items << 'wxPrintPageRange'
+          spec.regard 'wxPrintPageRange::fromPage', 'wxPrintPageRange::toPage' # include public attributes
+        end
         # for GetPrintData methods
         spec.map 'wxPrintData&' => 'Wx::PrintData' do
           map_out code: '$result = SWIG_NewPointerObj(SWIG_as_voidptr(new wxPrintData(*$1)), SWIGTYPE_p_wxPrintData, SWIG_POINTER_OWN);'

@@ -12,6 +12,8 @@ module WXRuby3
 
     class Printer < Director
 
+      include Typemap::PrintPageRange
+
       def setup
         super
         spec.items << 'wxPrintout' << 'wxPrintPreview'

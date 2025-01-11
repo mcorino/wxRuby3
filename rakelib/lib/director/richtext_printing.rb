@@ -12,6 +12,8 @@ module WXRuby3
 
     class RichTextPrinting < Director
 
+      include Typemap::PrintPageRange
+
       def setup
         spec.items << 'wxRichTextPrintout'
         super
