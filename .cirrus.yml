@@ -26,6 +26,14 @@ pr_1_task:
       env:
         osname: linux
         distro: opensuse
+    - name: LinuxMint AMD64 Test
+      container:
+        image: linuxmintd/mint22-amd64
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: ubuntu
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -156,6 +164,14 @@ verify_2_task:
       env:
         osname: linux
         distro: arch
+    - name: LinuxMint AMD64 Test
+      container:
+        image: linuxmintd/mint22-amd64
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: ubuntu
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh

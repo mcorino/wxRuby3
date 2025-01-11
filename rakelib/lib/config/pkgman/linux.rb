@@ -30,6 +30,13 @@ module WXRuby3
             self
           end
 
+          def alias(distro, release, alias_distro, alias_release)
+            if @dependencies.has_key?(distro) && @dependencies[distro].has_key?(release)
+              @dependencies[alias_distro][alias_release] = @dependencies[distro][release]
+            end
+            self
+          end
+
           def get(distro, release: nil)
             @dependencies[distro][release]
           end
@@ -37,7 +44,8 @@ module WXRuby3
 
         PLATFORM_DEPS = {
           debian: PlatformDependencies.new(%w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev])
-                                      .add('ubuntu', %w[libgtk-3-dev libwebkit2gtk-4.1-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev], release: '24.04'),
+                                      .add('ubuntu', %w[libgtk-3-dev libwebkit2gtk-4.1-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev], release: '24.04')
+                                      .alias('ubuntu', '24.04', 'linuxmint', '22'),
           rhel: PlatformDependencies.new(%w[expat-devel findutils gspell-devel gstreamer1-plugins-base-devel gtk3-devel libcurl-devel libjpeg-devel libnotify-devel libpng-devel libSM-devel libsecret-devel libtiff-devel SDL-devel webkit2gtk4.1-devel zlib-devel]),
           suse: PlatformDependencies.new(%w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg-devel libpng-devel]),
           arch: PlatformDependencies.new(%w[pkg-config gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12])
