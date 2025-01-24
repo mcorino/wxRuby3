@@ -24,7 +24,7 @@ module WXRuby3
           spec.ignore 'wxTextCtrl::GTKGetTextBuffer',
                       'wxTextCtrl::GTKGetEditable'
         end
-        if Config.instance.wx_version >= '3.3.0' && Config.instance.wx_port != :wxosx
+        if Config.instance.wx_version >= '3.3.0'
           spec.items << 'wxTextSearch' << 'wxTextSearchResult'
           spec.regard 'wxTextSearch::m_searchValue',
                       'wxTextSearch::m_startingPosition',
