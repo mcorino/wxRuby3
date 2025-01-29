@@ -554,9 +554,33 @@ module WXRuby3
                            '%constant char* wxGRID_VALUE_DATE = "date";',
                            '%constant char* wxGRID_VALUE_TEXT = "string";',
                            '%constant char* wxGRID_VALUE_LONG = "long";'
+        # fix naming mismatch with #evt_grid_cmd_col_size
+        spec.add_swig_code '%constant int EVT_GRID_CMD_COL_SIZE = wxEVT_GRID_COL_SIZE;',
+                           '%constant int EVT_GRID_CMD_ROW_SIZE = wxEVT_GRID_ROW_SIZE;',
+                           '%constant int EVT_GRID_CMD_EDITOR_CREATED = wxEVT_GRID_EDITOR_CREATED;',
+                           '%constant int EVT_GRID_CMD_RANGE_SELECTING = wxEVT_GRID_RANGE_SELECTING;',
+                           '%constant int EVT_GRID_CMD_RANGE_SELECTED = wxEVT_GRID_RANGE_SELECTED;'
+      end
+
+      def doc_generator
+        GridCtrlDocGenerator.new(self)
       end
     end # class GridCtrl
 
   end # class Director
+
+  class GridCtrlDocGenerator < DocGenerator
+
+    protected def gen_constants_doc(fdoc)
+      super
+      xref_table = package.all_modules.reduce(DocGenerator.constants_db) { |db, mod| db[mod] }
+      gen_constant_doc(fdoc, 'EVT_GRID_CMD_COL_SIZE', xref_table['EVT_GRID_COL_SIZE'], 'wxRuby specific alias for Wx::EVT_GRID_COL_SIZE')
+      gen_constant_doc(fdoc, 'EVT_GRID_CMD_ROW_SIZE', xref_table['EVT_GRID_ROW_SIZE'], 'wxRuby specific alias for Wx::EVT_GRID_ROW_SIZE')
+      gen_constant_doc(fdoc, 'EVT_GRID_CMD_EDITOR_CREATED', xref_table['EVT_GRID_EDITOR_CREATED'], 'wxRuby specific alias for Wx::EVT_GRID_EDITOR_CREATED')
+      gen_constant_doc(fdoc, 'EVT_GRID_CMD_RANGE_SELECTING', xref_table['EVT_GRID_RANGE_SELECTING'], 'wxRuby specific alias for Wx::wxEVT_GRID_RANGE_SELECTING')
+      gen_constant_doc(fdoc, 'EVT_GRID_CMD_RANGE_SELECTED', xref_table['EVT_GRID_RANGE_SELECTED'], 'wxRuby specific alias for Wx::wxEVT_GRID_RANGE_SELECTED')
+    end
+
+  end
 
 end # module WXRuby3
