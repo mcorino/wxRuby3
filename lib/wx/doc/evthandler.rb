@@ -99,29 +99,6 @@ module Wx
     # @yieldparam [Wx::CommandEvent] event event to handle
     def evt_command_range(id1, id2, evt_id, meth = nil, &block) end
 
-    # Convenience evt_handler to listen to all mouse events.
-    # @yieldparam [Wx::MouseEvent] event event to handle
-    def evt_mouse_events(*args, &block) end
-
-    # Convenience evt handler to listen to all scrollwin events
-    # (from Wx::ScrolledWindow).
-    # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc
-    # @yieldparam [Wx::ScrollWinEvent] event event to handle
-    def evt_scrollwin(meth = nil, &block) end
-
-    # Convenience evt handler to listen to all scroll events
-    # (from Wx::Slider and Wx::ScrollBar).
-    # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc
-    # @yieldparam [Wx::ScrollWinEvent] event event to handle
-    def evt_scroll(meth = nil, &block) end
-
-    # Convenience evt handler to listen to all scroll events
-    # (from Wx::Slider and Wx::ScrollBar) with an id.
-    # @param [Integer] id window identifier
-    # @param [String,Symbol,Method,Proc] meth (name of) method or event handling proc
-    # @yieldparam [Wx::ScrollWinEvent] event event to handle
-    def evt_scroll_command(id, meth = nil, &block) end
-
     # Processes Wx::WindowDestroyEvent events.
     # In wxRuby Wx::Event#skipped will be forced to true after the provided
     # handler has finished to make sure the event is propagated as it is
