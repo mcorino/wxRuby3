@@ -8,6 +8,14 @@
 
 module WXRuby3
 
+  Director::Package.ignored_event_handlers.merge(%w[
+    EVT_SCROLL
+    EVT_COMMAND_SCROLL
+    EVT_SCROLLWIN
+    EVT_MOUSE_EVENTS
+    EVT_JOYSTICK_EVENTS
+  ])
+
   Director.Package('Wx') { |pkg|
     Director.Spec(pkg, 'wxDefs')
     Director.Spec(pkg, 'wxFunctions')

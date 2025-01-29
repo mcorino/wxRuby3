@@ -526,28 +526,6 @@ module WXRuby3
         end
       end
 
-      def generate_event_types(fout, item, evts_handled)
-        fout.puts "  # from #{item.name}"
-        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass, _|
-          evh_name = evt_hnd.downcase
-          unless evts_handled.include?(evh_name)
-            evt_klass ||= if item.event
-                            item.name
-                          else
-                            raise "Don't know Event class for #{evh_name} event type (from #{item.name})"
-                          end
-            fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
-              self.register_event_type EventType[
-                  '#{evh_name}', #{evt_arity},
-                  #{fullname}::#{evt_type},
-                  #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
-                ] if #{fullname}.const_defined?(:#{evt_type})
-            __HEREDOC
-            evts_handled << evh_name
-          end
-        end
-      end
-
       class << self
         # need to share these over all packages since events may be defined in multiple
         def generated_events
@@ -560,6 +538,46 @@ module WXRuby3
             @event_list_packages.extend(MonitorMixin)
           end
           @event_list_packages
+        end
+
+        # some event handler (catch-all) macros need custom coding so we need to skip
+        # them when generating
+        def ignored_event_handlers
+          @ignored_event_handlers ||= Set.new
+        end
+
+        def full_docs?
+          if @full_docs.nil?
+            @full_docs = !!ENV['WXRUBY_FULLDOCS']
+          end
+          @full_docs
+        end
+      end
+
+      def generate_event_types(fout, item, evts_handled)
+        fout.puts "  # from #{item.name}"
+        item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass, _|
+          unless Package.ignored_event_handlers.include?(evt_hnd)
+            evh_name = evt_hnd.downcase
+            unless evts_handled.include?(evh_name)
+              evt_klass ||= item.name if item.event
+              # skip if we do not have an actually existing event class
+              if (item.event && item.name == evt_klass) ||
+                    (evt_klass && included_directors.any? { |dir| dir.defmod.find_item(evt_klass) })
+
+                evt_klass ||= item.name
+                fout.puts '  '+<<~__HEREDOC.split("\n").join("\n  ")
+                  self.register_event_type EventType[
+                      '#{evh_name}', #{evt_arity},
+                      #{fullname}::#{evt_type},
+                      #{fullname}::#{evt_klass.sub(/\Awx/i, '')}
+                    ]
+                __HEREDOC
+                evts_handled << evh_name
+
+              end
+            end
+          end
         end
       end
 
@@ -635,31 +653,36 @@ module WXRuby3
         item.event_types.each do |evt_hnd, evt_type, evt_arity, evt_klass, evt_nodoc|
           evh_name = evt_hnd.downcase
           unless evts_handled.include?(evh_name)
-            evt_klass ||= item.name
-            evh_args, evh_docstr = evt_nodoc ? nil : find_event_doc(evh_name)
-            fdoc.doc.puts evh_docstr if evh_docstr
-            fdoc.doc.puts "Processes a {#{fullname}::#{evt_type}} event." unless /Process.*\s(event|command)/ =~ evh_docstr
-            case evt_arity
-            when 0
-              evh_args = 'meth = nil, &block' unless evh_args
-            when 1
-              evh_args = 'id, meth = nil, &block' unless evh_args
-              argnms = evh_args.split(',')
-              fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} window/control id"
-            when 2
-              evh_args = 'first_id, last_id, meth = nil, &block' unless evh_args
-              argnms = evh_args.split(',')
-              fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} first window/control id of range"
-              fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} last window/control id of range"
+            evt_klass ||= item.name if item.event
+            # skip if we do not have an actually existing event class (for this platform)
+            if Package.full_docs? || (item.event && item.name == evt_klass) ||
+              (evt_klass && included_directors.any? { |dir| dir.defmod.find_item(evt_klass) })
+
+              evh_args, evh_docstr = evt_nodoc ? nil : find_event_doc(evh_name)
+              fdoc.doc.puts evh_docstr if evh_docstr
+              fdoc.doc.puts "Processes a {#{fullname}::#{evt_type}} event." unless /Process.*\s(event|command)/ =~ evh_docstr
+              case evt_arity
+              when 0
+                evh_args = 'meth = nil, &block' unless evh_args
+              when 1
+                evh_args = 'id, meth = nil, &block' unless evh_args
+                argnms = evh_args.split(',')
+                fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} window/control id"
+              when 2
+                evh_args = 'first_id, last_id, meth = nil, &block' unless evh_args
+                argnms = evh_args.split(',')
+                fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} first window/control id of range"
+                fdoc.doc.puts "@param [Integer,Wx::Enum,Wx::Window,Wx::MenuItem,Wx::ToolBarTool,Wx::Timer] #{argnms.shift.strip} last window/control id of range"
+              end
+              fdoc.doc.puts "@param [String,Symbol,Method,Proc] meth (name of) method or handler proc"
+              #fdoc.doc.puts "@param [Proc] block handler block"
+              fdoc.doc.puts "@yieldparam [#{fullname}::#{evt_klass.sub(/\Awx/i, '')}] event the event to handle"
+
+              fdoc.puts "def #{evh_name}(#{evh_args}) end"
+              fdoc.puts
+
+              evts_handled << evh_name
             end
-            fdoc.doc.puts "@param [String,Symbol,Method,Proc] meth (name of) method or handler proc"
-            #fdoc.doc.puts "@param [Proc] block handler block"
-            fdoc.doc.puts "@yieldparam [#{fullname}::#{evt_klass.sub(/\Awx/i, '')}] event the event to handle"
-
-            fdoc.puts "def #{evh_name}(#{evh_args}) end"
-            fdoc.puts
-
-            evts_handled << evh_name
           end
         end
       end
@@ -787,10 +810,6 @@ module WXRuby3
         end
       end
       private :generate_core_doc
-
-      def self.full_docs?
-        !!ENV['WXRUBY_FULLDOCS']
-      end
 
       def generate_docs
         # make sure all modules have been extracted from xml
