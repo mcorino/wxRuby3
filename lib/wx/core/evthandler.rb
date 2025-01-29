@@ -298,6 +298,14 @@ module Wx
       evt_mousewheel(*args, &block)
     end
 
+    # Convenience evt_handler to listen to all joystick events.
+    def evt_joystick_events(*args, &block)
+      evt_joy_button_down(*args, &block)
+      evt_joy_button_up(*args, &block)
+      evt_joy_move(*args, &block)
+      evt_joy_zmove(*args, &block)
+    end
+
     # Convenience evt handler to listen to all scrollwin events.
     def evt_scrollwin(meth = nil, &block)
       evt_scrollwin_top(meth, &block)

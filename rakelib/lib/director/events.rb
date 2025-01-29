@@ -23,10 +23,12 @@ module WXRuby3
           wxSizeEvent wxMoveEvent wxPaintEvent wxEraseEvent wxFocusEvent wxActivateEvent
           wxInitDialogEvent wxMenuEvent wxCloseEvent wxShowEvent wxIconizeEvent wxMaximizeEvent
           wxFullScreenEvent wxJoystickEvent wxDropFilesEvent wxUpdateUIEvent wxSysColourChangedEvent
-          wxMouseCaptureChangedEvent wxMouseCaptureLostEvent wxDisplayChangedEvent wxDPIChangedEvent
-          wxPaletteChangedEvent wxQueryNewPaletteEvent wxNavigationKeyEvent wxWindowCreateEvent
-          wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent wxChildFocusEvent
+          wxDPIChangedEvent wxPaletteChangedEvent wxQueryNewPaletteEvent wxNavigationKeyEvent
+          wxWindowCreateEvent wxWindowDestroyEvent wxHelpEvent wxClipboardTextEvent wxContextMenuEvent wxChildFocusEvent
           ])
+        if Config.instance.features_set?('WXMSW')
+          spec.items.concat %w[wxMouseCaptureChangedEvent wxMouseCaptureLostEvent wxDisplayChangedEvent]
+        end
         spec.fold_bases('wxMouseEvent' => %w[wxMouseState wxKeyboardState], 'wxKeyEvent' => 'wxKeyboardState')
         spec.ignore 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
         spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
