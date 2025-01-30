@@ -21,7 +21,7 @@ module WXRuby3
           end
 
           def add(distro, *deps, release: nil)
-            @dependencies[distro] ||= ::Hash.new
+            @dependencies[distro] = ::Hash.new unless @dependencies.has_key?(distro)
             if release
               @dependencies[distro][release] = deps.flatten
             else
@@ -45,7 +45,7 @@ module WXRuby3
         PLATFORM_DEPS = {
           debian: PlatformDependencies.new(%w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev])
                                       .add('ubuntu', %w[libgtk-3-dev libwebkit2gtk-4.1-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev], release: '24.04')
-                                      .alias('ubuntu', '24.04', 'linuxmint', '22'),
+                                      .alias('ubuntu', '24.04', 'linuxmint', '22').alias('ubuntu', '24.04', 'linuxmint', '22.1'),
           rhel: PlatformDependencies.new(%w[expat-devel findutils gspell-devel gstreamer1-plugins-base-devel gtk3-devel libcurl-devel libjpeg-devel libnotify-devel libpng-devel libSM-devel libsecret-devel libtiff-devel SDL-devel webkit2gtk4.1-devel zlib-devel]),
           suse: PlatformDependencies.new(%w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg-devel libpng-devel]),
           arch: PlatformDependencies.new(%w[pkg-config gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng12])
