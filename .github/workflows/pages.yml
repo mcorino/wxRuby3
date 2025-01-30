@@ -41,6 +41,10 @@ jobs:
         with:
           ruby-version: 'ruby'
 
+      - name: Prepare package repos
+        run: |
+          sudo apt-get update
+
       - name: Setup Ruby gems
         run: |
           bundle config set --local with documentation
@@ -74,7 +78,7 @@ jobs:
 
       - name: Configure wxRuby3
         run: |
-          bundle exec rake configure[--with-wxwin]
+          bundle exec rake configure[--with-wxwin,--autoinstall]
 
       - name: Build wxRuby3
         run: |
