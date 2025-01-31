@@ -49,6 +49,13 @@ module WXRuby3
                       'wxPGChoices::wxPGChoices(size_t, const wxString *, const long *)',
                       'wxPGChoices::wxPGChoices(const wxChar **, const long *)',
                       'wxPGChoices::GetId'
+          # type mapping for wxPGChoiceEntry output references to make sure to always return managed copies
+          # (uses reference counted data internally)
+          spec.map "wxPGChoiceEntry&", as: "Wx::PGChoiceEntry" do
+            map_out code: <<~__CODE
+              $result = SWIG_NewPointerObj((new wxPGChoiceEntry(*static_cast< const wxPGChoiceEntry* >($1))), SWIGTYPE_p_wxPGChoiceEntry, SWIG_POINTER_OWN);
+              __CODE
+          end
           # replace by extension
           spec.ignore 'wxPGChoices::operator[]', ignore_doc: false
           spec.add_extend_code 'wxPGChoices', <<~__HEREDOC
