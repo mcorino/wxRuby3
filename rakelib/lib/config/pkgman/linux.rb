@@ -21,7 +21,7 @@ module WXRuby3
           end
 
           def add(distro, *deps, release: nil)
-            @dependencies[distro] = ::Hash.new unless @dependencies.has_key?(distro)
+            @dependencies[distro] = ::Hash.new(@dependencies.default.default) unless @dependencies.has_key?(distro)
             if release
               @dependencies[distro][release] = deps.flatten
             else
