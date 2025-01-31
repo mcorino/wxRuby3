@@ -72,14 +72,6 @@ release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / LinuxMint AMD64 Release
-      container:
-        image: linuxmintd/mint22-amd64
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: ubuntu
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh
@@ -88,6 +80,7 @@ release_task:
     uname -a
     locale
     locale -a
+    cat /etc/os-release
 
   system_build_script: |
     ./tools/scripts/cirrus/setup-$distro-system-ruby.sh
@@ -184,14 +177,6 @@ test_release_task:
       env:
         osname: linux
         distro: debian
-    - name: Cirrus CI / LinuxMint AMD64 Release Test
-      container:
-        image: linuxmintd/mint22-amd64
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: ubuntu
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh test

@@ -19,6 +19,9 @@ module WXRuby3
         spec.make_abstract 'wxPGCellData' # there is never any need to create an instance in Ruby
         spec.no_proxy 'wxPGCellData'
         spec.gc_never 'wxPGCellData'
+        # wxPGChoiceEntry are always passed by value and never transfer ownership
+        # so we do not need tracking or special free function
+        spec.gc_as_untracked 'wxPGChoiceEntry'
         spec.do_not_generate :variables, :enums, :defines, :functions # with PGProperty
         # add method for correctly wrapping PGCell output references
         spec.add_header_code <<~__CODE

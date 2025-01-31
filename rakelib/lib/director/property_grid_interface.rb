@@ -190,7 +190,7 @@ module WXRuby3
         # methods).
         spec.ignore 'wxPropertyGridInterface::RefreshGrid', ignore_doc: false
         spec.add_extend_code 'wxPropertyGridInterface', <<~__HEREDOC
-          void RefreshGrid(VALUE rb_state)
+          void RefreshGrid(VALUE rb_state = Qnil)
           {
             wxPropertyGridPageState *state = 0;
             if (!NIL_P(rb_state))

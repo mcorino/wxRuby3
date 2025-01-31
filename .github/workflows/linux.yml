@@ -62,16 +62,6 @@ jobs:
             wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
-            CC: gcc
-            CXX: g++
-            ruby: 'system'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: develop
-            wxr_type: develop
-          - os: ubuntu-22.04
-            gtk_version: 3
             CC: gcc-12
             CXX: g++-12
             ruby: 'ruby'
@@ -132,6 +122,16 @@ jobs:
             wxw_type: develop
             wxr_type: gem
             wxr_test_exclude: 'test_media_ctrl'
+          - os: ubuntu-24.04
+            gtk_version: 3
+            CC: gcc-12
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            configure_flags:
+            use_xvfb: true
+            wxw_type: embed
+            wxr_type: binpkg
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:

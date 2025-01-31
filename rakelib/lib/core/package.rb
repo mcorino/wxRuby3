@@ -655,8 +655,8 @@ module WXRuby3
           unless evts_handled.include?(evh_name)
             evt_klass ||= item.name if item.event
             # skip if we do not have an actually existing event class (for this platform)
-            if Package.full_docs? || (item.event && item.name == evt_klass) ||
-              (evt_klass && included_directors.any? { |dir| dir.defmod.find_item(evt_klass) })
+            if (item.event && item.name == evt_klass) ||
+              (evt_klass && (Package.full_docs? || included_directors.any? { |dir| dir.defmod.find_item(evt_klass) }))
 
               evh_args, evh_docstr = evt_nodoc ? nil : find_event_doc(evh_name)
               fdoc.doc.puts evh_docstr if evh_docstr
