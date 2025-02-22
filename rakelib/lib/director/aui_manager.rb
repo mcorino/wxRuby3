@@ -18,8 +18,13 @@ module WXRuby3
         super
         spec.gc_as_object 'wxAuiManager'
         if Config.instance.wx_version >= '3.3.0'
-          spec.items  << 'wxAuiSerializer' << 'wxAuiDockLayoutInfo' << 'wxAuiPaneLayoutInfo' << 'wxAuiTabLayoutInfo' << 'wxAuiDeserializer'
-          spec.gc_as_untracked 'wxAuiSerializer', 'wxAuiDeserializer', 'wxAuiDockLayoutInfo', 'wxAuiPaneLayoutInfo', 'wxAuiTabLayoutInfo'
+          spec.items  << 'wxAuiBookSerializer' << 'wxAuiSerializer' <<
+                         'wxAuiDockLayoutInfo' << 'wxAuiPaneLayoutInfo' << 'wxAuiTabLayoutInfo' <<
+                         'wxAuiBookDeserializer' << 'wxAuiDeserializer'
+          spec.gc_as_untracked 'wxAuiBookSerializer', 'wxAuiSerializer', 'wxAuiBookDeserializer', 'wxAuiDeserializer',
+                               'wxAuiDockLayoutInfo', 'wxAuiPaneLayoutInfo', 'wxAuiTabLayoutInfo'
+          spec.make_abstract 'wxAuiBookSerializer'
+          spec.make_abstract 'wxAuiBookDeserializer'
           spec.regard 'wxAuiDockLayoutInfo::dock_direction',
                       'wxAuiDockLayoutInfo::dock_layer',
                       'wxAuiDockLayoutInfo::dock_row',
@@ -61,8 +66,8 @@ module WXRuby3
           spec.map 'std::vector<wxAuiPaneLayoutInfo>' => 'Array<Wx::AuiPaneLayoutInfo>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
-              std::vector<wxAuiPaneLayoutInfo>& panes = (std::vector<wxAuiPaneLayoutInfo>&)$1;
-              for (const wxAuiPaneLayoutInfo& pane : panes)
+              std::vector<wxAuiPaneLayoutInfo>* panes = (std::vector<wxAuiPaneLayoutInfo>*)&$1;
+              for (const wxAuiPaneLayoutInfo& pane : *panes)
               {
                 VALUE r_pane = SWIG_NewPointerObj(new wxAuiPaneLayoutInfo(pane), SWIGTYPE_p_wxAuiPaneLayoutInfo, SWIG_POINTER_OWN);
                 rb_ary_push($result, r_pane);
@@ -88,8 +93,8 @@ module WXRuby3
           spec.map 'std::vector<wxAuiTabLayoutInfo>' => 'Array<Wx::AuiTabLayoutInfo>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
-              std::vector<wxAuiTabLayoutInfo>& tabs = (std::vector<wxAuiTabLayoutInfo>&)$1;
-              for (const wxAuiTabLayoutInfo& tab : tabs)
+              std::vector<wxAuiTabLayoutInfo>* tabs = (std::vector<wxAuiTabLayoutInfo>*)&$1;
+              for (const wxAuiTabLayoutInfo& tab : *tabs)
               {
                 VALUE r_tab = SWIG_NewPointerObj(new wxAuiTabLayoutInfo(tab), SWIGTYPE_p_wxAuiTabLayoutInfo, SWIG_POINTER_OWN);
                 rb_ary_push($result, r_tab);
