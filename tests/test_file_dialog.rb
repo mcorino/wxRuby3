@@ -17,12 +17,15 @@ class FileDialogTests < Test::Unit::TestCase
     end
   end
 
+  # temporary as wxw >= 3.3.0 introduced a bug
+  if Wx::WXWIDGETS_VERSION < '3.3.0'
   def test_file_dialog
     dlg = Wx::FileDialog.new(nil, 'Select file')
     assert_kind_of(Wx::FileDialog, dlg)
     assert_kind_of(Wx::Dialog, dlg)
     assert_kind_of(Wx::Window, dlg)
     assert_equal(Wx::ID_OK, dialog_tester(dlg))
+  end
   end
 
   class FileDialogTestCustomization < Wx::FileDialogCustomizeHook
