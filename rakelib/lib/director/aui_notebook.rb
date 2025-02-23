@@ -23,14 +23,25 @@ module WXRuby3
                          wxAuiNotebookPage::caption
                          wxAuiNotebookPage::tooltip
                          wxAuiNotebookPage::bitmap
-                         wxAuiNotebookPage::rect
                          wxAuiNotebookPage::active]
           if Config.instance.wx_version >= '3.3.0'
             spec.items << 'wxAuiNotebookPosition'
-            spec.regard 'wxAuiNotebookPosition::tabctrl',
-                        'wxAuiNotebookPosition::page'
-            spec.make_readonly 'wxAuiNotebookPosition::tabctrl',
-                               'wxAuiNotebookPosition::page'
+            spec.regard 'wxAuiNotebookPosition::tabCtrl',
+                        'wxAuiNotebookPosition::tabIdx'
+            spec.make_readonly 'wxAuiNotebookPosition::tabCtrl',
+                               'wxAuiNotebookPosition::tabIdx'
+
+            spec.map 'std::vector<wxAuiTabCtrl*>' => 'Array<Wx::AuiTabCtrl>' do
+              map_out code: <<~__CODE
+                $result = rb_ary_new();
+                std::vector<wxAuiTabCtrl*>* tabctrls = (std::vector<wxAuiTabCtrl*>*)&$1;
+                for (wxAuiTabCtrl* tabctrl : *tabctrls)
+                {
+                  VALUE r_tabctrl = SWIG_NewPointerObj(SWIG_as_voidptr(tabctrl), SWIGTYPE_p_wxAuiTabCtrl, 0);
+                  rb_ary_push($result, r_tabctrl);
+                }
+                __CODE
+            end
           end
           # reset type mapping done in BookCtrls as the non-const arg is used for query-ing here (FindTab)
           # (wxWidgets should have made this a const arg)
