@@ -109,7 +109,15 @@ module WXRuby3
             doxygen = get_cfg_string("doxygen")
             doxygen = nix_path(doxygen) unless doxygen == 'doxygen'
             chdir(File.join(ext_path, 'wxWidgets', 'docs', 'doxygen')) do
-              unless bash({ 'DOXYGEN' => doxygen,  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }, './regen.sh', 'xml')
+              exec_env = { 'DOXYGEN' => doxygen,  'WX_SKIP_DOXYGEN_VERSION_CHECK' => '1' }
+              # check if we're using an MSYS version or a native Windows version
+              if WXRuby3.config.sysinfo.os.pkgman && WXRuby3.config.sysinfo.os.pkgman.installed?('doxygen')
+                # The latest MSYS version doxygen generated *nix paths instead of Windows paths in the XML files
+                # to be sure the paths are shortened to relative paths we need to set WXWIDGETS to the *nix
+                # root path for wxWidgets as well and not the Windows root path as the regen.sh script still does.
+                exec_env['WXWIDGETS'] = nix_path(File.join(ext_path, 'wxWidgets'))
+              end
+              unless bash(exec_env, './regen.sh', 'xml')
                 $stderr.puts 'ERROR: Failed to generate wxWidgets XML API specifications for parsing by wxRuby3.'
                 exit(1)
               end
