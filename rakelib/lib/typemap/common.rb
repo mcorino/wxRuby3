@@ -475,6 +475,26 @@ module WXRuby3
           map_typecheck precedence: 'INT32_ARRAY', code: '$1 = (TYPE($input) == T_ARRAY);'
         end
 
+        map 'std::vector<size_t>' => 'Array<Integer>' do
+          map_out code: <<~__CODE
+              $result = rb_ary_new();
+              std::vector<size_t>* vec = (std::vector<size_t>*)&$1;
+              for (size_t i : *vec)
+              {
+                rb_ary_push($result, INT2NUM(i));
+              }
+              __CODE
+          map_directorout code: <<~__CODE
+              if (TYPE($input) == T_ARRAY)
+              {
+                for (int i = 0; i < RARRAY_LEN($input); i++)
+                {
+                  $result.push_back(NUM2INT(rb_ary_entry($input,i)));
+                }
+              }
+              __CODE
+        end
+
         # various enumerator type mappings
 
         map *%w[wxEdge wxRelationship wxKeyCode], as: 'Integer' do
