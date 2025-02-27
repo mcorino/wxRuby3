@@ -111,7 +111,6 @@ test_release_task:
     - Cirrus CI / OpenSuSE Leap ARM64 Release
     - Cirrus CI / Ubuntu ARM64 Release
     - Cirrus CI / Debian ARM64 Release
-    - Cirrus CI / LinuxMint AMD64 Release
   matrix:
     - name: Cirrus CI / Fedora Latest AMD64 Release Test
       container:
