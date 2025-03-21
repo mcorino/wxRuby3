@@ -62,7 +62,7 @@ module WXRuby3
                 rb_raise(rb_eTypeError, "Expected Array of Integer for 1");
               }
             } 
-            __HEREDOC
+          __HEREDOC
           spec.map 'std::vector<wxAuiPaneLayoutInfo>' => 'Array<Wx::AuiPaneLayoutInfo>' do
             map_out code: <<~__CODE
               $result = rb_ary_new();
@@ -72,7 +72,7 @@ module WXRuby3
                 VALUE r_pane = SWIG_NewPointerObj(new wxAuiPaneLayoutInfo(pane), SWIGTYPE_p_wxAuiPaneLayoutInfo, SWIG_POINTER_OWN);
                 rb_ary_push($result, r_pane);
               }
-              __CODE
+            __CODE
             map_directorout code: <<~__CODE
               if (TYPE($input) == T_ARRAY)
               {
@@ -88,7 +88,7 @@ module WXRuby3
                   $result.push_back(*pane);
                 }
               }
-              __CODE
+            __CODE
           end
           spec.map 'std::vector<wxAuiTabLayoutInfo>' => 'Array<Wx::AuiTabLayoutInfo>' do
             map_out code: <<~__CODE
@@ -99,7 +99,7 @@ module WXRuby3
                 VALUE r_tab = SWIG_NewPointerObj(new wxAuiTabLayoutInfo(tab), SWIGTYPE_p_wxAuiTabLayoutInfo, SWIG_POINTER_OWN);
                 rb_ary_push($result, r_tab);
               }
-              __CODE
+            __CODE
             map_directorout code: <<~__CODE
               if (TYPE($input) == T_ARRAY)
               {
@@ -115,8 +115,86 @@ module WXRuby3
                   $result.push_back(*tab);
                 }
               }
-              __CODE
+            __CODE
           end
+          # For wxAuiDeserialize::HandleOrphanedPage: the ruby method is passed the AuiNotebook
+          # and the page and should return either true if the orphaned page should just be appended
+          # to the main tab, a tuple with an AuiTabCtrl and a tab index to place the orphaned page in
+          # or false if the orphaned page should be removed.
+          spec.map 'int page, wxAuiTabCtrl **tabCtrl, int * tabIndex' do
+
+            add_header_code <<~__CODE
+              static WxRuby_ID s_AuiTabCtrl_id("AuiTabCtrl");
+              __CODE
+
+            map_in from: {type: 'Integer', index: 0}, temp: 'wxAuiTabCtrl *tab_ctrl, int tab_ix', code: <<~__CODE
+              $1 = NUM2INT($input);
+              tab_ctrl = nullptr; tab_ix = 0;
+              $2 = &tab_ctrl;
+              $3 = &tab_ix;
+              __CODE
+
+            # ignore C defined return value entirely (also affects directorout)
+            map_out ignore: 'bool'
+
+            map_argout as: {type: 'Boolean,Array(Wx::AUI::AuiTabCtrl, Integer)', index: 1}, code: <<~__CODE
+              if (result)
+              {
+                if (tab_ctrl$argnum)
+                {
+                  VALUE rb_klass = rb_const_get(mWxAuiManager, s_AuiTabCtrl_id());
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(rb_klass);
+                  $result = rb_ary_new();
+                  rb_ary_push($result, SWIG_NewPointerObj(SWIG_as_voidptr(tab_ctrl$argnum), swig_type,  0));
+                  rb_ary_push($result, INT2NUM(tab_ix$argnum));
+                }
+                else
+                  $result = Qtrue;
+              }
+              else
+                $result = Qfalse;
+              __CODE
+
+            # convert page and ignore rest for now
+            map_directorin code: '$input = INT2NUM(page);'
+
+            map_directorargout code: <<~__CODE
+              if (result != Qfalse)
+              {
+                if (result == Qtrue)
+                {
+                  c_result = true;
+                  *tabCtrl = nullptr;
+                  *tabIndex = 0; 
+                }
+                else if (TYPE(result) == T_ARRAY && RARRAY_LEN(result) == 2)
+                {
+                  VALUE rb_klass = rb_const_get(mWxAuiManager, s_AuiTabCtrl_id());
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(rb_klass);
+                  void *tab_ctrl;
+                  int res = SWIG_ConvertPtr(rb_ary_entry(result, 0), &tab_ctrl, swig_type, 0);
+                  if (!SWIG_IsOK(res)) 
+                  {
+                    Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, 
+                                                               "HandleOrphanedPage should return false, true or Array(Wx::AUI::AuiTabCtrl, Integer)");
+                  }
+                  *tabCtrl = reinterpret_cast<wxAuiTabCtrl*>(tab_ctrl);
+                  *tabIndex = NUM2INT(rb_ary_entry(result, 1));
+                  c_result = true;
+                }
+                else
+                {
+                  Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, 
+                                                             "HandleOrphanedPage should return false, true or Array(Wx::AUI::AuiTabCtrl, Integer)");
+                }
+              }
+              else
+                c_result = false;
+            __CODE
+
+          end
+          spec.suppress_warning(473, 'wxAuiDeserializer::CreatePaneWindow')
+
         end
         # need a custom implementation to handle (event handler proc) cleanup
         spec.add_header_code <<~__HEREDOC
