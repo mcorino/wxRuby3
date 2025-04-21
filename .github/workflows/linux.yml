@@ -50,16 +50,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
-            gtk_version: 3
-            CC: gcc-9
-            CXX: g++-9
-            ruby: '2.5'
-            swig: '4'
-            configure_flags:
-            use_xvfb: true
-            wxw_type: system
-            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
