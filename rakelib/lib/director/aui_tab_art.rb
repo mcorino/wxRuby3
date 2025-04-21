@@ -14,7 +14,12 @@ module WXRuby3
 
       def setup
         super
-        spec.items << 'wxAuiDefaultTabArt' << 'wxAuiSimpleTabArt'
+        if Config.instance.wx_version >= '3.3.0'
+          spec.items << 'wxAuiFlatTabArt' << 'wxAuiSimpleTabArt'
+          spec.ignore 'wxAuiDefaultTabArt', 'wxAuiNativeTabArt'
+        else
+          spec.items << 'wxAuiDefaultTabArt' << 'wxAuiSimpleTabArt'
+        end
         spec.gc_as_object
         spec.disable_proxies
         # missing from interface documentation
@@ -92,8 +97,54 @@ module WXRuby3
                               'wxAuiSimpleTabArt::Clone')
         spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
+
+
+      def generator
+        WXRuby3::AuiTabArtGenerator.new(self)
+      end
+      protected :generator
+
+      def doc_generator
+        WXRuby3::AuiTabArtDocGenerator.new(self)
+      end
+      protected :doc_generator
+
     end # class AuiTabArt
 
   end # class Director
+
+  class AuiTabArtGenerator < InterfaceGenerator
+
+    def gen_interface_classes(fout)
+      super
+      if Config.instance.wx_version >= '3.3.0'
+        fout.puts
+        fout.puts 'class wxAuiNativeTabArt : public wxAuiTabArt'
+        fout.puts '{'
+        fout.puts '};'
+      end
+    end
+
+  end
+
+  class AuiTabArtDocGenerator < DocGenerator
+    def gen_class_doc(fdoc)
+      super
+      if Config.instance.wx_version >= '3.3.0'
+        fdoc.doc.puts 'Wx::AUI::AuiNativeTabArt is either an art provider providing native-like appearance (WXMSW and WXGTK) or a generic Tab Art provider if not available.'
+        fdoc.puts 'class AuiNativeTabArt < AuiTabArt; end'
+        fdoc.puts
+      end
+    end
+    def gen_constants_doc(fdoc)
+      super
+      if Config.instance.wx_version >= '3.3.0'
+        fdoc.doc.puts 'Wx::AUI::AuiDefaultTabArt is an alias for the tab art provider used by {Wx::AUI::AuiNotebook} by default.'
+        fdoc.doc.puts 'Since wxWidgets 3.3.0, this is {Wx::AUI::AuiFlatTabArt} under all platforms. In the previous versions, this was wxAuiNativeTabArt.'
+        fdoc.puts 'AuiDefaultTabArt = Wx::AUI::AuiFlatTabArt'
+        fdoc.puts
+      end
+    end
+  end
 
 end # module WXRuby3
