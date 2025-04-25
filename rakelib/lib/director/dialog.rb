@@ -34,7 +34,28 @@ module WXRuby3
             extern VALUE wxRuby_GetDialogClass() {
               return SwigClassWxDialog.klass;
             }
-          __HEREDOC
+            __HEREDOC
+          spec.ignore 'wxDialog::CreateButtonSizer',            # pure Ruby impl
+                      'wxDialog::CreateSeparatedButtonSizer',   # pure Ruby impl
+                      'wxDialog::CreateSeparatedSizer',         # pure Ruby impl
+                      'wxDialog::CreateTextSizer',              # custom impl
+                      ignore_doc: false
+          spec.new_object 'wxDialog::CreateStdDialogButtonSizer' if Config.instance.features_set?('USE_BUTTON')
+          spec.add_extend_code 'wxDialog', <<~__HEREDOC
+            VALUE CreateTextSizer(const wxString& message, int widthMax)
+            {
+              wxSizer* txt_szr = $self->CreateTextSizer(message, widthMax);
+              if (txt_szr) 
+              {
+                // Get the wx class
+                wxString class_name( txt_szr->GetClassInfo()->GetClassName() );
+                swig_type_info* swig_type = wxRuby_GetSwigTypeForClassName(class_name);
+                if (swig_type)
+                  return SWIG_NewPointerObj(SWIG_as_voidptr(txt_szr), swig_type, SWIG_POINTER_OWN |  0 );
+              } 
+              return Qnil;
+            }
+            __HEREDOC
         when 'wxMessageDialog'
           spec.ignore 'wxMessageDialog::ButtonLabel'
           spec.map 'const ButtonLabel&' => 'String,Integer' do

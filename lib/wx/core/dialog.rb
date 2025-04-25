@@ -21,6 +21,34 @@ class Wx::Dialog
 
   end
 
+  def create_button_sizer(flags)
+    if Wx.has_feature?(:USE_BUTTON)
+      create_std_dialog_button_sizer(flags)
+    else
+      nil
+    end
+  end
+
+  def create_separated_sizer(sizer)
+    # Mac Human Interface Guidelines recommend not to use static lines as
+    # grouping elements
+    if Wx.has_feature?(:USE_STATLINE) && Wx::PLATFORM != 'WXOSX'
+      topsizer = Wx::VBoxSizer.new
+      topsizer.add(Wx::StaticLine.new(self),
+                   Wx::SizerFlags.new.expand.double_border(Wx::BOTTOM))
+      topsizer.add(sizer, Wx::SizerFlags.new.expand)
+      sizer = topsizer
+    end
+
+    sizer
+  end
+
+  def create_separated_button_sizer(flags)
+      sizer = create_button_sizer(flags)
+      return create_separated_sizer(sizer) if sizer
+      nil
+  end
+
   module Functor
     def self.included(klass)
       scope = klass.name.split('::')
