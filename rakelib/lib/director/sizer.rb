@@ -139,6 +139,36 @@ module WXRuby3
                                 'wxSizerItem * Add(wxWindow *window, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)',
                                 'wxSizerItem * Add(int width, int height, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)'
           spec.disown 'wxSizer* sizer_disown'
+          spec.map 'const wxGBPosition&' => 'Array(Integer, Integer), Wx::GBPosition',
+                   'const wxGBSpan&' => 'Array(Integer, Integer), Wx::GBSpan' do
+            add_header_code '#include <memory>'
+            map_in temp: 'std::unique_ptr<$1_basetype> tmp', code: <<~__CODE
+            if ( TYPE($input) == T_DATA )
+            {
+              void* argp$argnum;
+              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 0);
+              $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
+            }
+            else if ( TYPE($input) == T_ARRAY )
+            {
+              $1 = new $1_basetype( NUM2INT( rb_ary_entry($input, 0) ),
+                                   NUM2INT( rb_ary_entry($input, 1) ) );
+              tmp.reset($1); // auto destruct when method scope ends 
+            }
+            else
+            {
+              rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter");
+            }
+            __CODE
+            map_typecheck precedence: 'POINTER', code: <<~__CODE
+            void *vptr = 0;
+            $1 = 0;
+            if (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 2)
+              $1 = 1;
+            else if (TYPE($input) == T_DATA && SWIG_CheckState (SWIG_ConvertPtr ($input, &vptr, $1_descriptor, 0)))
+              $1 = 1;
+            __CODE
+          end
         end
         # no real use for allowing these to be overloaded but a whole lot of grieve
         # if we do allow it

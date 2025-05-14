@@ -12,13 +12,13 @@ class Wx::RTC::RichTextStyleOrganiserDialog
   end
 
   # now redefine the overridden ctor to account for deviating arglist
-  wx_redefine_method :initialize do |flags, sheet, ctrl, parent = nil, *mixed_args, &block|
+  wx_redefine_method :initialize do |flags, sheet, ctrl, parent = nil, *args, **kwargs, &block|
     real_args = begin
-                  [ flags, sheet, ctrl, parent ] + self.class.args_as_list(*mixed_args)
+                  [ flags, sheet, ctrl, parent ] + self.class.args_as_list(*args, **kwargs)
                 rescue => err
                   msg = "Error initializing #{self.inspect}\n"+
                     " : #{err.message} \n" +
-                    "Provided are #{[ flags, sheet, ctrl, parent ] + mixed_args} \n" +
+                    "Provided are #{[ flags, sheet, ctrl, parent ] + args + [kwargs]} \n" +
                     "Correct parameters for #{self.class.name}.new are:\n" +
                     self.class.describe_constructor(
                       ":flags => (Integer)\n:sheet => (Wx::RTC::RichTextStyleSheet)\n:ctrl => (Wx::RTC::RichTextCtrl)\n:parent => (Wx::Window)\n")

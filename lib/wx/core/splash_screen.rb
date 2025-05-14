@@ -15,15 +15,15 @@ class Wx::SplashScreen
   end
 
   # now redefine the overridden ctor to account for deviating arglist
-  wx_redefine_method :initialize do |bitmap, splashstyle, milliseconds, parent = nil, *mixed_args, &block|
+  wx_redefine_method :initialize do |bitmap, splashstyle, milliseconds, parent = nil, *args, **kwargs, &block|
     # no zero-args ctor for use with XRC!
 
     real_args = begin
-                  [ bitmap, splashstyle, milliseconds, parent ] + self.class.args_as_list(*mixed_args)
+                  [ bitmap, splashstyle, milliseconds, parent ] + self.class.args_as_list(*args, **kwargs)
                 rescue => err
                   msg = "Error initializing #{self.inspect}\n"+
                     " : #{err.message} \n" +
-                    "Provided are #{[ bitmap, splashstyle, milliseconds, parent ] + mixed_args} \n" +
+                    "Provided are #{[ bitmap, splashstyle, milliseconds, parent ] + args + [kwargs]} \n" +
                     "Correct parameters for #{self.class.name}.new are:\n" +
                     self.class.describe_constructor(
                       ":bitmap => (Wx::Bitmap)\n:splashstyle => (Integer)\n:milliseconds => (Integer)\n:parent => (Wx::Window)\n")

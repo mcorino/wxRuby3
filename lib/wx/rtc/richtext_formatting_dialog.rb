@@ -23,7 +23,7 @@ module Wx::RTC
     end
 
     # now redefine the overridden ctor to account for deviating arglist
-    wx_redefine_method :initialize do |flags = nil, parent = nil, *mixed_args, &block|
+    wx_redefine_method :initialize do |flags = nil, parent = nil, *args, **kwargs, &block|
       # allow zero-args ctor for use with XRC
       if flags.nil?
         pre_wx_kwctor_init
@@ -31,11 +31,11 @@ module Wx::RTC
       end
 
       real_args = begin
-                    [ flags, parent ] + self.class.args_as_list(*mixed_args)
+                    [ flags, parent ] + self.class.args_as_list(*args, **kwargs)
                   rescue => err
                     msg = "Error initializing #{self.inspect}\n"+
                       " : #{err.message} \n" +
-                      "Provided are #{[ flags, parent ] + mixed_args} \n" +
+                      "Provided are #{[ flags, parent ] + args + [kwargs]} \n" +
                       "Correct parameters for #{self.class.name}.new are:\n" +
                       self.class.describe_constructor(
                         ":flags => (Integer)\n:parent => (Wx::Window)\n")

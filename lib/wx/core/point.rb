@@ -41,12 +41,21 @@ class Wx::Point
   end
 
   def <=>(other)
+    this_x, this_y = to_ary
     if Wx::Point === other
-      (x*y) <=> (other.x*other.y)
+      that_x, that_y = other.to_ary
     elsif Array === other && other.size == 2
-      (x*y) <=> (other.first.to_i*other.last.to_i)
+      that_x, that_y = other
     else
-      nil
+      return nil
+    end
+
+    if this_y < that_y
+      -1
+    elsif that_y < this_y
+      1
+    else
+      this_x <=> that_x
     end
   end
 

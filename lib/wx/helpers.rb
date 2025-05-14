@@ -19,16 +19,14 @@ module Wx
   # structs containing the keyword name and default value for each
   # possible argument. +mixed_args+ is an array which may optionally end
   # with a set of named arguments
-  def self.args_as_list(param_spec, *mixed_args)
+  def self.args_as_list(param_spec, *args, **kwargs)
 
     begin
-      # get keyword arguments from mixed args if supplied, else empty
-      kwa = mixed_args.last.kind_of?(Hash) ? mixed_args.pop : {}
       out_args = []
       param_spec.each_with_index do | param, i |
         # has supplied list arg or the keyword arg?
-        arg = mixed_args[i]
-        arg = kwa.delete(param.name) if arg.nil? && kwa.key?(param.name)
+        arg = args[i]
+        arg = kwargs.delete(param.name) if arg.nil? && kwargs.key?(param.name)
         if Proc === param.default_or_proc
           arg = param.default_or_proc.call(arg) # provides default or converts arg
         elsif arg.nil?
@@ -37,13 +35,13 @@ module Wx
         out_args << arg
       end
     rescue
-      Kernel.raise ArgumentError, 
-                 "Bad arg composition of #{mixed_args.inspect}"
+      Kernel.raise ArgumentError,
+                   "Bad arg composition of #{args.inspect}"
     end
 
-    unless kwa.empty?
-      Kernel.raise ArgumentError, 
-                 "Unknown keyword argument(s) : #{kwa.keys.inspect}"
+    unless kwargs.empty?
+      Kernel.raise ArgumentError,
+                   "Unknown keyword argument(s) : #{kwargs.keys.inspect}"
     end
 
     out_args
