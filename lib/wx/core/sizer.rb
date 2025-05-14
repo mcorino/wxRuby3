@@ -17,10 +17,10 @@ module Wx
                        Wx::Parameter[:flag, 0],
                        Wx::Parameter[:border, 0]]
 
-    def add_item(item, *mixed_args)
+    def add_item(item, *args, **kwargs)
 
       begin
-        args = Wx::args_as_list(ADD_ITEM_PARAMS, *mixed_args)
+        args = Wx::args_as_list(ADD_ITEM_PARAMS, *args, **kwargs)
       rescue => err
         err.set_backtrace(caller)
         Kernel.raise err

@@ -13,13 +13,13 @@ class Wx::RTC::SymbolPickerDialog
   end
 
   # now redefine the overridden ctor to account for deviating arglist
-  wx_redefine_method :initialize do |symbol, initialFont, normalTextFont, parent = nil, *mixed_args, &block|
+  wx_redefine_method :initialize do |symbol, initialFont, normalTextFont, parent = nil, *args, **kwargs, &block|
     real_args = begin
-                  [ symbol, initialFont, normalTextFont, parent ] + self.class.args_as_list(*mixed_args)
+                  [ symbol, initialFont, normalTextFont, parent ] + self.class.args_as_list(*args, **kwargs)
                 rescue => err
                   msg = "Error initializing #{self.inspect}\n"+
                     " : #{err.message} \n" +
-                    "Provided are #{[ symbol, initialFont, normalTextFont, parent ] + mixed_args} \n" +
+                    "Provided are #{[ symbol, initialFont, normalTextFont, parent ] + args + [kwargs]} \n" +
                     "Correct parameters for #{self.class.name}.new are:\n" +
                     self.class.describe_constructor(
                       ":symbol => (String)\n:initialFont => (String)\n:normalTextFont => (String)\n:parent => (Wx::Window)\n")

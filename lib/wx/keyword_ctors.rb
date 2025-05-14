@@ -164,18 +164,16 @@ module Wx
         end
       end
 
-      def args_as_list(*mixed_args)
-        Wx::args_as_list(param_spec, *mixed_args)
+      if RUBY_VERSION < '3.0.0'
+        def args_as_list(*mixed_args)
+          Wx::args_as_list(param_spec, *mixed_args)
+        end
+      else
+        def args_as_list(*args, **kwargs)
+          Wx::args_as_list(param_spec, *args, **kwargs)
+        end
       end
 
-      def args_as_hash(*mixed_args)
-        kwa = mixed_args.last.kind_of?(Hash) ? mixed_args.pop : {}
-        param_spec.zip(mixed_args) do | param, arg |
-          kwa[param.name] = arg if arg
-        end
-        kwa 
-      end
-      
       def describe_constructor(txt = '')
         param_spec.inject(txt) do | desc, param |
           if Proc === param.default_or_proc
@@ -198,7 +196,7 @@ module Wx
         # The new definition of initialize; accepts a parent arg
         # mixed_args, which may zero or more position args, optionally
         # terminated with hash keyword args, and an optional block
-        wx_redefine_method :initialize do |parent = :default_ctor, *mixed_args, &block|
+        wx_redefine_method :initialize do |parent = :default_ctor, *args, **kwargs, &block|
           # allow zero-args ctor for use with XRC
           if parent == :default_ctor
             pre_wx_kwctor_init
@@ -206,11 +204,11 @@ module Wx
           end
 
           real_args = begin
-                        [ parent ] + self.class.args_as_list(*mixed_args)
+                        [ parent ] + self.class.args_as_list(*args, **kwargs)
                       rescue => err
                         msg = "Error initializing #{self.inspect}\n"+
                           " : #{err.message} \n" +
-                          "Provided are #{[parent] + mixed_args} \n" +
+                          "Provided are #{[parent] + args + [kwargs]} \n" +
                           "Correct parameters for #{self.class.name}.new are:\n" +
                           self.class.describe_constructor(":parent => (Wx::Window)\n")
 

@@ -21,10 +21,10 @@ class Wx::ToolBar
                       Wx::Parameter[ :long_help, "" ], 
                       Wx::Parameter[ :client_data, nil ] ]
   
-  def add_item(bitmap1, *mixed_args)
+  def add_item(bitmap1, *args, **kwargs)
 
     begin
-      args = Wx::args_as_list(ADD_ITEM_PARAMS, *mixed_args)
+      args = Wx::args_as_list(ADD_ITEM_PARAMS, *args, **kwargs)
     rescue => err
       err.set_backtrace(caller)
       Kernel.raise err
