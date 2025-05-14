@@ -55,7 +55,7 @@ class Wx::Dialog
       functor_nm = scope.pop
       code = <<~__CODE
         def #{functor_nm}(*args, **kwargs, &block)
-          dlg = #{klass.name}.new(*args, **kwargs)
+          dlg = kwargs.empty? ? #{klass.name}.new(*args) : #{klass.name}.new(*args, **kwargs)
           begin
             if block_given?
               return block.call(dlg)
