@@ -23,6 +23,13 @@ module WXRuby3
         spec.ignore 'wxCursor::wxCursor(const char *const *)'
         if Config.instance.wx_version >= '3.3.0'
           spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[], const wxColour*, const wxColour*)'
+
+          spec.items << 'wxCursorBundle'
+          spec.gc_as_untracked 'wxCursorBundle'
+          # all but the default ctor require a running App
+          spec.require_app 'wxCursorBundle::wxCursorBundle(const wxBitmapBundle &, const wxPoint &)',
+                           'wxCursorBundle::wxCursorBundle(const wxBitmapBundle &, int, int)',
+                           'wxCursorBundle::wxCursorBundle(const wxCursorBundle &)'
         else
           spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[])'
         end
