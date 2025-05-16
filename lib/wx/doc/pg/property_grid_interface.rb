@@ -13,13 +13,13 @@ module Wx::PG
     # each property to the block.
     # Returns an enumerator when no block is given.
     # The start position defaults to Wx::TOP for forward iteration and Wx::BOTTOM for reverse iteration.
-    # @overload each_property(flags, start, reverse: , &block)
+    # @overload each_property(flags, start, reverse, &block)
     #   @param flags [Integer] flags specifying iteration (see {Wx::PG::PG_ITERATOR_FLAGS})
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
     #   @param reverse [true,false] iterate properties in reverse
     #   @yieldparam item [Wx::PG::PGProperty] property
     #   @return [::Object] result of last block execution
-    # @overload each_property(flags, start, reverse:)
+    # @overload each_property(flags, start, reverse)
     #   @param flags [Integer] flags specifying iteration (see {Wx::PG::PG_ITERATOR_FLAGS})
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
     #   @param reverse [true,false] iterate properties in reverse
