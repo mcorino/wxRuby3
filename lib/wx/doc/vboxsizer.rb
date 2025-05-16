@@ -16,6 +16,22 @@ module Wx
 
   end
 
+  # Just a shortcut version for creating a vertical staticbox sizer
+  class VStaticBoxSizer < StaticBoxSizer
+
+    # @overload initialize(box)
+    #   This constructor uses an already existing static box.
+    #   @param box [Wx::StaticBox]  The static box to associate with the sizer (which will take its ownership).
+    #   @return [Wx::VStaticBoxSizer]
+    # @overload initialize(parent, label=(''))
+    #   This constructor creates a new static box with the given label and parent window.
+    #   @param parent [Wx::Window]
+    #   @param label [String]
+    #   @return [Wx::VStaticBoxSizer]
+    def initialize(*args) end
+
+  end
+
   # Just a shortcut version for creating a vertical wrap sizer
   class VWrapSizer < Wx::WrapSizer
 

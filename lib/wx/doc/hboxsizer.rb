@@ -16,6 +16,22 @@ module Wx
 
   end
 
+  # Just a shortcut version for creating a horizontal staticbox sizer
+  class HStaticBoxSizer < StaticBoxSizer
+
+    # @overload initialize(box)
+    #   This constructor uses an already existing static box.
+    #   @param box [Wx::StaticBox]  The static box to associate with the sizer (which will take its ownership).
+    #   @return [Wx::HStaticBoxSizer]
+    # @overload initialize(parent, label=(''))
+    #   This constructor creates a new static box with the given label and parent window.
+    #   @param parent [Wx::Window]
+    #   @param label [String]
+    #   @return [Wx::HStaticBoxSizer]
+    def initialize(*args) end
+
+  end
+
   # Just a shortcut version for creating a horizontal wrap sizer
   class HWrapSizer < Wx::WrapSizer
 
