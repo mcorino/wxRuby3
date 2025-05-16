@@ -16,9 +16,12 @@ module Wx::PG
     # Iterate each attribute.
     # Passes the variant for each attribute to the given block.
     # Returns an Enumerator if no block given.
-    # @yieldparam [Wx::Variant] variant attribute's variant
-    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
-    def each_attribute; end
+    # @overload each_attribute(&block)
+    #   @yieldparam [Wx::Variant] variant attribute's variant
+    #   @return [Object] last result of block
+    # @overload each_attribute()
+    #   @return [Enumerator] enumerator
+    def each_attribute(*) end
 
   end
 
@@ -27,16 +30,22 @@ module Wx::PG
     # Iterate each label.
     # Passes each label string to the given block.
     # Returns an Enumerator if no block given.
-    # @yieldparam [String] label label string
-    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
-    def each_label; end
+    # @overload each_label(&block)
+    #   @yieldparam [String] label label string
+    #   @return [Object] last result of block
+    # @overload each_label()
+    #   @return [Enumerator] enumerator
+    def each_label(*) end
 
     # Iterate each choice entry.
     # Passes each choice entry to the given block.
     # Returns an Enumerator if no block given.
-    # @yieldparam [Wx::PG::ChoiceEntry] entry choice entry
-    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
-    def each_entry; end
+    # @overload each_entry(&block)
+    #   @yieldparam [Wx::PG::ChoiceEntry] entry choice entry
+    #   @return [Object] last result of block
+    # @overload each_entry()
+    #   @return [Enumerator] enumerator
+    def each_entry(*) end
 
   end
 

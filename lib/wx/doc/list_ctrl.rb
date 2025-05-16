@@ -12,15 +12,21 @@ module Wx
     include Enumerable
 
     # Iterates all items in the list control passing each item (id) to the given block.
-    # @yieldparam [Integer] item
-    # @return [::Object] result of last block iteration
-    def each(&block) end
+    # @overload each(&block)
+    #   @yieldparam [Integer] item
+    #   @return [::Object] result of last block iteration
+    # @overload each()
+    #   @return [::Enumerator] enumerator
+    def each(*) end
 
     # Iterates all selected items in the list control (like #get_next_item(item, Wx::LIST_NEXT_ALL, Wx::LIST_STATE_SELECTED))
     # passing each item (id) to the given block.
-    # @yieldparam [Integer] item
-    # @return [::Object] result of last block iteration
-    def each_selected(&block) end
+    # @overload each_selected(&block)
+    #   @yieldparam [Integer] item
+    #   @return [::Object] result of last block iteration
+    # @overload each_selected()
+    #   @return [::Enumerator] enumerator
+    def each_selected(*) end
 
     # Returns array of selected items.
     # @return [Array<Integer>] selected items

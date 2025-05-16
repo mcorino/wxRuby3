@@ -24,7 +24,7 @@ module Wx::PG
     #   @param start [Integer,Wx::PG::Property] start position (either {Wx::Direction::TOP} or {Wx::Direction::BOTTOM} or the property to start at)
     #   @param reverse [true,false] iterate properties in reverse
     #   @return [Enumerator] an enumerator
-    def each_property(flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse: false, &block) end
+    def each_property(flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse = false, &block) end
     alias :properties :each_property
 
     # Convenience method to perform reverse iteration.
@@ -54,7 +54,7 @@ module Wx::PG
     # @overload each_property_attribute(id)
     #   @param id [String,Wx::PG::PGProperty] (name of) property to iterate attributes of
     #   @return [Enumerator] an enumerator
-    def each_property_attribute; end
+    def each_property_attribute(id) end
     alias :property_attributes :each_property_attribute
 
     # Returns the current grid state.
