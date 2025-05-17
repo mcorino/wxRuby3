@@ -262,6 +262,17 @@ module WXRuby3
         spec.items.each do |citem|
           def_item = defmod.find_item(citem)
           if Extractor::ClassDef === def_item && (citem == 'wxWindow' || spec.is_derived_from?(def_item, 'wxWindow'))
+            unless %w[wxNonOwnedWindow wxTopLevelWindow].include?(citem) ||
+                   spec.abstract?(def_item.name) || (def_item.abstract && !spec.concrete?(def_item.name))
+              # specify optional block arg acceptance for all constructors of concrete (derived) Window classes
+              # EXCEPT the default ctor (only used for XRC and such).
+              ctor_def = def_item.methods.find { |mtd| mtd.is_ctor }
+              if ctor_def
+                ctor_def.accept_block_arg(true).yield('win', "new instance")
+              else
+                STDERR.puts "INFO: cannot find ctor for #{def_item.name} module #{spec.module_name}"
+              end
+            end
             # Avoid adding unneeded directors
             spec.no_proxy("#{spec.class_name(citem)}::AddChild",
                           "#{spec.class_name(citem)}::Fit",

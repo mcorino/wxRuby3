@@ -182,6 +182,27 @@ module WXRuby3
         spec.no_proxy "#{spec.module_name}::AddSpacer"
         super
       end
+
+      def process(gendoc: false)
+        defmod = super
+        # for all wxSizer (derived) classes
+        spec.items.each do |citem|
+          def_item = defmod.find_item(citem)
+          if Extractor::ClassDef === def_item && (citem != 'wxSizer' && spec.is_derived_from?(def_item, 'wxSizer'))
+            unless spec.abstract?(def_item.name) || (def_item.abstract && !spec.concrete?(def_item.name))
+              # specify optional block arg acceptance for all constructors of concrete derived Sizer classes
+              ctor_def = def_item.methods.find { |mtd| mtd.is_ctor }
+              if ctor_def
+                ctor_def.accept_block_arg.yield('sizer', "new Sizer instance")
+              else
+                STDERR.puts "INFO: cannot find ctor for #{def_item.name} module #{spec.module_name}"
+              end
+            end
+          end
+        end
+        defmod
+      end
+
     end # class Object
 
   end # class Director

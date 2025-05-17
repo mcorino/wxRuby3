@@ -45,17 +45,23 @@ module Wx
 
       # Iterate all value entries at the current object (no recursion).
       # Passes key/value pairs to the given block or returns an Enumerator is no block given.
-      # @yieldparam [String] key entry key
-      # @yieldparam [Boolean,String,Integer,Float] value entry value
-      # @return [Object,Enumerator] either the last result of the executed block or an enumerator if no block given
-      def each_entry(&block) end
+      # @overload each_entry(&block)
+      #   @yieldparam [String] key entry key
+      #   @yieldparam [Boolean,String,Integer,Float] value entry value
+      #   @return [Object] the last result of the executed block
+      # @overload each_entry()
+      #   @return [Enumerator] enumerator
+      def each_entry(*) end
 
       # Iterate all group entries at the current object (no recursion).
       # Passes key/value pairs to the given block or returns an Enumerator is no block given.
-      # @yieldparam [String] key entry key
-      # @yieldparam [Wx::Config::Group] value entry value
-      # @return [Object,Enumerator] either the last result of the executed block or an enumerator if no block given
-      def each_group(&block) end
+      # @overload each_group(&block)
+      #   @yieldparam [String] key entry key
+      #   @yieldparam [Wx::Config::Group] value entry value
+      #   @return [Object] the last result of the executed block
+      # @overload each_group()
+      #   @return [Enumerator] enumerator
+      def each_group(*) end
 
       # Returns the total number of value entries at the current object only (if recurse is false) or including
       # any nested groups (if recurse is true)

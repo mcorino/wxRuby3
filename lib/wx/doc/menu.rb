@@ -11,9 +11,12 @@ module Wx
 
     # Yield each menu item to the given block.
     # Returns an Enumerator if no block given.
-    # @yieldparam [Wx::MenuItem] item the menu item yielded
-    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
-    def each_item; end
+    # @overload each_item(&block)
+    #   @yieldparam [Wx::MenuItem] item the menu item yielded
+    #   @return [Object] last result of block
+    # @overload each_item()
+    #   @return [Enumerator] enumerator
+    def each_item(*) end
 
   end
 

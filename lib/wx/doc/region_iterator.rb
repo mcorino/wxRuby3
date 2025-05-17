@@ -34,7 +34,7 @@ module Wx
     #   @return [::Object]
     # @overload each()
     #   @return [Enumerator]
-    def each; end
+    def each(*) end
 
   end
 

@@ -17,7 +17,7 @@ module Wx
     # @overload each(&block)
     #   @yieldparam item [Wx::Variant] variant list item
     #   @return [::Object] result of last block execution
-    # @overload each
+    # @overload each()
     #   @return [Enumerator] an enumerator
     def each; end
 

@@ -43,9 +43,13 @@ module Wx
 
     # Iterate all child items of the given parent and yield it's id to the given block.
     # Returns an Enumerator if no block given.
-    # @param [Wx::TreeItemId] parent_id
-    # @yieldparam [Wx::TreeItemId] child_id the child tree item id yielded
-    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
+    # @overload each_item_child(parent_id, &block)
+    #   @param [Wx::TreeItemId] parent_id
+    #   @yieldparam [Wx::TreeItemId] child_id the child tree item id yielded
+    #   @return [Object] last result of block
+    # @overload each_item_child(parent_id)
+    #   @param [Wx::TreeItemId] parent_id
+    #   @return [Enumerator] enumerator
     def each_item_child(parent_id) end
 
     # Returns an array of tree item ids of the child items of the given parent.

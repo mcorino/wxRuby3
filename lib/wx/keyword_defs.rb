@@ -389,8 +389,7 @@ end
 
 # wxGenericDirCtrl 	A control for displaying a directory tree
 Wx::define_keyword_ctors(Wx::GenericDirCtrl) do
-  # TODO :dir => Wx::DIR_DIALOG_DEFAULT_FOLDER_STR
-  wx_ctor_params :id, :dir => ''
+  wx_ctor_params :id, :dir => Wx::DIR_DIALOG_DEFAULT_FOLDER_STR
   wx_ctor_params :pos, :size,
                  :style => Wx::DIRCTRL_3D_INTERNAL|Wx::SUNKEN_BORDER
   wx_ctor_params :filter => ''

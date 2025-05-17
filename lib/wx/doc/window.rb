@@ -56,9 +56,12 @@ module Wx
 
     # Yield each child window to the given block.
     # Returns an Enumerator if no block given.
-    # @yieldparam [Wx::Window] child the child window yielded
-    # @return [Object,Enumerator] last result of block or Enumerator if no block given.
-    def each_child; end
+    # @overload each_child(&block)
+    #   @yieldparam [Wx::Window] child the child window yielded
+    #   @return [Object] last result of block
+    # @overload each_child()
+    #   @return [Enumerator] enumerator
+    def each_child(*) end
 
     # Locks the window from updates while executing the given block.
     # @param [Proc] block
