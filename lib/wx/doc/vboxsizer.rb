@@ -11,17 +11,32 @@ module Wx
   class VBoxSizer < Wx::BoxSizer
 
     # Constructor for a {Wx::VBoxSizer}.
-    # @return [Wx::VBoxSizer]
-    def initialize; end
+    # @overload initialize(&block)
+    #   @yieldparam [Wx::VBoxSizer] sizer new VBoxSizer instance
+    #   @return [Wx::VBoxSizer]
+    # @overload initialize()
+    #   @return [Wx::VBoxSizer]
+    def initialize(*) end
 
   end
 
   # Just a shortcut version for creating a vertical staticbox sizer
   class VStaticBoxSizer < StaticBoxSizer
 
+    # @overload initialize(box, &block)
+    #   This constructor uses an already existing static box.
+    #   @param box [Wx::StaticBox]  The static box to associate with the sizer (which will take its ownership).
+    #   @yieldparam [Wx::VStaticBoxSizer] sizer new VStaticBoxSizer instance
+    #   @return [Wx::VStaticBoxSizer]
     # @overload initialize(box)
     #   This constructor uses an already existing static box.
     #   @param box [Wx::StaticBox]  The static box to associate with the sizer (which will take its ownership).
+    #   @return [Wx::VStaticBoxSizer]
+    # @overload initialize(parent, label=(''), &block)
+    #   This constructor creates a new static box with the given label and parent window.
+    #   @param parent [Wx::Window]
+    #   @param label [String]
+    #   @yieldparam [Wx::VStaticBoxSizer] sizer new VStaticBoxSizer instance
     #   @return [Wx::VStaticBoxSizer]
     # @overload initialize(parent, label=(''))
     #   This constructor creates a new static box with the given label and parent window.
@@ -40,9 +55,14 @@ module Wx
     # item on each line to use any remaining space on that line and {Wx::REMOVE_LEADING_SPACES} which removes any spacer
     # elements from the beginning of a row.
     # Both of these flags are on by default.
-    # @param flags [Integer]
-    # @return [Wx::VWrapSizer]
-    def initialize(flags=Wx::WRAPSIZER_DEFAULT_FLAGS) end
+    # @overload initialize(flags=Wx::WRAPSIZER_DEFAULT_FLAGS, &block)
+    #   @param flags [Integer]
+    #   @yieldparam [Wx::VWrapSizer] sizer new VWrapSizer instance
+    #   @return [Wx::VWrapSizer]
+    # @overload initialize(flags=Wx::WRAPSIZER_DEFAULT_FLAGS)
+    #   @param flags [Integer]
+    #   @return [Wx::VWrapSizer]
+    def initialize(flags) end
 
   end
 

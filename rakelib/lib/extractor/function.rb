@@ -15,6 +15,20 @@ module WXRuby3
 
       include Util::StringUtil
 
+      class Block
+        def initialize(exclude_default=false)
+          @yield_param = []
+          @exclude_default = exclude_default
+        end
+
+        attr_reader :yield_param, :exclude_default
+
+        def yield(name, desc, type: nil)
+          @yield_param << {name: name, desc: desc, type: type}
+          self
+        end
+      end
+
       def initialize(element = nil, **kwargs)
         super()
         @type = nil
@@ -23,12 +37,13 @@ module WXRuby3
         @args_string = ''
         @is_overloaded = false
         @overloads = []
+        @block_arg = nil
 
         update_attributes(**kwargs)
         extract(element) if element
       end
 
-      attr_accessor :type, :definition, :template_params, :args_string, :is_overloaded, :overloads
+      attr_accessor :type, :definition, :template_params, :args_string, :is_overloaded, :overloads, :block_arg
 
       def is_template?
         !template_params.empty?
@@ -74,6 +89,10 @@ module WXRuby3
         items.inject(0) { |c, i| c += 1 if ParamDef === i && !i.default; c }
       end
 
+      def accept_block_arg(exclude_default=false)
+        @block_arg = Block.new(exclude_default)
+      end
+
       def rb_decl_name
         "self.#{rb_method_name(rb_name || name)}"
       end
@@ -81,11 +100,23 @@ module WXRuby3
       def rb_doc(xml_trans, type_maps, fulldocs=false)
         ovls = all.select {|m| !m.docs_ignored(fulldocs) && !m.deprecated }
         ovl_docs = ovls.collect { |mo| [mo]+mo.rb_doc_decl(xml_trans, type_maps) }
-        ovl_docs.inject({}) do |docs, (movl, name, params, doc)|
-          if docs.has_key?(name)
-            docs[name] << [movl, params, doc]
-          else
-            docs[name] = [[movl, params, doc]]
+        ovl_docs.inject({}) do |docs, (movl, name, params, doc, retdoc)|
+          docs[name] = [] unless docs.has_key?(name)
+          # add regular method signature doc
+          docs[name] << [movl, params, doc+[retdoc]]
+          # is an optional block arg allowed for ALL methods or just this overload?
+          if @block_arg || movl.block_arg
+            # add an overload method signature doc with block arg and yield param
+            blk_arg = @block_arg || movl.block_arg
+            # skip in case default ctor/method (no args) is excluded from block args
+            unless params.empty? && blk_arg.exclude_default
+              type = is_ctor ? rb_return_type(type_maps, xml_trans) : nil
+              blk_arg.yield_param.each { |yp| doc << "@yieldparam [#{yp[:type] || type}] #{yp[:name]} #{yp[:desc].split("\n").join("\n  ")}" }
+              doc << retdoc
+              blkarg = params.empty? ? '' : ', '
+              blkarg << '&block'
+              docs[name] << [movl, params+blkarg, doc]
+            end
           end
           docs
         end
@@ -157,15 +188,15 @@ module WXRuby3
                  end
         result.concat(mapped_ret_args.collect { |mra| mra.type }) if mapped_ret_args
         result.compact! # remove nil values (possible ignored output)
-        case result.size
-        when 0
-          doclns << "@return [void]"
-        when 1
-          doclns << "@return [#{result.first}]"
-        else
-          doclns << "@return [Array(#{result.join(',')})]"
-        end
-        [rb_decl_name, paramlist, doclns]
+        retdoc = case result.size
+                 when 0
+                   "@return [void]"
+                 when 1
+                   "@return [#{result.first}]"
+                 else
+                   "@return [Array(#{result.join(',')})]"
+                 end
+        [rb_decl_name, paramlist, doclns, retdoc]
       end
 
       def rb_return_type(type_maps, xml_trans)
