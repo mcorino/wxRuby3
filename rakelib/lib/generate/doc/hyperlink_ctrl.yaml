@@ -1,0 +1,22 @@
+---
+:wxGenericHyperlinkCtrl:
+  :brief:
+    :pre:
+      :briefdescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            This is the generic implementation of a class that shows a static text element which links to a URL.
+            For WXOSX this class is identical to wxHyperlinkCtrl.
+
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /Currently\s+this\s+class\s+is\s+implemented.*other\s+ports./
+          :replace: ''
+:wxGenericHyperlinkCtrl.wxGenericHyperlinkCtrl:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /See.*for\s+more\s+info\./
+          :replace: |
+            See {Wx::GenericHyperlinkCtrl#create} for more info.
