@@ -28,6 +28,7 @@ extern VALUE mWxCore;
 %constant wxPen* const     wxRED_PEN;
 %constant wxPen* const     wxCYAN_PEN;
 %constant wxPen* const     wxGREEN_PEN;
+%constant wxPen* const     wxBLUE_PEN;
 %constant wxPen* const     wxBLACK_PEN;
 %constant wxPen* const     wxWHITE_PEN;
 %constant wxPen* const     wxTRANSPARENT_PEN;
