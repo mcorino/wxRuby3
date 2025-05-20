@@ -48,10 +48,9 @@ module WXRuby3
         # ignore these very un-Ruby methods
         spec.ignore 'wxVListBox::GetFirstSelected',
                     'wxVListBox::GetNextSelected'
-        # add missing protected overloads for benefit of the proxy
-        spec.extend_interface 'wxVListBox',
-                              'virtual wxCoord OnGetRowHeight(size_t row) const',
-                              visibility: 'protected'
+        # optimize; no need for these virtuals here
+        spec.no_proxy 'wxVListBox::OnGetRowHeight',
+                      'wxVListBox::OnGetRowsHeightHint'
         # add rubified API (finish in pure Ruby)
         spec.add_extend_code 'wxVListBox', <<~__HEREDOC
           VALUE each_selected()

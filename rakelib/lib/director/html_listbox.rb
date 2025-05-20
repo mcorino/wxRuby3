@@ -62,6 +62,7 @@ module WXRuby3
                               'virtual void OnDrawBackground(wxDC &dc, const wxRect &rect, size_t n) const',
                               'virtual void OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const',
                               visibility: 'protected'
+        spec.no_proxy 'wxVListBox::OnGetRowHeight'
 
         # override inheritance chain
         spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])

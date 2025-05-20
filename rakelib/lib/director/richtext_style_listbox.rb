@@ -33,6 +33,7 @@ module WXRuby3
         spec.extend_interface 'wxRichTextStyleComboCtrl',
                               'virtual void DoSetPopupControl(wxComboPopup* popup)',
                               visibility: 'protected'
+        spec.no_proxy 'wxVListBox::OnGetRowHeight'
       end
 
     end
