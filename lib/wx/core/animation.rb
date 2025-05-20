@@ -27,7 +27,7 @@ module Wx
     end
   end
 
-  if Wx::WXWIDGETS_VERSION >= '3.3.0'
+  if Wx.at_least_wxwidgets?('3.3.0')
 
     class AnimationCtrl
 
