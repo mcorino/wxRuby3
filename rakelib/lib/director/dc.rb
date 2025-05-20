@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        _readDC = if Config.instance.wx_version >= '3.3.0'
+        _readDC = if Config.instance.wx_version_check('3.3.0') >= 0
                     spec.items.unshift 'wxReadOnlyDC' # prepend before wxDC
                     spec.items << 'wxInfoDC'
                     'wxReadOnlyDC'
@@ -70,7 +70,7 @@ module WXRuby3
         # for GetUserScale and GetLogicalScale
         spec.map_apply 'double * OUTPUT' => 'double *'
         spec.swig_import 'swig/classes/include/wxGDICommon.h'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           # add similar block-style creator as #draw_on methods
           spec.add_extend_code 'wxInfoDC', <<~__HEREDOC
             static VALUE inform_on(wxWindow* win)

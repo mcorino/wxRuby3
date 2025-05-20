@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version <= '3.2.2.1'
+        if Config.instance.wx_version_check('3.2.2.1') <= 0
           # In older versions a bug exists in wxRibbonToolBar::GetToolByPos and wxRibbonToolBar::DeleteToolByPos
           # so we use a wxRuby custom derived class
           spec.add_header_code <<~__HEREDOC

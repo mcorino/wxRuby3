@@ -24,7 +24,7 @@ module WXRuby3
                          wxAuiNotebookPage::tooltip
                          wxAuiNotebookPage::bitmap
                          wxAuiNotebookPage::active]
-          if Config.instance.wx_version >= '3.3.0'
+          if Config.instance.wx_version_check('3.3.0') >= 0
             spec.items << 'wxAuiNotebookPosition'
             spec.regard 'wxAuiNotebookPosition::tabCtrl',
                         'wxAuiNotebookPosition::tabIdx'

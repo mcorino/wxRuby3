@@ -23,7 +23,7 @@ module WXRuby3
         # only keep the const version
         spec.ignore 'wxPageSetupDialogData::GetPrintData'
         spec.regard 'wxPageSetupDialogData::GetPrintData() const'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           # new since 3.3.0
           spec.items << 'wxPrintPageRange'
           spec.regard 'wxPrintPageRange::fromPage', 'wxPrintPageRange::toPage' # include public attributes

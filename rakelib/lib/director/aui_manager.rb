@@ -17,7 +17,7 @@ module WXRuby3
       def setup
         super
         spec.gc_as_object 'wxAuiManager'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.items  << 'wxAuiBookSerializer' << 'wxAuiSerializer' <<
                          'wxAuiDockLayoutInfo' << 'wxAuiPaneLayoutInfo' << 'wxAuiTabLayoutInfo' <<
                          'wxAuiBookDeserializer' << 'wxAuiDeserializer'
@@ -303,7 +303,7 @@ module WXRuby3
 
       def gen_class_doc_members(fdoc, clsdef, cls_members, alias_methods)
         super
-        if Config.instance.wx_version >= '3.3.0' && clsdef.name == 'wxAuiTabLayoutInfo'
+        if Config.instance.wx_version_check('3.3.0') >= 0 && clsdef.name == 'wxAuiTabLayoutInfo'
           fdoc.doc.puts 'Returns the indices of the pages in this tab control in their order on screen.'
           fdoc.doc.puts 'If this array is empty, it means that the tab control contains all notebook pages in natural order.'
           fdoc.doc.puts '@return [::Array<Integer>] indices of the pages in this tab control'

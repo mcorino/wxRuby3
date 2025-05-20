@@ -84,7 +84,7 @@ module WXRuby3
           end
         when 'wxFontDialog'
           # ignore the non-const version
-          if Config.platform == :macosx && Config.instance.wx_version < '3.3'
+          if Config.platform == :macosx && Config.instance.wx_version_check('3.3') < 0
             # MacOSX implementation is incorrect so we need to use
             # the non-const definition here
             spec.ignore 'wxFontDialog::GetFontData() const'
@@ -103,7 +103,7 @@ module WXRuby3
              __CODE
           end
           spec.ignore 'wxFileDialog::SetExtraControlCreator'
-          if Config.instance.wx_version >= '3.2.1'
+          if Config.instance.wx_version_check('3.2.1') >= 0
             # doc does not seem to match actual header code so just ignore for now
             spec.ignore('wxFileDialog::AddShortcut')
           end
@@ -252,7 +252,7 @@ module WXRuby3
           spec.regard 'wxGenericAboutDialog::DoAddCustomControls',
                       'wxGenericAboutDialog::AddControl',
                       'wxGenericAboutDialog::AddText'
-          if Config.instance.wx_version >= '3.3.0'
+          if Config.instance.wx_version_check('3.3.0') >= 0
             spec.regard 'wxGenericAboutDialog::GetCustomControlParent'
           end
           if Config.instance.features_set?('USE_COLLPANE')

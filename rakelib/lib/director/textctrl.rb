@@ -20,11 +20,11 @@ module WXRuby3
         spec.include_mixin 'wxTextCtrl', { 'Wx::TextEntry' => 'wxTextEntryBase' }
         spec.override_inheritance_chain('wxTextCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
         spec.ignore 'wxTextCtrl::HitTest(const wxPoint &,long *)'
-        if Config.instance.wx_port == :wxgtk && Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_port == :wxgtk && Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore 'wxTextCtrl::GTKGetTextBuffer',
                       'wxTextCtrl::GTKGetEditable'
         end
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.items << 'wxTextSearch' << 'wxTextSearchResult'
           spec.regard 'wxTextSearch::m_searchValue',
                       'wxTextSearch::m_startingPosition',

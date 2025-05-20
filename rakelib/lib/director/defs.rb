@@ -32,7 +32,7 @@ module WXRuby3
           wxDELETEA
           wxSwap
         }
-        if Config.instance.wx_version >= '3.2.7'
+        if Config.instance.wx_version_check('3.2.7') >= 0
           spec.ignore %w[wxWARN_UNUSED]
         end
         spec.ignore 'wxOVERRIDE'

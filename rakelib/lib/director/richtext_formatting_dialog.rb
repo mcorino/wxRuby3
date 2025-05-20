@@ -27,7 +27,7 @@ module WXRuby3
           wxRichTextFormattingDialog::SetStyle
           wxRichTextFormattingDialog::SetStyleDefinition
         ]
-        if Config.instance.wx_version < '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') < 0
           # add undocumented methods
           spec.extend_interface 'wxRichTextFormattingDialog',
                                 'wxRichTextObject* GetObject() const',

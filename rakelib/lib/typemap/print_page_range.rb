@@ -20,7 +20,7 @@ module WXRuby3
 
       define do
 
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           map 'const std::vector<wxPrintPageRange> &' => 'Array<Wx::PRT::PrintPageRange>' do
             map_out code: <<~__CODE
                 $result = rb_ary_new();

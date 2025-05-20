@@ -272,7 +272,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxHtmlEasyPrinting', requirements: %w[USE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlPrintout', requirements: %w[USE_PRINTING_ARCHITECTURE])
     Director.Spec(pkg, 'wxHtmlListBox')
-    Director.Spec(pkg, 'wxHTMLDataObject') if Config.instance.wx_version >= '3.3'
+    Director.Spec(pkg, 'wxHTMLDataObject') if Config.instance.wx_version_check('3.3') >= 0
   }
 
   Director.Package('Wx::RTC', 'USE_RICHTEXT', depends_on: ['Wx::HTML']) { |pkg|

@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version <= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') <= 0
           # XML docs (< 3.3) incorrectly declare these pure virtual
           spec.ignore 'wxHyperlinkCtrl::GetVisited', 'wxHyperlinkCtrl::SetVisited', ignore_doc: false
           # replace by correct declarations
@@ -48,7 +48,7 @@ module WXRuby3
               end
             end
             defmod.items << def_genhlink
-            if Config.instance.wx_version <= '3.3.0'
+            if Config.instance.wx_version_check('3.3.0') <= 0
               # the interface extensions to fix the incorrectly pure virtual declared methods are missing
               spec.extend_interface 'wxGenericHyperlinkCtrl',
                                     'virtual bool wxGenericHyperlinkCtrl::GetVisited() const',
