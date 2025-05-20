@@ -19,7 +19,7 @@ module WXRuby3
       def setup
         spec.items << 'wxSimpleHtmlListBox' << 'wxItemContainer'
         super
-        spec.override_inheritance_chain('wxHtmlListBox', %w[wxVListBox wxVScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
+        spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', { 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         spec.make_abstract 'wxHtmlListBox'
         # provide base implementation for OnGetItem
         spec.add_header_code <<~__HEREDOC
@@ -34,7 +34,7 @@ module WXRuby3
           protected:
             virtual wxString 	OnGetItem (size_t n) const
             {
-              rb_raise(rb_eNoMethodError, "Not implemented");
+              return {};
             }
           };
         __HEREDOC
@@ -48,7 +48,7 @@ module WXRuby3
           {
             $self->GetFileSystem().ChangePathTo(location, is_dir);
           }
-          __HEREDOC
+        __HEREDOC
         # make sure protected methods are included
         spec.regard 'wxHtmlListBox::OnGetItem',
                     'wxHtmlListBox::OnGetItemMarkup',
@@ -62,9 +62,10 @@ module WXRuby3
                               'virtual void OnDrawBackground(wxDC &dc, const wxRect &rect, size_t n) const',
                               'virtual void OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const',
                               visibility: 'protected'
+        spec.no_proxy 'wxVListBox::OnGetRowHeight'
 
         # override inheritance chain
-        spec.override_inheritance_chain('wxSimpleHtmlListBox', %w[wxHtmlListBox wxVListBox wxVScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
+        spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         spec.fold_bases('wxSimpleHtmlListBox' => %w[wxItemContainer])
         # override SWIG's confusion
         spec.make_concrete 'wxSimpleHtmlListBox'
@@ -187,7 +188,7 @@ module WXRuby3
             }
             return rc;
           }
-          __HEREDOC
+        __HEREDOC
       end
     end # class HtmlListBox
 

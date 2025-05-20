@@ -65,7 +65,7 @@ module WXRuby3
                     'wxUIntProperty::m_prefix',
                     'wxDateProperty::m_format',
                     'wxDateProperty::m_dpStyle'
-        if Config.instance.wx_version > '3.2.4'
+        if Config.instance.wx_version_check('3.2.4') > 0
           # currently missing from interface docs
           spec.extend_interface 'wxEnumProperty',
                                 'bool ValueFromString_(wxVariant& value, int* pIndex, const wxString& text,int argFlags) const',
@@ -111,7 +111,7 @@ module WXRuby3
         end
         # make sure the derived Enum property classes provide the protected accessors too
         %w[wxCursorProperty wxEditEnumProperty wxSystemColourProperty wxColourProperty].each do |kls|
-          if Config.instance.wx_version > '3.2.4'
+          if Config.instance.wx_version_check('3.2.4') > 0
             # currently missing from interface docs
             spec.extend_interface kls,
                                   'int GetIndex() const',
@@ -136,12 +136,12 @@ module WXRuby3
                     'wxLongStringProperty::DisplayEditorDialog',
                     'wxMultiChoiceProperty::DisplayEditorDialog',
                     'wxFontProperty::DisplayEditorDialog'
-        if Config.instance.wx_version > '3.2.4'
+        if Config.instance.wx_version_check('3.2.4') > 0
           # for wxEnumProperty and derivatives ValueFromString_/ValueFromInt_
           spec.map_apply 'int * OUTPUT' => 'int* pIndex'
         end
         # for UIntProperty and IntProperty
-        if Config.instance.features_set?('USE_LONGLONG') || Config.instance.wx_version >= '3.3.0'
+        if Config.instance.features_set?('USE_LONGLONG') || Config.instance.wx_version_check('3.3.0') >= 0
           # wxLongLong mapping to be considered before considering 'long' (see typecheck precedence)
           spec.map 'const wxLongLong&' => 'Integer' do
             map_in temp: 'wxLongLong tmp', code: <<~__CODE

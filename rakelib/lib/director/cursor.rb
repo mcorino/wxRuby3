@@ -21,7 +21,7 @@ module WXRuby3
                          'wxCursor::wxCursor(const char *const *)',
                          'wxCursor::wxCursor(const wxCursor &)'
         spec.ignore 'wxCursor::wxCursor(const char *const *)'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[], const wxColour*, const wxColour*)'
 
           spec.items << 'wxCursorBundle'

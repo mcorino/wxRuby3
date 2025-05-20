@@ -66,4 +66,32 @@ module Wx
   def self.has_feature?(featsym)
     Wx::Setup.const_defined?(featsym) && !!Wx::Setup.const_get(featsym)
   end
+
+  # returns true if WXWIDGETS_VERSION >= ver
+  # ver can be string or array of 3 integers
+  def self.at_least_wxwidgets?(ver)
+    ver = ver.split('.').collect {|s| s.to_i } unless ::Array === ver
+    ([ Wx::WXWIDGETS_MAJOR_VERSION, Wx::WXWIDGETS_MINOR_VERSION, Wx::WXWIDGETS_RELEASE_NUMBER ] <=> ver) >= 0
+  end
+
+  # returns true if WXWIDGETS_VERSION <= ver
+  # ver can be string or array of 3 integers
+  def self.up_to_wxwidgets?(ver)
+    ver = ver.split('.').collect {|s| s.to_i } unless ::Array === ver
+    ([ Wx::WXWIDGETS_MAJOR_VERSION, Wx::WXWIDGETS_MINOR_VERSION, Wx::WXWIDGETS_RELEASE_NUMBER ] <=> ver) <= 0
+  end
+
+  # returns true if WXWIDGETS_VERSION < ver
+  # ver can be string or array of 3 integers
+  def self.before_wxwidgets?(ver)
+    ver = ver.split('.').collect {|s| s.to_i } unless ::Array === ver
+    ([ Wx::WXWIDGETS_MAJOR_VERSION, Wx::WXWIDGETS_MINOR_VERSION, Wx::WXWIDGETS_RELEASE_NUMBER ] <=> ver) < 0
+  end
+
+  # returns true if WXWIDGETS_VERSION > ver
+  # ver can be string or array of 3 integers
+  def self.after_wxwidgets?(ver)
+    ver = ver.split('.').collect {|s| s.to_i } unless ::Array === ver
+    ([ Wx::WXWIDGETS_MAJOR_VERSION, Wx::WXWIDGETS_MINOR_VERSION, Wx::WXWIDGETS_RELEASE_NUMBER ] <=> ver) > 0
+  end
 end

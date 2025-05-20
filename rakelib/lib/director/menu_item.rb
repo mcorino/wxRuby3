@@ -24,7 +24,7 @@ module WXRuby3
         spec.ignore_unless('USE_ACCEL', 'wxMenuItem::GetAccel')
         spec.no_proxy 'wxMenuItem::GetAccel'
         spec.ignore 'wxMenuItem::GetBitmap(bool)' # not portable
-        if Config.instance.wx_version > '3.2.4'
+        if Config.instance.wx_version_check('3.2.4') > 0
           spec.ignore_unless('WXMSW', 'wxMenuItem::SetBackgroundColour','wxMenuItem::SetFont','wxMenuItem::SetTextColour')
         end
         super

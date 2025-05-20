@@ -21,7 +21,7 @@ module WXRuby3
         spec.disable_proxies
         spec.ignore 'wxPropertyGridPageState::DoDelete',
                     'wxPropertyGridPageState::DoInsert'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore 'wxPropertyGridPageState::DoSetSplitter'
         else
           spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition'

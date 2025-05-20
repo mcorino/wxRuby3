@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         spec.items << 'wxAppConsole' << 'wxEventFilter'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.items << 'wxDarkModeSettings'
           spec.ignore_unless('WXMSW', 'wxDarkModeSettings', 'wxMenuColour')
           if Config.instance.features_set?('WXMSW')

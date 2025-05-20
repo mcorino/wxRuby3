@@ -177,7 +177,7 @@ module WXRuby3
           @rescomp << ' --define __WXMSW__ --define wxUSE_DPI_AWARE_MANIFEST=2 --define wxUSE_RC_MANIFEST=1 --define ISOLATION_AWARE_ENABLED'
           @rescomp << ' --define WXUSINGDLL'
           @extra_cflags << '-DISOLATION_AWARE_ENABLED'
-          if @wx_version >= '3.3.0'
+          if wx_version_check('3.3.0') >= 0
             @extra_cflags << '-D_UNICODE' << '-DUNICODE'
           end
         end

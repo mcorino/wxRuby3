@@ -21,7 +21,7 @@ module WXRuby3
         spec.items << 'wxGenericAnimationCtrl'
         spec.include 'wx/animate.h'
         spec.include 'wx/generic/animate.h'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.items << 'wxAnimationBundle'
           spec.ignore 'wxAnimationBundle::GetAll', ignore_doc: false
           spec.add_extend_code 'wxAnimationBundle', <<~__HEREDOC

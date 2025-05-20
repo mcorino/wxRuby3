@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore 'wxEVT_STC_KEY',
                       'wxEVT_STC_URIDROPPED'
         end

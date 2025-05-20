@@ -14,7 +14,7 @@ module Wx::PG
 
   PG_DEFAULT_IMAGE_SIZE = Wx::DEFAULT_SIZE
 
-  if Wx::WXWIDGETS_VERSION >= '3.3.0'
+  if Wx.at_least_wxwidgets?('3.3.0')
     # backward compatibility constants
     PG_FULL_VALUE                     = PGPropValFormatFlags::FullValue
     PG_REPORT_ERROR                   = PGPropValFormatFlags::ReportError

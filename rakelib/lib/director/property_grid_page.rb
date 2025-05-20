@@ -38,7 +38,7 @@ module WXRuby3
           __HEREDOC
         spec.use_class_implementation 'wxPropertyGridPage', 'WXRubyPropertyGridPage'
         spec.ignore 'wxPropertyGridPage::GetStatePtr'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore 'wxPropertyGridPageState::DoSetSplitter'
         else
           spec.ignore 'wxPropertyGridPageState::DoSetSplitterPosition'

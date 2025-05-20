@@ -14,7 +14,7 @@ module WXRuby3
 
       def setup
         spec.items << 'wxPersistentTLW' << 'wxPersistentBookCtrl' << 'wxPersistentTreeBookCtrl'
-        if Config.instance.wx_version > '3.2.4'
+        if Config.instance.wx_version_check('3.2.4') > 0
           # only after 3.2.4 properly available
           spec.items << 'wxPersistentComboBox'
         end
@@ -57,7 +57,7 @@ module WXRuby3
         spec.extend_interface 'wxPersistentTreeBookCtrl',
                               'virtual wxString GetKind() const override'
         spec.do_not_generate :functions, :defines, :typedefs, :variables, :enums
-        if Config.instance.wx_version >= '3.0.0'
+        if Config.instance.wx_version_check('3.0.0') >= 0
           # wxPersistentComboBox
           spec.override_inheritance_chain('wxPersistentComboBox', [{ 'wxPersistentWindowBase' => 'wxPersistentWindow' }, 'wxPersistentObject'])
           # add method override missing from docs

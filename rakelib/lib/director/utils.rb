@@ -61,7 +61,7 @@ module WXRuby3
         spec.ignore 'wxGetEmailAddress(char *,int)',
                     'wxGetUserId(char *,int)',
                     'wxGetUserName(char *,int)'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore_unless('WXMSW', 'wxMSWIsOnSecureScreen')
         end
         spec.map 'wxMemorySize' => 'Integer' do

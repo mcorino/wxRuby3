@@ -18,7 +18,7 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version < '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') < 0
           spec.map 'wxPGVFBFlags' => 'Integer' do
             map_in code: '$1 = (unsigned char)NUM2UINT($input);'
             map_out code: '$result = UINT2NUM((unsigned int)$1);'

@@ -54,7 +54,7 @@ module WXRuby3
             'wxItemContainer::Append(const wxArrayString &, wxClientData **)',
             'wxItemContainer::Insert(const wxArrayString &, unsigned int, wxClientData **)',
             'wxItemContainer::Set(const wxArrayString &, wxClientData **)'], ignore_doc: false)
-          if Config.instance.wx_version < '3.3.0'
+          if Config.instance.wx_version_check('3.3.0') < 0
             # add undocumented method
             spec.extend_interface 'wxControlWithItems',
                                   'bool IsSorted() const'

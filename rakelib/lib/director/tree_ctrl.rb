@@ -50,7 +50,7 @@ module WXRuby3
           wxTreeCtrl::GetFirstChild
           wxTreeCtrl::GetNextChild
           ]
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           # new method with bitmap bundle vector
           spec.no_proxy 'wxTreeCtrl::SetStateImages'
           spec.map 'const wxVector<wxBitmapBundle>& images' => 'Array<Wx::ImageBundle>' do

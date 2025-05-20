@@ -22,7 +22,7 @@ module WXRuby3
         spec.ignore %w{
           wxTheColourDatabase
         }
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           spec.ignore 'wxColourDatabase::GetAllNames', ignore_doc: false
           spec.add_extend_code 'wxColourDatabase', <<~__HEREDOC
             VALUE get_all_names() const
@@ -49,7 +49,7 @@ module WXRuby3
           'wxRect::Intersect(const wxRect &)',
           'wxRect::Union(const wxRect &)'
         ]
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           # ignore these as they are supposed to specify unary minus but confuse
           # SWIG
           spec.ignore 'wxPoint::operator-(const wxPoint&)'

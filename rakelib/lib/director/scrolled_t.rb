@@ -63,7 +63,29 @@ module WXRuby3
         spec.ignore 'wxScrolled::GetViewStart(int *,int *)'
         spec.map_apply 'int * OUTPUT' => 'int *'
       end
+
+      def doc_generator
+        ScrolledTDocGenerator.new(self)
+      end
+
     end # class ScrolledT
+
+    class ScrolledTDocGenerator < DocGenerator
+
+      def get_method_doc(mtd)
+        mtd_doc = super
+        mtd_doc.each_pair do |_name, docs|
+          docs.each do |_ovl, _params, ovl_doc|
+            ovl_doc.each do |line|
+              line.gsub!(/Wx::Scrolled#(\w+)/, "{#{director.spec.module_name.sub(/^wx/, 'Wx::')}#\\1}")
+              line.gsub!(/\{Wx::Scrolled}/, "{#{director.spec.module_name.sub(/^wx/, 'Wx::')}}")
+            end
+          end
+        end
+        mtd_doc
+      end
+
+    end
 
   end # class Director
 

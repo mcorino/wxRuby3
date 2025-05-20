@@ -20,7 +20,7 @@ module WXRuby3
         super
         spec.items << 'wxRichTextFontTable' << 'wxRichTextFieldType' << 'wxRichTextFieldTypeStandard' << 'wxRichTextDrawingHandler'
         spec.make_abstract 'wxRichTextFieldType'
-        if Config.instance.wx_version >= '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') >= 0
           # make Ruby director and wrappers use custom implementation
           spec.use_class_implementation('wxRichTextFieldType', 'wxRubyRichTextFieldType')
           spec.add_header_code <<~__HEREDOC

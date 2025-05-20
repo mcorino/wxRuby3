@@ -37,7 +37,7 @@ module Wx
   end
   DF_FILENAME    = DataFormat.new( Wx::DataFormatId::DF_FILENAME )
   DF_UNICODETEXT = DataFormat.new( Wx::DataFormatId::DF_UNICODETEXT )
-  if Wx.has_feature?(:USE_HTML) && Wx::WXWIDGETS_VERSION >= '3.3'
+  if Wx.has_feature?(:USE_HTML) && Wx.at_least_wxwidgets?('3.3.0')
     DF_HTML        = DataFormat.new( Wx::DataFormatId::DF_HTML )
   end
 end

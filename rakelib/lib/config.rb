@@ -728,6 +728,12 @@ module WXRuby3
             @wx_version || ''
           end
 
+          def wx_version_check(ver)
+            @wx_version_list ||= (@wx_version || '0.0.0').split('.').collect {|s| s.to_i }
+            ver = ver.split('.').collect {|s| s.to_i }  unless ::Array === ver
+            @wx_version_list <=> ver
+          end
+
           def mingw?
             @platform == :mingw
           end

@@ -126,7 +126,7 @@ module WXRuby3
             # protected for wxQT; ignore for now
             spec.ignore 'wxWindow::EnableTouchEvents'
           end
-          if Config.instance.wx_version >= '3.3.0'
+          if Config.instance.wx_version_check('3.3.0') >= 0
             spec.ignore_unless('WXMSW', 'wxWindow::MSWDisableComposited')
             spec.ignore('wxWindow::GTKGetWin32Handle')
           end
@@ -135,7 +135,7 @@ module WXRuby3
           else
             spec.ignore('wxWindow::SetAccessible',
                         'wxWindow::GetAccessible')
-            if Config.instance.wx_version > '3.2.4'
+            if Config.instance.wx_version_check('3.2.4') > 0
               spec.ignore('wxWindow::CreateAccessible',
                           'wxWindow::GetOrCreateAccessible')
             end
@@ -336,7 +336,7 @@ module WXRuby3
                           "#{spec.class_name(citem)}::AdjustForLayoutDirection",
                           "#{spec.class_name(citem)}::IsTransparentBackgroundSupported")
             if Config.instance.features_set?('USE_ACCESSIBILITY')
-              if Config.instance.wx_version > '3.2.4'
+              if Config.instance.wx_version_check('3.2.4') > 0
                 spec.no_proxy "#{spec.class_name(citem)}::CreateAccessible"
               end
             end

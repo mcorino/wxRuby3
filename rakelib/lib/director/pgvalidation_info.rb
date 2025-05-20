@@ -16,7 +16,7 @@ module WXRuby3
         super
         spec.items << 'propgrid/propgrid.h'
         spec.gc_as_untracked 'wxPGValidationInfo'
-        if Config.instance.wx_version < '3.3.0'
+        if Config.instance.wx_version_check('3.3.0') < 0
           spec.ignore 'wxPGVFBFlags' # not a constant but a rather a clumsy typedef
           spec.map 'wxPGVFBFlags' => 'Integer' do
             map_in code: '$1 = (unsigned char)NUM2UINT($input);'

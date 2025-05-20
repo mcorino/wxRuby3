@@ -120,7 +120,7 @@ module WXRuby3
           # do not think this useful for wxRuby (Also; caused GC problems)
           spec.ignore 'wxPGProperty::GetCellRenderer'
           # obsolete
-          if Config.instance.wx_version < '3.3.0'
+          if Config.instance.wx_version_check('3.3.0') < 0
             spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
           else
             spec.ignore 'wxPGProperty::AddChild'

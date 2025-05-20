@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.override_inheritance_chain('wxVListBox', %w[wxVScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
+        spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         spec.make_abstract 'wxVListBox'
         # provide base implementations for OnDrawItem and OnMeasureItem
         spec.add_header_code <<~__HEREDOC
@@ -31,11 +31,10 @@ module WXRuby3
           protected:
             virtual void OnDrawItem(wxDC&, const wxRect&, size_t) const
             {
-              rb_raise(rb_eNoMethodError, "Not implemented");
             }
             virtual wxCoord OnMeasureItem(size_t) const
             {
-              rb_raise(rb_eNoMethodError, "Not implemented");
+              return {};
             }
           };
         __HEREDOC
@@ -49,6 +48,9 @@ module WXRuby3
         # ignore these very un-Ruby methods
         spec.ignore 'wxVListBox::GetFirstSelected',
                     'wxVListBox::GetNextSelected'
+        # optimize; no need for these virtuals here
+        spec.no_proxy 'wxVListBox::OnGetRowHeight',
+                      'wxVListBox::OnGetRowsHeightHint'
         # add rubified API (finish in pure Ruby)
         spec.add_extend_code 'wxVListBox', <<~__HEREDOC
           VALUE each_selected()
