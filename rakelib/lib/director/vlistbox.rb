@@ -31,11 +31,10 @@ module WXRuby3
           protected:
             virtual void OnDrawItem(wxDC&, const wxRect&, size_t) const
             {
-              rb_raise(rb_eNoMethodError, "Not implemented");
             }
             virtual wxCoord OnMeasureItem(size_t) const
             {
-              rb_raise(rb_eNoMethodError, "Not implemented");
+              return {};
             }
           };
         __HEREDOC
@@ -49,6 +48,10 @@ module WXRuby3
         # ignore these very un-Ruby methods
         spec.ignore 'wxVListBox::GetFirstSelected',
                     'wxVListBox::GetNextSelected'
+        # add missing protected overloads for benefit of the proxy
+        spec.extend_interface 'wxVListBox',
+                              'virtual wxCoord OnGetRowHeight(size_t row) const',
+                              visibility: 'protected'
         # add rubified API (finish in pure Ruby)
         spec.add_extend_code 'wxVListBox', <<~__HEREDOC
           VALUE each_selected()

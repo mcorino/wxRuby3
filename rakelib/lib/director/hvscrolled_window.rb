@@ -84,6 +84,11 @@ module WXRuby3
         spec.use_class_implementation('wxVScrolledWindow', 'wxRubyVScrolledWindow')
         spec.use_class_implementation('wxHScrolledWindow', 'wxRubyHScrolledWindow')
         spec.use_class_implementation('wxHVScrolledWindow', 'wxRubyHVScrolledWindow')
+        # regard protected methods
+        spec.regard 'wxVarVScrollHelper::OnGetRowHeight',
+                    'wxVarVScrollHelper::OnGetRowsHeightHint'
+        spec.regard 'wxVarHScrollHelper::OnGetColumnWidth',
+                    'wxVarHScrollHelper::OnGetColumnsWidthHint'
         # ignore internal implementation methods
         spec.ignore 'wxVarScrollHelperBase::GetNonOrientationTargetSize',
                     'wxVarScrollHelperBase::GetOrientation',

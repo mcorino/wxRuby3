@@ -34,7 +34,7 @@ module WXRuby3
           protected:
             virtual wxString 	OnGetItem (size_t n) const
             {
-              rb_raise(rb_eNoMethodError, "Not implemented");
+              return {};
             }
           };
         __HEREDOC
