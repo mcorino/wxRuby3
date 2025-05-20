@@ -1,4 +1,42 @@
 ---
+:wxScrolled:
+  :brief:
+    :pre:
+      :briefdescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            The Wx::ScrolledXXX classes manage scrolling for their client areas, transforming the coordinates according 
+            to the scrollbar positions, and setting the scroll positions, thumb sizes and ranges according to the area in view.
+  :detail:
+    :pre:
+      :simplesect:
+        - :pattern: !ruby/regexp /if you want to use.*wxScrolled.*with a custom class/
+          :replace: ''
+    :post:
+      - :pattern: !ruby/regexp /commonly used \(but not the only possible!\) /
+        :subst: 'commonly used '
+      - :pattern: !ruby/regexp /, aka \{Wx::Scrolled<wxPanel>}, is equivalent to \{Wx::ScrolledWindow} from earlier versions. Derived/
+        :subst: ' derives'
+      - :pattern: !ruby/regexp /, aka \{Wx::Scrolled<wxWindow>},/
+        :subst: ''
+      - :pattern: !ruby/regexp /\{Wx::Scrolled<wxControl>}/
+        :subst: 'Wx::ScrolledControl'
+      - :pattern: !ruby/regexp / \(also note the absence of a \{Wx::ScrolledControl} typedef\)/
+        :subst: ''
+      - :pattern: !ruby/regexp /Starting from version 2.4 of wxWidgets, there are several ways to use a \{Wx::ScrolledWindow} \(and now \{Wx::Scrolled}\). In particular, there /
+        :subst: 'There '
+      - :pattern: !ruby/regexp /Wx::Scrolled#(\w+)/
+        :subst: '{Wx::ScrolledWindow#\1}'
+        :global: true
+      - :pattern: !ruby/regexp /\{Wx::Scrolled}/
+        :subst: '{Wx::ScrolledWindow}'
+        :global: true
+:wxScrolled.Create:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: ''
 :wxScrolled.DoPrepareDC:
   :detail:
     :pre:
