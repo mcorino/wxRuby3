@@ -139,7 +139,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxScrolledWindow', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxScrolledCanvas', director: Director::ScrolledT)
     Director.Spec(pkg, 'wxScrolledControl', director: Director::ScrolledT)
-    Director.Spec(pkg, 'wxVScrolledWindow')
+    Director.Spec(pkg, 'wxHVScrolledWindow')
     Director.Spec(pkg, 'wxVListBox')
     Director.Spec(pkg, 'wxFindReplaceData', requirements: %w[USE_FINDREPLDLG])
     Director.Spec(pkg, 'wxFindReplaceDialog', director: Director::Dialog, requirements: %w[USE_FINDREPLDLG])

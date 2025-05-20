@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.override_inheritance_chain('wxVListBox', %w[wxVScrolledWindow wxPanel wxWindow wxEvtHandler wxObject])
+        spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         spec.make_abstract 'wxVListBox'
         # provide base implementations for OnDrawItem and OnMeasureItem
         spec.add_header_code <<~__HEREDOC
