@@ -23,7 +23,7 @@ module Wx
   class FileDialogCustomizeHook
 
     # prevent construction of abstract base
-    if RUBY_VERSION < '2.7.0'
+    if (RUBY_VERSION.split('.').collect {|v| v.to_i} <=> [2,7,0]) < 0
       def self.new(*)
         raise NotImplementedError, 'Wx::FileDialogCustomizeHook is an abstract class.' if self == Wx::FileDialogCustomizeHook
         super

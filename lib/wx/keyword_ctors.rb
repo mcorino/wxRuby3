@@ -71,7 +71,7 @@ module Wx
     # by the Rails #class_attribute method.
     module ParamSpec
 
-      if RUBY_VERSION < '2.7.0'
+      if (RUBY_VERSION.split('.').collect {|v| v.to_i} <=> [2,7,0]) < 0
         PARAM_SPEC_ARG = [:param_spec]
       else
         PARAM_SPEC_ARG = [:param_spec, false]
@@ -164,7 +164,7 @@ module Wx
         end
       end
 
-      if RUBY_VERSION < '3.0.0'
+      if (RUBY_VERSION.split('.').collect {|v| v.to_i} <=> [3,0,0]) <= 0
         def args_as_list(*mixed_args)
           Wx::args_as_list(param_spec, *mixed_args)
         end
