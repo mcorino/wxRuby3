@@ -19,11 +19,13 @@ module Wx
     Cursor.new(art_file, bmp_type || Wx::Bitmap::BITMAP_TYPE_GUESS[File.extname(art_file).sub(/\A\./,'')], *rest)
   end
 
-  class << self
+  if at_least_wxwidgets?('3.3.0')
+    class << self
 
-    wx_set_cursor = instance_method :set_cursor
-    wx_redefine_method :set_cursor do |cursor|
-      wx_set_cursor.bind(self).call(cursor.is_a?(Wx::Cursor) ? Wx::CursorBundle.new(cursor) :  cursor)
+      wx_set_cursor = instance_method :set_cursor
+      wx_redefine_method :set_cursor do |cursor|
+        wx_set_cursor.bind(self).call(cursor.is_a?(Wx::Cursor) ? Wx::CursorBundle.new(cursor) :  cursor)
+      end
     end
   end
 
