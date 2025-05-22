@@ -30,6 +30,9 @@ module WXRuby3
           spec.require_app 'wxCursorBundle::wxCursorBundle(const wxBitmapBundle &, const wxPoint &)',
                            'wxCursorBundle::wxCursorBundle(const wxBitmapBundle &, int, int)',
                            'wxCursorBundle::wxCursorBundle(const wxCursorBundle &)'
+          # add undocumented but useful ctor
+          spec.extend_interface 'wxCursorBundle',
+                                'wxCursorBundle(const wxCursor& cursor)'
         else
           spec.ignore 'wxCursor::wxCursor(const char[],int,int,int,int,const char[])'
         end
