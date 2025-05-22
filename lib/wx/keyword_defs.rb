@@ -516,11 +516,14 @@ Wx::define_keyword_ctors(Wx::HyperlinkCtrl) do
   wx_ctor_params :name => Wx::HYPERLINK_CTRL_NAME_STR
 end
 
-Wx::define_keyword_ctors(Wx::GenericHyperlinkCtrl) do
-  wx_ctor_params :id, :label => ''
-  wx_ctor_params :url => ''
-  wx_ctor_params :pos, :size, :style => Wx::HL_DEFAULT_STYLE
-  wx_ctor_params :name => Wx::HYPERLINK_CTRL_NAME_STR
+# HyperlinkCtrl is identical to GenericHyperlinkCtrl on MacOS
+unless Wx::PLATFORM == 'WXOSX'
+  Wx::define_keyword_ctors(Wx::GenericHyperlinkCtrl) do
+    wx_ctor_params :id, :label => ''
+    wx_ctor_params :url => ''
+    wx_ctor_params :pos, :size, :style => Wx::HL_DEFAULT_STYLE
+    wx_ctor_params :name => Wx::HYPERLINK_CTRL_NAME_STR
+  end
 end
 
 Wx::define_keyword_ctors(Wx::CollapsiblePane) do
