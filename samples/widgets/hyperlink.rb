@@ -34,8 +34,14 @@ module Widgets
       def get_widget
         @hyperlink
       end
+
+      def get_widgets
+        [get_widget, @hyperlinkLong]
+      end
+
       def recreate_widget
         create_hyperlink
+        create_hyperlink_long
       end
   
       # lazy creation of the content
@@ -45,31 +51,41 @@ module Widgets
         # left pane
         sizerLeft = Wx::StaticBoxSizer.new(Wx::VERTICAL, self, 'Hyperlink details')
         sizerLeftBox = sizerLeft.get_static_box
-    
+
+        choices = Wx::PLATFORM == 'WXOSX' ? %w[default generic] : %w[native generic]
+        @radioImplementation = Wx::RadioBox.new(sizerLeftBox, Wx::ID_ANY, 'Implementation',
+                                  choices: choices)
+        sizerLeft.add(@radioImplementation, 0, Wx::ALL|Wx::GROW, 5)
+
         szr, @label = create_sizer_with_text_and_button(ID::SetLabel,'Set &Label', Wx::ID_ANY, sizerLeftBox)
         sizerLeft.add(szr, 0, Wx::ALL | Wx::ALIGN_RIGHT, 5)
-    
+
         szr, @url = create_sizer_with_text_and_button(ID::SetURL,'Set &URL', Wx::ID_ANY, sizerLeftBox)
         sizerLeft.add(szr, 0, Wx::ALL | Wx::ALIGN_RIGHT, 5)
-    
+
         alignments = %w{&left &centre &right}
     
         @radioAlignMode = Wx::RadioBox.new(sizerLeftBox, Wx::ID_ANY, 'alignment',
                                            choices: alignments)
-        @radioAlignMode.set_selection(1)  # start with "centre" selected since
-                                          # wxHL_DEFAULT_STYLE contains wxHL_ALIGN_CENTRE
         sizerLeft.add(@radioAlignMode, 0, Wx::ALL|Wx::GROW, 5)
-    
+
+        b0 = Wx::Button.new(sizerLeftBox, Wx::ID_ANY, '&Reset')
+        b0.evt_button(Wx::ID_ANY, self.method(:on_button_reset))
+        sizerLeft.add(b0, 0, Wx::ALIGN_CENTRE_HORIZONTAL | Wx::ALL, 15)
+
+        @hyperlink = nil
+        @hyperlinkLong = nil
+
+        # initializations
+        reset
+
+        recreate_widget # create hyperlink controls
+
         # right pane
         szHyperlinkLong = Wx::VBoxSizer.new
         szHyperlink = Wx::HBoxSizer.new
     
         @visit = Wx::StaticText.new(self, Wx::ID_ANY, 'Visit ')
-    
-        @hyperlink = Wx::HyperlinkCtrl.new(self,
-                                           ID::Ctrl,
-                                           'wxRuby website',
-                                           'www.github.com/mcorino/wxRuby3')
     
         @fun = Wx::StaticText.new(self, Wx::ID_ANY, " for fun!")
     
@@ -80,11 +96,6 @@ module Widgets
         szHyperlink.add(0, 0, 1, Wx::CENTRE)
         szHyperlink.set_min_size(150, 0)
     
-        @hyperlinkLong = Wx::HyperlinkCtrl.new(self,
-                                               Wx::ID_ANY,
-                                               'This is a long hyperlink',
-                                               'www.github.com/mcorino/wxRuby3')
-
         szHyperlinkLong.add(0, 0, 1, Wx::CENTRE)
         szHyperlinkLong.add(szHyperlink, 0, Wx::CENTRE|Wx::GROW)
         szHyperlinkLong.add(0, 0, 1, Wx::CENTRE)
@@ -95,10 +106,7 @@ module Widgets
         # the 3 panes panes compose the window
         sizerTop.add(sizerLeft, 0, (Wx::ALL & ~Wx::LEFT), 10)
         sizerTop.add(szHyperlinkLong, 1, Wx::GROW | (Wx::ALL & ~Wx::RIGHT), 10)
-    
-        # final initializations
-        reset
-    
+
         set_sizer(sizerTop)
 
         # connect event handlers
@@ -114,86 +122,103 @@ module Widgets
       # event handlers
       def on_button_set_label(_event)
         @hyperlink.set_label(@label.value)
-        create_hyperlink
+        recreate_widget
       end
 
       def on_button_set_url(_event)
         @hyperlink.set_url(@url.value)
-        create_hyperlink
+        recreate_widget
       end
   
       def on_button_reset(_event)
         reset
 
-        create_hyperlink
+        recreate_widget
       end
 
       def on_alignment(_event)
-        case @radioAlignMode.selection
-        when ID::Align_Left
-          addstyle = Wx::HL_ALIGN_LEFT
-        when ID::Align_Centre
-          addstyle = Wx::HL_ALIGN_CENTRE
-        when ID::Align_Right
-          addstyle = Wx::HL_ALIGN_RIGHT
-        else
-          ::Kernel.raise RuntimeError, 'unknown alignment'
-        end
-    
-        create_hyperlink_long(addstyle)
+        @alignment = case @radioAlignMode.selection
+                     when ID::Align_Left
+                       addstyle = Wx::HL_ALIGN_LEFT
+                     when ID::Align_Centre
+                       addstyle = Wx::HL_ALIGN_CENTRE
+                     when ID::Align_Right
+                       addstyle = Wx::HL_ALIGN_RIGHT
+                     else
+                       ::Kernel.raise RuntimeError, 'unknown alignment'
+                     end
+
+        recreate_widget
       end
 
       # reset the control parameters
       def reset
-        @label.set_value(@hyperlink.label)
-        @url.set_value(@hyperlink.url)
+        @radioImplementation.set_selection(0)  # start with "native" or "default" selected
+        @label.value = 'wxRuby website'
+        @url.value = 'www.github.com/mcorino/wxRuby3'
+        @radioAlignMode.set_selection(1)  # start with "centre" selected
+        @alignment = Wx::HL_ALIGN_CENTRE
       end
   
       # (re)create the hyperlinkctrl
       def create_hyperlink
-        label = @hyperlink.label
-        url = @hyperlink.url
         style = get_attrs.default_flags
-    
+
         style |= Wx::HL_DEFAULT_STYLE & ~Wx::BORDER_MASK
-    
-        hyp = Wx::HyperlinkCtrl.new(self,
-                                    ID::Ctrl,
-                                    label,
-                                    url,
-                                    style: style)
+
+        hyp = if @radioImplementation.selection == 0
+                Wx::HyperlinkCtrl.new(self,
+                                      Wx::ID_ANY,
+                                      @label.value,
+                                      @url.value,
+                                      style: style)
+              else
+                Wx::GenericHyperlinkCtrl.new(self,
+                                             Wx::ID_ANY,
+                                             @label.value,
+                                             @url.value,
+                                             style: style)
+              end
 
         # update sizer's child window
-        get_sizer.replace(@hyperlink, hyp, true)
+        get_sizer.replace(@hyperlink, hyp, true) if get_sizer
     
         # update our pointer
-        @hyperlink.destroy
+        @hyperlink.destroy if @hyperlink
         @hyperlink = hyp
     
         # re-layout the sizer
-        get_sizer.layout
+        get_sizer.layout if get_sizer
       end
 
-      def create_hyperlink_long(align)
+      def create_hyperlink_long
         style = get_attrs.default_flags
-        style |= align
+        style |= @alignment
         style |= Wx::HL_DEFAULT_STYLE & ~(Wx::HL_ALIGN_CENTRE | Wx::BORDER_MASK)
-    
-        hyp = Wx::HyperlinkCtrl.new(self,
-                                    Wx::ID_ANY,
-                                    'This is a long hyperlink',
-                                    'www.github.com/mcorino/wxRuby3',
-                                    style: style)
+
+        hyp = if @radioImplementation.selection == 0
+                Wx::HyperlinkCtrl.new(self,
+                                      Wx::ID_ANY,
+                                      'This is a long hyperlink',
+                                      @url.value,
+                                      style: style)
+              else
+                Wx::GenericHyperlinkCtrl.new(self,
+                                             Wx::ID_ANY,
+                                             'This is a long hyperlink',
+                                             @url.value,
+                                             style: style)
+              end
 
         # update sizer's child window
-        get_sizer.replace(@hyperlinkLong, hyp, true)
+        get_sizer.replace(@hyperlinkLong, hyp, true) if get_sizer
     
         # update our pointer
-        @hyperlinkLong.destroy
+        @hyperlinkLong.destroy if @hyperlinkLong
         @hyperlinkLong = hyp
     
         # re-layout the sizer
-        get_sizer.layout
+        get_sizer.layout if get_sizer
       end
       
     end
