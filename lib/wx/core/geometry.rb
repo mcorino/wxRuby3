@@ -28,6 +28,10 @@ module Wx
       self
     end
 
+    def to_ary
+      [self.x, self.y]
+    end
+
     def add!(pt)
       add(pt)
       self
@@ -81,6 +85,10 @@ module Wx
       self
     end
 
+    def to_ary
+      [self.x, self.y]
+    end
+
     def add!(pt)
       add(pt)
       self
@@ -115,6 +123,32 @@ module Wx
 
     def /(v)
       Point2DDouble.new(self).div!(v)
+    end
+
+  end
+
+  class Rect2DDouble
+
+    wx_assign = instance_method :assign
+    wx_redefine_method :assign do |pt|
+      wx_assign.bind(self).call(pt)
+      self
+    end
+
+    def to_ary
+      [self.x, self.y, self.width, self.height]
+    end
+
+    def self.intersect(src1, src2)
+      int = Rect2DDouble.new(src1.to_ary)
+      int.intersect(src2)
+      int
+    end
+
+    def self.union(src1, src2)
+      u = Rect2DDouble.new(src1.to_ary)
+      u.union(src2)
+      u
     end
 
   end

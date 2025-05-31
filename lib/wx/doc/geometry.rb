@@ -80,23 +80,23 @@ module Wx
 
   class Point2DDouble
 
-    # @return [Integer]
+    # @return [Float]
     def get_x; end
     alias :x :get_x
-    # @param [Integer] v
-    # @return [Integer]
+    # @param [Float] v
+    # @return [Float]
     def set_x(v) end
     alias :x= :set_x
 
-    # @return [Integer]
+    # @return [Float]
     def get_y; end
     alias :y :get_y
-    # @param [Integer] v
-    # @return [Integer]
+    # @param [Float] v
+    # @return [Float]
     def set_y(v) end
     alias :y= :set_y
 
-    # @param [Wx::Point2DInt] pt
+    # @param [Wx::Point2DDouble] pt
     # @return [self]
     def assign(pt) end
 
@@ -131,6 +131,46 @@ module Wx
     # @param [Wx::Point2DDouble,Integer,Float] v
     # @return [Wx::Point2DDouble]
     def /(v) end
+
+  end
+
+  class Rect2DDouble
+
+    # @return [Float]
+    def get_x; end
+    alias :x :get_x
+    # @param [Float] v
+    # @return [Float]
+    def set_x(v) end
+    alias :x= :set_x
+
+    # @return [Float]
+    def get_y; end
+    alias :y :get_y
+    # @param [Float] v
+    # @return [Float]
+    def set_y(v) end
+    alias :y= :set_y
+
+    # @return [Float]
+    def get_width; end
+    alias :width :get_width
+    # @param [Float] v
+    # @return [Float]
+    def set_width(v) end
+    alias :width= :set_width
+
+    # @return [Float]
+    def get_height; end
+    alias :height :get_height
+    # @param [Float] v
+    # @return [Float]
+    def set_height(v) end
+    alias :y= :set_height
+
+    # @param [Wx::Rect2DDouble] pt
+    # @return [self]
+    def assign(pt) end
 
   end
 end
