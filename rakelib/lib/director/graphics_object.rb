@@ -39,9 +39,8 @@ module WXRuby3
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
                                              'wxDouble *tx' , 'wxDouble *ty' ]
-        spec.ignore 'wxGraphicsPath::GetBox() const',
+        spec.ignore 'wxGraphicsPath::GetBox(wxDouble *, wxDouble *, wxDouble *, wxDouble *) const',
                     'wxGraphicsPath::GetCurrentPoint(wxDouble*,wxDouble*) const'
-        spec.map_apply 'double * OUTPUT' => 'wxDouble *'
         # wxGraphicsRenderer::GetVersion
         spec.map_apply 'int * OUTPUT' => ['int *major', 'int *minor', 'int *micro']
         if Config.platform == :mingw
