@@ -98,12 +98,17 @@ module WXRuby3
               delete old_dashes;
           }
           __HEREDOC
+        if Config.instance.wx_version_check('3.3.0') >= 0
+          spec.ignore 'wxGraphicsContext::GetClipBox(wxDouble *, wxDouble *, wxDouble *, wxDouble *)'
+        else
+          # Typemap to fix GraphicsContext#get_clip_box
+          spec.map_apply 'double *OUTPUT' => ['wxDouble *x', 'wxDouble *y', 'wxDouble *w', 'wxDouble *h']
+        end
         # type mappings
-        # Typemap to fix GraphicsContext#get_text_extent and get_dpi and get_clip_box
+        # Typemap to fix GraphicsContext#get_text_extent and get_dpi
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble* width', 'wxDouble* height',
                                              'wxDouble* descent', 'wxDouble* externalLeading',
-                                             'wxDouble *dpiX', 'wxDouble *dpiY',
-                                             'wxDouble *x', 'wxDouble *y', 'wxDouble *w', 'wxDouble *h']
+                                             'wxDouble *dpiX', 'wxDouble *dpiY']
         spec.map 'wxDouble* width, wxDouble* height, wxDouble* descent, wxDouble* externalLeading' do
           map_directorargout code: <<~__CODE
             if ( (TYPE(result) == T_ARRAY) && (RARRAY_LEN(result) >= 2) )
