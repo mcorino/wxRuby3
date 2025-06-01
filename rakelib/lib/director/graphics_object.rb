@@ -39,6 +39,34 @@ module WXRuby3
         spec.map_apply 'double *OUTPUT' => [ 'wxDouble *a', 'wxDouble *b',
                                              'wxDouble *c', 'wxDouble *d',
                                              'wxDouble *tx' , 'wxDouble *ty' ]
+        # Deal with GraphicsMatrix#transform_point and #transform_distance methods
+        spec.ignore 'wxGraphicsMatrix::TransformPoint', 'wxGraphicsMatrix::TransformDistance'
+        spec.map_apply 'double *INOUT' => [ 'wxDouble *x' , 'wxDouble *y',
+                                            'wxDouble *dx', 'wxDouble *dy']
+        spec.add_extend_code 'wxGraphicsMatrix', <<~__CODE
+          wxPoint2DDouble transform_point(wxDouble x, wxDouble y)
+          {
+            $self->TransformPoint(&x, &y);
+            return wxPoint2DDouble(x, y);
+          }
+          wxPoint2DDouble transform_point(const wxPoint2DDouble& pt)
+          {
+            wxDouble x = pt.m_x, y = pt.m_y;
+            $self->TransformPoint(&x, &y);
+            return wxPoint2DDouble(x, y);
+          }
+          wxPoint2DDouble transform_distance(wxDouble dx, wxDouble dy)
+          {
+            $self->TransformDistance(&dx, &dy);
+            return wxPoint2DDouble(dx, dy);
+          }
+          wxPoint2DDouble transform_distance(const wxPoint2DDouble& p)
+          {
+            wxDouble dx = p.m_x, dy = p.m_y;
+            $self->TransformDistance(&dx, &dy);
+            return wxPoint2DDouble(dx, dy);
+          }
+          __CODE
         spec.ignore 'wxGraphicsPath::GetBox(wxDouble *, wxDouble *, wxDouble *, wxDouble *) const',
                     'wxGraphicsPath::GetCurrentPoint(wxDouble*,wxDouble*) const'
         # wxGraphicsRenderer::GetVersion
