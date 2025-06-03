@@ -75,6 +75,8 @@ module WXRuby3
           }
           __HEREDOC
 
+        spec.ignore 'wxPoint2DDouble::GetFloor(wxInt32 *, wxInt32 *)',
+                    'wxPoint2DDouble::GetRounded(wxInt32 *, wxInt32 *)'
         spec.add_extend_code 'wxPoint2DDouble', <<~__HEREDOC
           wxDouble get_x()
           {
