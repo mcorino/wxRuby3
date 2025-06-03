@@ -161,7 +161,7 @@ jobs:
         if: matrix.wxw_type != 'embed'
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info'
+          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs  --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info'
 
       - name: Build wxWidgets
         if: matrix.wxw_type != 'embed'
