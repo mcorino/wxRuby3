@@ -19,6 +19,39 @@ module WXRuby3
         spec.disable_proxies
 
         spec.map_apply 'int * OUTPUT' => ['wxDouble *']
+        spec.ignore 'wxAffineMatrix2DBase::TransformPoint(wxDouble*, wxDouble*)',
+                    'wxAffineMatrix2DBase::TransformDistance(wxDouble*, wxDouble*)'
+
+        spec.map 'wxPoint2DDouble&' => 'Array(Float, Float), Wx::Point2DDouble' do
+          add_header_code '#include <memory>'
+          map_in temp: 'std::unique_ptr<$1_basetype> tmp', code: <<~__CODE
+            if ( TYPE($input) == T_DATA )
+            {
+              void* argp$argnum;
+              SWIG_ConvertPtr($input, &argp$argnum, $1_descriptor, 0);
+              $1 = reinterpret_cast< $1_basetype * >(argp$argnum);
+            }
+            else if ( TYPE($input) == T_ARRAY )
+            {
+              $1 = new $1_basetype( NUM2DBL( rb_ary_entry($input, 0) ),
+                                    NUM2DBL( rb_ary_entry($input, 1) ) );
+              tmp.reset($1); // auto destruct when method scope ends 
+            }
+            else
+            {
+              rb_raise(rb_eTypeError, "Wrong type for $1_basetype parameter");
+            }
+            __CODE
+          map_typecheck precedence: 'POINTER', code: <<~__CODE
+            void *vptr = 0;
+            $1 = 0;
+            if (TYPE($input) == T_ARRAY && RARRAY_LEN($input) == 2)
+              $1 = 1;
+            else if (TYPE($input) == T_DATA && SWIG_CheckState (SWIG_ConvertPtr ($input, &vptr, $1_descriptor, 0)))
+              $1 = 1;
+            __CODE
+        end
+
         spec.map 'wxPoint2DDouble *' => 'Wx::Point2DDouble' do
           map_in ignore: true, temp: 'wxPoint2DDouble tmp', code: '$1 = &tmp;'
 
