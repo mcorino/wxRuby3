@@ -20,6 +20,8 @@ module WXRuby3
                     'wxRect2DDouble::m_x', 'wxRect2DDouble::m_y',
                     'wxRect2DDouble::m_width', 'wxRect2DDouble::m_height'
 
+        spec.ignore 'wxPoint2DInt::GetFloor(wxInt32 *, wxInt32 *)',
+                    'wxPoint2DInt::GetRounded(wxInt32 *, wxInt32 *)'
         spec.add_extend_code 'wxPoint2DInt', <<~__HEREDOC
           wxInt32 get_x()
           {
@@ -179,8 +181,6 @@ module WXRuby3
           map_in ignore: true, code: ''
           map_argout code: ''
         end
-
-        spec.map_apply 'int * OUTPUT' => 'wxInt32 *'
 
         # ignore all friend operators
         spec.do_not_generate :functions
