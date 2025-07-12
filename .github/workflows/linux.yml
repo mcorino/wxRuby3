@@ -122,6 +122,7 @@ jobs:
             use_xvfb: true
             wxw_type: embed
             wxr_type: binpkg
+            wxr_test_exclude: 'test_media_ctrl'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:

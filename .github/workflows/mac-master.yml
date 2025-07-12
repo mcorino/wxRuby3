@@ -26,11 +26,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
+        - name: wxMac macOS 15
+          runner: macos-15
+          arch: arm64
           wxWidgets: 'master'
-          ruby: '3.2'
+          ruby: 'ruby'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
@@ -39,7 +39,7 @@ jobs:
           runner: macos-13
           arch: x86_64
           wxWidgets: 'master'
-          ruby: '3.2'
+          ruby: '2.7'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop

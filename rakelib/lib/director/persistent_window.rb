@@ -18,6 +18,10 @@ module WXRuby3
           # only after 3.2.4 properly available
           spec.items << 'wxPersistentComboBox'
         end
+        if Config.instance.wx_version_check('3.3.0') > 0
+          # only after 3.3.0 available
+          spec.items << 'wxPersistentCheckBox' << 'wxPersistentRadioButton'
+        end
         super
         spec.gc_as_marked
         spec.use_template_as_class('wxPersistentWindow', 'wxPersistentWindowBase')
@@ -62,6 +66,18 @@ module WXRuby3
           spec.override_inheritance_chain('wxPersistentComboBox', [{ 'wxPersistentWindowBase' => 'wxPersistentWindow' }, 'wxPersistentObject'])
           # add method override missing from docs
           spec.extend_interface 'wxPersistentComboBox',
+                                'virtual wxString GetKind() const override'
+        end
+        if Config.instance.wx_version_check('3.3.0') > 0
+          # wxPersistentCheckBox
+          spec.override_inheritance_chain('wxPersistentCheckBox', [{ 'wxPersistentWindowBase' => 'wxPersistentWindow' }, 'wxPersistentObject'])
+          # add method override missing from docs
+          spec.extend_interface 'wxPersistentCheckBox',
+                                'virtual wxString GetKind() const override'
+          # wxPersistentRadioButton
+          spec.override_inheritance_chain('wxPersistentRadioButton', [{ 'wxPersistentWindowBase' => 'wxPersistentWindow' }, 'wxPersistentObject'])
+          # add method override missing from docs
+          spec.extend_interface 'wxPersistentRadioButton',
                                 'virtual wxString GetKind() const override'
         end
       end

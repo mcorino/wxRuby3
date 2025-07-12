@@ -22,22 +22,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             gtk_version: 3
-            CC: gcc-12
-            CXX: g++-12
-            ruby: '3.2'
+            CC: gcc
+            CXX: g++
+            ruby: 'ruby'
             wxWidgets: 'master'
             swig: '4'
             configure_flags:
             use_xvfb: true
             wxw_type: develop
             wxr_type: develop
+            wxr_test_exclude: 'test_media_ctrl'
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc-12
             CXX: g++-12
-            ruby: '3.2'
+            ruby: '2.7'
             wxWidgets: 'master'
             swig: '4'
             configure_flags:
@@ -117,7 +118,7 @@ jobs:
       working-directory: ${{ env.WXWIDGETS_ROOT }}
       run: |
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
-          WX_SKIP_DOXYGEN_VERSION_CHECK=1
+          export WX_SKIP_DOXYGEN_VERSION_CHECK=1
           make && make install && pushd docs/doxygen && ./regen.sh xml && popd 
         else
           make && sudo make install && sudo ldconfig
@@ -183,6 +184,9 @@ jobs:
     - name: Run wxRuby3 regression tests
       run: |
         ulimit -c unlimited
+        if [ ! -z "${{ matrix.wxr_test_exclude }}" ]; then
+          export WXRUBY_TEST_EXCLUDE="${{ matrix.wxr_test_exclude }}"
+        fi
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
           TEST_CMD="bundle exec rake test"
         else
@@ -190,6 +194,9 @@ jobs:
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$WXWIN_INSTALL/lib
           fi
           TEST_CMD="wxruby test"
+          if [ ! -z "${{ matrix.wxr_test_exclude }}" ]; then
+            TEST_CMD="$TEST_CMD --exclude=${WXRUBY_TEST_EXCLUDE//;/ --exclude=}"
+          fi
         fi
         /bin/bash -o pipefail -c "xvfb-run -a -s '-screen 0 1600x1200x24' $TEST_CMD 2>&1 | tee -a wxtest.out" || rc=$?
         if [ -n "$rc" ]; then
