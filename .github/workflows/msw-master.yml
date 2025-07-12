@@ -106,7 +106,7 @@ jobs:
         if: matrix.wxw_type != 'embed'
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          ridk exec bash -c 'make && make install'
+          ridk exec bash -c 'export WX_SKIP_DOXYGEN_VERSION_CHECK=1 &&make && make install && pushd docs/doxygen && ./regen.sh xml && popd'
 
       - name: Configure wxRuby3
         if: matrix.wxr_type != 'gem'
