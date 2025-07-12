@@ -22,7 +22,11 @@ module WXRuby3
         spec.items << 'wxRichTextStyleListCtrl' << 'wxRichTextStyleComboCtrl'
         spec.include 'wx/odcombo.h'
         spec.add_header_code 'extern VALUE wxRuby_RichTextStyleDefinition2Ruby(const wxRichTextStyleDefinition *wx_rtsd, int own);'
-        spec.override_inheritance_chain('wxRichTextStyleListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        if Config.instance.wx_version_check('3.3.0') > 0
+          spec.override_inheritance_chain('wxRichTextStyleListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        else
+          spec.override_inheritance_chain('wxRichTextStyleListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        end
         spec.override_inheritance_chain('wxRichTextStyleComboCtrl',
                                         %w[wxComboCtrl
                                            wxControl
@@ -33,7 +37,9 @@ module WXRuby3
         spec.extend_interface 'wxRichTextStyleComboCtrl',
                               'virtual void DoSetPopupControl(wxComboPopup* popup)',
                               visibility: 'protected'
-        spec.no_proxy 'wxVListBox::OnGetRowHeight'
+        # optimize; no need for these virtuals here
+        spec.no_proxy 'wxRichTextStyleListBox::OnGetRowHeight',
+                      'wxRichTextStyleListBox::OnGetRowsHeightHint'
       end
 
     end

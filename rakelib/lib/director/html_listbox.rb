@@ -19,7 +19,11 @@ module WXRuby3
       def setup
         spec.items << 'wxSimpleHtmlListBox' << 'wxItemContainer'
         super
-        spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', { 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        if Config.instance.wx_version_check('3.3.0') > 0
+          spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        else
+          spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        end
         spec.make_abstract 'wxHtmlListBox'
         # provide base implementation for OnGetItem
         spec.add_header_code <<~__HEREDOC
@@ -62,10 +66,16 @@ module WXRuby3
                               'virtual void OnDrawBackground(wxDC &dc, const wxRect &rect, size_t n) const',
                               'virtual void OnDrawSeparator(wxDC& dc, wxRect& rect, size_t n) const',
                               visibility: 'protected'
-        spec.no_proxy 'wxVListBox::OnGetRowHeight'
+        # optimize; no need for these virtuals here
+        spec.no_proxy 'wxHtmlListBox::OnGetRowHeight',
+                      'wxHtmlListBox::OnGetRowsHeightHint'
 
         # override inheritance chain
-        spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        if Config.instance.wx_version_check('3.3.0') > 0
+          spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        else
+          spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        end
         spec.fold_bases('wxSimpleHtmlListBox' => %w[wxItemContainer])
         # override SWIG's confusion
         spec.make_concrete 'wxSimpleHtmlListBox'
@@ -100,6 +110,9 @@ module WXRuby3
                       'wxItemContainer::Append(const wxArrayString &, wxClientData **)',
                       'wxItemContainer::Insert(const wxArrayString &, unsigned int, wxClientData **)',
                       'wxItemContainer::Set(const wxArrayString &, wxClientData **)'], ignore_doc: false)
+        # optimize; no need for these virtuals here
+        spec.no_proxy 'wxSimpleHtmlListBox::OnGetRowHeight',
+                      'wxSimpleHtmlListBox::OnGetRowsHeightHint'
         # for doc only
         spec.map 'void** clientData' => 'Array', swig: false do
           map_in code: ''

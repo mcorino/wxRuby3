@@ -37,11 +37,13 @@ module WXRuby3
           wxMicroSleep
           wxMilliSleep
           wxSleep
-          wxUsleep
           wxNow
           wxDecToHex
           wxHexToDec
           ]
+        if Config.instance.wx_version_check('3.3.0') <= 0
+          spec.ignore 'wxUsleep'
+        end
         # ignore these enum(erator)s
         spec.ignore %w[
           wxSignal

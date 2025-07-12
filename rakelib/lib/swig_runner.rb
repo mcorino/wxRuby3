@@ -418,14 +418,14 @@ module WXRuby3
           # get the generated (class) items for which an alternate implementation has been registered
           class_list = def_items.select { |itm| Extractor::ClassDef === itm && itm.name != class_implementation(itm.name) }
           # create re match list for class names
-          cls_re_txt = class_list.collect { |clsdef| clsdef.name }.join('|')
+          cls_re_txt = class_list.collect { |clsdef| class_name(clsdef.name) }.join('|')
           # updating any matching alloc functions in generated SWIG sourcecode
           # create regexp for 'initialize' wrappers (due to overloads this could be more than one per class)
           new_re = /_wrap_new_(#{cls_re_txt})\w*\(.*\)/
           # check if any of the selected classes have a Director proxy enabled
           if proxies_enabled = class_list.any? { |clsdef| has_proxy?(clsdef) }
             # create re match list for classes with director proxy enabled
-            dir_cls_re_txt = class_list.select { |clsdef| has_proxy?(clsdef) }.collect { |cd| cd.name }.join('|')
+            dir_cls_re_txt = class_list.select { |clsdef| has_proxy?(clsdef) }.collect { |cd| class_name(cd.name) }.join('|')
             # create regexp for Director constructors (may not exist if no proxies are enabled)
             dir_ctor_re = /SwigDirector_\w+::SwigDirector_\w+\(.*\)\s*:\s*(#{dir_cls_re_txt})\(.*\)\s*,\s*Swig::Director.*{/
             # create regexp for method wrappers other than 'initialize' wrappers
