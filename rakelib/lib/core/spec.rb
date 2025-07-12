@@ -102,7 +102,7 @@ module WXRuby3
       end
 
       def class_implementation(cls)
-        @class_implementations[cls] || cls
+        @class_implementations[classdef_name(cls)] || cls
       end
 
       def use_template_as_class(tpl, cls)
