@@ -162,7 +162,7 @@ if File.file?(File.join(__dir__, 'run.rake'))
     end
 
     # binary package file
-    file WXRuby3::Gem.bin_pkg_file => [WXRuby3::Gem.bin_pkg_manifest, 'pkg'] do |t|
+    file WXRuby3::Gem.bin_pkg_file => [*WXRuby3::Gem.bin_pkg_manifest, 'pkg'] do |t|
       WXRuby3::Install.install_wxwin_shlibs
       begin
         # create bin package
