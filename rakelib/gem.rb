@@ -109,9 +109,6 @@ module WXRuby3
       end
 
       def build_bin_pkg
-        # make sure pkg directory exists
-        FileUtils.mkdir_p('pkg')
-
         fname = bin_pkg_file
 
         # package registry and essential config

@@ -138,8 +138,10 @@ CLOBBER.include WXRuby3::Gem.gemspec_file
 desc 'Build wxRuby 3 gemspec'
 task :gemspec => 'wxruby:gem:srcgemspec'
 
+directory 'pkg'
+
 # source gem file
-file WXRuby3::Gem.gem_file => 'wxruby:gem:srcgemspec' do
+file WXRuby3::Gem.gem_file => ['wxruby:gem:srcgemspec', 'pkg'] do
   WXRuby3.config.sh "gem build #{WXRuby3::Gem.gemspec_file} -o #{WXRuby3::Gem.gem_file}"
 end
 
@@ -160,7 +162,7 @@ if File.file?(File.join(__dir__, 'run.rake'))
     end
 
     # binary package file
-    file WXRuby3::Gem.bin_pkg_file => WXRuby3::Gem.bin_pkg_manifest do |t|
+    file WXRuby3::Gem.bin_pkg_file => [WXRuby3::Gem.bin_pkg_manifest, 'pkg'] do |t|
       WXRuby3::Install.install_wxwin_shlibs
       begin
         # create bin package
