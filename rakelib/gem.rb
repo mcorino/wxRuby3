@@ -8,11 +8,6 @@
 
 require 'set'
 require 'rubygems'
-require 'rubygems/package'
-begin
-  require 'rubygems/builder'
-rescue LoadError
-end
 require 'zlib'
 require 'tempfile'
 require 'json'
@@ -62,20 +57,12 @@ module WXRuby3
       end
       private :gem_name
 
-      def gem_file
-        File.join('pkg', "#{gem_name}.gem")
+      def gemspec_file
+        "#{gem_name}.gemspec"
       end
 
-      def build_gem(gemspec)
-        if defined?(::Gem::Package) && ::Gem::Package.respond_to?(:build)
-          gem_file_name = ::Gem::Package.build(gemspec)
-        else
-          gem_file_name = ::Gem::Builder.new(gemspec).build
-        end
-
-        FileUtils.mkdir_p('pkg')
-
-        FileUtils.mv(gem_file_name, 'pkg')
+      def gem_file
+        File.join('pkg', "#{gem_name}.gem")
       end
 
       # Binary package helpers
