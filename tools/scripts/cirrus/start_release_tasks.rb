@@ -21,7 +21,7 @@ until ARGV.empty?
   end
 end
 
-$task_cfg.sub('#{GH_RELEASE_TAG}', $refname)
+$task_cfg.sub!('#{GH_RELEASE_TAG}', $refname)
 
 # for an actual release use the master branch and get the actual sha for the release tag
 if $release
