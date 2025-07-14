@@ -33,6 +33,7 @@ release_task:
       env:
         osname: linux
         distro: opensuse
+        latest_only: 1
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release
       arm_container:
         image: opensuse/leap:15.6
@@ -41,6 +42,7 @@ release_task:
       env:
         osname: linux
         distro: opensuse
+        latest_only: 1
     - name: Cirrus CI / Ubuntu AMD64 Release
       container:
         image: ubuntu:24.04
@@ -137,6 +139,7 @@ test_release_task:
       env:
         osname: linux
         distro: opensuse
+        latest_only: 1
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release Test
       arm_container:
         image: opensuse/leap:15.6
@@ -145,6 +148,7 @@ test_release_task:
       env:
         osname: linux
         distro: opensuse
+        latest_only: 1
     - name: Cirrus CI / Ubuntu AMD64 Release Test
       container:
         image: ubuntu:24.04
@@ -199,4 +203,4 @@ test_release_task:
   latest_test_script:
     ./tools/scripts/cirrus/setup-ruby-install-latest.sh
 
-    ./tools/scripts/cirrus/test-wxruby3-release.sh
+    ./tools/scripts/cirrus/test-wxruby3-release.sh --latest
