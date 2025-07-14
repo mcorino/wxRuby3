@@ -52,7 +52,7 @@ jobs:
       if: github.event_name != 'workflow_dispatch'
       uses: actionshub/publish-gem-to-github@v1.0.13
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.PGH_TOKEN }}
         owner: ${{ secrets.OWNER }}
 
     - name: Create GPG signature for wxRuby3 gem
