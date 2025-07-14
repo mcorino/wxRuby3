@@ -49,14 +49,13 @@ jobs:
       if: github.event_name != 'workflow_dispatch'
       env:
         PGH_TOKEN: ${{ secrets.PGH_TOKEN }}
-        PGH_OWNER: ${{ secrets.OWNER }}
       run: |
         mkdir -p ~/.gem
         touch ~/.gem/credentials
         chmod 600 ~/.gem/credentials
         echo 'echo ":github: Bearer $PGH_TOKEN" > ~/.gem/credentials' > add_pgh_credentials_
         . ./add_pgh_credentials_
-        gem push --key github --host https://rubygems.pkg.github.com/$PGH_OWNER pkg/wxruby3-1.6.1.gem
+        gem push --key github --host https://rubygems.pkg.github.com/mcorino pkg/wxruby3-1.6.1.gem
 
     - name: Create GPG signature for wxRuby3 gem
       run: |
