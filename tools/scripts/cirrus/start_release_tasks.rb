@@ -8,7 +8,7 @@ $CIRRUS_TOKEN = ENV['CIRRUS_TOKEN'] || ''
 
 $release = false # actual release or manual test run
 $refname = 'master'
-$task_cfg = File.join(__dir__, 'cirrus-release.yml')
+$task_cfg = File.read(File.join(__dir__, 'cirrus-release.yml'))
 until ARGV.empty?
   arg = ARGV.shift
   case arg
@@ -20,6 +20,8 @@ until ARGV.empty?
     $refname = arg
   end
 end
+
+$task_cfg.sub('#{GH_RELEASE_TAG}', $refname)
 
 # for an actual release use the master branch and get the actual sha for the release tag
 if $release
@@ -47,7 +49,7 @@ if Net::HTTPOK === $response
     input: {
       repositoryId: "#{$repository_id}",
       branch: $branch,
-      configOverride: File.read($task_cfg),
+      configOverride: $task_cfg,
       clientMutationId: "wxRuby3"
     }
   }
