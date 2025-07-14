@@ -9,8 +9,8 @@ if $GITHUB_TOKEN.empty?
   exit(1)
 end
 
-$CIRRUS_RELEASE = ENV['CIRRUS_RELEASE'] || ''
-if $CIRRUS_RELEASE.empty?
+$CIRRUS_TAG = ENV['CIRRUS_TAG'] || ''
+if $CIRRUS_TAG.empty?
   uri = URI('https://api.github.com/repos/mcorino/wxruby3/releases/latest')
   headers = {
     'Accept' => 'application/vnd.github+json',
@@ -26,7 +26,7 @@ if $CIRRUS_RELEASE.empty?
                   end
   if rest_response.code.to_i == 200
     data = JSON.parse!(rest_response.body)
-    $CIRRUS_RELEASE = data['id']
+    $CIRRUS_TAG = data['id']
   else
     $stderr.puts "Cannot determine latest release [#{rest_response}]!"
     exit(1)
@@ -36,8 +36,8 @@ end
 file_content_type="application/octet-stream"
 Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
   name = File.basename(fpath)
-  url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_RELEASE}/assets?name=#{name}"
-  puts "Uploading #{fpath} for release #{$CIRRUS_RELEASE} to #{url_to_upload}..."
+  url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_TAG}/assets?name=#{name}"
+  puts "Uploading #{fpath} for release #{$CIRRUS_TAG} to #{url_to_upload}..."
   cmd = "curl -L -X POST -H \"Accept: application/vnd.github+json\" " +
                           "-H \"Authorization: token #{$GITHUB_TOKEN}\" " +
                           "-H \"X-GitHub-Api-Version: 2022-11-28\" " +
@@ -48,8 +48,8 @@ Dir.glob(File.join('pkg', '*.pkg')).each do |fpath|
   if rc
     name = File.basename(name, '.*')+'.sha'
     fpath = File.join(File.dirname(fpath), name)
-    url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_RELEASE}/assets?name=#{name}"
-    puts "Uploading #{fpath} for release #{$CIRRUS_RELEASE} to #{url_to_upload}..."
+    url_to_upload = "https://uploads.github.com/repos/mcorino/wxruby3/releases/#{$CIRRUS_TAG}/assets?name=#{name}"
+    puts "Uploading #{fpath} for release #{$CIRRUS_TAG} to #{url_to_upload}..."
     cmd = "curl -L -X POST -H \"Accept: application/vnd.github+json\" " +
       "-H \"Authorization: token #{$GITHUB_TOKEN}\" " +
       "-H \"X-GitHub-Api-Version: 2022-11-28\" " +

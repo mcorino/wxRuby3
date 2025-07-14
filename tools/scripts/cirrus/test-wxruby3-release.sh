@@ -9,6 +9,8 @@ if [ "$CIRRUS_TAG" == "" ]; then
   fi
 fi
 
+echo "Testing wxRuby3 $CIRRUS_TAG"
+
 gem sources --add "https://mcorino:$GITHUB_TOKEN@rubygems.pkg.github.com/mcorino/"
 
 WXRUBY_VERSION=${CIRRUS_TAG/#v/}
