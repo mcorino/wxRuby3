@@ -25,7 +25,6 @@ jobs:
     permissions: write-all
     name: ${{ matrix.os }} wxRuby Release (${{ github.ref_name }})
     env:
-      GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
       CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
     outputs:
       version: ${{ steps.version_var.outputs.WXRUBY_RELEASE }}
@@ -42,28 +41,34 @@ jobs:
       run: |
         bundle install
 
-    - name: Build wxRuby3 gemspec
+    - name: Build wxRuby3 gem
       run: |
-        bundle exec rake gemspec
+        bundle exec rake gem
 
     - name: Publish Gem to GitHub Packages
       if: github.event_name != 'workflow_dispatch'
-      uses: actionshub/publish-gem-to-github@v1.0.13
-      with:
-        token: ${{ secrets.PGH_TOKEN }}
-        owner: ${{ secrets.OWNER }}
+      env:
+        PGH_TOKEN: ${{ secrets.PGH_TOKEN }}
+        PGH_OWNER: ${{ secrets.OWNER }}
+      run: |
+        mkdir -p ~/.gem
+        touch ~/.gem/credentials
+        chmod 600 ~/.gem/credentials
+        echo 'echo ":github: Bearer $PGH_TOKEN" > ~/.gem/credentials' > add_pgh_credentials_
+        . ./add_pgh_credentials_
+        gem push --key github --host https://rubygems.pkg.github.com/$PGH_OWNER pkg/wxruby3-1.6.1.gem
 
     - name: Create GPG signature for wxRuby3 gem
       run: |
         echo -n "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import
-        gpg --detach-sign --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --armor *.gem
+        gpg --detach-sign --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --armor pkg/*.gem
 
     - name: Upload gem to release
       if: github.event_name != 'workflow_dispatch'
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: "*.gem"
+        file: "pkg/*.gem"
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
@@ -73,7 +78,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: "*.gem.asc"
+        file: "pkg/*.gem.asc"
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
@@ -91,7 +96,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: wxruby3_release_test_gem
-        path: "*.gem"
+        path: "pkg/*.gem"
 
     - name: Set version variables
       if: github.event_name != 'workflow_dispatch'
