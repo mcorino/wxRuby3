@@ -401,8 +401,11 @@ jobs:
 
       - name: Install wxRuby3 gem with binary package
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
+        env:
+          PGH_TOKEN: ${{ secrets.PGH_TOKEN }}
         run: |
-          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
+          echo gem sources --add "https://mcorino:\$PGH_TOKEN@rubygems.pkg.github.com/mcorino/" > add_ghpkg_source
+          . ./add_ghpkg_source
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=only
           else
@@ -411,8 +414,11 @@ jobs:
 
       - name: Install wxRuby3 gem for local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        env:
+          PGH_TOKEN: ${{ secrets.PGH_TOKEN }}
         run: |
-          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
+          echo gem sources --add "https://mcorino:\$PGH_TOKEN@rubygems.pkg.github.com/mcorino/" > add_ghpkg_source
+          . ./add_ghpkg_source
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none
           else
@@ -525,8 +531,11 @@ jobs:
 
       - name: Install wxRuby3 gem with binary package
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
+        env:
+          PGH_TOKEN: ${{ secrets.PGH_TOKEN }}
         run: |
-          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
+          Write-Output 'gem sources --add "https://mcorino:$env:PGH_TOKEN@rubygems.pkg.github.com/mcorino/"' >> add_ghpkg_source.ps1
+          .\add_ghpkg_source.ps1
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {          
             gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=only
           }
@@ -536,8 +545,11 @@ jobs:
 
       - name: Install wxRuby3 gem for local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
+        env:
+          PGH_TOKEN: ${{ secrets.PGH_TOKEN }}
         run: |
-          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
+          Write-Output 'gem sources --add "https://mcorino:$env:PGH_TOKEN@rubygems.pkg.github.com/mcorino/"' >> add_ghpkg_source.ps1
+          .\add_ghpkg_source.ps1
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
             gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=none
           }
