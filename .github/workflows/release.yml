@@ -44,14 +44,21 @@ jobs:
       run: |
         bundle install
 
-    - name: Build wxRuby3 gem
+    - name: Build wxRuby3 gemspec
       run: |
-        bundle exec rake gem
+        bundle exec rake gemspec
 
     - name: Create GPG signature for wxRuby3 gem
       run: |
         echo -n "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import
         gpg --detach-sign --pinentry-mode loopback --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --armor pkg/*.gem
+
+    - name: Publish Gem to GitHub Packages
+      if: github.event_name != 'workflow_dispatch'
+      uses: actionshub/publish-gem-to-github@v1.0.13
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        owner: ${{ secrets.OWNER }}
 
     - name: Upload gem to release
       if: github.event_name != 'workflow_dispatch'
@@ -72,11 +79,6 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
-
-    - name: Publish Gem on RubyGems
-      if: github.event_name != 'workflow_dispatch'
-      run: |
-        gem push pkg/*.gem
 
     - name: Trigger Cirrus CI Release Tasks
       run: |
@@ -400,6 +402,7 @@ jobs:
       - name: Install wxRuby3 gem with binary package
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
+          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=only
           else
@@ -409,6 +412,7 @@ jobs:
       - name: Install wxRuby3 gem for local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
+          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
           if [ "$WXRUBY_PRERELEASE" == "1" ]; then
             gem install wxruby3 -v $WXRUBY_RELEASE --pre -- prebuilt=none
           else
@@ -522,6 +526,7 @@ jobs:
       - name: Install wxRuby3 gem with binary package
         if: ${{ !matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
+          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {          
             gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=only
           }
@@ -532,6 +537,7 @@ jobs:
       - name: Install wxRuby3 gem for local build
         if: ${{ matrix.build && github.event_name != 'workflow_dispatch' }}
         run: |
+          gem sources --add https://mcorino:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/mcorino/
           If ("$env:WXRUBY_PRERELEASE" -eq "1") {
             gem install wxruby3 -v $env:WXRUBY_RELEASE --pre -- prebuilt=none
           }

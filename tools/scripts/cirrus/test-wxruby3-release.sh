@@ -9,6 +9,8 @@ if [ "$CIRRUS_TAG" == "" ]; then
   fi
 fi
 
+gem sources --add https://mcorino:$GITHUB_TOKEN@rubygems.pkg.github.com/mcorino/
+
 WXRUBY_VERSION=${CIRRUS_TAG/#v/}
 if grep -q "\-[a-zA-Z]" <<< "$CIRRUS_TAG" ; then
   WXRUBY_PRERELEASE="--pre"
