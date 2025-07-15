@@ -18,14 +18,14 @@ pr_1_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64 Test
+    - name: Cirrus CI / Debian AMD64 Release
       container:
-        image: opensuse/leap:latest
+        image: debian:latest
         cpu: 4
         memory: 8G
       env:
         osname: linux
-        distro: opensuse
+        distro: debian
     - name: LinuxMint AMD64 Test
       container:
         image: linuxmintd/mint22-amd64
@@ -57,14 +57,14 @@ pr_2_task:
   skip: "changesIncludeOnly('.yardopts', '.cirrus.yml', 'LICENSE','*.md','.github/**','lib/wx/doc/**','assets/**','lib/wx/version.rb', 'tools/**')"
   only_if: $CIRRUS_PR != ''
   matrix:
-    - name: Cirrus CI / Debian ARM64 Test
-      arm_container:
-        image: debian:latest
+    - name: Cirrus CI / OpenSuSE Leap AMD64 Test
+      container:
+        image: opensuse/leap:latest
         cpu: 4
         memory: 8G
       env:
         osname: linux
-        distro: debian
+        distro: opensuse
     - name: Cirrus CI / ArchLinux AMD64 Test
       container:
         image: archlinux/archlinux:latest
@@ -104,14 +104,14 @@ verify_1_task:
       env:
         osname: linux
         distro: fedora
-    - name: Cirrus CI / OpenSuSE Leap AMD64 Test
-      container:
-        image: opensuse/leap:latest
+    - name: Cirrus CI / Debian ARM64 Test
+      arm_container:
+        image: debian:latest
         cpu: 4
         memory: 8G
       env:
         osname: linux
-        distro: opensuse
+        distro: debian
     - name: Cirrus CI / Ubuntu AMD64 Test
       container:
         image: ubuntu:latest
@@ -151,14 +151,6 @@ verify_2_task:
       env:
         osname: linux
         distro: opensuse
-    - name: Cirrus CI / Debian AMD64 Test
-      container:
-        image: debian:latest
-        cpu: 4
-        memory: 8G
-      env:
-        osname: linux
-        distro: debian
     - name: Cirrus CI / ArchLinux AMD64 Test
       container:
         image: archlinux/archlinux:latest

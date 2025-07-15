@@ -83,10 +83,10 @@ module WXRuby3
   CONFIG['autoinstall'] = (ENV['WXRUBY_AUTOINSTALL'] != '0') if ENV['WXRUBY_AUTOINSTALL']
   BUILD_CFG = '.wxconfig'
 
-  # Ruby 2.5 is the minimum version for wxRuby3
+  # Ruby 2.7 is the minimum version for wxRuby3
   __rb_ver = RUBY_VERSION.split('.').collect {|v| v.to_i}
-  if (__rb_major = __rb_ver.shift) < 2 || (__rb_major == 2 && __rb_ver.shift < 5)
-    $stderr.puts 'ERROR: wxRuby3 requires Ruby >= 2.5.0!'
+  if (__rb_major = __rb_ver.shift) < 2 || (__rb_major == 2 && __rb_ver.shift < 7)
+    $stderr.puts 'ERROR: wxRuby3 requires Ruby >= 2.7.0!'
     exit(1)
   end
 
