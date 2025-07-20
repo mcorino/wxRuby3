@@ -24,8 +24,10 @@ module WXRuby3
                                            wxWindow
                                            wxEvtHandler
                                            wxObject])
-        spec.ignore 'wxBitmapComboBox::Insert(const wxString &, const wxBitmap &, unsigned int, void *)',
-                    'wxBitmapComboBox::Append(const wxString &, const wxBitmap &, void *)'
+        if Config.instance.wx_version_check('3.3.0') <= 0
+          spec.ignore 'wxBitmapComboBox::Insert(const wxString &, const wxBitmap &, unsigned int, void *)',
+                      'wxBitmapComboBox::Append(const wxString &, const wxBitmap &, void *)'
+        end
         spec.map_apply 'long * OUTPUT' => [ 'long *from', 'long *to' ]
       end
 
