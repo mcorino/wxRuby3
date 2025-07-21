@@ -121,8 +121,9 @@ module WXRuby3
           spec.ignore 'wxPGProperty::GetCellRenderer'
           # obsolete
           if Config.instance.wx_version_check('3.3.0') < 0
-            spec.ignore %w[wxPGProperty::AddChild wxPGProperty::GetValueString]
-          else
+            spec.ignore 'wxPGProperty::GetValueString'
+          end
+          if Config.instance.wx_version_check('3.3.0') <= 0
             spec.ignore 'wxPGProperty::AddChild'
           end
           # not of use in Ruby

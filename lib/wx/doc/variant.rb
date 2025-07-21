@@ -11,6 +11,28 @@ module Wx
 
     include ::Enumerable
 
+    # @overload initialize(val, name=(''))
+    #   Constructs a variant from a Array<Integer>.
+    #   @param val [Array<Integer>]
+    #   @param name [String]
+    #   @return [Wx::Variant]
+    # @overload initialize(val, name=(''))
+    #   Constructs a variant from a {Wx::Font}.
+    #   @param val [Wx::Font]
+    #   @param name [String]
+    #   @return [Wx::Variant]
+    # @overload initialize(val, name=(''))
+    #   Constructs a variant from a {Wx::Colour}.
+    #   @param val [Wx::Colour]
+    #   @param name [String]
+    #   @return [Wx::Variant]
+    # @overload initialize(val, name=(''))
+    #   Constructs a variant from a {Wx::ColourPropertyValue}.
+    #   @param val [Wx::ColourPropertyValue]
+    #   @param name [String]
+    #   @return [Wx::Variant]
+    def initialize(*args) end
+
     # When a block is given iterates all items of a variant list passing
     # each item to the block.
     # Returns an enumerator when no block is given.
@@ -65,6 +87,10 @@ module Wx
     # @overload assign(value)
     #   Equality test operator.
     #   @param value [Array<String>]
+    #   @return [self]
+    # @overload assign(value)
+    #   Equality test operator.
+    #   @param value [Array<Integer>]
     #   @return [self]
     # @overload assign(value)
     #   Equality test operator.
@@ -134,6 +160,10 @@ module Wx
     # Checks if Variant contains an ArrayString (array of String) value (not null).
     # @return [true,false]
     def array_string?; end
+
+    # Checks if Variant contains an ArrayInt (array of integer) value (not null).
+    # @return [true,false]
+    def array_int?; end
 
     # Checks if Variant contains a Font value (not null).
     # @return [true,false]

@@ -334,7 +334,8 @@ module WXRuby3
                           "#{spec.class_name(citem)}::EnableTouchEvents",
                           "#{spec.class_name(citem)}::WarpPointer",
                           "#{spec.class_name(citem)}::AdjustForLayoutDirection",
-                          "#{spec.class_name(citem)}::IsTransparentBackgroundSupported")
+                          "#{spec.class_name(citem)}::IsTransparentBackgroundSupported",
+                          "#{spec.class_name(citem)}::Reparent")
             if Config.instance.features_set?('USE_ACCESSIBILITY')
               if Config.instance.wx_version_check('3.2.4') > 0
                 spec.no_proxy "#{spec.class_name(citem)}::CreateAccessible"
