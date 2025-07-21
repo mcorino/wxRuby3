@@ -40,6 +40,8 @@ module Wx
           return "[#{each.collect { |v| v.string? ? %Q{"#{v.to_s}"} : v.to_s }.join(', ')}]"
         when 'arrstring'
           return array_string.to_s
+        when 'wxArrayInt'
+          return array_int.to_s
         when 'wxFont'
           return font.to_s
         when 'wxColour'
@@ -95,6 +97,10 @@ module Wx
 
     def array_string?
       !null? && is_type('arrstring');
+    end
+
+    def array_int?
+      !null? && is_type('wxArrayInt');
     end
 
     def font?

@@ -114,6 +114,16 @@ module WXRuby3
                   }
                   return wxVariant(arrs);
                 }
+                if ((RARRAY_LEN(rbval) > 0 && TYPE(rb_ary_entry(rbval, 0)) == T_FIXNUM))
+                {
+                  wxArrayInt arri;
+                  for (int i = 0; i < RARRAY_LEN(rbval); i++)
+                  {
+                    VALUE num = rb_ary_entry(rbval, i);
+                    arri.Add(NUM2INT(num));
+                  }
+                  return WXVARIANT(arri);
+                }
                 if (RARRAY_LEN(rbval) == 0 || 
                       rb_obj_is_kind_of(rb_ary_entry(rbval, 0), rb_const_get(mWxCore, var_Variant_id())))
                 {
@@ -170,6 +180,12 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_extend_code 'wxVariant', <<~__HEREDOC
+          wxVariant(const wxArrayInt& val, const wxString &name=wxEmptyString)
+          {
+            wxVariant var(0L, name);
+            var << val;
+            return new wxVariant(var);
+          } 
           wxVariant(const wxFont& val, const wxString &name=wxEmptyString)
           {
             wxVariant var(0L, name);
@@ -187,6 +203,10 @@ module WXRuby3
             wxVariant var(0L, name);
             var << val;
             return new wxVariant(var);
+          }
+          wxArrayInt GetArrayInt()
+          {
+            wxArrayInt arri; arri << *self; return arri;
           }
           wxFont GetFont() 
           {
@@ -291,6 +311,12 @@ module WXRuby3
           map_typecheck precedence: 10000, code: <<~__CODE
             $1 = (TYPE($input) == T_TRUE) || (TYPE($input) == T_FALSE);
           __CODE
+        end
+        # override typecheck for wxArrayInt as we also have to consider
+        # wxVariantList and wxArrayString
+        spec.map 'const wxArrayInt&' do
+          map_typecheck precedence: 'INT32_ARRAY',
+                        code: '$1 = ((TYPE($input) == T_ARRAY) && (RARRAY_LEN($input) > 0) && (TYPE(rb_ary_entry($input, 0)) == T_FIXNUM));'
         end
         # override typecheck for wxArrayString as we also have to consider
         # wxVariantList
@@ -506,6 +532,8 @@ module WXRuby3
           { (*self) = v; }
           void assign(const wxArrayString& v)
           { (*self) = v; }
+          void assign(const wxArrayInt& v)
+          { (*self) << v; }
 
           VALUE to_i()
           {
