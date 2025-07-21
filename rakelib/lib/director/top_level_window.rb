@@ -78,7 +78,6 @@ module WXRuby3
                           "#{spec.class_name(citem)}::Maximize",
                           "#{spec.class_name(citem)}::Navigate",
                           "#{spec.class_name(citem)}::Refresh",
-                          "#{spec.class_name(citem)}::Reparent",
                           "#{spec.class_name(citem)}::RequestUserAttention",
                           "#{spec.class_name(citem)}::Restore",
                           "#{spec.class_name(citem)}::SetIcon",
