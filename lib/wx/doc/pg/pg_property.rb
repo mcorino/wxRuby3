@@ -11,6 +11,11 @@ module Wx::PG
 
   PG_DEFAULT_IMAGE_SIZE = Wx::DEFAULT_SIZE
 
+  # Shifts mask << 16.
+  # @param [Wx::Enum, Integer]
+  # @return [Wx::Enum, Integer]
+  def self.PG_IT_CHILDREN(mask) end
+
   class PGProperty
 
     # Iterate each attribute.
