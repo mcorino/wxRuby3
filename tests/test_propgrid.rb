@@ -544,7 +544,7 @@ class PropGridTests < WxRuby::Test::GUITests
     @pg_manager.refresh
     @pg_manager.update
     # Wait for update to be done
-    yield_for_a_while(100)
+    yield_for_a_while(200)
 
     @pg_manager
   end
