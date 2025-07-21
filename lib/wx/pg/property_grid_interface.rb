@@ -19,6 +19,16 @@ module Wx::PG
   
   module PropertyGridInterface
 
+    wx_set_property_value = instance_method :set_property_value
+    wx_redefine_method :set_property_value do |propid, value|
+      case value
+      when ::String
+        set_property_value_string(propid, value)
+      else
+        wx_set_property_value.bind(self).call(propid, value)
+      end
+    end
+
     wx_each_property = instance_method :each_property
     wx_redefine_method :each_property do |flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse: false, &block|
       if block
