@@ -520,15 +520,15 @@ class PropGridTests < WxRuby::Test::GUITests
     extraStyle = Wx::PG::PG_EX_MODE_BUTTONS |
                  Wx::PG::PG_EX_MULTIPLE_SELECTION if extraStyle == -1
 
-    @pg_manager = Wx::PG::PropertyGridManager.new(frame_win, Wx::ID_ANY, style: style)
-    @pg_manager.set_size(frame_win.get_client_size)
-    @pg_manager.set_extra_style(extraStyle)
+    pg_manager = Wx::PG::PropertyGridManager.new(frame_win, Wx::ID_ANY, style: style)
+    pg_manager.set_size(frame_win.get_client_size)
+    pg_manager.set_extra_style(extraStyle)
 
     # This is the default validation failure behaviour
-    @pg_manager.set_validation_failure_behavior(Wx::PG::PGVFBFlags::MarkCell |
+    pg_manager.set_validation_failure_behavior(Wx::PG::PGVFBFlags::MarkCell |
                                               Wx::PG::PGVFBFlags::ShowMessageBox)
 
-    pg = @pg_manager.get_grid
+    pg = pg_manager.get_grid
     # Set somewhat different unspecified value appearance
     cell = Wx::PG::PGCell.new
     cell.set_text("Unspecified")
@@ -536,35 +536,27 @@ class PropGridTests < WxRuby::Test::GUITests
     pg.set_unspecified_value_appearance(cell)
 
     # Populate grid
-    @pg_manager.add_page("Standard Items")
-    populate_with_standard_items(@pg_manager)
-    @pg_manager.add_page("Examples")
-    populate_with_examples(@pg_manager)
+    pg_manager.add_page("Standard Items")
+    populate_with_standard_items(pg_manager)
+    pg_manager.add_page("Examples")
+    populate_with_examples(pg_manager)
 
-    @pg_manager.refresh
-    @pg_manager.update
+    pg_manager.refresh
+    pg_manager.update
     # Wait for update to be done
     yield_for_a_while(200)
 
-    @pg_manager
+    pg_manager
   end
   
   def setup
     super
     frame_win.raise_window
-    if Wx.has_feature?(:WXGTK)
-      # Under wxGTK we need to have two children (at least) because if there
-      # is one child its paint area is set to fill the whole parent frame.
-      @win0 = Wx::Window.new(frame_win, Wx::ID_ANY)
-    end
     @pg_manager = create_grid(-1, -1)
   end
 
   def cleanup
     @pg_manager.destroy
-    if Wx.has_feature?(:WXGTK)
-      @win0.destroy
-    end
     super
   end
 
