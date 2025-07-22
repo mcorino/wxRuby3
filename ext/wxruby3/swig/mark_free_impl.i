@@ -57,6 +57,8 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
   while (wxevh && wxevh != wxwin)
   {
     wxEvtHandler* wxevh_next = wxevh->GetNextHandler();
+    // disable these too
+    wxevh->SetEvtHandlerEnabled(false);
     VALUE rb_evh = SWIG_RubyInstanceFor(wxevh);
     // only remove tracked Ruby instantiated handlers since others are
     // handlers internally set by wxWidgets C++ code and will be removed there
