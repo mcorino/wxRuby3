@@ -12,120 +12,78 @@ module WXRuby3
 
   class Director
 
-    class AuiTabCtrl < Window
+    class AuiTabCtrl < Director
 
       def setup
-        # first let Director::Window do it's stuff
         super
-        # now replace items because wxAuiTabCtrl is actually not documented (!!!)
-        spec.items.replace %w[wxAuiTabContainerButton]
-        spec.gc_as_untracked 'wxAuiTabContainerButton'
-        spec.no_proxy %w[wxAuiTabCtrl wxAuiTabContainerButton]
-        spec.swig_import %w[swig/classes/include/wxObject.h swig/classes/include/wxEvtHandler.h swig/classes/include/wxWindow.h swig/classes/include/wxControl.h]
-        # cannot use #add_extend_code because we do not have an actual parsed XML item
-        spec.add_swig_code <<~__CODE
-          GC_MANAGE_AS_WINDOW(wxAuiTabCtrl);
-
-          %extend wxAuiTabCtrl {
-            VALUE TabHitTest(int x, int y)
-            {
-              wxWindow* hit = 0;
-              if (self->TabHitTest(x, y, &hit))
-              {
-                return wxRuby_WrapWxObjectInRuby(hit);
-              }
-              else
-              {
-                return Qnil;
-              }
-            }
-            VALUE ButtonHitTest(int x, int y)
-            {
-              wxAuiTabContainerButton* hit = 0;
-              if (self->ButtonHitTest(x, y, &hit))
-              {
-                wxAuiTabContainerButton* rc_hit = new wxAuiTabContainerButton(*hit);
-                // return owned copy 
-                return SWIG_NewPointerObj(SWIG_as_voidptr(rc_hit), SWIGTYPE_p_wxAuiTabContainerButton, 1);
-              }
-              else
-              {
-                return Qnil;
-              }
-            }
-          };
-          __CODE
-        # add the missing interface spec (with the wxAuiTabContainer interface folded in minus replaced/shadowed methods)
-        # also add wxAuiTabContainerButton manually here
-        spec.add_interface_code <<~__HEREDOC
-          class wxAuiTabContainerButton
-          {
-          public:
-              int id;
-              int curState;
-              int location;
-              wxBitmapBundle bitmap;
-              wxBitmapBundle disBitmap;
-              wxRect rect;
-          };
-
-          class wxAuiTabCtrl : public wxControl
-          {
-          public:
-              wxAuiTabCtrl(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
-              ~wxAuiTabCtrl();
-          
-              bool IsDragging() const;
-              void SetRect(const wxRect& rect);
-
-              void SetArtProvider(wxAuiTabArt* art);
-              wxAuiTabArt* GetArtProvider() const;
-          
-              void SetFlags(unsigned int flags);
-              unsigned int GetFlags() const;
-          
-              bool AddPage(wxWindow* page, const wxAuiNotebookPage& info);
-              bool InsertPage(wxWindow* page, const wxAuiNotebookPage& info, size_t idx);
-              bool MovePage(wxWindow* page, size_t newIdx);
-              bool RemovePage(wxWindow* page);
-              bool SetActivePage(wxWindow* page);
-              bool SetActivePage(size_t page);
-              void SetNoneActive();
-              int GetActivePage() const;
-              wxWindow* GetWindowFromIdx(size_t idx) const;
-              int GetIdxFromWindow(const wxWindow* page) const;
-              size_t GetPageCount() const;
-              wxAuiNotebookPage& GetPage(size_t idx);
-              const wxAuiNotebookPage& GetPage(size_t idx) const;
-              wxAuiNotebookPageArray& GetPages();
-              void SetNormalFont(const wxFont& normalFont);
-              void SetSelectedFont(const wxFont& selectedFont);
-              void SetMeasuringFont(const wxFont& measuringFont);
-              void SetColour(const wxColour& colour);
-              void SetActiveColour(const wxColour& colour);
-              void DoShowHide();
-          
-              void RemoveButton(int id);
-              void AddButton(int id, int location, const wxBitmapBundle& normalBitmap = wxBitmapBundle(), const wxBitmapBundle& disabledBitmap = wxBitmapBundle());
-          
-              size_t GetTabOffset() const;
-              void SetTabOffset(size_t offset);
-          
-              bool IsTabVisible(int tabPage, int tabOffset, wxDC* dc, wxWindow* wnd);
-          
-              void MakeTabVisible(int tabPage, wxWindow* win);
-          };
+        spec.items.clear
+        # create a lightweight, but typesafe, wrapper for AuiTabCtrl
+        spec.add_init_code <<~__HEREDOC
+          // define AuiTabCtrl wrapper class
+          VALUE cWxAuiTabCtrl = rb_define_class_under(mWxAUI, "AuiTabCtrl", rb_cObject);
+          rb_undef_alloc_func(cWxAuiTabCtrl);
+          rb_define_method(cWxAuiTabCtrl, "is_ok", VALUEFUNC(_wxRuby_wxAuiTabCtrl_IsOk), 0);
+          rb_define_method(cWxAuiTabCtrl, "ok?", VALUEFUNC(_wxRuby_wxAuiTabCtrl_IsOk), 0);
+          rb_define_method(cWxAuiTabCtrl, "==", VALUEFUNC(_wxRuby_wxAuiTabCtrl_IsEqual), 1);
+          rb_define_alias(cWxAuiTabCtrl, "eql?", "==");
           __HEREDOC
-        spec.map 'wxAuiNotebookPageArray&' => 'Array<Wx::AUI::AuiNotebookPage>' do
-          map_out code: <<~__CODE
-            $result = rb_ary_new();
-            for (size_t i = 0; i < $1->GetCount(); i++)
-            {
-              wxAuiNotebookPage* np = new wxAuiNotebookPage($1->Item(i));
-              rb_ary_push($result, SWIG_NewPointerObj(SWIG_as_voidptr(&np), SWIGTYPE_p_wxAuiNotebookPage, SWIG_POINTER_OWN));
-            }
-            __CODE
-        end
+
+        spec.add_header_code <<~__HEREDOC
+          #include <wx/aui/auibook.h>
+
+          VALUE _wxRuby_Wrap_wxAuiTabCtrl(const wxAuiTabCtrl& rbATC);
+          wxAuiTabCtrl* _wxRuby_Unwrap_wxAuiTabCtrl(VALUE rbATC);
+          __HEREDOC
+
+        spec.add_wrapper_code <<~__HEREDOC
+          // wxAuiTabCtrl wrapper class definition and helper functions
+          static size_t __wxAuiTabCtrl_size(const void* data)
+          {
+            return 0;
+          }
+
+          #include <ruby/version.h> 
+
+          static const rb_data_type_t __wxAuiTabCtrl_type = {
+            "AuiTabCtrl",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { NULL, NULL, __wxAuiTabCtrl_size, 0, {}},
+          #else
+            { NULL, NULL, __wxAuiTabCtrl_size, {}},
+          #endif 
+            NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
+          };
+
+          VALUE _wxRuby_Wrap_wxAuiTabCtrl(wxAuiTabCtrl* wxATC)
+          {
+            VALUE ret = TypedData_Wrap_Struct(mWxAuiTabCtrl, &__wxAuiTabCtrl_type, wxATC);
+            return ret;
+          } 
+
+          wxAuiTabCtrl* _wxRuby_Unwrap_wxAuiTabCtrl(VALUE rbATC)
+          {
+            wxAuiTabCtrl* wxATC = nullptr;
+            TypedData_Get_Struct(rbATC, wxAuiTabCtrl, &__wxAuiTabCtrl_type, wxATC);
+            return wxATC;
+          }
+
+          bool _wxRuby_Is_wxAuiTabCtrl(VALUE rbATC)
+          {
+            return rb_typeddata_is_kind_of(rbATC, &__wxAuiTabCtrl_type) == 1;
+          } 
+
+          VALUE _wxRuby_wxAuiTabCtrl_IsOk(VALUE self)
+          {
+            wxAuiTabCtrl* wxATC = _wxRuby_Unwrap_wxAuiTabCtrl(self);
+            return wxATC ? Qtrue : Qfalse;
+          }
+
+          VALUE _wxRuby_wxAuiTabCtrl_IsEqual(VALUE self, VALUE other)
+          {
+            return rb_typeddata_is_kind_of(other, &__wxAuiTabCtrl_type) == 1 && 
+                _wxRuby_Unwrap_wxAuiTabCtrl(self) == _wxRuby_Unwrap_wxAuiTabCtrl(other);
+          } 
+          __HEREDOC
       end
     end # class AuiTabCtrl
 

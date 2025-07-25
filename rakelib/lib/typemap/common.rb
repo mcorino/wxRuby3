@@ -565,7 +565,7 @@ module WXRuby3
         map 'wxUpdateUIEvent &' => 'Wx::UpdateUIEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_DEBUG__
-            $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+            $input = wxRuby_WrapWxEventInRuby(const_cast<void*>((const void*)this), static_cast<wxEvent*> (&$1));
             #else
             $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
             #endif
@@ -577,7 +577,7 @@ module WXRuby3
         map 'wxCommandEvent &' => 'Wx::CommandEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_DEBUG__
-            $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+            $input = wxRuby_WrapWxEventInRuby(const_cast<void*>((const void*)this), static_cast<wxEvent*> (&$1));
             #else
             $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
             #endif
@@ -598,7 +598,7 @@ module WXRuby3
         map 'wxKeyEvent &' => 'Wx::KeyEvent' do
           map_directorin code: <<~__CODE
             #ifdef __WXRB_DEBUG__
-            $input = wxRuby_WrapWxEventInRuby(this, static_cast<wxEvent*> (&$1));
+            $input = wxRuby_WrapWxEventInRuby(const_cast<void*>((const void*)this), static_cast<wxEvent*> (&$1));
             #else
             $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
             #endif

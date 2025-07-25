@@ -14,6 +14,8 @@ module WXRuby3
 
     class AuiManager < EvtHandler
 
+      include Typemap::AuiTabCtrl
+
       def setup
         super
         spec.gc_as_object 'wxAuiManager'
@@ -123,10 +125,6 @@ module WXRuby3
           # or false if the orphaned page should be removed.
           spec.map 'int page, wxAuiTabCtrl **tabCtrl, int * tabIndex' do
 
-            add_header_code <<~__CODE
-              static WxRuby_ID s_AuiTabCtrl_id("AuiTabCtrl");
-              __CODE
-
             map_in from: {type: 'Integer', index: 0}, temp: 'wxAuiTabCtrl *tab_ctrl, int tab_ix', code: <<~__CODE
               $1 = NUM2INT($input);
               tab_ctrl = nullptr; tab_ix = 0;
@@ -142,10 +140,8 @@ module WXRuby3
               {
                 if (tab_ctrl$argnum)
                 {
-                  VALUE rb_klass = rb_const_get(mWxAuiManager, s_AuiTabCtrl_id());
-                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(rb_klass);
                   $result = rb_ary_new();
-                  rb_ary_push($result, SWIG_NewPointerObj(SWIG_as_voidptr(tab_ctrl$argnum), swig_type,  0));
+                  rb_ary_push($result, _wxRuby_Wrap_wxAuiTabCtrl(tab_ctrl$argnum));
                   rb_ary_push($result, INT2NUM(tab_ix$argnum));
                 }
                 else
@@ -169,16 +165,14 @@ module WXRuby3
                 }
                 else if (TYPE(result) == T_ARRAY && RARRAY_LEN(result) == 2)
                 {
-                  VALUE rb_klass = rb_const_get(mWxAuiManager, s_AuiTabCtrl_id());
-                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(rb_klass);
-                  void *tab_ctrl;
-                  int res = SWIG_ConvertPtr(rb_ary_entry(result, 0), &tab_ctrl, swig_type, 0);
-                  if (!SWIG_IsOK(res)) 
+                  VALUE rbATC = rb_ary_entry(result, 0);
+                  VALUE rbIx = rb_ary_entry(result, 1);
+                  if (!_wxRuby_Is_wxAuiTabCtrl(rbATC) || TYPE(rbIx) != T_FIXNUM)
                   {
                     Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError, 
                                                                "HandleOrphanedPage should return false, true or Array(Wx::AUI::AuiTabCtrl, Integer)");
                   }
-                  *tabCtrl = reinterpret_cast<wxAuiTabCtrl*>(tab_ctrl);
+                  *tabCtrl = _wxRuby_Unwrap_wxAuiTabCtrl(rbATC);
                   *tabIndex = NUM2INT(rb_ary_entry(result, 1));
                   c_result = true;
                 }
