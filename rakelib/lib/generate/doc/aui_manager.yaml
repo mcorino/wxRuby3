@@ -25,4 +25,4 @@
       :para:
         - :pattern: !ruby/regexp /The overridden version may return true but modify.*appending them./
           :replace: |
-            The overridden version may return a 2-element array with an AuiTabCtrl and tab index instead to change where the page should be inserted, e.g. by returning a tab index of 0 to insert the new pages at the beginning instead of appending them.
+            The overridden version may return a 2-element array with an {Wx::AUI::AuiTabCtrl} and tab index instead to change where the page should be inserted, e.g. by returning a tab index of 0 to insert the new pages at the beginning instead of appending them.

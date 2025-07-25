@@ -14,6 +14,8 @@ module WXRuby3
 
     class AuiNotebook < BookCtrls
 
+      include Typemap::AuiTabCtrl
+
       def setup
         super
         spec.override_inheritance_chain(spec.module_name, %w[wxBookCtrlBase wxControl wxWindow wxEvtHandler wxObject])
@@ -31,13 +33,13 @@ module WXRuby3
             spec.make_readonly 'wxAuiNotebookPosition::tabCtrl',
                                'wxAuiNotebookPosition::tabIdx'
 
-            spec.map 'std::vector<wxAuiTabCtrl*>' => 'Array<Wx::AuiTabCtrl>' do
+            spec.map 'std::vector<wxAuiTabCtrl*>' => 'Array<Wx::AUI::AuiTabCtrl>' do
               map_out code: <<~__CODE
                 $result = rb_ary_new();
                 std::vector<wxAuiTabCtrl*>* tabctrls = (std::vector<wxAuiTabCtrl*>*)&$1;
                 for (wxAuiTabCtrl* tabctrl : *tabctrls)
                 {
-                  VALUE r_tabctrl = SWIG_NewPointerObj(SWIG_as_voidptr(tabctrl), SWIGTYPE_p_wxAuiTabCtrl, 0);
+                  VALUE r_tabctrl = _wxRuby_Wrap_wxAuiTabCtrl(tabctrl);
                   rb_ary_push($result, r_tabctrl);
                 }
                 __CODE
@@ -85,7 +87,7 @@ module WXRuby3
               if ($self->FindTab(page, &ctrl, &idx))
               {
                 rc = rb_ary_new();
-                rb_ary_push(rc, SWIG_NewPointerObj(SWIG_as_voidptr(ctrl), SWIGTYPE_p_wxAuiTabCtrl, 0));
+                rb_ary_push(rc, _wxRuby_Wrap_wxAuiTabCtrl(ctrl));
                 rb_ary_push(rc, INT2NUM(idx));
               }
               return rc;
