@@ -441,13 +441,13 @@ jobs:
 
       - name: Download release test gem artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: wxruby3_release_test_gem
 
       - name: Download bin pkg artifacts
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
 
@@ -572,13 +572,13 @@ jobs:
 
       - name: Download release test gem artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: wxruby3_release_test_gem
 
       - name: Download bin pkg artifacts
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
 
