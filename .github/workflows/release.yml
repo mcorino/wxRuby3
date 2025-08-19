@@ -31,7 +31,7 @@ jobs:
       prerelease: ${{ steps.version_var.outputs.WXRUBY_PRERELEASE }}
     steps:
     - name: Checkout wxRuby3
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - uses: ruby/setup-ruby@v1
       with:
@@ -128,7 +128,7 @@ jobs:
 
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -230,7 +230,7 @@ jobs:
 
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -352,7 +352,7 @@ jobs:
 
       - name: checkout wxWidgets
         if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
