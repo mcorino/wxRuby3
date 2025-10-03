@@ -47,7 +47,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
 
-    name: ${{ matrix.name }} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+    name: ${{ matrix.name }} $${{ matrix.arch}} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
 
     strategy:
       fail-fast: false
@@ -69,6 +69,14 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: embed
           wxr_type: binpkg
+        - name: wxMac macOS 15
+          runner: macos-15-intel
+          arch: x86_64
+          ruby: 'ruby'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: embed
+          wxr_type: gem
         - name: wxMac macOS 14
           runner: macos-14
           arch: arm64
@@ -93,30 +101,6 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: embed
           wxr_type: binpkg
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
-          ruby: 'ruby'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: develop
-          wxr_type: develop
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
-          ruby: 'ruby'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: embed
-          wxr_type: gem
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
-          ruby: 'ruby'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: system
-          wxr_type: gem
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer

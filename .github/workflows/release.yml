@@ -210,7 +210,7 @@ jobs:
   release-macosx-binpkg:
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: ${{ matrix.os }} ${{ matrix.arch}} wxRuby Binpkg Release (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
@@ -219,13 +219,13 @@ jobs:
             os: macos-15
             arch: arm64
             ruby: 'ruby'
+          - name: macOS15
+            os: macos-15-intel
+            arch: x86_64
+            ruby: 'ruby'
           - name: macOS14
             os: macos-14
             arch: arm64
-            ruby: 'ruby'
-          - name: macOS13
-            os: macos-13
-            arch: x86_64
             ruby: 'ruby'
 
     steps:
@@ -324,8 +324,8 @@ jobs:
             arch: arm64
             ruby: 'ruby'
             build: false
-          - name: macOS13
-            os: macos-13
+          - name: macOS15
+            os: macos-15-intel
             arch: x86_64
             ruby: 'ruby'
             build: false

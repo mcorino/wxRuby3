@@ -20,7 +20,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
 
-    name: ${{ matrix.name }} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+    name: ${{ matrix.name }} $${{ matrix.arch}} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
 
     strategy:
       fail-fast: false
@@ -35,11 +35,11 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: develop
-        - name: wxMac macOS 13
-          runner: macos-13
-          arch: x86_64
+        - name: wxMac macOS 14
+          runner: macos-14
+          arch: arm64
           wxWidgets: 'master'
-          ruby: '2.7'
+          ruby: '3.0'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop

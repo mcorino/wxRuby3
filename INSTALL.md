@@ -27,7 +27,7 @@ should always result in a successfully installed wxRuby3 version.
 > The user is therefor required to install a Ruby interpreter using either [MacPorts](https://www.macports.org/) (both 
 > privileged and user installations are supported) or [Homebrew](https://brew.sh/) or Ruby installers/version managers 
 > like [ruby-install](https://github.com/postmodern/ruby-install) or [RVM](https://rvm.io) (only user installations 
-> supported) .
+> supported) or [rbenv](https://rbenv.org).
 
 [Below](INSTALL.md#installing-software-requirements) more details regarding the software requirements for wxRuby3, the 
 setup procedure and various options to tweak and customize the installation (including platform specific details for 
