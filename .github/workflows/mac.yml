@@ -101,14 +101,6 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: embed
           wxr_type: binpkg
-        - name: wxMac macOS 14
-          runner: macos-14
-          arch: arm64
-          ruby: 'ruby'
-          swig: '4'
-          configure_flags: --disable-sys-libs
-          wxw_type: system
-          wxr_type: gem
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
