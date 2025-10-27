@@ -12,7 +12,11 @@
 
 /* This should only be incremented when either the layout of swig_type_info changes,
    or for whatever reason, the runtime changes incompatibly */
+#if SWIG_VERSION < 0x040400
 #define SWIG_RUNTIME_VERSION "4"
+#else
+#define SWIG_RUNTIME_VERSION "5"
+#endif
 
 /* define SWIG_TYPE_TABLE_NAME as "SWIG_TYPE_TABLE" */
 #ifdef SWIG_TYPE_TABLE
@@ -213,7 +217,11 @@ typedef struct WXRUBY_EXPORT swig_cast_info
   swig_type_info         *type;			/* pointer to type that is equivalent to this type */
   swig_converter_func     converter;		/* function to cast the void pointers */
   struct swig_cast_info  *next;			/* pointer to next cast in linked list */
+#if SWIG_VERSION < 0x040400
   struct swig_cast_info  *prev;			/* pointer to the previous cast */
+#else
+  unsigned int            value;		/* index of the last valid element in the array | typename hash value */
+#endif
 } swig_cast_info;
 
 /* Structure used to store module information
@@ -255,6 +263,13 @@ SWIGRUNTIME int
 SWIG_TypeEquiv(const char *nb, const char *tb) {
   return SWIG_TypeCmp(nb, tb) == 0 ? 1 : 0;
 }
+
+#if SWIG_VERSION >= 0x040400
+/*
+ * Hash function for type name strings, based on maRushPrime1Hash (http://amsoftware.narod.ru/algo2.html)
+ */
+WXRUBY_EXPORT unsigned int SWIG_Hash(const char *str, unsigned int len);
+#endif
 
 /*
   Check the typename

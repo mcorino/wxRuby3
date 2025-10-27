@@ -49,7 +49,11 @@
 
 /* This should only be incremented when either the layout of swig_type_info changes,
    or for whatever reason, the runtime changes incompatibly */
+#if SWIG_VERSION < 0x040400
 #define SWIG_RUNTIME_VERSION "4"
+#else
+#define SWIG_RUNTIME_VERSION "5"
+#endif
 
 /* define SWIG_TYPE_TABLE_NAME as "SWIG_TYPE_TABLE" */
 #ifdef SWIG_TYPE_TABLE
@@ -314,12 +318,55 @@ SWIG_TypeEquiv(const char *nb, const char *tb) {
   return SWIG_TypeCmp(nb, tb) == 0 ? 1 : 0;
 }
 
+#if SWIG_VERSION >= 0x040400
+/*
+ * Hash function for type name strings, based on maRushPrime1Hash (http://amsoftware.narod.ru/algo2.html)
+ */
+WXRB_EXPORT_FLAG unsigned int SWIG_Hash(const char *str, unsigned int len) {
+  const unsigned char *data = (const unsigned char *)str;
+  unsigned int hash = len, i = 0, k;
+  int rem = (int)len;
+
+  while (rem >= (int)sizeof(unsigned int)) {
+    k = *(unsigned int *)data;
+    k += i++;
+    hash ^= k;
+    hash *= 171717;
+    data += sizeof(unsigned int);
+    rem -= sizeof(unsigned int);
+  }
+
+  switch (rem) {
+    case 3: k = (unsigned int)(data[2]) << 16;
+            k |= (unsigned int)(data[1]) << 8;
+            k |= (unsigned int)(data[0]);
+            k += i++;
+            hash ^= k;
+            hash *= 171717;
+            break;
+    case 2: k = (unsigned int)(data[1]) << 8;
+            k |= (unsigned int)(data[0]);
+            k += i++;
+            hash ^= k;
+            hash *= 171717;
+            break;
+    case 1: k = (unsigned int)(data[0]);
+            k += i++;
+            hash ^= k;
+            hash *= 171717;
+            break;
+  }
+  return hash;
+}
+#endif
+
 /*
   Check the typename
 */
 WXRB_EXPORT_FLAG swig_cast_info *
 SWIG_TypeCheck(const char *c, swig_type_info *ty)
 {
+#if SWIG_VERSION < 0x040400
   if (ty)
   {
     swig_cast_info *iter = ty->cast;
@@ -342,6 +389,72 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty)
       iter = iter->next;
     }
   }
+#else
+  static const unsigned int scan_threshold = 4;
+  if (ty) {
+    swig_cast_info *head = ty->cast;
+    unsigned int hash_value = 0;
+    int hashed = 0;
+
+    while (head) {
+
+      if (strcmp(head->type->name, c) == 0) {
+        return head;
+      }
+
+      if (head->value) {
+        swig_cast_info *iter;
+        swig_cast_info *last = head + head->value;
+        swig_cast_info *first = head + 1;
+        int search = 1;
+
+        if (!hashed) {
+          if (head->value < scan_threshold) {
+            for (iter = first; iter <= last; iter++) {
+              if (strcmp(iter->type->name, c) == 0) {
+                return iter;
+              }
+            }
+            search = 0;
+          } else {
+            hashed = 1;
+            hash_value = SWIG_Hash(c, (unsigned int)strlen(c));
+          }
+        }
+
+        if (search) {
+          /* Binary search over sorted <'next'|'value'> pairs */
+          do {
+            iter = first + ((last - first) >> 1);
+            if (iter->value < hash_value) {
+              first = iter + 1;
+            } else if (iter->value == hash_value) {
+
+              if (strcmp(iter->next->type->name, c) == 0) {
+                return iter->next;
+              }
+
+              /* Hash collision check */
+              for (last = iter + 1; last->next && last->value == hash_value; last++) {
+                if (strcmp(last->next->type->name, c) == 0) {
+                  return last->next;
+                }
+              }
+              for (first = iter - 1; first != head && first->value == hash_value; first--) {
+                if (strcmp(first->next->type->name, c) == 0) {
+                  return first->next;
+                }
+              }
+              break;
+            } else
+              last = iter - 1;
+          } while (first <= last);
+        }
+      }
+      head = head->next;
+    }
+  }
+#endif
   return 0;
 }
 
@@ -351,6 +464,7 @@ SWIG_TypeCheck(const char *c, swig_type_info *ty)
 WXRB_EXPORT_FLAG swig_cast_info *
 SWIG_TypeCheckStruct(const swig_type_info *from, swig_type_info *ty)
 {
+#if SWIG_VERSION < 0x040400
   if (ty)
   {
     swig_cast_info *iter = ty->cast;
@@ -373,6 +487,34 @@ SWIG_TypeCheckStruct(const swig_type_info *from, swig_type_info *ty)
       iter = iter->next;
     }
   }
+#else
+  if (ty) {
+    swig_cast_info *head = ty->cast;
+    while (head) {
+      if (head->type == from) {
+        return head;
+      }
+
+      if (head->value) {
+        swig_cast_info *iter;
+        swig_cast_info *last = head + head->value;
+        swig_cast_info *first = head + 1;
+
+        /* Binary search over sorted array of casts */
+        do {
+          iter = first + ((last - first) >> 1);
+          if (iter->type < from) {
+            first = iter + 1;
+          } else if (iter->type == from) {
+            return iter;
+          } else
+            last = iter - 1;
+        } while (first <= last);
+      }
+      head = head->next;
+    }
+  }
+#endif
   return 0;
 }
 

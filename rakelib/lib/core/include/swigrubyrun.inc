@@ -156,6 +156,9 @@ static VALUE swig_runtime_data_type_pointer = Qnil;
 /* Global IDs used to keep some internal SWIG stuff */
 static ID swig_arity_id = 0;
 static ID swig_call_id  = 0;
+#if SWIG_VERSION >= 0x040400
+static ID swig_lowerthan_id = 0;
+#endif
 
 /*
   If your swig extension is to be run within an embedded ruby and has
@@ -227,6 +230,9 @@ SWIG_Ruby_InitRuntime(void)
     _mSWIG = rb_define_module("SWIG");
     swig_call_id  = rb_intern("call");
     swig_arity_id = rb_intern("arity");
+#if SWIG_VERSION >= 0x040400
+    swig_lowerthan_id = rb_intern("<");
+#endif
   }
 }
 
@@ -234,8 +240,14 @@ SWIG_Ruby_InitRuntime(void)
 WXRB_EXPORT_FLAG void
 SWIG_Ruby_define_class(swig_type_info *type)
 {
+#if SWIG_VERSION < 0x040400
   char *klass_name = (char *) malloc(4 + strlen(type->name) + 1);
   sprintf(klass_name, "TYPE%s", type->name);
+#else
+  size_t klass_len = 4 + strlen(type->name) + 1;
+  char *klass_name = (char *) malloc(klass_len);
+  SWIG_snprintf(klass_name, klass_len, "TYPE%s", type->name);
+#endif
   if (NIL_P(_cSWIG_Pointer))
   {
     _cSWIG_Pointer = rb_define_class_under(_mSWIG, "Pointer", rb_cObject);

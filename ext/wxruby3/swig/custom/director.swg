@@ -95,6 +95,16 @@ namespace Swig {
     Type *_ptr;
   };
 
+#if SWIG_VERSION >= 0x040400
+  /* body args */
+  struct body_args {
+    VALUE recv;
+    ID id;
+    int argc;
+    VALUE *argv;
+  };
+#endif
+
   /* Base class for director exceptions */
   class WXRUBY_EXPORT DirectorException : public std::exception
   {
