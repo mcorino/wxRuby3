@@ -351,7 +351,7 @@ module WXRuby3
     alias :bash :sh
 
     def test(*tests, **options)
-      errors = 0
+      errors = []
       excludes = (ENV['WXRUBY_TEST_EXCLUDE'] || '').split(':')
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
@@ -360,10 +360,10 @@ module WXRuby3
             test = File.join(Config.instance.test_dir, test)
             test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
           end
-          Rake.sh(Config.instance.exec_env.merge({'RUBYLIB'=>rb_lib_path}), FileUtils::RUBY, test) { |ok,status| errors += 1 unless ok }
+          Rake.sh(Config.instance.exec_env.merge({'RUBYLIB'=>rb_lib_path}), FileUtils::RUBY, test) { |ok,status| errors << File.basename(test, '.rb') unless ok }
         end
       end
-      fail "ERRORS: ##{errors} test scripts failed." if errors>0
+      fail "ERRORS: ##{errors.size} test scripts failed.\n\t#{errors.join("\n\t")}" unless errors.empty?
     end
 
     def irb(**options)
