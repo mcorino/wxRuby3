@@ -24,8 +24,12 @@ module WXRuby3
       include Util::StringUtil
 
       def swig_major
+        swig_version.first
+      end
+
+      def swig_version
         check_swig unless swig_state
-        (@swig_version || '').split('.').first.to_i
+        @swig_version
       end
 
       private
@@ -38,32 +42,28 @@ module WXRuby3
         !!@swig_state
       end
 
-      def swig_version
-        check_swig unless swig_state
-        @swig_version
-      end
-
       def check_swig
         begin
-          @swig_version = `#{WXRuby3::Config.get_config('swig')} -version`[/\d+\.\d+\.\d+/]
+          swig_version_ = `#{WXRuby3::Config.get_config('swig')} -version`[/\d+\.\d+\.\d+/]
         rescue Exception
           $stderr.puts "ERROR: Could not run SWIG (#{WXRuby3::Config.get_config('swig')})"
           exit(1)
         end
 
         # Very old versions put --version on $stderr, not $stdout
-        unless @swig_version
+        unless swig_version_
           $stderr.puts "Could not get version info from SWIG; " +
                         "is a very old version installed?.\n"
           exit(1)
         end
 
-        if @swig_version < SWIG_MINIMUM_VERSION
-          $stderr.puts "SWIG version #{@swig_version} is installed, " +
+        if swig_version_ < SWIG_MINIMUM_VERSION
+          $stderr.puts "SWIG version #{swig_version_} is installed, " +
                         "minimum version required is #{SWIG_MINIMUM_VERSION}.\n"
           exit(1)
         end
 
+        @swig_version = swig_version_.split('.').map(&:to_i)
         @swig_state = true
       end
 

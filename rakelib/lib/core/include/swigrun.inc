@@ -2,7 +2,31 @@
 //
 // This software is released under the MIT license.
 
+#if defined(__cplusplus) && __cplusplus >=201103L
+# define SWIG_NOEXCEPT noexcept
+#else
+# define SWIG_NOEXCEPT throw()
+#endif
+
 // SWIG runtime
+
+/* C99 and C++11 should provide snprintf, but define SWIG_NO_SNPRINTF
+ * if you're missing it.
+ */
+#if ((defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L) || \
+     (defined __cplusplus && __cplusplus >= 201103L) || \
+     defined SWIG_HAVE_SNPRINTF) && \
+    !defined SWIG_NO_SNPRINTF
+# define SWIG_snprintf(O,S,F,A) snprintf(O,S,F,A)
+# define SWIG_snprintf2(O,S,F,A,B) snprintf(O,S,F,A,B)
+#else
+/* Fallback versions ignore the buffer size, but most of our uses either have a
+ * fixed maximum possible size or dynamically allocate a buffer that's large
+ * enough.
+ */
+# define SWIG_snprintf(O,S,F,A) sprintf(O,F,A)
+# define SWIG_snprintf2(O,S,F,A,B) sprintf(O,F,A,B)
+#endif
 
 /* inline attribute */
 #ifndef SWIGINLINE
@@ -252,7 +276,11 @@ typedef struct WXRB_EXPORT_FLAG swig_cast_info {
   swig_type_info         *type;			/* pointer to type that is equivalent to this type */
   swig_converter_func     converter;		/* function to cast the void pointers */
   struct swig_cast_info  *next;			/* pointer to next cast in linked list */
+#if SWIG_VERSION < 0x040400
   struct swig_cast_info  *prev;			/* pointer to the previous cast */
+#else
+  unsigned int            value;		/* index of the last valid element in the array | typename hash value */
+#endif
 } swig_cast_info;
 
 /* Structure used to store module information
@@ -580,6 +608,7 @@ SWIG_TypePrettyName(const swig_type_info *type)
 WXRB_EXPORT_FLAG void
 SWIG_TypeClientData(swig_type_info *ti, void *clientdata)
 {
+#if SWIG_VERSION < 0x040400
   swig_cast_info *cast = ti->cast;
   /* if (ti->clientdata == clientdata) return; */
   ti->clientdata = clientdata;
@@ -596,6 +625,24 @@ SWIG_TypeClientData(swig_type_info *ti, void *clientdata)
     }
     cast = cast->next;
   }
+#else
+  swig_cast_info *head = ti->cast;
+  /* if (ti->clientdata == clientdata) return; */
+  ti->clientdata = clientdata;
+
+  while (head) {
+    swig_cast_info *cast;
+    for (cast = head; (cast - head) <= head->value; cast++) {
+      if (!cast->converter) {
+        swig_type_info *tc = cast->type;
+        if (!tc->clientdata) {
+          SWIG_TypeClientData(tc, clientdata);
+        }
+      }
+    }
+    head = head->next;
+  }
+#endif
 }
 WXRB_EXPORT_FLAG void
 SWIG_TypeNewClientData(swig_type_info *ti, void *clientdata)

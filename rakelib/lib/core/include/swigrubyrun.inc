@@ -157,7 +157,7 @@ static VALUE swig_runtime_data_type_pointer = Qnil;
 static ID swig_arity_id = 0;
 static ID swig_call_id  = 0;
 #if SWIG_VERSION >= 0x040400
-static ID swig_lowerthan_id = 0;
+WXRB_EXPORT_FLAG ID swig_lowerthan_id = 0;
 #endif
 
 /*
@@ -193,11 +193,9 @@ static ID swig_lowerthan_id = 0;
 SWIGRUNTIME VALUE
 getExceptionClass(void)
 {
-  static int init = 0;
-  static VALUE rubyExceptionClass ;
-  if (!init)
+  static VALUE rubyExceptionClass = Qnil;
+  if (rubyExceptionClass == Qnil)
   {
-    init = 1;
     rubyExceptionClass = rb_const_get(_mSWIG, rb_intern("Exception"));
   }
   return rubyExceptionClass;
@@ -423,6 +421,12 @@ SWIG_Ruby_ConvertPtrAndOwn(VALUE obj, void **ptr, swig_type_info *ty, int flags,
       RDATA(obj)->dfree = 0;
     }
   }
+
+#if SWIG_VERSION >= 0x040400
+  if (flags & SWIG_POINTER_CLEAR) {
+    DATA_PTR(obj) = 0;
+  }
+#endif
 
   /* Do type-checking if type info was provided */
   if (ty)

@@ -126,6 +126,14 @@
 #endif
 #endif
 
+#if SWIG_VERSION >= 0x040400
+/*==== clear errors ====*/
+
+#ifndef %error_clear
+#define %error_clear
+#endif
+#endif
+
 /*==== director output exception ====*/
 
 /* wxRuby : make sure to pass the object and method that caused the failure */
@@ -143,15 +151,27 @@
 #define %error_block(Block...)                 %block(Block)
 #define %default_code(code)                    SWIG_ArgError(code)  
 #define %argument_fail(code, type, name, argn) SWIG_exception_fail(%default_code(code), %argfail_fmt(type, name, argn))
+#if SWIG_VERSION < 0x040400
 #define %argument_nullref(type, name, argn)    SWIG_exception_fail(SWIG_ValueError, %argnullref_fmt(type, name, argn))
+#else
+#define %argument_nullref(type, name, argn)    SWIG_exception_fail(SWIG_NullReferenceError, %argnullref_fmt(type, name, argn))
+#endif
 #define %variable_fail(code, type, name)       SWIG_exception_fail(%default_code(code), %varfail_fmt(type, name))
+#if SWIG_VERSION < 0x040400
 #define %variable_nullref(type, name)          SWIG_exception_fail(SWIG_ValueError, %varnullref_fmt(type, name))
+#else
+#define %variable_nullref(type, name)          SWIG_exception_fail(SWIG_NullReferenceError, %varnullref_fmt(type, name))
+#endif
 #define %releasenotowned_fail(code, type, name, argn) SWIG_exception_fail(%default_code(code), %releasenotownedfail_fmt(type, name, argn))
 
 /* wxRuby : make sure to pass the object and method that caused the failure */
 #if defined(SWIG_DIRECTOR_TYPEMAPS)
 #define %dirout_fail(code, type)          SWIG_DirOutFail(swig_get_self(), "$symname", %default_code(code), %outfail_fmt(type))
+#if SWIG_VERSION < 0x040400
 #define %dirout_nullref(type)             SWIG_DirOutFail(swig_get_self(), "$symname", SWIG_ValueError, %outnullref_fmt(type))
+#else
+#define %dirout_nullref(type)             SWIG_DirOutFail(swig_get_self(), "$symname", SWIG_NullReferenceError, %outnullref_fmt(type))
+#endif
 #endif
 
 /* -----------------------------------------------------------------------------

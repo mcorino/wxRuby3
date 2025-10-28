@@ -54,6 +54,10 @@ SWIGRUNTIMEINLINE void SWIG_RubyUnlinkObjects(void* ptr) {
   }
 }
 
+SWIGRUNTIMEINLINE void SWIG_RubyIterateTrackings( void(*meth)(void* ptr, VALUE obj) ) {
+  wxRuby_IterateTracking(meth);
+}
+
 
 #ifdef __cplusplus
 }
