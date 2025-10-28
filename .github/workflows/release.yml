@@ -92,7 +92,7 @@ jobs:
 
     - name: Upload Gem as release test artifact
       if: github.event_name == 'workflow_dispatch'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: wxruby3_release_test_gem
         path: "pkg/*.gem"
@@ -202,7 +202,7 @@ jobs:
 
       - name: Upload bin pkg as release test artifacts
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
           path: pkg/*
@@ -279,7 +279,7 @@ jobs:
 
       - name: Upload bin pkg as release test artifacts
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
           path: pkg/*
