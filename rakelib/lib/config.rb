@@ -581,7 +581,7 @@ module WXRuby3
                       :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_port, :wx_path, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
-          attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
+          attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path,
                       :ext_dir, :ext_path, :wxruby_dir, :wxruby_path, :exec_env
