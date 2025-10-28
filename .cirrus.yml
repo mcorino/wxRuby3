@@ -36,7 +36,7 @@ pr_1_task:
         distro: ubuntu
 
   before_script: |
-    ./tools/scripts/cirrus/setup-$distro.sh
+    ./tools/scripts/cirrus/setup-$distro.sh test
 
     # Show some information about the system.
     uname -a
@@ -75,7 +75,7 @@ pr_2_task:
         distro: arch
 
   before_script: |
-    ./tools/scripts/cirrus/setup-$distro.sh
+    ./tools/scripts/cirrus/setup-$distro.sh test
 
     # Show some information about the system.
     uname -a
@@ -122,7 +122,7 @@ verify_1_task:
         distro: ubuntu
 
   before_script: |
-    ./tools/scripts/cirrus/setup-$distro.sh
+    ./tools/scripts/cirrus/setup-$distro.sh test
 
     # Show some information about the system.
     uname -a
@@ -161,7 +161,7 @@ verify_2_task:
         distro: arch
 
   before_script: |
-    ./tools/scripts/cirrus/setup-$distro.sh
+    ./tools/scripts/cirrus/setup-$distro.sh test
 
     # Show some information about the system.
     uname -a
