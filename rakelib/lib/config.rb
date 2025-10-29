@@ -351,7 +351,7 @@ module WXRuby3
     alias :bash :sh
 
     def test(*tests, **options)
-      errors = 0
+      errors = []
       excludes = (ENV['WXRUBY_TEST_EXCLUDE'] || '').split(':')
       tests = Dir.glob(File.join(Config.instance.test_dir, '*.rb')) if tests.empty?
       tests.each do |test|
@@ -360,10 +360,10 @@ module WXRuby3
             test = File.join(Config.instance.test_dir, test)
             test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
           end
-          Rake.sh(Config.instance.exec_env.merge({'RUBYLIB'=>rb_lib_path}), FileUtils::RUBY, test) { |ok,status| errors += 1 unless ok }
+          Rake.sh(Config.instance.exec_env.merge({'RUBYLIB'=>rb_lib_path}), FileUtils::RUBY, test) { |ok,status| errors << File.basename(test, '.rb') unless ok }
         end
       end
-      fail "ERRORS: ##{errors} test scripts failed." if errors>0
+      fail "ERRORS: ##{errors.size} test scripts failed.\n\t#{errors.join("\n\t")}" unless errors.empty?
     end
 
     def irb(**options)
@@ -581,7 +581,7 @@ module WXRuby3
                       :extra_libs, :cpp_out_flag, :link_output_flag, :obj_ext, :dll_ext,
                       :cxxflags, :libs, :cpp, :ld, :verbose_flag
           attr_reader :wx_port, :wx_path, :wx_cppflags, :wx_libs, :wx_setup_h, :wx_xml_path
-          attr_reader :swig_major, :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
+          attr_reader :swig_dir, :swig_path, :src_dir, :src_path, :src_gen_dir, :src_gen_path, :obj_dir, :obj_path,
                       :rake_deps_dir, :rake_deps_path, :dest_dir, :test_dir, :classes_dir, :classes_path,
                       :common_dir, :common_path, :interface_dir, :interface_path,
                       :ext_dir, :ext_path, :wxruby_dir, :wxruby_path, :exec_env

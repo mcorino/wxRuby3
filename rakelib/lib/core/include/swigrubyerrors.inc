@@ -15,11 +15,9 @@
 WXRB_EXPORT_FLAG VALUE
 getNullReferenceError(void)
 {
-  static int init = 0;
-  static VALUE rb_eNullReferenceError ;
-  if (!init)
+  static VALUE rb_eNullReferenceError = Qnil;
+  if (rb_eNullReferenceError == Qnil)
   {
-    init = 1;
     rb_eNullReferenceError = rb_define_class("NullReferenceError", rb_eRuntimeError);
   }
   return rb_eNullReferenceError;
@@ -28,11 +26,9 @@ getNullReferenceError(void)
 WXRB_EXPORT_FLAG VALUE
 getObjectPreviouslyDeletedError(void)
 {
-  static int init = 0;
-  static VALUE rb_eObjectPreviouslyDeleted ;
-  if (!init)
+  static VALUE rb_eObjectPreviouslyDeleted = Qnil;
+  if (rb_eObjectPreviouslyDeleted == Qnil)
   {
-    init = 1;
     rb_eObjectPreviouslyDeleted = rb_define_class("ObjectPreviouslyDeleted", rb_eRuntimeError);
   }
   return rb_eObjectPreviouslyDeleted;

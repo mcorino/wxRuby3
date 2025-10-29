@@ -122,7 +122,7 @@ namespace Swig
     void setup_error(VALUE error);
 
   public:
-    virtual ~DirectorException() throw();
+    virtual ~DirectorException() SWIG_NOEXCEPT;
 
     VALUE getType() const
     {
@@ -140,7 +140,7 @@ namespace Swig
       return swig_msg;
     }
 
-    const char *what() const throw()
+    const char *what() const SWIG_NOEXCEPT
     {
       return swig_msg.c_str();
     }
@@ -157,7 +157,7 @@ namespace Swig
     this->setup_error(error);
   }
 
-  DirectorException::~DirectorException() throw()
+  DirectorException::~DirectorException() SWIG_NOEXCEPT
   {}
 
 

@@ -32,6 +32,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxApp')
     Director.Spec(pkg, 'wxAppTraits')
     Director.Spec(pkg, 'wxConfigBase')
+    Director.Spec(pkg, 'wxDisplay')
     Director.Spec(pkg, 'wxDC')
     Director.Spec(pkg, 'wxWindowDC', director: Director::DerivedDC)
     Director.Spec(pkg, 'wxClientDC', director: Director::DerivedDC)

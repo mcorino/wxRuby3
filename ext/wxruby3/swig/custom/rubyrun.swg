@@ -77,6 +77,10 @@ typedef struct WXRUBY_EXPORT swig_class {
   int trackObjects;
 } swig_class;
 
+#if SWIG_VERSION >= 0x040400
+extern ID swig_lowerthan_id;
+#endif
+
 /*
   If your swig extension is to be run within an embedded ruby and has
   director callbacks, you should set -DRUBY_EMBEDDED during compilation.  
