@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 pacman -Syu
+pacman -q -S --noconfirm --needed pamac-cli
 
 pamac install --no-confirm which git make gcc autogen automake autoconf pkgconf libyaml xorg-server-xvfb xorg-fonts-75dpi
 if [ "$1" == "test" ]; then
