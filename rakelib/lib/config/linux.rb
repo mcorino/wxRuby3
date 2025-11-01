@@ -55,8 +55,6 @@ module WXRuby3
 
           def check_tool_pkgs
             pkg_deps = super
-            # some distros (Manjaro/Arch?) do not automatically install libxml2 as a dep of doxygen
-            pkg_deps << 'libxml2' if pkg_deps.include?('doxygen')
             # need g++ to build wxRuby3 extensions in any case
             pkg_deps << 'g++' unless system('command -v g++>/dev/null')
             # do we need to build wxWidgets?
