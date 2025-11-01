@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
 pacman -Syu
-pacman -q -S --noconfirm --needed pamac-cli
-
-pamac remove --no-confirm -c pacman
-pamac install --no-confirm pacman
+pacman -q -S --noconfirm --needed pamac-cli doxygen
 
 pamac install --no-confirm which git make gcc autogen automake autoconf pkgconf libyaml xorg-server-xvfb xorg-fonts-75dpi
 if [ "$1" == "test" ]; then
