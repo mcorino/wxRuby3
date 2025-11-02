@@ -156,7 +156,7 @@ verify_2_task:
         image: opensuse/leap:latest
         cpu: 4
         memory: 8G
-      env:add
+      env:
         osname: linux
         distro: opensuse
     - name: Cirrus CI / ArchLinux AMD64 Test
