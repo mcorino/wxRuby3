@@ -5,6 +5,8 @@ if [ "$distro" == "macosx" ]; then
 else
   if [ "$distro" == "arch" ]; then
     pacman -S --noconfirm core/bison
+  elif [ "$distro" == "manjaro" ]; then
+    pamac install --no-confirm bison
   fi
   curl -s -L https://raw.github.com/postmodern/postmodern.github.io/main/postmodern.asc --output postmodern.asc
   gpg --import postmodern.asc

@@ -49,7 +49,8 @@ module WXRuby3
                                       .alias('ubuntu', '24.04', 'linuxmint', '22').alias('ubuntu', '24.04', 'linuxmint', '22.1'),
           rhel: PlatformDependencies.new(%w[expat-devel findutils gspell-devel gstreamer1-plugins-base-devel gtk3-devel libcurl-devel libjpeg-devel libnotify-devel libpng-devel libSM-devel libsecret-devel libtiff-devel SDL-devel webkit2gtk4.1-devel zlib-devel]),
           suse: PlatformDependencies.new(%w[gtk3-devel webkit2gtk3-devel gspell-devel gstreamer-devel gstreamer-plugins-base-devel libcurl-devel libsecret-devel libnotify-devel libSDL-devel zlib-devel libjpeg-devel libpng-devel]),
-          arch: PlatformDependencies.new(%w[pkg-config gtk3 webkit2gtk gspell libunwind gstreamer curl libsecret libnotify libpng])
+          arch: PlatformDependencies.new(%w[pkg-config gtk3 webkit2gtk-4.1 gspell libunwind gstreamer curl libsecret libnotify libpng])
+                                    .add('manjaro', %w[pkgconf gtk3 webkit2gtk-4.1 gspell libunwind gstreamer curl libsecret libnotify libpng])
         }
         PLATFORM_ALTS = {
           suse: { 'g++' => 'gcc-c++' },
