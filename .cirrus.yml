@@ -34,6 +34,14 @@ pr_1_task:
       env:
         osname: linux
         distro: ubuntu
+    - name: Cirrus CI / Manjaro AMD64 Test
+      container:
+        image: manjarolinux/base:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: manjaro
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh test
@@ -148,7 +156,7 @@ verify_2_task:
         image: opensuse/leap:latest
         cpu: 4
         memory: 8G
-      env:
+      env:add
         osname: linux
         distro: opensuse
     - name: Cirrus CI / ArchLinux AMD64 Test
@@ -159,6 +167,14 @@ verify_2_task:
       env:
         osname: linux
         distro: arch
+    - name: Cirrus CI / Manjaro AMD64 Test
+      container:
+        image: manjarolinux/base:latest
+        cpu: 4
+        memory: 8G
+      env:
+        osname: linux
+        distro: manjaro
 
   before_script: |
     ./tools/scripts/cirrus/setup-$distro.sh test
