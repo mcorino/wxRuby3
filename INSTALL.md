@@ -68,7 +68,8 @@ or user provided) wxWidgets libraries.
 ### Standard packages
 
 The standard release artifacts at [Github](https://github.com/mcorino/wxRuby3/releases) provide a selection of binary
-packages for all supported OS platforms which are automatically built and uploaded for every release.<br>
+packages for all supported OS platforms which are automatically built and uploaded for every release 
+(except for 'rolling' release distributions like ArchLinux and Manjaro).<br>
 The following tables lists the packages provided by the current wxRuby3 release process:
 
 | OS      | Distributions                          | Architectures           | Rubies                                             |
