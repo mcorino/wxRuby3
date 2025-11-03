@@ -56,7 +56,7 @@ jobs:
         - name: wxMac macOS 15
           runner: macos-15
           arch: arm64
-          ruby: 'ruby'
+          ruby: '3.0'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
@@ -80,7 +80,7 @@ jobs:
         - name: wxMac macOS 14
           runner: macos-14
           arch: arm64
-          ruby: 'ruby'
+          ruby: '3.0'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
