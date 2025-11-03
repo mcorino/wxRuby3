@@ -5,6 +5,7 @@ source "https://rubygems.org"
 gem 'rake'
 gem 'nokogiri', '~> 1.12'
 gem 'minitest', '~> 5.15'
+gem 'power_assert', '~> 2.0'
 gem 'test-unit', '~> 3.5'
 gem 'plat4m', '~> 1.1'
 group :develop, optional: true do
