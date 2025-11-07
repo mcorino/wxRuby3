@@ -56,7 +56,7 @@ jobs:
         - name: wxMac macOS 15
           runner: macos-15
           arch: arm64
-          ruby: '3.0'
+          ruby: '3.2'
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
