@@ -106,11 +106,11 @@ jobs:
 
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: checkout wxWidgets
         if: matrix.wxw_type != 'embed'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
