@@ -129,7 +129,7 @@ jobs:
       - name: Cache Doxygen
         if: matrix.wxw_type != 'embed' || matrix.wxr_type == 'develop'
         id: cache-doxygen
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: doxygen-1.10.0.windows.x64.bin.zip
           key: ${{ runner.os }}-doxygen
