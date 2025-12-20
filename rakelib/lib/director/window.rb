@@ -127,7 +127,7 @@ module WXRuby3
             spec.ignore 'wxWindow::EnableTouchEvents'
           end
           if Config.instance.wx_version_check('3.3.0') >= 0
-            spec.ignore_unless('WXMSW', 'wxWindow::MSWDisableComposited')
+            spec.ignore_unless('WXMSW', 'wxWindow::MSWDisableComposited') if Config.instance.wx_version_check('3.3.1') <= 0
             spec.ignore('wxWindow::GTKGetWin32Handle')
           end
           if Config.instance.features_set?('USE_ACCESSIBILITY')
