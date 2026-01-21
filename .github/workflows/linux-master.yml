@@ -89,6 +89,7 @@ jobs:
         doxygen -v
         gcc -v
         g++ -v
+        swig --version
 
     - name: Configuring wxWidgets
       if: matrix.wxw_type != 'embed'
