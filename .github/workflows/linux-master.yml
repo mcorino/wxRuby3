@@ -176,7 +176,7 @@ jobs:
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL || cat /opt/hostedtoolcache/Ruby/3.2.10/x64/lib/ruby/gems/3.2.0/gems/wxruby3-1.6.1/setup.log
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL || cat /opt/hostedtoolcache/Ruby/3.2.10/x64/lib/ruby/gems/3.2.0/gems/wxruby3-1.6.1/setup.log || cat ext/wxruby3/swig/classes/include/wxObject.h
           fi
         fi
 
