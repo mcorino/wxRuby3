@@ -262,6 +262,16 @@ module WXRuby3
             fout.puts extension
             fout.puts '};'
           end
+          item.innerclasses.each do |inner|
+            if inner.protection == 'public' && !inner.ignored && !inner.deprecated
+              extension = extend_code("#{class_name(item)}::#{class_name(inner)}")
+              unless extension.empty?
+                fout.puts "\n%extend #{class_name(item)}::#{class_name(inner)} {"
+                fout.puts extension
+                fout.puts '};'
+              end
+            end
+          end
         end
       end
     end
