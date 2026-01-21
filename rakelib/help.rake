@@ -33,7 +33,7 @@ rake <rake-options> tests            # Run wxRuby3 tests
 rake <rake-options> package          # Build all the packages
 rake <rake-options> repackage        # Force a rebuild of the package files
 rake <rake-options> clobber_package  # Remove package products
-rake <rake-options> bingem           # Build wxRuby3 pre-built binary gem
+rake <rake-options> binpkg           # Build wxRuby3 binary release package
 
 __HELP_TXT
 end
