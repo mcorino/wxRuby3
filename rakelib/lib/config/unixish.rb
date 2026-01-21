@@ -211,7 +211,7 @@ module WXRuby3
           # remove all warning flags provided by Ruby config
           @ruby_cppflags = @ruby_cppflags.collect { |flags| flags.split(' ') }.flatten.
             select { |o| !o.start_with?('-W') || o.start_with?('-Wl,') }
-          @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter]   # only keep these
+          @ruby_cppflags.concat %w[-Wall -Wextra -Wno-unused-parameter -Wno-cpp]   # only keep these
           # add include flags
           @ruby_cppflags.concat ['-I.', *@ruby_includes.collect { |inc| "-I#{inc}" }]
           @ruby_ldflags << "-Wl,-rpath,'#{get_rpath_origin}/../lib'"      # add default rpath
