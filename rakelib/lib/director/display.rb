@@ -16,17 +16,32 @@ module WXRuby3
         super
         spec.items << 'wxVideoMode'
         # type mapping for 'wxArrayVideoModes'
-        spec.map 'wxArrayVideoModes' => 'Array<Wx::VideoMode>' do
-          map_out code: <<~__CODE
-            $result = rb_ary_new();
-            std::vector<wxVideoMode>* vmarr = &$1;
-            for (const wxVideoMode& vm : *vmarr)
-            {
-              wxVideoMode* pvm = new wxVideoMode(vm);
-              VALUE rb_vm = SWIG_NewPointerObj(SWIG_as_voidptr(pvm), SWIGTYPE_p_wxVideoMode, 1);
-              rb_ary_push($result, rb_vm);
-            }
-            __CODE
+        if Config.instance.wx_version_check('3.3.0') >= 0
+          spec.map 'wxArrayVideoModes' => 'Array<Wx::VideoMode>' do
+            map_out code: <<~__CODE
+              $result = rb_ary_new();
+              std::vector<wxVideoMode>* vmarr = &$1;
+              for (const wxVideoMode& vm : *vmarr)
+              {
+                wxVideoMode* pvm = new wxVideoMode(vm);
+                VALUE rb_vm = SWIG_NewPointerObj(SWIG_as_voidptr(pvm), SWIGTYPE_p_wxVideoMode, 1);
+                rb_ary_push($result, rb_vm);
+              }
+              __CODE
+          end
+        else
+          spec.map 'wxArrayVideoModes' => 'Array<Wx::VideoMode>' do
+            map_out code: <<~__CODE
+              $result = rb_ary_new();
+              wxArrayVideoModes* vmarr = &$1;
+              for (size_t ix=0; ix < vmarr->Count(); ++ix)
+              {
+                wxVideoMode* pvm = new wxVideoMode(vmarr->Item(ix));
+                VALUE rb_vm = SWIG_NewPointerObj(SWIG_as_voidptr(pvm), SWIGTYPE_p_wxVideoMode, 1);
+                rb_ary_push($result, rb_vm);
+              }
+              __CODE
+          end
         end
         # add Ruby-style accessors for public attr
         spec.add_extend_code 'wxVideoMode', <<~__HEREDOC
