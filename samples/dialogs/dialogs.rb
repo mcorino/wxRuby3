@@ -42,6 +42,7 @@ module Dialogs
   DIALOGS_REPLACE = 27
   DIALOGS_PREFS = 28
   DIALOGS_PREFS_TOOLBOOK = 29
+  DIALOGS_SHOW_TIP = 30
 
   class MyTipProvider < Wx::TipProvider
     TIPS = [
@@ -251,6 +252,8 @@ module Dialogs
 
       @find_data = Wx::FindReplaceData.new
 
+      @tipRef = nil
+
       @ext_def = ""
       @index = -1
       @index_2 = -1
@@ -289,6 +292,8 @@ module Dialogs
       evt_find_replace(-1, :on_find_dialog)
       evt_find_replace_all(-1, :on_find_dialog)
       evt_find_close(-1, :on_find_dialog)
+      evt_menu(DIALOGS_SHOW_TIP, :on_show_tip_window)
+      evt_update_ui(DIALOGS_SHOW_TIP, :on_update_show_tip_ui)
       evt_menu(Wx::ID_EXIT, :on_exit)
 
     end
@@ -613,6 +618,23 @@ module Dialogs
 
     end
 
+    def on_show_tip_window(_event)
+      if @tipRef&.ok?
+        @tipRef.tip_window.close
+      else
+        @tipRef = Wx::TipWindow::new_tip(
+          self,
+          "This is just some text to be shown in the tip " \
+          "window, broken into multiple lines, each less " \
+          "than 60 logical pixels wide.",
+          from_dip(60))
+      end
+    end
+
+    def on_update_show_tip_ui(event)
+      event.check(!!@tipRef&.ok?)
+    end
+
     def on_exit(_event)
       close(true)
     end
@@ -832,6 +854,7 @@ module Dialogs
       file_menu.append_separator
       file_menu.append(DIALOGS_TIP,  "&Tip of the day\tCtrl-T")
       file_menu.append(DIALOGS_CUSTOM_TIP,  "Custom tip of the day")
+      file_menu.append_check_item(DIALOGS_SHOW_TIP,  "Show &tip window\tShift-Ctrl-H")
       file_menu.append_separator
       file_menu.append(DIALOGS_FILE_OPEN,  "&Open file\tCtrl-O")
       file_menu.append(DIALOGS_FILE_OPEN2,  "&Second open file\tCtrl-2")
