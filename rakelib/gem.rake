@@ -83,6 +83,7 @@ file WXRuby3::Gem.gemspec_file => WXRuby3::Gem.manifest do |t|
       gem.add_dependency 'minitest', '~> 5.15'
       gem.add_dependency 'test-unit', '~> 3.5'
       gem.add_dependency 'plat4m', '~> 1.1'
+      gem.add_dependency 'openssl', '~> 4.0'
       gem.rdoc_options <<
         '--exclude=\\.dll' <<
         '--exclude=\\.so' <<
