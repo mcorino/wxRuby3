@@ -62,6 +62,10 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
 
+    - name: Prepare package repos
+      run: |
+        sudo apt-get update
+
     - name: Setup Ruby gems
       run: |
         bundle install
@@ -176,7 +180,7 @@ jobs:
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL || cat /opt/hostedtoolcache/Ruby/4.0.1/x64/lib/ruby/gems/4.0.0/gems/wxruby3-1.6.1/ext/wxruby3/swig/classes/include/wxObject.h
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
           fi
         fi
 
