@@ -3,6 +3,7 @@
 cat /etc/pacman.conf
 sed -E -i "/#VerbosePkgLists/a\DisableSandboxSyscalls" /etc/pacman.conf
 sed -E -i "/#VerbosePkgLists/a\DisableSandboxFilesystem" /etc/pacman.conf
+sed -E -i "/#VerbosePkgLists/a\DownloadUser = alpm" /etc/pacman.conf
 cat /etc/pacman.conf
 rm -f /etc/pacman.conf.pacnew
 cat /etc/pacman.conf.pacnew
