@@ -8,8 +8,8 @@ cat /etc/pacman.conf
 rm -f /etc/pacman.conf.pacnew
 cat /etc/pacman.conf.pacnew
 
-pacman -Syyu
-pacman -q -S --noconfirm --needed pamac-cli -d libxml2 libxml2-legacy
+pacman -Syyu --disable-sandbox
+pacman -q -S --disable-sandbox --noconfirm --needed pamac-cli -d libxml2 libxml2-legacy
 
 pamac install --no-confirm glibc which git make gcc autogen automake autoconf pkgconf libyaml xorg-server-xvfb xorg-fonts-75dpi
 if [ "$1" == "test" ]; then
