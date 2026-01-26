@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 cat /etc/pacman.conf
-sed -E -i "/#VerbosePkgLists/a\DisableSandbox" /etc/pacman.conf
+sed -E -i "/#VerbosePkgLists/a\DisableSandboxSyscalls" /etc/pacman.conf
+sed -E -i "/#VerbosePkgLists/a\DisableSandboxFilesystem" /etc/pacman.conf
 cat /etc/pacman.conf
 rm -f /etc/pacman.conf.pacnew
 cat /etc/pacman.conf.pacnew
