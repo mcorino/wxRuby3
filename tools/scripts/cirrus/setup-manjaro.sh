@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 cat /etc/pacman.conf
-cat /etc/pacman.conf.pacnew
+sed -E -i "/#VerbosePkgLists/a\DisableSandbox" /etc/pacman.conf
+cat /etc/pacman.conf
 rm -f /etc/pacman.conf.pacnew
+cat /etc/pacman.conf.pacnew
 
 pacman -Syyu
 pacman -q -S --noconfirm --needed pamac-cli -d libxml2 libxml2-legacy
