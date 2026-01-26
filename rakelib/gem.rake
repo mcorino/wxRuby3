@@ -79,7 +79,7 @@ file WXRuby3::Gem.gemspec_file => WXRuby3::Gem.manifest do |t|
       gem.licenses = ['MIT']
       gem.add_dependency 'nokogiri', '~> 1.12'
       gem.add_dependency 'rake'
-      gem.add_dependency 'power_assert', '~> 2.0'
+      gem.add_dependency 'power_assert', '~> 3.0'
       gem.add_dependency 'minitest', '~> 5.15'
       gem.add_dependency 'test-unit', '~> 3.5'
       gem.add_dependency 'plat4m', '~> 1.1'
