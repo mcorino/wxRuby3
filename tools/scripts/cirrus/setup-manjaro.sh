@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+sed -E -i "/DownloadUser\s+=\s+alpm/d" /etc/pacman.conf
+
 pacman -Syyu
 pacman -q -S --noconfirm --needed pamac-cli -d libxml2 libxml2-legacy
 
