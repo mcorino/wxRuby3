@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
 
 cat /etc/pacman.conf
-sed -E -i "/#VerbosePkgLists/a\DisableSandboxSyscalls" /etc/pacman.conf
-sed -E -i "/#VerbosePkgLists/a\DisableSandboxFilesystem" /etc/pacman.conf
-sed -E -i "/#VerbosePkgLists/a\DownloadUser = alpm" /etc/pacman.conf
-cat /etc/pacman.conf
-rm -f /etc/pacman.conf.pacnew
-cat /etc/pacman.conf.pacnew
 
-pacman -Syyu --disable-sandbox
-pacman -q -S --disable-sandbox --noconfirm --needed pamac-cli -d libxml2 libxml2-legacy
+pacman -Syyu
+pacman -q -S --noconfirm --needed pamac-cli -d libxml2 libxml2-legacy
 
 pamac install --no-confirm glibc which git make gcc autogen automake autoconf pkgconf libyaml xorg-server-xvfb xorg-fonts-75dpi
 if [ "$1" == "test" ]; then
