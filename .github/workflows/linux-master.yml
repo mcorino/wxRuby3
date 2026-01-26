@@ -26,7 +26,7 @@ jobs:
             gtk_version: 3
             CC: gcc
             CXX: g++
-            ruby: '3.2'
+            ruby: 'ruby'
             wxWidgets: 'master'
             swig: '4'
             use_xvfb: true
@@ -37,7 +37,7 @@ jobs:
             gtk_version: 3
             CC: gcc
             CXX: g++
-            ruby: 'ruby'
+            ruby: '3.2'
             wxWidgets: 'master'
             swig: '4'
             use_xvfb: true
@@ -180,7 +180,7 @@ jobs:
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL --wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml
           fi
         fi
 
