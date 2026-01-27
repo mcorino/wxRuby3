@@ -9,13 +9,25 @@ module Wx
 
   class TipWindow < Wx::Window
 
-    # Constructor.
+    # The (weak) reference to {Wx::TipWindow}.
     #
-    # The tip is shown immediately after the window is constructed.
-    # @param [Wx::Window] parent The parent window, must be non-nil
-    # @param [String] text The text to show, may contain the new line characters
-    # @param [Integer] max_length The length of each line, in pixels. Set to a very large value to avoid wrapping lines.
-    def initialize(parent, text, max_length = 100); end
+    # Wx::TipWindow may close itself at any moment, so creating it as usual, with new and using a direct reference to it is dangerous. Instead, use {Wx::TipWindow::new_tip} to create it
+    # and use the returned Ref which is guaranteed to become invalid when the tip window is closed.
+    #
+    # To test if this object is still valid use {Wx::TipWindow::Ref#ok?} to test, use {Wx::TipWindow::Ref#tip_window} to access the referenced {Wx::TipWindow}.
+    class Ref
+
+      # Returns true if still valid, false otherwise.
+      # @return [Boolean]
+      def is_ok; end
+      alias :ok? is_ok
+
+      # Returns the {Wx::TipWindow} referenced if valid, nil otherwise.
+      # @return [Wx::TipWindow,nil] tip window object
+      def get_tip_window; end
+      alias :tip_window :get_tip_window
+
+    end
 
   end
 

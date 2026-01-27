@@ -42,6 +42,8 @@ module Dialogs
   DIALOGS_REPLACE = 27
   DIALOGS_PREFS = 28
   DIALOGS_PREFS_TOOLBOOK = 29
+  DIALOGS_SHOW_TIP = 30
+  DIALOGS_RICHTIP_DIALOG = 31
 
   class MyTipProvider < Wx::TipProvider
     TIPS = [
@@ -251,6 +253,8 @@ module Dialogs
 
       @find_data = Wx::FindReplaceData.new
 
+      @tipRef = nil
+
       @ext_def = ""
       @index = -1
       @index_2 = -1
@@ -289,6 +293,9 @@ module Dialogs
       evt_find_replace(-1, :on_find_dialog)
       evt_find_replace_all(-1, :on_find_dialog)
       evt_find_close(-1, :on_find_dialog)
+      evt_menu(DIALOGS_SHOW_TIP, :on_show_tip_window)
+      evt_menu(DIALOGS_RICHTIP_DIALOG, :on_show_rich_tip)
+      evt_update_ui(DIALOGS_SHOW_TIP, :on_update_show_tip_ui)
       evt_menu(Wx::ID_EXIT, :on_exit)
 
     end
@@ -613,6 +620,169 @@ module Dialogs
 
     end
 
+    class RichTipDialog < Wx::Dialog
+
+      Icon_None = 0
+      Icon_Info = 1
+      Icon_Warning = 2
+      Icon_Error = 3
+      Icon_Custom = 4
+      Icon_Max = 5
+
+      Bg_Default = 0
+      Bg_Solid = 0
+      Bg_Gradient = 0
+      Bg_Max = 0
+
+      Timeout_None = 0
+      Timeout_Default = 1
+      Timeout_3sec = 2
+      Timeout_Max = 3
+
+      def initialize(parent)
+        super(parent, Wx::ID_ANY, "wxRichToolTip Test",
+              Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+              Wx::DEFAULT_DIALOG_STYLE | Wx::RESIZE_BORDER)
+        # Create the controls.
+        @textTitle = Wx::TextCtrl.new(self, Wx::ID_ANY, "Tooltip title")
+        @textBody = Wx::TextCtrl.new(self, Wx::ID_ANY, "Main tooltip text\n" \
+                                                    "possibly on several\n" \
+                                                    "lines.",
+                                     Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                     Wx::TE_MULTILINE)
+        btnShowText = Wx::Button.new(self, Wx::ID_ANY, "Show for &text")
+        btnShowBtn = Wx::Button.new(self, Wx::ID_ANY, "Show for &button")
+
+        icon_names = %w[&None &Information &Warning &Error &Custom]
+        @icons = Wx::RadioBox.new(self, Wx::ID_ANY, "&Icon choice:",
+                                  Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                  icon_names,
+                                  1, Wx::RA_SPECIFY_ROWS)
+        @icons.set_selection(Icon_Info)
+
+        tip_kinds = [ "&None", "Top left", "Top", "Top right",
+            "Bottom left", "Bottom", "Bottom right", "&Auto" ]
+        @tipKinds = Wx::RadioBox.new(self, Wx::ID_ANY, "Tip &kind:",
+                                     Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                     tip_kinds,
+                                      4, Wx::RA_SPECIFY_COLS)
+        @tipKinds.set_selection(Wx::TipKind_Auto)
+
+        bg_styles = %w[&Default &Solid &Gradient]
+        @bgStyles = Wx::RadioBox.new(self, Wx::ID_ANY, "Background style:",
+                                     Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                     bg_styles,
+                                     1, Wx::RA_SPECIFY_ROWS)
+
+        timeout_nms = [ "&None", "&Default (no delay)", "&3 seconds" ]
+        @timeouts = Wx::RadioBox.new(self, Wx::ID_ANY, "Timeout:",
+                                     Wx::DEFAULT_POSITION, Wx::DEFAULT_SIZE,
+                                     timeout_nms,
+                                     1, Wx::RA_SPECIFY_ROWS)
+        @timeouts.set_selection(Timeout_Default)
+        @timeDelay = Wx::CheckBox.new(self, Wx::ID_ANY, "Delay show" )
+
+        # Lay them out.
+        @textBody.set_min_size([300, 200])
+  
+        sizer = Wx::VBoxSizer.new
+        sizer.add(@textTitle, Wx::SizerFlags.new.expand.border)
+        sizer.add(@textBody, Wx::SizerFlags.new(1).expand.border)
+        sizer.add(@icons, Wx::SizerFlags.new.expand.border)
+        sizer.add(@tipKinds, Wx::SizerFlags.new.centre.border)
+        sizer.add(@bgStyles, Wx::SizerFlags.new.centre.border)
+        sizer.add(@timeouts, Wx::SizerFlags.new.centre.border)
+        sizer.add(@timeDelay, Wx::SizerFlags.new.centre.border)
+        sizerBtns = Wx::HBoxSizer.new
+        sizerBtns.add(btnShowText, Wx::SizerFlags.new.border(Wx::RIGHT))
+        sizerBtns.add(btnShowBtn, Wx::SizerFlags.new.border(Wx::LEFT))
+        sizer.add(sizerBtns, Wx::SizerFlags.new.centre.border)
+        sizer.add(create_std_dialog_button_sizer(Wx::OK),
+                  Wx::SizerFlags.new.expand.border)
+        set_sizer_and_fit(sizer)
+  
+  
+        # And connect the event handlers.
+        evt_button(btnShowText, :on_show_tip_for_text)
+        evt_button(btnShowBtn, :on_show_tip_for_btn)
+      end
+
+    private
+
+      def on_show_tip_for_text(_event)
+        do_show_tip(@textTitle)
+      end
+
+      def on_show_tip_for_btn(_event)
+        do_show_tip(find_window_by_id(Wx::ID_OK))
+      end
+
+      def do_show_tip(win)
+        tip = Wx::RichToolTip.new(@textTitle.value, @textBody.value)
+        iconSel = @icons.get_selection
+        if iconSel == Icon_Custom
+          tip.set_icon(Wx.Icon(:tip, art_path: __dir__))
+        else # Use a standard icon.
+            stdIcons =[
+              Wx::ICON_NONE,
+              Wx::ICON_INFORMATION,
+              Wx::ICON_WARNING,
+              Wx::ICON_ERROR
+            ]
+
+            tip.set_icon(stdIcons[iconSel])
+        end
+
+        case @bgStyles.get_selection
+        when Bg_Solid
+          tip.set_background_colour(Wx::LIGHT_GREY)
+        when Bg_Gradient
+          tip.set_background_colour(Wx::WHITE, Wx::Colour.new(0xe4, 0xe5, 0xf0))
+        else
+          #
+        end
+
+        delay = @timeDelay.is_checked ? 500 : 0
+
+        case @timeouts.get_selection
+        when Timeout_None
+          # Don't call SetTimeout unnecessarily
+          # or msw will show generic impl
+          tip.set_timeout(0, delay) if delay > 0
+        when Timeout_3sec
+          tip.set_timeout(3000, delay)
+        else
+          #
+        end
+
+        tip.set_tip_kind(Wx::TipKind.new(@tipKinds.get_selection))
+
+        tip.show_for(win)
+      end
+
+    end
+
+    def on_show_rich_tip(_event)
+      MyFrame.RichTipDialog(self)
+    end
+
+    def on_show_tip_window(_event)
+      if @tipRef&.ok?
+        @tipRef.tip_window.close
+      else
+        @tipRef = Wx::TipWindow::new_tip(
+          self,
+          "This is just some text to be shown in the tip " \
+          "window, broken into multiple lines, each less " \
+          "than 60 logical pixels wide.",
+          from_dip(60))
+      end
+    end
+
+    def on_update_show_tip_ui(event)
+      event.check(!!@tipRef&.ok?)
+    end
+
     def on_exit(_event)
       close(true)
     end
@@ -832,6 +1002,8 @@ module Dialogs
       file_menu.append_separator
       file_menu.append(DIALOGS_TIP,  "&Tip of the day\tCtrl-T")
       file_menu.append(DIALOGS_CUSTOM_TIP,  "Custom tip of the day")
+      file_menu.append_check_item(DIALOGS_SHOW_TIP,  "Show &tip window\tShift-Ctrl-H")
+      file_menu.append(DIALOGS_RICHTIP_DIALOG, "Rich &tooltip dialog...\tCtrl-H")
       file_menu.append_separator
       file_menu.append(DIALOGS_FILE_OPEN,  "&Open file\tCtrl-O")
       file_menu.append(DIALOGS_FILE_OPEN2,  "&Second open file\tCtrl-2")

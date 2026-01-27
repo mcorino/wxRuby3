@@ -1,0 +1,26 @@
+---
+:wxRichToolTip:
+  :detail:
+    :pre:
+      :para:
+        - :pattern: !ruby/regexp /The images below show some examples.*/
+          :replace: |
+
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+              password = Wx::TextCtrl.new(..., style: Wx::TE_PASSWORD)
+              # ...
+              tip = Wx::RichToolTip.new("Caps Lock is on",
+                                        "You might have made an error in your password\n" +
+                                        "entry because Caps Lock is turned on.\n" +
+                                        "\n" +
+                                        "Press Caps Lock key to turn it off.")
+               tip.set_icon(Wx::ICON_WARNING)
+               tip.show_for(password)
+            ```
+    :post:
+      - :pattern: !ruby/regexp /<div class='appearance'>.*</table></div>/m
+        :subst: ''

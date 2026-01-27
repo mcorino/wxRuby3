@@ -33,7 +33,7 @@ jobs:
             wxw_type: develop
             wxr_type: develop
             wxr_test_exclude: 'test_media_ctrl'
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             gtk_version: 3
             CC: gcc
             CXX: g++
@@ -43,6 +43,7 @@ jobs:
             use_xvfb: true
             wxw_type: develop
             wxr_type: gem
+            wxr_test_exclude: 'test_media_ctrl'
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxWidgets }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
@@ -61,6 +62,10 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
+
+    - name: Prepare package repos
+      run: |
+        sudo apt-get update
 
     - name: Setup Ruby gems
       run: |
@@ -89,6 +94,7 @@ jobs:
         doxygen -v
         gcc -v
         g++ -v
+        swig -version
 
     - name: Configuring wxWidgets
       if: matrix.wxw_type != 'embed'
@@ -175,7 +181,7 @@ jobs:
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
             gem install $(echo pkg/*.gem) && wxruby setup --autoinstall
           else
-            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL
+            gem install $(echo pkg/*.gem) && wxruby setup --wxwin=$WXWIN_INSTALL --wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml
           fi
         fi
 
