@@ -5,6 +5,3 @@ pacman -q -S --noconfirm --needed which git make gcc autogen automake autoconf p
 if [ "$1" == "test" ]; then
   pacman -q -S --noconfirm --needed pkg-config gtk3 webkit2gtk-4.1 gdk-pixbuf2 librsvg adwaita-icon-theme gnome-keyring gspell libvoikko hspell nuspell libunwind gstreamer curl libsecret libnotify libpng
 fi
-
-# Add 2 extra tests that cause problems on Arch-like distros
-export WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE:test_ext_controls:test_file_dialog
