@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
-case $distro in
-  manjaro,arch)
+if [ "$distro" == "manjaro" ] || [ "$distro" == "arch" ]; then
     # Add 2 extra tests that cause problems on Arch-like distros
     export WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE:test_ext_controls:test_file_dialog
-    ;;
-  *)
-    ;;
-esac
+fi
+
+echo "WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE"
 
 if [ "$distro" == "macosx" ]; then
   bundle exec rake test
