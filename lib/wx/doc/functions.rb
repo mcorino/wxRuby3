@@ -118,7 +118,7 @@ module Wx
   # @return [Integer] Wx Id
   def self.xrcid(str) end
 
-  def self.begin_busy_cursor(cursor) end
+  def self.begin_busy_cursor(cursor_or_cursor_bundle) end
   def self.end_busy_cursor; end
   def self.bell; end
   def self.safe_yield(win = nil, only_if_needed = false) end
