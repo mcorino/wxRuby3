@@ -89,8 +89,8 @@ module TreeCtrl
     TreeCtrlIcon_FolderOpened = 0, 1, 2, 3, 4
 
   class MyTreeCtrl < Wx::TreeCtrl
-    def initialize(parent, *args)
-      super(parent, *args)
+    def initialize(parent, *args, **kwargs)
+      super(parent, *args, **kwargs)
 
       @alternate_images = false
       @alternate_states = false
