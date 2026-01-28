@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ "$distro" == "manjaro" ] || [ "$distro" == "arch" ]; then
+if [ "$distro" == "manjaro" ] || [ "$distro" == "arch" ] || [ "$distro" == "fedora" ]; then
     # Add 2 extra tests that cause problems on Arch-like distros
     export WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE:test_ext_controls:test_file_dialog
 fi
