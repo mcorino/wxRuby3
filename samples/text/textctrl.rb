@@ -45,8 +45,8 @@ module TextCtrl
   end
 
   class TextCtrlFrame < Wx::Frame
-    def initialize(*args)
-      super(nil, *args)
+    def initialize(*args, **kwargs)
+      super(nil, *args, **kwargs)
 
       self.icon = Wx.Icon(:sample, Wx::BITMAP_TYPE_XPM, art_path: File.join(__dir__, '..'))
 

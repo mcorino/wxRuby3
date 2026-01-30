@@ -26,6 +26,7 @@ module WXRuby3
           #include <wx/utils.h>
           #include <wx/stockitem.h>
           #include <wx/aboutdlg.h>
+          #include <wx/busycursor.h> 
           
           // Logging functions - these don't directly wrap the corresponding wx
           // LogXXX functions because those expect a literal format string and a
@@ -202,6 +203,10 @@ module WXRuby3
         spec.map_apply 'int *OUTPUT' => ['int *indexDefaultExtension']
         # hardcoded interface declarations
         spec.add_interface_code <<~__HEREDOC
+          void wxBeginBusyCursor(const wxCursor* cursor = wxHOURGLASS_CURSOR);
+          void wxBeginBusyCursor(const wxCursorBundle& cursors);
+          void wxEndBusyCursor(); 	
+
           bool wxSafeYield(wxWindow* win = NULL, bool onlyIfNeeded = false);
           
           // Dialog shortcuts

@@ -36,7 +36,7 @@ pr_1_task:
         distro: ubuntu
     - name: Cirrus CI / Manjaro AMD64 Test
       container:
-        image: mcorino/manjaro:latest
+        image: manjarolinux/base:latest
         cpu: 4
         memory: 8G
       env:
