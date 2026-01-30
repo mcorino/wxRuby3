@@ -54,17 +54,45 @@ module WXRuby3
 
           map 'std::vector<wxPrintPageRange> &' => 'Array<Wx::PRT::PrintPageRange>' do
 
-            map_in temp: 'std::vector<wxPrintPageRange> tmp_vector', code: '$1 = &tmp_vector;'
-
-            map_argout code: <<~__CODE
-                for (const wxPrintPageRange& range : *$1)
+            map_in temp: 'std::vector<wxPrintPageRange> tmp', code: <<~__CODE
+                if (TYPE($input) == T_ARRAY)
                 {
-                  VALUE r_range = SWIG_NewPointerObj(new wxPrintPageRange(range), SWIGTYPE_p_wxPrintPageRange, SWIG_POINTER_OWN);
-                  rb_ary_push($input, r_range);
+                  $1 = &tmp;
+                  for (int i = 0; i < RARRAY_LEN($input); i++)
+                  {
+                    void *ptr;
+                    VALUE r_range = rb_ary_entry($input, i);
+                    int res = SWIG_ConvertPtr(r_range, &ptr, SWIGTYPE_p_wxPrintPageRange, 0);
+                    if (!SWIG_IsOK(res) || !ptr) {
+                      rb_raise(rb_eTypeError, "Expected Array of Wx::PRT::PrintPageRange for 1");
+                    }
+                    wxPrintPageRange *range = reinterpret_cast< wxPrintPageRange * >(ptr);
+                    $1->push_back(*range);
+                  }
                 }
+                else {
+                  rb_raise(rb_eArgError, "Expected Array of Wx::PRT::PrintPageRange for 1");
+                }      
                 __CODE
 
-            map_directorin code: '$input = rb_ary_new();'
+            map_argout code: <<~__CODE
+                VALUE rb_ranges = rb_ary_new();
+                for (const wxPrintPageRange& range : *$1)
+                {
+                  VALUE rb_range = SWIG_NewPointerObj(new wxPrintPageRange(range), SWIGTYPE_p_wxPrintPageRange, SWIG_POINTER_OWN);
+                  rb_ary_push(rb_ranges, rb_range);
+                }
+                $result = SWIG_AppendOutput($result, rb_ranges);
+                __CODE
+
+            map_directorin code: <<~__CODE
+                $input = rb_ary_new();
+                for (const wxPrintPageRange& range : $1)
+                {
+                  VALUE rb_range = SWIG_NewPointerObj(new wxPrintPageRange(range), SWIGTYPE_p_wxPrintPageRange, SWIG_POINTER_OWN);
+                  rb_ary_push($input, rb_range);
+                }
+                __CODE
 
             map_directorargout code: <<~__CODE
                 for (int i = 0; i < RARRAY_LEN($result); i++)
@@ -82,10 +110,6 @@ module WXRuby3
                 __CODE
 
           end
-        end
-        # Doc only mapping def
-        map 'std::vector<wxPrintPageRange> &' => 'Array<Wx::PRT::PrintPageRange>', swig: false do
-          map_in
         end
 
       end
