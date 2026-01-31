@@ -16,8 +16,9 @@ module WXRuby3
 
       def setup
         super
+        spec.gc_as_window
         if Config.instance.wx_version_check('3.3.1') > 0
-          spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledCanvas' => 'wxVScrolledCanvas' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+          spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledCanvas' => 'wxVScrolledCanvas' }, 'wxWindow', 'wxEvtHandler', 'wxObject'])
         elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledWindow' => 'wxVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else

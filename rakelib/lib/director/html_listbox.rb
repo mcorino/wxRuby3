@@ -18,9 +18,10 @@ module WXRuby3
 
       def setup
         spec.items << 'wxSimpleHtmlListBox' << 'wxItemContainer'
+        spec.gc_as_window('wxHtmlListBox', 'wxSimpleHtmlListBox')
         super
         if Config.instance.wx_version_check('3.3.1') > 0
-          spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', 'wxVScrolledCanvas', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+          spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', 'wxVScrolledCanvas', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else
@@ -73,7 +74,9 @@ module WXRuby3
                       'wxHtmlListBox::OnGetRowsHeightHint'
 
         # override inheritance chain
-        if Config.instance.wx_version_check('3.3.0') > 0
+        if Config.instance.wx_version_check('3.3.1') > 0
+          spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledCanvas', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else
           spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
