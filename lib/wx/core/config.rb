@@ -638,7 +638,7 @@ module Wx
     def set_expand_env_vars(flag)
       @expand_env_vars = !!flag
     end
-    alias :expand_env_vars :set_expand_env_vars
+    alias :expand_env_vars= :set_expand_env_vars
 
     def get_group_at(segments, create_missing_groups: false, is_pruned: false)
       unless is_pruned

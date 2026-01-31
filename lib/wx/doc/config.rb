@@ -200,7 +200,7 @@ module Wx
     # Determine whether we wish to expand environment variables in string values.
     # @param [Boolean] flag enables expanding environment variables if true, disables otherwise
     def set_expand_env_vars(flag) end
-    alias :expand_env_vars :set_expand_env_vars
+    alias :expand_env_vars= :set_expand_env_vars
 
   end
 
@@ -249,7 +249,7 @@ module Wx
     # Determine whether we wish to expand environment variables in string values.
     # @param [Boolean] flag enables expanding environment variables if true, disables otherwise
     def set_expand_env_vars(flag) end
-    alias :expand_env_vars :set_expand_env_vars
+    alias :expand_env_vars= :set_expand_env_vars
 
   end
 
