@@ -76,7 +76,6 @@ module WXRuby3
             spec.override_inheritance_chain('wxVScrolledWindow', %w[wxPanel wxWindow wxEvtHandler wxObject])
             spec.fold_bases('wxVScrolledWindow' => %w[wxVarVScrollHelper wxVarScrollHelperBase])
             spec.make_abstract 'wxVScrolledWindow'
-            spec.force_proxy 'wxVScrolledWindow'
           end
           spec.do_not_generate(:typedefs)
         when 'wxVScrolledWindow'
