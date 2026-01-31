@@ -22,7 +22,9 @@ module WXRuby3
         spec.items << 'wxRichTextStyleListCtrl' << 'wxRichTextStyleComboCtrl'
         spec.include 'wx/odcombo.h'
         spec.add_header_code 'extern VALUE wxRuby_RichTextStyleDefinition2Ruby(const wxRichTextStyleDefinition *wx_rtsd, int own);'
-        if Config.instance.wx_version_check('3.3.0') > 0
+        if Config.instance.wx_version_check('3.3.1') > 0
+          spec.override_inheritance_chain('wxRichTextStyleListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledCanvas', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxRichTextStyleListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else
           spec.override_inheritance_chain('wxRichTextStyleListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
