@@ -119,6 +119,7 @@ module WXRuby3
         spec.add_swig_code '%markfunc wxPropertyGrid "GC_mark_wxPropertyGrid";'
         # missing from XML docs
         spec.extend_interface 'wxPropertyGrid',
+                              'virtual bool Destroy()',
                               'wxPoint GetGoodEditorDialogPosition(wxPGProperty* p, const wxSize& sz)',
                               'wxWindow* GetPrimaryEditor() const',
                               'wxWindow* GetEditorControlSecondary() const',

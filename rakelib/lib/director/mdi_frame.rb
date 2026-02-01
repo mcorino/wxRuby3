@@ -22,6 +22,8 @@ module WXRuby3
           wxMDIParentFrame::SetWindowMenu
           wxMDIParentFrame::Tile
           wxMDIParentFrame::Cascade]
+        spec.extend_interface('wxMDIChildFrame',
+                              'virtual bool Destroy() override')
         # for GetClientWindow
         spec.map 'wxMDIClientWindowBase *' => 'wxMDIClientWindow *' do
           map_out code: <<~__HEREDOC

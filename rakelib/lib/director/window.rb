@@ -236,6 +236,10 @@ module WXRuby3
           spec.override_events 'wxWindow', 'EVT_ACTIVATE' => ['EVT_ACTIVATE', 0, 'wxActivateEvent']
         when 'wxNonOwnedWindow'
           spec.no_proxy('wxNonOwnedWindow')
+          if Config.instance.features_set?('WXOSX')
+            spec.extend_interface('wxNonOwnedWindow',
+                                  'virtual bool Destroy() override')
+          end
         when 'wxControl'
           # add these to the generated interface to be parsed by SWIG
           # the wxWidgets docs are flawed in this respect that several reimplemented
