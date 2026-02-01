@@ -16,34 +16,37 @@ module WXRuby3
 
       def setup
         super
-        if Config.instance.wx_version_check('3.3.0') > 0
+        spec.gc_as_window
+        if Config.instance.wx_version_check('3.3.1') > 0
+          spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledCanvas' => 'wxVScrolledCanvas' }, 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledWindow' => 'wxVScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else
           spec.override_inheritance_chain('wxVListBox', [{ 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         end
         spec.make_abstract 'wxVListBox'
         # provide base implementations for OnDrawItem and OnMeasureItem
-        spec.add_header_code <<~__HEREDOC
-          // Custom subclass implementation. 
-          class wxRubyVListBox : public wxVListBox
-          {
-          public:
-            wxRubyVListBox() 
-              : wxVListBox () {}
-            wxRubyVListBox(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxVListBoxNameStr)
-              : wxVListBox(parent, id, pos, size, style, name) {}
-          protected:
-            virtual void OnDrawItem(wxDC&, const wxRect&, size_t) const
-            {
-            }
-            virtual wxCoord OnMeasureItem(size_t) const
-            {
-              return {};
-            }
-          };
-        __HEREDOC
-        # make Ruby director and wrappers use custom implementation
-        spec.use_class_implementation('wxVListBox', 'wxRubyVListBox')
+        # spec.add_header_code <<~__HEREDOC
+        #   // Custom subclass implementation.
+        #   class wxRubyVListBox : public wxVListBox
+        #   {
+        #   public:
+        #     wxRubyVListBox()
+        #       : wxVListBox () {}
+        #     wxRubyVListBox(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxVListBoxNameStr)
+        #       : wxVListBox(parent, id, pos, size, style, name) {}
+        #   protected:
+        #     virtual void OnDrawItem(wxDC&, const wxRect&, size_t) const
+        #     {
+        #     }
+        #     virtual wxCoord OnMeasureItem(size_t) const
+        #     {
+        #       return {};
+        #     }
+        #   };
+        # __HEREDOC
+        # # make Ruby director and wrappers use custom implementation
+        # spec.use_class_implementation('wxVListBox', 'wxRubyVListBox')
         # make sure protected methods are included
         spec.regard 'wxVListBox::OnDrawItem',
                     'wxVListBox::OnMeasureItem',

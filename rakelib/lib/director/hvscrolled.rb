@@ -22,50 +22,10 @@ module WXRuby3
           spec.override_inheritance_chain('wxHScrolledWindow', %w[wxPanel wxWindow wxEvtHandler wxObject])
           spec.fold_bases('wxHScrolledWindow' => %w[wxVarHScrollHelper wxVarScrollHelperBase])
           spec.make_abstract 'wxHScrolledWindow'
-          spec.force_proxy 'wxHScrolledWindow'
+          # spec.force_proxy 'wxHScrolledWindow'
           spec.override_inheritance_chain('wxHVScrolledWindow', %w[wxPanel wxWindow wxEvtHandler wxObject])
           spec.fold_bases('wxHVScrolledWindow' => %w[wxVarHVScrollHelper wxVarHScrollHelper wxVarVScrollHelper wxVarScrollHelperBase])
           spec.make_abstract 'wxHVScrolledWindow'
-          spec.force_proxy 'wxHVScrolledWindow'
-          # provide base implementations for pure virtuals
-          spec.add_header_code <<~__HEREDOC
-            // Custom subclass implementation. 
-            class wxRubyHScrolledWindow : public wxHScrolledWindow
-            {
-            public:
-              wxRubyHScrolledWindow() 
-                : wxHScrolledWindow () {}
-              wxRubyHScrolledWindow(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxPanelNameStr)
-                : wxHScrolledWindow(parent, id, pos, size, style, name) {}
-            protected:
-              virtual wxCoord OnGetColumnWidth(size_t) const
-              {
-                return {};
-              }
-            };
-  
-            // Custom subclass implementation. 
-            class wxRubyHVScrolledWindow : public wxHVScrolledWindow
-            {
-            public:
-              wxRubyHVScrolledWindow() 
-                : wxHVScrolledWindow () {}
-              wxRubyHVScrolledWindow(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxPanelNameStr)
-                : wxHVScrolledWindow(parent, id, pos, size, style, name) {}
-            protected:
-              virtual wxCoord OnGetRowHeight(size_t) const
-              {
-                return {};
-              }
-              virtual wxCoord OnGetColumnWidth(size_t) const
-              {
-                return {};
-              }
-            };
-            __HEREDOC
-          # make Ruby director and wrappers use custom implementation
-          spec.use_class_implementation('wxHScrolledWindow', 'wxRubyHScrolledWindow')
-          spec.use_class_implementation('wxHVScrolledWindow', 'wxRubyHVScrolledWindow')
           # regard protected methods
           spec.regard 'wxVarVScrollHelper::OnGetRowHeight',
                       'wxVarVScrollHelper::OnGetRowsHeightHint'
@@ -116,26 +76,6 @@ module WXRuby3
             spec.override_inheritance_chain('wxVScrolledWindow', %w[wxPanel wxWindow wxEvtHandler wxObject])
             spec.fold_bases('wxVScrolledWindow' => %w[wxVarVScrollHelper wxVarScrollHelperBase])
             spec.make_abstract 'wxVScrolledWindow'
-            spec.force_proxy 'wxVScrolledWindow'
-            # provide base implementations for pure virtuals
-            spec.add_header_code <<~__HEREDOC
-              // Custom subclass implementation. 
-              class wxRubyVScrolledWindow : public wxVScrolledWindow
-              {
-              public:
-                wxRubyVScrolledWindow() 
-                  : wxVScrolledWindow () {}
-                wxRubyVScrolledWindow(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxPanelNameStr)
-                  : wxVScrolledWindow(parent, id, pos, size, style, name) {}
-              protected:
-                virtual wxCoord OnGetRowHeight(size_t) const
-                {
-                  return {};
-                }
-              };
-              __HEREDOC
-            # make Ruby director and wrappers use custom implementation
-            spec.use_class_implementation('wxVScrolledWindow', 'wxRubyVScrolledWindow')
           end
           spec.do_not_generate(:typedefs)
         when 'wxVScrolledWindow'
@@ -145,8 +85,8 @@ module WXRuby3
             spec.use_template_as_class('wxVScrolled', 'wxVScrolledWindow')
             spec.override_inheritance_chain('wxVScrolled', %w[wxPanel wxWindow wxEvtHandler wxObject])
             spec.fold_bases('wxVScrolled' => %w[wxVarVScrollHelper wxVarScrollHelperBase])
-            spec.make_abstract 'wxVScrolled'
-            spec.force_proxy 'wxVScrolled'
+            spec.make_abstract 'wxVScrolledWindow'
+            # spec.force_proxy 'wxVScrolled'
             spec.swig_import %w[
             swig/classes/include/wxObject.h
             swig/classes/include/wxEvtHandler.h
@@ -154,25 +94,6 @@ module WXRuby3
             swig/classes/include/wxPanel.h
             swig/classes/include/wxHScrolledWindow.h
             ]
-            # provide base implementations for pure virtuals
-            spec.add_header_code <<~__HEREDOC
-              // Custom subclass implementation. 
-              class wxRubyVScrolledWindow : public wxVScrolledWindow
-              {
-              public:
-                wxRubyVScrolledWindow() 
-                  : wxVScrolledWindow () {}
-                wxRubyVScrolledWindow(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxPanelNameStr)
-                  : wxVScrolledWindow(parent, id, pos, size, style, name) {}
-              protected:
-                virtual wxCoord OnGetRowHeight(size_t) const
-                {
-                  return {};
-                }
-              };
-              __HEREDOC
-            # make Ruby director and wrappers use custom implementation
-            spec.use_class_implementation('wxVScrolled', 'wxRubyVScrolledWindow')
             # regard protected methods
             spec.regard 'wxVarVScrollHelper::OnGetRowHeight',
                         'wxVarVScrollHelper::OnGetRowsHeightHint'
@@ -196,10 +117,10 @@ module WXRuby3
             spec.items.replace %w[wxVScrolled wxVarScrollHelperBase wxVarVScrollHelper]
             spec.gc_as_window
             spec.use_template_as_class('wxVScrolled', 'wxVScrolledCanvas')
-            spec.override_inheritance_chain('wxVScrolled', %w[wxPanel wxWindow wxEvtHandler wxObject])
+            spec.override_inheritance_chain('wxVScrolled', %w[wxWindow wxEvtHandler wxObject])
             spec.fold_bases('wxVScrolled' => %w[wxVarVScrollHelper wxVarScrollHelperBase])
-            spec.make_abstract 'wxVScrolled'
-            spec.force_proxy 'wxVScrolled'
+            spec.make_abstract 'wxVScrolledCanvas'
+            # spec.force_proxy 'wxVScrolled'
             spec.swig_import %w[
             swig/classes/include/wxObject.h
             swig/classes/include/wxEvtHandler.h
@@ -207,25 +128,6 @@ module WXRuby3
             swig/classes/include/wxPanel.h
             swig/classes/include/wxHScrolledWindow.h
             ]
-            # provide base implementations for pure virtuals
-            spec.add_header_code <<~__HEREDOC
-              // Custom subclass implementation. 
-              class wxRubyVScrolledCanvas : public wxVScrolledCanvas
-              {
-              public:
-                wxRubyVScrolledCanvas() 
-                  : wxVScrolledCanvas () {}
-                wxRubyVScrolledCanvas(wxWindow *parent, wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0, const wxString &name=wxPanelNameStr)
-                  : wxVScrolledCanvas(parent, id, pos, size, style, name) {}
-              protected:
-                virtual wxCoord OnGetRowHeight(size_t) const
-                {
-                  return {};
-                }
-              };
-              __HEREDOC
-            # make Ruby director and wrappers use custom implementation
-            spec.use_class_implementation('wxVScrolled', 'wxRubyVScrolledCanvas')
             # regard protected methods
             spec.regard 'wxVarVScrollHelper::OnGetRowHeight',
                         'wxVarVScrollHelper::OnGetRowsHeightHint'
@@ -238,8 +140,7 @@ module WXRuby3
                         'wxVarScrollHelperBase::CalcUnscrolledPosition',
                         'wxVarScrollHelperBase::GetTargetWindow',
                         'wxVarScrollHelperBase::SetTargetWindow',
-                        'wxVarScrollHelperBase::UpdateScrollbar',
-                        'wxVarScrollHelperBase::RefreshAll'
+                        'wxVarScrollHelperBase::UpdateScrollbar'
             spec.do_not_generate(:typedefs, :functions, :defines, :variables)
           else
             spec.items.clear
