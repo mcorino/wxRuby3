@@ -20,7 +20,10 @@ module WXRuby3
         super
         # Custom implementation for Ruby
         spec.ignore 'wxDatePickerCtrl::GetRange'
-
+        if Config.instance.features_set?('WXGTK')
+          spec.extend_interface('wxDatePickerCtrl',
+                                'virtual bool Destroy() override')
+        end
         spec.add_extend_code 'wxDatePickerCtrl', <<~__HEREDOC
           VALUE get_range() 
           {

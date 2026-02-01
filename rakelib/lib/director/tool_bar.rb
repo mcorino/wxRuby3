@@ -73,6 +73,10 @@ module WXRuby3
           'wxToolBar::AddTool(wxToolBarToolBase *)',
           'wxToolBar::InsertTool(size_t,wxToolBarToolBase *)'
           ]
+        if Config.instance.features_set?('WXOSX')
+          spec.extend_interface('wxToolBar',
+                                'virtual bool Destroy() override')
+        end
       end
     end # class Object
 

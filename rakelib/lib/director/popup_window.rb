@@ -35,6 +35,8 @@ module WXRuby3
         # for upcalls
         spec.extend_interface('wxPopupWindow',
                               'virtual bool Show(bool show = true) override')
+        spec.extend_interface('wxPopupTransientWindow',
+                              'virtual bool Destroy() override')
         # For ProcessLeftDown
         spec.map 'wxMouseEvent &' => 'Wx::MouseEvent' do
           map_directorin code: <<~__CODE
