@@ -18,8 +18,11 @@ module WXRuby3
 
       def setup
         spec.items << 'wxSimpleHtmlListBox' << 'wxItemContainer'
+        spec.gc_as_window('wxHtmlListBox', 'wxSimpleHtmlListBox')
         super
-        if Config.instance.wx_version_check('3.3.0') > 0
+        if Config.instance.wx_version_check('3.3.1') > 0
+          spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', 'wxVScrolledCanvas', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else
           spec.override_inheritance_chain('wxHtmlListBox', ['wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
@@ -59,6 +62,13 @@ module WXRuby3
                     'wxHtmlListBox::GetSelectedTextColour',
                     'wxHtmlListBox::GetSelectedTextBgColour',
                     'wxHtmlListBox::OnLinkClicked'
+        # missing from the XML docs
+        spec.extend_interface('wxHtmlListBox',
+                              'virtual void OnInternalIdle()',
+                              'virtual void RefreshRow(size_t line)',
+                              'virtual void RefreshRows(size_t from, size_t to)',
+                              'virtual void RefreshAll()',
+                              'virtual void SetItemCount(size_t count)')
         # add missing protected overloads
         spec.extend_interface 'wxHtmlListBox',
                               'virtual void OnDrawItem(wxDC &dc, const wxRect &rect, size_t n) const',
@@ -71,7 +81,9 @@ module WXRuby3
                       'wxHtmlListBox::OnGetRowsHeightHint'
 
         # override inheritance chain
-        if Config.instance.wx_version_check('3.3.0') > 0
+        if Config.instance.wx_version_check('3.3.1') > 0
+          spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledCanvas', 'wxWindow', 'wxEvtHandler', 'wxObject'])
+        elsif Config.instance.wx_version_check('3.3.0') > 0
           spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', 'wxVScrolledWindow', 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
         else
           spec.override_inheritance_chain('wxSimpleHtmlListBox', ['wxHtmlListBox', 'wxVListBox', { 'wxVScrolledWindow' => 'wxHScrolledWindow' }, 'wxPanel', 'wxWindow', 'wxEvtHandler', 'wxObject'])
@@ -84,7 +96,8 @@ module WXRuby3
         # add missing overloads
         spec.extend_interface 'wxSimpleHtmlListBox',
                               'virtual wxString GetString(unsigned int n) const',
-                              'virtual void SetString(unsigned int n, const wxString &string)'
+                              'virtual void SetString(unsigned int n, const wxString &string)',
+                              'wxArrayString GetStrings() const'
         spec.ignore([ 'wxItemContainer::Append(const wxString &, void *)',
                       'wxItemContainer::Append(const std::vector< wxString > &)',
                       'wxItemContainer::Append(const wxArrayString &, void **)',

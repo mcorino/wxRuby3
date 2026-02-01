@@ -17,6 +17,9 @@ module WXRuby3
       def setup
         super
         spec.items.clear
+        if Config.instance.wx_version_check('3.3.0') >= 0
+          spec.add_header_code '#include <wx/busycursor.h>'
+        end
         spec.add_header_code <<~__HEREDOC
           #include <wx/image.h>
           #include <wx/app.h>
@@ -26,7 +29,6 @@ module WXRuby3
           #include <wx/utils.h>
           #include <wx/stockitem.h>
           #include <wx/aboutdlg.h>
-          #include <wx/busycursor.h> 
           
           // Logging functions - these don't directly wrap the corresponding wx
           // LogXXX functions because those expect a literal format string and a
@@ -202,9 +204,11 @@ module WXRuby3
         end
         spec.map_apply 'int *OUTPUT' => ['int *indexDefaultExtension']
         # hardcoded interface declarations
+        if Config.instance.wx_version_check('3.3.0') >= 0
+          spec.add_interface_code 'void wxBeginBusyCursor(const wxCursorBundle& cursors);'
+        end
         spec.add_interface_code <<~__HEREDOC
           void wxBeginBusyCursor(const wxCursor* cursor = wxHOURGLASS_CURSOR);
-          void wxBeginBusyCursor(const wxCursorBundle& cursors);
           void wxEndBusyCursor(); 	
 
           bool wxSafeYield(wxWindow* win = NULL, bool onlyIfNeeded = false);
