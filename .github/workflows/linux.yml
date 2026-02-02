@@ -49,7 +49,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        wxw_version: [ ${{ vars.WXWIDGETS_LATEST_STABLE }} ]
         include:
           - os: ubuntu-22.04
             gtk_version: 3
@@ -59,6 +58,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: system
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
@@ -78,6 +78,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: system
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
           - os: ubuntu-22.04
             gtk_version: 3
@@ -87,6 +88,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
           - os: ubuntu-22.04
             gtk_version: 3
@@ -96,6 +98,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: binpkg
           - os: ubuntu-24.04
             gtk_version: 3
@@ -105,6 +108,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: develop
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
             wxr_test_exclude: 'test_media_ctrl'
           - os: ubuntu-24.04
@@ -126,6 +130,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: develop
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
             wxr_test_exclude: 'test_media_ctrl'
           - os: ubuntu-24.04
@@ -136,6 +141,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: binpkg
             wxr_test_exclude: 'test_media_ctrl'
     runs-on: ${{ matrix.os }}
