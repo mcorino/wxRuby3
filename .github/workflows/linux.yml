@@ -49,6 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        wxw_version: ${{ vars.WXWIDGETS_LATEST_STABLE }}
         include:
           - os: ubuntu-22.04
             gtk_version: 3
@@ -64,6 +65,16 @@ jobs:
             CC: gcc
             CXX: g++
             ruby: '3.2'
+            swig: '4'
+            use_xvfb: true
+            wxw_type: system
+            wxw_version: '3.2.9'
+            wxr_type: gem
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc
+            CXX: g++
+            ruby: '3.4'
             swig: '4'
             use_xvfb: true
             wxw_type: system
@@ -94,6 +105,17 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: develop
+            wxr_type: develop
+            wxr_test_exclude: 'test_media_ctrl'
+          - os: ubuntu-24.04
+            gtk_version: 3
+            CC: gcc
+            CXX: g++
+            ruby: '3.4'
+            swig: '4'
+            use_xvfb: true
+            wxw_type: develop
+            wxw_version: '3.2.9'
             wxr_type: develop
             wxr_test_exclude: 'test_media_ctrl'
           - os: ubuntu-24.04
@@ -117,7 +139,7 @@ jobs:
             wxr_type: binpkg
             wxr_test_exclude: 'test_media_ctrl'
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+    name: ${{ matrix.os }} wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxw_version }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     env:
       wxGTK_VERSION: ${{ matrix.gtk_version && matrix.gtk_version || 3 }}
       wxCONFIGURE_FLAGS: ${{ matrix.configure_flags }}
@@ -161,7 +183,7 @@ jobs:
       with:
         repository: wxWidgets/wxWidgets
         path: ${{ env.WXWIDGETS_ROOT }}
-        ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
+        ref: v${{ matrix.wxw_version }}
         submodules: 'recursive'
 
     - name: Set up build environment
@@ -233,7 +255,11 @@ jobs:
       if: matrix.wxr_type != 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-          bundle exec rake configure[--autoinstall]
+          if [ "${{ matrix.wxw_version }}" == "$WXWIDGETS_LATEST_STABLE" ]; then
+            bundle exec rake configure[--autoinstall]
+          else
+            bundle exec rake configure[--autoinstall,--wxversion=${{ matrix.wxw_version }}]
+          fi
         elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure[--wxwin=$WXWIN_INSTALL,--wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml]
         else
@@ -276,7 +302,11 @@ jobs:
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
             $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup -- --wxwin=@system
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --autoinstall
+            if [ "${{ matrix.wxw_version }}" == "$WXWIDGETS_LATEST_STABLE" ]; then
+              $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --autoinstall
+            else
+              $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --autoinstall --with-wxwin --wxversion=${{ matrix.wxw_version }}
+            fi
           else
             $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --wxwin=$WXWIN_INSTALL
           fi
@@ -294,9 +324,9 @@ jobs:
       if: matrix.wxw_type == 'embed'
       run: |
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
-          bundle exec rake wxruby:exec[ruby,tools/check_wxw_version.rb,$WXWIDGETS_LATEST_STABLE]
+          bundle exec rake wxruby:exec[ruby,tools/check_wxw_version.rb,${{ matrix.wxw_version }}]
         else
-          ruby tools/check_wxw_version.rb "$WXWIDGETS_LATEST_STABLE"
+          ruby tools/check_wxw_version.rb "${{ matrix.wxw_version }}"
         fi
 
     - name: Run wxRuby3 regression tests
