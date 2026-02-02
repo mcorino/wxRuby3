@@ -557,6 +557,8 @@ class PropGridTests < WxRuby::Test::GUITests
 
   def cleanup
     @pg_manager.destroy
+    raise "[#{@pg_manager.ptr_addr}] C++ Object NOT unlinked after destroy" if @pg_manager.ptr_addr != '0x0'
+    yield_for_a_while(200)
     super
   end
 
