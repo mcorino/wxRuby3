@@ -84,6 +84,11 @@ module WXRuby3
           CONFIG['with-wxwin'] = true
           CONFIG[WXW_SYS_KEY] = false
         }
+        opts.on('--wxversion=version',
+                'specify wxWidgets release version (xx.xx.xx) to build with (only valid with --with-wxwin)') { |v|
+          raise "Invalid version #{v} specified. Version should be '<major>.<minor>.<release>'." unless v =~ /^\d+\.\d+\.\d+$/
+          CONFIG['wxversion'] = v
+        }
         opts.on('--with-debug',
                 "build with debugger support [#{instance.get_config('with-debug')}]")  {|v| CONFIG['with-debug'] = true}
         opts.on('--swig=path',
@@ -106,6 +111,8 @@ module WXRuby3
 
       # should we try to use a system or user defined wxWidgets installation?
       if !get_config('with-wxwin')
+
+        clear_config('wxversion')
 
         # check if a user defined wxWidgets location is specified or should be using a system standard install
         if get_cfg_string('wxwin').empty?
