@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        wxw_version: ${{ vars.WXWIDGETS_LATEST_STABLE }}
+        wxw_version: [ ${{ vars.WXWIDGETS_LATEST_STABLE }} ]
         include:
           - os: ubuntu-22.04
             gtk_version: 3
