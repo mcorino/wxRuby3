@@ -37,6 +37,11 @@ module WxRuby
                 "build a local copy of wxWidgets for use with wxRuby [false]")  {|v| Setup.options['with-wxwin'] = true}
         opts.on('--with-wxhead',
                 "build with the head (master) version of wxWidgets [false]", "(implies '--with-wxwin')")  {|v| Setup.options['with-wxhead'] = true}
+        opts.on('--wxversion=version',
+                'specify wxWidgets release version (xx.xx.xx) to build with (only valid with --with-wxwin)') do |v|
+          raise "Invalid version #{v} specified. Version should be '<major>.<minor>.<release>'." unless v =~ /^\d+\.\d+\.\d+$/
+          Setup.options['wxversion'] = v
+        end
         opts.on('--swig=path',
                 "the path to swig executable [swig]")  {|v| Setup.options['swig'] = v}
         opts.on('--doxygen=path',
@@ -76,6 +81,7 @@ module WxRuby
         cfg_args << "--wxxml=#{Setup.options['wxxml']}" if Setup.options['wxxml']
         cfg_args << '--with-wxwin' if Setup.options['with-wxwin']
         cfg_args << '--with-wxhead' if Setup.options['with-wxhead']
+        cfg_args << "--wxversion=#{Setup.options['wxversion']}" if Setup.options['wxversion']
         cfg_args << "--swig=#{Setup.options['swig']}" if Setup.options['swig']
         cfg_args << "--doxygen=#{Setup.options['doxygen']}" if Setup.options['doxygen']
         cfg_args << "--git=#{Setup.options['git']}" if Setup.options['git']

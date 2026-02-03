@@ -30,7 +30,7 @@ module Wx::PG
     end
 
     wx_each_property = instance_method :each_property
-    wx_redefine_method :each_property do |flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse: false, &block|
+    wx_redefine_method :each_property do |flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse = false, &block|
       if block
         wx_each_property.bind(self).call(flags.to_int, start, reverse, &block)
       else
@@ -40,7 +40,7 @@ module Wx::PG
     alias :properties :each_property
 
     def reverse_each_property(flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, &block)
-      each_property(flags, start, reverse: true, &block)
+      each_property(flags, start, true, &block)
     end
     alias :properties_reversed :reverse_each_property
 

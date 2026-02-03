@@ -439,6 +439,10 @@ module WXRuby3
       Config.set_config(key, val)
     end
 
+    def clear_config(key)
+      Config.clear_config(key)
+    end
+
     def dll_mask
       "#{dll_ext}*"
     end
@@ -771,6 +775,8 @@ module WXRuby3
               "v#{@wx_version}"
             elsif get_config('with-wxhead')
               'master'
+            elsif get_config('wxversion')
+              "v#{get_config('wxversion')}"
             else
               nil
             end
@@ -896,6 +902,10 @@ module WXRuby3
 
       def set_config(key, val)
         WXRuby3::CONFIG[key.to_s] = val
+      end
+
+      def clear_config(key)
+        WXRuby3::CONFIG.delete(key.to_s)
       end
 
       def is_configured?

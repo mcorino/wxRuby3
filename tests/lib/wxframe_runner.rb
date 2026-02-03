@@ -36,11 +36,13 @@ module WxRuby
         @frame.show
       end
 
-      def on_idle(_evt)
-        done = @tests_have_run
-        @tests_have_run = true
-        @result = @start_mtd.bind(@test_runner).call unless done
-        self.exit_main_loop
+      def on_idle(evt)
+        unless @tests_have_run
+          @tests_have_run = true
+          @result = @start_mtd.bind(@test_runner).call
+          self.exit_main_loop
+        end
+        evt.skip
       end
 
       attr_reader :frame
