@@ -30,7 +30,7 @@ module Wx::PG
     end
 
     wx_each_property = instance_method :each_property
-    wx_redefine_method :each_property do |flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse: false, &block|
+    wx_redefine_method :each_property do |flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, reverse = false, &block|
       if block
         wx_each_property.bind(self).call(flags.to_int, start, reverse, &block)
       else
