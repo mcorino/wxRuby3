@@ -27,6 +27,32 @@ module Wx
       PG_PROGRAMMATIC_VALUE             = PGPropValFormatFlags::ProgrammaticValue
     end
 
+    # since wxWidgets 3.3.0
+    unless const_defined?(:PGPropertyFlags)
+      module PGPropertyFlags
+        PG_PROP_MODIFIED = PGFlags::Modified
+        PG_PROP_DISABLED = PGFlags::Disabled
+        PG_PROP_HIDDEN = PGFlags::Hidden
+        PG_PROP_CUSTOMIMAGE = PGFlags::CustomImage
+        PG_PROP_NOEDITOR = PGFlags::NoEditor
+        PG_PROP_COLLAPSED = PGFlags::Collapsed
+        PG_PROP_INVALID_VALUE = PGFlags::InvalidValue
+        PG_PROP_WAS_MODIFIED = PGFlags::WasModified
+        PG_PROP_AGGREGATE = PGFlags::Aggregate
+        PG_PROP_CHILDREN_ARE_COPIES = PGFlags::ChildrenAreCopies
+        PG_PROP_PROPERTY = PGFlags::Property
+        PG_PROP_CATEGORY = PGFlags::Category
+        PG_PROP_MISC_PARENT = PGFlags::MiscParent
+        PG_PROP_READONLY = PGFlags::ReadOnly
+        PG_PROP_COMPOSED_VALUE = PGFlags::ComposedValue
+        PG_PROP_USES_COMMON_VALUE = PGFlags::UsesCommonValue
+        PG_PROP_BEING_DELETED = PGFlags::BeingDeleted
+
+        PG_PROP_PARENTAL_FLAGS = PGFlags::ParentalFlags
+        PG_STRING_STORED_FLAGS = PGFlags::StringStoredFlags
+      end
+    end
+
     def self.PG_IT_CHILDREN(mask)
       mask << 16
     end

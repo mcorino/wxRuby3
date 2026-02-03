@@ -525,8 +525,8 @@ class PropGridTests < WxRuby::Test::GUITests
     pg_manager.set_extra_style(extraStyle)
 
     # This is the default validation failure behaviour
-    pg_manager.set_validation_failure_behavior(Wx::PG::PGVFBFlags::MarkCell |
-                                              Wx::PG::PGVFBFlags::ShowMessageBox)
+    pg_manager.set_validation_failure_behavior(Wx::PG::PG_VFB_MARK_CELL |
+                                              Wx::PG::PG_VFB_SHOW_MESSAGE)
 
     pg = pg_manager.get_grid
     # Set somewhat different unspecified value appearance
@@ -565,17 +565,17 @@ class PropGridTests < WxRuby::Test::GUITests
   def test_iterate
     @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
       assert_false(prop.is_category, "'#{prop.get_label}' is a category (non-private child property expected)")
-      assert_false(prop.get_parent.has_flag(Wx::PG::PGFlags::Aggregate), "'#{prop.get_label}' is a private child (non-private child property expected)")
+      assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property expected)")
     end
     @pg_manager.each_property(Wx::PG::PG_ITERATE_CATEGORIES) do |prop|
       assert_true(prop.is_category, "'#{prop.get_label}' is not a category (only categories expected)")
     end
     @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES|Wx::PG::PG_ITERATE_CATEGORIES) do |prop|
-      assert_false(prop.get_parent.has_flag(Wx::PG::PGFlags::Aggregate), "'#{prop.get_label}' is a private child (non-private child property or category expected)")
+      assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property or category expected)")
     end
     @pg_manager.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
       assert_true(prop.parent == @pg_manager.grid.root || prop.parent.expanded?, "'#{prop.get_label}' had collapsed parent (only visible properties expected)")
-      assert_false(prop.has_flag(Wx::PG::PGFlags::Hidden), "'#{prop.get_label}' was hidden (only visible properties expected)")
+      assert_false(prop.has_flag(Wx::PG::PG_PROP_HIDDEN), "'#{prop.get_label}' was hidden (only visible properties expected)")
     end
   end
 
@@ -664,10 +664,10 @@ class PropGridTests < WxRuby::Test::GUITests
   def test_delete_property
     # delete everything in reverse order
 
-    array = @pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PGFlags::Aggregate))).to_a
+    array = @pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_PROP_AGGREGATE))).to_a
     array.reverse_each { |prop| @pg_manager.delete_property(prop) }
 
-    assert_true(@pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PGFlags::Aggregate))).count == 0, "Not all properties are deleted")
+    assert_true(@pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_PROP_AGGREGATE))).count == 0, "Not all properties are deleted")
 
     @pg_manager.refresh
     @pg_manager.update
