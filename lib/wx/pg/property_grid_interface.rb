@@ -40,7 +40,7 @@ module Wx::PG
     alias :properties :each_property
 
     def reverse_each_property(flags = Wx::PG::PG_ITERATE_DEFAULT, start = nil, &block)
-      each_property(flags, start, reverse: true, &block)
+      each_property(flags, start, true, &block)
     end
     alias :properties_reversed :reverse_each_property
 
