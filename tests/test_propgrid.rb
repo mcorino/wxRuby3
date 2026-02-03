@@ -599,7 +599,13 @@ class PropGridTests < WxRuby::Test::GUITests
       properties_page_last = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
       assert_equal(properties_page_last_init, properties_page_last)
 
-      countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+      if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
+        countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+      else
+        # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
+        countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
+                             pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+      end
       assert_equal(countAllPropertiesInit-properties_page_first_init.size, countAllProperties)
 
       # Delete all properties from last page
@@ -609,7 +615,13 @@ class PropGridTests < WxRuby::Test::GUITests
 
       assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
 
-      countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+      if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
+        countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+      else
+        # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
+        countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
+                             pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+      end
       assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
     end
 
