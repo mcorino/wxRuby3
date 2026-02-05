@@ -42,45 +42,66 @@ module WXRuby3
             // Do standard marking routines as for all wxWindows
             GC_mark_wxWindow(ptr);
             
-            wxPropertyGridManager* wx_pg = (wxPropertyGridManager*) ptr;
+            wxPropertyGridManager* wx_pgm = (wxPropertyGridManager*) ptr;
 
-            // mark all properties of all pages
-          #ifdef __WXRB_DEBUG__
-            long l = 0;
-          #endif
-            for (size_t i=0; i < wx_pg->GetPageCount() ;++i)
+            // mark the property grid
+            wxPropertyGrid* wx_pg = wx_pgm->GetGrid();
+            VALUE rb_pg = SWIG_RubyInstanceFor(wx_pg);
+            if (!NIL_P(rb_pg))
             {
-              wxPGVIterator it =
-                  wx_pg->GetPage(i)->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
-              // iterate all
-              for ( ; !it.AtEnd(); it.Next() )
-              {
+              rb_gc_mark(rb_pg);   
+            }
+
+            // mark all properties of all pages 
+            // (except those of the current page if a Ruby Grid instance has been marked already)
           #ifdef __WXRB_DEBUG__
-                ++l;
+            long l = 0, n = 0;
           #endif
-                wxPGProperty* p = it.GetProperty();
-                VALUE rb_p = SWIG_RubyInstanceFor(p);
-                if (NIL_P(rb_p))
+            for (size_t i=0; i < wx_pgm->GetPageCount() ;++i)
+            {
+              wxPropertyGridPage* wx_pgp = wx_pgm->GetPage(i);
+              if (NIL_P(rb_pg) || wx_pgm->GetCurrentPage() != wx_pgp)
+              {
+                // check if this page was created in Ruby (possibly from a derived class)
+                VALUE rb_pgp = SWIG_RubyInstanceFor(wx_pgp);
+                if (NIL_P(rb_pgp))    // if not we iterate and mark it's properties here ourselves
                 {
-                  VALUE object = (VALUE) p->GetClientData();
-                  if ( object && !NIL_P(object))
+                  VALUE rb_root_prop = SWIG_RubyInstanceFor(wx_pgp->GetRoot());
+                  if (!NIL_P(rb_root_prop))
+                  {
+                    rb_gc_mark(rb_root_prop);
+          #ifdef __WXRB_DEBUG__
+                    ++n;
+          #endif
+                  }
+                  wxPGVIterator it =
+                      wx_pgp->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
+                  // iterate all
+                  for ( ; !it.AtEnd(); it.Next() )
                   {
           #ifdef __WXRB_DEBUG__
-                    if (wxRuby_TraceLevel()>2)
-                      std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+                    ++l;
           #endif
-                    rb_gc_mark(object);
+                    wxPGProperty* wx_p = it.GetProperty();
+                    VALUE rb_prop = SWIG_RubyInstanceFor(wx_p);
+                    if (!RB_NIL_P(rb_prop)) 
+                    {
+                      rb_gc_mark(rb_prop);
+          #ifdef __WXRB_DEBUG__
+                      ++n;
+          #endif
+                    }
                   }
                 }
-                else
+                else  // but a tracked Ruby page instance we can simply mark and it will mark it's properties itself 
                 {
-                  rb_gc_mark(rb_p);
+                  rb_gc_mark(rb_pgp);
                 }
               }
             }
           #ifdef __WXRB_DEBUG__
             if (wxRuby_TraceLevel()>1)
-              std::wcout << "*** iterated " << l << " properties" << std::endl;
+              std::wcout << "GC_mark_wxPropertyGridManager: iterated " << l << " properties; marked " << n << std::endl;
           #endif
           }
         __HEREDOC

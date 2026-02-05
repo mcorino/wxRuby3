@@ -71,6 +71,54 @@ module WXRuby3
           map_in ignore: true, code: '$1= true;'
         end
         spec.suppress_warning(473, 'wxPropertyGridPage::DoInsert')
+        # customize mark function
+        spec.add_header_code <<~__HEREDOC
+          static void GC_mark_wxPropertyGridPage(void* ptr) 
+          {
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "> GC_mark_wxPropertyGridPage : " << ptr << std::endl;
+          #endif
+            
+            wxPropertyGridPage* wx_pgp = (wxPropertyGridPage*) ptr;
+
+          #ifdef __WXRB_DEBUG__
+            long l = 0, n = 0;
+          #endif
+            VALUE rb_root_prop = SWIG_RubyInstanceFor(wx_pgp->GetRoot());
+            if (!NIL_P(rb_root_prop))
+            {
+              rb_gc_mark(rb_root_prop);
+          #ifdef __WXRB_DEBUG__
+              ++n;
+          #endif
+            }
+            // mark all properties
+            wxPGVIterator it =
+                wx_pgp->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
+            // iterate all
+            for ( ; !it.AtEnd(); it.Next() )
+            {
+          #ifdef __WXRB_DEBUG__
+              ++l;
+          #endif
+              wxPGProperty* wx_p = it.GetProperty();
+              VALUE rb_prop = SWIG_RubyInstanceFor(wx_p);
+              if (!RB_NIL_P(rb_prop)) 
+              { 
+                rb_gc_mark(rb_prop);
+          #ifdef __WXRB_DEBUG__
+                ++n;
+          #endif
+              }
+            }
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "GC_mark_wxPropertyGridPage: iterated " << l << " properties; marked " << n << std::endl;
+          #endif
+          }
+          __HEREDOC
+        spec.add_swig_code '%markfunc wxPropertyGridPage "GC_mark_wxPropertyGridPage";'
       end
     end # class PropertyGridPage
 
