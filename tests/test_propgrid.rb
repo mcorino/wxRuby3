@@ -528,12 +528,12 @@ class PropGridTests < WxRuby::Test::GUITests
     pg_manager.set_validation_failure_behavior(Wx::PG::PG_VFB_MARK_CELL |
                                               Wx::PG::PG_VFB_SHOW_MESSAGE)
 
-    pg = pg_manager.get_grid
-    # Set somewhat different unspecified value appearance
-    cell = Wx::PG::PGCell.new
-    cell.set_text("Unspecified")
-    cell.set_fg_col(Wx::LIGHT_GREY)
-    pg.set_unspecified_value_appearance(cell)
+    # pg = pg_manager.get_grid
+    # # Set somewhat different unspecified value appearance
+    # cell = Wx::PG::PGCell.new
+    # cell.set_text("Unspecified")
+    # cell.set_fg_col(Wx::LIGHT_GREY)
+    # pg.set_unspecified_value_appearance(cell)
 
     # Populate grid
     pg_manager.add_page("Standard Items")
@@ -563,6 +563,7 @@ class PropGridTests < WxRuby::Test::GUITests
 
   100.times do |n|
   define_method "test_iterate_#{n}" do
+    STDERR.puts "test_iterate_#{n}"
     @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
       assert_false(prop.is_category, "'#{prop.get_label}' is a category (non-private child property expected)")
       assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property expected)")
