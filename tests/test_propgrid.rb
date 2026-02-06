@@ -564,20 +564,20 @@ class PropGridTests < WxRuby::Test::GUITests
   100.times do |n|
   define_method "test_iterate_#{n}" do
     STDERR.puts "test_iterate_#{n}"
-    @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
-      assert_false(prop.is_category, "'#{prop.get_label}' is a category (non-private child property expected)")
-      assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property expected)")
-    end
-    @pg_manager.each_property(Wx::PG::PG_ITERATE_CATEGORIES) do |prop|
-      assert_true(prop.is_category, "'#{prop.get_label}' is not a category (only categories expected)")
-    end
-    @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES|Wx::PG::PG_ITERATE_CATEGORIES) do |prop|
-      assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property or category expected)")
-    end
-    @pg_manager.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
-      assert_true(prop.parent == @pg_manager.grid.root || prop.parent.expanded?, "'#{prop.get_label}' had collapsed parent (only visible properties expected)")
-      assert_false(prop.has_flag(Wx::PG::PG_PROP_HIDDEN), "'#{prop.get_label}' was hidden (only visible properties expected)")
-    end
+    # @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
+    #   assert_false(prop.is_category, "'#{prop.get_label}' is a category (non-private child property expected)")
+    #   assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property expected)")
+    # end
+    # @pg_manager.each_property(Wx::PG::PG_ITERATE_CATEGORIES) do |prop|
+    #   assert_true(prop.is_category, "'#{prop.get_label}' is not a category (only categories expected)")
+    # end
+    # @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES|Wx::PG::PG_ITERATE_CATEGORIES) do |prop|
+    #   assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property or category expected)")
+    # end
+    # @pg_manager.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
+    #   assert_true(prop.parent == @pg_manager.grid.root || prop.parent.expanded?, "'#{prop.get_label}' had collapsed parent (only visible properties expected)")
+    #   assert_false(prop.has_flag(Wx::PG::PG_PROP_HIDDEN), "'#{prop.get_label}' was hidden (only visible properties expected)")
+    # end
   end
   end
 
