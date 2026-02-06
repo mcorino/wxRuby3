@@ -21,6 +21,8 @@ module WXRuby3
         spec.override_inheritance_chain('wxPropertyGridManager', %w[wxPanel wxWindow wxEvtHandler wxObject])
         # need a custom implementation to handle cleaning up contained pages
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr);
+
           class WXRubyPropertyGridManager : public wxPropertyGridManager
           {
           public:
@@ -34,6 +36,7 @@ module WXRuby3
 
             virtual ~WXRubyPropertyGridManager() 
             {
+              GC_SetWindowDeleted(m_pPropGrid);
               for( wxPropertyGridPage* page : m_arrPages )
               {
                 // Disassociate the C++ and Ruby pages (if any association)
