@@ -536,9 +536,9 @@ class PropGridTests < WxRuby::Test::GUITests
     # pg.set_unspecified_value_appearance(cell)
 
     # Populate grid
-    pg_manager.add_page("Standard Items")
+    # pg_manager.add_page("Standard Items")
     # populate_with_standard_items(pg_manager)
-    pg_manager.add_page("Examples")
+    # pg_manager.add_page("Examples")
     # populate_with_examples(pg_manager)
 
     pg_manager.refresh
