@@ -74,7 +74,7 @@ module WXRuby3
         spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
         # customize mark function
         spec.add_header_code <<~__HEREDOC
-          WXRUBY_EXPORT bool WXRuby_Is_In_GC_mark_wxPropertyGridManager();
+          extern bool WXRuby_Is_In_GC_mark_wxPropertyGridManager();
 
           static void GC_mark_wxPropertyGrid(void* ptr) 
           {

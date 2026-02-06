@@ -56,17 +56,17 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           static bool __wxr_In_GC_mark_wxPropertyGridManager = false;
 
-          WXRUBY_EXPORT void WXRuby_Set_In_GC_mark_wxPropertyGridManager(bool f)
+          extern void WXRuby_Set_In_GC_mark_wxPropertyGridManager(bool f)
           {
             __wxr_In_GC_mark_wxPropertyGridManager = f;
           }
 
-          WXRUBY_EXPORT bool WXRuby_Is_In_GC_mark_wxPropertyGridManager()
+          extern bool WXRuby_Is_In_GC_mark_wxPropertyGridManager()
           {
             return __wxr_In_GC_mark_wxPropertyGridManager;
           }
 
-          WXRUBY_EXPORT void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp);
+          extern void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp);
 
           static void GC_mark_wxPropertyGridManager(void* ptr) 
           {

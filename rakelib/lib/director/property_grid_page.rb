@@ -73,7 +73,7 @@ module WXRuby3
         spec.suppress_warning(473, 'wxPropertyGridPage::DoInsert')
         # customize mark function
         spec.add_header_code <<~__HEREDOC
-          WXRUBY_EXPORT void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp)
+          extern void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp)
           {
           #ifdef __WXRB_DEBUG__
             if (wxRuby_TraceLevel()>1)
