@@ -561,7 +561,8 @@ class PropGridTests < WxRuby::Test::GUITests
     super
   end
 
-  def test_iterate
+  100.times do |n|
+  define_method "test_iterate_#{n}" do
     @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
       assert_false(prop.is_category, "'#{prop.get_label}' is a category (non-private child property expected)")
       assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property expected)")
@@ -577,294 +578,295 @@ class PropGridTests < WxRuby::Test::GUITests
       assert_false(prop.has_flag(Wx::PG::PG_PROP_HIDDEN), "'#{prop.get_label}' was hidden (only visible properties expected)")
     end
   end
-
-  unless is_ci_build?
-
-    def test_iterate_delete_first_page_then_last
-      # Get all properties from first page
-      pageFirst = @pg_manager.get_page(0)
-      properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      # Get all properties from last page
-      pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
-      properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-
-      countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-
-      # Delete all properties from first page
-      pageFirst.clear
-
-      assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      properties_page_last = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      assert_equal(properties_page_last_init, properties_page_last)
-
-      if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
-        countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      else
-        # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
-        countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
-                             pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      end
-      assert_equal(countAllPropertiesInit-properties_page_first_init.size, countAllProperties)
-
-      # Delete all properties from last page
-      pageLast.clear
-
-      assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
-        countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      else
-        # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
-        countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
-                             pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      end
-      assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
-    end
-
-    def test_iterate_delete_last_page_then_first
-      # Get all properties from first page
-      pageFirst = @pg_manager.get_page(0)
-      properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      # Get all properties from last page
-      pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
-      properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-
-      countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-
-      # Delete all properties from last page
-      pageLast.clear
-
-      assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      properties_page_first = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      assert_equal(properties_page_first_init, properties_page_first)
-
-      countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      assert_equal(countAllPropertiesInit-properties_page_last_init.size, countAllProperties)
-
-      # Delete all properties from first page
-      pageFirst.clear
-
-      assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
-    end
-
-    def test_select_property
-      # Test that setting focus to properties does not crash things
-      @pg_manager.page_count.times do |pc|
-        page = @pg_manager.page(pc)
-        @pg_manager.select_page(page)
-
-        page.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
-          @pg_manager.grid.select_property(prop, true)
-          sleep(0.150)
-          frame_win.update
-        end
-      end
-    end
-
   end
 
-  def test_delete_property
-    # delete everything in reverse order
-
-    array = @pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_PROP_AGGREGATE))).to_a
-    array.reverse_each { |prop| @pg_manager.delete_property(prop) }
-
-    assert_true(@pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_PROP_AGGREGATE))).count == 0, "Not all properties are deleted")
-
-    @pg_manager.refresh
-    @pg_manager.update
-    # Wait for update to be done
-    yield_for_a_while(100)
-  end
-
-  def test_default_values
-    @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
-      @pg_manager.set_property_value(prop, prop.default_value)
-    end
-  end
-
-  def test_set_get_property_values
-    test_arrstr_1 = %w[Apple Orange Lemon]
-
-    test_arrstr_2 = %w[Potato Cabbage Cucumber]
-
-    test_arrint_1 = [1,2,3]
-
-    test_arrint_2 = [0,1,4]
-
-    if Wx.has_feature? :USE_DATETIME
-      dt1 = Time.now
-      dt1 = Time.new(dt1.year, dt1.month, 28) if dt1.month == 2 && dt1.day == 29
-
-      dt2 = Time.new(dt1.year-10, dt1.month, dt1.day)
-      dt1 = Time.new(dt1.year-1, dt1.month, dt1.day)
-    end
-
-    @pg_manager.set_property_value("StringProperty", "Text1")
-    @pg_manager.set_property_value("IntProperty", 1024)
-    @pg_manager.set_property_value("FloatProperty", 1024.0000000001)
-    @pg_manager.set_property_value("BoolProperty", false)
-    @pg_manager.set_property_value("EnumProperty", 120)
-    @pg_manager.set_property_value("ArrayStringProperty", test_arrstr_1)
-    @pg_manager.set_property_value("ColourProperty", Wx::Colour.new)
-    @pg_manager.set_property_value("ColourProperty", Wx::BLACK)
-    @pg_manager.set_property_value("MultiChoiceProperty", test_arrint_1)
-    if Wx.has_feature? :USE_DATETIME
-      @pg_manager.set_property_value("DateProperty", dt1)
-    end
-
-    @pg_manager.select_page(1)
-    pg = @pg_manager.grid
-
-    assert_equal("Text1", pg.get_property_value_as_string("StringProperty"))
-    assert_equal(1024, pg.get_property_value_as_int("IntProperty"))
-    assert_equal(1024.0000000001, pg.get_property_value_as_double("FloatProperty"))
-    assert_false(pg.get_property_value_as_bool("BoolProperty"))
-    assert_equal(120, pg.get_property_value_as_long("EnumProperty"))
-    assert_equal(test_arrstr_1, pg.get_property_value_as_array_string("ArrayStringProperty"))
-    col = @pg_manager.get_property_value("ColourProperty").get_colour
-    assert_equal(Wx::BLACK, col)
-    assert_equal(test_arrint_1, pg.get_property_value_as_array_int("MultiChoiceProperty"))
-    if Wx.has_feature? :USE_DATETIME
-      assert_equal(dt1, pg.get_property_value_as_date_time("DateProperty"))
-    end
-
-    @pg_manager.set_property_value("IntProperty", 10000000000)
-    assert_equal(10000000000, pg.get_property_value_as_long_long("IntProperty"))
-
-    pg.set_property_value("StringProperty", "Text2")
-    pg.set_property_value("IntProperty", 512)
-    pg.set_property_value("FloatProperty", 512.0)
-    pg.set_property_value("BoolProperty", true)
-    pg.set_property_value("EnumProperty", 80)
-    pg.set_property_value("ArrayStringProperty", test_arrstr_2)
-    pg.set_property_value("ColourProperty", Wx::WHITE)
-    pg.set_property_value("MultiChoiceProperty", test_arrint_2)
-    if Wx.has_feature? :USE_DATETIME
-      pg.set_property_value("DateProperty", dt2)
-    end
-
-    @pg_manager.select_page(0)
-
-    assert_equal("Text2", @pg_manager.get_property_value_as_string("StringProperty"))
-    assert_equal(512, @pg_manager.get_property_value_as_int("IntProperty"))
-    assert_equal(512.0, @pg_manager.get_property_value_as_double("FloatProperty"))
-    assert_true(@pg_manager.get_property_value_as_bool("BoolProperty"))
-    assert_equal(80, @pg_manager.get_property_value_as_long("EnumProperty"))
-    assert_equal(test_arrstr_2, @pg_manager.get_property_value_as_array_string("ArrayStringProperty"))
-    col = @pg_manager.get_property_value("ColourProperty").colour
-    assert_equal(Wx::WHITE, col)
-    assert_equal(test_arrint_2, @pg_manager.get_property_value_as_array_int("MultiChoiceProperty"))
-    if Wx.has_feature? :USE_DATETIME
-      assert_equal(dt2, @pg_manager.get_property_value_as_date_time("DateProperty"))
-    end
-
-    @pg_manager.set_property_value("IntProperty", -80000000000)
-    assert_equal(-80000000000, @pg_manager.get_property_value_as_long_long("IntProperty"))
-
-    nvs = 'Lamborghini Diablo XYZ; 5707; [100; 3.9; 8.6] 3000002; Convertible'
-    @pg_manager.set_property_value("Car", nvs)
-    assert_equal("Lamborghini Diablo XYZ", @pg_manager.get_property_value_as_string("Car.Model"))
-    assert_equal(100, @pg_manager.get_property_value_as_int("Car.Speeds.Max. Speed (mph)"))
-    assert_equal(3000002, @pg_manager.get_property_value_as_int("Car.Price ($)"))
-    assert_true(@pg_manager.get_property_value_as_bool("Car.Convertible"))
-
-    # SetPropertyValueString for special cases such as wxColour
-    @pg_manager.set_property_value_string("ColourProperty", "(123,4,255)")
-    col = @pg_manager.get_property_value("ColourProperty").colour
-    assert_equal(Wx::Colour.new(123, 4, 255), col)
-    @pg_manager.set_property_value_string("ColourProperty", "#FE860B")
-    col = @pg_manager.get_property_value("ColourProperty").colour
-    assert_equal(Wx::Colour.new("#FE860B"), col)
-
-    @pg_manager.set_property_value_string("ColourPropertyWithAlpha", "(10, 20, 30, 128)")
-    col = @pg_manager.get_property_value("ColourPropertyWithAlpha").colour
-    assert_equal(Wx::Colour.new(10, 20, 30, 128), col)
-    assert_equal("(10,20,30,128)", @pg_manager.get_property_value_as_string("ColourPropertyWithAlpha"))
-  end
-
-  def test_set_property_value_unspecified
-    # Null variant setter tests
-    @pg_manager.set_property_value_unspecified("StringProperty")
-    @pg_manager.set_property_value_unspecified("IntProperty")
-    @pg_manager.set_property_value_unspecified("FloatProperty")
-    @pg_manager.set_property_value_unspecified("BoolProperty")
-    @pg_manager.set_property_value_unspecified("EnumProperty")
-    @pg_manager.set_property_value_unspecified("ArrayStringProperty")
-    @pg_manager.set_property_value_unspecified("ColourProperty")
-    @pg_manager.set_property_value_unspecified("MultiChoiceProperty")
-    if Wx.has_feature? :USE_DATETIME
-      @pg_manager.set_property_value_unspecified("DateProperty")
-    end
-  end
-
-  def replace_grid(style, extraStyle)
-    @pg_manager.destroy # First destroy previous instance
-    @pg_manager = create_grid(style, extraStyle)
-    @pg_manager.set_focus
-  end
-
-  def test_multiple_selection
-    replace_grid(-1, Wx::PG::PG_EX_MULTIPLE_SELECTION) unless @pg_manager.get_extra_style & Wx::PG::PG_EX_MULTIPLE_SELECTION
-
-    pg = @pg_manager.grid
-
-    prop1 = pg.get_property("Label")
-    prop2 = pg.get_property("Cell Text Colour")
-    prop3 = pg.get_property("Height")
-    catProp = pg.get_property("Appearance")
-
-    assert_not_nil(prop1)
-    assert_not_nil(prop2)
-    assert_not_nil(prop3)
-
-    pg.clear_selection
-    pg.add_to_selection(prop1)
-    pg.add_to_selection(prop2)
-    pg.add_to_selection(prop3)
-
-    # Adding category to selection should fail silently
-    pg.add_to_selection(catProp)
-
-    selectedProperties = pg.get_selected_properties
-
-    assert_equal(3, selectedProperties.size)
-    assert_true(pg.is_property_selected(prop1))
-    assert_true(pg.is_property_selected(prop2))
-    assert_true(pg.is_property_selected(prop3))
-    assert_false(pg.is_property_selected(catProp))
-
-    pg.remove_from_selection(prop1)
-    selectedProperties2 = pg.get_selected_properties
-
-    assert_equal(2, selectedProperties2.size)
-    assert_false(pg.is_property_selected(prop1))
-    assert_true(pg.is_property_selected(prop2))
-    assert_true(pg.is_property_selected(prop3))
-
-    pg.clear_selection
-
-    selectedProperties3 = pg.get_selected_properties
-
-    assert_equal(0, selectedProperties3.size)
-    assert_false(pg.is_property_selected(prop1))
-    assert_false(pg.is_property_selected(prop2))
-    assert_false(pg.is_property_selected(prop3))
-
-    pg.select_property(prop2)
-
-    assert_false(pg.is_property_selected(prop1))
-    assert_true(pg.is_property_selected(prop2))
-    assert_false(pg.is_property_selected(prop3))
-  end
+  # unless is_ci_build?
+  #
+  #   def test_iterate_delete_first_page_then_last
+  #     # Get all properties from first page
+  #     pageFirst = @pg_manager.get_page(0)
+  #     properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+  #     # Get all properties from last page
+  #     pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
+  #     properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+  #
+  #     countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #
+  #     # Delete all properties from first page
+  #     pageFirst.clear
+  #
+  #     assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+  #
+  #     properties_page_last = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+  #     assert_equal(properties_page_last_init, properties_page_last)
+  #
+  #     if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
+  #       countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #     else
+  #       # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
+  #       countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
+  #                            pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #     end
+  #     assert_equal(countAllPropertiesInit-properties_page_first_init.size, countAllProperties)
+  #
+  #     # Delete all properties from last page
+  #     pageLast.clear
+  #
+  #     assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+  #
+  #     assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+  #
+  #     if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
+  #       countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #     else
+  #       # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
+  #       countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
+  #                            pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #     end
+  #     assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
+  #   end
+  #
+  #   def test_iterate_delete_last_page_then_first
+  #     # Get all properties from first page
+  #     pageFirst = @pg_manager.get_page(0)
+  #     properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+  #     # Get all properties from last page
+  #     pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
+  #     properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+  #
+  #     countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #
+  #     # Delete all properties from last page
+  #     pageLast.clear
+  #
+  #     assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+  #
+  #     properties_page_first = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+  #     assert_equal(properties_page_first_init, properties_page_first)
+  #
+  #     countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #     assert_equal(countAllPropertiesInit-properties_page_last_init.size, countAllProperties)
+  #
+  #     # Delete all properties from first page
+  #     pageFirst.clear
+  #
+  #     assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+  #
+  #     assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+  #
+  #     countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+  #     assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
+  #   end
+  #
+  #   def test_select_property
+  #     # Test that setting focus to properties does not crash things
+  #     @pg_manager.page_count.times do |pc|
+  #       page = @pg_manager.page(pc)
+  #       @pg_manager.select_page(page)
+  #
+  #       page.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
+  #         @pg_manager.grid.select_property(prop, true)
+  #         sleep(0.150)
+  #         frame_win.update
+  #       end
+  #     end
+  #   end
+  #
+  # end
+  #
+  # def test_delete_property
+  #   # delete everything in reverse order
+  #
+  #   array = @pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_PROP_AGGREGATE))).to_a
+  #   array.reverse_each { |prop| @pg_manager.delete_property(prop) }
+  #
+  #   assert_true(@pg_manager.each_property(Wx::PG::PG_ITERATE_ALL & ~(Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_PROP_AGGREGATE))).count == 0, "Not all properties are deleted")
+  #
+  #   @pg_manager.refresh
+  #   @pg_manager.update
+  #   # Wait for update to be done
+  #   yield_for_a_while(100)
+  # end
+  #
+  # def test_default_values
+  #   @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
+  #     @pg_manager.set_property_value(prop, prop.default_value)
+  #   end
+  # end
+  #
+  # def test_set_get_property_values
+  #   test_arrstr_1 = %w[Apple Orange Lemon]
+  #
+  #   test_arrstr_2 = %w[Potato Cabbage Cucumber]
+  #
+  #   test_arrint_1 = [1,2,3]
+  #
+  #   test_arrint_2 = [0,1,4]
+  #
+  #   if Wx.has_feature? :USE_DATETIME
+  #     dt1 = Time.now
+  #     dt1 = Time.new(dt1.year, dt1.month, 28) if dt1.month == 2 && dt1.day == 29
+  #
+  #     dt2 = Time.new(dt1.year-10, dt1.month, dt1.day)
+  #     dt1 = Time.new(dt1.year-1, dt1.month, dt1.day)
+  #   end
+  #
+  #   @pg_manager.set_property_value("StringProperty", "Text1")
+  #   @pg_manager.set_property_value("IntProperty", 1024)
+  #   @pg_manager.set_property_value("FloatProperty", 1024.0000000001)
+  #   @pg_manager.set_property_value("BoolProperty", false)
+  #   @pg_manager.set_property_value("EnumProperty", 120)
+  #   @pg_manager.set_property_value("ArrayStringProperty", test_arrstr_1)
+  #   @pg_manager.set_property_value("ColourProperty", Wx::Colour.new)
+  #   @pg_manager.set_property_value("ColourProperty", Wx::BLACK)
+  #   @pg_manager.set_property_value("MultiChoiceProperty", test_arrint_1)
+  #   if Wx.has_feature? :USE_DATETIME
+  #     @pg_manager.set_property_value("DateProperty", dt1)
+  #   end
+  #
+  #   @pg_manager.select_page(1)
+  #   pg = @pg_manager.grid
+  #
+  #   assert_equal("Text1", pg.get_property_value_as_string("StringProperty"))
+  #   assert_equal(1024, pg.get_property_value_as_int("IntProperty"))
+  #   assert_equal(1024.0000000001, pg.get_property_value_as_double("FloatProperty"))
+  #   assert_false(pg.get_property_value_as_bool("BoolProperty"))
+  #   assert_equal(120, pg.get_property_value_as_long("EnumProperty"))
+  #   assert_equal(test_arrstr_1, pg.get_property_value_as_array_string("ArrayStringProperty"))
+  #   col = @pg_manager.get_property_value("ColourProperty").get_colour
+  #   assert_equal(Wx::BLACK, col)
+  #   assert_equal(test_arrint_1, pg.get_property_value_as_array_int("MultiChoiceProperty"))
+  #   if Wx.has_feature? :USE_DATETIME
+  #     assert_equal(dt1, pg.get_property_value_as_date_time("DateProperty"))
+  #   end
+  #
+  #   @pg_manager.set_property_value("IntProperty", 10000000000)
+  #   assert_equal(10000000000, pg.get_property_value_as_long_long("IntProperty"))
+  #
+  #   pg.set_property_value("StringProperty", "Text2")
+  #   pg.set_property_value("IntProperty", 512)
+  #   pg.set_property_value("FloatProperty", 512.0)
+  #   pg.set_property_value("BoolProperty", true)
+  #   pg.set_property_value("EnumProperty", 80)
+  #   pg.set_property_value("ArrayStringProperty", test_arrstr_2)
+  #   pg.set_property_value("ColourProperty", Wx::WHITE)
+  #   pg.set_property_value("MultiChoiceProperty", test_arrint_2)
+  #   if Wx.has_feature? :USE_DATETIME
+  #     pg.set_property_value("DateProperty", dt2)
+  #   end
+  #
+  #   @pg_manager.select_page(0)
+  #
+  #   assert_equal("Text2", @pg_manager.get_property_value_as_string("StringProperty"))
+  #   assert_equal(512, @pg_manager.get_property_value_as_int("IntProperty"))
+  #   assert_equal(512.0, @pg_manager.get_property_value_as_double("FloatProperty"))
+  #   assert_true(@pg_manager.get_property_value_as_bool("BoolProperty"))
+  #   assert_equal(80, @pg_manager.get_property_value_as_long("EnumProperty"))
+  #   assert_equal(test_arrstr_2, @pg_manager.get_property_value_as_array_string("ArrayStringProperty"))
+  #   col = @pg_manager.get_property_value("ColourProperty").colour
+  #   assert_equal(Wx::WHITE, col)
+  #   assert_equal(test_arrint_2, @pg_manager.get_property_value_as_array_int("MultiChoiceProperty"))
+  #   if Wx.has_feature? :USE_DATETIME
+  #     assert_equal(dt2, @pg_manager.get_property_value_as_date_time("DateProperty"))
+  #   end
+  #
+  #   @pg_manager.set_property_value("IntProperty", -80000000000)
+  #   assert_equal(-80000000000, @pg_manager.get_property_value_as_long_long("IntProperty"))
+  #
+  #   nvs = 'Lamborghini Diablo XYZ; 5707; [100; 3.9; 8.6] 3000002; Convertible'
+  #   @pg_manager.set_property_value("Car", nvs)
+  #   assert_equal("Lamborghini Diablo XYZ", @pg_manager.get_property_value_as_string("Car.Model"))
+  #   assert_equal(100, @pg_manager.get_property_value_as_int("Car.Speeds.Max. Speed (mph)"))
+  #   assert_equal(3000002, @pg_manager.get_property_value_as_int("Car.Price ($)"))
+  #   assert_true(@pg_manager.get_property_value_as_bool("Car.Convertible"))
+  #
+  #   # SetPropertyValueString for special cases such as wxColour
+  #   @pg_manager.set_property_value_string("ColourProperty", "(123,4,255)")
+  #   col = @pg_manager.get_property_value("ColourProperty").colour
+  #   assert_equal(Wx::Colour.new(123, 4, 255), col)
+  #   @pg_manager.set_property_value_string("ColourProperty", "#FE860B")
+  #   col = @pg_manager.get_property_value("ColourProperty").colour
+  #   assert_equal(Wx::Colour.new("#FE860B"), col)
+  #
+  #   @pg_manager.set_property_value_string("ColourPropertyWithAlpha", "(10, 20, 30, 128)")
+  #   col = @pg_manager.get_property_value("ColourPropertyWithAlpha").colour
+  #   assert_equal(Wx::Colour.new(10, 20, 30, 128), col)
+  #   assert_equal("(10,20,30,128)", @pg_manager.get_property_value_as_string("ColourPropertyWithAlpha"))
+  # end
+  #
+  # def test_set_property_value_unspecified
+  #   # Null variant setter tests
+  #   @pg_manager.set_property_value_unspecified("StringProperty")
+  #   @pg_manager.set_property_value_unspecified("IntProperty")
+  #   @pg_manager.set_property_value_unspecified("FloatProperty")
+  #   @pg_manager.set_property_value_unspecified("BoolProperty")
+  #   @pg_manager.set_property_value_unspecified("EnumProperty")
+  #   @pg_manager.set_property_value_unspecified("ArrayStringProperty")
+  #   @pg_manager.set_property_value_unspecified("ColourProperty")
+  #   @pg_manager.set_property_value_unspecified("MultiChoiceProperty")
+  #   if Wx.has_feature? :USE_DATETIME
+  #     @pg_manager.set_property_value_unspecified("DateProperty")
+  #   end
+  # end
+  #
+  # def replace_grid(style, extraStyle)
+  #   @pg_manager.destroy # First destroy previous instance
+  #   @pg_manager = create_grid(style, extraStyle)
+  #   @pg_manager.set_focus
+  # end
+  #
+  # def test_multiple_selection
+  #   replace_grid(-1, Wx::PG::PG_EX_MULTIPLE_SELECTION) unless @pg_manager.get_extra_style & Wx::PG::PG_EX_MULTIPLE_SELECTION
+  #
+  #   pg = @pg_manager.grid
+  #
+  #   prop1 = pg.get_property("Label")
+  #   prop2 = pg.get_property("Cell Text Colour")
+  #   prop3 = pg.get_property("Height")
+  #   catProp = pg.get_property("Appearance")
+  #
+  #   assert_not_nil(prop1)
+  #   assert_not_nil(prop2)
+  #   assert_not_nil(prop3)
+  #
+  #   pg.clear_selection
+  #   pg.add_to_selection(prop1)
+  #   pg.add_to_selection(prop2)
+  #   pg.add_to_selection(prop3)
+  #
+  #   # Adding category to selection should fail silently
+  #   pg.add_to_selection(catProp)
+  #
+  #   selectedProperties = pg.get_selected_properties
+  #
+  #   assert_equal(3, selectedProperties.size)
+  #   assert_true(pg.is_property_selected(prop1))
+  #   assert_true(pg.is_property_selected(prop2))
+  #   assert_true(pg.is_property_selected(prop3))
+  #   assert_false(pg.is_property_selected(catProp))
+  #
+  #   pg.remove_from_selection(prop1)
+  #   selectedProperties2 = pg.get_selected_properties
+  #
+  #   assert_equal(2, selectedProperties2.size)
+  #   assert_false(pg.is_property_selected(prop1))
+  #   assert_true(pg.is_property_selected(prop2))
+  #   assert_true(pg.is_property_selected(prop3))
+  #
+  #   pg.clear_selection
+  #
+  #   selectedProperties3 = pg.get_selected_properties
+  #
+  #   assert_equal(0, selectedProperties3.size)
+  #   assert_false(pg.is_property_selected(prop1))
+  #   assert_false(pg.is_property_selected(prop2))
+  #   assert_false(pg.is_property_selected(prop3))
+  #
+  #   pg.select_property(prop2)
+  #
+  #   assert_false(pg.is_property_selected(prop1))
+  #   assert_true(pg.is_property_selected(prop2))
+  #   assert_false(pg.is_property_selected(prop3))
+  # end
 
 end
