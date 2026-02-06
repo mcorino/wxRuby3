@@ -74,6 +74,8 @@ module WXRuby3
         spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
         # customize mark function
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_EXPORT bool WXRuby_Is_In_GC_mark_wxPropertyGridManager();
+
           static void GC_mark_wxPropertyGrid(void* ptr) 
           {
           #ifdef __WXRB_DEBUG__
@@ -87,6 +89,11 @@ module WXRuby3
             // Do standard marking routines as for all wxWindows
             GC_mark_wxWindow(ptr);
             
+            // no need to mark properties if called from GC_mark_wxPropertyGridManager
+            // as that will mark properties through the property grid pages
+            if (WXRuby_Is_In_GC_mark_wxPropertyGridManager())
+              return;
+
           #ifdef __WXRB_DEBUG__
             long l = 0, n = 0;
           #endif

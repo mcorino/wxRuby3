@@ -73,15 +73,13 @@ module WXRuby3
         spec.suppress_warning(473, 'wxPropertyGridPage::DoInsert')
         # customize mark function
         spec.add_header_code <<~__HEREDOC
-          static void GC_mark_wxPropertyGridPage(void* ptr) 
+          WXRUBY_EXPORT void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp)
           {
           #ifdef __WXRB_DEBUG__
             if (wxRuby_TraceLevel()>1)
-              std::wcout << "> GC_mark_wxPropertyGridPage : " << ptr << std::endl;
+              std::wcout << "> WXRuby_GC_mark_wxPropertyGridPage : " << wx_pgp << std::endl;
           #endif
             
-            wxPropertyGridPage* wx_pgp = (wxPropertyGridPage*) ptr;
-
           #ifdef __WXRB_DEBUG__
             long l = 0, n = 0;
           #endif
@@ -114,8 +112,18 @@ module WXRuby3
             }
           #ifdef __WXRB_DEBUG__
             if (wxRuby_TraceLevel()>1)
-              std::wcout << "GC_mark_wxPropertyGridPage: iterated " << l << " properties; marked " << n << std::endl;
+              std::wcout << "WXRuby_GC_mark_wxPropertyGridPage: iterated " << l << " properties; marked " << n << std::endl;
           #endif
+          } 
+
+          static void GC_mark_wxPropertyGridPage(void* ptr) 
+          {
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "> GC_mark_wxPropertyGridPage : " << ptr << std::endl;
+          #endif
+            
+            WXRuby_GC_mark_wxPropertyGridPage((wxPropertyGridPage*) ptr);
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPropertyGridPage "GC_mark_wxPropertyGridPage";'
