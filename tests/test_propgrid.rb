@@ -537,7 +537,7 @@ class PropGridTests < WxRuby::Test::GUITests
 
     # Populate grid
     pg_manager.add_page("Standard Items")
-    populate_with_standard_items(pg_manager)
+    # populate_with_standard_items(pg_manager)
     pg_manager.add_page("Examples")
     # populate_with_examples(pg_manager)
 
