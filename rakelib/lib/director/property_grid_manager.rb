@@ -48,8 +48,13 @@ module WXRuby3
                 SWIG_RubyUnlinkObjects(page);
                 SWIG_RubyRemoveTracking(page);
               }
-              if (!NIL_P(SWIG_RubyInstanceFor(this)))
+              VALUE self = SWIG_RubyInstanceFor(this);
+              std::wcerr << "\tRuby instance = " << self <<std::endl;
+              if (!NIL_P(self))
+              {
+                std::wcerr << "\t Calling GC_SetWindowDeleted" << std::endl;   
                 GC_SetWindowDeleted(this);
+              }
             }               
           };
           __HEREDOC
