@@ -521,6 +521,7 @@ class PropGridTests < WxRuby::Test::GUITests
                  Wx::PG::PG_EX_MULTIPLE_SELECTION if extraStyle == -1
 
     pg_manager = Wx::PG::PropertyGridManager.new(frame_win, Wx::ID_ANY, style: style)
+    STDERR.puts "> Created pg_manager[#{Wx.ptr_addr(pg_manager)}]"
     pg_manager.set_size(frame_win.get_client_size)
     pg_manager.set_extra_style(extraStyle)
 
@@ -556,13 +557,14 @@ class PropGridTests < WxRuby::Test::GUITests
   end
 
   def cleanup
+    STDERR.puts "> Destroying pg_manager[#{Wx.ptr_addr(@pg_manager)}]"
     @pg_manager.destroy
+    STDERR.puts "> Destroyed pg_manager[#{Wx.ptr_addr(@pg_manager)}]"
     super
   end
 
   100.times do |n|
   define_method "test_iterate_#{n}" do
-    STDERR.puts "test_iterate_#{n}"
     @pg_manager.each_property(Wx::PG::PG_ITERATE_PROPERTIES) do |prop|
       assert_false(prop.is_category, "'#{prop.get_label}' is a category (non-private child property expected)")
       assert_false(prop.get_parent.has_flag(Wx::PG::PG_PROP_AGGREGATE), "'#{prop.get_label}' is a private child (non-private child property expected)")

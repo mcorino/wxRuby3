@@ -36,9 +36,14 @@ module WXRuby3
 
             virtual ~WXRubyPropertyGridManager() 
             {
+              std::wcerr << "~WXRubyPropertyGridManager[" << this 
+                         << "]: grid:" << m_pPropGrid << std::endl
+                         << "\tpages:" << std::endl;
+
               GC_SetWindowDeleted(m_pPropGrid);
               for( wxPropertyGridPage* page : m_arrPages )
               {
+                std::wcerr << "\t\t" << page << std::endl;    
                 // Disassociate the C++ and Ruby pages (if any association)
                 SWIG_RubyUnlinkObjects(page);
                 SWIG_RubyRemoveTracking(page);
@@ -73,10 +78,10 @@ module WXRuby3
 
           static void GC_mark_wxPropertyGridManager(void* ptr) 
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
+          //#ifdef __WXRB_DEBUG__
+          //  if (wxRuby_TraceLevel()>1)
               std::wcout << "> GC_mark_wxPropertyGridManager : " << ptr << std::endl;
-          #endif
+          //#endif
             if ( GC_IsWindowDeleted(ptr) )
             {
               return;

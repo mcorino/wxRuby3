@@ -75,10 +75,10 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           extern void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
+          //#ifdef __WXRB_DEBUG__
+          //  if (wxRuby_TraceLevel()>1)
               std::wcout << "> WXRuby_GC_mark_wxPropertyGridPage : " << wx_pgp << std::endl;
-          #endif
+          //#endif
             
           #ifdef __WXRB_DEBUG__
             long l = 0, n = 0;
@@ -118,10 +118,10 @@ module WXRuby3
 
           static void GC_mark_wxPropertyGridPage(void* ptr) 
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
+          //#ifdef __WXRB_DEBUG__
+          //  if (wxRuby_TraceLevel()>1)
               std::wcout << "> GC_mark_wxPropertyGridPage : " << ptr << std::endl;
-          #endif
+          //#endif
             
             WXRuby_GC_mark_wxPropertyGridPage((wxPropertyGridPage*) ptr);
           }
