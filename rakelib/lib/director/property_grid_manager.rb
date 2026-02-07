@@ -36,20 +36,20 @@ module WXRuby3
 
             virtual ~WXRubyPropertyGridManager() 
             {
-              std::wcerr << "~WXRubyPropertyGridManager[" << this 
+              std::wcout << "~WXRubyPropertyGridManager[" << this 
                          << "]: grid:" << m_pPropGrid << std::endl
                          << "\tpages:" << std::endl;
 
               GC_SetWindowDeleted(m_pPropGrid);
               for( wxPropertyGridPage* page : m_arrPages )
               {
-                std::wcerr << "\t\t" << page << std::endl;    
+                std::wcout << "\t\t" << page << std::endl;    
                 // Disassociate the C++ and Ruby pages (if any association)
                 SWIG_RubyUnlinkObjects(page);
                 SWIG_RubyRemoveTracking(page);
               }
               VALUE self = SWIG_RubyInstanceFor(this);
-              std::wcerr << "\tRuby instance = " << self <<std::endl;
+              std::wcout << "\tRuby instance = " << self <<std::endl;
               if (!NIL_P(self))
               {
                 std::wcerr << "\t Calling GC_SetWindowDeleted" << std::endl;   
