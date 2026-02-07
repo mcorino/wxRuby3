@@ -48,6 +48,8 @@ module WXRuby3
                 SWIG_RubyUnlinkObjects(page);
                 SWIG_RubyRemoveTracking(page);
               }
+              if (!NIL_P(SWIG_RubyInstanceFor(this)))
+                GC_SetWindowDeleted(this);
             }               
           };
           __HEREDOC
