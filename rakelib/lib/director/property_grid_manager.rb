@@ -43,17 +43,30 @@ module WXRuby3
               GC_SetWindowDeleted(m_pPropGrid);
               for( wxPropertyGridPage* page : m_arrPages )
               {
+                // clean up tracking of all tracked properties
+                wxPGProperty* wx_p = page->GetRoot();
+                if (!NIL_P(SWIG_RubyInstanceFor(wx_p)))
+                {
+                  SWIG_RubyUnlinkObjects(wx_p);
+                  SWIG_RubyRemoveTracking(wx_p);
+                }
+                wxPGVIterator it =
+                    page->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
+                // iterate all
+                for ( ; !it.AtEnd(); it.Next() )
+                {
+                  wx_p = it.GetProperty();
+                  if (!RB_NIL_P(SWIG_RubyInstanceFor(wx_p))) 
+                  { 
+                    SWIG_RubyUnlinkObjects(wx_p);
+                    SWIG_RubyRemoveTracking(wx_p);
+                  }
+                }
+
                 std::wcout << "\t\t" << page << std::endl;    
                 // Disassociate the C++ and Ruby pages (if any association)
                 SWIG_RubyUnlinkObjects(page);
                 SWIG_RubyRemoveTracking(page);
-              }
-              VALUE self = SWIG_RubyInstanceFor(this);
-              std::wcout << "\tRuby instance = " << self <<std::endl;
-              if (!NIL_P(self))
-              {
-                std::wcerr << "\t Calling GC_SetWindowDeleted" << std::endl;   
-                GC_SetWindowDeleted(this);
               }
             }               
           };
