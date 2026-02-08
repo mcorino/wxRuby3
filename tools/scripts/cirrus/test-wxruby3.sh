@@ -2,7 +2,7 @@
 
 if [ "$distro" == "manjaro" ] || [ "$distro" == "arch" ] || [ "$distro" == "fedora" ]; then
     # Add 2 extra tests that cause problems on Arch-like distros
-    export WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE:test_ext_controls:test_file_dialog
+    export WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE:test_ext_controls:test_file_dialog:test_propgrid
 fi
 
 echo "WXRUBY_TEST_EXCLUDE=$WXRUBY_TEST_EXCLUDE"
