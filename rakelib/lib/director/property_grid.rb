@@ -78,10 +78,10 @@ module WXRuby3
 
           static void GC_mark_wxPropertyGrid(void* ptr) 
           {
-          //#ifdef __WXRB_DEBUG__
-          //  if (wxRuby_TraceLevel()>1)
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
               std::wcout << "> GC_mark_wxPropertyGrid : " << ptr << std::endl;
-          //#endif
+          #endif
             if ( GC_IsWindowDeleted(ptr) )
             {
               return;

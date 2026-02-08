@@ -19,7 +19,7 @@ module WXRuby3
       def setup
         super
         spec.override_inheritance_chain('wxPropertyGridManager', %w[wxPanel wxWindow wxEvtHandler wxObject])
-        # need a custom implementation to handle cleaning up contained pages
+        # need a custom implementation to handle cleaning up tracked objects
         spec.add_header_code <<~__HEREDOC
           WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr);
 
@@ -36,11 +36,11 @@ module WXRuby3
 
             virtual ~WXRubyPropertyGridManager() 
             {
-              std::wcout << "~WXRubyPropertyGridManager[" << this 
-                         << "]: grid:" << m_pPropGrid << std::endl
-                         << "\tpages:" << std::endl;
-
+              // as the grid will not be deleted by calling Destroy() but
+              // rather by deleting directly handle GC cleanup here 
               GC_SetWindowDeleted(m_pPropGrid);
+              // also cleanup all page and property instances that will
+              // be deleted by wxPropertyGridManager
               for( wxPropertyGridPage* page : m_arrPages )
               {
                 // clean up tracking of all tracked properties
@@ -62,8 +62,6 @@ module WXRuby3
                     SWIG_RubyRemoveTracking(wx_p);
                   }
                 }
-
-                std::wcout << "\t\t" << page << std::endl;    
                 // Disassociate the C++ and Ruby pages (if any association)
                 SWIG_RubyUnlinkObjects(page);
                 SWIG_RubyRemoveTracking(page);
@@ -98,10 +96,10 @@ module WXRuby3
 
           static void GC_mark_wxPropertyGridManager(void* ptr) 
           {
-          //#ifdef __WXRB_DEBUG__
-          //  if (wxRuby_TraceLevel()>1)
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
               std::wcout << "> GC_mark_wxPropertyGridManager : " << ptr << std::endl;
-          //#endif
+          #endif
             if ( GC_IsWindowDeleted(ptr) )
             {
               return;

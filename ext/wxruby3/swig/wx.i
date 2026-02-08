@@ -86,8 +86,8 @@ PtrToRbObjHash Global_Ptr_Map;
 // Add a tracking from ptr -> object
 WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
 {
-//#ifdef __WXRB_DEBUG__
-//  if (wxRuby_TraceLevel()>1)
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
   {
     std::wcout << "> wxRuby_AddTracking" << std::flush;
     VALUE clsname = rb_mod_name(CLASS_OF(object));
@@ -96,7 +96,7 @@ WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
                << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
                << "}, " << object << ")" << std::endl;
   }
-//#endif
+#endif
   Global_Ptr_Map[ptr] = object;
 }
 
@@ -112,10 +112,10 @@ WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr)
 // Remove the tracking for ptr
 WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr)
 {
-//#ifdef __WXRB_DEBUG__
-//  if (wxRuby_TraceLevel()>1)
+#ifdef __WXRB_DEBUG__
+  if (wxRuby_TraceLevel()>1)
     std::wcout << "< wxRuby_RemoveTracking(" << ptr << ") -> " << wxRuby_FindTracking(ptr)  << std::endl;
-//#endif
+#endif
   Global_Ptr_Map.erase(ptr);
 }
 
