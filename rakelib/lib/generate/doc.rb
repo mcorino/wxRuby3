@@ -57,12 +57,15 @@ module WXRuby3
           ftmp_name = tmpfile.path.dup
           tmpfile << script
           tmpfile.close(false)
+          tmpconsts = Tempfile.new('constants')
+          fconsts_name = tmpconsts.path.dup
+          tmpconsts.close(false)
           if Director.trace?
-            Config.instance.run(ftmp_name, 'constants_raw.json', capture: :out, verbose: false)
+            Config.instance.run(ftmp_name, fconsts_name, capture: :out, verbose: false)
           else
-            Config.instance.run(ftmp_name, 'constants_raw.json', capture: :no_err, verbose: false)
+            Config.instance.run(ftmp_name, fconsts_name, capture: :no_err, verbose: false)
           end
-          result = File.read('constants_raw.json')
+          result = File.read(fconsts_name)
           STDERR.puts "* got constants collection output:\n#{result}" if Director.trace?
           begin
             db = JSON.load(result)
@@ -74,6 +77,7 @@ module WXRuby3
           return db
         ensure
           File.unlink(ftmp_name)
+          File.unlink(fconsts_name)
         end
       end
 
