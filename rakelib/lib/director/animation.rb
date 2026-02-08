@@ -17,6 +17,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxAnimationDecoder'
+        spec.gc_as_untracked('wxAnimation')
         spec.ignore 'wxAnimation::IsCompatibleWith' # no wxClassInfo in wxRuby
         spec.gc_as_refcounted 'wxAnimationDecoder'
         # make Ruby director and wrappers use custom implementation

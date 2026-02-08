@@ -204,6 +204,9 @@ module WXRuby3
             virtual ~WXRubyAuiManager() 
             {
               wxRuby_ReleaseEvtHandlerProcs(this);
+              wxAuiDockArt* art_prov = GetArtProvider();
+              SWIG_RubyUnlinkObjects(art_prov);
+              SWIG_RubyRemoveTracking(art_prov);
             }
 
             void OnManagedWindowClose(wxCloseEvent& event)
@@ -257,7 +260,7 @@ module WXRuby3
         spec.add_swig_code '%markfunc wxAuiManager "GC_mark_wxAuiManager";'
         # provide pure Ruby implementation based on use custom alternative provided below
         spec.ignore('wxAuiManager::GetAllPanes')
-        spec.ignore('wxAuiManager::SetManagedWindow', ignore_doc: false)
+        spec.ignore('wxAuiManager::SetManagedWindow', 'wxAuiManager::SetArtProvider', ignore_doc: false)
         spec.add_extend_code 'wxAuiManager', <<~__HEREDOC
           VALUE each_pane() 
           {
@@ -283,6 +286,16 @@ module WXRuby3
             WXRubyAuiManager* aui_mng = dynamic_cast<WXRubyAuiManager*> (self);
             managedWnd->Bind(wxEVT_CLOSE_WINDOW, &WXRubyAuiManager::OnManagedWindowClose, aui_mng);
           }
+
+          void 	SetArtProvider (wxAuiDockArt *art_provider)
+          {
+              // AUI manager will delete current art provider
+              // so cleanup any existing tracking
+              wxAuiDockArt* art_prov = self->GetArtProvider();
+              SWIG_RubyUnlinkObjects(art_prov);
+              SWIG_RubyRemoveTracking(art_prov);
+              self->SetArtProvider(art_provider);
+          } 
         __HEREDOC
         spec.suppress_warning(473, 'wxAuiManager::CreateFloatingFrame')
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with AuiPaneInfo
