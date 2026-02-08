@@ -49,7 +49,7 @@ module WXRuby3
           end
           table = { 'Wx' => {}}
           handle_module(Wx, table['Wx'])
-          STDOUT.puts JSON.dump(table)
+          File.open(ARGV[0], 'w+') { |f| f << JSON.dump(table) }
         __SCRIPT
         STDERR.puts "* executing constants collection script:\n#{script}" if Director.trace?
         begin
@@ -57,22 +57,27 @@ module WXRuby3
           ftmp_name = tmpfile.path.dup
           tmpfile << script
           tmpfile.close(false)
-          result = if Director.trace?
-                     Config.instance.run(ftmp_name, capture: :out, verbose: false)
-                   else
-                     Config.instance.run(ftmp_name, capture: :no_err, verbose: false)
-                   end
+          tmpconsts = Tempfile.new('constants')
+          fconsts_name = tmpconsts.path.dup
+          tmpconsts.close(false)
+          if Director.trace?
+            Config.instance.run(ftmp_name, fconsts_name, capture: :out, verbose: false)
+          else
+            Config.instance.run(ftmp_name, fconsts_name, capture: :no_err, verbose: false)
+          end
+          result = File.read(fconsts_name)
           STDERR.puts "* got constants collection output:\n#{result}" if Director.trace?
           begin
             db = JSON.load(result)
           rescue Exception
-            File.open('constants_raw.json', "w") { |f| f << result } if Director.verbose?
+            # File.open('constants_raw.json', "w") { |f| f << result } if Director.verbose?
             ::Kernel.raise RuntimeError, "Exception loading constants collection result: #{$!.message.slice(0, 512)}", cause: nil
           end
           File.open('constants.json', "w") { |f| f << JSON.pretty_generate(db) } if Director.verbose?
           return db
         ensure
           File.unlink(ftmp_name)
+          File.unlink(fconsts_name)
         end
       end
 

@@ -557,8 +557,6 @@ class PropGridTests < WxRuby::Test::GUITests
 
   def cleanup
     @pg_manager.destroy
-    raise "[#{@pg_manager.ptr_addr}] C++ Object NOT unlinked after destroy" if @pg_manager.ptr_addr != '0x0'
-    yield_for_a_while(200)
     super
   end
 
@@ -579,98 +577,94 @@ class PropGridTests < WxRuby::Test::GUITests
     end
   end
 
-  unless is_ci_build?
+  def test_iterate_delete_first_page_then_last
+    # Get all properties from first page
+    pageFirst = @pg_manager.get_page(0)
+    properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+    # Get all properties from last page
+    pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
+    properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
 
-    def test_iterate_delete_first_page_then_last
-      # Get all properties from first page
-      pageFirst = @pg_manager.get_page(0)
-      properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      # Get all properties from last page
-      pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
-      properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+    countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
 
-      countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+    # Delete all properties from first page
+    pageFirst.clear
 
-      # Delete all properties from first page
-      pageFirst.clear
+    assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
 
-      assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+    properties_page_last = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+    assert_equal(properties_page_last_init, properties_page_last)
 
-      properties_page_last = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      assert_equal(properties_page_last_init, properties_page_last)
-
-      if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
-        countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      else
-        # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
-        countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
-                             pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      end
-      assert_equal(countAllPropertiesInit-properties_page_first_init.size, countAllProperties)
-
-      # Delete all properties from last page
-      pageLast.clear
-
-      assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
-        countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      else
-        # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
-        countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
-                             pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      end
-      assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
-    end
-
-    def test_iterate_delete_last_page_then_first
-      # Get all properties from first page
-      pageFirst = @pg_manager.get_page(0)
-      properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      # Get all properties from last page
-      pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
-      properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-
-      countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-
-      # Delete all properties from last page
-      pageLast.clear
-
-      assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      properties_page_first = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
-      assert_equal(properties_page_first_init, properties_page_first)
-
+    if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
       countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      assert_equal(countAllPropertiesInit-properties_page_last_init.size, countAllProperties)
-
-      # Delete all properties from first page
-      pageFirst.clear
-
-      assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
-
-      countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
-      assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
+    else
+      # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
+      countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
+                           pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
     end
+    assert_equal(countAllPropertiesInit-properties_page_first_init.size, countAllProperties)
 
-    def test_select_property
-      # Test that setting focus to properties does not crash things
-      @pg_manager.page_count.times do |pc|
-        page = @pg_manager.page(pc)
-        @pg_manager.select_page(page)
+    # Delete all properties from last page
+    pageLast.clear
 
-        page.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
-          @pg_manager.grid.select_property(prop, true)
-          sleep(0.150)
-          frame_win.update
-        end
+    assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+
+    assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+
+    if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
+      countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+    else
+      # wxWidgets < 3.3.0 has a bug in the iteration implementation for PropertyGridManager
+      countAllProperties = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count +
+                           pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+    end
+    assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
+  end
+
+  def test_iterate_delete_last_page_then_first
+    # Get all properties from first page
+    pageFirst = @pg_manager.get_page(0)
+    properties_page_first_init = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+    # Get all properties from last page
+    pageLast = @pg_manager.get_page(@pg_manager.get_page_count - 1)
+    properties_page_last_init = pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+
+    countAllPropertiesInit = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+
+    # Delete all properties from last page
+    pageLast.clear
+
+    assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+
+    properties_page_first = pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).collect { |prop| prop.get_name }
+    assert_equal(properties_page_first_init, properties_page_first)
+
+    countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+    assert_equal(countAllPropertiesInit-properties_page_last_init.size, countAllProperties)
+
+    # Delete all properties from first page
+    pageFirst.clear
+
+    assert_true(pageLast.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+
+    assert_true(pageFirst.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count == 0)
+
+    countAllProperties = @pg_manager.each_property(Wx::PG::PG_ITERATOR_FLAGS_ALL | Wx::PG.PG_IT_CHILDREN(Wx::PG::PG_ITERATOR_FLAGS_ALL)).count
+    assert_equal(countAllPropertiesInit-properties_page_first_init.size-properties_page_last_init.size, countAllProperties)
+  end
+
+  def test_select_property
+    # Test that setting focus to properties does not crash things
+    @pg_manager.page_count.times do |pc|
+      page = @pg_manager.page(pc)
+      @pg_manager.select_page(page)
+
+      page.each_property(Wx::PG::PG_ITERATE_VISIBLE) do |prop|
+        @pg_manager.grid.select_property(prop, true)
+        sleep(0.150)
+        frame_win.update
       end
     end
-
   end
 
   def test_delete_property

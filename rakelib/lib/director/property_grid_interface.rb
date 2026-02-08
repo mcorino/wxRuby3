@@ -63,7 +63,7 @@ module WXRuby3
               while (!prop_it.AtEnd())
               {
                 wxPGProperty* pp = prop_it.GetProperty();
-                VALUE rb_prop = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+                VALUE rb_prop = wxRuby_WrapWxPGPropertyInRuby(pp);
                 rc = rb_yield(rb_prop);
                 prop_it.Next();
               }
@@ -101,7 +101,7 @@ module WXRuby3
               while (!prop_it.AtEnd())
               {
                 wxPGProperty* pp = prop_it.GetProperty();
-                VALUE rb_prop = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+                VALUE rb_prop = wxRuby_WrapWxPGPropertyInRuby(pp);
                 rc = rb_yield(rb_prop);
                 reverse ? prop_it.Prev() : prop_it.Next();
               }
@@ -137,7 +137,7 @@ module WXRuby3
             for (size_t i = 0; i < $1->GetCount(); i++)
             {
               wxPGProperty* pp = $1->Item(i);
-              VALUE rb_pp = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+              VALUE rb_pp = wxRuby_WrapWxPGPropertyInRuby(pp);
               rb_ary_push($result, rb_pp);
             }
             __CODE
@@ -149,7 +149,7 @@ module WXRuby3
             for (size_t i = 0; i < $1->GetCount(); i++)
             {
               wxPGProperty* pp = $1->Item(i);
-              VALUE rb_pp = SWIG_NewPointerObj(SWIG_as_voidptr(pp), SWIGTYPE_p_wxPGProperty, 0);
+              VALUE rb_pp = wxRuby_WrapWxPGPropertyInRuby(pp);
               rb_ary_push($result, rb_pp);
             }
             __CODE
