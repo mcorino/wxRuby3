@@ -74,6 +74,8 @@ module WXRuby3
         spec.include_mixin 'wxPropertyGrid', 'Wx::PG::PropertyGridInterface'
         # customize mark function
         spec.add_header_code <<~__HEREDOC
+          extern bool WXRuby_Is_In_GC_mark_wxPropertyGridManager();
+
           static void GC_mark_wxPropertyGrid(void* ptr) 
           {
           #ifdef __WXRB_DEBUG__
@@ -87,33 +89,47 @@ module WXRuby3
             // Do standard marking routines as for all wxWindows
             GC_mark_wxWindow(ptr);
             
+            // no need to mark properties if called from GC_mark_wxPropertyGridManager
+            // as that will mark properties through the property grid pages
+            if (WXRuby_Is_In_GC_mark_wxPropertyGridManager())
+              return;
+
+          #ifdef __WXRB_DEBUG__
+            long l = 0, n = 0;
+          #endif
             wxPropertyGrid* wx_pg = (wxPropertyGrid*) ptr;
 
+            VALUE rb_root_prop = SWIG_RubyInstanceFor(wx_pg->GetRoot());
+            if (!NIL_P(rb_root_prop))
+            {
+              rb_gc_mark(rb_root_prop);
+          #ifdef __WXRB_DEBUG__
+              ++n;
+          #endif
+            }
             // mark all properties
             wxPGVIterator it =
                 wx_pg->GetVIterator(wxPG_ITERATOR_FLAGS_ALL | wxPG_IT_CHILDREN(wxPG_ITERATOR_FLAGS_ALL));
             // iterate all
             for ( ; !it.AtEnd(); it.Next() )
             {
-              wxPGProperty* p = it.GetProperty();
-              VALUE rb_p = SWIG_RubyInstanceFor(p);
-              if (NIL_P(rb_p))
-              {
-                VALUE object = (VALUE) p->GetClientData();
-                if ( object && !NIL_P(object))
-                {
           #ifdef __WXRB_DEBUG__
-                  if (wxRuby_TraceLevel()>2)
-                    std::wcout << "*** marking property data " << p << ":" << p->GetName() << std::endl;
+              ++l;
           #endif
-                  rb_gc_mark(object);
-                }
-              }
-              else
+              wxPGProperty* wx_p = it.GetProperty();
+              VALUE rb_prop = SWIG_RubyInstanceFor(wx_p);
+              if (!RB_NIL_P(rb_prop)) 
               {
-                rb_gc_mark(rb_p);
+                rb_gc_mark(rb_prop);
+          #ifdef __WXRB_DEBUG__
+                ++n;
+          #endif
               }
             }
+          #ifdef __WXRB_DEBUG__
+            if (wxRuby_TraceLevel()>1)
+              std::wcout << "GC_mark_wxPropertyGrid: iterated " << l << " properties; marked " << n << std::endl;
+          #endif
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPropertyGrid "GC_mark_wxPropertyGrid";'

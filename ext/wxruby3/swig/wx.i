@@ -94,7 +94,7 @@ WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
     std::wcout << "("
                << ptr << ":{"
                << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
-               << "})" << std::endl;
+               << "}, " << object << ")" << std::endl;
   }
 #endif
   Global_Ptr_Map[ptr] = object;
@@ -114,7 +114,7 @@ WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr)
 {
 #ifdef __WXRB_DEBUG__
   if (wxRuby_TraceLevel()>1)
-    std::wcout << "< wxRuby_RemoveTracking(" << ptr << ")" << std::endl;
+    std::wcout << "< wxRuby_RemoveTracking(" << ptr << ") -> " << wxRuby_FindTracking(ptr)  << std::endl;
 #endif
   Global_Ptr_Map.erase(ptr);
 }
