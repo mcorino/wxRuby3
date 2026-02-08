@@ -17,6 +17,8 @@
 
 #include <wx/filesys.h>
 #include <wx/fs_zip.h>
+
+#include <unordered_map>
 %}
 
 // Some common functions
@@ -75,12 +77,10 @@ WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClassName(const char* clsname
   return wxRuby_GetSwigTypeForClass(rb_const_get(wxRuby_Core(), rb_intern(clsname)));
 }
 
-// Overriding standard SWIG tracking - SWIG's implementation is not
-// compatible with ruby 1.8.7 / 1.9.x as it can allocate BigNum objects
-// during GC , which is an error. So instead we provide a C++ ptr->Ruby
-// object map using Wx's hashmap class.
-WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
-                            PtrToRbObjHash);
+// Overriding standard SWIG tracking.
+// We don't want to use any functionality that could interfere with
+// Ruby GC handling so we use standard C++ hash maps.
+typedef std::unordered_map<void*, VALUE> PtrToRbObjHash;
 PtrToRbObjHash Global_Ptr_Map;
 
 // Add a tracking from ptr -> object
@@ -97,6 +97,22 @@ WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
                << "}, " << object << ")" << std::endl;
   }
 #endif
+  // Check if an 'old' tracking registry exists.
+  if (Global_Ptr_Map.count(ptr) == 1)
+  {
+    // This can happen if the C++ referenced by a Ruby object is managed by
+    // a wxWidgets object and deleted without unlinking the Ruby object.
+    // In these cases we unlink the previously linked Ruby object here
+    // (if not the same Ruby object which should not be possible).
+    // This will prevent SIGSEGV when attempting to call anything for
+    // these objects but instead cause more informative exceptions.
+    VALUE old_obj = Global_Ptr_Map[ptr];
+    if (!NIL_P(old_obj) && old_obj != object)
+    {
+      DATA_PTR(old_obj) = 0;
+    }
+
+  }
   Global_Ptr_Map[ptr] = object;
 }
 
