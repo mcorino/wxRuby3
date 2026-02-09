@@ -16,7 +16,7 @@ module WXRuby3
         spec.items.replace(%w[wxAcceleratorEntry wxAcceleratorTable])
         spec.disable_proxies
 
-        spec.gc_as_object('wxAcceleratorEntry')
+        spec.gc_as_untracked('wxAcceleratorTable', 'wxAcceleratorEntry')
         spec.ignore 'wxAcceleratorEntry::operator!='
         spec.add_header_code <<~__HEREDOC
           // Allow integer keycodes to be specified with a single-ASCII-character

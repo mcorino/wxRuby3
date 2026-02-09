@@ -66,4 +66,25 @@ class MenuTests < WxRuby::Test::GUITests
     assert_true(radio.checked?)
   end
 
+  def test_accelerators
+    if Wx.has_feature?(:USE_ACCEL)
+      10.times do
+        accel_keys = { "Z" => Wx::ID_UNDO,
+                       "Y" => Wx::ID_REDO,
+                       "C" => Wx::ID_COPY,
+                       "X" => Wx::ID_CUT,
+                       "V" => Wx::ID_PASTE }
+        accel_table = accel_keys.keys.map do | key |
+          [ Wx::MOD_CMD, key, accel_keys[key] ]
+        end
+
+        accel_table = Wx::AcceleratorTable[ *accel_table ]
+        frame_win.accelerator_table = accel_table
+        assert_true(accel_table.ok?)
+        assert_true(frame_win.accelerator_table.ok?)
+        GC.start
+      end
+    end
+  end
+
 end
