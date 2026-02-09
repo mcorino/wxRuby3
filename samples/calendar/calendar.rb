@@ -23,6 +23,7 @@ module CalendarTest
   Calendar_Cal_Year = 204
   Calendar_Cal_SeqMonth = 205
   Calendar_Cal_SurroundWeeks = 206
+  Calendar_Cal_Generic = 207
 
   Calendar_DatePicker_AskDate = 300
   Calendar_DatePicker_ShowCentury = 301
@@ -31,6 +32,51 @@ module CalendarTest
   Calendar_DatePicker_StartWithNone = 304
 
   class MyCalendar < CalendarCtrl
+    attr_reader :date
+
+    def initialize(parent, display_frame, initial_date, calendar_flags)
+      super( parent,
+             :date  => initial_date,
+             :style => calendar_flags | Wx::RAISED_BORDER)
+
+      @display = display_frame
+      @date = initial_date
+      @weekday_names = %w|Sun Mon Tue Wed Thu Fri Sat|
+
+      evt_calendar self, :on_calendar
+      evt_calendar_sel_changed self, :on_calendar_change
+      evt_calendar_weekday_clicked self, :on_calendar_weekday_click
+      evt_right_down :on_hit_test
+    end
+
+    def on_calendar(event)
+      @display.date = event.date
+    end
+
+    def on_calendar_change(event)
+      @date = event.date
+      Wx.log_status("Selected date: #{@date.strftime('%A %d %B %Y')}")
+    end
+
+    def on_calendar_weekday_click(event)
+      wday = event.week_day
+      Wx.log_status("Clicked on #{@weekday_names[wday]}")
+    end
+
+    def on_hit_test(event)
+      hit = hit_test(event.position)
+      case hit
+      when Time, DateTime
+        Wx.log_status("Hit-test: date #{hit}")
+      when Fixnum
+        Wx.log_status("Hit-test: weekday header #{hit}")
+      when NilClass
+        Wx.log_status("Hit-test: Nothing")
+      end
+    end
+  end
+
+  class MyGenericCalendar < GenericCalendarCtrl
     attr_reader :date
 
     def initialize(parent, display_frame, initial_date, calendar_flags)
@@ -102,10 +148,16 @@ module CalendarTest
       evt_menu Calendar_Cal_Month, :on_cal_allow_month
       evt_menu Calendar_Cal_Year, :on_cal_allow_year  if Wx::PLATFORM == 'WXOSX'
 
+      evt_menu Calendar_Cal_Generic, :on_cal_use_generic
+
       evt_menu Calendar_Cal_SeqMonth, :on_cal_seq_month
       evt_menu Calendar_Cal_SurroundWeeks, :on_cal_show_surrounding_weeks
 
       evt_update_ui Calendar_Cal_Year, :on_allow_year_update
+    end
+
+    protected def calendar_klass
+      get_menu_bar.is_checked(Calendar_Cal_Generic) ? MyGenericCalendar : MyCalendar
     end
 
     def add_menu_bar
@@ -142,6 +194,10 @@ module CalendarTest
       menu_cal.append(Calendar_Cal_Year, "&Year can be changed\tCtrl-Y",
                       "Allow changing the year in the calendar",
                       Wx::ITEM_CHECK) if Wx::PLATFORM == 'WXOSX'
+      menu_cal.append_separator
+      menu_cal.append(Calendar_Cal_Generic, "Use generic control",
+                      "Use Generic Calendar control",
+                      Wx::ITEM_CHECK)
 
       menu_date = Wx::Menu.new
       menu_date.append_check_item(Calendar_DatePicker_ShowCentury, "Al&ways show century")
@@ -216,6 +272,13 @@ module CalendarTest
       @calendar.enable_year_change(allow)
     end
 
+    def on_cal_use_generic(_event)
+      calendar = calendar_klass.new(@panel, self, Wx::DEFAULT_DATE_TIME, @calendar_flags)
+      @sizer.replace(@calendar, calendar)
+      @calendar.destroy
+      @calendar = calendar
+    end
+
     def on_cal_seq_month(event)
       allow = get_menu_bar.is_checked(event.get_id)
       toggle_cal_style(allow, Wx::CAL_SEQUENTIAL_MONTH_SELECTION)
@@ -271,7 +334,7 @@ module CalendarTest
       else
         style &= ~flag
       end
-      @calendar = MyCalendar.new(@panel, self, date, style)
+      @calendar = calendar_klass.new(@panel, self, date, style)
       @sizer.add(@calendar, 0, Wx::ALIGN_CENTRE|Wx::ALL, 5)
       @panel.layout
     end

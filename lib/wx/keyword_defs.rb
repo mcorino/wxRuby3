@@ -317,6 +317,15 @@ Wx::define_keyword_ctors(Wx::CalendarCtrl) do
   wx_ctor_params :name => Wx::CALENDAR_NAME_STR
 end
 
+unless Wx::PLATFORM == 'WXOSX'
+  # Control showing an entire calendar month
+  Wx::define_keyword_ctors(Wx::GenericCalendarCtrl) do
+    wx_ctor_params :id, :date => Time.now()
+    wx_ctor_params :pos, :size, :style => Wx::CAL_SHOW_HOLIDAYS
+    wx_ctor_params :name => Wx::CALENDAR_NAME_STR
+  end
+end
+
 # 	Checkbox control
 Wx::define_keyword_ctors(Wx::CheckBox) do
   wx_ctor_params :id, :label => ''
