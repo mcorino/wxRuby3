@@ -6,14 +6,6 @@ require_relative './lib/wxframe_runner'
 
 class PropGridTests < WxRuby::Test::GUITests
 
-  def yield_for_a_while(msec)
-    timeout = msec / 1000.0 # sec float
-    start = ::Time.now
-    while (Time.now - start) < timeout
-      Wx.get_app.yield
-    end
-  end
-
   def populate_with_standard_items(pgman)
     pg = pgman.get_page("Standard Items")
 
