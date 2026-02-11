@@ -175,7 +175,7 @@ module WxRuby
       end
 
       def self.has_ui_simulator?
-        Wx.has_feature?(:USE_UIACTIONSIMULATOR) && (Wx::PLATFORM != 'WXOSX' || Wx::WXWIDGETS_VERSION >= '3.3')
+        Wx.has_feature?(:USE_UIACTIONSIMULATOR) && (Wx::PLATFORM != 'WXGTK' || !uses_wayland?) && (Wx::PLATFORM != 'WXOSX' || Wx::WXWIDGETS_VERSION >= '3.3')
       end
 
       def has_ui_simulator?

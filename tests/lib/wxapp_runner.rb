@@ -74,6 +74,14 @@ module Test
         TestCase.is_ci_build?
       end
 
+      def self.uses_wayland?
+        Wx.has_feature?('HAVE_WAYLAND_CLIENT')
+      end
+
+      def uses_wayland?
+        TestCase.uses_wayland?
+      end
+
     end
   end
 end
