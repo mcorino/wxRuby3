@@ -239,6 +239,7 @@ class RichTextCtrlFieldTypeTests < WxRuby::Test::GUITests
   def test_write_custom_field
     rt_field = richtext.write_field('TEST', Wx::RTC::RichTextProperties.new)
     assert_kind_of(Wx::RTC::RichTextField, rt_field)
+    yield_for_a_while(200)
     # the timing of the RichTextCtrl update is too unreliable
     # to use this in CI builds
     unless is_ci_build?
