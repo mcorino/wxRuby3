@@ -44,6 +44,15 @@ jobs:
           configure_flags: --disable-sys-libs
           wxw_type: develop
           wxr_type: gem
+        - name: wxMac macOS 26
+          runner: macos-26
+          arch: arm64
+          wxWidgets: 'master'
+          ruby: '3.4'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxr_type: develop
 
     env:
       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
