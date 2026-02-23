@@ -83,7 +83,7 @@ class ComboCtrlCtrlTests < WxRuby::Test::GUITests
     @combo.set_popup_control(LVComboPopup.new)
   end
 
-  def cleanup
+  def teardown
     @combo.destroy
     super
   end
@@ -162,7 +162,7 @@ class OwnerDrawnCBTests < WxRuby::Test::GUITests
     @combo = TestODComboBox.new(frame_win, name: 'ODComboBox')
   end
 
-  def cleanup
+  def teardown
     @combo.destroy
     super
   end

@@ -11,7 +11,7 @@ class WindowTests < WxRuby::Test::GUITests
     @window = Wx::Window.new(frame_win)
   end
 
-  def cleanup
+  def teardown
     frame_win.destroy_children
     @window = nil
     super
@@ -112,7 +112,7 @@ class WindowTests < WxRuby::Test::GUITests
       caret = nil
   
       # Try creating the caret in two different, but normally equivalent, ways.
-      assert_nothing_raised("Caret 1-step") do
+      assert_nothing_raised do
         caret = Wx::Caret.new(window, [16, 16])
 
         window.set_caret(caret)
@@ -120,7 +120,7 @@ class WindowTests < WxRuby::Test::GUITests
         assert(window.get_caret.ok?)
       end
   
-      assert_nothing_raised("Caret 2-step") do
+      assert_nothing_raised do
         caret = Wx::Caret.new
         caret.create(window, [16, 16])
 
@@ -192,20 +192,20 @@ class WindowTests < WxRuby::Test::GUITests
   end
 
   def test_parent
-    assert_equal(nil, window.get_grand_parent)
+    assert_nil(window.get_grand_parent)
     assert_equal(frame_win, window.get_parent)
   end
 
   def test_sibling
-    assert_equal(nil, window.get_next_sibling)
-    assert_equal(nil, window.get_prev_sibling)
+    assert_nil(window.get_next_sibling)
+    assert_nil(window.get_prev_sibling)
 
     newwin = Wx::Window.new(frame_win, Wx::ID_ANY)
 
     assert_equal(newwin, window.get_next_sibling)
-    assert_equal(nil, window.get_prev_sibling)
+    assert_nil(window.get_prev_sibling)
 
-    assert_equal(nil, newwin.get_next_sibling)
+    assert_nil(newwin.get_next_sibling)
     assert_equal(window, newwin.get_prev_sibling)
   end
 
@@ -347,8 +347,8 @@ class WindowTests < WxRuby::Test::GUITests
     assert_equal(window, Wx::Window.find_window_by_name("name"))
     assert_equal(window, Wx::Window.find_window_by_label("label"))
 
-    assert_equal(nil, Wx::Window.find_window_by_id(Wx::ID_HIGHEST + 3))
-    assert_equal(nil, Wx::Window.find_window_by_name("noname"))
-    assert_equal(nil, Wx::Window.find_window_by_label("nolabel"))
+    assert_nil(Wx::Window.find_window_by_id(Wx::ID_HIGHEST + 3))
+    assert_nil(Wx::Window.find_window_by_name("noname"))
+    assert_nil(Wx::Window.find_window_by_label("nolabel"))
   end
 end

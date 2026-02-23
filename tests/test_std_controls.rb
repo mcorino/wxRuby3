@@ -13,7 +13,7 @@ class ButtonTests < WxRuby::Test::GUITests
     @button = Wx::Button.new(frame_win, label: 'Button')
   end
 
-  def cleanup
+  def teardown
     @button.destroy
     super
   end
@@ -99,7 +99,7 @@ class TextCtrlTests < WxRuby::Test::GUITests
     @text = Wx::TextCtrl.new(frame_win, name: 'Text')
   end
 
-  def cleanup
+  def teardown
     @text.destroy
     super
   end
@@ -196,7 +196,7 @@ class ComboBoxTests < WxRuby::Test::GUITests
     @combo.value = '' # don't use #clear as that also clears the choices
   end
 
-  def cleanup
+  def teardown
     @combo.destroy
     super
   end
@@ -230,7 +230,7 @@ class CheckBoxTests < WxRuby::Test::GUITests
     @check = Wx::CheckBox.new(frame_win, label: 'Check Box')
   end
 
-  def cleanup
+  def teardown
     @check.destroy
     super
   end
@@ -319,7 +319,7 @@ class RadioBoxTests < WxRuby::Test::GUITests
     @radiobox = Wx::RadioBox.new(frame_win, label: 'Radio Box', choices: ['item 0', 'item 1', 'item 2'])
   end
 
-  def cleanup
+  def teardown
     @radiobox.destroy
     super
   end
@@ -409,7 +409,7 @@ class ChoiceTests < WxRuby::Test::GUITests
     @choice = Wx::Choice.new(frame_win, name: 'Choice')
   end
 
-  def cleanup
+  def teardown
     @choice.destroy
     super
   end
@@ -430,7 +430,7 @@ class GaugeTests < WxRuby::Test::GUITests
     @gauge = Wx::Gauge.new(frame_win, range: 100)
   end
 
-  def cleanup
+  def teardown
     frame_win.destroy_children
     super
   end
@@ -488,7 +488,7 @@ class StaticBoxTests < WxRuby::Test::GUITests
     @box = nil
   end
 
-  def cleanup
+  def teardown
     @box.destroy if @box
     super
   end

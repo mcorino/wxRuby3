@@ -11,7 +11,7 @@ class TreeCtrlTests < WxRuby::Test::GUITests
     @tree = Wx::TreeCtrl.new(frame_win, name: 'TreeCtrl')
   end
 
-  def cleanup
+  def teardown
     @tree.destroy
     super
   end

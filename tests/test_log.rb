@@ -48,7 +48,7 @@ class LogTests < Test::Unit::TestCase
     @logWasEnabled = Wx::Log.enable_logging
   end
 
-  def cleanup
+  def teardown
     Wx::Log.set_active_target(@logOld)
     Wx::Log.enable_logging(@logWasEnabled)
     super

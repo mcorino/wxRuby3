@@ -11,7 +11,7 @@ class ValidatorTests  < WxRuby::Test::GUITests
     @text = Wx::TextCtrl.new(frame_win, name: 'Text')
   end
 
-  def cleanup
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -78,7 +78,7 @@ class TextValidatorTests < WxRuby::Test::GUITests
     @text = nil
   end
 
-  def cleanup
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -300,7 +300,7 @@ class IntegerValidatorTests < WxRuby::Test::GUITests
     @text = Wx::TextCtrl.new(frame_win, name: 'Text')
   end
 
-  def cleanup
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -408,7 +408,7 @@ class UnsignedValidatorTests < WxRuby::Test::GUITests
     @text = Wx::TextCtrl.new(frame_win, name: 'Text')
   end
 
-  def cleanup
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -519,7 +519,7 @@ class FloatValidatorTests < WxRuby::Test::GUITests
     @text = Wx::TextCtrl.new(frame_win, name: 'Text')
   end
 
-  def cleanup
+  def teardown
     @text.destroy if @text
     @text = nil
     super
@@ -638,7 +638,7 @@ class GenericValidatorTests  < WxRuby::Test::GUITests
     @control = nil
   end
 
-  def cleanup
+  def teardown
     @control.destroy if @control
     @control = nil
     super

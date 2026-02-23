@@ -35,7 +35,7 @@ class TestItemData < Test::Unit::TestCase
     f.control.append('integer')
     assert_equal(4, f.control.count)
     assert_equal('integer', f.control.get_string(3))
-    assert_equal(nil, f.control.get_item_data(3))
+    assert_nil(f.control.get_item_data(3))
 
     # single item append; with data
     f.control.append('array', 110)
@@ -46,8 +46,8 @@ class TestItemData < Test::Unit::TestCase
     # array item append; no data
     f.control.append(%w[set tree bag])
     assert_equal(8, f.control.count)
-    assert_equal(nil, f.control.get_item_data(5))
-    assert_equal(nil, f.control.get_item_data(7))
+    assert_nil(f.control.get_item_data(5))
+    assert_nil(f.control.get_item_data(7))
 
     # array item append; with data
     f.control.append(%w[object module class], ['O', 'M', 'C'])
@@ -61,7 +61,7 @@ class TestItemData < Test::Unit::TestCase
     f.control.insert('integer2', 3)
     assert_equal(12, f.control.count)
     assert_equal('integer2', f.control.get_string(3))
-    assert_equal(nil, f.control.get_item_data(3))
+    assert_nil(f.control.get_item_data(3))
 
     # single item insert; with data
     f.control.insert('array2', 4, 110)
@@ -72,8 +72,8 @@ class TestItemData < Test::Unit::TestCase
     # array item insert; no data
     f.control.insert(%w[set2 tree2 bag2], 5)
     assert_equal(16, f.control.count)
-    assert_equal(nil, f.control.get_item_data(5))
-    assert_equal(nil, f.control.get_item_data(7))
+    assert_nil(f.control.get_item_data(5))
+    assert_nil(f.control.get_item_data(7))
 
     # array item insert; with data
     f.control.insert(%w[object2 module2 class2], 8, ['O', 'M', 'C'])
@@ -171,12 +171,12 @@ class TestItemData < Test::Unit::TestCase
   def test_listctrl_itemdata
     f = CtrlContainerFrame.new(Wx::ListCtrl)
     lc = f.control
-    assert_equal(nil, lc.get_item_data(-7))
-    assert_equal(nil, lc.get_item_data(0))
-    assert_equal(nil, lc.get_item_data(118))
+    assert_nil(lc.get_item_data(-7))
+    assert_nil(lc.get_item_data(0))
+    assert_nil(lc.get_item_data(118))
 
     lc.insert_item(0, 'string')
-    assert_equal(nil, lc.get_item_data(0))
+    assert_nil(lc.get_item_data(0))
 
     lc.set_item_data(0, 'a string')
     assert_equal('a string', lc.get_item_data(0))
@@ -184,7 +184,7 @@ class TestItemData < Test::Unit::TestCase
     assert_equal('a string', lc.get_item_data(0))
 
     lc.insert_item(1, 'hash')
-    assert_equal(nil, lc.get_item_data(1))
+    assert_nil(lc.get_item_data(1))
 
     lc.set_item_data(1, { :a => 457 })
     assert_equal({ :a => 457 }, lc.get_item_data(1))

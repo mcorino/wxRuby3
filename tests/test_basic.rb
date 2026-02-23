@@ -2,10 +2,10 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'wx'
 
-class BasicTests < Test::Unit::TestCase
+class BasicTests < Minitest::Test
 
   def test_versions
     assert_equal(Wx::WXRUBY_VERSION, "#{Wx::WXRUBY_MAJOR}.#{Wx::WXRUBY_MINOR}.#{Wx::WXRUBY_RELEASE}#{Wx::WXRUBY_RELEASE_TYPE.empty? ? '' : '-'+Wx::WXRUBY_RELEASE_TYPE}")

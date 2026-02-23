@@ -2,10 +2,10 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'wx'
 
-class GeometryTests < Test::Unit::TestCase
+class GeometryTests < Minitest::Test
 
   def test_size
     sz = Wx::Size.new(10, 20)

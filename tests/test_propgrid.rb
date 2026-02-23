@@ -547,7 +547,7 @@ class PropGridTests < WxRuby::Test::GUITests
     @pg_manager = create_grid(-1, -1)
   end
 
-  def cleanup
+  def teardown
     @pg_manager.destroy
     super
   end

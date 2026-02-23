@@ -16,7 +16,7 @@ class MediaCtrlTests < WxRuby::Test::GUITests
     @media = Wx::MediaCtrl.new(frame_win)
   end
 
-  def cleanup
+  def teardown
     @media.destroy
     super
   end

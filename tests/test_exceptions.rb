@@ -2,11 +2,11 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'plat4m'
 require 'open3'
 
-class DirectorExceptionTests < Test::Unit::TestCase
+class DirectorExceptionTests < Minitest::Test
 
   # Path to the currently running Ruby program
   RUBY = ENV["RUBY"] || File.join(
