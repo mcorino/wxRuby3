@@ -313,6 +313,10 @@ class TestConfig < Test::Unit::TestCase
     assert_true(hlp_cfg.has_entry?('/htmlHelpCopy/hcY'))
     assert_true(hlp_cfg.has_entry?('/htmlHelpCopy/hcW'))
     assert_true(hlp_cfg.has_entry?('/htmlHelpCopy/hcH'))
+
+    # clean up; force GC of help controller before the used config get's deleted
+    hlp_ctrl = nil
+    GC.start
   end
 
 end
