@@ -17,12 +17,6 @@ class ValidatorTests  < WxRuby::Test::GUITests
     super
   end
 
-  def teardown
-    @text.destroy if @text
-    @text = nil
-    super
-  end
-
   attr_accessor :text
 
   class MyTextValidator < Wx::Validator
@@ -76,12 +70,6 @@ class TextValidatorTests < WxRuby::Test::GUITests
   def setup
     super
     @text = nil
-  end
-
-  def teardown
-    @text.destroy if @text
-    @text = nil
-    super
   end
 
   def teardown
@@ -306,12 +294,6 @@ class IntegerValidatorTests < WxRuby::Test::GUITests
     super
   end
 
-  def teardown
-    @text.destroy if @text
-    @text = nil
-    super
-  end
-
   attr_accessor :text
 
   def test_no_custom_transfer
@@ -406,12 +388,6 @@ class UnsignedValidatorTests < WxRuby::Test::GUITests
   def setup
     super
     @text = Wx::TextCtrl.new(frame_win, name: 'Text')
-  end
-
-  def teardown
-    @text.destroy if @text
-    @text = nil
-    super
   end
 
   def teardown
@@ -525,12 +501,6 @@ class FloatValidatorTests < WxRuby::Test::GUITests
     super
   end
 
-  def teardown
-    @text.destroy if @text
-    @text = nil
-    super
-  end
-
   attr_accessor :text
 
   def test_no_custom_transfer
@@ -636,12 +606,6 @@ class GenericValidatorTests  < WxRuby::Test::GUITests
   def setup
     super
     @control = nil
-  end
-
-  def teardown
-    @control.destroy if @control
-    @control = nil
-    super
   end
 
   def teardown
