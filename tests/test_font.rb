@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class FontTests < Test::Unit::TestCase
+class FontTests < WxRuby::Test::Unit
 
   def get_test_fonts
     [

@@ -12,7 +12,7 @@ class CtrlContainerFrame < Wx::Frame
   end
 end
 
-class TestItemData < Test::Unit::TestCase
+class TestItemData < WxRuby::Test::Unit
   def assert_retrievable_data(ctrl, n, test_value)
     compare = Marshal.load( Marshal.dump(test_value) )
     ctrl.set_item_data(n, test_value)

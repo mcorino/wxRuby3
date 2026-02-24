@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestConfig < Test::Unit::TestCase
+class TestConfig < WxRuby::Test::Unit
 
   DEMO_CONFIG = {
     'RootEntry1' => 'This is a string value',

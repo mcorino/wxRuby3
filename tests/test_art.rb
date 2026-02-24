@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestArt < Test::Unit::TestCase
+class TestArt < WxRuby::Test::Unit
 
   def test_icons
     icons = []

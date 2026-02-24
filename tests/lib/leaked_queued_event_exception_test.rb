@@ -4,7 +4,7 @@
 
 require_relative './wxapp_runner'
 
-class QueuedEventHandlingExceptionTests < Test::Unit::TestCase
+class QueuedEventHandlingExceptionTests < WxRuby::Test::Unit
 
   class TestEvent < Wx::Event
     EVT_TEST_EVENT = Wx::EvtHandler.register_class(self, nil, 'evt_test_event', 0)

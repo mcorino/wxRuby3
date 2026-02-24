@@ -72,7 +72,7 @@ module WxRuby
       end
     end
 
-    class GUITests < ::Test::Unit::TestCase
+    class GUITests < Test::Unit
 
       def after_setup
         10.times { Wx.get_app.yield }

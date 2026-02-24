@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class LogTests < Test::Unit::TestCase
+class LogTests < WxRuby::Test::Unit
 
   class TestLogBase < Wx::Log
 

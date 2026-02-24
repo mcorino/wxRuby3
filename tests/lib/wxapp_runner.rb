@@ -30,20 +30,14 @@ module WxRuby
       attr_reader :result
     end
 
-  end
-
-end
-
-module Test
-  module Unit
-    class TestCase < Minitest::Test
+    class Unit < Minitest::Test
 
       def self.is_ci_build?
         (ENV['GITHUB_ACTION'] || ENV['CI'])
       end
 
       def is_ci_build?
-        TestCase.is_ci_build?
+        Unit.is_ci_build?
       end
 
       def self.uses_wayland?
@@ -51,11 +45,13 @@ module Test
       end
 
       def uses_wayland?
-        TestCase.uses_wayland?
+        Unit.uses_wayland?
       end
 
     end
+
   end
+
 end
 
 module Minitest

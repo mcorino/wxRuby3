@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestArtProvider < Test::Unit::TestCase
+class TestArtProvider < WxRuby::Test::Unit
 
   class MyArtProvider < Wx::ArtProvider
 

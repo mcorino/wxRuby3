@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class EventTests < Test::Unit::TestCase
+class EventTests < WxRuby::Test::Unit
 
   def test_event
     evt = Wx::Event.new(100, 1)

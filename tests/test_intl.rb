@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestInternationalisation < Test::Unit::TestCase
+class TestInternationalisation < WxRuby::Test::Unit
   def test_encodings
     default = Wx::Font.get_default_encoding
     assert_kind_of(Wx::FontEncoding, default)

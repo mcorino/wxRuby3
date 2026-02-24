@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestGDIObjects < Test::Unit::TestCase
+class TestGDIObjects < WxRuby::Test::Unit
 
   def test_icon
     ico = Wx::Icon(:sample3)

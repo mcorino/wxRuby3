@@ -6,7 +6,7 @@ require_relative './lib/wxapp_runner'
 
 require 'digest'
 
-class TestSecretStore < Test::Unit::TestCase
+class TestSecretStore < WxRuby::Test::Unit
 
   unless is_ci_build?
 
