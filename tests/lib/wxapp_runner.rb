@@ -60,9 +60,11 @@ end
 
 module Minitest
 
+  RUN_ALL_METHOD = VERSION >= '6.0.0' ? :run_all_suites : :__run
+
   class << self
-    org_run_all_suites_mtd = instance_method :run_all_suites
-    define_method :run_all_suites do |*args, **kwargs|
+    org_run_all_suites_mtd = instance_method RUN_ALL_METHOD
+    define_method RUN_ALL_METHOD do |*args, **kwargs|
       (app = WxRuby::Test::App.new(self, org_run_all_suites_mtd, *args, **kwargs)).run
       app.result
     end
