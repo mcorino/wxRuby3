@@ -242,7 +242,7 @@ jobs:
         if: matrix.wxw_type == 'embed'
         run: |
           If ("${{ matrix.wxr_type }}" -eq "develop") {
-            bundle exec rake "wxruby:exec[ruby,tools/check_wxw_version.rb,${{ matrix.wxw_version }}"        
+            bundle exec rake "wxruby:exec[ruby,tools/check_wxw_version.rb,${{ matrix.wxw_version }}]"        
           }
           Else {
             ruby tools/check_wxw_version.rb "${{ matrix.wxw_version }}"
