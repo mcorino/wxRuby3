@@ -357,7 +357,7 @@ jobs:
     - name: Check wxRuby3 gem install
       if: matrix.wxr_type != 'develop'
       run: |
-        wxruby check
+        wxruby check -v
 
     - name: Check embedded wxWidgets version
       if: matrix.wxw_type == 'embed'
