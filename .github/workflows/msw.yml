@@ -49,7 +49,7 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    name: wxMSW wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+    name: wxMSW wxRuby(${{ matrix.wxr_type }}) ${{ matrix.CXX }} ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxw_version }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
     strategy:
       fail-fast: false
       matrix:
@@ -60,6 +60,7 @@ jobs:
             ruby: '3.0'
             swig: '4'
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
           - os: windows-2022
             platform: 'x64'
@@ -67,6 +68,7 @@ jobs:
             ruby: '3.1'
             swig: '4'
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
           - os: windows-2022
             platform: 'x64'
@@ -74,6 +76,7 @@ jobs:
             ruby: 'ruby'
             swig: '4'
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
           - os: windows-2022
             platform: 'x64'
@@ -81,6 +84,7 @@ jobs:
             ruby: 'ruby'
             swig: '4'
             wxw_type: develop
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
           - os: windows-2022
             platform: 'x64'
@@ -88,6 +92,7 @@ jobs:
             ruby: 'ruby'
             swig: '4'
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: binpkg
           - os: windows-2022
             platform: 'x64'
@@ -95,6 +100,7 @@ jobs:
             ruby: 'ruby'
             swig: '4'
             wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
           - os: windows-2022
             platform: 'x64'
@@ -102,6 +108,7 @@ jobs:
             ruby: 'ruby'
             swig: '4'
             wxw_type: develop
+            wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
 
     steps:
@@ -114,7 +121,7 @@ jobs:
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
-          ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
+          ref: v${{ matrix.wxw_version }}
           submodules: 'recursive'
 
       - name: Install Ruby
@@ -173,7 +180,12 @@ jobs:
         if: matrix.wxr_type != 'gem'
         run: |
           If ("${{ matrix.wxw_type }}" -eq "embed") {
-            bundle exec rake configure[--autoinstall]
+            If ("${{ matrix.wxw_version }}" -eq "$WXWIDGETS_LATEST_STABLE") {
+              bundle exec rake configure[--autoinstall]
+            }
+            Else {
+              bundle exec rake configure[--autoinstall,--with-wxwin,--wxversion=${{ matrix.wxw_version }}]
+            }
           }
           Else {
             bundle exec rake configure WXWIN=$env:WXWIN_ROOT
@@ -206,7 +218,12 @@ jobs:
         run: |
           If ("${{ matrix.wxw_type }}" -eq "embed") {
             If ("${{ matrix.wxr_type }}" -eq "gem") {
-              foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall }
+              If ("${{ matrix.wxw_version }}" -eq "$WXWIDGETS_LATEST_STABLE") {
+                foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall }
+              }
+              Else {
+                foreach ($f in Get-ChildItem -Path pkg\*.gem) { gem install $f -- prebuilt=none && wxruby setup --autoinstall --with-wxwin --wxversion=${{ matrix.wxw_version }} }
+              }
             }
             Else {
               foreach ($f in Get-ChildItem -Path pkg\*.gem) { foreach ($p in Get-ChildItem -Path pkg\*.pkg) {  gem install $f -- package=$p } }
@@ -225,10 +242,10 @@ jobs:
         if: matrix.wxw_type == 'embed'
         run: |
           If ("${{ matrix.wxr_type }}" -eq "develop") {
-            bundle exec rake "wxruby:exec[ruby,tools/check_wxw_version.rb,$env:WXWIDGETS_LATEST_STABLE]"        
+            bundle exec rake "wxruby:exec[ruby,tools/check_wxw_version.rb,${{ matrix.wxw_version }}"        
           }
           Else {
-            ruby tools/check_wxw_version.rb "$env:WXWIDGETS_LATEST_STABLE"
+            ruby tools/check_wxw_version.rb "${{ matrix.wxw_version }}"
           }
 
       - name: Run wxRuby3 regression tests

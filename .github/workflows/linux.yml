@@ -264,7 +264,7 @@ jobs:
           if [ "${{ matrix.wxw_version }}" == "$WXWIDGETS_LATEST_STABLE" ]; then
             bundle exec rake configure[--autoinstall]
           else
-            bundle exec rake configure[--autoinstall,--wxversion=${{ matrix.wxw_version }}]
+            bundle exec rake configure[--autoinstall,--with-wxwin,--wxversion=${{ matrix.wxw_version }}]
           fi
         elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure[--wxwin=$WXWIN_INSTALL,--wxxml=$WXWIDGETS_ROOT/docs/doxygen/out/xml]
