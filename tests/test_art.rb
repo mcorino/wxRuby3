@@ -67,7 +67,7 @@ class TestArt < WxRuby::Test::Unit
       cursor = Wx.Cursor(:wxruby)
     end
     assert_instance_of(Wx::Cursor, cursor)
-    assert { cursor.ok? }
+    assert(cursor.ok?)
   end
 
   end
