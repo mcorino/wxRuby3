@@ -14,7 +14,7 @@ class GridSizerTests < WxRuby::Test::GUITests
     @win.set_sizer(@sizer)
   end
 
-  def cleanup
+  def teardown
     frame_win.destroy_children
     @win = nil
     @sizer = nil
@@ -55,7 +55,7 @@ class FlexGridSizerTests < WxRuby::Test::GUITests
     @win.set_sizer(@sizer)
   end
 
-  def cleanup
+  def teardown
     frame_win.destroy_children
     @win = nil
     @sizer = nil

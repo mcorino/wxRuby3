@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class DialogTests < Test::Unit::TestCase
+class DialogTests < WxRuby::Test::Unit
 
   class TestDialog < Wx::Dialog
     def initialize

@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestDC < Test::Unit::TestCase
+class TestDC < WxRuby::Test::Unit
 
   def test_memory_dc
     bmp = Wx::Bitmap.new(100, 100)

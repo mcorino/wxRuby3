@@ -14,7 +14,7 @@ class SearchCtrlTests < WxRuby::Test::GUITests
     @search = Wx::SearchCtrl.new(frame_win, name: 'SearchCtrl')
   end
 
-  def cleanup
+  def teardown
     @search.destroy
     super
   end
@@ -35,7 +35,7 @@ class CalendarCtrlTests < WxRuby::Test::GUITests
     @cal = Wx::CalendarCtrl.new(frame_win, name: 'Calendar')
   end
 
-  def cleanup
+  def teardown
     @cal.destroy
     super
   end
@@ -65,7 +65,7 @@ class HyperlinkCtrlTests < WxRuby::Test::GUITests
     @link = Wx::HyperlinkCtrl.new(frame_win, label: 'Hyperlink', url: 'https://mcorino.github.io/wxRuby3/Wx/HyperlinkCtrl.html', name: 'Hyperlink')
   end
 
-  def cleanup
+  def teardown
     @link.destroy
     super
   end
@@ -85,7 +85,7 @@ class BannerWindowTests < WxRuby::Test::GUITests
     @banner = Wx::BannerWindow.new(frame_win, dir: Wx::Direction::TOP)
   end
 
-  def cleanup
+  def teardown
     @banner.destroy
     super
   end
@@ -106,7 +106,7 @@ class InfoBarTests < WxRuby::Test::GUITests
     @info = Wx::InfoBar.new(frame_win)
   end
 
-  def cleanup
+  def teardown
     @info.destroy
     super
   end
@@ -130,7 +130,7 @@ class CommandLinkButtonTests < WxRuby::Test::GUITests
     @button = Wx::CommandLinkButton.new(frame_win, mainLabel: 'CommandLinkButton', note: 'Testing CommandLinkButton')
   end
 
-  def cleanup
+  def teardown
     @button.destroy
     super
   end
@@ -189,7 +189,7 @@ class SpinCtrlTests < WxRuby::Test::GUITests
     @spin = Wx::SpinCtrl.new(frame_win, name: 'SpinCtrl')
   end
 
-  def cleanup
+  def teardown
     @spin.destroy
     super
   end
@@ -230,7 +230,7 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
     @spin = Wx::SpinCtrlDouble.new(frame_win, name: 'SpinCtrlDouble')
   end
 
-  def cleanup
+  def teardown
     @spin.destroy
     super
   end
@@ -274,7 +274,7 @@ class RearrangeListTests < WxRuby::Test::GUITests
     @list = Wx::RearrangeList.new(frame_win, items: %w[first second third], order: [~1, ~2, 0])
   end
 
-  def cleanup
+  def teardown
     @list.destroy
     super
   end
@@ -299,7 +299,7 @@ class RearrangeCtrlTests < WxRuby::Test::GUITests
     @ra_ctrl = Wx::RearrangeCtrl.new(frame_win, items: %w[first second third], order: [~1, ~2, 0])
   end
 
-  def cleanup
+  def teardown
     @ra_ctrl.destroy
     super
   end

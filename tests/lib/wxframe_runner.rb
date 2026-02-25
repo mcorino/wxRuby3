@@ -39,7 +39,7 @@ module WxRuby
       def on_idle(evt)
         unless @tests_have_run
           @tests_have_run = true
-          @result = @start_mtd.bind(@test_runner).call
+          @result = run_all_tests
           self.exit_main_loop
         end
         evt.skip
@@ -72,15 +72,13 @@ module WxRuby
       end
     end
 
-    class GUITests < ::Test::Unit::TestCase
+    class GUITests < Test::Unit
 
-      setup
-      def base_setup
+      def after_setup
         10.times { Wx.get_app.yield }
       end
 
-      cleanup
-      def base_cleanup
+      def after_teardown
         10.times { Wx.get_app.yield }
         GC.start
       end

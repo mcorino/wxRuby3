@@ -2,8 +2,7 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
+require_relative './wxrb_test'
 require 'wx'
 
 module WxRuby
@@ -11,33 +10,42 @@ module WxRuby
   module Test
 
     class App < Wx::App
-      def initialize(test_runner, start_mtd)
+      def initialize(test_runner, start_mtd, *args, **kwargs)
         super()
         @test_runner = test_runner
         @start_mtd = start_mtd
+        @args = args
+        @kwargs = kwargs
+      end
+
+      protected def run_all_tests
+        @start_mtd.bind(@test_runner).call(*@args, **@kwargs)
       end
 
       def on_init
-        @result = @start_mtd.bind(@test_runner).call
+        @result = run_all_tests
         false
       end
 
       attr_reader :result
     end
 
-    if defined? ::IntelliJ
-      require 'test/unit/ui/teamcity/testrunner'
-      BaseRunner = ::Test::Unit::UI::TeamCity::TestRunner
-    else
-      BaseRunner = ::Test::Unit::UI::Console::TestRunner
-    end
+    class Unit < Minitest::Test
 
-    class Runner < BaseRunner
+      def self.is_ci_build?
+        (ENV['GITHUB_ACTION'] || ENV['CI'])
+      end
 
-      org_start_mtd = instance_method :start
-      define_method :start do
-        (app = WxRuby::Test::App.new(self, org_start_mtd)).run
-        app.result
+      def is_ci_build?
+        Unit.is_ci_build?
+      end
+
+      def self.uses_wayland?
+        Wx.has_feature?('HAVE_WAYLAND_CLIENT')
+      end
+
+      def uses_wayland?
+        Unit.uses_wayland?
       end
 
     end
@@ -46,42 +54,16 @@ module WxRuby
 
 end
 
-module Test
-  module Unit
-    AutoRunner.register_runner(:wxapp) do |auto_runner|
-      WxRuby::Test::Runner
-    end
-    AutoRunner.default_runner = :wxapp
-    if defined? ::IntelliJ
-      class AutoRunner
-        alias :wx_initialize :initialize
-        private :wx_initialize
+module Minitest
 
-        def initialize(*args)
-          wx_initialize(*args)
-          @runner = AutoRunner.default_runner
-        end
-      end
-    end
+  RUN_ALL_METHOD = VERSION >= '6.0.0' ? :run_all_suites : :__run
 
-    class TestCase
-
-      def self.is_ci_build?
-        (ENV['GITHUB_ACTION'] || ENV['CI'])
-      end
-
-      def is_ci_build?
-        TestCase.is_ci_build?
-      end
-
-      def self.uses_wayland?
-        Wx.has_feature?('HAVE_WAYLAND_CLIENT')
-      end
-
-      def uses_wayland?
-        TestCase.uses_wayland?
-      end
-
+  class << self
+    org_run_all_suites_mtd = instance_method RUN_ALL_METHOD
+    define_method RUN_ALL_METHOD do |*args, **kwargs|
+      (app = WxRuby::Test::App.new(self, org_run_all_suites_mtd, *args, **kwargs)).run
+      app.result
     end
   end
+
 end

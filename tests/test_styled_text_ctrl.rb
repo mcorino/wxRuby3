@@ -11,7 +11,7 @@ class StyledTextCtrlTests < WxRuby::Test::GUITests
     @text = Wx::STC::StyledTextCtrl.new(frame_win, name: 'StyledText')
   end
 
-  def cleanup
+  def teardown
     @text.destroy
     super
   end

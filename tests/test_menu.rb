@@ -21,7 +21,7 @@ class MenuTests < WxRuby::Test::GUITests
     frame_win.menu_bar.append(@menu, "&Test")
   end
 
-  def cleanup
+  def teardown
     frame_win.menu_bar = nil
     super
   end

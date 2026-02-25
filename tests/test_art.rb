@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestArt < Test::Unit::TestCase
+class TestArt < WxRuby::Test::Unit
 
   def test_icons
     icons = []
@@ -67,7 +67,7 @@ class TestArt < Test::Unit::TestCase
       cursor = Wx.Cursor(:wxruby)
     end
     assert_instance_of(Wx::Cursor, cursor)
-    assert { cursor.ok? }
+    assert(cursor.ok?)
   end
 
   end
@@ -107,16 +107,16 @@ class TestArt < Test::Unit::TestCase
       art = Wx::ArtLocator.find_art(:sample, art_section: 'my_art')
     end
     assert_not_nil(art)
-    assert { File.exist?(art) }
+    assert(File.exist?(art))
     assert_equal('sample', File.basename(art, '.*'))
     img = Wx::Image.new(art)
-    assert { img.ok? }
+    assert(img.ok?)
     img = Wx.Image(:sample, art_section: 'my_art')
-    assert { img.ok? }
+    assert(img.ok?)
     bmp = Wx.Bitmap(:sample, art_section: 'my_art')
-    assert { bmp.ok? }
+    assert(bmp.ok?)
     icon = Wx.Icon(:sample, art_section: 'my_art')
-    assert { icon.ok? }
+    assert(icon.ok?)
   end
 
 end

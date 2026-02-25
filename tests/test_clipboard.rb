@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestTextData < Test::Unit::TestCase
+class TestTextData < WxRuby::Test::Unit
   # Using an in-built class
   def test_text_data
     td = Wx::TextDataObject.new('WXRUBY')
@@ -38,7 +38,7 @@ class TestTextData < Test::Unit::TestCase
 end
 
 if Wx.has_feature?(:USE_HTML) && Wx::WXWIDGETS_VERSION >= '3.3'
-  class TestHtmlData < Test::Unit::TestCase
+  class TestHtmlData < WxRuby::Test::Unit
     # Using an in-built class
     def test_text_data
       td = Wx::HTMLDataObject.new('<html><body><h1>Header</h1></body></html>')
@@ -73,7 +73,7 @@ if Wx.has_feature?(:USE_HTML) && Wx::WXWIDGETS_VERSION >= '3.3'
   end
 end
 
-class TestBitmapData < Test::Unit::TestCase
+class TestBitmapData < WxRuby::Test::Unit
   def test_bitmap_data
     bmp = Wx::Bitmap.new(File.join(__dir__, '../samples/minimal/mondrian.png'))
     height = bmp.height
@@ -103,7 +103,7 @@ class TestBitmapData < Test::Unit::TestCase
   end
 end
 
-class TestDataObjectComposite < Test::Unit::TestCase
+class TestDataObjectComposite < WxRuby::Test::Unit
   MY_INT_ARRAY_FORMAT = Wx::DataFormat.new('application/int_array_format')
 
   class MySimpleIntArrayObject < Wx::DataObjectSimpleBase
@@ -241,7 +241,7 @@ class TestDataObjectComposite < Test::Unit::TestCase
   end
 end
 
-class TestDataObject < Test::Unit::TestCase
+class TestDataObject < WxRuby::Test::Unit
   MY_CUSTOM_FORMAT = Wx::DataFormat.new('text/custom_format')
   MY_CUSTOM_TEXT = Wx::DataFormat.new('text/custom_text')
 

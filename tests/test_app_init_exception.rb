@@ -2,10 +2,10 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'wx'
 
-class AppInitExitExceptions < Test::Unit::TestCase
+class AppInitExitExceptions < Minitest::Test
 
   class TestApp < Wx::App
     def on_init
@@ -14,7 +14,7 @@ class AppInitExitExceptions < Test::Unit::TestCase
   end
 
   def test_on_init_exception
-    assert_raise_kind_of(RuntimeError) { TestApp.run }
+    assert_raises(RuntimeError) { TestApp.run }
   end
 
 end

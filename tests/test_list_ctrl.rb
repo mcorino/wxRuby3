@@ -13,7 +13,7 @@ class ListCtrlTests < WxRuby::Test::GUITests
     @list.set_size([400, 200])
   end
 
-  def cleanup
+  def teardown
     @list.destroy
     super
   end

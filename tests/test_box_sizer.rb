@@ -14,7 +14,7 @@ class BoxSizerTests < WxRuby::Test::GUITests
     @win.sizer = @sizer
   end
 
-  def cleanup
+  def teardown
     frame_win.destroy_children
     @win = nil
     @sizer = nil

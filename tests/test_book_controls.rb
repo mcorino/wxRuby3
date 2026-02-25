@@ -11,7 +11,7 @@ class BookCtrlTests < WxRuby::Test::GUITests
     @book = Wx::Choicebook.new(frame_win, name: 'ChoiceBook')
   end
 
-  def cleanup
+  def teardown
     @book.destroy
     super
     GC.start

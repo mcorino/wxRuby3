@@ -11,7 +11,7 @@ class SizerTests < WxRuby::Test::GUITests
     frame_win.set_sizer(Wx::VBoxSizer.new)
   end
 
-  def cleanup
+  def teardown
     super
     GC.start
   end

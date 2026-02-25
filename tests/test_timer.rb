@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TimerTests < Test::Unit::TestCase
+class TimerTests < WxRuby::Test::Unit
 
   class TimerCounterHandler < Wx::EvtHandler
 

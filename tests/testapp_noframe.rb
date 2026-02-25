@@ -2,7 +2,7 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'wx'
 
 class AppReturnsFalseFromInit < Wx::App
@@ -16,7 +16,7 @@ class AppReturnsFalseFromInit < Wx::App
     
 end
 
-class TestApp < Test::Unit::TestCase
+class TestApp < Minitest::Test
   def test_return_false_from_init
     o = AppReturnsFalseFromInit.new
     o.run

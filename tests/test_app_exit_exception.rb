@@ -2,10 +2,10 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'wx'
 
-class TestApp < Test::Unit::TestCase
+class TestApp < Minitest::Test
 
   class TestFrame < Wx::Frame
     def initialize
@@ -30,7 +30,7 @@ class TestApp < Test::Unit::TestCase
   end
 
   def test_self_closing_frame
-    assert_raise_kind_of(RuntimeError) { TestApp.run }
+    assert_raises(RuntimeError) { TestApp.run }
   end
 
 end

@@ -43,6 +43,29 @@ module WXRuby3
           # We need to disown Ruby with respect to the C++ event object but remain tracking the pair to keep
           # the Ruby event object alive.
           spec.disown 'wxEvent *event'
+          spec.map 'wxEvent *event' => 'Wx::Event' do
+            add_header_code 'WXRUBY_EXPORT bool wxRuby_Is_RubyEvent(wxEvent* wx_event);'
+            # Due to the fact that QueueEvent takes ownership of the event object and the fact that wxRuby3
+            # tracks event objects we need some special handling.
+            # As WxW defined system events are not extensible in wxRuby3 need to have tracking removed and the
+            # Ruby object unlinked as WxW will take care of removing the C++ object later on and that will invalidate
+            # the tracking register.
+            # User defined events however need to maintain their tracking register as we need to keep
+            # the state of the linked Ruby objects. As WxW will clean up later we can however release ownership.
+            map_in code: <<~__CODE
+              $1 = (wxEvent*)DATA_PTR($input);
+              if (!wxRuby_Is_RubyEvent($1))
+              {
+                SWIG_RubyUnlinkObjects((void*)$1);
+                wxRuby_RemoveTracking((void*)$1);
+              }
+              else
+              {
+                // no need to do anything as c++ dtor will untrack/unlink
+                RDATA($input)->dfree = 0;
+              }
+              __CODE
+          end
 
           # add special mapping for event filters so we can accept the app instance as well
           # although Wx::App is not derived from Wx::EventFilter in wxRuby (no multiple inheritance)

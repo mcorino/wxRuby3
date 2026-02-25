@@ -11,7 +11,7 @@ class RichTextCtrlTextTests < WxRuby::Test::GUITests
     @richtext = Wx::RTC::RichTextCtrl.new(frame_win, name: 'RichText')
   end
 
-  def cleanup
+  def teardown
     @richtext.destroy
     super
   end
@@ -49,7 +49,7 @@ class RichTextCtrlWriteTests < WxRuby::Test::GUITests
     @richtext = Wx::RTC::RichTextCtrl.new(frame_win, name: 'RichText')
   end
 
-  def cleanup
+  def teardown
     @richtext.destroy
     super
   end
@@ -195,39 +195,24 @@ class RichTextCtrlFieldTypeTests < WxRuby::Test::GUITests
 
   end
 
-  class << self
-
-    def startup
-      @ft_test = RichTextFieldTypeTest.new('TEST', 'test')
-      Wx::RTC::RichTextBuffer.add_field_type(@ft_test)
-    end
-
-    def cleanup
-      Wx::RTC::RichTextBuffer.remove_field_type(@ft_test)
-      @ft_test = nil
-      GC.start
-    end
-
-    attr_reader :ft_test
-
-  end
-
   def setup
     super
+    @ft_test = RichTextFieldTypeTest.new('TEST', 'test')
+    Wx::RTC::RichTextBuffer.add_field_type(@ft_test)
     @richtext = Wx::RTC::RichTextCtrl.new(frame_win, name: 'RichText', size: [400,300])
   end
 
-  def cleanup
+  def teardown
     @richtext.destroy
+    Wx::RTC::RichTextBuffer.remove_field_type('TEST')
+    @ft_test = nil
+    GC.start
     super
   end
 
   attr_reader :richtext
 
-  def ft_test
-    self.class.ft_test
-  end
-  private :ft_test
+  attr_reader :ft_test
 
   def check_is_drawn
     frame_win.refresh

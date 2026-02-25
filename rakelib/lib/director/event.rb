@@ -202,6 +202,13 @@ module WXRuby3
               bool has_ruby_data_ {};
             };
 
+            // helper function for event handler QueueEvent
+            WXRUBY_EXPORT bool wxRuby_Is_RubyEvent(wxEvent* wx_event)
+            {
+              return (nullptr != dynamic_cast<wxRubyEvent*> (wx_event) ||
+                         (wx_event->IsCommandEvent() && 
+                          nullptr != dynamic_cast<wxRubyCommandEvent*> (wx_event)));
+            }
 
             // wxRuby must preserve ruby objects attached as the ClientData of
             // command events that have been user-defined in ruby. Some of the

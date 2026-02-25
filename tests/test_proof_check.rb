@@ -11,7 +11,7 @@ class MultilineProofCheckTests < WxRuby::Test::GUITests
     @text = Wx::TextCtrl.new(frame_win, name: 'Text', style: Wx::TE_MULTILINE|Wx::TE_RICH|Wx::TE_RICH2)
   end
 
-  def cleanup
+  def teardown
     @text.destroy
     super
   end

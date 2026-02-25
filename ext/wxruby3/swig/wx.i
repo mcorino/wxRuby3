@@ -296,9 +296,28 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   if ( rb_event != Qnil )
   {
     if (rb_obj_is_kind_of(rb_event, rb_event_class))
+    {
+#if __WXRB_DEBUG__
+      if (wxRuby_TraceLevel()>1)
+      {
+        swig_type_info*  type = wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL ?
+                                    wxRuby_GetSwigTypeForClass(wxRuby_GetDefaultEventClass()) :
+                                    wxRuby_GetSwigTypeForClass(rb_event_class);
+        std::wcout << "* wxRuby_WrapWxEventInRuby - returning tracked event " << wx_event << "{" << (type ? type->name : rb_class2name(rb_event_class)) << "} -> " << rb_event << std::endl;
+      }
+#endif
       return rb_event; // OK
+    }
     else
+    {
+#if __WXRB_DEBUG__
+      if (wxRuby_TraceLevel()>1)
+      {
+        std::wcout << "* wxRuby_WrapWxEventInRuby - removing tracking of stale object " << wx_event << " -> " << rb_event << std::endl;
+      }
+#endif
       SWIG_RubyRemoveTracking((void *)wx_event); // Remove stale ref
+    }
   }
 
   // No existing Ruby instance found, so a transitory event object; wrap

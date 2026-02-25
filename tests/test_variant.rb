@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class TestVariant < Test::Unit::TestCase
+class TestVariant < WxRuby::Test::Unit
 
   def test_basics
     var = Wx::Variant.new('text variant')

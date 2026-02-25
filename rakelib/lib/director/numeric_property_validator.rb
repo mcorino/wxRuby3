@@ -34,7 +34,16 @@ module WXRuby3
             }
             virtual ~WXRubyNumericPropertyValidator() 
             {
+              // All Validators are EvtHandlers, so prevent any pending events being
+              // sent after destruction (otherwise ObjectPreviouslyDeleted errors result)
+              this->SetEvtHandlerEnabled(false);
               wxRuby_ReleaseEvtHandlerProcs(this);
+              // Disassociate the C++ and Ruby objects if not done by Ruby free method
+              if (!NIL_P(SWIG_RubyInstanceFor(this)))
+              {
+                SWIG_RubyUnlinkObjects(this);
+                SWIG_RubyRemoveTracking(this);
+              }
             }               
 
             virtual wxObject* Clone() const override

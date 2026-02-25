@@ -2,7 +2,7 @@
 #
 # This software is released under the MIT license.
 
-require 'test/unit'
+require_relative './lib/wxrb_test'
 require 'wx'
 
 class TestingFrame < Wx::Frame
@@ -30,7 +30,7 @@ class AppWithSimpleFrame < Wx::App
     end
 end
 
-class TestApp < Test::Unit::TestCase
+class TestApp < Minitest::Test
   def test_self_closing_frame
     o = AppWithSimpleFrame.new
     o.run

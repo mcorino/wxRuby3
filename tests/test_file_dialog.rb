@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class FileDialogTests < Test::Unit::TestCase
+class FileDialogTests < WxRuby::Test::Unit
 
   def dialog_tester(dlg, rc=Wx::ID_OK)
     if Wx::PLATFORM == 'WXGTK'

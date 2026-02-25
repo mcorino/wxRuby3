@@ -4,7 +4,7 @@
 
 require_relative './lib/wxapp_runner'
 
-class AppTraitsTests < Test::Unit::TestCase
+class AppTraitsTests < WxRuby::Test::Unit
 
   def test_traits
     10.times do
