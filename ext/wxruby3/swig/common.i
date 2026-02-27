@@ -134,8 +134,8 @@
 #include <wx/variant.h>
 #endif
 
-#if ! wxCHECK_VERSION(3,1,5)
-#error "This version of wxRuby requires WxWidgets 3.1.5 or greater"
+#if ! wxCHECK_VERSION(3,2,0)
+#error "This version of wxRuby requires WxWidgets 3.2.0 or greater"
 #endif
 
 #include "wxruby-runtime.h"

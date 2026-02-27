@@ -336,7 +336,19 @@ the `--with-wxwin` option like this:
 wxruby setup --with-wxwin
 ```
 
-This will force the setup procedure to build and install an embedded wxWidgets version for wxRuby3.
+This will force the setup procedure to build and install an embedded wxWidgets version for wxRuby3. By default the 
+latest stable wxWidgets release will be embedded. 
+
+#### Specify specific embedded wxWidgets release
+
+When using `--with-wxwin` a specific wxWidgets release version can be specified like this:
+
+```shell
+wxruby setup --with-wxwin --wxversion=3.2.9
+```
+
+Note that both `--with-wxwin` and `--wxversion` are required. Also note that the release version must be specified
+as '<major version nr>.<minor version number>.<release number>' without any 'v' (or other) prefix.
 
 #### Force embedded wxWidgets head installation
 
@@ -346,6 +358,8 @@ be started with the `--with-wxhead` option like this:
 ```shell
 wxruby setup --with-wxhead
 ```
+
+Note that in this case `--with-wxwin` is implied.
 
 > **NOTE**<br>
 > Although wxRuby3 endeavors to keep up to date with the wxWidgets master branch your mileage may vary depending on

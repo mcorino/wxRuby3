@@ -47,7 +47,7 @@ jobs:
 
     runs-on: ${{ matrix.runner }}
 
-    name: ${{ matrix.name }} $${{ matrix.arch}} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ vars.WXWIDGETS_LATEST_STABLE }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
+    name: ${{ matrix.name }} $${{ matrix.arch}} wxRuby(${{ matrix.wxr_type }}) ruby-${{ matrix.ruby }} wxWidgets-${{ matrix.wxw_version }}(${{ matrix.wxw_type }}) SWIG${{ matrix.swig }}
 
     strategy:
       fail-fast: false
@@ -60,6 +60,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
+          wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: develop
         - name: wxMac macOS 15
           runner: macos-15
@@ -68,6 +69,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
+          wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: binpkg
         - name: wxMac macOS 15
           runner: macos-15-intel
@@ -76,6 +78,16 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
+          wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
+          wxr_type: gem
+        - name: wxMac macOS 15
+          runner: macos-15-intel
+          arch: x86_64
+          ruby: 'ruby'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: embed
+          wxw_version: '3.2.9'
           wxr_type: gem
         - name: wxMac macOS 14
           runner: macos-14
@@ -84,6 +96,16 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
+          wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
+          wxr_type: develop
+        - name: wxMac macOS 14
+          runner: macos-14
+          arch: arm64
+          ruby: '3.0'
+          swig: '4'
+          configure_flags: --disable-sys-libs
+          wxw_type: develop
+          wxw_version: '3.2.9'
           wxr_type: develop
         - name: wxMac macOS 14
           runner: macos-14
@@ -92,6 +114,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
+          wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: gem
         - name: wxMac macOS 14
           runner: macos-14
@@ -100,6 +123,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
+          wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: binpkg
 
     env:
@@ -132,7 +156,7 @@ jobs:
       with:
         repository: wxWidgets/wxWidgets
         path: ${{ env.WXWIDGETS_ROOT }}
-        ref: v${{ env.WXWIDGETS_LATEST_STABLE }}
+        ref: v${{ matrix.wxw_version }}
         submodules: 'recursive'
 
     - name: Set environment variables
@@ -274,7 +298,11 @@ jobs:
       if: matrix.wxr_type != 'gem'
       run: |
         if [ "${{ matrix.wxw_type }}" == "embed" ]; then
-          bundle exec rake configure WXRUBY_AUTOINSTALL=1
+          if [ "${{ matrix.wxw_version }}" == "$WXWIDGETS_LATEST_STABLE" ]; then
+            bundle exec rake configure WXRUBY_AUTOINSTALL=1
+          else
+            bundle exec rake configure WXRUBY_WITH_WXWIN=1 WXRUBY_WXVERSION=${{ matrix.wxw_version }}  WXRUBY_AUTOINSTALL=1
+          fi
         elif [ "${{ matrix.wxw_type }}" == "develop" ]; then
           bundle exec rake configure WXWIN=$WXWIN_INSTALL WXXML=$WXWIDGETS_ROOT/docs/doxygen/out/xml
         else
@@ -316,7 +344,11 @@ jobs:
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
             gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --wxwin=@system
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
-            gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --autoinstall
+            if [ "${{ matrix.wxw_version }}" == "$WXWIDGETS_LATEST_STABLE" ]; then
+              gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --autoinstall
+            else
+              gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --autoinstall --with-wxwin --wxversion=${{ matrix.wxw_version }}
+            fi
           else
             gem install $(echo pkg/*.gem) -- prebuilt=none && wxruby setup --wxwin=$WXWIN_INSTALL
           fi
@@ -325,15 +357,15 @@ jobs:
     - name: Check wxRuby3 gem install
       if: matrix.wxr_type != 'develop'
       run: |
-        wxruby check
+        wxruby check -v
 
     - name: Check embedded wxWidgets version
       if: matrix.wxw_type == 'embed'
       run: |
         if [ "${{ matrix.wxr_type }}" == "develop" ]; then
-          bundle exec rake wxruby:exec[ruby,tools/check_wxw_version.rb,$WXWIDGETS_LATEST_STABLE]
+          bundle exec rake wxruby:exec[ruby,tools/check_wxw_version.rb,${{ matrix.wxw_version }}]
         else
-          ruby tools/check_wxw_version.rb "$WXWIDGETS_LATEST_STABLE"
+          ruby tools/check_wxw_version.rb "${{ matrix.wxw_version }}"
         fi
 
     - name: Run wxRuby3 regression tests

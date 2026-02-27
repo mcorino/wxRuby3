@@ -74,13 +74,14 @@ module WXRuby3
                   'wxwin' => ENV['WXWIN'] || '',
                   'wxxml' => ENV['WXXML'] || '',
                   'wxwininstdir' => '',
-                  'with-wxwin' => !!ENV['WITH_WXWIN'],
+                  'with-wxwin' => ((ENV['WXRUBY_WITH_WXWIN'] || '') == '1'),
                   'with-debug' => ((ENV['WXRUBY_DEBUG'] || '') == '1'),
                   'swig' => ENV['WXRUBY_SWIG'] || 'swig',
                   'doxygen' => ENV['WXRUBY_DOXYGEN'] || 'doxygen',
                   'git' => ENV['WXRUBY_GIT'] || 'git'
                 })
   CONFIG['autoinstall'] = (ENV['WXRUBY_AUTOINSTALL'] != '0') if ENV['WXRUBY_AUTOINSTALL']
+  CONFIG['wxversion'] = ENV['WXRUBY_WXVERSION'] if ENV['WXRUBY_WXVERSION']
   BUILD_CFG = '.wxconfig'
 
   # Ruby 2.7 is the minimum version for wxRuby3

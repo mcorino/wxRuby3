@@ -82,12 +82,14 @@ module WXRuby3
                 "build with the head (master) version of wxWidgets; implies '--with-wxwin'")  { |v|
           CONFIG['with-wxhead'] = true
           CONFIG['with-wxwin'] = true
+          CONFIG['wxversion'] = nil
           CONFIG[WXW_SYS_KEY] = false
         }
         opts.on('--wxversion=version',
                 'specify wxWidgets release version (xx.xx.xx) to build with (only valid with --with-wxwin)') { |v|
           raise "Invalid version #{v} specified. Version should be '<major>.<minor>.<release>'." unless v =~ /^\d+\.\d+\.\d+$/
           CONFIG['wxversion'] = v
+          CONFIG['with-wxhead'] = false
         }
         opts.on('--with-debug',
                 "build with debugger support [#{instance.get_config('with-debug')}]")  {|v| CONFIG['with-debug'] = true}
