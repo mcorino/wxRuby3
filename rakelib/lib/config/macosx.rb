@@ -87,7 +87,21 @@ module WXRuby3
           # add deployment lookup paths for wxwidgets shared libraries
           def update_shlib_wxwin_libpaths(shlib, deplibs)
             if super
-              changes = deplibs.collect { |dl| "-change '#{dl}' '@rpath/#{File.basename(dl)}'"}
+              # reduce deplibs to only base names
+              deplibs.collect! { |dl| File.basename(dl) }
+              # get all full load paths of the library dependencies of `shlib`
+              shlib_deps = expand("otool -L #{shlib}").chomp.split("\n")
+              # loose the first line
+              shlib_deps.shift
+              # extract only the loadpath
+              shlib_deps.collect! { |dl| dl.strip.split(' ').first }
+              # collect required loadpath changes for wxw libs
+              changes = shlib_deps.inject([]) do |list, dl|
+                if deplibs.include?(File.basename(dl))
+                  list << "-change '#{dl}' '@rpath/#{File.basename(dl)}'"
+                end
+                list
+              end
               sh("install_name_tool #{changes.join(' ')} #{shlib} 2>/dev/null", verbose: false) { |_,_| }
               true
             else
