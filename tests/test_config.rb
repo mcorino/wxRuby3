@@ -314,9 +314,15 @@ class TestConfig < WxRuby::Test::Unit
     assert_true(hlp_cfg.has_entry?('/htmlHelpCopy/hcW'))
     assert_true(hlp_cfg.has_entry?('/htmlHelpCopy/hcH'))
 
-    # clean up; force GC of help controller before the used config get's deleted
-    hlp_ctrl = nil
-    GC.start
+    if ::Wx::WXWIDGETS_VERSION >= '3.3.2'
+      # prevent problems with stale config instances when controller is GC-ed after
+      # another test alters the global config instance
+      hlp_ctrl.use_config(nil)
+    else # workaround for older wxw
+      # clean up; force GC of help controller before the used config get's deleted
+      hlp_ctrl = nil
+      GC.start
+    end
   end
 
 end
