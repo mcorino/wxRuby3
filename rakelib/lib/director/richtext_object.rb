@@ -48,17 +48,26 @@ module WXRuby3
                                'wxRichTextSelection',
                                'wxRichTextProperties'
           spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceFreeRichTextObject, "GC_FREE_RTOBJECT")
+
             extern void GC_RichTextObjectFreeFunc(void* ptr)
             {
+              WXRUBY_TRACE_IF(WxRubyTraceFreeRichTextObject, 2)
+                WXRUBY_TRACE("> GC_RichTextObjectFreeFunc : " << ptr)
+              WXRUBY_TRACE_END
+
               SWIG_RubyRemoveTracking(ptr);
               if (ptr)
               {
-            #ifdef __WXRB_DEBUG__
-                if (wxRuby_TraceLevel()>1)
-                  std::wcout << "GC_RichTextObjectFreeFunc(" << ptr << ")" << std::endl;
-            #endif
+                WXRUBY_TRACE_IF(WxRubyTraceFreeRichTextObject, 3)
+                  WXRUBY_TRACE("| GC_RichTextObjectFreeFunc : dereferencing")
+                WXRUBY_TRACE_END
                 ((wxRichTextObject*)ptr)->Dereference();            
               } 
+
+              WXRUBY_TRACE_IF(WxRubyTraceFreeRichTextObject, 2)
+                WXRUBY_TRACE("< GC_RichTextObjectFreeFunc : " << ptr)
+              WXRUBY_TRACE_END
             }
             __HEREDOC
           spec.make_abstract 'wxRichTextObject'

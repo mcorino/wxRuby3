@@ -67,24 +67,32 @@ module WXRuby3
           typedef std::map<wxDataObjectComposite*, data_object_list_t> composite_data_object_map_t;
           static composite_data_object_map_t CompositeDataObject_Map;
 
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCCompositeDataObject, "GC_MARK_DATAOBJECT_COMPOSITE")
+
           static void GC_mark_wxCompositeDataObject(void* ptr)
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCCompositeDataObject, 2)
+              WXRUBY_TRACE("> GC_mark_wxCompositeDataObject : " << ptr)
+            WXRUBY_TRACE_END
+
             composite_data_object_map_t::iterator it = CompositeDataObject_Map.find(static_cast<wxDataObjectComposite*> (ptr));
             if (it != CompositeDataObject_Map.end())
             {
               data_object_list_t &do_list = it->second;
               for (VALUE data_obj : do_list)
               {
-          #ifdef __WXRB_DEBUG__
-                if (wxRuby_TraceLevel()>1)
-                {
-                  void *c_ptr = (TYPE(data_obj) == T_DATA ? DATA_PTR(data_obj) : 0);
-                  std::wcout << "**** wxRuby_markCompositeDataObjects : " << it->first << "|" << (void*)c_ptr << std::endl;
-                }
-          #endif               
+                WXRUBY_TRACE_IF(WxRubyTraceGCCompositeDataObject, 2)
+                  WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(data_obj) == T_DATA ? DATA_PTR(data_obj) : 0))
+                  WXRUBY_TRACE("| GC_mark_wxCompositeDataObject : " << it->first << "|" << (void*)c_ptr)
+                WXRUBY_TRACE_END
+
                 rb_gc_mark(data_obj);
               }
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCCompositeDataObject, 2)
+              WXRUBY_TRACE("< GC_mark_wxCompositeDataObject : " << ptr)
+            WXRUBY_TRACE_END
           }
 
           // custom implementation for wxRuby so we can handle de-registering composites

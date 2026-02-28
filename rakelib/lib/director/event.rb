@@ -40,12 +40,22 @@ module WXRuby3
               __CODE
           end
           spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceGCWrapEvents, "GC_WRAP_EVENTS")
+
             static VALUE Evt_Type_Map = NULL;
             static VALUE wxRuby_WrapClonedWxEvent(wxEvent* wx_evt)
             {
+              WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+                WXRUBY_TRACE("> wxRuby_WrapClonedWxEvent - " << wx_evt)
+              WXRUBY_TRACE_END
+
               wxString class_name( wx_evt->GetClassInfo()->GetClassName() );
               if (class_name == "wxEvent" || class_name == "wxCommandEvent")
               {
+                WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+                  WXRUBY_TRACE("< wxRuby_WrapClonedWxEvent - returning managed Ruby derived event")
+                WXRUBY_TRACE_END
+
                 // special clones for Ruby derived events are already managed and tracked
                 // (this also covers Wx::AsyncProcCallEvent)
                 return SWIG_RubyInstanceFor((void *)wx_evt);
@@ -82,10 +92,9 @@ module WXRuby3
               // do not forget to mark the instance with the mangled swig type name
               rb_iv_set(rb_evt, "@__swigtype__", rb_str_new2(type->name));
             
-            #if __WXRB_DEBUG__
-              if (wxRuby_TraceLevel()>1)
-                std::wcout << "* wxRuby_WrapClonedWxEvent - wrapped cloned event " << wx_evt << "{" << type->name << "}" << std::endl;
-            #endif
+              WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+                WXRUBY_TRACE("< wxRuby_WrapClonedWxEvent - wrapped cloned event " << wx_evt << "{" << type->name << "}")
+              WXRUBY_TRACE_END
             
               return rb_evt;
             }
@@ -210,6 +219,8 @@ module WXRuby3
                           nullptr != dynamic_cast<wxRubyCommandEvent*> (wx_event)));
             }
 
+            WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkEvents, "GC_MARK_EVENTS")
+
             // wxRuby must preserve ruby objects attached as the ClientData of
             // command events that have been user-defined in ruby. Some of the
             // standard wxWidgets CommandEvent classes also use ClientData
@@ -217,17 +228,17 @@ module WXRuby3
             // not a ruby object, and will thus crash.
             WXRUBY_EXPORT void GC_mark_wxEvent(void *ptr)
             {
-            #ifdef __WXRB_DEBUG__
-              if (wxRuby_TraceLevel()>1)
-                std::wcout << "> GC_mark_wxEvent : " << ptr << std::endl;
-            #endif
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkEvents, 2)
+                WXRUBY_TRACE("> GC_mark_wxEvent : " << ptr)
+              WXRUBY_TRACE_END
             
               if ( ! ptr ) return;
               wxEvent* wx_event = (wxEvent*)ptr;
-            #ifdef __WXRB_DEBUG__
-              if (wxRuby_TraceLevel()>2)
-                std::wcout << "* GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})" << std::endl;
-            #endif
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkEvents, 3)
+                WXRUBY_TRACE("| GC_mark_wxEvent(" << ptr << ":{" << wx_event->GetEventType() << "})")
+              WXRUBY_TRACE_END
+
               if (wx_event->IsCommandEvent())
               {
                 wxCommandEvent* wx_cm_event = (wxCommandEvent*)ptr;
@@ -242,10 +253,9 @@ module WXRuby3
                 }
               }
             
-            #ifdef __WXRB_DEBUG__
-              if (wxRuby_TraceLevel()>1)
-                std::wcout << "< GC_mark_wxEvent : " <<  ptr << std::endl;
-            #endif
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkEvents, 2)
+                WXRUBY_TRACE("< GC_mark_wxEvent : " << ptr)
+              WXRUBY_TRACE_END
             }
             __HEREDOC
           # CommandEvent requires custom handling of client data.

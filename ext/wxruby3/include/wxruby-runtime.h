@@ -39,8 +39,85 @@ private:
 
 // Exported runtime helper methods
 
+// Debug tracing support
 #ifdef __WXRB_DEBUG__
-WXRUBY_EXPORT int wxRuby_TraceLevel();
+#include <cstdlib>
+#include <string>
+#include <algorithm>
+#include <ctype.h>
+
+class WxRubyTraceGuard
+{
+public:
+  WxRubyTraceGuard(const std::string& trace_id)
+  {
+    std::string trace_env_id = to_uppercase(trace_id);
+    while (!trace_env_id.empty())
+    {
+      // see if we can find a trace setting which starts with 'WXRUBY_TRACE_'
+      // followed by the trace id
+      std::string trace_env_var = std::string("WXRUBY_TRACE_") + trace_env_id;
+      char* env_val = std::getenv(trace_env_var.c_str());
+      if (env_val)
+      {
+        // trace setting found
+        this->_trace_lvl = std::atoi(env_val);
+        break; // done
+      }
+      // see if there is a parent trace category we can check
+      std::string::size_type offs = trace_env_id.find_last_of('_');
+      if (offs != std::string::npos )
+      {
+        // reduce the id to possible parent category
+        trace_env_id = trace_env_id.substr(0, offs);
+      }
+
+      if (offs == std::string::npos || trace_env_id.empty())
+      {
+        // check for global tracing
+        env_val = std::getenv("WXRUBY_TRACE");
+        if (env_val)
+        {
+          // trace setting found
+          this->_trace_lvl = std::atoi(env_val);
+        }
+        break; // done
+      }
+    }
+  }
+
+  int trace_level() { return this->_trace_lvl; }
+
+private:
+  std::string to_uppercase(std::string s)
+  {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c){ return std::toupper(c); });
+    return s;
+  }
+
+  int _trace_lvl {};
+};
+
+#define WXRUBY_TRACE_GUARD(name, trace_id) static WxRubyTraceGuard name (trace_id);
+
+#define WXRUBY_TRACE_IF(__trace_guard__, __level__) \
+  if (__trace_guard__.trace_level() >= __level__) {
+
+#define WXRUBY_TRACE_WITH(__stmt__) __stmt__ ;
+
+#define WXRUBY_TRACE(__stmt__) \
+  std::wcout << __stmt__ << std::endl;
+
+#define WXRUBY_TRACE_END }
+
+#else
+
+#define WXRUBY_TRACE_GUARD(name, trace_id)
+#define WXRUBY_TRACE_IF(__trace_guard__, __level__)
+#define WXRUBY_TRACE_WITH(__stmt__)
+#define WXRUBY_TRACE(__stmt__)
+#define WXRUBY_TRACE_END
+
 #endif
 
 WXRUBY_EXPORT VALUE wxRuby_Funcall(VALUE rcvr, ID func, int argc, ...);

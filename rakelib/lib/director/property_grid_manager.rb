@@ -80,6 +80,8 @@ module WXRuby3
         spec.ignore 'wxPropertyGridManager::GetVIterator'
         # customize mark function
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_TRACE_GUARD(WxRubyTraceMarkPropGridMgr, "GC_MARK_PROPGRID_MGR")
+
           static bool __wxr_In_GC_mark_wxPropertyGridManager = false;
 
           extern void WXRuby_Set_In_GC_mark_wxPropertyGridManager(bool f)
@@ -96,10 +98,10 @@ module WXRuby3
 
           static void GC_mark_wxPropertyGridManager(void* ptr) 
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "> GC_mark_wxPropertyGridManager : " << ptr << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceMarkPropGridMgr, 2)
+              WXRUBY_TRACE("> GC_mark_wxPropertyGridManager : " << ptr)
+            WXRUBY_TRACE_END
+
             if ( GC_IsWindowDeleted(ptr) )
             {
               return;
@@ -136,6 +138,10 @@ module WXRuby3
             }
 
             WXRuby_Set_In_GC_mark_wxPropertyGridManager(false);
+
+            WXRUBY_TRACE_IF(WxRubyTraceMarkPropGridMgr, 2)
+              WXRUBY_TRACE(" GC_mark_wxPropertyGridManager : " << ptr)
+            WXRUBY_TRACE_END
           }
         __HEREDOC
         spec.add_swig_code '%markfunc wxPropertyGridManager "GC_mark_wxPropertyGridManager";'

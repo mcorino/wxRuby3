@@ -94,6 +94,8 @@ module WXRuby3
               __CODE
           end
           spec.add_runtime_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceEventHandlers, "EVENTS_HANDLER");
+            
             static swig_class wxRuby_GetSwigClassWxEvtHandler();
             WXRUBY_EXPORT VALUE wxRuby_GetEventTypeClassMap();
 
@@ -133,7 +135,7 @@ module WXRuby3
                   if (ex_caught)
                   {
             #ifdef __WXRB_DEBUG__                
-                    if (!rb_obj_is_kind_of(rc, rb_eSystemExit) && wxRuby_TraceLevel()>0)
+                    if (!rb_obj_is_kind_of(rc, rb_eSystemExit) && WxRubyTraceEventHandlers.trace_level()>0)
                     {
                       wxRuby_PrintException(rc);
                     }
@@ -287,7 +289,7 @@ module WXRuby3
                 if (ex_caught)
                 {
             #ifdef __WXRB_DEBUG__                
-                  if (!rb_obj_is_kind_of(rc, rb_eSystemExit) && wxRuby_TraceLevel()>0)
+                  if (!rb_obj_is_kind_of(rc, rb_eSystemExit) && WxRubyTraceEventHandlers.trace_level()>0)
                   {
                     wxRuby_PrintException(rc);
                   }
