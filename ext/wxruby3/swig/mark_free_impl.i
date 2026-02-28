@@ -16,12 +16,30 @@
 %}
 
 %{
+WXRUBY_TRACE_GUARD(WxRubyTraceMarkSizer, "GC_MARK_SIZER")
+WXRUBY_TRACE_GUARD(WxRubyTraceFreeSizer, "GC_FREE_SIZER")
+WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
+WXRUBY_TRACE_GUARD(WxRubyTraceMarkWindow, "GC_MARK_WINDOW")
+WXRUBY_TRACE_GUARD(WxRubyTraceFreeWindow, "GC_FREE_WINDOW")
+WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
+WXRUBY_TRACE_GUARD(WxRubyTraceFreeNull, "GC_FREE_NULL")
+WXRUBY_TRACE_GUARD(WxRubyTraceFreeRefcounted, "GC_FREE_REFCOUNT")
+
+
 // Code to be run when the ruby object is swept by GC - this only
 // unlinks the C++ object from the ruby VALUE but doesn't delete
 // it because it is still needed and will be managed by WxWidgets.
 WXRUBY_EXPORT void GcNullFreeFunc(void *ptr)
 {
+  WXRUBY_TRACE_IF(WxRubyTraceFreeNull, 2)
+    WXRUBY_TRACE("> GcNullFreeFunc : " << ptr)
+  WXRUBY_TRACE_END
+
   SWIG_RubyRemoveTracking(ptr);
+
+  WXRUBY_TRACE_IF(WxRubyTraceFreeNull, 2)
+    WXRUBY_TRACE("< GcNullFreeFunc")
+  WXRUBY_TRACE_END
 }
 
 // Tests if the window has been signalled as destroyed by a
@@ -41,6 +59,10 @@ WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)
 // WindowDestroyEvent, handled by wxRubyApp (see swig/classes/App.i).
 WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
 {
+  WXRUBY_TRACE_IF(WxRubyTraceFreeWindow, 2)
+    WXRUBY_TRACE("> GC_SetWindowDeleted : " << ptr)
+  WXRUBY_TRACE_END
+
   // All Windows are EvtHandlers, so prevent any pending events being
   // sent after destruction (otherwise ObjectPreviouslyDeleted errors result)
   wxEvtHandler* evt_handler = (wxEvtHandler*)ptr;
@@ -77,6 +99,10 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
   // Disassociate the C++ and Ruby objects
   SWIG_RubyUnlinkObjects(ptr);
   SWIG_RubyRemoveTracking(ptr);
+
+  WXRUBY_TRACE_IF(WxRubyTraceFreeWindow, 2)
+    WXRUBY_TRACE("< GC_SetWindowDeleted : " << ptr)
+  WXRUBY_TRACE_END
 }
 
 // Code to be run when the ruby object is swept by GC - this only
@@ -84,9 +110,17 @@ WXRUBY_EXPORT void GC_SetWindowDeleted(void *ptr)
 // reference counter.
 WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
 {
+  WXRUBY_TRACE_IF(WxRubyTraceFreeRefcounted, 2)
+    WXRUBY_TRACE("> GcRefCountedFreeFunc : " << ptr)
+  WXRUBY_TRACE_END
+
   SWIG_RubyRemoveTracking(ptr);
   if (ptr)
     ((wxRefCounter*)ptr)->DecRef();
+
+  WXRUBY_TRACE_IF(WxRubyTraceFreeRefcounted, 2)
+    WXRUBY_TRACE("< GcRefCountedFreeFunc")
+  WXRUBY_TRACE_END
 }
 
 // Code to be run when the ruby object is swept by GC - this checks
@@ -94,16 +128,28 @@ WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
 // as these will be managed by WxWidgets.
 WXRUBY_EXPORT void GcSizerFreeFunc(void *ptr)
 {
+  WXRUBY_TRACE_IF(WxRubyTraceFreeSizer, 2)
+    WXRUBY_TRACE("> GcSizerFreeFunc : " << ptr)
+  WXRUBY_TRACE_END
+
   wxSizer* wx_szr = (wxSizer*)ptr;
   // unlink in all cases
   SWIG_RubyRemoveTracking(ptr);
   delete wx_szr; // delete unattached sizers
+
+  WXRUBY_TRACE_IF(WxRubyTraceFreeSizer, 2)
+    WXRUBY_TRACE("< GcSizerFreeFunc")
+  WXRUBY_TRACE_END
 }
 
 void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer);
 
 WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
 {
+  WXRUBY_TRACE_IF(WxRubyTraceMarkSizer, 2)
+    WXRUBY_TRACE("> GC_mark_wxSizer : " << ptr)
+  WXRUBY_TRACE_END
+
   VALUE rb_szr = SWIG_RubyInstanceFor(ptr);
   if (rb_szr && rb_szr != Qnil)
   {
@@ -134,6 +180,10 @@ WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
       }
     }
   }
+
+  WXRUBY_TRACE_IF(WxRubyTraceMarkSizer, 2)
+    WXRUBY_TRACE("< GC_mark_wxSizer : " << ptr)
+  WXRUBY_TRACE_END
 }
 
 // Carries out marking of Sizer objects belonging to a Wx::Window. Note
@@ -144,10 +194,9 @@ WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
 // directors, they must be preserved from GC.
 void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 {
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkSizer, 2)
+    WXRUBY_TRACE("> GC_mark_SizerBelongingToWindow : " << wx_sizer)
+  WXRUBY_TRACE_END
 
   // First, mark this sizer
   rb_gc_mark( rb_sizer );
@@ -170,10 +219,9 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
     }
   }
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "< GC_mark_SizerBelongingToWindow : " << wx_sizer << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkSizer, 2)
+    WXRUBY_TRACE("< GC_mark_SizerBelongingToWindow : " << wx_sizer)
+  WXRUBY_TRACE_END
 }
 
 // Similar to Sizers, MenuBar requires a special mark routine. This is
@@ -186,10 +234,9 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 // containing Frame.
 void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 {
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
+    WXRUBY_TRACE("> GC_mark_MenuBarBelongingToFrame : " << menu_bar)
+  WXRUBY_TRACE_END
 
   rb_gc_mark( SWIG_RubyInstanceFor(menu_bar) );
   // Mark each menu in the menubar in turn
@@ -199,75 +246,66 @@ void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
 	  rb_gc_mark( SWIG_RubyInstanceFor(menu) );
 	}
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "< GC_mark_MenuBarBelongingToFrame : " << menu_bar << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
+    WXRUBY_TRACE("< GC_mark_MenuBarBelongingToFrame : " << menu_bar)
+  WXRUBY_TRACE_END
 }
 
 // Default mark routine for Windows - preserve the main sizer and caret
 // belong to this window
 WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
 {
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_wxWindow : " << ptr << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 2)
+    WXRUBY_TRACE("> GC_mark_wxWindow : " << ptr)
+  WXRUBY_TRACE_END
 
   if ( GC_IsWindowDeleted(ptr) )
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>1)
-      std::wcout << "< GC_mark_wxWindow : deleted" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 2)
+      WXRUBY_TRACE("< GC_mark_wxWindow : deleted")
+    WXRUBY_TRACE_END
     return;
   }
 
   wxWindow* wx_win = (wxWindow*)ptr;
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>2)
-    std::wcout << "* GC_mark_wxWindow - getting sizer" << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+    WXRUBY_TRACE("| GC_mark_wxWindow : getting sizer")
+  WXRUBY_TRACE_END
   wxSizer* wx_sizer = wx_win->GetSizer();
   if ( wx_sizer )
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>2)
-      std::wcout << "* GC_mark_wxWindow - found sizer" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+      WXRUBY_TRACE("| GC_mark_wxWindow : found sizer " << wx_sizer)
+    WXRUBY_TRACE_END
     VALUE rb_sizer = SWIG_RubyInstanceFor(wx_sizer);
 	  if ( rb_sizer != Qnil )
       GC_mark_SizerBelongingToWindow(wx_sizer, rb_sizer);
   }
 
   // mark any pushed event handlers
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>2)
-    std::wcout << "* GC_mark_wxWindow - getting event handler" << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+    WXRUBY_TRACE("| GC_mark_wxWindow : getting event handler")
+  WXRUBY_TRACE_END
   wxEvtHandler* evh = wx_win->GetEventHandler();
   while (evh && evh != wx_win)
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>2)
-      std::wcout << "* GC_mark_wxWindow - marking event handler" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+      WXRUBY_TRACE("| GC_mark_wxWindow : found event handler " << evh)
+    WXRUBY_TRACE_END
     VALUE rb_evh = SWIG_RubyInstanceFor(evh);
 	  rb_gc_mark(rb_evh);
 	  evh = evh->GetNextHandler();
   }
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>2)
-    std::wcout << "* GC_mark_wxWindow - getting caret" << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+    WXRUBY_TRACE("| GC_mark_wxWindow : getting caret")
+  WXRUBY_TRACE_END
   wxCaret* wx_caret = wx_win->GetCaret();
   if ( wx_caret )
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>2)
-      std::wcout << "* GC_mark_wxWindow - found caret" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+      WXRUBY_TRACE("| GC_mark_wxWindow : found caret " << wx_caret)
+    WXRUBY_TRACE_END
     VALUE rb_caret = SWIG_RubyInstanceFor(wx_caret);
 	  rb_gc_mark(rb_caret);
   }
@@ -275,57 +313,50 @@ WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
   // be careful; getting drop target may require fully created window (default ctors do  not call Create())
   if (wx_win->GetId() != wxID_ANY)  // any fully created window has an Id != wxID_ANY
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>2)
-      std::wcout << "* GC_mark_wxWindow - getting droptarget" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+      WXRUBY_TRACE("| GC_mark_wxWindow : getting droptarget")
+    WXRUBY_TRACE_END
     wxDropTarget* wx_droptarget = wx_win->GetDropTarget();
     if ( wx_droptarget )
     {
-#ifdef __WXRB_DEBUG__
-      if (wxRuby_TraceLevel()>2)
-        std::wcout << "* GC_mark_wxWindow - found droptarget" << std::endl;
-#endif
+      WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+        WXRUBY_TRACE("| GC_mark_wxWindow : found drop target " << wx_droptarget)
+      WXRUBY_TRACE_END
       VALUE rb_droptarget = SWIG_RubyInstanceFor(wx_droptarget);
       rb_gc_mark(rb_droptarget);
     }
   }
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>2)
-    std::wcout << "* GC_mark_wxWindow - getting validator" << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+    WXRUBY_TRACE("| GC_mark_wxWindow : getting validator")
+  WXRUBY_TRACE_END
   wxValidator* wx_validator = wx_win->GetValidator();
   if ( wx_validator )
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>2)
-      std::wcout << "* GC_mark_wxWindow - found validator" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 3)
+      WXRUBY_TRACE("| GC_mark_wxWindow : found validator " << wx_validator)
+    WXRUBY_TRACE_END
 	  VALUE rb_validator = SWIG_RubyInstanceFor(wx_validator);
 	  rb_gc_mark(rb_validator);
   }
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "< GC_mark_wxWindow : " << ptr << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkWindow, 2)
+    WXRUBY_TRACE("< GC_mark_wxWindow : " << ptr)
+  WXRUBY_TRACE_END
 }
 
 
 WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
 {
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-  std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+    WXRUBY_TRACE("> GC_mark_wxFrame : " << ptr)
+  WXRUBY_TRACE_END
 
   if ( GC_IsWindowDeleted(ptr) )
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_wxFrame : deleted" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+      WXRUBY_TRACE("< GC_mark_wxFrame : deleted")
+    WXRUBY_TRACE_END
     return;
   }
 
@@ -342,9 +373,8 @@ WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
     GC_mark_MenuBarBelongingToFrame(menu_bar);
   }
 
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "> GC_mark_wxFrame : " << ptr << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+    WXRUBY_TRACE("< GC_mark_wxFrame : " << ptr)
+  WXRUBY_TRACE_END
 }
 %}

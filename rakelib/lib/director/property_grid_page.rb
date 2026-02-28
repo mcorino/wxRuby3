@@ -73,12 +73,13 @@ module WXRuby3
         spec.suppress_warning(473, 'wxPropertyGridPage::DoInsert')
         # customize mark function
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkPropGridPage, "GC_MARK_PROPGRID_PAGE")
+
           extern void WXRuby_GC_mark_wxPropertyGridPage(wxPropertyGridPage* wx_pgp)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "> WXRuby_GC_mark_wxPropertyGridPage : " << wx_pgp << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPropGridPage, 2)
+              WXRUBY_TRACE("> WXRuby_GC_mark_wxPropertyGridPage : " << wx_pgp)
+            WXRUBY_TRACE_END
             
           #ifdef __WXRB_DEBUG__
             long l = 0, n = 0;
@@ -110,20 +111,23 @@ module WXRuby3
           #endif
               }
             }
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "WXRuby_GC_mark_wxPropertyGridPage: iterated " << l << " properties; marked " << n << std::endl;
-          #endif
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPropGridPage, 2)
+              WXRUBY_TRACE("< WXRuby_GC_mark_wxPropertyGridPage: iterated " << l << " properties; marked " << n)
+            WXRUBY_TRACE_END
           } 
 
           static void GC_mark_wxPropertyGridPage(void* ptr) 
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "> GC_mark_wxPropertyGridPage : " << ptr << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPropGridPage, 2)
+              WXRUBY_TRACE("> GC_mark_wxPropertyGridPage : " << ptr)
+            WXRUBY_TRACE_END
             
             WXRuby_GC_mark_wxPropertyGridPage((wxPropertyGridPage*) ptr);
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPropGridPage, 2)
+              WXRUBY_TRACE("< GC_mark_wxPropertyGridPage : " << ptr)
+            WXRUBY_TRACE_END
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPropertyGridPage "GC_mark_wxPropertyGridPage";'

@@ -19,6 +19,11 @@
 #include <wx/fs_zip.h>
 
 #include <unordered_map>
+
+WXRUBY_TRACE_GUARD(WxRubyTraceGCTrack, "GC_TRACK")
+WXRUBY_TRACE_GUARD(WxRubyTraceGCWrapEvents, "GC_WRAP_EVENTS")
+WXRUBY_TRACE_GUARD(WxRubyTraceGCWrapObject, "GC_WRAP_OBJECT")
+
 %}
 
 // Some common functions
@@ -86,17 +91,14 @@ PtrToRbObjHash Global_Ptr_Map;
 // Add a tracking from ptr -> object
 WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
 {
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-  {
-    std::wcout << "> wxRuby_AddTracking" << std::flush;
-    VALUE clsname = rb_mod_name(CLASS_OF(object));
-    std::wcout << "("
-               << ptr << ":{"
-               << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
-               << "}, " << object << ")" << std::endl;
-  }
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceGCTrack, 2)
+    WXRUBY_TRACE_WITH(VALUE clsname = rb_mod_name(CLASS_OF(object)))
+    WXRUBY_TRACE("> wxRuby_AddTracking" << std::flush <<
+                   "(" << ptr << ":{"
+                       << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
+                       << "}, " << object << ")")
+  WXRUBY_TRACE_END
+
   // Check if an 'old' tracking registry exists.
   if (Global_Ptr_Map.count(ptr) == 1)
   {
@@ -128,10 +130,9 @@ WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr)
 // Remove the tracking for ptr
 WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr)
 {
-#ifdef __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "< wxRuby_RemoveTracking(" << ptr << ") -> " << wxRuby_FindTracking(ptr)  << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceGCTrack, 2)
+    WXRUBY_TRACE("< wxRuby_RemoveTracking(" << ptr << ") -> " << wxRuby_FindTracking(ptr))
+  WXRUBY_TRACE_END
   Global_Ptr_Map.erase(ptr);
 }
 
@@ -168,12 +169,22 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 {
   static WxRuby_ID window_id("Window");
 
+  WXRUBY_TRACE_IF(WxRubyTraceGCWrapObject, 2)
+    WXRUBY_TRACE("> wxRuby_WrapWxObjectInRuby(" << wx_obj << ")")
+  WXRUBY_TRACE_END
+
   // If no object was passed to be wrapped; this could be a normal state
   // (eg if get_sizer was called on a Window with no sizer set), or
   // could be an error, eg if calling get_window_by_id and no window
   // matched the id, or an error arose from incorrect XML syntax
   if ( ! wx_obj )
+  {
+    WXRUBY_TRACE_IF(WxRubyTraceGCWrapObject, 2)
+      WXRUBY_TRACE("< wxRuby_WrapWxObjectInRuby - returning nil")
+    WXRUBY_TRACE_END
+
     return Qnil;
+  }
 
   // Get the wx class and the ruby class we are converting into
   wxString class_name( wx_obj->GetClassInfo()->GetClassName() );
@@ -215,11 +226,19 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
     }
     else
     {
+      WXRUBY_TRACE_IF(WxRubyTraceGCWrapObject, 2)
+        WXRUBY_TRACE("< wxRuby_WrapWxObjectInRuby - returning nil for unsupported object " << wx_obj << "{" << (const char *)class_name.mb_str() << "}")
+      WXRUBY_TRACE_END
+
       rb_warn("Error wrapping object; class '%s' is not (yet) supported in wxRuby",
               (const char *)class_name.mb_str());
       return Qnil;
     }
   }
+
+  WXRUBY_TRACE_IF(WxRubyTraceGCWrapObject, 2)
+    WXRUBY_TRACE("< wxRuby_WrapWxObjectInRuby - returning wrapped object " << wx_obj << "{" << rb_class2name(r_class) << "}")
+  WXRUBY_TRACE_END
 
   // Otherwise, retrieve the swig type info for this class and wrap it
   // in Ruby. wxRuby_GetSwigTypeForClass is defined in wx.i
@@ -252,10 +271,9 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
     Evt_Type_Map = wxRuby_GetEventTypeClassMap ();
   }
 
-#if __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "* wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})" << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+    WXRUBY_TRACE("> wxRuby_WrapWxEventInRuby(rcvr=" << rcvr << ", " << wx_event << ":{" << wx_event->GetEventType() << "@" << wx_event->GetEventObject() << "})")
+  WXRUBY_TRACE_END
 
   VALUE rb_event_type_id = INT2NUM(wx_event->GetEventType());
   VALUE rb_event_class = Qnil;
@@ -297,25 +315,19 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   {
     if (rb_obj_is_kind_of(rb_event, rb_event_class))
     {
-#if __WXRB_DEBUG__
-      if (wxRuby_TraceLevel()>1)
-      {
-        swig_type_info*  type = wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL ?
+      WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+        WXRUBY_TRACE_WITH(swig_type_info*  type = wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL ?
                                     wxRuby_GetSwigTypeForClass(wxRuby_GetDefaultEventClass()) :
-                                    wxRuby_GetSwigTypeForClass(rb_event_class);
-        std::wcout << "* wxRuby_WrapWxEventInRuby - returning tracked event " << wx_event << "{" << (type ? type->name : rb_class2name(rb_event_class)) << "} -> " << rb_event << std::endl;
-      }
-#endif
+                                    wxRuby_GetSwigTypeForClass(rb_event_class))
+        WXRUBY_TRACE("< wxRuby_WrapWxEventInRuby - returning tracked event " << wx_event << "{" << (type ? type->name : rb_class2name(rb_event_class)) << "} -> " << rb_event)
+      WXRUBY_TRACE_END
       return rb_event; // OK
     }
     else
     {
-#if __WXRB_DEBUG__
-      if (wxRuby_TraceLevel()>1)
-      {
-        std::wcout << "* wxRuby_WrapWxEventInRuby - removing tracking of stale object " << wx_event << " -> " << rb_event << std::endl;
-      }
-#endif
+      WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+        WXRUBY_TRACE("| wxRuby_WrapWxEventInRuby - removing tracking of stale object " << wx_event << " -> " << rb_event)
+      WXRUBY_TRACE_END
       SWIG_RubyRemoveTracking((void *)wx_event); // Remove stale ref
     }
   }
@@ -331,33 +343,15 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
                             wxRuby_GetSwigTypeForClass(rb_event_class);
   rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
-#if __WXRB_DEBUG__
-  if (wxRuby_TraceLevel()>1)
-    std::wcout << "* wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}" << std::endl;
-#endif
+  WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
+    WXRUBY_TRACE("< wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}")
+  WXRUBY_TRACE_END
 
   return rb_event;
 }
 %}
 
-%inline %{
-#ifdef __WXRB_DEBUG__
-int wxrb_trace_level = 0;
-#else
-const int wxrb_trace_level = 0;
-#endif
-%}
-
 %constant int wxWXWIDGETS_DEBUG_LEVEL = wxDEBUG_LEVEL;
-
-%{
-#ifdef __WXRB_DEBUG__
-WXRUBY_EXPORT int wxRuby_TraceLevel()
-{
-  return wxrb_trace_level;
-}
-#endif
-%}
 
 %include "mark_free_impl.i"
 

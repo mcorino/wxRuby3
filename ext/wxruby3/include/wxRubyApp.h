@@ -2,6 +2,10 @@
 //
 // This software is released under the MIT license.
 
+WXRUBY_TRACE_GUARD(WxRubyTraceWinDestroy, "WINDOW_DESTROY")
+WXRUBY_TRACE_GUARD(WxRubyTraceMarkApp, "GC_MARK_APP")
+WXRUBY_TRACE_GUARD(WxRubyTraceAppRun, "APP_RUN")
+
 #include <memory>
 
 /*
@@ -35,16 +39,17 @@ public:
   void OnWindowDestroy(wxWindowDestroyEvent &event)
   {
     wxObject* wx_obj = event.GetEventObject();
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "<= OnWindowDestroy [" << wx_obj << "]" << std::endl;
-#endif
+
+    WXRUBY_TRACE_IF(WxRubyTraceWinDestroy, 1)
+      WXRUBY_TRACE("< OnWindowDestroy [" << wx_obj << "]")
+    WXRUBY_TRACE_END
+
     GC_SetWindowDeleted((void *)wx_obj);
     event.Skip();
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "=> OnWindowDestroy [" << wx_obj << "]" << std::endl;
-#endif
+
+    WXRUBY_TRACE_IF(WxRubyTraceWinDestroy, 1)
+      WXRUBY_TRACE("> OnWindowDestroy [" << wx_obj << "]")
+    WXRUBY_TRACE_END
   }
 
   bool IsRunning() const { return this->is_running_; }
@@ -83,11 +88,9 @@ public:
   // Wx::THE_APP is a constant so always checked in GC mark phase.
   static void mark_wxRubyApp(void *ptr)
   {
-
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "=== Starting App GC mark phase" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkApp, 1)
+      WXRUBY_TRACE(">=== Starting App GC mark phase")
+    WXRUBY_TRACE_END
 
     // If the App has ended, the ruby object will have been unlinked from
     // the C++ one; this implies that all Windows have already been destroyed
@@ -95,10 +98,9 @@ public:
     // errors.
     if ( !wxRubyApp::GetInstance() || !wxRubyApp::GetInstance()->IsRunning() )
     {
-#ifdef __WXRB_DEBUG__
-      if (wxRuby_TraceLevel()>0)
-        std::wcout << "=== App not started yet or has ended, skipping mark phase" << std::endl;
-#endif
+      WXRUBY_TRACE_IF(WxRubyTraceMarkApp, 1)
+        WXRUBY_TRACE("<=== App not started yet or has ended, skipping mark phase")
+      WXRUBY_TRACE_END
       return;
     }
 
@@ -125,10 +127,9 @@ public:
     // list of tracked objects
     wxRuby_IterateTracking(&wxRubyApp::markIterate);
 
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "=== App GC mark phase completed" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceMarkApp, 1)
+      WXRUBY_TRACE("<=== App GC mark phase completed")
+    WXRUBY_TRACE_END
   }
 
   // This is the method run when main_loop is called in Ruby
@@ -155,10 +156,9 @@ public:
     this->Connect(wxEVT_DESTROY,
           wxWindowDestroyEventHandler(wxRubyApp::OnWindowDestroy));
 
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "Calling wxEntry, this=" << this << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("> main_loop : Calling wxEntry, this=" << this)
+    WXRUBY_TRACE_END
 
     // collect ruby app name and arguments array
     VALUE rb_args = rb_get_argv();
@@ -184,15 +184,13 @@ public:
       it or any of it's members anymore but only unroll the callstack.
      */
 
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "returned from wxEntry..." << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("| main_loop : returned from wxEntry...")
+    WXRUBY_TRACE_END
     rb_gc_start();
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "survived gc" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("| main_loop : survived gc")
+    WXRUBY_TRACE_END
 
     rb_const_remove(mWxCore, rb_intern("THE_APP"));
 
@@ -201,6 +199,11 @@ public:
     {
       rb_exc_raise(exc);
     }
+
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("< main_loop")
+    WXRUBY_TRACE_END
+
     return rc;
   }
 
@@ -210,10 +213,9 @@ public:
   // be initialized any earlier than this without crashing
   bool OnInit() override
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "OnInit..." << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("> OnInit")
+    WXRUBY_TRACE_END
 
     if (!wxApp::OnInit())
       return false;
@@ -236,6 +238,10 @@ public:
       result = Qfalse; // exit app
     }
 
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("< OnInit -> " << ((result == Qfalse || result == Qnil) ? "false" : "true"))
+    WXRUBY_TRACE_END
+
     // If on_init return any (ruby) true value, signal to wxWidgets to
     // enter the main event loop by returning true, else return false
     // which will make wxWidgets exit.
@@ -252,10 +258,9 @@ public:
 
   int OnExit() override
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "OnExit..." << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("> OnExit")
+    WXRUBY_TRACE_END
 
     // Get the ruby representation of the App object, and call the
     // ruby on_exit method (if any) for application level cleanup
@@ -275,6 +280,10 @@ public:
 
     // perform wxRuby cleanup
     _wxRuby_Cleanup();
+
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("< OnExit")
+    WXRUBY_TRACE_END
 
     // execute base wxWidgets functionality
     return this->wxApp::OnExit();
@@ -308,10 +317,10 @@ public:
 
   void _wxRuby_Cleanup()
   {
-#ifdef __WXRB_DEBUG__
-    if (wxRuby_TraceLevel()>0)
-      std::wcout << "wxRuby_Cleanup..." << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 2)
+      WXRUBY_TRACE("> _wxRuby_Cleanup")
+    WXRUBY_TRACE_END
+
     // Note in a global variable that the App has ended, so that we
     // can skip any GC marking later
     this->is_running_ = false;
@@ -334,5 +343,9 @@ public:
       SWIG_RubyRemoveTracking(oldlog);
       delete oldlog;
     }
+
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 2)
+      WXRUBY_TRACE("< _wxRuby_Cleanup")
+    WXRUBY_TRACE_END
   }
 };

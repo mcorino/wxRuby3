@@ -384,48 +384,64 @@ module WXRuby3
         # provide a custom wxVariantData implementation for Ruby VALUE
         # and some interface extensions to use that from Ruby
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkVariant, "GC_MARK_VARIANT")
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCTrackVariant, "GC_TRACK_VARIANT")
+
           class WXRBValueVariantData;
           // Mapping of WXRBValueVariantData* to Ruby VALUE
           WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
                                       WXRBVariantDataToRbValueHash);
           static WXRBVariantDataToRbValueHash Variant_Value_Map;
 
-          static void wxRuby_markRbValueVariants()
+          static void GC_mark_RbValueVariants()
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
+              WXRUBY_TRACE("> GC_mark_RbValueVariants")
+            WXRUBY_TRACE_END
+
             WXRBVariantDataToRbValueHash::iterator it;
             for( it = Variant_Value_Map.begin(); it != Variant_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
-          #ifdef __WXRB_DEBUG__
-              if (wxRuby_TraceLevel()>1)
-              {
-                void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0);
-                std::wcout << "**** wxRuby_markRbValueVariants : " << it->first << "|" << (void*)c_ptr << std::endl;
-              }
-          #endif 
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
+                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE("| GC_mark_RbValueVariants : " << it->first << "|" << (void*)c_ptr)
+              WXRUBY_TRACE_END
+
               rb_gc_mark(obj);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
+              WXRUBY_TRACE("< GC_mark_RbValueVariants")
+            WXRUBY_TRACE_END
           }
 
           static void wxRuby_RegisterValueVariantData(void* ptr, VALUE rbval)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-            {
-              void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0);
-              std::wcout << "**** wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr << std::endl;
-            } 
-          #endif 
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackVariant, 2)
+              WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0))
+              WXRUBY_TRACE("> wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr)
+            WXRUBY_TRACE_END
+
             Variant_Value_Map[ptr] = rbval;
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
+              WXRUBY_TRACE("< wxRuby_RegisterValueVariantData")
+            WXRUBY_TRACE_END
           }
 
           static void wxRuby_UnregisterValueVariantData(void* ptr)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "**** wxRuby_UnregisterValueVariantData : " << ptr << std::endl; 
-          #endif 
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackVariant, 2)
+              WXRUBY_TRACE("> wxRuby_UnregisterValueVariantData : " << ptr)
+            WXRUBY_TRACE_END
+
             Variant_Value_Map.erase(ptr);
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
+              WXRUBY_TRACE("< wxRuby_UnregisterValueVariantData")
+            WXRUBY_TRACE_END
           }
 
           class WXRUBY_EXPORT WXRBValueVariantData : public wxVariantData
@@ -486,7 +502,7 @@ module WXRuby3
             return variant;
           }
           __HEREDOC
-        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbValueVariants);'
+        spec.add_init_code 'wxRuby_AppendMarker(GC_mark_RbValueVariants);'
         # ignore GetType (not doc)
         spec.ignore 'wxVariant::GetType', ignore_doc: false
         # replace with custom implementation

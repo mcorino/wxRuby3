@@ -175,12 +175,14 @@ module WXRuby3
         spec.disown('wxGridTableBase* table')
         # customize mark function to handle safeguarding any customized Grid tables installed
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkGrid, "GC_MARK_GRID")
+
           static void GC_mark_wxGridCtrl(void* ptr) 
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "> GC_mark_wxGridCtrl : " << ptr << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkGrid, 2)
+              WXRUBY_TRACE("> GC_mark_wxGridCtrl : " << ptr)
+            WXRUBY_TRACE_END
+
             if ( GC_IsWindowDeleted(ptr) )
             {
               return;
@@ -194,8 +196,16 @@ module WXRuby3
             VALUE rb_gtbl = SWIG_RubyInstanceFor(wx_gtbl);
             if (!NIL_P(rb_gtbl))
             {
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkGrid, 3)
+                WXRUBY_TRACE("| GC_mark_wxGridCtrl : marking gridtable " << wx_gtbl << " -> " << rb_gtbl);
+              WXRUBY_TRACE_END
+
               rb_gc_mark(rb_gtbl);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkGrid, 2)
+              WXRUBY_TRACE("< GC_mark_wxGridCtrl : " << ptr)
+            WXRUBY_TRACE_END
           }
         __HEREDOC
         spec.add_swig_code '%markfunc wxGrid "GC_mark_wxGridCtrl";'
@@ -298,12 +308,19 @@ module WXRuby3
                                       WXRBGridCellAttrValueHash);
           static WXRBGridCellAttrValueHash Grid_Cell_Attr_Value_Map;
 
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkGridCellAttr, "GC_MARK_GRID_CELL_ATTR")
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCTrackGridCellAttr, "GC_TRACK_GRID_CELL_ATTR")
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkGridCellEditor, "GC_MARK_GRID_CELL_EDITOR")
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCTrackGridCellEditor, "GC_TRACK_GRID_CELL_EDITOR")
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkGridCellRenderer, "GC_MARK_GRID_CELL_RENDERER")
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCTrackGridCellRenderer, "GC_TRACK_GRID_CELL_RENDERER")
+
           static void wxRuby_UnregisterGridCellAttr(wxGridCellAttr* wx_attr)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "** wxRuby_UnregisterGridCellAttr : " << wx_attr << ":" << (void*)Grid_Cell_Attr_Value_Map[wx_attr] << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellAttr, 2)
+              WXRUBY_TRACE("> wxRuby_UnregisterGridCellAttr : " << wx_attr << " -> " << Grid_Cell_Attr_Value_Map[wx_attr])
+            WXRUBY_TRACE_END
+
             if (Grid_Cell_Attr_Value_Map.count(wx_attr) != 0)
             {
               VALUE object = Grid_Cell_Attr_Value_Map[wx_attr];  
@@ -313,6 +330,10 @@ module WXRuby3
               }
               Grid_Cell_Attr_Value_Map.erase(wx_attr);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellAttr, 2)
+              WXRUBY_TRACE("< wxRuby_UnregisterGridCellAttr : " << wx_attr)
+            WXRUBY_TRACE_END
           }
 
           extern VALUE wxRuby_GridCellAttrInstance(wxGridCellAttr* wx_attr)
@@ -340,30 +361,52 @@ module WXRuby3
           // and it's associated registration/de-registration functions
           extern void wxRuby_RegisterGridCellAttr(wxGridCellAttr* wx_attr, VALUE rb_attr)
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellAttr, 2)
+              WXRUBY_TRACE("> wxRuby_RegisterGridCellAttr : " << wx_attr << " -> " << rb_attr)
+            WXRUBY_TRACE_END
+
             if (wx_attr && !NIL_P(rb_attr))
             {
               // always (keep) disown(ed); wxWidgets takes over ownership
               RDATA(rb_attr)->dfree = 0;
               if (Grid_Cell_Attr_Value_Map.count(wx_attr) == 0)
               {
-          #ifdef __WXRB_DEBUG__
-                if (wxRuby_TraceLevel()>1)
-                  std::wcout << "** wxRuby_RegisterGridCellAttr : " << wx_attr << ":" << (void*)rb_attr << std::endl;
-          #endif
+                WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellAttr, 2)
+                  WXRUBY_TRACE("| wxRuby_RegisterGridCellAttr : installing monitor")
+                WXRUBY_TRACE_END
+
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
               }
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellAttr, 2)
+              WXRUBY_TRACE("< wxRuby_RegisterGridCellAttr : " << wx_attr)
+            WXRUBY_TRACE_END
           }
 
           // define the grid cell attribute marker
           static void wxRuby_markGridCellAttr()
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkGridCellAttr, 2)
+              WXRUBY_TRACE("> wxRuby_markGridCellAttr")
+            WXRUBY_TRACE_END
+
             WXRBGridCellAttrValueHash::iterator it;
             for( it = Grid_Cell_Attr_Value_Map.begin(); it != Grid_Cell_Attr_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkGridCellAttr, 2)
+                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE("| wxRuby_markGridCellAttr : " << it->first << "|" << (void*)c_ptr)
+              WXRUBY_TRACE_END
+
               rb_gc_mark(obj);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkGridCellAttr, 2)
+              WXRUBY_TRACE("< wxRuby_markGridCellAttr")
+            WXRUBY_TRACE_END
           }
 
           // declare the global table for grid cell editors
@@ -373,10 +416,10 @@ module WXRuby3
 
           static void wxRuby_UnregisterGridCellEditor(wxGridCellEditor* wx_edt)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "** wxRuby_UnregisterGridCellEditor : " << wx_edt << ":" << (void*)Grid_Cell_Editor_Value_Map[wx_edt] << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+              WXRUBY_TRACE("> wxRuby_UnregisterGridCellEditor : " << wx_edt << " -> " << Grid_Cell_Editor_Value_Map[wx_edt])
+            WXRUBY_TRACE_END
+
             if (Grid_Cell_Editor_Value_Map.count(wx_edt) != 0)
             {
               VALUE object = Grid_Cell_Editor_Value_Map[wx_edt];  
@@ -386,6 +429,10 @@ module WXRuby3
               }
               Grid_Cell_Editor_Value_Map.erase(wx_edt);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+              WXRUBY_TRACE("< wxRuby_UnregisterGridCellEditor : " << wx_edt)
+            WXRUBY_TRACE_END
           }
 
           extern VALUE wxRuby_GridCellEditorInstance(wxGridCellEditor* wx_edt)
@@ -413,30 +460,52 @@ module WXRuby3
           // and it's associated registration function
           extern void wxRuby_RegisterGridCellEditor(wxGridCellEditor* wx_edt, VALUE rb_edt)
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+              WXRUBY_TRACE("> wxRuby_RegisterGridCellEditor : " << wx_edt << " -> " << rb_edt)
+            WXRUBY_TRACE_END
+
             if (wx_edt && !NIL_P(rb_edt))
             {
               // always (keep) disown(ed); wxWidgets takes over ownership
               RDATA(rb_edt)->dfree = 0;
               if (Grid_Cell_Editor_Value_Map.count(wx_edt) == 0)
               {
-          #ifdef __WXRB_DEBUG__
-                if (wxRuby_TraceLevel()>1)
-                  std::wcout << "** wxRuby_RegisterGridCellEditor : " << wx_edt << ":" << (void*)rb_edt << std::endl;
-          #endif
+                WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+                  WXRUBY_TRACE("| wxRuby_RegisterGridCellEditor : installing monitor")
+                WXRUBY_TRACE_END
+
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
               }
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+              WXRUBY_TRACE("< wxRuby_RegisterGridCellEditor : " << wx_edt)
+            WXRUBY_TRACE_END
           }
 
           // define the grid cell editor marker
           static void wxRuby_markGridCellEditor()
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+              WXRUBY_TRACE("> wxRuby_markGridCellEditor")
+            WXRUBY_TRACE_END
+
             WXRBGridCellEditorValueHash::iterator it;
             for( it = Grid_Cell_Editor_Value_Map.begin(); it != Grid_Cell_Editor_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE("| wxRuby_markGridCellEditor : " << it->first << "|" << (void*)c_ptr)
+              WXRUBY_TRACE_END
+
               rb_gc_mark(obj);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
+              WXRUBY_TRACE("< wxRuby_markGridCellEditor")
+            WXRUBY_TRACE_END
           }
 
           // declare the global table for grid cell renderer
@@ -446,10 +515,10 @@ module WXRuby3
 
           static void wxRuby_UnregisterGridCellRenderer(wxGridCellRenderer* wx_rnd)
           {
-          #ifdef __WXRB_DEBUG__
-            if (wxRuby_TraceLevel()>1)
-              std::wcout << "** wxRuby_UnregisterGridCellRenderer : " << wx_rnd << ":" << (void*)Grid_Cell_Renderer_Value_Map[wx_rnd] << std::endl;
-          #endif
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+              WXRUBY_TRACE("> wxRuby_UnregisterGridCellRenderer : " << wx_rnd << " -> " << Grid_Cell_Renderer_Value_Map[wx_rnd])
+            WXRUBY_TRACE_END
+
             if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) != 0)
             {
               VALUE object = Grid_Cell_Renderer_Value_Map[wx_rnd];  
@@ -459,6 +528,10 @@ module WXRuby3
               }
               Grid_Cell_Renderer_Value_Map.erase(wx_rnd);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+              WXRUBY_TRACE("< wxRuby_UnregisterGridCellRenderer : " << wx_rnd)
+            WXRUBY_TRACE_END
           }
 
           extern VALUE wxRuby_GridCellRendererInstance(wxGridCellRenderer* wx_rnd)
@@ -485,30 +558,52 @@ module WXRuby3
           // and it's associated registration/de-registration functions
           extern void wxRuby_RegisterGridCellRenderer(wxGridCellRenderer* wx_rnd, VALUE rb_rnd)
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+              WXRUBY_TRACE("> wxRuby_RegisterGridCellRenderer : " << wx_rnd << " -> " << rb_rnd)
+            WXRUBY_TRACE_END
+
             if (wx_rnd && !NIL_P(rb_rnd))
             {
               // always (keep) disowned(ed); wxWidgets takes over ownership
               RDATA(rb_rnd)->dfree = 0;
               if (Grid_Cell_Renderer_Value_Map.count(wx_rnd) == 0)
               {
-          #ifdef __WXRB_DEBUG__
-                if (wxRuby_TraceLevel()>1)
-                  std::wcout << "** wxRuby_RegisterGridCellRenderer : registering " << wx_rnd << ":" << (void*)rb_rnd << std::endl;
-          #endif
+                WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+                  WXRUBY_TRACE("| wxRuby_RegisterGridCellRenderer : installing monitor")
+                WXRUBY_TRACE_END
+
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
               }
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+              WXRUBY_TRACE("< wxRuby_RegisterGridCellRenderer : " << wx_rnd)
+            WXRUBY_TRACE_END
           }
 
           // define the grid cell renderer marker
           static void wxRuby_markGridCellRenderer()
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+              WXRUBY_TRACE("> wxRuby_markGridCellRenderer")
+            WXRUBY_TRACE_END
+
             WXRBGridCellRendererValueHash::iterator it;
             for( it = Grid_Cell_Renderer_Value_Map.begin(); it != Grid_Cell_Renderer_Value_Map.end(); ++it )
             {
               VALUE obj = it->second;
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE("| wxRuby_markGridCellRenderer : " << it->first << "|" << (void*)c_ptr)
+              WXRUBY_TRACE_END
+
               rb_gc_mark(obj);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
+              WXRUBY_TRACE("< wxRuby_markGridCellRenderer")
+            WXRUBY_TRACE_END
           }
 
           __HEREDOC

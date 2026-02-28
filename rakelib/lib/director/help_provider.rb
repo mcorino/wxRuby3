@@ -92,7 +92,7 @@ module WXRuby3
             // virtual wxString GetHelp(const wxWindowBase* window);
             void RemoveHelp(wxWindowBase* window); // no virtual as we have fixed director impl above
             virtual bool ShowHelp(wxWindowBase* window);
-            virtual bool ShowHelpAtPoint(wxWindowBase* window, const wxPoint point, 
+            virtual bool ShowHelpAtPoint(wxWindowBase* window, const wxPoint& point, 
                                          wxHelpEvent::Origin origin);
           };
           __HEREDOC
