@@ -43,6 +43,7 @@ env:
   WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
   WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
   WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
+  WXWIDGETS_PREV_STABLE: ${{ vars.WXWIDGETS_PREV_STABLE }}
 
 jobs:
   build:
@@ -68,7 +69,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: system
-            wxw_version: '3.2.9'
+            wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
             wxr_type: gem
           - os: ubuntu-22.04
             gtk_version: 3
@@ -119,7 +120,7 @@ jobs:
             swig: '4'
             use_xvfb: true
             wxw_type: develop
-            wxw_version: '3.2.9'
+            wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
             wxr_type: develop
             wxr_test_exclude: 'test_media_ctrl'
           - os: ubuntu-24.04

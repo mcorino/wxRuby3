@@ -45,6 +45,7 @@ env:
   WXWIDGETS_ROOT: ${{ github.workspace }}\ext\wxWidgets
   WXWIN_ROOT: ${{ github.workspace }}\ext\wxWidgets\install
   WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
+  WXWIDGETS_PREV_STABLE: ${{ vars.WXWIDGETS_PREV_STABLE }}
 
 jobs:
   build:
@@ -101,6 +102,14 @@ jobs:
             swig: '4'
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
+            wxr_type: gem
+          - os: windows-2022
+            platform: 'x64'
+            CXX: g++-12
+            ruby: 'ruby'
+            swig: '4'
+            wxw_type: embed
+            wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
             wxr_type: gem
           - os: windows-2022
             platform: 'x64'

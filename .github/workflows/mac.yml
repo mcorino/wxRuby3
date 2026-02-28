@@ -87,7 +87,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: embed
-          wxw_version: '3.2.9'
+          wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
           wxr_type: gem
         - name: wxMac macOS 14
           runner: macos-14
@@ -105,7 +105,7 @@ jobs:
           swig: '4'
           configure_flags: --disable-sys-libs
           wxw_type: develop
-          wxw_version: '3.2.9'
+          wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
           wxr_type: develop
         - name: wxMac macOS 14
           runner: macos-14
@@ -132,6 +132,7 @@ jobs:
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
       WXWIN_INSTALL: ${{ github.workspace }}/ext/wxWidgets/install
       WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
+      WXWIDGETS_PREV_STABLE: ${{ vars.WXWIDGETS_PREV_STABLE }}
 
     steps:
     - name: Show default Ruby
