@@ -13,6 +13,7 @@ module WXRuby3
     class ImageList < Director
 
       def setup
+        spec.disable_proxies
         spec.require_app 'wxImageList'
         if Config.instance.windows? || Config.instance.macosx?
           spec.ignore('wxImageList::Add(const wxIcon &)', ignore_doc: false)

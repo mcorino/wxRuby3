@@ -173,6 +173,11 @@ module WXRuby3
             (*$self) = rect;
           }
           __HEREDOC
+        if Config.instance.wx_version_check('3.3.0') >= 0
+          # unwanted overloads
+          spec.ignore 'wxRect2DDouble::Inflate(wxDouble,wxDouble) const',
+                      'wxRect2DDouble::Deflate(wxDouble,wxDouble) const'
+        end
         # implement in pure Ruby
         spec.ignore 'wxRect2DDouble::Intersect(const wxRect2DDouble &, const wxRect2DDouble &, wxRect2DDouble *)',
                     'wxRect2DDouble::Union(const wxRect2DDouble &, const wxRect2DDouble &, wxRect2DDouble *)',
