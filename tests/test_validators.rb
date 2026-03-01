@@ -713,6 +713,21 @@ class GenericValidatorTests  < WxRuby::Test::GUITests
     assert_equal([0, 2, 4], control.validator.value)
   end
 
+  def test_colour_picker_ctrl
+    self.control = Wx::ColourPickerCtrl.new(frame_win, colour: Wx::RED, validator: Wx::GenericValidator.new)
+
+    assert_equal('RED', control.colour.as_string(Wx::C2S_NAME).upcase)
+    assert_nil(control.validator.value)
+
+    control.validator.value = Wx::BLACK
+    assert_true(control.transfer_data_to_window)
+    assert_equal('BLACK', control.colour.as_string(Wx::C2S_NAME).upcase)
+
+    control.set_colour(Wx::BLUE)
+    assert_true(control.transfer_data_from_window)
+    assert_equal('BLUE', control.validator.value.as_string(Wx::C2S_NAME).upcase)
+  end
+
   class Model
 
     def initialize
