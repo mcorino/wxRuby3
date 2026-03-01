@@ -156,6 +156,9 @@ module WXRuby3
           spec.add_swig_code '%markfunc wxValidator "GC_mark_wxValidator";'
           # will be provided as a pure Ruby method
           spec.ignore 'wxValidator::Clone', ignore_doc: false
+          # ignore default ctor docs
+          spec.ignore 'wxValidator::wxValidator'
+          spec.regard 'wxValidator::wxValidator', regard_doc: false # only use interface spec, not docs
           # add wxRuby specifics
           spec.extend_interface 'wxValidator',
                                 'wxValidator(const wxValidator& other)'
