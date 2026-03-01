@@ -10,7 +10,7 @@ module Wx
 
     class << self
       def handlers
-        @handlers ||= ::Hash.new(Proc.new { |win, *rest| raise NotImplementedError, "#{win.class} not supported" })
+        @handlers ||= ::Hash.new
       end
 
       def define_handler(klass, meth=nil, &block)
@@ -38,7 +38,7 @@ module Wx
 
     attr_accessor :value
 
-    private
+    protected
 
     def do_transfer_from_window
       get_handler.call(get_window)
@@ -62,7 +62,9 @@ module Wx
         @handler
       else
         @klass = get_window.class
-        @handler = GenericValidator.handlers[@klass] || GenericValidator.handlers.each_key.detect { |k| k > klass }
+        # look for direct match or closest parent match (i.e. the handler registered for the most derived parent)
+        @handler = GenericValidator.handlers[@klass] ||
+                   GenericValidator.handlers.each.inject([]) { |hsel, hreg| hsel = hreg if hreg.first > @klass && (hsel.empty? || hsel.first > hreg.first); hsel }.last
         @handler || ::Kernel.raise(NotImplementedError, "#{@klass} not supported")
       end
     end
