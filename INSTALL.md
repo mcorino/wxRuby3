@@ -78,8 +78,9 @@ The following tables lists the packages provided by the current wxRuby3 release 
 | Linux   | Debian (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
 | Linux   | Ubuntu (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |
 | Windows | NA                                     | x86_64                  | Latest stable Ruby                                 |
-| OSX     | MacOSX 13                              | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
-| OSX     | MacOSX 14                              | ARM64                   | Latest stable Ruby                                 |
+| OSX     | MacOS 14                               | ARM64                   | Latest stable Ruby                                 |
+| OSX     | MacOS 15                               | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
+| OSX     | MacOS 26                               | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
 
 ### User created packages
 
