@@ -24,6 +24,7 @@ module Wx
   #   - Wx::ListBox and Wx::CheckListBox in case of style Wx::LB_MULTIPLE or Wx::LB_EXTENDED
   # - date/time type controls
   #   - Wx::DatePickerCtrl, Wx::TimePickerCtrl
+  # - Wx::ColourPickerCtrl
   #
   # It checks the type of the window and uses an appropriate type for it.
   # For example, Wx::Button and Wx::TextCtrl transfer data to and from a
@@ -78,6 +79,10 @@ module Wx
 
     # @overload initialize
     #   Default constructor.
+    #   @return [Wx::GenericValidator]
+    # @overload initialize
+    #   Initializing constructor.
+    #   @param [Boolean,Integer,String,Array<Integer>,Time,Float,Wx::Colour,Wx::CheckBoxState] initial value (see GenericValidator#value)
     #   @return [Wx::GenericValidator]
     # @overload initialize(other)
     #   Copy constructor.

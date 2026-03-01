@@ -681,6 +681,36 @@ class GenericValidatorTests  < WxRuby::Test::GUITests
     assert_equal(75, integer_store)
   end
 
+  def test_toggle_ctrl
+    self.control = Wx::ToggleButton.new(frame_win, label: 'Button', validator: Wx::GenericValidator.new)
+
+    assert_false(control.value)
+    assert_nil(control.validator.value)
+
+    control.validator.value = true
+    assert_true(control.transfer_data_to_window)
+    assert_true(control.value)
+
+    control.set_value(false)
+    assert_true(control.transfer_data_from_window)
+    assert_false(control.validator.value)
+  end
+
+  def test_bitmap_toggle_ctrl
+    self.control = Wx::BitmapToggleButton.new(frame_win, label: Wx::ArtProvider.get_bitmap(Wx::ART_BUTTON), validator: Wx::GenericValidator.new)
+
+    assert_false(control.value)
+    assert_nil(control.validator.value)
+
+    control.validator.value = true
+    assert_true(control.transfer_data_to_window)
+    assert_true(control.value)
+
+    control.set_value(false)
+    assert_true(control.transfer_data_from_window)
+    assert_false(control.validator.value)
+  end
+
   def test_single_list_ctrl
     self.control = Wx::ListBox.new(frame_win, choices: %w[First Second Third Fourth Fifth], name: 'List', validator: Wx::GenericValidator.new)
 
@@ -711,6 +741,55 @@ class GenericValidatorTests  < WxRuby::Test::GUITests
     [0, 2, 4].each { |i| control.set_selection(i) }
     assert_true(control.transfer_data_from_window)
     assert_equal([0, 2, 4], control.validator.value)
+  end
+
+  def test_checklist_ctrl
+    self.control = Wx::CheckListBox.new(frame_win, choices: %w[First Second Third Fourth Fifth], style: Wx::LB_MULTIPLE, name: 'List', validator: Wx::GenericValidator.new)
+
+    assert_equal(0, control.checked_items.size)
+    assert_nil(control.validator.value)
+
+    control.validator.value = [1, 3]
+    assert_true(control.transfer_data_to_window)
+    assert_equal([1,3], control.checked_items)
+
+    control.count.times { |i| control.check(i, false) }
+    [0, 2, 4].each { |i| control.check(i, true) }
+    assert_true(control.transfer_data_from_window)
+    assert_equal([0, 2, 4], control.validator.value)
+  end
+
+  class MyCheckListBox < Wx::CheckListBox; end
+
+  def test_my_checklist_ctrl
+    self.control = MyCheckListBox.new(frame_win, choices: %w[First Second Third Fourth Fifth], style: Wx::LB_MULTIPLE, name: 'List', validator: Wx::GenericValidator.new)
+
+    assert_equal(0, control.checked_items.size)
+    assert_nil(control.validator.value)
+
+    control.validator.value = [1, 3]
+    assert_true(control.transfer_data_to_window)
+    assert_equal([1,3], control.checked_items)
+
+    control.count.times { |i| control.check(i, false) }
+    [0, 2, 4].each { |i| control.check(i, true) }
+    assert_true(control.transfer_data_from_window)
+    assert_equal([0, 2, 4], control.validator.value)
+  end
+
+  def test_colour_picker_ctrl
+    self.control = Wx::ColourPickerCtrl.new(frame_win, colour: Wx::RED, validator: Wx::GenericValidator.new)
+
+    assert_equal('RED', control.colour.as_string(Wx::C2S_NAME).upcase)
+    assert_nil(control.validator.value)
+
+    control.validator.value = Wx::BLACK
+    assert_true(control.transfer_data_to_window)
+    assert_equal('BLACK', control.colour.as_string(Wx::C2S_NAME).upcase)
+
+    control.set_colour(Wx::BLUE)
+    assert_true(control.transfer_data_from_window)
+    assert_equal('BLUE', control.validator.value.as_string(Wx::C2S_NAME).upcase)
   end
 
   class Model

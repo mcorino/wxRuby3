@@ -10,7 +10,7 @@ module Wx
 
     class << self
       def handlers
-        @handlers ||= ::Hash.new(Proc.new { |win, *rest| raise NotImplementedError, "#{win.class} not supported" })
+        @handlers ||= ::Hash.new
       end
 
       def define_handler(klass, meth=nil, &block)
@@ -30,15 +30,15 @@ module Wx
     end
 
     def initialize(*arg)
-      super
-      @value = arg.empty? ? nil : arg.first.value
+      (arg.empty? || arg.first.is_a?(GenericValidator)) ? super : super()
+      @value = (arg.empty? || arg.first.is_a?(GenericValidator)) ? nil : arg.first.value
       @handler = nil
       @klass = nil
     end
 
     attr_accessor :value
 
-    private
+    protected
 
     def do_transfer_from_window
       get_handler.call(get_window)
@@ -62,7 +62,9 @@ module Wx
         @handler
       else
         @klass = get_window.class
-        @handler = GenericValidator.handlers[@klass] || GenericValidator.handlers.each_key.detect { |k| k > klass }
+        # look for direct match or closest parent match (i.e. the handler registered for the most derived parent)
+        @handler = GenericValidator.handlers[@klass] ||
+                   GenericValidator.handlers.each.inject([]) { |hsel, hreg| hsel = hreg if hreg.first > @klass && (hsel.empty? || hsel.first > hreg.first); hsel }.last
         @handler || ::Kernel.raise(NotImplementedError, "#{@klass} not supported")
       end
     end
@@ -75,10 +77,11 @@ module Wx
   if Wx.has_feature?(:USE_CHECKBOX)
 
     GenericValidator.define_handler(Wx::CheckBox) do |win, *val|
-      if val.empty?
-        !!win.get_value
+      value = val.shift
+      if value.nil?
+        win.is3state ? win.get3state_value : !!win.get_value
       else
-        win.set_value(!!val.shift)
+        (win.is3state && value.is_a?(CheckBoxState)) ? win.set3state_value(value) : win.set_value(!!value)
       end
     end
 
@@ -86,10 +89,42 @@ module Wx
   if Wx.has_feature?(:USE_RADIOBTN)
 
     GenericValidator.define_handler(Wx::RadioButton) do |win, *val|
-      if val.empty?
-        !!win.get_value
+      value = val.shift
+      if value.nil?
+        if win.window_style.allbits?(Wx::RB_GROUP)
+          n = 0
+          while win
+            break if win.value
+            win = win.next_in_group
+            if win
+              n += 1
+            else
+              n = -1
+              $stderr.puts 'No selected radio button' # should never happen
+            end
+          end
+          n
+        else
+          !!win.get_value
+        end
       else
-        win.set_value(!!val.shift)
+        if !value.is_a?(Numeric) || win.window_style.allbits?(Wx::RB_SINGLE)
+          win.set_value(!!val.shift)
+        else
+          n = 0
+          while win
+            if n == value
+              win.set_value(true)
+              break
+            end
+            win = win.next_in_group
+            if win
+              n += 1
+            else
+              $stderr.puts 'Value out of range or not enough radio buttons' # should never happen
+            end
+          end
+        end
       end
     end
 
@@ -188,16 +223,21 @@ module Wx
 
     GenericValidator.define_handler(Wx::ComboBox) do |win, *val|
       if val.empty?
-        if (win.get_window_style & Wx::CB_READONLY) == Wx::CB_READONLY
+        if win.get_window_style.allbits?(Wx::CB_READONLY)
           win.get_selection
         else
           win.get_string_selection
         end
       else
-        if (win.get_window_style & Wx::CB_READONLY) == Wx::CB_READONLY
-          win.set_selection(val.shift)
+        value = val.shift
+        if value.is_a?(Numeric)
+          win.set_selection(value.to_i)
         else
-          win.set_string_selection(val.shift)
+          if win.set_string_selection(value.to_s)
+            unless win.get_window_style.allbits?(Wx::CB_READONLY)
+              win.set_value(value.to_s)
+            end
+          end
         end
       end
     end
@@ -257,7 +297,7 @@ module Wx
       if val.empty?
         win.get_value
       else
-        win.set_value(val.shift)
+        win.set_value(val.shift.to_s)
       end
     end
 
@@ -268,17 +308,18 @@ module Wx
 
     GenericValidator.define_handler(Wx::CheckListBox) do |win, *val|
       if val.empty?
-        if (win.get_window_style & Wx::LB_SINGLE) == Wx::LB_SINGLE
-          win.get_checked_items.first
-        else
+        if win.get_window_style.anybits?(Wx::LB_MULTIPLE|Wx::LB_EXTENDED)
           win.get_checked_items
+        else
+          win.get_checked_items.first
         end
       else
-        if (win.get_window_style & Wx::LB_SINGLE) == Wx::LB_SINGLE
-          win.check(val.shift, true)
+        if win.get_window_style.anybits?(Wx::LB_MULTIPLE|Wx::LB_EXTENDED)
+          # reset current selections
+          win.count.times { |n| win.check(n, false) }
+          [val].flatten.each { |i| win.check(i.to_i, true) }
         else
-          win.get_count.times { |i| win.check(i, false) }
-          [val].flatten.each { |i| win.check(i, true) }
+          win.check(val.shift.to_i, true)
         end
       end
     end
@@ -288,20 +329,31 @@ module Wx
 
     GenericValidator.define_handler(Wx::ListBox) do |win, *val|
       if val.empty?
-        # test this the hard since on WXOSX LB_SINGLE is default but does get set
+        # test this the hard way since on WXOSX LB_SINGLE is default but does get set
         # by default i.e. on WXOSX no selection type bit set == LB_SINGLE
-        if (win.get_window_style & (Wx::LB_MULTIPLE|Wx::LB_EXTENDED)) == 0
-          win.get_selection
-        else
+        if win.get_window_style.anybits?(Wx::LB_MULTIPLE|Wx::LB_EXTENDED)
           win.get_selections
+        else
+          win.get_selection
         end
       else
-        if (win.get_window_style & (Wx::LB_MULTIPLE|Wx::LB_EXTENDED)) == 0
-          win.set_selection(val.shift)
+        if win.get_window_style.anybits?(Wx::LB_MULTIPLE|Wx::LB_EXTENDED)
+          win.count.times { |i| win.deselect(i) }
+          [val].flatten.each { |i| win.set_selection(i.to_i) }
         else
-          win.get_count.times { |i| win.deselect(i) }
-          [val].flatten.each { |i| win.set_selection(i) }
+          win.set_selection(val.shift.to_i)
         end
+      end
+    end
+
+  end
+  if Wx.has_feature?(:USE_COLOURPICKERCTRL)
+
+    GenericValidator.define_handler(ColourPickerCtrl) do |win, *val|
+      if val.empty?
+        win.get_colour
+      else
+        win.set_colour(val.shift) if val.first.is_a?(Colour)
       end
     end
 
