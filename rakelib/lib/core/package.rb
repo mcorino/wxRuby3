@@ -203,7 +203,7 @@ module WXRuby3
       end
 
       def cpp_flags
-        @cpp_flags ||= "#{is_core? ? '-DBUILD_WXRUBY_CORE' : ''} -D#{SwigRunner.swig_version[0] < 4 ? 'SWIG_VERSION' : 'SWIGVERSION'}=0x#{'%.2X%.2X%.2X' % SwigRunner.swig_version}"
+        @cpp_flags ||= "#{is_core? ? '-DBUILD_WXRUBY_CORE' : ''}"
       end
 
       def initializer_src
@@ -365,13 +365,7 @@ module WXRuby3
             # endif
             #endif
 
-            #if !defined(SWIG_VERSION)
-            # if defined(SWIGVERSION)
-            #   define SWIG_VERSION SWIGVERSION
-            # else
-            #   error "Missing SWIG_VERSION definition!"   
-            # endif     
-            #endif
+            #define SWIG_VERSION #{'%.2X%.2X%.2X' % SwigRunner.swig_version}
           __HEREDOC
           fsrc.puts
           fsrc.puts "VALUE #{module_variable} = 0;"
