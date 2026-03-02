@@ -61,16 +61,16 @@ jobs:
             wxw_type: system
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
-#          - os: ubuntu-22.04
-#            gtk_version: 3
-#            CC: gcc
-#            CXX: g++
-#            ruby: '3.4'
-#            swig: '4'
-#            use_xvfb: true
-#            wxw_type: develop
-#            wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
-#            wxr_type: develop
+          - os: ubuntu-22.04
+            gtk_version: 3
+            CC: gcc
+            CXX: g++
+            ruby: '3.4'
+            swig: '4'
+            use_xvfb: true
+            wxw_type: develop
+            wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
+            wxr_type: develop
           - os: ubuntu-22.04
             gtk_version: 3
             CC: gcc
