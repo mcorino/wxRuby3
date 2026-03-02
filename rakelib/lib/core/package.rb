@@ -203,7 +203,7 @@ module WXRuby3
       end
 
       def cpp_flags
-        @cpp_flags ||= "#{is_core? ? '-DBUILD_WXRUBY_CORE' : ''} -DSWIG_VERSION=0x#{'%.2X%.2X%.2X' % SwigRunner.swig_version}"
+        @cpp_flags ||= "#{is_core? ? '-DBUILD_WXRUBY_CORE' : ''} -D#{SwigRunner.swig_version[0] < 4 ? 'SWIG_VERSION' : 'SWIGVERSION'}=0x#{'%.2X%.2X%.2X' % SwigRunner.swig_version}"
       end
 
       def initializer_src
