@@ -65,7 +65,7 @@ jobs:
             gtk_version: 3
             CC: gcc
             CXX: g++
-            ruby: '3.2'
+            ruby: '3.4'
             swig: '4'
             use_xvfb: true
             wxw_type: develop
