@@ -307,7 +307,7 @@ jobs:
           $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- package=`pwd`/$(echo pkg/*.pkg)
         else
           if [ "${{ matrix.wxw_type }}" == "system" ]; then
-            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup -- --wxwin=@system
+            $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && ($GEM_CMD_PFX wxruby setup --log=`pwd` -- --wxwin=@system || (cat ./setup.log; exit 1)) 
           elif [ "${{ matrix.wxw_type }}" == "embed" ]; then
             if [ "${{ matrix.wxw_version }}" == "$WXWIDGETS_LATEST_STABLE" ]; then
               $GEM_CMD_PFX gem install $(echo pkg/*.gem) -- prebuilt=none && $GEM_CMD_PFX wxruby setup --autoinstall
