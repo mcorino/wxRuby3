@@ -9,6 +9,13 @@ Martin Corino established the wxRuby3 project in 2022.
 
 Martin Corino: mcorino at m2c-software dot nl
 
+### Contributors
+
+Andy Maleh \
+Brandon Zylstra \
+Johnny Willemsen \
+Jacob Miner
+
 ## wxRuby 2
 
 In 2005 Kevin Smith established the wxRuby 2.0 project of which parts are still
@@ -19,31 +26,31 @@ feature requests.
 The alphabetic list shows (some of) those who've contributed code to
 wxRuby 2.0.
 
-Albin Holmgren
-Alex Fenton
-Artur Kuptel
-Cezar Espinola
-Chauk-Mean Proum
-Christophe Bludau
-Curt Hibbs
-Dale Edmons
-Daniel Savarese
-David Whetstone
-Dirk Traulsen
-Hawley Waldman
-Jani Monoses
-Joe Seeley
-Jonathan Maasland
-Kevin Smith
-Mario Steele
-Nic
-Pascal Hurni
-Robert Carlin
-Roy Sutton
-Ryuichi Sakamoto
-Sean Lindsay
-Sean Long
-Tobias Gruetzmacher
+Albin Holmgren \
+Alex Fenton \
+Artur Kuptel \
+Cezar Espinola \
+Chauk-Mean Proum \
+Christophe Bludau \
+Curt Hibbs \
+Dale Edmons \
+Daniel Savarese \
+David Whetstone \
+Dirk Traulsen \
+Hawley Waldman \
+Jani Monoses \
+Joe Seeley \
+Jonathan Maasland \
+Kevin Smith \
+Mario Steele \
+Nic \
+Pascal Hurni \
+Robert Carlin \
+Roy Sutton \
+Ryuichi Sakamoto \
+Sean Lindsay \
+Sean Long \
+Tobias Gruetzmacher \
 Zach Dennis
 
 ## wxWidgets
