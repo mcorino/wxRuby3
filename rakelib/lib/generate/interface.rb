@@ -533,7 +533,12 @@ module WXRuby3
       typedefs = def_items.select {|item| Extractor::TypedefDef === item && !item.ignored }
       typedefs.each do |item|
         fout.puts
-        fout.puts "#{item.definition};"
+        # work around problems with older doxygen and wxw < 3.3
+        if item.definition.start_with?('typedef')
+          fout.puts "#{item.definition};"
+        else # with older doxygen 'definition' is often not complete statement so we form it here
+          fout.puts "typedef #{item.type} #{item.name};"
+        end
       end
       fout.puts '' unless typedefs.empty?
     end
