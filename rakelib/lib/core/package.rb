@@ -203,7 +203,7 @@ module WXRuby3
       end
 
       def cpp_flags
-        @cpp_flags ||= "#{is_core? ? '-DBUILD_WXRUBY_CORE' : ''} -DSWIG_VERSION=0x#{'%.2X%.2X%.2X' % SwigRunner.swig_version}"
+        @cpp_flags ||= "#{is_core? ? '-DBUILD_WXRUBY_CORE' : ''}"
       end
 
       def initializer_src
@@ -364,6 +364,8 @@ module WXRuby3
             #   endif
             # endif
             #endif
+
+            #define SWIG_VERSION 0x#{'%.2X%.2X%.2X' % SwigRunner.swig_version}
           __HEREDOC
           fsrc.puts
           fsrc.puts "VALUE #{module_variable} = 0;"
