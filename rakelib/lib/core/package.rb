@@ -364,6 +364,14 @@ module WXRuby3
             #   endif
             # endif
             #endif
+
+            #if !defined(SWIG_VERSION)
+            # if defined(SWIGVERSION)
+            #   define SWIG_VERSION SWIGVERSION
+            # else
+            #   error "Missing SWIG_VERSION definition!"   
+            # endif     
+            #endif
           __HEREDOC
           fsrc.puts
           fsrc.puts "VALUE #{module_variable} = 0;"
