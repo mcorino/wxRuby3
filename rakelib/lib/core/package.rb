@@ -365,7 +365,7 @@ module WXRuby3
             # endif
             #endif
 
-            #define SWIG_VERSION #{'%.2X%.2X%.2X' % SwigRunner.swig_version}
+            #define SWIG_VERSION 0x#{'%.2X%.2X%.2X' % SwigRunner.swig_version}
           __HEREDOC
           fsrc.puts
           fsrc.puts "VALUE #{module_variable} = 0;"
