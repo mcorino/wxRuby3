@@ -215,6 +215,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: macOS26
+            os: macos-26
+            arch: arm64
+            ruby: 'ruby'
+          - name: macOS26
+            os: macos-26-intel
+            arch: x86_64
+            ruby: 'ruby'
           - name: macOS15
             os: macos-15
             arch: arm64
@@ -314,6 +322,16 @@ jobs:
             use_xvfb: true
             build: true
             wxw_type: embed
+          - name: macOS26
+            os: macos-26
+            arch: arm64
+            ruby: 'ruby'
+            build: false
+          - name: macOS26
+            os: macos-26-intel
+            arch: x86_64
+            ruby: 'ruby'
+            build: false
           - name: macOS15
             os: macos-15
             arch: arm64
