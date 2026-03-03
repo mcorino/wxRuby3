@@ -32,6 +32,8 @@ module WXRuby3
             return SWIG_NewPointerObj(wxTheClipboard, SWIGTYPE_p_wxClipboard, 0);
           }
           __HEREDOC
+        # obsolete alias for SetData; simply create alias in Ruby
+        spec.ignore 'wxClipboard::AddData', ignore_doc: false
       end
     end # class Clipboard
 
