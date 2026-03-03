@@ -32,31 +32,27 @@ class Wx::Clipboard
     ensure
        clip.close if clip
     end
-  end
 
-  # Need to do some internal record-keeping to protect data objects on
-  # the clipboard from garbage collection
-  @@__clip_data = []
-
-  # These methods affect the clipboard contents; each time, update the
-  # record with the changed data contents
-  wx_add_data = instance_method(:add_data)
-  wx_redefine_method(:add_data) do | the_data |
-    @@__clip_data << the_data
-    wx_add_data.bind(self).call(the_data)
+    # Need to do some internal record-keeping to protect data objects on
+    # the clipboard from garbage collection
+    def cache_data(data)
+      @data_cache = data
+    end
   end
 
   wx_clear = instance_method(:clear)
   wx_redefine_method(:clear) do 
     wx_clear.bind(self).call
-    @@__clip_data.clear
+    self.class.cache_data(nil)
   end
 
   wx_set_data = instance_method(:set_data)
   wx_redefine_method(:set_data) do | the_data |
-    @@__clip_data = [ the_data ]
+    self.class.cache_data(the_data)
     wx_set_data.bind(self).call(the_data)
   end
+
+  alias :add_data :set_data
 
   # Aliases, more clearly expressive?
   alias :place :set_data
