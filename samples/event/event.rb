@@ -175,7 +175,7 @@ module Event
 
       Wx::MessageDialog(self, msg, 'About Event Handling',
                         Wx::OK | Wx::ICON_INFORMATION) do |about_dlg|
-        about_dlg.ok_label = Wx::ButtonLabel.new('Close')
+        about_dlg.ok_label = 'Close'
         about_dlg.show_modal
       end
     end
