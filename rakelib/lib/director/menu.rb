@@ -13,7 +13,7 @@ module WXRuby3
     class Menu < Director
 
       def setup
-        spec.gc_never
+        spec.gc_as_object
         spec.ignore 'wxMenu::wxMenu(long)'
         spec.no_proxy 'wxMenu'  # do not support derived wxMenu classes
         spec.add_header_code <<~__HEREDOC
@@ -33,6 +33,16 @@ module WXRuby3
         __HEREDOC
         # make Ruby director and wrappers use custom implementation
         spec.use_class_implementation('wxMenu', 'wxRubyMenu')
+        # GC handling
+        spec.disown 'wxMenu *submenu'
+        # not wanted
+        spec.ignore 'wxMenu::SetParent',
+                    'wxMenu::Attach',
+                    'wxMenu::Detach',
+                    'wxMenu::SetInvokingWindow',
+                    'wxMenu::GetInvokingWindow',
+                    'wxMenu::GetWindow',
+                    'wxMenu::UpdateUI'
         # ignore non-const version as that has no benefits in Ruby
         spec.ignore 'wxMenu::GetMenuItems()'
         # Fix for GetMenuItems - converts list of MenuItems to Array
@@ -60,30 +70,61 @@ module WXRuby3
         # for FindChildItem
         spec.map_apply 'size_t * OUTPUT' => 'size_t * pos'
         spec.add_header_code <<~__HEREDOC
+          WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenu, "GC_MARK_MENU")
+
+          // forward decl
+          SWIGINTERN void free_wxMenu(void *self);
+
           // Mark Function
           // Need to protect MenuItems which are included in the Menu, including
           // their associated sub-menus, recursively.
-          static void mark_wxMenu(void *ptr) 
+          static void GC_mark_wxMenu(void *ptr) 
           {
-            if ( GC_IsWindowDeleted(ptr) )
-              return;
+            WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
+              WXRUBY_TRACE("> GC_mark_wxMenu : " << ptr)
+            WXRUBY_TRACE_END
         
-            wxMenu* menu = (wxMenu*)ptr;
-            wxMenuItemList menu_items = menu->GetMenuItems();
-            wxMenuItemList::iterator iter;
-            for (iter = menu_items.begin(); iter != menu_items.end(); ++iter)
+            VALUE rb_menu = SWIG_RubyInstanceFor(ptr);
+            if (!RB_NIL_P(rb_menu))
+            {
+              // as long as the dfree function is still the managed free function the menu has not been attached to a menu bar
+              // but it may hay have already had submenus and/or menuitems added which need to be marked
+              if (RDATA(rb_menu)->dfree == free_wxMenu)
               {
-                wxMenuItem *item = *iter;
-                rb_gc_mark( SWIG_RubyInstanceFor(item) ); 
-                wxMenu* sub_menu = item->GetSubMenu();
-                if ( sub_menu)
-                  rb_gc_mark( SWIG_RubyInstanceFor(sub_menu) );
+                wxMenu* wx_menu = static_cast<wxMenu*> (ptr);
+          
+                wxMenuItemList wx_menu_items = wx_menu->GetMenuItems();
+                wxMenuItemList::iterator iter;
+                for (iter = wx_menu_items.begin(); iter != wx_menu_items.end(); ++iter)
+                {
+                  wxMenuItem *wx_item = *iter;
+                  rb_gc_mark( SWIG_RubyInstanceFor(wx_item) ); 
+                  wxMenu* wx_sub_menu = wx_item->GetSubMenu();
+                  if (wx_sub_menu)
+                    GC_mark_attached_wxMenu(wx_sub_menu);
+                }
               }
-            return;
+              else // otherwise the menu has been attached to a menu bar and may already have been deleted (or not)
+              {    // marking in this case will be left to the menu bar
+                WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 3)
+                  WXRUBY_TRACE("< GC_mark_wxMenu : skipping attached menu")
+                WXRUBY_TRACE_END
+              }
+            }
+            else
+            {
+              WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 3)
+                WXRUBY_TRACE("< GC_mark_wxMenu : skipping untracked menu (should not have happened)")
+              WXRUBY_TRACE_END
+            } 
+          
+            WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
+              WXRUBY_TRACE("< GC_mark_wxMenu : " << ptr)
+            WXRUBY_TRACE_END
           }
         __HEREDOC
         spec.add_swig_code <<~__HEREDOC
-          %markfunc wxMenu "mark_wxMenu";
+          %markfunc wxMenu "GC_mark_wxMenu";
         __HEREDOC
         # ignore MSW specific method
         spec.ignore 'wxMenu::MSWCommand'

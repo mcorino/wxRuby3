@@ -18,6 +18,12 @@ module WXRuby3
         spec.ignore %w[wxXmlResource::AddHandler wxXmlResource::ClearHandlers wxXmlResource::InsertHandler]
         # not really added value; will add alternative allowing more flexibility (see below)
         spec.ignore 'wxXmlResource::LoadDocument(wxXmlDocument *, const wxString &)'
+        # unwanted in Ruby
+        spec.ignore 'wxXmlResource::LoadObject',
+                    'wxXmlResource::LoadObjectRecursively'
+        # unattached loaders return owned objects
+        spec.new_object 'wxXmlResource::LoadMenu(const wxString &)',
+                        'wxXmlResource::LoadMenuBar(const wxString &)'
         # For these three methods, there are two variants in wxWidgets. One loads an
         # XRC from scratch and returns an instance of a core Wx class
         # (Wx::Dialog, Wx::Frame, or Wx::Panel). The other loads a layout into

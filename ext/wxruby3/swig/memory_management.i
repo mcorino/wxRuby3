@@ -31,6 +31,7 @@ WXRUBY_EXPORT void GcSizerFreeFunc(void *);
 WXRUBY_EXPORT void GcDialogFreeFunc(void *);
 WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
 WXRUBY_EXPORT void GC_mark_wxSizer(void *);
+WXRUBY_EXPORT void GC_mark_attached_wxMenu(void *);
 WXRUBY_EXPORT void GC_mark_wxWindow(void *);
 WXRUBY_EXPORT void GC_mark_wxFrame(void *);
 WXRUBY_EXPORT void GC_mark_wxEvent(void *);

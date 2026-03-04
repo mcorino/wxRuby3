@@ -101,9 +101,14 @@ module WXRuby3
           wxRichTextCtrl::KeyboardNavigate
           wxRichTextCtrl::PositionToXY
           wxRichTextCtrl::XYToPosition
+          wxRichTextCtrl::PrepareContextMenu
           ]
         # this method contains worrisome code and is unclearly documented so I doubt it's usefulness
         spec.ignore 'wxRichTextCtrl::FindContainerAtPoint'
+        # redefine for GC specs
+        spec.ignore 'wxRichTextCtrl::SetContextMenu', ignore_doc: false
+        spec.extend_interface 'wxRichTextCtrl', 'void SetContextMenu(wxMenu *new_context_menu)'
+        spec.disown 'wxMenu *new_context_menu'
         # do not think having these proxied is going to bring much for wxRuby and suppressing them
         # prevents code bloat
         spec.no_proxy %w[

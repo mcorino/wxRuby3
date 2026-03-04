@@ -19,6 +19,7 @@
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkSizer, "GC_MARK_SIZER")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeSizer, "GC_FREE_SIZER")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
+WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenu, "GC_MARK_MENU")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkWindow, "GC_MARK_WINDOW")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeWindow, "GC_FREE_WINDOW")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
@@ -151,15 +152,15 @@ WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
   WXRUBY_TRACE_END
 
   VALUE rb_szr = SWIG_RubyInstanceFor(ptr);
-  if (rb_szr && rb_szr != Qnil)
+  if (!RB_NIL_P(rb_szr))
   {
-    wxSizer* wx_szr = (wxSizer*)ptr;
-
     // as long as the dfree function is still the GCSizeFreeFunc the sizer has not been attached to a window
     // or added to a parent sizer (as that would 'disown' and replace the free function by the tracking removal function)
     // but it may hay have already had child sizers added which need to be marked
     if (RDATA(rb_szr)->dfree == (void (*)(void *))GcSizerFreeFunc)
     {
+      wxSizer* wx_szr = (wxSizer*)ptr;
+
       // Then loop over the sizer's content and mark each sub-sizer
       wxSizerItemList& children = wx_szr->GetChildren();
       for ( wxSizerItemList::compatibility_iterator node = children.GetFirst();
@@ -224,6 +225,32 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
   WXRUBY_TRACE_END
 }
 
+WXRUBY_EXPORT void GC_mark_attached_wxMenu(void *ptr)
+{
+  WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
+    WXRUBY_TRACE("> GC_mark_attached_wxMenu : " << ptr)
+  WXRUBY_TRACE_END
+
+  rb_gc_mark(SWIG_RubyInstanceFor(ptr));
+
+  wxMenu *wx_menu = static_cast<wxMenu*> (ptr);
+
+  wxMenuItemList wx_menu_items = wx_menu->GetMenuItems();
+  wxMenuItemList::iterator iter;
+  for (iter = wx_menu_items.begin(); iter != wx_menu_items.end(); ++iter)
+  {
+    wxMenuItem *wx_item = *iter;
+    rb_gc_mark(SWIG_RubyInstanceFor(wx_item) );
+    wxMenu* wx_sub_menu = wx_item->GetSubMenu();
+    if (wx_sub_menu)
+      GC_mark_attached_wxMenu(wx_sub_menu);
+  }
+
+  WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
+    WXRUBY_TRACE("< GC_mark_attached_wxMenu : " << ptr)
+  WXRUBY_TRACE_END
+}
+
 // Similar to Sizers, MenuBar requires a special mark routine. This is
 // because Wx::Menu is not a subclass of Window so isn't automatically
 // protected in the mark phase by Wx::App. However, the ruby object
@@ -232,22 +259,26 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
 // which can catch destroyed MenuBars linked to an in-scope ruby
 // variable and cause segfaults, MenuBars are always marked via the
 // containing Frame.
-void GC_mark_MenuBarBelongingToFrame(wxMenuBar *menu_bar)
+void GC_mark_MenuBarBelongingToFrame(wxMenuBar *wx_menu_bar)
 {
   WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
-    WXRUBY_TRACE("> GC_mark_MenuBarBelongingToFrame : " << menu_bar)
+    WXRUBY_TRACE("> GC_mark_MenuBarBelongingToFrame : " << wx_menu_bar)
   WXRUBY_TRACE_END
 
-  rb_gc_mark( SWIG_RubyInstanceFor(menu_bar) );
+  rb_gc_mark( SWIG_RubyInstanceFor(wx_menu_bar) );
+
+  WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 3)
+    WXRUBY_TRACE("< GC_mark_MenuBarBelongingToFrame : marking " << wx_menu_bar->GetMenuCount() << " menus")
+  WXRUBY_TRACE_END
+
   // Mark each menu in the menubar in turn
-  for ( size_t i = 0; i < menu_bar->GetMenuCount(); i++ )
+  for ( size_t i = 0; i < wx_menu_bar->GetMenuCount(); i++ )
 	{
-	  wxMenu* menu  = menu_bar->GetMenu(i);
-	  rb_gc_mark( SWIG_RubyInstanceFor(menu) );
+	  GC_mark_attached_wxMenu(wx_menu_bar->GetMenu(i));
 	}
 
   WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
-    WXRUBY_TRACE("< GC_mark_MenuBarBelongingToFrame : " << menu_bar)
+    WXRUBY_TRACE("< GC_mark_MenuBarBelongingToFrame : " << wx_menu_bar)
   WXRUBY_TRACE_END
 }
 
@@ -370,6 +401,9 @@ WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
   wxMenuBar* menu_bar = wx_frame->GetMenuBar();
   if ( menu_bar )
   {
+    // as this is an attached menu bar the regular marker will not mark
+    // any menu content as it can't tell if the c++ object has been deleted or not
+    // so we do that here now we know it is still alive
     GC_mark_MenuBarBelongingToFrame(menu_bar);
   }
 

@@ -45,6 +45,8 @@ module WXRuby3
         spec.suppress_warning(473,
                               'wxAuiMDIChildFrame::CreateStatusBar',
                               'wxAuiMDIChildFrame::CreateToolBar')
+        # for SetMenuBar
+        spec.disown 'wxMenuBar *'
         # for SetStatusWidths
         spec.map 'int n, int widths_field[]' do
           map_in from: {type: 'Array<Integer>', index: 1},
