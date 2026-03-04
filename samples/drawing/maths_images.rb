@@ -227,7 +227,7 @@ class MathsPanel < Panel
 
   # Display a dialog to save the image to a file
   def on_save
-    SaveImageDialog(parent) do |dlg|
+    MathImages::SaveImageDialog(parent) do |dlg|
       if dlg.show_modal == Wx::ID_OK
         if dlg.image_type == Wx::BITMAP_TYPE_PNG
           # test writing to IO

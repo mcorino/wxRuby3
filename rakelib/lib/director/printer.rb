@@ -31,16 +31,70 @@ module WXRuby3
         spec.new_object 'wxPrinter::GetPrintDialogData'
         spec.disown 'wxPrintout *' # Printout-s passed to PrintPreview will be managed by wxWidgets
         spec.add_header_code <<~__HEREDOC
-          static void GC_mark_wxPrintPreview(void *ptr)
-          {
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkPrintPreview, "GC_MARK_PRINT_PREVIEW")
+
+          // forward decl
+          SWIGINTERN void free_wxPrintPreview(void *self); 
+
+          // this is the actual print preview marker which is called for Ruby owned instances from the
+          // Ruby standard marker and by the container preview frame for disowned instances 
+          void WxRuby_mark_wxPrintPreview(void* ptr)
+          {   
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 2)
+              WXRUBY_TRACE("> WxRuby_mark_wxPrintPreview : " << ptr)
+            WXRUBY_TRACE_END
+
             if (ptr)
             {
               wxPrintPreview* print_preview = (wxPrintPreview*)ptr;
               wxPrintout* printout = print_preview->GetPrintout();
-              rb_gc_mark( SWIG_RubyInstanceFor(printout) );
-              wxPrintout* printout_for_printing = print_preview->GetPrintoutForPrinting();
-              rb_gc_mark( SWIG_RubyInstanceFor(printout_for_printing) );
+              VALUE rb_prtout = SWIG_RubyInstanceFor(printout);
+ 
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 3)
+                WXRUBY_TRACE("| WxRuby_mark_wxPrintPreview : marking preview printout " << printout << " -> " << rb_prtout);
+              WXRUBY_TRACE_END
+
+              rb_gc_mark(rb_prtout);
+
+              printout = print_preview->GetPrintoutForPrinting();
+              rb_prtout = SWIG_RubyInstanceFor(printout); 
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 3)
+                WXRUBY_TRACE("| WxRuby_mark_wxPrintPreview : marking printing printout " << printout << " -> " << rb_prtout);
+              WXRUBY_TRACE_END
+
+              rb_gc_mark(rb_prtout);
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 2)
+              WXRUBY_TRACE("< WxRuby_mark_wxPrintPreview : " << ptr)
+            WXRUBY_TRACE_END
+          }
+
+          // this is the Ruby standard marker called by the Ruby GC mark phase
+          // for Ruby instances visible to Ruby
+          static void GC_mark_wxPrintPreview(void *ptr)
+          {
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 2)
+              WXRUBY_TRACE("> GC_mark_wxPrintPreview : " << ptr)
+            WXRUBY_TRACE_END
+
+            VALUE rb_pp = SWIG_RubyInstanceFor(ptr);
+            // if this is still an instance 'owned' by Ruby
+            if (!RB_NIL_P(rb_pp) && RDATA(rb_pp)->dfree==free_wxPrintPreview)
+            {
+              WxRuby_mark_wxPrintPreview(ptr);
+            } 
+            else
+            {
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 3)
+                WXRUBY_TRACE("| GC_mark_wxPrintPreview : skip marking disowned instance")
+              WXRUBY_TRACE_END
+            } 
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPrintPreview, 2)
+              WXRUBY_TRACE("< GC_mark_wxPrintPreview : " << ptr)
+            WXRUBY_TRACE_END
           }
           __HEREDOC
         spec.add_swig_code '%markfunc wxPrintPreview "GC_mark_wxPrintPreview";'

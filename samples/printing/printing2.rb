@@ -172,7 +172,7 @@ module Printing2
       msg = <<~__STR
         Print framework sample application
   
-        Using wxRuby #{Wx::version()}
+        Using wxRuby #{Wx::WXRUBY_VERSION}
       __STR
 
       Wx::message_box(msg,'About')

@@ -20,6 +20,7 @@ module WXRuby3
         spec.include_mixin 'wxSearchCtrl', { 'Wx::TextEntry' => 'wxTextEntryBase' }
         spec.suppress_warning(473, 'wxSearchCtrl::GetMenu')
         spec.override_inheritance_chain('wxSearchCtrl', %w[wxControl wxWindow wxEvtHandler wxObject])
+        spec.disown 'wxMenu *'
       end
     end # class SearchCtrl
 

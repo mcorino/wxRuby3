@@ -22,6 +22,8 @@ module WXRuby3
           wxMDIParentFrame::SetWindowMenu
           wxMDIParentFrame::Tile
           wxMDIParentFrame::Cascade]
+        # for SetWindowMenu
+        spec.disown 'wxMenu *'
         spec.extend_interface('wxMDIChildFrame',
                               'virtual bool Destroy() override')
         # for GetClientWindow

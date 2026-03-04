@@ -31,7 +31,8 @@ module WXRuby3
                                const wxString& name = wxASCII_STR(wxFrameNameStr))
               : wxPreviewFrame(preview, parent, title, pos, size, style, name)
             {}
-            virtual ~WxRubyPreviewFrame() {}
+            virtual ~WxRubyPreviewFrame() 
+            {}
 
             const wxPrintPreview* get_print_preview() const 
             {
@@ -39,20 +40,42 @@ module WXRuby3
             }
           };
 
+          WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkPreviewFrame, "GC_MARK_PRINT_PREVIEW_FRAME")
+
+          void WxRuby_mark_wxPrintPreview(void* ptr);
+
           static void GC_mark_wxPreviewFrame(void *ptr)
           {
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPreviewFrame, 2)
+              WXRUBY_TRACE("> GC_mark_wxPreviewFrame : " << ptr)
+            WXRUBY_TRACE_END
+
             if ( GC_IsWindowDeleted(ptr) )
               return;
         
-            // Do standard marking routines as for all wxWindows
-            GC_mark_wxWindow(ptr);
+            // Do standard marking routines as for all wxFrames
+            GC_mark_wxFrame(ptr);
 
             WxRubyPreviewFrame* preview_frame = dynamic_cast<WxRubyPreviewFrame*>((wxPreviewFrame*)ptr);
             if (preview_frame)
             {
-              const void* ptr = (const void*)preview_frame->get_print_preview();
-              rb_gc_mark(SWIG_RubyInstanceFor(const_cast<void*> (ptr)));              
+              const wxPrintPreview* wx_prtprev = preview_frame->get_print_preview();
+              VALUE rb_prtprev = SWIG_RubyInstanceFor(const_cast<void*> ((const void*)wx_prtprev));
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkPreviewFrame, 3)
+                WXRUBY_TRACE("| GC_mark_wxPreviewFrame : marking print preview " << wx_prtprev << " -> " << rb_prtprev);
+              WXRUBY_TRACE_END
+
+              // mark the Ruby wrapper instance
+              // this will skip marking the members as any preview attached to a preview frame is disowned 
+              rb_gc_mark(rb_prtprev); 
+              // so, force marking the preview members 
+              WxRuby_mark_wxPrintPreview(const_cast<void*> ((const void*)wx_prtprev));               
             }
+
+            WXRUBY_TRACE_IF(WxRubyTraceGCMarkPreviewFrame, 2)
+              WXRUBY_TRACE("< GC_mark_wxPreviewFrame : " << ptr)
+            WXRUBY_TRACE_END
           }
         __HEREDOC
         spec.use_class_implementation 'wxPreviewFrame', 'WxRubyPreviewFrame'
@@ -62,7 +85,7 @@ module WXRuby3
         # in all cases will be the actual base being used.
         spec.ignore 'wxPreviewFrame::wxPreviewFrame(wxPrintPreviewBase *, wxWindow *,const wxString &,const wxPoint &,const wxSize &,long,const wxString &)', ignore_doc: false
         spec.extend_interface('wxPreviewFrame',
-            'wxPreviewFrame(wxPrintPreview *preview, wxWindow *parent, const wxString &title="Print Preview", const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE, const wxString &name=wxFrameNameStr)')
+            'wxPreviewFrame(wxPrintPreview *preview, wxWindow *parent, const wxString &title="Print Preview", const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT, const wxString &name=wxFrameNameStr)')
         # non-functional map for doc gen
         spec.map 'wxPrintPreviewBase *' => 'Wx::PrintPreview', swig: false do
           map_in

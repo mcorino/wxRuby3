@@ -53,8 +53,14 @@ module WXRuby3
           # Any set AuiTabArt ruby object must be protected from GC once set,
           # even if it is no longer referenced anywhere else.
           spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceGCMarkAuiNotebook, "GC_MARK_AUI_NOTEBOOK")
+
             extern void GC_mark_wxAuiNotebook(void *ptr)
             {
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkAuiNotebook, 2)
+                WXRUBY_TRACE("> GC_mark_wxAuiNotebook : " << ptr)
+              WXRUBY_TRACE_END
+
               if ( GC_IsWindowDeleted(ptr) )
               {
                 return;
@@ -65,7 +71,16 @@ module WXRuby3
               wxAuiNotebook* nbk = (wxAuiNotebook*)ptr;
               wxAuiTabArt* art_prov = nbk->GetArtProvider();
               VALUE rb_art_prov = SWIG_RubyInstanceFor( (void *)art_prov );
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkAuiNotebook, 2)
+                WXRUBY_TRACE("| GC_mark_wxAuiNotebook : marking AUI TabArt provider " << art_prov << " -> " << rb_art_prov);
+              WXRUBY_TRACE_END
+
               rb_gc_mark( rb_art_prov );
+
+              WXRUBY_TRACE_IF(WxRubyTraceGCMarkAuiNotebook, 2)
+                WXRUBY_TRACE("< GC_mark_wxAuiNotebook : " << ptr)
+              WXRUBY_TRACE_END
             }
           __HEREDOC
           # add some convenience methods

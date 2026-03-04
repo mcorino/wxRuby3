@@ -33,6 +33,8 @@ module WXRuby3
           wxToolBarToolBase::Attach
           ]
         spec.no_proxy 'wxToolBarToolBase'
+        # for SetDropdownMenu
+        spec.disown 'wxMenu *'
         # more sensible name to use
         spec.rename_for_ruby('ToolBarTool' => 'wxToolBarToolBase')
         spec.map 'wxToolBarBase *' => 'Wx::ToolBar' do
