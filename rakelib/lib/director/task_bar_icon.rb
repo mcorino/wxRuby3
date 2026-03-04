@@ -35,25 +35,31 @@ module WXRuby3
         # this one is protected so ignored by default but we want it here
         # (we do not want GetPopupMenu available for override in Ruby)
         spec.regard %w[wxTaskBarIcon::CreatePopupMenu]
-        # This is used for CreatePopupMenu, a virtual method which is
-        # overridden in user subclasses of TaskBarIcon to create the menu over
-        # the icon.
-        #
-        # The Wx::Menu needs to be protected from GC so the typemap stores the
+        if Config.instance.wx_version_check('3.1.5') >= 0
+          spec.regard %w[wxTaskBarIcon::GetPopupMenu]
+        end
+        # This is used for CreatePopupMenu and possibly GetPopupMenu, virtual methods which can be
+        # overridden in user subclasses of TaskBarIcon to provide the menu over the icon.
+        # In the case of GetPopupMenu the menu will be used but not deleted so it can be stored in
+        # a member variable and reused.
+        # In the case of CreatePopupMenu the menu is disowned and deleted of use. The Wx::Menu Ruby
+        # instance than needs to be protected from GC so the typemap stores the
         # object returned by the ruby method in an instance variable so it's
         # marked. It also handles the special case where +nil+ is returned, to
         # signal to Wx that no menu is to be shown.
         spec.map 'wxMenu *' do
           map_directorout code: <<~__CODE
-            rb_iv_set(swig_get_self(), "@__popmenu__", $1);
+            static const std::string create_popup_menu("CreatePopupMenu");
+            bool disown = (std::string("$symname") == create_popup_menu);
+            if (disown) rb_iv_set(swig_get_self(), "@__popmenu__", $1);
             if (NIL_P($1))
             {
-              $result = NULL;
+              $result = nullptr;
             }
             else
             {
               void * ptr;
-              int swig_res = SWIG_ConvertPtr(result, &ptr, $1_descriptor, 0 | SWIG_POINTER_DISOWN);
+              int swig_res = SWIG_ConvertPtr(result, &ptr, $1_descriptor, disown ? SWIG_POINTER_DISOWN : 0);
               if (!SWIG_IsOK(swig_res))
               {
                 Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError,
