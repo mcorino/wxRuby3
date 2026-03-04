@@ -79,14 +79,32 @@ module WxRuby
       evt_menu(ID::TB_CLOSE) { @frame.close }
     end
 
-    def create_popup_menu
-      # Called by the base class when it needs to popup the menu
-      #  (the default evt_right_down event).  Create and return
-      #  the menu to display.
-      menu = Wx::Menu.new
-      menu.append(ID::TB_RESTORE, "Restore wxRuby Sampler")
-      menu.append(ID::TB_CLOSE, "Close wxRuby Sampler")
-      return menu
+    if ::Wx::WXWIDGETS_VERSION >= '3.1.5'
+
+      def get_popup_menu
+        # Called by the base class when it needs to popup the menu
+        #  (the default evt_right_down event).  Create once and return
+        #  the menu to display.
+        unless @popup_menu
+          @popup_menu = Wx::Menu.new
+          @popup_menu.append(ID::TB_RESTORE, "Restore wxRuby Sampler")
+          @popup_menu.append(ID::TB_CLOSE, "Close wxRuby Sampler")
+        end
+        @popup_menu
+      end
+
+    else
+
+      def create_popup_menu
+        # Called by the base class when it needs to popup the menu
+        #  (the default evt_right_down event).  Create and return
+        #  the menu to display.
+        menu = Wx::Menu.new
+        menu.append(ID::TB_RESTORE, "Restore wxRuby Sampler")
+        menu.append(ID::TB_CLOSE, "Close wxRuby Sampler")
+        menu
+      end
+
     end
 
     def make_icon(imgname)
