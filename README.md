@@ -65,7 +65,7 @@ Wx::App.run { TheFrame.new('Hello world!').show }
 ## wxRuby3 licence
 
 wxRuby3 is free and open-source. It is distributed under the liberal
-MIT licence which is compatible with both free and commercial development.
+MIT license which is compatible with both free and commercial development.
 See [LICENSE](LICENSE) for more details.
 
 ### wxRuby3 and wxWidgets
@@ -76,7 +76,7 @@ those requirements do not impose any serious restrictions.
 
 ### wxWidgets License Summary (from wxWidgets)
 
-In summary, the licence is LGPL plus a clause allowing unrestricted
+In summary, the license is LGPL plus a clause allowing unrestricted
 distribution of application binaries. To answer a FAQ, you don't have to
 distribute any source if you wish to write commercial applications using
 wxWidgets.
@@ -97,7 +97,7 @@ of these products.
  
 ### What platforms and operating systems are supported in wxRuby3?
 
-Currently the following are fully supported:
+Currently, the following are fully supported:
 
 | Platform                                                                                                                                               | Ruby version(s)                                            | wxWidgets version(s) |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------|
@@ -107,13 +107,13 @@ Currently the following are fully supported:
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
-working on similar modern systems (eg FreeBSD or Solaris with GTK) than
-on legacy systems (eg Windows 98, Mac OS 9).
+working on similar modern systems (e.g. FreeBSD or Solaris with GTK) than
+on legacy systems (e.g. Windows 98, macOS 9).
 
 ### How can I install wxRuby3?
 
 wxRuby3 is distributed as a Ruby gem on [RubyGems](https://rubygems.org). This gem can also be downloaded from the release 
-assets on [Github](https://github.com/mcorino/wxRuby3/releases).
+assets on [GitHub](https://github.com/mcorino/wxRuby3/releases).
 
 The wxRuby3 gem provides a **worry-free** installation procedure for all supported platforms.  
 
@@ -124,7 +124,7 @@ supported version of the Ruby interpreter. So the following command is all it ta
 gem install wxruby3
 ```
 
-The wxRuby3 installation procedure will check the availability of a, prebuilt, binary package matching the platform
+The wxRuby3 installation procedure will check the availability of a prebuilt, binary package matching the platform
 being installed on and if found will download and install that package resulting in a ready-to-run wxRuby3 installation.<br>
 If no matching package is found the installation reverts to a source installation which will require an additional setup
 step to finalize the wxRuby3 installation by executing the following command:
@@ -135,7 +135,7 @@ wxruby setup
 
 This last command is a fully automated setup procedure provided by the wxRuby3 **CLI** installed with the gem. This 
 procedure (by default) will analyze your system and install (after asking your consent) any missing software 
-requirements and build the wxRuby3 extension libraries (including a embedded copy of wxWidgets if necessary). It may 
+requirements and build the wxRuby3 extension libraries (including an embedded copy of wxWidgets if necessary). It may 
 take quite a while depending on your system (around 10-15 minutes on a modern PC but could be significantly longer
 on 'older' PC's) but you can mostly sit back and relax.
 
@@ -146,11 +146,11 @@ on 'older' PC's) but you can mostly sit back and relax.
 > on like the nokogiri gem).
 
 The wxRuby3 CLI also provides a 'check' command with which the runtime status of the wxRuby3 installation can be checked
-at any time. By default running `wxruby check` will display a message reporting the runtime and suggestions on finalizing
+at any time. By default, running `wxruby check` will display a message reporting the runtime and suggestions on finalizing
 the installation if not finalized yet. No message is displayed if wxRuby3 is ready to run. Run `wxruby check -h` for 
 details concerning this command. 
 
-A selection of (prebuilt) binary packages is provided as release assets on [Github](https://github.com/mcorino/wxRuby3/releases).
+A selection of (prebuilt) binary packages is provided as release assets on [GitHub](https://github.com/mcorino/wxRuby3/releases).
 See the [INSTALL](INSTALL.md#binary-packages) document for more details.
 
 This install procedure can of course be tweaked and customized with commandline arguments.
@@ -158,7 +158,7 @@ See the [INSTALL](INSTALL.md) document for more details.
 
 ### Where can I ask a question, or report a bug?
 
-Use GitHUb Issues.
+Use GitHub Issues.
 
 When asking a question, if something is not working as you expect,
 please provide a *minimal*, *runnable* sample of code that demonstrates
@@ -215,7 +215,7 @@ stopped in early 2005, in favour of what became wxRuby 2.0. This project
 in turn stopped being supported in 2013.
 Several years of development have passed for wxWidgets and Ruby respectively,
 improving code quality, adding new classes and new language features.
-In 2022 I finally found the time and the inspiration to pick up this project
+In 2022, I finally found the time and the inspiration to pick up this project
 with the idea of reviving it to build some applications I had in mind.
 wxRuby 3 intends to provide Ruby interfaces for all relevant (!) wxWidget
 classes of the latest version 3.2 and beyond. 
