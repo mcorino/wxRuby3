@@ -1,0 +1,127 @@
+= wxRuby3 Objects and Lifecycles
+
+== Object categories
+
+=== Singletons
+
+Singleton objects can either be managed in Ruby or in C++ and will exist while the application's
+main event loop executes.
+
+.Singletons
+|===
+|Object |Description
+
+|Wx::App
+|Application instance. Tracked in a global variable. Triggers GC marking for other (non-singleton)
+ objects.
+
+|Wx::Clipboard
+|Clipboard instance. Created and managed in C++. Not tracked.
+|===
+
+=== Windows
+
+Window objects can either be created in Ruby or in C++. Management is always left to C++ (OnDestroy).
+Tracked by SWIG's tracking code.
+
+.Windows
+|===
+|Object |Description
+
+|Wx::Window derivatives except Wx::Dialog (and derived) and Wx::MenuBar
+|Tracked by SWIG's tracking code. Managed in C++. Tracking cleanup occurs when windows are destroyed which happens
+automatically for toplevel windows like Wx::Frame when they are closed. All child windows of a
+windows being destroyed will be destroyed as well.
+GC marking of tracked Ruby values is triggered through the Wx::App singleton.
+
+|Wx::Dialog derivatives.
+|Tracked by SWIG's tracking code. Managed in C++. Tracking cleanup occurs when windows are destroyed which does
+not happen automatically but requires explicit calls to `#destroy`. All child windows of a
+dialog being destroyed will be destroyed as well.
+GC marking of tracked Ruby values is triggered through the Wx::App singleton.
+
+|Wx::MenuBar
+|Tracked by custom tracking code through derived C++ class. Managed in Ruby as long as not assigned to a managing window.
+Managed in C++ after window assignment. Tracking cleanup happens either on Ruby GC for Ruby managed
+instances or on C++ destruction through the managing window destruction.
+GC marking of tracked Ruby values is triggered either through regular Ruby GC marking or through
+the Wx::App singleton for assigned menu bars.
+|===
+
+=== Events
+
+=== Event handlers
+
+=== Device contexts
+
+=== Graphics context
+
+=== Menu and menu items
+
+.Menus
+|===
+|Object |Description
+
+|Wx::Menu
+|
+
+|Wx::MenuItem
+|
+|===
+
+=== Common window properties
+
+.Common Windows Properties
+|===
+|Object |Description
+
+|Wx::Sizer and derivaties
+|
+
+|Wx::Caret
+|
+
+|Wx::DropTarget
+|
+
+|Wx::Validator
+|
+|===
+
+=== Other Window properties
+
+Properties of derived windows like PropertyGrid and PGProperties.
+
+=== Variants
+
+=== Reference counted objects
+
+Untracked. Always managed by Ruby. C++ objects are only ever referenced. Objects returned by C++ code
+will always be Ruby managed copies.
+
+- Wx::Pen
+- Wx::Brush
+- Wx::Bitmap
+- Wx::BitmapBundle
+- Wx::Icon
+- Wx::IconBundle
+- Wx::Image
+- Wx::Cursor
+- Wx::Colour
+- Wx::Font
+- Wx::FontData
+- Wx::Palette
+- Wx::Animation
+- Wx::Region
+- Wx::AcceleratorTable
+- Wx::GraphicsObject (and derivatives)
+
+=== Unmanaged objects
+
+- Wx::Rect
+- Wx::Size
+- Wx::Point
+- Wx::RealPoint
+- Wx::Point2DInt
+- Wx::Point2DDouble
+- Wx::Rect2DDouble
