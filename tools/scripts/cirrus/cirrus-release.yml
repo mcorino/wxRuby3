@@ -11,7 +11,7 @@ release_task:
   matrix:
     - name: Cirrus CI / Fedora AMD64 Release
       container:
-        image: fedora:42
+        image: fedora:43
         cpu: 4
         memory: 8G
       env:
@@ -19,7 +19,7 @@ release_task:
         distro: fedora
     - name: Cirrus CI / Fedora ARM64 Release
       arm_container:
-        image: fedora:42
+        image: fedora:43
         cpu: 4
         memory: 8G
       env:
@@ -27,7 +27,7 @@ release_task:
         distro: fedora
     - name: Cirrus CI / OpenSuSE Leap AMD64 Release
       container:
-        image: opensuse/leap:15.6
+        image: opensuse/leap:16.0
         cpu: 4
         memory: 8G
       env:
@@ -36,7 +36,7 @@ release_task:
         latest_only: 1
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release
       arm_container:
-        image: opensuse/leap:15.6
+        image: opensuse/leap:16.0
         cpu: 4
         memory: 8G
       env:
@@ -61,7 +61,7 @@ release_task:
         distro: ubuntu
     - name: Cirrus CI / Debian AMD64 Release
       container:
-        image: debian:12
+        image: debian:13
         cpu: 4
         memory: 8G
       env:
@@ -69,7 +69,7 @@ release_task:
         distro: debian
     - name: Cirrus CI / Debian ARM64 Release
       arm_container:
-        image: debian:12
+        image: debian:13
         cpu: 4
         memory: 8G
       env:
@@ -117,7 +117,7 @@ test_release_task:
   matrix:
     - name: Cirrus CI / Fedora Latest AMD64 Release Test
       container:
-        image: fedora:42
+        image: fedora:43
         cpu: 4
         memory: 8G
       env:
@@ -125,7 +125,7 @@ test_release_task:
         distro: fedora
     - name: Cirrus CI / Fedora Latest ARM64 Release Test
       arm_container:
-        image: fedora:42
+        image: fedora:43
         cpu: 4
         memory: 8G
       env:
@@ -133,7 +133,7 @@ test_release_task:
         distro: fedora
     - name: Cirrus CI / OpenSuSE Leap AMD64 Release Test
       container:
-        image: opensuse/leap:15.6
+        image: opensuse/leap:16.0
         cpu: 4
         memory: 8G
       env:
@@ -142,7 +142,7 @@ test_release_task:
         latest_only: 1
     - name: Cirrus CI / OpenSuSE Leap ARM64 Release Test
       arm_container:
-        image: opensuse/leap:15.6
+        image: opensuse/leap:16.0
         cpu: 4
         memory: 8G
       env:
@@ -167,7 +167,7 @@ test_release_task:
         distro: ubuntu
     - name: Cirrus CI / Debian AMD64 Release Test
       container:
-        image: debian:12
+        image: debian:13
         cpu: 4
         memory: 8G
       env:
@@ -175,7 +175,7 @@ test_release_task:
         distro: debian
     - name: Cirrus CI / Debian ARM64 Release Test
       arm_container:
-        image: debian:12
+        image: debian:13
         cpu: 4
         memory: 8G
       env:
