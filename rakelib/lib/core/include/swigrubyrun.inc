@@ -20,23 +20,17 @@ SWIGRUNTIMEINLINE void SWIG_RubyInitializeTrackings(void)
   // no-op
 }
 /* Add a Tracking from a C/C++ struct to a Ruby object */
-SWIGRUNTIMEINLINE void SWIG_RubyAddTracking(void* ptr, VALUE object)
-{
-  wxRuby_AddTracking(ptr, object);
-}
+#define SWIG_RubyAddTracking wxRuby_AddTracking
+
 /* Get the Ruby object that owns the specified C/C++ struct */
-SWIGRUNTIMEINLINE VALUE SWIG_RubyInstanceFor(void* ptr)
-{
-  return wxRuby_FindTracking(ptr);
-}
+#define SWIG_RubyInstanceFor wxRuby_FindTracking
+
 /* Remove a Tracking from a C/C++ struct to a Ruby object.  It
    is very important to remove objects once they are destroyed
    since the same memory address may be reused later to create
    a new object. */
-SWIGRUNTIMEINLINE void SWIG_RubyRemoveTracking(void* ptr)
-{
-  wxRuby_RemoveTracking(ptr);
-}
+#define SWIG_RubyRemoveTracking wxRuby_RemoveTracking
+
 /* This is a helper method that unlinks a Ruby object from its
    underlying C++ object.  This is needed if the lifetime of the
    Ruby object is longer than the C++ object */

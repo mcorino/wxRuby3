@@ -17,31 +17,12 @@
 
 %{
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkSizer, "GC_MARK_SIZER")
-WXRUBY_TRACE_GUARD(WxRubyTraceFreeSizer, "GC_FREE_SIZER")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenu, "GC_MARK_MENU")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkWindow, "GC_MARK_WINDOW")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeWindow, "GC_FREE_WINDOW")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
-WXRUBY_TRACE_GUARD(WxRubyTraceFreeNull, "GC_FREE_NULL")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeRefcounted, "GC_FREE_REFCOUNT")
-
-
-// Code to be run when the ruby object is swept by GC - this only
-// unlinks the C++ object from the ruby VALUE but doesn't delete
-// it because it is still needed and will be managed by WxWidgets.
-WXRUBY_EXPORT void GcNullFreeFunc(void *ptr)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceFreeNull, 2)
-    WXRUBY_TRACE("> GcNullFreeFunc : " << ptr)
-  WXRUBY_TRACE_END
-
-  SWIG_RubyRemoveTracking(ptr);
-
-  WXRUBY_TRACE_IF(WxRubyTraceFreeNull, 2)
-    WXRUBY_TRACE("< GcNullFreeFunc")
-  WXRUBY_TRACE_END
-}
 
 // Tests if the window has been signalled as destroyed by a
 // WindowDestroyEvent handled by wxRubyApp
@@ -124,25 +105,6 @@ WXRUBY_EXPORT void GcRefCountedFreeFunc(void *ptr)
   WXRUBY_TRACE_END
 }
 
-// Code to be run when the ruby object is swept by GC - this checks
-// for unattached sizers and deletes those, only unlinking others
-// as these will be managed by WxWidgets.
-WXRUBY_EXPORT void GcSizerFreeFunc(void *ptr)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceFreeSizer, 2)
-    WXRUBY_TRACE("> GcSizerFreeFunc : " << ptr)
-  WXRUBY_TRACE_END
-
-  wxSizer* wx_szr = (wxSizer*)ptr;
-  // unlink in all cases
-  SWIG_RubyRemoveTracking(ptr);
-  delete wx_szr; // delete unattached sizers
-
-  WXRUBY_TRACE_IF(WxRubyTraceFreeSizer, 2)
-    WXRUBY_TRACE("< GcSizerFreeFunc")
-  WXRUBY_TRACE_END
-}
-
 void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer);
 
 WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
@@ -154,10 +116,10 @@ WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
   VALUE rb_szr = SWIG_RubyInstanceFor(ptr);
   if (!RB_NIL_P(rb_szr))
   {
-    // as long as the dfree function is still the GCSizeFreeFunc the sizer has not been attached to a window
+    // as long as the dfree function is still the sizer's free function the sizer has not been attached to a window
     // or added to a parent sizer (as that would 'disown' and replace the free function by the tracking removal function)
     // but it may hay have already had child sizers added which need to be marked
-    if (RDATA(rb_szr)->dfree == (void (*)(void *))GcSizerFreeFunc)
+    if (RDATA(rb_szr)->dfree != (void (*)(void *))SWIG_RubyRemoveTracking)
     {
       wxSizer* wx_szr = (wxSizer*)ptr;
 

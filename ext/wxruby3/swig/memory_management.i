@@ -26,9 +26,9 @@
 
 // These are implemented in swig/wx.i, so they are shared among all classes
 %{
-WXRUBY_EXPORT void GcNullFreeFunc(void *);
-WXRUBY_EXPORT void GcSizerFreeFunc(void *);
-WXRUBY_EXPORT void GcDialogFreeFunc(void *);
+//WXRUBY_EXPORT void GcNullFreeFunc(void *);
+//WXRUBY_EXPORT void GcSizerFreeFunc(void *);
+//WXRUBY_EXPORT void GcDialogFreeFunc(void *);
 WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
 WXRUBY_EXPORT void GC_mark_wxSizer(void *);
 WXRUBY_EXPORT void GC_mark_attached_wxMenu(void *);
@@ -43,7 +43,7 @@ WXRUBY_EXPORT void GC_mark_wxEvent(void *);
 // all Windows, including Frames and Dialogs
 %define GC_NEVER(kls)
 %trackobjects kls;
-%feature("freefunc") kls "GcNullFreeFunc";
+%feature("freefunc") kls "SWIG_RubyRemoveTracking";
 %enddef
 
 // Strategy for windows that aren't top-level windows.  Here, the C++
@@ -79,8 +79,8 @@ GC_NEVER(kls);
 // Events - most are created within wxWidgets C++ on the stack and thus
 // do not need deletion. These are passed into ruby via EvtHandler or
 // App methods, and are wrapped using wxRuby_WrapWxEventInRuby (see
-// wx.i). This gives them a void freefunc and markfunc and are NOT
-// tracked - they are treated as one-shot short-lived objects.
+// wx.i). This gives them a null freefunc and markfunc and provides no
+// tracking - they are treated as one-shot short-lived objects.
  //
 // However, custom events created on the ruby side need to be deleted to
 // avoid leakage as SWIG wrappers call C++ "new" to allocate the
@@ -113,15 +113,10 @@ GC_NEVER(kls);
 %define GC_MANAGE_AS_MARKED(kls)
 %enddef
 
-// Sizers attached to windows are automatically destroyed by wxWidgets,
-// so they should not be deleted.
-//
-// TODO - orphaned/unattached sizers are not automatically destroyed -
-// so the freefunc should check for this condition and do the delete if
-// required to prevent a memory leak.
+// Attached sizers should only be marked by the window they are attached to.
 %define GC_MANAGE_AS_SIZER(kls)
 %trackobjects kls;
-%feature("freefunc") kls "GcSizerFreeFunc";
+//%feature("freefunc") kls "GcSizerFreeFunc";
 %feature("markfunc") kls "GC_mark_wxSizer";
 %enddef
 
@@ -132,12 +127,6 @@ GC_NEVER(kls);
 %trackobjects kls;
 %feature("freefunc") kls "GcRefCountedFreeFunc";
 %enddef
-
-// special refcounted for grid cell renderers/editors and attrs
-%define GC_MANAGE_AS_UNTRACKED_REFCOUNTED(kls)
-%feature("freefunc") kls "GcRefCountedFreeFunc";
-%enddef
-
 
 // All other classes - mainly helper classes (eg Sizer, GridCellxxx).
 // These are tracked but sometimes later disowned once passed into a

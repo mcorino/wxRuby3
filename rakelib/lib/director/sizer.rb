@@ -56,11 +56,10 @@ module WXRuby3
             {
               if ($self->Detach(szr))
               {
-                VALUE rb_szr = SWIG_RubyInstanceFor(szr);
-                if (rb_szr && !NIL_P(rb_szr))
+                if (!RB_NIL_P(SWIG_RubyInstanceFor(szr)))
                 {
-                  // transfer ownership to Ruby
-                  RDATA(rb_szr)->dfree = GcSizerFreeFunc;            
+                  // have SWIG transfer ownership of Ruby value       
+                  SWIG_NewPointerObj(szr, SWIGTYPE_p_wxSizer, SWIG_POINTER_OWN);
                 }
                 return true;
               }
@@ -72,20 +71,12 @@ module WXRuby3
               wxSizerItem* itm = $self->GetItem(itm_nr);
               if (itm)
               {
-                VALUE rb_szr = Qnil;
-                if (itm->IsSizer())
-                {
-                  rb_szr = SWIG_RubyInstanceFor(itm->GetSizer());
+                if (itm->IsSizer() && !RB_NIL_P(SWIG_RubyInstanceFor(itm->GetSizer())))
+                { 
+                  // have SWIG transfer ownership of Ruby value       
+                  SWIG_NewPointerObj(itm->GetSizer(), SWIGTYPE_p_wxSizer, SWIG_POINTER_OWN);
                 }
-                if ($self->Detach(itm_nr))
-                {
-                  if (rb_szr && !NIL_P(rb_szr))
-                  {
-                    // transfer ownership to Ruby
-                    RDATA(rb_szr)->dfree = GcSizerFreeFunc;            
-                  }
-                  return true;
-                }
+                return $self->Detach(itm_nr);
               }
               return false;
             }
