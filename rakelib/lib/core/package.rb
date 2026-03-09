@@ -418,8 +418,6 @@ module WXRuby3
                 fsrc.puts %Q{rb_define_const(mWxSetup, "#{feature}", Q#{val});}
               end
               fsrc.puts
-              # install wxRubyClientData marker
-              fsrc.puts %Q{wxRuby_AppendMarker(wxRuby_GC_mark_ClientData);}
             else
               fsrc.puts %Q{#{module_variable} = rb_define_module_under(wxRuby_Core(), "#{name}");}
               # record package submodule in main module's list

@@ -24,6 +24,14 @@ WXRUBY_TRACE_GUARD(WxRubyTraceFreeWindow, "GC_FREE_WINDOW")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeRefcounted, "GC_FREE_REFCOUNT")
 
+// Check if a Ruby object is (still) Ruby GC managed in which case it's
+// 'dfree' function pointer should reference a specific free function
+// and not be either 0 or a reference to the SWIG tracking removal function.
+WXRUBY_EXPORT bool GC_IsObjectOwned(VALUE object)
+{
+  return RDATA(object)->dfree != SWIG_RubyRemoveTracking && RDATA(object)->dfree != 0;
+}
+
 // Tests if the window has been signalled as destroyed by a
 // WindowDestroyEvent handled by wxRubyApp
 WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr)

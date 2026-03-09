@@ -200,7 +200,7 @@ module WXRuby3
             }
           }
 
-          static void wxRuby_markPersistentObjects()
+          static void wxRuby_markPersistentObjects(const TGCTrackingValueMap& /*unused*/)
           {
             WxRubyPersistenceManager* wxrb_pm = 
               dynamic_cast<WxRubyPersistenceManager*> (&wxPersistenceManager::Get());
@@ -399,7 +399,8 @@ module WXRuby3
           // install the default global wxRuby persistence manager
           wxPersistenceManager::Set(s_wxruby_persistence_manager);
           // and the persistent object marker
-          wxRuby_AppendMarker(wxRuby_markPersistentObjects);
+          static const std::string WXRUBY_PERSISTENT_OBJECTS = {"WXRUBY_PERSISTENT_OBJECTS"};
+          wxRuby_RegisterTrackingCategory(WXRUBY_PERSISTENT_OBJECTS, wxRuby_markPersistentObjects);
           __HEREDOC
       end
 

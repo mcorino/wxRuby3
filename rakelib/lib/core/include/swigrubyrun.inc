@@ -10,15 +10,15 @@
 extern "C" {
 #endif
 // Shared custom swig tracking functions
+WXRB_EXPORT_FLAG void wxRuby_InitializeTracking();
 WXRB_EXPORT_FLAG void wxRuby_AddTracking(void* ptr, VALUE object);
 WXRB_EXPORT_FLAG VALUE wxRuby_FindTracking(void* ptr);
 WXRB_EXPORT_FLAG void wxRuby_RemoveTracking(void* ptr);
-WXRB_EXPORT_FLAG void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) );
-/* Setup a Ruby hash table to store Trackings - mostly done in wx.i */
-SWIGRUNTIMEINLINE void SWIG_RubyInitializeTrackings(void)
-{
-  // no-op
-}
+WXRB_EXPORT_FLAG void wxRuby_UnlinkObject(void* ptr);
+
+/* Setup a Ruby hash table to store Trackings */
+#define SWIG_RubyInitializeTrackings()
+
 /* Add a Tracking from a C/C++ struct to a Ruby object */
 #define SWIG_RubyAddTracking wxRuby_AddTracking
 
@@ -34,14 +34,8 @@ SWIGRUNTIMEINLINE void SWIG_RubyInitializeTrackings(void)
 /* This is a helper method that unlinks a Ruby object from its
    underlying C++ object.  This is needed if the lifetime of the
    Ruby object is longer than the C++ object */
-SWIGRUNTIMEINLINE void SWIG_RubyUnlinkObjects(void* ptr)
-{
-  VALUE object = SWIG_RubyInstanceFor(ptr);
-  if (object != Qnil)
-  {
-    DATA_PTR(object) = 0;
-  }
-}
+#define SWIG_RubyUnlinkObjects wxRuby_UnlinkObject
+
 #ifdef __cplusplus
 }
 #endif

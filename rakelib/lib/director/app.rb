@@ -152,19 +152,12 @@ module WXRuby3
           // Prevents the App being destroyed prematurely when Ruby exits down with
           // an exception. Otherwise GC destroys the C++ object, which can still
           // be needed for final WxWidgets events.
-          %markfunc wxApp "wxRubyApp::mark_wxRubyApp";
+          %markfunc wxApp "wxRubyApp::GC_mark_wxRubyApp";
           __HEREDOC
         spec.add_header_code <<~__HEREDOC
           extern void GC_SetWindowDeleted(void*);
           extern "C" void Init_wxRubyStockObjects();
           extern void wxRuby_MarkProtectedEvtHandlerProcs();
-
-          static wxVector<WXRBMarkFunction> WXRuby_Mark_List;
-
-          WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker)
-          {
-            WXRuby_Mark_List.push_back(marker);
-          }
 
           #include "wxRubyApp.h"          
 

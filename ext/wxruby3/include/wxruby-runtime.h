@@ -134,6 +134,35 @@ WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker);
 WXRUBY_EXPORT VALUE wxRuby_GetTopLevelWindowClass(); // used for wxWindow typemap in typemap.i
 WXRUBY_EXPORT bool GC_IsWindowDeleted(void *ptr);
 
+WXRUBY_EXPORT bool GC_IsObjectOwned(VALUE object);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+WXRUBY_EXPORT void wxRuby_InitializeTracking();
+WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object);
+WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr);
+WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr);
+WXRUBY_EXPORT void wxRuby_UnlinkObject(void* ptr);
+
+#ifdef __cplusplus
+}
+#endif
+
+#include <unordered_map>
+
+typedef std::unordered_map<void*, VALUE>  TGCTrackingValueMap;
+typedef void (* TGCMarkerFunction)(const TGCTrackingValueMap&);
+
+WXRUBY_EXPORT void wxRuby_RegisterTrackingCategory(std::string category, TGCMarkerFunction marker, bool has_data = false);
+WXRUBY_EXPORT void wxRuby_RegisterCategoryValue(const std::string &category, void *ptr, VALUE object);
+WXRUBY_EXPORT void wxRuby_UnregisterCategoryValue(const std::string &category, void *ptr);
+WXRUBY_EXPORT VALUE wxRuby_FindCategoryValue(const std::string &category, void *ptr);
+WXRUBY_EXPORT void wxRuby_UnlinkCategoryValue(const std::string &category, void* ptr);
+
+WXRUBY_EXPORT void wxRuby_MarkTracked();
+
 // Defined in wx.i; getting, setting and using swig_type <-> ruby class
 // mappings
 WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClass(VALUE cls);
