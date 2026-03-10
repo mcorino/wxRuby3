@@ -13,9 +13,7 @@
 %{
 WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
 WXRUBY_EXPORT void GC_mark_wxSizer(void *);
-WXRUBY_EXPORT void GC_mark_attached_wxMenu(void *);
 WXRUBY_EXPORT void GC_mark_wxWindow(void *);
-WXRUBY_EXPORT void GC_mark_wxFrame(void *);
 WXRUBY_EXPORT void GC_mark_wxEvent(void *);
 %}
 
@@ -43,19 +41,14 @@ GC_NEVER(kls);
 %enddef
 
 // Strategy for top-level frames - these are destroyed
-// automatically. Marking is the same as for Windows, plus preservation
-// of the associated MenuBar, if reuqired.
+// automatically. Marking is the same as for Windows.
 %define GC_MANAGE_AS_FRAME(kls)
-GC_NEVER(kls);
-// Mark any associated sizer
-%feature("markfunc") kls "GC_mark_wxFrame";
+GC_MANAGE_AS_WINDOW(kls);
 %enddef
 
 // Strategy for dialogs - these are NOT destroyed automatically
 %define GC_MANAGE_AS_DIALOG(kls)
-GC_NEVER(kls);
-// Mark any associated sizer
-%feature("markfunc") kls "GC_mark_wxWindow";
+GC_MANAGE_AS_WINDOW(kls);
 %enddef
 
 // Events - most are created within wxWidgets C++ on the stack and thus

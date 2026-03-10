@@ -17,11 +17,8 @@
 
 %{
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkSizer, "GC_MARK_SIZER")
-WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
-WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenu, "GC_MARK_MENU")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkWindow, "GC_MARK_WINDOW")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeWindow, "GC_FREE_WINDOW")
-WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
 WXRUBY_TRACE_GUARD(WxRubyTraceFreeRefcounted, "GC_FREE_REFCOUNT")
 
 // Check if a Ruby object is (still) Ruby GC managed in which case it's
@@ -195,63 +192,6 @@ void GC_mark_SizerBelongingToWindow(wxSizer *wx_sizer, VALUE rb_sizer)
   WXRUBY_TRACE_END
 }
 
-WXRUBY_EXPORT void GC_mark_attached_wxMenu(void *ptr)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
-    WXRUBY_TRACE("> GC_mark_attached_wxMenu : " << ptr)
-  WXRUBY_TRACE_END
-
-  rb_gc_mark(SWIG_RubyInstanceFor(ptr));
-
-  wxMenu *wx_menu = static_cast<wxMenu*> (ptr);
-
-  wxMenuItemList wx_menu_items = wx_menu->GetMenuItems();
-  wxMenuItemList::iterator iter;
-  for (iter = wx_menu_items.begin(); iter != wx_menu_items.end(); ++iter)
-  {
-    wxMenuItem *wx_item = *iter;
-    rb_gc_mark(SWIG_RubyInstanceFor(wx_item) );
-    wxMenu* wx_sub_menu = wx_item->GetSubMenu();
-    if (wx_sub_menu)
-      GC_mark_attached_wxMenu(wx_sub_menu);
-  }
-
-  WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
-    WXRUBY_TRACE("< GC_mark_attached_wxMenu : " << ptr)
-  WXRUBY_TRACE_END
-}
-
-// Similar to Sizers, MenuBar requires a special mark routine. This is
-// because Wx::Menu is not a subclass of Window so isn't automatically
-// protected in the mark phase by Wx::App. However, the ruby object
-// still must not be destroyed while it is still accessible on screen,
-// because it may still handle events. Rather than a SWIG %markfunc,
-// which can catch destroyed MenuBars linked to an in-scope ruby
-// variable and cause segfaults, MenuBars are always marked via the
-// containing Frame.
-void GC_mark_MenuBarBelongingToFrame(wxMenuBar *wx_menu_bar)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
-    WXRUBY_TRACE("> GC_mark_MenuBarBelongingToFrame : " << wx_menu_bar)
-  WXRUBY_TRACE_END
-
-  rb_gc_mark( SWIG_RubyInstanceFor(wx_menu_bar) );
-
-  WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 3)
-    WXRUBY_TRACE("< GC_mark_MenuBarBelongingToFrame : marking " << wx_menu_bar->GetMenuCount() << " menus")
-  WXRUBY_TRACE_END
-
-  // Mark each menu in the menubar in turn
-  for ( size_t i = 0; i < wx_menu_bar->GetMenuCount(); i++ )
-	{
-	  GC_mark_attached_wxMenu(wx_menu_bar->GetMenu(i));
-	}
-
-  WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
-    WXRUBY_TRACE("< GC_mark_MenuBarBelongingToFrame : " << wx_menu_bar)
-  WXRUBY_TRACE_END
-}
-
 // Default mark routine for Windows - preserve the main sizer and caret
 // belong to this window
 WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
@@ -346,39 +286,4 @@ WXRUBY_EXPORT void GC_mark_wxWindow(void *ptr)
   WXRUBY_TRACE_END
 }
 
-
-WXRUBY_EXPORT void GC_mark_wxFrame(void *ptr)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
-    WXRUBY_TRACE("> GC_mark_wxFrame : " << ptr)
-  WXRUBY_TRACE_END
-
-  if ( GC_IsWindowDeleted(ptr) )
-  {
-    WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
-      WXRUBY_TRACE("< GC_mark_wxFrame : deleted")
-    WXRUBY_TRACE_END
-    return;
-  }
-
-  // Frames are also a subclass of wxWindow, so must do all the marking
-  // of sizers and carets associated with that class
-  GC_mark_wxWindow(ptr);
-
-  wxFrame* wx_frame = (wxFrame*)ptr;
-  // Then mark the MenuBar, if one is associated with this Frame
-
-  wxMenuBar* menu_bar = wx_frame->GetMenuBar();
-  if ( menu_bar )
-  {
-    // as this is an attached menu bar the regular marker will not mark
-    // any menu content as it can't tell if the c++ object has been deleted or not
-    // so we do that here now we know it is still alive
-    GC_mark_MenuBarBelongingToFrame(menu_bar);
-  }
-
-  WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
-    WXRUBY_TRACE("< GC_mark_wxFrame : " << ptr)
-  WXRUBY_TRACE_END
-}
 %}
