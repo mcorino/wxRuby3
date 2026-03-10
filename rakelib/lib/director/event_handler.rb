@@ -93,6 +93,21 @@ module WXRuby3
               }
               __CODE
           end
+          spec.add_header_code <<~__HEREDOC
+              // custom subclass for Ruby (derived) instances to cleanup event handler procs on destruction 
+              class wxRubyEvtHandler : public wxEvtHandler
+              {
+              public:
+                wxRubyEvtHandler() : wxEvtHandler() {}
+                virtual ~wxRubyEvtHandler()
+                {
+                  wxRuby_ReleaseEvtHandlerProcs(this); 
+                }
+              };
+          
+            __HEREDOC
+          # make Ruby director and wrappers use custom implementation
+          spec.use_class_implementation('wxEvtHandler', 'wxRubyEvtHandler')
           spec.add_runtime_code <<~__HEREDOC
             WXRUBY_TRACE_GUARD(WxRubyTraceEventHandlers, "EVENTS_HANDLER");
             
