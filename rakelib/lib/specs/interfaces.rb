@@ -279,6 +279,11 @@ module WXRuby3
     Director.Spec(pkg, 'wxHTMLDataObject') if Config.instance.wx_version_check('3.3') >= 0
   }
 
+  Director.Package('Wx::WEB', 'USE_WEBVIEW') { |pkg|
+    Director.Spec(pkg, 'wxWebViewEvent', director: Director::WebViewEvent)
+    Director.Spec(pkg, 'wxWebView')
+  }
+
   Director.Package('Wx::RTC', 'USE_RICHTEXT', depends_on: ['Wx::HTML']) { |pkg|
     Director.Spec(pkg, 'wxRichTextObject')
     Director.Spec(pkg, 'wxRichTextImage')

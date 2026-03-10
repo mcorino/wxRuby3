@@ -165,6 +165,11 @@ module WXRuby3
         if features_set?('USE_MEDIACTRL')
           wx_libset.merge wx_config("--libs media").split(' ')
         end
+
+        if features_set?('USE_WEBVIEW')
+          wx_libset.merge wx_config("--libs webview").split(' ')
+        end
+
         wx_libset.collect { |s| s.dup }
       end
 
