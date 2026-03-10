@@ -30,6 +30,7 @@ module WXRuby3
             wxRubyMenu(const wxString &title, long style=0) : wxMenu(title, style) {}
             virtual ~wxRubyMenu()
             {
+              wxRuby_ReleaseEvtHandlerProcs(this); 
               wxruby_unregister();
             }
 

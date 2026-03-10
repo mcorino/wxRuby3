@@ -47,7 +47,8 @@ module WXRuby3
             wxRubyMenuBar(long style=0) : wxMenuBar(style) {} 
             virtual ~wxRubyMenuBar()
             {
-              wxruby_unregister();
+              wxRuby_ReleaseEvtHandlerProcs(this); 
+              wxruby_unregister();              
             }
 
             void wxruby_register(VALUE rb_menubar)

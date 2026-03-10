@@ -26,6 +26,9 @@ public:
       WXRUBY_TRACE("> ~wxRubyApp this=" << this)
     WXRUBY_TRACE_END
 
+    // app is also event handler, so cleanup
+    wxRuby_ReleaseEvtHandlerProcs(this);
+
     // unlink
     if (this->self_ != Qnil)
     {
