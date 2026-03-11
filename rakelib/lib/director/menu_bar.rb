@@ -58,7 +58,8 @@ module WXRuby3
                 wxRuby_RegisterTrackingCategory(TRACKING_CAT, GC_mark_wxMenuBar, true);
                 is_registered_ = true;
               }
-              wxRuby_RegisterCategoryValue(TRACKING_CAT, this, rb_menubar);
+              if (RB_NIL_P(wxRuby_FindCategoryValue(TRACKING_CAT, this)))
+                wxRuby_RegisterCategoryValue(TRACKING_CAT, this, rb_menubar);
             }
           private:
             static bool is_registered_;
@@ -121,6 +122,12 @@ module WXRuby3
               }
             }
             return rb_menubar;
+          }
+
+          WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar)
+          {
+            wxRubyMenuBar* wxrb_mb = dynamic_cast<wxRubyMenuBar*> (wx_menubar);
+            if (wxrb_mb) wxrb_mb->wxruby_register(rb_menubar);              
           }
           __HEREDOC
         # make Ruby director and wrappers use custom implementation

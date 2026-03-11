@@ -41,7 +41,8 @@ module WXRuby3
                 wxRuby_RegisterTrackingCategory(TRACKING_CAT, GC_mark_wxMenu, true);
                 is_registered_ = true;
               }
-              wxRuby_RegisterCategoryValue(TRACKING_CAT, this, rb_menu);
+              if (RB_NIL_P(wxRuby_FindCategoryValue(TRACKING_CAT, this)))
+                wxRuby_RegisterCategoryValue(TRACKING_CAT, this, rb_menu);
             }
           private:
             static bool is_registered_;
@@ -167,6 +168,12 @@ module WXRuby3
               }
             }
             return rb_menu;
+          }
+
+          WXRUBY_EXPORT void wxRuby_RegisterWxMenu(wxMenu* wx_menu, VALUE rb_menu)
+          {
+            wxRubyMenu* wxrb_menu = dynamic_cast<wxRubyMenu*> (wx_menu);
+            if (wxrb_menu) wxrb_menu->wxruby_register(rb_menu);              
           }
         __HEREDOC
         # ignore MSW specific method
