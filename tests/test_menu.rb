@@ -127,9 +127,11 @@ class UnattachedMenuTests < WxRuby::Test::GUITests
     yield_for_a_while(200)
     GC.start
     @menu_bar.append(@menu, "&Test")
+    @menu = nil
     yield_for_a_while(200)
     GC.start
     frame_win.menu_bar = @menu_bar
+    @menu_bar = nil
     yield_for_a_while(200)
     GC.start
     frame_win.menu_bar = nil
