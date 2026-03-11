@@ -44,6 +44,12 @@ module WXRuby3
         spec.ignore 'wxGrid::SetCellValue(const wxString &,int,int)'
         spec.ignore 'wxGrid::SetTable' # there is wxGrid::AssignTable now that always takes ownership
 
+        spec.regard 'wxGrid::CanHaveAttributes',
+                    'wxGrid::GetColMinimalWidth',
+                    'wxGrid::GetColRight',
+                    'wxGrid::GetColLeft',
+                    'wxGrid::GetRowMinimalHeight'
+
         spec.regard 'wxGridSizesInfo::m_sizeDefault',
                     'wxGridSizesInfo::m_customSizes'
         spec.rename_for_ruby 'size_default' => 'wxGridSizesInfo::m_sizeDefault',
@@ -386,15 +392,23 @@ module WXRuby3
                 is_marker_registered = true;
               }
  
-              // always (keep) disown(ed); wxWidgets takes over ownership
-              RDATA(rb_attr)->dfree = 0;
-              if (wxRuby_FindCategoryValue(WXRUBY_GRID_CELL_ATTR, wx_attr) == Qnil) // should always be true
+              // see if this attr is already tracked 
+              if (wxRuby_FindCategoryValue(WXRUBY_GRID_CELL_ATTR, wx_attr) == Qnil)
               {
                 WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellAttr, 2)
                   WXRUBY_TRACE("| wxRuby_RegisterGridCellAttr : installing monitor")
                 WXRUBY_TRACE_END
 
+                // either a new Ruby created instance or an unwrapped C++ created instance 
+                // always disown; wxWidgets takes over or keeps ownership of reference count
+                RDATA(rb_attr)->dfree = 0;
+
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
+              }
+              else  // already registered; will be disowned already
+              {
+                // increase the reference count for C++ to take over
+                wx_attr->IncRef();
               }
             }
 
@@ -479,15 +493,23 @@ module WXRuby3
                 is_marker_registered = true;
               }
  
-              // always (keep) disown(ed); wxWidgets takes over ownership
-              RDATA(rb_edt)->dfree = 0;
-              if (wxRuby_FindCategoryValue(WXRUBY_GRID_CELL_EDITOR, wx_edt) == Qnil) // should always be true
+              // see if this renderer is already tracked 
+              if (wxRuby_FindCategoryValue(WXRUBY_GRID_CELL_EDITOR, wx_edt) == Qnil)
               {
                 WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
                   WXRUBY_TRACE("| wxRuby_RegisterGridCellEditor : installing monitor")
                 WXRUBY_TRACE_END
 
+                // either a new Ruby created instance or an unwrapped C++ created instance 
+                // always disown; wxWidgets takes over or keeps ownership of reference count
+                RDATA(rb_edt)->dfree = 0;
+
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
+              }
+              else  // already registered; will be disowned already
+              {
+                // increase the reference count for C++ to take over
+                wx_edt->IncRef();
               }
             }
 
@@ -572,15 +594,23 @@ module WXRuby3
                 is_marker_registered = true;
               }
  
-              // always (keep) disowned(ed); wxWidgets takes over ownership
-              RDATA(rb_rnd)->dfree = 0;
-              if (wxRuby_FindCategoryValue(WXRUBY_GRID_CELL_RENDERER, wx_rnd) == Qnil) // should always be true
+              // see if this renderer is already tracked 
+              if (wxRuby_FindCategoryValue(WXRUBY_GRID_CELL_RENDERER, wx_rnd) == Qnil)
               {
                 WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
                   WXRUBY_TRACE("| wxRuby_RegisterGridCellRenderer : installing monitor")
                 WXRUBY_TRACE_END
 
+                // either a new Ruby created instance or an unwrapped C++ created instance 
+                // always disown; wxWidgets takes over or keeps ownership of reference count
+                RDATA(rb_rnd)->dfree = 0;
+
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
+              }
+              else  // already registered; will be disowned already
+              {
+                // increase the reference count for C++ to take over
+                wx_rnd->IncRef();
               }
             }
 
@@ -601,10 +631,20 @@ module WXRuby3
             $result = wxRuby_GridCellAttrInstance($1); // check for already registered instance
             if (NIL_P($result))
             {
-              // created by wxWidgets itself
-              // convert and register
+              // As this editor was created in C++ it seems we have no registration yet
+              // but the reference counter will be at least 2 now (1 for C++ owner and 1
+              // increment for returning to us).
+              // We will now register a new Ruby object, keep it disowned and decrement
+              // for now. If passing to C++ again we will increment there.     
               $result = SWIG_NewPointerObj(SWIG_as_voidptr($1), SWIGTYPE_p_wxGridCellAttr, 0);
               wxRuby_RegisterGridCellAttr($1, $result);
+              $1->DecRef();
+            }
+            else
+            {
+              // as this cell attr got passed from C++ it wll have incremented it's reference counter
+              // decrease that here; if we pass it back to C++ we will increase there
+              $1->DecRef();
             }
             __CODE
           map_check code: 'wxRuby_RegisterGridCellAttr($1, argv[$argnum-2]);'

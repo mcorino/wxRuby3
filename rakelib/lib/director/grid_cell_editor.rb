@@ -39,6 +39,9 @@ module WXRuby3
               VALUE rb_gce = wxRuby_GridCellEditorInstance(const_cast<wxGridCellEditor*> (wx_gce));
               if (rb_gce && !NIL_P(rb_gce))
               {
+                // as this editor got passed from C++ it wll have incremented it's reference counter
+                // decrease that here; if we pass it back to C++ we will increase there
+                const_cast<wxGridCellEditor*> (wx_gce)->DecRef();
                 return rb_gce;
               }
 
@@ -98,19 +101,24 @@ module WXRuby3
               }
 
               // Otherwise, retrieve the swig type info for this class and wrap it
-              // in Ruby. Make it owned to manage the ref count if GC claims the object. 
+              // in Ruby.
+              // As this editor was created in C++ it seems we have no registration yet
+              // but the reference counter will be at least 2 now (1 for C++ owner and 1
+              // increment for returning to us).
+              // We will now register a new Ruby object, keep it disowned and decrement
+              // for now. If passing to C++ again we will increment there.     
               // wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
               rb_gce = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 0);
               wxRuby_RegisterGridCellEditor(const_cast<wxGridCellEditor*> (wx_gce), rb_gce);
+              const_cast<wxGridCellEditor*> (wx_gce)->DecRef();
               return rb_gce;
             }
 
             extern void GC_free_GridCellEditor(void *ptr)
             {
-              wxGridCellEditor* gc_edt = (wxGridCellEditor*)ptr; 
-              if (ptr)
-                gc_edt->DecRef();
+              wxGridCellEditor* gc_edt = (wxGridCellEditor*)ptr;
+              wxSafeDecRef(gc_edt);
             }
             __CODE
         elsif spec.module_name == 'wxGridCellActivatableEditor'
@@ -147,7 +155,7 @@ module WXRuby3
             spec.override_inheritance_chain(spec.module_name, %w[wxGridCellEditor])
           end
           # due to the flawed wxWidgets XML docs we need to explicitly add these here
-          # otherwise the derived editors won't be allocable due to pure virtuals
+          # otherwise the derived editors won't be allocatable due to pure virtuals
           spec.extend_interface spec.module_name,
             'void BeginEdit(int row, int col, wxGrid *grid)',
             'wxGridCellEditor * Clone() const',
@@ -157,13 +165,7 @@ module WXRuby3
             'void Reset()',
             'wxString GetValue() const'
         end
-        unless spec.module_name == 'wxGridCellEditor'
-          # type mapping for Clone return ref
-          spec.map 'wxGridCellEditor*' => 'Wx::GRID::GridCellEditor' do
-            add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce);'
-            map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
-          end
-        end
+        spec.new_object "#{spec.module_name}::Clone"
         # handled; can be suppressed
         spec.suppress_warning(473, "#{spec.module_name}::Clone")
       end
