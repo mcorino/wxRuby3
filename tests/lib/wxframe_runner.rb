@@ -75,11 +75,11 @@ module WxRuby
     class GUITests < Test::Unit
 
       def after_setup
-        10.times { Wx.get_app.yield }
+        yield_for_a_while(100)
       end
 
       def after_teardown
-        10.times { Wx.get_app.yield }
+        yield_for_a_while(100)
         GC.start
       end
 
