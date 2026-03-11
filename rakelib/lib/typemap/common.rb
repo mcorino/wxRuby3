@@ -532,7 +532,7 @@ module WXRuby3
 
         # window/sizer object wrapping
 
-        map 'wxWindow*' => 'Wx::Window', 'wxSizer*' => 'Wx::Sizer' do
+        map 'wxWindow*' => 'Wx::Window', 'wxControl*' => 'Wx::Control', 'wxSizer*' => 'Wx::Sizer' do
           map_out code: '$result = wxRuby_WrapWxObjectInRuby($1);'
         end
 
