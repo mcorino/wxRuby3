@@ -17,6 +17,12 @@ class MenuTests < WxRuby::Test::GUITests
     @menu.append_radio_item(Wx::ID_HIGHEST+4, 'Radio 4', 'Test menuitem 4')
     @menu.append_radio_item(Wx::ID_HIGHEST+5, 'Radio 5', 'Test menuitem 5')
     @menu.append_radio_item(Wx::ID_HIGHEST+6, 'Radio 6', 'Test menuitem 6')
+    submenu = Wx::Menu.new
+    submenu.append_radio_item(Wx::ID_HIGHEST+8, 'Circle', 'Circle')
+    submenu.append_radio_item(Wx::ID_HIGHEST+9, 'Rectangle', 'Rectangle')
+    submenu.append_radio_item(Wx::ID_HIGHEST+10, 'Square', 'Square')
+    mi = Wx::MenuItem.new(@menu, Wx::ID_HIGHEST+7, 'Submenu', 'Open submenu', Wx::ITEM_NORMAL, submenu)
+    @menu.append(mi)
     frame_win.menu_bar = Wx::MenuBar.new
     frame_win.menu_bar.append(@menu, "&Test")
     GC.start
@@ -31,7 +37,7 @@ class MenuTests < WxRuby::Test::GUITests
   attr_reader :menu
 
   def test_basic
-    assert_equal(8, menu.get_menu_item_count)
+    assert_equal(9, menu.get_menu_item_count)
     check, pos = menu.find_child_item(Wx::ID_HIGHEST+3)
     assert_not_nil(check)
     assert_equal(3, pos)
