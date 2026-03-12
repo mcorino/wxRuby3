@@ -29,8 +29,10 @@ class MediaCtrlTests < WxRuby::Test::GUITests
     # or if it is a non-existing file so only check whether it is a boolean return.
     uri = URI("file://#{File.join(__dir__, 'media/beep_lo.wav')}")
     assert_boolean(media.load(uri))
+    yield_for_a_while(100)
     uri = URI("file://#{File.join(__dir__, 'art/test_art/image/wxruby.png')}")
     assert_boolean(media.load(uri))
+    yield_for_a_while(100)
   end
 
 end
