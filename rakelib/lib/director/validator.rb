@@ -54,7 +54,9 @@ module WXRuby3
               VALUE self = const_cast<wxRubyValidator*> (this)->get_self();
               VALUE rc = wxRuby_Funcall(self, clone_id(), 0);
               void *ptr;
-              int res = SWIG_ConvertPtr(rc, &ptr, SWIGTYPE_p_wxValidator,  0);
+              // disown the validator for this is a C++ return and when this is called by a window
+              // to set it's validator that window will manage the validator
+              int res = SWIG_ConvertPtr(rc, &ptr, SWIGTYPE_p_wxValidator,  SWIG_POINTER_DISOWN);
               if (!SWIG_IsOK(res)) 
               {
                 Swig::DirectorTypeMismatchException::raise(self, "clone", SWIG_ErrorType(SWIG_ArgError(res)), "in output value of type '""Wx::Validator *""'");
