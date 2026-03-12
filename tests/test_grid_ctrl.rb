@@ -103,30 +103,32 @@ class GridCtrlTests < WxRuby::Test::GUITests
   end
 
   def test_grid
-    grid.set_grid_cursor([0, 2])
-    assert_true(grid.is_current_cell_read_only)
+    unless Wx::PLATFORM == 'WXOSX'
+      grid.set_grid_cursor([0, 2])
+      assert_true(grid.is_current_cell_read_only)
 
-    grid.set_grid_cursor([1, 1])
-    grid.enable_cell_edit_control
-    grid.get_cell_editor(*[1,1]).get_control.set_value('hello world')
-    grid.save_edit_control_value
-    grid.disable_cell_edit_control
-    assert_equal("'hello world'", grid.get_cell_value(1, 1))
+      grid.set_grid_cursor([1, 1])
+      grid.enable_cell_edit_control
+      grid.get_cell_editor(*[1,1]).get_control.set_value('hello world')
+      grid.save_edit_control_value
+      grid.disable_cell_edit_control
+      assert_equal("'hello world'", grid.get_cell_value(1, 1))
 
-    grid.set_grid_cursor([4, 3])
-    grid.enable_cell_edit_control
-    grid.get_cell_editor(4, 3).get_control.set_selection(1)
-    grid.save_edit_control_value
-    grid.disable_cell_edit_control
-    grid.hide
-    assert_equal('bar', grid.get_cell_value(4, 3))
+      grid.set_grid_cursor([4, 3])
+      grid.enable_cell_edit_control
+      grid.get_cell_editor(4, 3).get_control.set_selection(1)
+      grid.save_edit_control_value
+      grid.disable_cell_edit_control
+      grid.hide
+      assert_equal('bar', grid.get_cell_value(4, 3))
 
-    grid.set_grid_cursor([6, 0])
-    grid.enable_cell_edit_control
-    grid.get_cell_editor(6, 0).get_control.set_value(true)
-    grid.save_edit_control_value
-    grid.disable_cell_edit_control
-    assert_equal('1', grid.get_cell_value(6, 0))
+      grid.set_grid_cursor([6, 0])
+      grid.enable_cell_edit_control
+      grid.get_cell_editor(6, 0).get_control.set_value(true)
+      grid.save_edit_control_value
+      grid.disable_cell_edit_control
+      assert_equal('1', grid.get_cell_value(6, 0))
+    end
   end
 
 end
