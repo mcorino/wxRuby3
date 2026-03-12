@@ -12,6 +12,9 @@
 #include <wx/combo.h>
 #include <map>
 
+
+static void wxRuby_markComboPopups(const TGCTrackingValueMap& values);
+
 class WxRubyComboPopup : public wxComboPopup
 {
 private:
@@ -31,7 +34,7 @@ private:
   static WxRuby_ID on_popup_ID;
   static WxRuby_ID paint_combo_control_ID;
 
-  static std::map<WxRubyComboPopup*, VALUE> combo_popup_map;
+  static const std::string WXRUBY_COMBO_POPUP;
 
   VALUE rb_combo_popup_;
 
@@ -44,11 +47,11 @@ private:
   };
 
 public:
-  static void GC_mark_combo_popups()
+  static void GC_mark_combo_popups(const TGCTrackingValueMap& values)
   {
-    for (auto pair : combo_popup_map)
+    for (const auto& ti : values)
     {
-      rb_gc_mark(pair.second);
+      rb_gc_mark(ti.second);
     }
   }
 
@@ -56,14 +59,23 @@ public:
     : wxComboPopup()
     , rb_combo_popup_(rb_cp)
   {
-    combo_popup_map[this] = rb_cp; // register
+    static bool is_marker_registered = false;
+
+    if (!is_marker_registered)
+    {
+      wxRuby_RegisterTrackingCategory(WXRUBY_COMBO_POPUP, wxRuby_markComboPopups, true);
+      is_marker_registered = true;
+    }
+    // register for tracking
+    wxRuby_RegisterCategoryValue(WXRUBY_COMBO_POPUP, this, rb_cp);
   }
 
   virtual ~WxRubyComboPopup()
   {
     if (!NIL_P(rb_combo_popup_))
     {
-      combo_popup_map.erase(this); //deregister
+      // unregister from tracking
+      wxRuby_UnregisterCategoryValue(WXRUBY_COMBO_POPUP, this);
       // unlink
       rb_iv_set(rb_combo_popup_, "@_wx_combo_popup_proxy", Qnil);
       rb_combo_popup_ = Qnil;
@@ -197,6 +209,13 @@ public:
 
 };
 
+const std::string WxRubyComboPopup::WXRUBY_COMBO_POPUP = {"WXRUBY_COMBO_POPUP"};
+
+static void wxRuby_markComboPopups(const TGCTrackingValueMap& values)
+{
+  WxRubyComboPopup::GC_mark_combo_popups(values);
+}
+
 WxRuby_ID WxRubyComboPopup::init_ID("init");
 WxRuby_ID WxRubyComboPopup::lazy_create_ID("lazy_create");
 WxRuby_ID WxRubyComboPopup::create_ID("create");
@@ -212,8 +231,6 @@ WxRuby_ID WxRubyComboPopup::on_combo_char_event_ID("on_combo_char_event");
 WxRuby_ID WxRubyComboPopup::on_dismiss_ID("on_dismiss");
 WxRuby_ID WxRubyComboPopup::on_popup_ID("on_popup");
 WxRuby_ID WxRubyComboPopup::paint_combo_control_ID("paint_combo_control");
-
-std::map<WxRubyComboPopup*, VALUE> WxRubyComboPopup::combo_popup_map;
 
 // Wrapper methods for module Wx::ComboPopup
 

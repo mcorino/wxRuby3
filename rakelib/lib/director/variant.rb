@@ -388,21 +388,18 @@ module WXRuby3
           WXRUBY_TRACE_GUARD(WxRubyTraceGCTrackVariant, "GC_TRACK_VARIANT")
 
           class WXRBValueVariantData;
-          // Mapping of WXRBValueVariantData* to Ruby VALUE
-          WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
-                                      WXRBVariantDataToRbValueHash);
-          static WXRBVariantDataToRbValueHash Variant_Value_Map;
 
-          static void GC_mark_RbValueVariants()
+          static const std::string WXRUBY_VARIANT_DATA = { "WXRUBY_VARIANT_DATA" };
+
+          static void GC_mark_RbValueVariants(const TGCTrackingValueMap& values)
           {
             WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
               WXRUBY_TRACE("> GC_mark_RbValueVariants")
             WXRUBY_TRACE_END
 
-            WXRBVariantDataToRbValueHash::iterator it;
-            for( it = Variant_Value_Map.begin(); it != Variant_Value_Map.end(); ++it )
+            for(const auto& ti : values)
             {
-              VALUE obj = it->second;
+              VALUE obj = ti.second;
 
               WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
                 WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
@@ -419,12 +416,20 @@ module WXRuby3
 
           static void wxRuby_RegisterValueVariantData(void* ptr, VALUE rbval)
           {
+            static bool is_marker_registered = false;
+
             WXRUBY_TRACE_IF(WxRubyTraceGCTrackVariant, 2)
               WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0))
               WXRUBY_TRACE("> wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr)
             WXRUBY_TRACE_END
 
-            Variant_Value_Map[ptr] = rbval;
+            if (!is_marker_registered)
+            {
+              wxRuby_RegisterTrackingCategory(WXRUBY_VARIANT_DATA, GC_mark_RbValueVariants, true);
+              is_marker_registered = true;
+            }
+
+            wxRuby_RegisterCategoryValue(WXRUBY_VARIANT_DATA, ptr, rbval);
 
             WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
               WXRUBY_TRACE("< wxRuby_RegisterValueVariantData")
@@ -437,7 +442,7 @@ module WXRuby3
               WXRUBY_TRACE("> wxRuby_UnregisterValueVariantData : " << ptr)
             WXRUBY_TRACE_END
 
-            Variant_Value_Map.erase(ptr);
+            wxRuby_UnregisterCategoryValue(WXRUBY_VARIANT_DATA, ptr);
 
             WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
               WXRUBY_TRACE("< wxRuby_UnregisterValueVariantData")
@@ -502,7 +507,6 @@ module WXRuby3
             return variant;
           }
           __HEREDOC
-        spec.add_init_code 'wxRuby_AppendMarker(GC_mark_RbValueVariants);'
         # ignore GetType (not doc)
         spec.ignore 'wxVariant::GetType', ignore_doc: false
         # replace with custom implementation

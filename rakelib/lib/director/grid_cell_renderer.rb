@@ -38,6 +38,9 @@ module WXRuby3
               VALUE rb_gcr = wxRuby_GridCellRendererInstance(const_cast<wxGridCellRenderer*> (wx_gcr));
               if (rb_gcr && !NIL_P(rb_gcr))
               {
+                // as this renderer got passed from C++ it wll have incremented it's reference counter
+                // decrease that here; if we pass it back to C++ we will increase there
+                const_cast<wxGridCellRenderer*> (wx_gcr)->DecRef();
                 return rb_gcr;
               }
 
@@ -94,11 +97,17 @@ module WXRuby3
               }
 
               // Otherwise, retrieve the swig type info for this class and wrap it
-              // in Ruby. Make it owned to manage the ref count if GC claims the object.
+              // in Ruby. 
+              // As this renderer was created in C++ it seems we have no registration yet
+              // but the reference counter will be at least 2 now (1 for C++ owner and 1
+              // increment for returning to us).
+              // We will now register a new Ruby object, keep it disowned and decrement
+              // for now. If passing to C++ again we will increment there.     
               // wxRuby_GetSwigTypeForClass is defined in wx.i
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(r_class);
               rb_gcr = SWIG_NewPointerObj(const_cast<void*> (ptr), swig_type, 0);
               wxRuby_RegisterGridCellRenderer(const_cast<wxGridCellRenderer*> (wx_gcr), rb_gcr);
+              const_cast<wxGridCellRenderer*> (wx_gcr)->DecRef();
               return rb_gcr;
             }
 
@@ -126,13 +135,7 @@ module WXRuby3
               'virtual wxSize GetBestSize(wxGrid &grid, wxGridCellAttr &attr, wxDC &dc, int row, int col)'
           spec.force_proxy spec.module_name
         end
-        unless spec.module_name == 'wxGridCellRenderer'
-          # type mapping for Clone return ref
-          spec.map 'wxGridCellRenderer*' => 'Wx::GRID::GridCellRenderer' do
-            add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr);'
-            map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
-          end
-        end
+        spec.new_object "#{spec.module_name}::Clone"
         # handled; can be suppressed
         spec.suppress_warning(473, "#{spec.module_name}::Clone")
       end

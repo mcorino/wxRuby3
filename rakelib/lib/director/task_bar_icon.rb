@@ -42,16 +42,16 @@ module WXRuby3
         # overridden in user subclasses of TaskBarIcon to provide the menu over the icon.
         # In the case of GetPopupMenu the menu will be used but not deleted so it can be stored in
         # a member variable and reused.
-        # In the case of CreatePopupMenu the menu is disowned and deleted of use. The Wx::Menu Ruby
-        # instance than needs to be protected from GC so the typemap stores the
-        # object returned by the ruby method in an instance variable so it's
-        # marked. It also handles the special case where +nil+ is returned, to
-        # signal to Wx that no menu is to be shown.
+        # In the case of CreatePopupMenu the menu is disowned and deleted after use. The Wx::Menu Ruby
+        # instance than needs to be protected from GC so the typemap stores the object returned by the
+        # ruby method in an instance variable so it's marked as long as the TaskBarIcon exists.
+        # It also handles the special case where +nil+ is returned, to signal to Wx that no menu is to
+        # be shown.
         spec.map 'wxMenu *' do
           map_directorout code: <<~__CODE
             static const std::string create_popup_menu("CreatePopupMenu");
             bool disown = (std::string("$symname") == create_popup_menu);
-            if (disown) rb_iv_set(swig_get_self(), "@__popmenu__", $1);
+            if (disown) rb_iv_set(swig_get_self(), "@__popupmenu__", $1);
             if (NIL_P($1))
             {
               $result = nullptr;
@@ -65,7 +65,7 @@ module WXRuby3
                 Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError,
                          "create_popup_menu must return a Wx::Menu, or nil");
               }
-              $result = reinterpret_cast < wxMenu * > (ptr);
+              $result = static_cast <wxMenu *> (ptr);
             }
             __CODE
         end

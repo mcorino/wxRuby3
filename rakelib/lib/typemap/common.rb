@@ -532,7 +532,7 @@ module WXRuby3
 
         # window/sizer object wrapping
 
-        map 'wxWindow*' => 'Wx::Window', 'wxSizer*' => 'Wx::Sizer' do
+        map 'wxWindow*' => 'Wx::Window', 'wxControl*' => 'Wx::Control', 'wxSizer*' => 'Wx::Sizer' do
           map_out code: '$result = wxRuby_WrapWxObjectInRuby($1);'
         end
 
@@ -602,6 +602,39 @@ module WXRuby3
             #else
             $input = wxRuby_WrapWxEventInRuby(static_cast<wxEvent*> (&$1));
             #endif
+            __CODE
+        end
+
+        # Menu bars need to be wrapped / unwrapped correctly
+        map 'wxMenuBar*' => 'Wx::MenuBar' do
+          add_header_code <<~__CODE
+            WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar *wx_menubar);
+            WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar);
+            __CODE
+          map_check code: <<~__CODE
+            wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);                     
+            __CODE
+          map_out code: <<~__CODE
+            $result = wxRuby_WrapWxMenuBarInRuby($1);
+            __CODE
+          map_directorin code: <<~__CODE
+            $input = wxRuby_WrapWxMenuBarInRuby($1);
+            __CODE
+        end
+        # As do menus
+        map 'wxMenu*' => 'Wx::Menu' do
+          add_header_code <<~__CODE
+            WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuInRuby(wxMenu *wx_menu);
+            WXRUBY_EXPORT void wxRuby_RegisterWxMenu(wxMenu* wx_menu, VALUE rb_menu);
+            __CODE
+          map_check code: <<~__CODE
+            wxRuby_RegisterWxMenu($1, argv[$argnum-2]);                     
+            __CODE
+          map_out code: <<~__CODE
+            $result = wxRuby_WrapWxMenuInRuby($1);
+            __CODE
+          map_directorin code: <<~__CODE
+            $input = wxRuby_WrapWxMenuInRuby($1);
             __CODE
         end
 

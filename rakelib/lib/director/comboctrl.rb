@@ -82,11 +82,6 @@ module WXRuby3
             }
             return rb_cpp;
           }
-
-          static void wxRuby_markComboPopups()
-          {
-            WxRubyComboPopup::GC_mark_combo_popups();
-          }
           __HEREDOC
         # ignore these
         spec.ignore 'wxComboCtrl::SetPopupControl',
@@ -110,8 +105,6 @@ module WXRuby3
           }
           __HEREDOC
         spec.add_init_code <<~__HEREDOC
-          wxRuby_AppendMarker(wxRuby_markComboPopups);
-
           g_rb_mWxComboPopup = rb_define_module_under(mWxCore, "ComboPopup");
           rb_define_method(g_rb_mWxComboPopup, "get_combo_ctrl", VALUEFUNC(wx_combo_popup_get_combo_ctrl), -1);
 

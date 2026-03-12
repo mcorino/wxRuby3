@@ -20,10 +20,11 @@
 
 #include <unordered_map>
 
-WXRUBY_TRACE_GUARD(WxRubyTraceGCTrack, "GC_TRACK")
 WXRUBY_TRACE_GUARD(WxRubyTraceGCWrapEvents, "GC_WRAP_EVENTS")
 WXRUBY_TRACE_GUARD(WxRubyTraceGCWrapObject, "GC_WRAP_OBJECT")
 
+// SWIG and wxRuby3 custom tracking support
+#include "wxruby-GCTracking.h"
 %}
 
 // Some common functions
@@ -81,73 +82,6 @@ WXRUBY_EXPORT swig_type_info* wxRuby_GetSwigTypeForClassName(const char* clsname
 {
   return wxRuby_GetSwigTypeForClass(rb_const_get(wxRuby_Core(), rb_intern(clsname)));
 }
-
-// Overriding standard SWIG tracking.
-// We don't want to use any functionality that could interfere with
-// Ruby GC handling so we use standard C++ hash maps.
-typedef std::unordered_map<void*, VALUE> PtrToRbObjHash;
-PtrToRbObjHash Global_Ptr_Map;
-
-// Add a tracking from ptr -> object
-WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceGCTrack, 2)
-    WXRUBY_TRACE_WITH(VALUE clsname = rb_mod_name(CLASS_OF(object)))
-    WXRUBY_TRACE("> wxRuby_AddTracking" << std::flush <<
-                   "(" << ptr << ":{"
-                       << (clsname != Qnil ? StringValueCStr(clsname) : "<noname>")
-                       << "}, " << object << ")")
-  WXRUBY_TRACE_END
-
-  // Check if an 'old' tracking registry exists.
-  if (Global_Ptr_Map.count(ptr) == 1)
-  {
-    // This can happen if the C++ referenced by a Ruby object is managed by
-    // a wxWidgets object and deleted without unlinking the Ruby object.
-    // In these cases we unlink the previously linked Ruby object here
-    // (if not the same Ruby object which should not be possible).
-    // This will prevent SIGSEGV when attempting to call anything for
-    // these objects but instead cause more informative exceptions.
-    VALUE old_obj = Global_Ptr_Map[ptr];
-    if (!NIL_P(old_obj) && old_obj != object)
-    {
-      DATA_PTR(old_obj) = 0;
-    }
-
-  }
-  Global_Ptr_Map[ptr] = object;
-}
-
-// Return the ruby object for ptr
-WXRUBY_EXPORT VALUE wxRuby_FindTracking(void* ptr)
-{
-  if ( Global_Ptr_Map.count(ptr) == 0 )
-    return Qnil;
-  else
-    return Global_Ptr_Map[ptr];
-}
-
-// Remove the tracking for ptr
-WXRUBY_EXPORT void wxRuby_RemoveTracking(void* ptr)
-{
-  WXRUBY_TRACE_IF(WxRubyTraceGCTrack, 2)
-    WXRUBY_TRACE("< wxRuby_RemoveTracking(" << ptr << ") -> " << wxRuby_FindTracking(ptr))
-  WXRUBY_TRACE_END
-  Global_Ptr_Map.erase(ptr);
-}
-
-// Iterate over all the trackings, calling the passed-in method on each
-WXRUBY_EXPORT void wxRuby_IterateTracking( void(*meth)(void* ptr, VALUE obj) )
-{
-  PtrToRbObjHash::iterator it;
-  for( it = Global_Ptr_Map.begin(); it != Global_Ptr_Map.end(); ++it )
-    {
-      void* ptr = it->first;
-      VALUE obj = it->second;
-      (*meth)(ptr, obj);
-    }
-}
-
 
 // Returns a ruby object wrapped around a wxObject. This is used for
 // methods whose return type is a generic C++ class (eg wxWindow), but

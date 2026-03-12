@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_object # not a typical window
+        spec.gc_as_marked # not a typical window
         spec.no_proxy('wxMenuBar::FindItem',
                 'wxMenuBar::Remove',
                 'wxMenuBar::Replace')
@@ -28,71 +28,110 @@ module WXRuby3
         spec.new_object 'wxMenuBar::Remove', 'wxMenuBar::Replace'
         # for FindItem
         spec.map 'wxMenu **' => 'Wx::Menu' do
+          add_header_code 'WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuInRuby(wxMenu* wx_menu);'
           map_in ignore: true, temp: 'wxMenu *tmp', code: '$1 = &tmp;'
           map_argout code: <<~__CODE
-            void *ptr = tmp$argnum;
-            $result = SWIG_Ruby_AppendOutput($result, SWIG_NewPointerObj(ptr, SWIGTYPE_p_wxMenu, 0));
+            $result = SWIG_Ruby_AppendOutput($result, wxRuby_WrapWxMenuInRuby(tmp$argnum));
             __CODE
         end
         spec.add_header_code <<~__HEREDOC
-          WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
+          static void GC_mark_wxMenuBar(const TGCTrackingValueMap& values);
 
-          // forward decl
-          SWIGINTERN void free_wxMenuBar(void *self);
+          // Custom subclass implementation. 
+          // Provides support for monitored tracking and  GC handling.
+          class wxRubyMenuBar : public wxMenuBar
+          {
+          public:
+            static const std::string TRACKING_CAT;
+
+            wxRubyMenuBar(long style=0) : wxMenuBar(style) {} 
+            virtual ~wxRubyMenuBar()
+            {
+              wxRuby_ReleaseEvtHandlerProcs(this); 
+              wxruby_unregister();              
+            }
+
+            void wxruby_register(VALUE rb_menubar)
+            {
+              if (!is_registered_)
+              {
+                wxRuby_RegisterTrackingCategory(TRACKING_CAT, GC_mark_wxMenuBar, true);
+                is_registered_ = true;
+              }
+              if (RB_NIL_P(wxRuby_FindCategoryValue(TRACKING_CAT, this)))
+                wxRuby_RegisterCategoryValue(TRACKING_CAT, this, rb_menubar);
+            }
+          private:
+            static bool is_registered_;
+            void wxruby_unregister()
+            {
+              wxRuby_UnregisterCategoryValue(TRACKING_CAT, this);
+            }
+          };
+
+          const std::string wxRubyMenuBar::TRACKING_CAT = { "WXRUBY_MENU_BAR" };
+          bool wxRubyMenuBar::is_registered_ {};
+
+          WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
 
           // Mark Function for unattached menu bars
           // Need to protect Menu and MenuItems which are included in the MenuBar
-          static void GC_mark_wxMenuBar(void *ptr) 
+          static void GC_mark_wxMenuBar(const TGCTrackingValueMap& values)
           {
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
               WXRUBY_TRACE("> GC_mark_wxMenuBar : " << ptr)
             WXRUBY_TRACE_END
           
-            VALUE rb_menu_bar = SWIG_RubyInstanceFor(ptr);
-            if (!RB_NIL_P(rb_menu_bar))
+            for (const auto& ti : values)
             {
-              // as long as the dfree function is still the managed free function the menubar has not been attached to a window
-              // but it may hay have already had menus and/or menuitems added which need to be marked
-              if (RDATA(rb_menu_bar)->dfree == free_wxMenuBar)
-              {
-                // Menu bars are also a subclass of wxWindow, so must do all the marking
-                // of sizers and carets associated with that class
-                GC_mark_wxWindow(ptr);
+              rb_gc_mark(ti.second);
 
-                wxMenuBar* wx_menu_bar = static_cast<wxMenuBar*> (ptr);
-          
-                WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 3)
-                  WXRUBY_TRACE("< GC_mark_wxMenuBar : marking " << wx_menu_bar->GetMenuCount() << " menus")
-                WXRUBY_TRACE_END
-            
-                // Mark each menu in the menubar in turn
-                for ( size_t i = 0; i < wx_menu_bar->GetMenuCount(); i++ )
-                {
-                  GC_mark_attached_wxMenu(wx_menu_bar->GetMenu(i));
-                }
-              }
-              else // otherwise the menu bar has been attached to a frame and may already have been deleted (or not)
-              {    // marking in this case will be left to the frame
-                WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 3)
-                  WXRUBY_TRACE("< GC_mark_wxMenuBar : skipping attached menu bar")
-                WXRUBY_TRACE_END
-              }
+              // Menu bars are also a subclass of wxWindow, so must do all the marking
+              // of sizers and carets associated with that class
+              GC_mark_wxWindow(ti.first);
+
+              // no need to mark anything else as menus are tracked themselves separately
             }
-            else
-            {
-              WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 3)
-                WXRUBY_TRACE("< GC_mark_wxMenuBar : skipping untracked menu bar (should not have happened)")
-              WXRUBY_TRACE_END
-            } 
           
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
               WXRUBY_TRACE("< GC_mark_wxMenuBar : " << ptr)
             WXRUBY_TRACE_END
           }
-        __HEREDOC
-        spec.add_swig_code <<~__HEREDOC
-          %markfunc wxMenu "GC_mark_wxMenuBar";
-        __HEREDOC
+
+          WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar* wx_menubar)
+          {
+            VALUE rb_menubar = Qnil;
+            if (wx_menubar)
+            {   
+              rb_menubar = wxRuby_FindCategoryValue(wxRubyMenuBar::TRACKING_CAT, wx_menubar); // check for already registered instance
+              if (NIL_P(rb_menubar))
+              {
+                // newly created
+                wxRubyMenuBar* wxrb_mb = dynamic_cast<wxRubyMenuBar*> (wx_menubar);
+                if (wxrb_mb)
+                {
+                  // convert and own
+                  rb_menubar = SWIG_NewPointerObj(SWIG_as_voidptr(wxrb_mb), SWIGTYPE_p_wxMenuBar, SWIG_POINTER_OWN);
+                  wxrb_mb->wxruby_register(rb_menubar);
+                }
+                else
+                {
+                  // created internally by wxWidgets; no tracking and no ownership
+                  rb_menubar = SWIG_NewPointerObj(SWIG_as_voidptr(wx_menubar), SWIGTYPE_p_wxMenuBar, 0);
+                }
+              }
+            }
+            return rb_menubar;
+          }
+
+          WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar)
+          {
+            wxRubyMenuBar* wxrb_mb = dynamic_cast<wxRubyMenuBar*> (wx_menubar);
+            if (wxrb_mb) wxrb_mb->wxruby_register(rb_menubar);              
+          }
+          __HEREDOC
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxMenuBar', 'wxRubyMenuBar')
       end
     end # class MenuBar
 

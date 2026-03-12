@@ -147,28 +147,34 @@ module WXRuby3
           static WxRuby_ID ios_close_id("close");
 
           // Mapping of wxStreamBase* to Ruby IO VALUE
-          WX_DECLARE_VOIDPTR_HASH_MAP(VALUE,
-                                      WXRBStreamBaseToRbValueHash);
-          static WXRBStreamBaseToRbValueHash Stream_Value_Map;
 
-          static void wxRuby_markRbStreams()
+          // tracking category
+          static const std::string WXRUBY_RUBY_IO_STREAMS = {"WXRUBY_RUBY_IO_STREAMS"};
+
+          static void wxRuby_markRbStreams(const TGCTrackingValueMap& values)
           {
-            WXRBStreamBaseToRbValueHash::iterator it;
-            for( it = Stream_Value_Map.begin(); it != Stream_Value_Map.end(); ++it )
+            for(const auto& ti : values)
             {
-              VALUE obj = it->second;
+              VALUE obj = ti.second;
               rb_gc_mark(obj);
             }
           }
 
           static void wxRuby_RegisterStream(void* ptr, VALUE rbval)
           {
-            Stream_Value_Map[ptr] = rbval;
+            static bool is_marker_registered = false;
+
+            if (!is_marker_registered)
+            {
+              wxRuby_RegisterTrackingCategory(WXRUBY_RUBY_IO_STREAMS, wxRuby_markRbStreams);
+              is_marker_registered = true;
+            }
+            wxRuby_RegisterCategoryValue(WXRUBY_RUBY_IO_STREAMS, ptr, rbval); 
           }
 
           static void wxRuby_UnregisterStream(void* ptr)
           {
-            Stream_Value_Map.erase(ptr);
+            wxRuby_UnregisterCategoryValue(WXRUBY_RUBY_IO_STREAMS, ptr);
           }
 
           // Implementation for wxRubyInputStream
@@ -373,7 +379,6 @@ module WXRuby3
             }
           }
           __CODE
-        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRbStreams);'
       end
 
       def process(gendoc: false)

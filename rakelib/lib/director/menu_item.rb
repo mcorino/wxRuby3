@@ -24,8 +24,8 @@ module WXRuby3
         spec.ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText])
         # Replace for more specific param naming
         spec.ignore 'wxMenuItem::SetSubMenu(wxMenu *)', ignore_doc: false
-        spec.extend_interface 'wxMenuItem', 'void SetSubMenu(wxMenu *sub_menu)'
-        spec.disown 'wxMenu *sub_menu'
+        spec.extend_interface 'wxMenuItem', 'void SetSubMenu(wxMenu *subMenu)'
+        spec.disown 'wxMenu *subMenu'
         # ignore this as there is no implementation anymore
         spec.ignore 'wxMenuItem::GetAccelFromString'
         spec.ignore_unless('USE_ACCEL', 'wxMenuItem::GetAccel')

@@ -102,7 +102,7 @@ module WXRuby3
           __HEREDOC
         spec.add_header_code <<~__HEREDOC
           // define the richtext buffer marker
-          static void wxRuby_markRichTextBuffer()
+          static void wxRuby_markRichTextBuffer(const TGCTrackingValueMap& /*unused*/)
           {
             // mark any user installed drawing handlers
             wxList& handlers = wxRichTextBuffer::GetDrawingHandlers();
@@ -125,7 +125,10 @@ module WXRuby3
           }
           __HEREDOC
         # register the marker at module initialization
-        spec.add_init_code 'wxRuby_AppendMarker(wxRuby_markRichTextBuffer);'
+        spec.add_init_code <<~__HEREDOC
+          const std::string WXRUBY_RICHTEXT_BUFFER = {"WXRUBY_RICHTEXT_BUFFER"};
+          wxRuby_RegisterTrackingCategory(WXRUBY_RICHTEXT_BUFFER, wxRuby_markRichTextBuffer);
+          __HEREDOC
         # for GetExtWildcard
         spec.map 'wxArrayInt* types' => 'Array,nil' do
 

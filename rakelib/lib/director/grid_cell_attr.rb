@@ -39,9 +39,7 @@ module WXRuby3
         spec.ignore('wxGridCellAttr::GetEditorPtr',
                     'wxGridCellAttr::GetRendererPtr')
         # these require wxRuby to take ownership (ref counted)
-        spec.new_object('wxGridCellAttr::Clone',
-                        'wxGridCellAttr::GetEditor',
-                        'wxGridCellAttr::GetRenderer')
+        spec.new_object('wxGridCellAttr::Clone')
         # type mapping for wxGridCellEditor* return ref
         spec.map 'wxGridCellEditor*' => 'Wx::GRID::GridCellEditor' do
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce);',

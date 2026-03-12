@@ -22,9 +22,13 @@ public:
 
   virtual ~wxRubyApp()
   {
-#ifdef __WXTRACE__
-  std::wcout << "~wxRubyApp" << std::endl;
-#endif
+    WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
+      WXRUBY_TRACE("> ~wxRubyApp this=" << this)
+    WXRUBY_TRACE_END
+
+    // app is also event handler, so cleanup
+    wxRuby_ReleaseEvtHandlerProcs(this);
+
     // unlink
     if (this->self_ != Qnil)
     {
@@ -54,39 +58,9 @@ public:
 
   bool IsRunning() const { return this->is_running_; }
 
-  // When ruby's garbage collection runs, if the app is still active, it
-  // cycles through all currently known SWIG objects and calls this
-  // function on each to preserve still active Wx::Windows, and also
-  // pending Wx::Events which have been queued from the Ruby side (the
-  // only sort of events that will be in the tracking hash.
-  static void markIterate(void* ptr, VALUE rb_obj)
-  {
-    // Check if it's a valid object (sometimes SWIG doesn't return what we're
-    // expecting), a descendant of Wx::Window (but not a Dialog), and if it has not yet been
-    // deleted by WxWidgets; if so, mark it.
-    if ( TYPE(rb_obj) == T_DATA )
-    {
-      if ( rb_obj_is_kind_of(rb_obj, wxRuby_GetWindowClass()) )
-      {
-        rb_gc_mark(rb_obj);
-      }
-      else if (rb_obj_is_kind_of(rb_obj, wxRuby_GetDefaultEventClass()) )
-        rb_gc_mark(rb_obj);
-    }
-//    else if (TYPE(rb_obj) == T_ARRAY )
-//    {
-//      VALUE proc = rb_ary_entry(rb_obj, 0);
-//      if (rb_obj_is_kind_of(proc, rb_cProc) || rb_obj_is_kind_of(proc, rb_cMethod))
-//      {
-//        // keep the async call alive
-//        rb_gc_mark(rb_obj);
-//      }
-//    }
-  }
-
   // Implements GC protection across wxRuby. Always called because
   // Wx::THE_APP is a constant so always checked in GC mark phase.
-  static void mark_wxRubyApp(void *ptr)
+  static void GC_mark_wxRubyApp(void *ptr)
   {
     WXRUBY_TRACE_IF(WxRubyTraceMarkApp, 1)
       WXRUBY_TRACE(">=== Starting App GC mark phase")
@@ -116,16 +90,8 @@ public:
     // classes/EvtHandler.i
     wxRuby_MarkProtectedEvtHandlerProcs();
 
-    // run registered markers
-    for (wxVector<WXRBMarkFunction>::iterator it = WXRuby_Mark_List.begin();
-          it != WXRuby_Mark_List.end() ;++it)
-    {
-      (*it) ();
-    }
-
-    // To do the main marking, primarily of Windows, iterate over SWIG's
-    // list of tracked objects
-    wxRuby_IterateTracking(&wxRubyApp::markIterate);
+    // Mark all tracked objects (as applicable)
+    wxRuby_MarkTracked();
 
     WXRUBY_TRACE_IF(WxRubyTraceMarkApp, 1)
       WXRUBY_TRACE("<=== App GC mark phase completed")

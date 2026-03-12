@@ -93,6 +93,21 @@ module WXRuby3
               }
               __CODE
           end
+          spec.add_header_code <<~__HEREDOC
+              // custom subclass for Ruby (derived) instances to cleanup event handler procs on destruction 
+              class wxRubyEvtHandler : public wxEvtHandler
+              {
+              public:
+                wxRubyEvtHandler() : wxEvtHandler() {}
+                virtual ~wxRubyEvtHandler()
+                {
+                  wxRuby_ReleaseEvtHandlerProcs(this); 
+                }
+              };
+          
+            __HEREDOC
+          # make Ruby director and wrappers use custom implementation
+          spec.use_class_implementation('wxEvtHandler', 'wxRubyEvtHandler')
           spec.add_runtime_code <<~__HEREDOC
             WXRUBY_TRACE_GUARD(WxRubyTraceEventHandlers, "EVENTS_HANDLER");
             
@@ -153,33 +168,27 @@ module WXRuby3
             // GC until the EvtHandler object itself is destroyed. So we keep a hash
             // which maps C++ pointer addresses of EvtHandlers to lists of
             // the callback objects created to handle their events.
-            typedef wxVector<wxRbCallback*> EvtHandlerProcList;
-            typedef EvtHandlerProcList* EvtHandlerProcListPtr;
-            WX_DECLARE_VOIDPTR_HASH_MAP(EvtHandlerProcListPtr, PtrToEvtHandlerProcs);
-            PtrToEvtHandlerProcs Evt_Handler_Handlers;
+            #include <set>
+            typedef std::set<wxRbCallback*> TEvtHandlerProcs;
+            typedef std::unordered_map<void*, TEvtHandlerProcs> TPtrToEvtHandlerProcs; 
+            static TPtrToEvtHandlerProcs _s__Evt_Handler_Handlers {};
             
             // Add a proc to the list of protected handler for an EvtHandler object
             void wxRuby_ProtectEvtHandlerProc(void* evt_handler, wxRbCallback* proc_cb) 
             {
-              if (Evt_Handler_Handlers.count(evt_handler) == 0)
-                Evt_Handler_Handlers[evt_handler] = new EvtHandlerProcList();
-              Evt_Handler_Handlers[evt_handler]->push_back(proc_cb);
+              _s__Evt_Handler_Handlers[evt_handler].emplace(proc_cb);
             }
             
             static void wxRuby_ReleaseEvtHandlerProc(void* evt_handler, wxRbCallback* proc_cb) 
             {        
-              if (Evt_Handler_Handlers.count(evt_handler) != 0)
+              auto itevh = _s__Evt_Handler_Handlers.find(evt_handler);
+              if (itevh != _s__Evt_Handler_Handlers.end())
               {
-                EvtHandlerProcList *ehpl = Evt_Handler_Handlers[evt_handler];
-                for (EvtHandlerProcList::iterator itproc = ehpl->begin();
-                     itproc != ehpl->end();
-                     itproc++)
+                auto itproc = itevh->second.find(proc_cb); 
+                if (itproc != itevh->second.end())
                 {
-                  if (proc_cb == (*itproc))
-                  {
-                    ehpl->erase(itproc);
-                    return;
-                  }
+                  itevh->second.erase(itproc);
+                  return;
                 }
               }
             }
@@ -187,16 +196,11 @@ module WXRuby3
             // Called by App's mark function; protect all currently needed procs
             void wxRuby_MarkProtectedEvtHandlerProcs() 
             {
-              PtrToEvtHandlerProcs::iterator it;
-              for( it = Evt_Handler_Handlers.begin(); 
-                   it != Evt_Handler_Handlers.end(); 
-                   ++it )
+              for(const auto& ehp :_s__Evt_Handler_Handlers )
               {
-                for (EvtHandlerProcList::iterator itproc = it->second->begin();
-                     itproc != it->second->end();
-                     itproc++)
+                for (const wxRbCallback* rb_cp : ehp.second)
                 {
-                  rb_gc_mark((*itproc)->m_func);
+                  rb_gc_mark(rb_cp->m_func);
                 }
               }
             }
@@ -206,10 +210,10 @@ module WXRuby3
             // swig/mark_free_impl.i
             WXRUBY_EXPORT void wxRuby_ReleaseEvtHandlerProcs(void* evt_handler) 
             {
-              if (Evt_Handler_Handlers.count(evt_handler) != 0)
+              auto itevh = _s__Evt_Handler_Handlers.find(evt_handler);
+              if (itevh != _s__Evt_Handler_Handlers.end())
               {
-                delete Evt_Handler_Handlers[evt_handler];
-                Evt_Handler_Handlers.erase(evt_handler);
+                _s__Evt_Handler_Handlers.erase(itevh);
               }
             }
 

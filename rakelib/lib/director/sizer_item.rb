@@ -46,11 +46,10 @@ module WXRuby3
             {
               if ($self->IsSizer())
               {
-                VALUE rb_szr = SWIG_RubyInstanceFor($self->GetSizer());
-                if (rb_szr && !NIL_P(rb_szr))
+                if (!RB_NIL_P(SWIG_RubyInstanceFor($self->GetSizer())))
                 {
-                  // transfer ownership to Ruby
-                  RDATA(rb_szr)->dfree = GcSizerFreeFunc;            
+                  // have SWIG transfer ownership of Ruby value       
+                  SWIG_NewPointerObj($self->GetSizer(), SWIGTYPE_p_wxSizer, SWIG_POINTER_OWN);
                 }
                 $self->DetachSizer();
               }              
