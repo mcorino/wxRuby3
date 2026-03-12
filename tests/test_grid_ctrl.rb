@@ -113,7 +113,7 @@ class GridCtrlTests < WxRuby::Test::GUITests
     grid.disable_cell_edit_control
     assert_equal("'hello world'", grid.get_cell_value(1, 1))
 
-    unless Wx::PLATFORM == "WXOSX"
+    unless is_ci_build? && Wx::PLATFORM == "WXOSX"
       grid.set_grid_cursor([4, 3])
       grid.enable_cell_edit_control
       grid.get_cell_editor(4, 3).get_control.set_selection(1)
