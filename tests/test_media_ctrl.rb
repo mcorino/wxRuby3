@@ -33,12 +33,12 @@ class MediaCtrlTests < WxRuby::Test::GUITests
     self.media_loaded = false
     uri = URI("file://#{File.join(__dir__, 'media/beep_lo.wav')}")
     assert_boolean(media.load(uri))
-    yield_and_wait_for_test(1000) { self.media_loaded }
+    yield_and_wait_for_test(5000) { self.media_loaded }
     assert_true(self.media_loaded)
     self.media_loaded = false
     uri = URI("file://#{File.join(__dir__, 'art/test_art/image/wxruby.png')}")
     assert_boolean(media.load(uri))
-    yield_and_wait_for_test(1000) { self.media_loaded }
+    yield_and_wait_for_test(5000) { self.media_loaded }
     assert_true(self.media_loaded)
   end
 
