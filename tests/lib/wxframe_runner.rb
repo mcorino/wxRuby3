@@ -184,6 +184,19 @@ module WxRuby
         GUITests.yield_for_a_while(msec)
       end
 
+      def self.yield_and_wait_for_test(msec, &block)
+        timeout = msec / 1000.0 # sec float
+        start = ::Time.now
+        while (Time.now - start) < timeout
+          Wx.get_app.yield
+          return if block.call
+        end
+      end
+
+      def yield_and_wait_for_test(msec, &block)
+        GUITests.yield_and_wait_for_test(msec, &block)
+      end
+
       def self.has_ui_simulator?
         Wx.has_feature?(:USE_UIACTIONSIMULATOR) && (Wx::PLATFORM != 'WXGTK' || !uses_wayland?) && (Wx::PLATFORM != 'WXOSX' || Wx::WXWIDGETS_VERSION >= '3.3')
       end
