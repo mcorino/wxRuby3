@@ -34,7 +34,7 @@ class ButtonTests < WxRuby::Test::GUITests
 
     # This test occasionally fails in MSW/OSX CI builds but rarely
     # in local builds
-    unless Wx::PLATFORM != 'WXGTK' && is_ci_build?
+    unless !is_gtk? && is_ci_build?
       assert_equal(1, count)
     end
   end
@@ -153,7 +153,7 @@ class TextCtrlTests < WxRuby::Test::GUITests
 
         # This test occasionally fails in MSW/OSX CI builds but rarely
         # in local builds
-        unless Wx::PLATFORM != 'WXGTK' && is_ci_build?
+        unless !is_gtk? && is_ci_build?
           assert_equal('Hello', text_entry.get_value)
           assert_equal(5, c_upd.count)
         end
@@ -163,7 +163,7 @@ class TextCtrlTests < WxRuby::Test::GUITests
 
         # This test occasionally fails in MSW/OSX CI builds but rarely
         # in local builds
-        unless Wx::PLATFORM != 'WXGTK' && is_ci_build?
+        unless !is_gtk? && is_ci_build?
           assert_equal('HelloWorld', text_entry.get_value)
           assert_equal(10, c_upd.count)
           assert_equal(0, c_maxlen.count)
@@ -173,7 +173,7 @@ class TextCtrlTests < WxRuby::Test::GUITests
 
         # This test occasionally fails in MSW/OSX CI builds but rarely
         # in local builds
-        unless Wx::PLATFORM != 'WXGTK' && is_ci_build?
+        unless !is_gtk? && is_ci_build?
           assert_equal('HelloWorld', text_entry.get_value)
           assert_equal(10, c_upd.count)
           assert_equal(1, c_maxlen.count)
@@ -502,7 +502,7 @@ class StaticBoxTests < WxRuby::Test::GUITests
     assert_equal(box, txt.parent)
   end
 
-  unless Wx::PLATFORM == 'WXOSX'
+  unless is_macos?
 
   def test_label_window
     check = Wx::CheckBox.new(frame_win, Wx::ID_ANY, 'Enable')

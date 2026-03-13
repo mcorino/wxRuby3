@@ -66,7 +66,7 @@ class FontTests < WxRuby::Test::Unit
     font = Wx::Font.new
     font.set_numeric_weight(123)
 
-    assert_equal(123, font.get_numeric_weight) unless Wx::PLATFORM == 'WXOSX'
+    assert_equal(123, font.get_numeric_weight) unless is_macos?
 
     assert_equal(Wx::FontWeight::FONTWEIGHT_THIN,  font.get_weight)
 
@@ -87,7 +87,7 @@ class FontTests < WxRuby::Test::Unit
 
       # if the call to set_face_name() below fails on your system/port,
       # consider adding another branch to this if
-      known_good_face_name = if Wx::PLATFORM == 'WXMSW' || Wx::PLATFORM == 'WXOSX'
+      known_good_face_name = if is_msw? || is_macos?
                                "Arial"
                              else
                                "Monospace"
@@ -138,7 +138,7 @@ class FontTests < WxRuby::Test::Unit
       # on wxMSW Wx::FONTSTYLE_SLANT==Wx::FONTSTYLE_ITALIC, so accept the latter
       # as a valid value too.
       if ( test.get_style != Wx::FONTSTYLE_SLANT )
-        assert( Wx::PLATFORM == 'WXMSW' && Wx::FONTSTYLE_ITALIC == test.get_style )
+        assert( is_msw? && Wx::FONTSTYLE_ITALIC == test.get_style )
       end
 
       # test get/set_underlined()
@@ -184,7 +184,7 @@ class FontTests < WxRuby::Test::Unit
         puts("original font user description: #{test.get_native_font_info_user_desc}") unless is_ci_build?
         puts("the other font description: #{temp.get_native_font_info_user_desc}") unless is_ci_build?
 
-        assert_equal( temp, test ) unless Wx::PLATFORM == 'WXOSX'
+        assert_equal( temp, test ) unless is_macos?
     end
 
     # test that clearly invalid font info strings do not work
@@ -202,17 +202,17 @@ class FontTests < WxRuby::Test::Unit
     font.set_underlined(true)
     font.set_strikethrough(true)
     assert(font == Wx::Font.new(font))
-    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless Wx::PLATFORM == 'WXOSX'
+    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless is_macos?
     assert(Wx::Font.new(font.get_native_font_info_desc).get_underlined)
     assert(Wx::Font.new(font.get_native_font_info_desc).get_strikethrough)
     font.set_underlined(false)
     assert(font == Wx::Font.new(font))
-    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless Wx::PLATFORM == 'WXOSX'
+    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless is_macos?
     assert(!Wx::Font.new(font.get_native_font_info_desc).get_underlined)
     font.set_underlined(true)
     font.set_strikethrough(false)
     assert(font == Wx::Font.new(font))
-    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless Wx::PLATFORM == 'WXOSX'
+    assert(font == Wx::Font.new(font.get_native_font_info_desc)) unless is_macos?
     assert(Wx::Font.new(font.get_native_font_info_desc).get_underlined)
     assert(!Wx::Font.new(font.get_native_font_info_desc).get_strikethrough)
   end
