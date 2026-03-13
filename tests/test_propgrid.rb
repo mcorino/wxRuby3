@@ -180,7 +180,7 @@ class PropGridTests < WxRuby::Test::GUITests
     prop.set_attribute(Wx::PG::PG_DIALOG_TITLE,"Custom File Dialog Title")
     prop.set_attribute(Wx::PG::PG_FILE_SHOW_FULL_PATH,false)
 
-    if Wx::PLATFORM == 'WXMSW'
+    if is_msw?
       prop.set_attribute(Wx::PG::PG_FILE_SHOW_RELATIVE_PATH,"C:\\Windows")
       pg.set_property_value(prop,"C:\\Windows\\System32\\msvcrt71.dll")
     end

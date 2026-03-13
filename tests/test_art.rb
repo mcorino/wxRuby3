@@ -59,16 +59,16 @@ class TestArt < WxRuby::Test::Unit
     assert_instance_of(Wx::Bitmap, bundle.get_bitmap([256,256]))
   end
 
-  if Wx::PLATFORM == 'WXMSW'
+  if is_msw?
 
-  def test_cursors
-    cursor = nil
-    assert_nothing_raised do
-      cursor = Wx.Cursor(:wxruby)
+    def test_cursors
+      cursor = nil
+      assert_nothing_raised do
+        cursor = Wx.Cursor(:wxruby)
+      end
+      assert_instance_of(Wx::Cursor, cursor)
+      assert(cursor.ok?)
     end
-    assert_instance_of(Wx::Cursor, cursor)
-    assert(cursor.ok?)
-  end
 
   end
 

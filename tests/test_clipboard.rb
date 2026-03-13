@@ -142,7 +142,7 @@ class TestDataObjectComposite < WxRuby::Test::Unit
     bmp = Wx::Bitmap.new(File.join(__dir__, '../samples/minimal/mondrian.png'))
 
     d_obj.add( Wx::BitmapDataObject.new )
-    if Wx::PLATFORM == 'WXMSW'
+    if is_msw?
       assert_equal( 1, d_txt.get_format_count(Wx::DataObject::Direction::Get) )
       assert_equal( 2, d_obj.get_format_count(Wx::DataObject::Direction::Get) )
     else
@@ -170,7 +170,7 @@ class TestDataObjectComposite < WxRuby::Test::Unit
 
     GC.start
 
-    if Wx::PLATFORM == 'WXMSW'
+    if is_msw?
       assert_equal d_obj.received_format.get_type, Wx::DF_DIB.get_type
       d_bmp = d_obj.get_object(Wx::DF_DIB)
     else
@@ -206,7 +206,7 @@ class TestDataObjectComposite < WxRuby::Test::Unit
     GC.start
 
     assert_equal d_obj_2.received_format.get_type, d_txt.get_preferred_format(Wx::DataObject::Direction::Set).get_type
-    if Wx::PLATFORM == 'WXMSW'
+    if is_msw?
       d_txt = d_obj_2.get_object(Wx::DF_UNICODETEXT)
     else
       d_txt = d_obj_2.get_object(Wx::DF_TEXT)
@@ -218,7 +218,7 @@ class TestDataObjectComposite < WxRuby::Test::Unit
     d_obj_2 = Wx::DataObjectComposite.new
     d_obj_2.add Wx::TextDataObject.new
     d_obj_2.add MySimpleIntArrayObject.new([1,2,3,4,5])
-    if Wx::PLATFORM == 'WXMSW'
+    if is_msw?
       assert_equal( 2, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )
     else
       assert_equal( 3, d_obj_2.get_format_count(Wx::DataObject::Direction::Get) )

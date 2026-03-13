@@ -204,15 +204,15 @@ class TestConfig < WxRuby::Test::Unit
     # by default expansion is on
 
     # Cirrus CI Linux builds run in privileged container without proper user env
-    has_user = Wx::PLATFORM == 'WXMSW' || ENV['USER']
+    has_user = is_msw? || ENV['USER']
 
     # add a number of entries for env var in new group 'Environment'
     cfg['/Environment/HOME'] = '$HOME'
-    cfg['Environment'].USER = Wx::PLATFORM == 'WXMSW' ? '%USERNAME%' : '${USER}' if has_user
+    cfg['Environment'].USER = is_msw? ? '%USERNAME%' : '${USER}' if has_user
     cfg['/Environment/PATH'] = '$(PATH)'
 
     assert_equal(ENV['HOME'], cfg.Environment['HOME'])
-    assert_equal(ENV[Wx::PLATFORM == 'WXMSW' ?  'USERNAME' : 'USER'], cfg['/Environment/USER']) if has_user
+    assert_equal(ENV[is_msw? ?  'USERNAME' : 'USER'], cfg['/Environment/USER']) if has_user
     assert_equal(ENV['PATH'], cfg.Environment.PATH)
 
     # test escaping
@@ -228,9 +228,9 @@ class TestConfig < WxRuby::Test::Unit
 
     assert_equal('${NonExistingLongNonsenseVariable}', cfg.Environment['NONSENSE'])
 
-    cfg['/Environment/MULTIPLE'] = "$HOME / #{Wx::PLATFORM == 'WXMSW' ? '%USERNAME%' : '${USER}'}" if has_user
+    cfg['/Environment/MULTIPLE'] = "$HOME / #{is_msw? ? '%USERNAME%' : '${USER}'}" if has_user
 
-    assert_equal("#{ENV['HOME']} / #{Wx::PLATFORM == 'WXMSW' ? ENV['USERNAME'] : ENV['USER']}", cfg.Environment['MULTIPLE']) if has_user
+    assert_equal("#{ENV['HOME']} / #{is_msw? ? ENV['USERNAME'] : ENV['USER']}", cfg.Environment['MULTIPLE']) if has_user
 
     # disable env var expansion
     cfg.expand_env_vars = false
@@ -272,7 +272,7 @@ class TestConfig < WxRuby::Test::Unit
   end
 
   # default registry based config does not seem to do well in CI build env
-  unless is_ci_build? && Wx::PLATFORM == 'WXMSW'
+  unless is_ci_build? && is_msw?
 
   def test_default_wx
     Wx::ConfigBase.set(nil) # reset global instance

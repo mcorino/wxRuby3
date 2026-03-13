@@ -7,7 +7,7 @@ require_relative './lib/wxapp_runner'
 class FileDialogTests < WxRuby::Test::Unit
 
   def dialog_tester(dlg, rc=Wx::ID_OK)
-    if Wx::PLATFORM == 'WXGTK'
+    if is_gtk?
       timer = Wx::Timer.new(dlg)
       dlg.evt_timer(timer) { dlg.end_modal(rc) }
       timer.start_once(2000)
@@ -28,9 +28,9 @@ class FileDialogTests < WxRuby::Test::Unit
 
   class FileDialogTestCustomization < Wx::FileDialogCustomizeHook
 
-    def initialize
-      super
-      @hooked = Wx::PLATFORM != 'WXGTK'
+    def initialize(hooked)
+      super()
+      @hooked = hooked
     end
 
     attr_reader :hooked
@@ -44,7 +44,7 @@ class FileDialogTests < WxRuby::Test::Unit
 
   def test_customized_file_dialog
     dlg = Wx::FileDialog.new(nil, 'Select file')
-    hook = FileDialogTestCustomization.new
+    hook = FileDialogTestCustomization.new(!is_gtk?)
     dlg.set_customize_hook(hook)
     GC.start
     assert_equal(Wx::ID_OK, dialog_tester(dlg))

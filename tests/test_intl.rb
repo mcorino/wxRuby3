@@ -91,7 +91,7 @@ class TestInternationalisation < WxRuby::Test::Unit
     assert_raises(ArgumentError) { Wx::Locale.set_locale('bad') }
     # this causes problems on MacOSX if the language / region combination is unusual
     # like on my system (US English language / NL region)
-    unless Wx::PLATFORM == 'WXOSX'
+    unless is_macos?
       locale = Wx::Locale.new(Wx::LANGUAGE_DEFAULT)
     end
   end

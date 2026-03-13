@@ -53,7 +53,7 @@ class TopLevelPersistenceTests < WxRuby::Test::GUITests
   end
 
   # default registry based config does not seem to do well in CI build env
-  unless is_ci_build? && Wx::PLATFORM == 'WXMSW'
+  unless is_ci_build? && is_msw?
 
   def test_frame_props_default_config
     # force creation of default C++ config instance

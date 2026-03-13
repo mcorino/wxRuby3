@@ -54,7 +54,7 @@ class WindowTests < WxRuby::Test::GUITests
   if has_ui_simulator?
 
     def test_key_event
-      if Wx::PLATFORM == 'WXGTK' || !is_ci_build?
+      if is_gtk? || !is_ci_build?
         count_events(window, :evt_key_down) do |c_keydown|
           count_events(window, :evt_key_up) do |c_keyup|
             count_events(window, :evt_char) do |c_keychar|
@@ -80,7 +80,7 @@ class WindowTests < WxRuby::Test::GUITests
   end
 
   def test_focus_event
-    if Wx::PLATFORM != 'WXOSX'
+    unless is_macos?
       count_events(window, :evt_set_focus) do |c_setfocus|
         count_events(window, :evt_kill_focus) do |c_killfocus|
           window.set_focus
@@ -247,7 +247,7 @@ class WindowTests < WxRuby::Test::GUITests
   end
 
   def test_focus
-    if Wx::PLATFORM != 'WXOSX'
+    unless is_macos?
       assert(!window.has_focus)
 
       if window.accepts_focus

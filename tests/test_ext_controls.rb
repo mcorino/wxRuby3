@@ -158,7 +158,7 @@ class CommandLinkButtonTests < WxRuby::Test::GUITests
       end
 
       # intermittent failures in OSX CI builds
-      unless Wx::PLATFORM == 'WXOSX' && is_ci_build?
+      unless is_macos? && is_ci_build?
         assert_equal(1, count)
       end
     end
@@ -213,7 +213,7 @@ class SpinCtrlTests < WxRuby::Test::GUITests
         sim.key_down(Wx::KeyCode::K_UP)
         sim.key_up(Wx::KeyCode::K_UP)
       end
-      unless Wx::PLATFORM == 'WXOSX' && is_ci_build?
+      unless is_macos? && is_ci_build?
         assert_equal(1, count)
         assert_equal(1, spin.value)
       end
@@ -257,7 +257,7 @@ class SpinCtrlDoubleTests < WxRuby::Test::GUITests
         sim.key_down(Wx::KeyCode::K_UP)
         sim.key_up(Wx::KeyCode::K_UP)
       end
-      unless Wx::PLATFORM == 'WXOSX' && is_ci_build?
+      unless is_macos? && is_ci_build?
         assert_equal(1, count)
         assert_equal(1.0, spin.value)
       end

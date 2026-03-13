@@ -25,7 +25,7 @@ module TextEntryTests
     updates = count_events(text_entry, :evt_text) do |c_upd|
 
       # WXQT only sends event when text changes
-      unless Wx::PLATFORM == 'WXQT'
+      unless is_qt?
         text_entry.value = ''
         assert_equal(1, c_upd.count)
         c_upd.count = 0
@@ -36,7 +36,7 @@ module TextEntryTests
       c_upd.count = 0
 
       # WXQT only sends event when text changes
-      unless Wx::PLATFORM == 'WXQT'
+      unless is_qt?
         text_entry.value = 'foo'
         assert_equal(1, c_upd.count)
         c_upd.count = 0

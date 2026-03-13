@@ -32,6 +32,38 @@ module WxRuby
 
     class Unit < Minitest::Test
 
+      def self.is_macos?
+        Wx::PLATFORM == 'WXOSX'
+      end
+
+      def is_macos?
+        Unit.is_macos?
+      end
+
+      def self.is_msw?
+        Wx::PLATFORM == 'WXMSW'
+      end
+
+      def is_msw?
+        Unit.is_msw?
+      end
+
+      def self.is_gtk?
+        Wx::PLATFORM == 'WXGTK'
+      end
+
+      def is_gtk?
+        Unit.is_gtk?
+      end
+
+      def self.is_qt?
+        Wx::PLATFORM == 'WXQT'
+      end
+
+      def is_qt?
+        Unit.is_qt?
+      end
+
       def self.is_ci_build?
         (ENV['GITHUB_ACTION'] || ENV['CI'])
       end
