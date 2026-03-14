@@ -23,7 +23,6 @@ module Wx
   FRAME_NAME_STR = 'frame'
   STATUS_LINE_NAME_STR = 'status_line'
   STATIC_BITMAP_NAME_STR = 'staticBitmap'
-  WEB_VIEW_NAME_STR = 'wxWebView'
   ANIMATION_CTRL_NAME_STR = 'animationctrl'
   TOOL_BAR_NAME_STR = 'toolbar'
   TEXT_CTRL_NAME_STR = 'text'
