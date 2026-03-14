@@ -8,38 +8,41 @@
 
 module Wx
 
-  WEB_VIEW_DEFAULT_URL_STR = 'about:blank'
-  case Wx::PLATFORM
-  when 'WXOSX'
-    if Wx.has_feature?(:USE_WEBVIEW_WEBKIT)
-      WEB_VIEW_BACKEND_DEFAULT = 'wxWebViewWebKit'
-    elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
-      WEB_VIEW_BACKEND_DEFAULT = 'wxWebViewChromium'
-    else
-      WEB_VIEW_BACKEND_DEFAULT = ''
-    end
-  when 'WXMSW'
-    if Wx.has_feature?(:USE_WEBVIEW_EDGE) || Wx.has_feature?(:USE_WEBVIEW_EDGE_STATIC)
-      WEB_VIEW_BACKEND_DEFAULT = 'wxWebViewEdge'
-    elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
-      WEB_VIEW_BACKEND_DEFAULT = 'wxWebViewChromium'
-    else
-      WEB_VIEW_BACKEND_DEFAULT = ''
-    end
-  when 'WXGTK'
-    if Wx.has_feature?(:USE_WEBVIEW_WEBKIT2) || Wx.has_feature?(:USE_WEBVIEW_WEBKIT)
-      WEB_VIEW_BACKEND_DEFAULT = 'wxWebViewWebKit'
-    elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
-      WEB_VIEW_BACKEND_DEFAULT = 'wxWebViewChromium'
-    else
-      WEB_VIEW_BACKEND_DEFAULT = ''
-    end
-  else
-    WEB_VIEW_BACKEND_DEFAULT = ''
-  end
-  WEB_VIEW_NAME_STR = 'WebView'
-
   module WEB
+
+    WEBVIEW_DEFAULT_URL_STR = 'about:blank'
+    WEBVIEW_WEB_KIT = 'wxWebViewWebKit'
+    WEBVIEW_CHROMIUM = 'wxWebViewChromium'
+    WEBVIEW_EDGE = 'wxWebViewEdge'
+    WEBVIEW_BACKEND_DEFAULT = case Wx::PLATFORM
+                               when 'WXOSX'
+                                 if Wx.has_feature?(:USE_WEBVIEW_WEBKIT)
+                                   WEBVIEW_WEB_KIT
+                                 elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
+                                   WEBVIEW_CHROMIUM
+                                 else
+                                   ''
+                                 end
+                               when 'WXMSW'
+                                 if Wx.has_feature?(:USE_WEBVIEW_EDGE) || Wx.has_feature?(:USE_WEBVIEW_EDGE_STATIC)
+                                   WEBVIEW_EDGE
+                                 elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
+                                   WEBVIEW_CHROMIUM
+                                 else
+                                   ''
+                                 end
+                               when 'WXGTK'
+                                 if Wx.has_feature?(:USE_WEBVIEW_WEBKIT2) || Wx.has_feature?(:USE_WEBVIEW_WEBKIT)
+                                   WEBVIEW_WEB_KIT
+                                 elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
+                                   WEBVIEW_CHROMIUM
+                                 else
+                                   ''
+                                 end
+                               else
+                                 ''
+                               end
+    WEBVIEW_NAME_STR = 'WebView'
 
     class WebView < Wx::Control
 
@@ -47,12 +50,12 @@ module Wx
         # Redefine #new method to support positional and named
         # arguments
         WEBVIEW_NEW_PARAMS = [Wx::Parameter[:id, Wx::StandardID::ID_ANY],
-                              Wx::Parameter[:url, WEB_VIEW_DEFAULT_URL_STR],
+                              Wx::Parameter[:url, WEBVIEW_DEFAULT_URL_STR],
                               Wx::Parameter[:pos, Wx::DEFAULT_POSITION],
                               Wx::Parameter[:size, Wx::DEFAULT_SIZE],
-                              Wx::Parameter[:backend, WEB_VIEW_BACKEND_DEFAULT],
+                              Wx::Parameter[:backend, WEBVIEW_BACKEND_DEFAULT],
                               Wx::Parameter[:style, 0],
-                              Wx::Parameter[:name],WEB_VIEW_NAME_STR]
+                              Wx::Parameter[:name, WEBVIEW_NAME_STR]]
 
         wx_new = instance_method(:new)
         wx_redefine_method :new do |*args, **kwargs|
