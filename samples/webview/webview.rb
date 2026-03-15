@@ -32,7 +32,53 @@ module WebView
       end
     end
   end
+
+  class SourceViewDialog < Wx::Dialog
+
+    def initialize(parent, source)
+      super(parent, title: 'Source Code', size: [700, 500], style: Wx::DEFAULT_DIALOG_STYLE | Wx::RESIZE_BORDER)
+      if Wx.has_feature?(:USE_STC)
+        text = Wx::STC::StyledTextCtrl.new(self, Wx::ID_ANY)
+        text.set_margin_width(1, 30)
+        text.set_margin_type(1, Wx::STC_MARGIN_NUMBER)
+        text.set_text(source)
   
+        text.style_clear_all
+        text.set_lexer(Wx::STC_LEX_HTML)
+        text.style_set_foreground(Wx::STC_H_DOUBLESTRING, Wx::Colour.new(255,0,0))
+        text.style_set_foreground(Wx::STC_H_SINGLESTRING, Wx::Colour.new(255,0,0))
+        text.style_set_foreground(Wx::STC_H_ENTITY, Wx::Colour.new(255,0,0))
+        text.style_set_foreground(Wx::STC_H_TAG, Wx::Colour.new(0,150,0))
+        text.style_set_foreground(Wx::STC_H_TAGUNKNOWN, Wx::Colour.new(0,150,0))
+        text.style_set_foreground(Wx::STC_H_ATTRIBUTE, Wx::Colour.new(0,0,150))
+        text.style_set_foreground(Wx::STC_H_ATTRIBUTEUNKNOWN, Wx::Colour.new(0,0,150))
+        text.style_set_foreground(Wx::STC_H_COMMENT, Wx::Colour.new(150,150,150))
+      else # !Wx::USE_STC
+        text = Wx::TextCtrl.new(self, value: source, style: Wx::TE_MULTILINE | Wx::TE_RICH | Wx::TE_READONLY)
+      end # Wx::USE_STC/!Wx::USE_STC
+
+      sizer = Wx::VBoxSizer.new
+      sizer.add(text, 1, Wx::EXPAND)
+      set_sizer(sizer)
+    end
+
+  end
+
+  class TextViewDialog < Wx::Dialog
+    def initialize(parent, txt)
+      super(parent, title: 'Page Text', size: [700, 500], style: Wx::DEFAULT_DIALOG_STYLE | Wx::RESIZE_BORDER)
+      if Wx.has_feature?(:USE_STC)
+        text = Wx::StyledTextCtrl.new(self)
+        text.set_text(@browser.get_page_text)
+      else # !wxUSE_STC
+        text = Wx::TextCtrl.new(self, value: @browser.get_page_text, style: Wx::TE_MULTILINE | Wx::TE_RICH | Wx::TE_READONLY)
+      end # wxUSE_STC/!wxUSE_STC
+      sizer = Wx::BoxSizer.new
+      sizer.add(text, 1, Wx::EXPAND)
+      set_sizer(sizer)
+    end
+  end
+
   class WebFrame < Wx::Frame
 
     Child   = 0
@@ -53,6 +99,8 @@ module WebView
       super(nil, title: 'WebView Sample')
 
       @flags = flags
+
+      @hist_menu_items = {}
 
       # set the frame icon
       self.icon = Wx.Icon(:sample, Wx::BITMAP_TYPE_XPM, art_path: File.join(__dir__, '..'))
@@ -241,7 +289,7 @@ module WebView
       set_sizer(topsizer)
   
       #Set a more sensible size for web browsing
-      set_size(from_dip([940, 700]))
+      set_size(from_dip([1600, 900]))
   
       if window_features
         set_size(from_dip(window_features.get_size)) if window_features.get_size.is_fully_specified
@@ -475,59 +523,130 @@ module WebView
     end
 
     def update_state
+      @toolbar.enable_tool(@toolbar_back.get_id, @browser.can_go_back)
+      @toolbar.enable_tool(@toolbar_forward.get_id, @browser.can_go_forward)
 
+      if @browser.is_busy
+        @toolbar.enable_tool(@toolbar_stop.get_id, true)
+      else
+        @toolbar.enable_tool(@toolbar_stop.get_id, false)
+      end
+
+      set_title(get_private_prefix + @browser.get_current_title)
+
+      @url.set_value(@browser.get_current_url)
     end
 
-    def on_idle(evt)
-
+    def on_idle(_evt)
+      if @browser.is_busy
+        Wx.set_cursor(Wx::CURSOR_ARROWWAIT)
+        @toolbar.enable_tool(@toolbar_stop.get_id, true)
+      else
+        Wx.set_cursor(Wx::NULL_CURSOR)
+        @toolbar.enable_tool(@toolbar_stop.get_id, false)
+      end
     end
 
-    def on_url(evt)
-
+    def on_url(_evt)
+      @browser.load_url(@url.get_value)
+      @browser.set_focus
+      update_state
     end
 
-    def on_back(evt)
-
+    def on_back(_evt)
+      @browser.go_back
+      update_state
     end
 
-    def on_forward(evt)
-
+    def on_forward(_evt)
+      @browser.go_forward
+      update_state
     end
 
-    def on_stop(evt)
-
+    def on_stop(_evt)
+      @browser.stop
+      update_state
     end
 
     def on_reload(evt)
-
+      @browser.reload
+      update_state
     end
 
     def on_clear_history(evt)
-
+      @browser.clear_history
+      update_state
     end
 
     def on_enable_history(evt)
-
+      @browser.enable_history(@tools_enable_history.is_checked)
+      update_state
     end
 
+    # Callback invoked when there is a request to load a new page (for instance
+    # when the user clicks a link)
     def on_navigation_request(evt)
+      @info.dismiss if @info.is_shown
 
+      Wx.log_message("Navigation request to '%s' (target='%s')%s" % [
+                        evt.get_url,
+                        evt.get_target,
+                        evt.is_target_main_frame ? " mainFrame" : ""])
+
+      # If we don't want to handle navigation then veto the event and navigation
+      # will not take place, we also need to stop the loading animation
+      if !@tools_handle_navigation.is_checked
+        evt.veto
+        @toolbar.enable_tool(@toolbar_stop.get_id, false )
+      else
+        update_state
+      end
     end
 
     def on_navigation_complete(evt)
-
+      Wx.log_message("Navigation complete; url='%s'" % evt.get_url)
+      update_state
     end
 
     def on_document_loaded(evt)
-
+      # Only notify if the document is the main frame, not a subframe
+      if evt.get_url == @browser.get_current_url
+        Wx.log_message("Document loaded; url='%s'" % evt.get_url)
+      end
+      update_state
     end
 
     def on_new_window(evt)
+      flag = " (other)"
+      flag = " (user)" if evt.get_navigation_action == Wx::WEB::WEBVIEW_NAV_ACTION_USER
 
+      Wx.log_message("New window; url='%s'%s", evt.get_url, flag)
+      STDERR.puts "New window; url='%s'%s" % [evt.get_url, flag]
+
+      # If we handle new window events then create a new frame
+      evt.veto unless @tools_handle_new_window.is_checked
+
+      update_state
     end
 
     def on_new_window_features(evt)
+      features = evt.get_target_window_features
+      return unless features
 
+      featureDescription = ''
+      featureDescription += " Position: %d, %d; " % [features.get_position.x, features.get_position.y] if features.get_position.is_fully_specified
+      featureDescription += " Size: %d, %d; " % [features.get_size.x, features.get_size.y] if features.get_size.is_fully_specified
+      featureDescription += " MenuBar; " if features.should_display_menu_bar
+      featureDescription += " StatusBar; " if features.should_display_status_bar
+      featureDescription += " ToolBar; " if features.should_display_tool_bar
+      featureDescription += " ScrollBars; " if features.should_display_scroll_bars
+
+      Wx.log_message("Window features of child webview are available." + featureDescription)
+      STDERR.puts featureDescription
+
+      # Create child frame with the features specified by window.open() call
+      newFrame = WebFrame.new(evt.get_url, WebFrame::Child, features)
+      newFrame.show
     end
 
     def on_title_changed(evt)
@@ -555,15 +674,64 @@ module WebView
     end
 
     def on_view_source_request(evt)
-
+      WebView::SourceViewDialog(self, @browser.get_page_source)
     end
 
     def on_view_text_request(evt)
-
+      WebView::TextViewDialog(self, @browser.get_page_text)
     end
 
-    def on_tools_clicked(evt)
+    def on_tools_clicked(_evt)
+      return if @browser.get_current_url == ""
+  
+      @edit_cut.enable(@browser.can_cut)
+      @edit_copy.enable(@browser.can_copy)
+      @edit_paste.enable(@browser.can_paste)
+  
+      @edit_undo.enable(@browser.can_undo)
+      @edit_redo.enable(@browser.can_redo)
+  
+      @selection_clear.enable(@browser.has_selection)
+      @selection_delete.enable(@browser.has_selection)
+  
+      @context_menu.check(@browser.is_context_menu_enabled)
+      @dev_tools.check(@browser.is_access_to_dev_tools_enabled)
+      @browser_accelerator_keys.check(@browser.are_browser_accelerator_keys_enabled)
+  
+      #Firstly we clear the existing menu items, then we add the current ones
+      @hist_menu_items.each_key do |item_id|
+        @tools_history_menu.destroy(item_id)
+      end
+      @hist_menu_items.clear
+  
+      # We can't use empty labels for the menu items, so use this helper to give
+      # them at least some name if we don't have anything better.
+      make_label = ->(title, url) {
+        title.empty? ? url : title
+      }
+  
+      @browser.get_backward_history.each do |hist_item|
+        Wx.log_message(hist_item.get_title)
+        item = @tools_history_menu.append_radio_item(Wx::ID_ANY, make_label.call(hist_item.get_title, hist_item.get_url))
+        @hist_menu_items[item.get_id] = hist_item
+        evt_menu item, :on_history
+      end
 
+      item = @tools_history_menu.append_radio_item(Wx::ID_ANY, make_label.call(@browser.get_current_title, @browser.get_current_url))
+      item.check
+  
+      # No need to connect the current item
+      @hist_menu_items[item.get_id] = Wx::WEB::WebViewHistoryItem.new(@browser.get_current_url, @browser.get_current_title)
+  
+      @browser.get_forward_history.each do |hist_item|
+        Wx.log_message(hist_item.get_title)
+        item = @tools_history_menu.append_radio_item(Wx::ID_ANY, make_label.call(hist_item.get_title, hist_item.get_url))
+        @hist_menu_items[item.get_id] = hist_item
+        evt_menu item, :on_history
+      end
+  
+      position = screen_to_client(Wx.get_mouse_position)
+      popup_menu(@tools_menu, position.x, position.y)
     end
 
     def on_set_zoom(evt)
