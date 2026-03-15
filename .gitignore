@@ -15,3 +15,5 @@ lib/wx/**/ext
 lib/wx/**/events
 lib/wx/core/font
 *.old
+*.gemspec
+ext/wxWidgets/

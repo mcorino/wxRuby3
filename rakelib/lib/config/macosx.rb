@@ -147,6 +147,19 @@ module WXRuby3
                 end
               end
             end
+
+            if features_set?('USE_WEBVIEW')
+              lib_list = wx_config("--libs webview").split(' ')
+              until lib_list.empty?
+                s = lib_list.shift
+                if s == '-framework'
+                  wx_libset << "#{s} #{lib_list.shift}"
+                else
+                  wx_libset << s
+                end
+              end
+            end
+
             wx_libset.collect { |s| s.dup }
           end
 
