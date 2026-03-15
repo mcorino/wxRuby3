@@ -11,31 +11,31 @@ module Wx
   module WEB
 
     WEBVIEW_DEFAULT_URL_STR = 'about:blank'
-    WEBVIEW_WEB_KIT = 'wxWebViewWebKit'
-    WEBVIEW_CHROMIUM = 'wxWebViewChromium'
-    WEBVIEW_EDGE = 'wxWebViewEdge'
+    WEBVIEW_BACKEND_WEB_KIT = 'wxWebViewWebKit'
+    WEBVIEW_BACKEND_CHROMIUM = 'wxWebViewChromium'
+    WEBVIEW_BACKEND_EDGE = 'wxWebViewEdge'
     WEBVIEW_BACKEND_DEFAULT = case Wx::PLATFORM
                                when 'WXOSX'
                                  if Wx.has_feature?(:USE_WEBVIEW_WEBKIT)
-                                   WEBVIEW_WEB_KIT
+                                   WEBVIEW_BACKEND_WEB_KIT
                                  elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
-                                   WEBVIEW_CHROMIUM
+                                   WEBVIEW_BACKEND_CHROMIUM
                                  else
                                    ''
                                  end
                                when 'WXMSW'
                                  if Wx.has_feature?(:USE_WEBVIEW_EDGE) || Wx.has_feature?(:USE_WEBVIEW_EDGE_STATIC)
-                                   WEBVIEW_EDGE
+                                   WEBVIEW_BACKEND_EDGE
                                  elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
-                                   WEBVIEW_CHROMIUM
+                                   WEBVIEW_BACKEND_CHROMIUM
                                  else
                                    ''
                                  end
                                when 'WXGTK'
                                  if Wx.has_feature?(:USE_WEBVIEW_WEBKIT2) || Wx.has_feature?(:USE_WEBVIEW_WEBKIT)
-                                   WEBVIEW_WEB_KIT
+                                   WEBVIEW_BACKEND_WEB_KIT
                                  elsif Wx.has_feature?(:USE_WEBVIEW_CHROMIUM)
-                                   WEBVIEW_CHROMIUM
+                                   WEBVIEW_BACKEND_CHROMIUM
                                  else
                                    ''
                                  end
