@@ -30,9 +30,6 @@ module WXRuby3
           spec.make_abstract 'wxWebViewConfiguration'
         end
         spec.gc_as_untracked 'wxWebViewHistoryItem'
-        spec.ignore 'wxWebViewHistoryItem::wxWebViewHistoryItem'
-        spec.extend_interface 'wxWebViewHistoryItem', 'wxWebViewHistoryItem()', visibility: 'protected'
-        spec.make_abstract 'wxWebViewHistoryItem'
 
         spec.no_proxy 'wxWebView'
         spec.ignore 'wxWebView::RegisterFactory'
