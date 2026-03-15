@@ -39,10 +39,29 @@ module WXRuby3
         spec.ignore 'wxWebViewIE_EmulationLevel'
 
         spec.add_swig_code <<~__CODE
+          %include <wx_ruby_shared_ptr.i>
+          %wx_ruby_shared_ptr(wxWebViewHandler, wxWebViewHandler);
+          %wx_ruby_shared_ptr(wxWebViewArchiveHandler, wxWebViewHandler);
+          %wx_ruby_shared_ptr(wxWebViewFSHandler, wxWebViewHandler);
+
           %include <wx_shared_ptr.i>
-          %wx_shared_ptr(wxWebViewHandler);
           %wx_shared_ptr(wxWebViewHistoryItem);
           __CODE
+
+        spec.map 'wxSharedPtr<wxWebViewHandler>' => 'Wx::WebViewHandler>' do
+          map_in code: <<~__CODE
+            void* argp$argnum;
+            int res$argnum = SWIG_ConvertPtr($input, &argp$argnum, SWIGTYPE_p_WxRubySharedPtrT_wxWebViewHandler_wxWebViewHandler_t,  0 );
+            if (!SWIG_IsOK(res$argnum)) {
+              SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "WxRubySharedPtr< wxWebViewHandler, wxWebViewHandler >","RegisterHandler", 2, argv[0] )); 
+            }  
+            if (!argp2) {
+              SWIG_exception_fail(SWIG_NullReferenceError, Ruby_Format_TypeError("invalid null reference ", "WxRubySharedPtr< wxWebViewHandler, wxWebViewHandler >","RegisterHandler", 2, argv[0]));
+            } else {
+              arg2 = *(reinterpret_cast< WxRubySharedPtr< wxWebViewHandler, wxWebViewHandler > * >(argp2));
+            }
+            __CODE
+        end
 
         spec.map 'wxVector< wxSharedPtr<wxWebViewHistoryItem> >' => 'Array<Wx::WEB::WebViewHistoryItem>' do
           map_out code: <<~__CODE

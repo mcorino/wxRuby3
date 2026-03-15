@@ -26,6 +26,11 @@ module WXRuby3
         spec.make_abstract 'wxWebViewHandlerResponse'
         spec.make_abstract 'wxWebViewHandlerResponseData'
         spec.add_swig_code <<~__CODE
+          %include <wx_ruby_shared_ptr.i>
+          %wx_ruby_shared_ptr(wxWebViewHandler, wxWebViewHandler);
+          %wx_ruby_shared_ptr(wxWebViewArchiveHandler, wxWebViewHandler);
+          %wx_ruby_shared_ptr(wxWebViewFSHandler, wxWebViewHandler);
+
           %include <wx_shared_ptr.i>
           %wx_shared_ptr(wxWebViewHandlerResponse);
           %wx_shared_ptr(wxWebViewHandlerResponseData);
