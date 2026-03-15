@@ -110,7 +110,7 @@ module WXRuby3
       end
 
       def wx_configure
-        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --disable-debug_info')
+        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --disable-debug_info --enable-webview')
       end
 
       def wx_make
