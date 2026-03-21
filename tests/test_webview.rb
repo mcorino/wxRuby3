@@ -125,8 +125,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       script_result = nil
       frame_win.evt_webview_script_result(webview) { |evt| script_error = evt.is_error; script_finished = !script_error; script_result = evt.get_string }
       webview.run_script_async("function f(a){return a;}f('Hello World!');")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_equal('Hello World!', script_result)
 
@@ -134,8 +134,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       script_finished = false
       script_result = nil
       webview.run_script_async("function f(a){return a;}f(123);")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_equal('123', script_result)
 
@@ -143,8 +143,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       script_finished = false
       script_result = nil
       webview.run_script_async("function f(a){return a;}f(2.34);")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_equal('2.34', script_result)
 
@@ -152,8 +152,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       script_finished = false
       script_result = nil
       webview.run_script_async("function f(a){return a;}f(false);")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_equal('false', script_result)
 
@@ -161,8 +161,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       script_finished = false
       script_result = nil
       webview.run_script_async("function f(){var person = new Object();}f();")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_equal('undefined', script_result)
 
@@ -170,8 +170,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       script_finished = false
       script_result = nil
       webview.run_script_async("function f(){return null;}f();")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_equal('null', script_result)
 
@@ -181,8 +181,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
       webview.run_script_async("function f(){var d = new Date('10/08/2017 21:30:40'); \
         var tzoffset = d.getTimezoneOffset() * 60000; \
         return new Date(d.getTime() - tzoffset);}; f();")
-      yield_and_wait_for_test(5000) { script_error || script_finished }
-      STDERR.puts script_result if script_error
+      yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+      assert_false(script_error, "AsyncScript ERROR: #{script_result}")
       assert_true(script_finished)
       assert_not_nil(script_result)
       tm = Time.new(2017, 10, 8, 21, 30, 40)
@@ -217,8 +217,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
         script_result = nil
         frame_win.evt_webview_script_result(webview) { |evt| script_error = evt.is_error; script_finished = !script_error; script_result = evt.get_string }
         webview.run_script_async("function f(){var person = new Object();person.name = 'Foo'; person.lastName = 'Bar';return person;}; f();")
-        yield_and_wait_for_test(5000) { script_error || script_finished }
-        STDERR.puts script_result if script_error
+        yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+        assert_false(script_error, "AsyncScript ERROR: #{script_result}")
         assert_true(script_finished)
         assert_not_nil(script_result)
         person = JSON.load(script_result)
@@ -230,8 +230,8 @@ if Wx.has_feature?(:USE_WEBVIEW)
         script_finished = false
         script_result = nil
         webview.run_script_async("function f(){ return [\"foo\", \"bar\"]; }f();")
-        yield_and_wait_for_test(5000) { script_error || script_finished }
-        STDERR.puts script_result if script_error
+        yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+        assert_false(script_error, "AsyncScript ERROR: #{script_result}")
         assert_true(script_finished)
         assert_not_nil(script_result)
         array = JSON.load(script_result)
