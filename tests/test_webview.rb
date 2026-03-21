@@ -330,7 +330,7 @@ if Wx.has_feature?(:USE_WEBVIEW)
       if ::Wx::WXWIDGETS_VERSION >= '3.3.0'
         created = false
         frame_win.evt_webview_created(@webview) { |_| created = true }
-        yield_and_wait_for_test(is_msw? ? 5000 : 2000) { created }
+        yield_and_wait_for_test(is_msw? ? 5000 : 2000) { sleep(0.05) if is_msw? && !created; created }
       elsif is_msw? || Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_CHROMIUM
         yield_for_a_while(2000)
       end
