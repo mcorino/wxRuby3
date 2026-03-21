@@ -12,8 +12,16 @@
 require_relative './simplehelpprovider'
 
 class Wx::HelpControllerHelpProvider < Wx::SimpleHelpProvider
-  def initialize(help_controller)
+  def initialize(help_controller = nil)
     super()
+    @hc = help_controller
+  end
+
+  def get_help_controller
+    @hc
+  end
+
+  def set_help_controller(help_controller)
     @hc = help_controller
   end
 
@@ -22,7 +30,7 @@ class Wx::HelpControllerHelpProvider < Wx::SimpleHelpProvider
   # that, otherwise shows a popup (native-style on Windows) of the text.
   def show_help(win)
     help_text = get_help(win)
-    return false if help_text.empty?
+    return false if help_text.empty? || @hc.nil?
     if help_text =~ /\A\d+\z/
       @hc.display_context_popup(help_text.to_i)
     else
