@@ -1,4 +1,4 @@
-# Copyright (c) 2023 M.J.N. Corino, The Netherlands
+  # Copyright (c) 2023 M.J.N. Corino, The Netherlands
 #
 # This software is released under the MIT license.
 
@@ -10,6 +10,7 @@ require_relative './unixish'
 require_relative 'pkgman/mingw'
 
 require 'uri'
+require 'digest/sha2'
 
 
 if ENV['RI_DEVKIT'].nil?
@@ -30,6 +31,12 @@ module WXRuby3
       def self.included(base)
         base.class_eval do
           include Config::UnixLike
+
+          const_set(:WEBVIEW2_VERSION, '1.0.3485.44')
+          const_set(:WEBVIEW2_URL, "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/#{const_get(:WEBVIEW2_VERSION)}")
+          const_set(:WEBVIEW2_INCLUDE, File.join('3rdparty','webview2','build','native','include','WebView2.h'))
+          const_set(:WEBVIEW2_LOADER, File.join('3rdparty','webview2','build','native',(RB_CONFIG["arch"] =~ /x64/ ? 'x64' : 'x86'),'WebView2Loader.dll'))
+          const_set(:WEBVIEW2_SHA256, 'BC09150B179246AC90189649B13BE8E6B11B3AC200E817E18DF106E1F3CF489E')
 
           attr_reader :rescomp
 
@@ -80,7 +87,7 @@ module WXRuby3
           def install_prerequisites
             pkg_deps = super
             PkgManager.install(pkg_deps)
-            []
+            pkg_deps
           end
 
           def expand(cmd)
@@ -97,12 +104,66 @@ module WXRuby3
 
           private
 
+          def wx_checkout
+            super
+            # do we need to build an embedded wxWidgets?
+            if get_config('with-wxwin') && get_cfg_string('wxwin').empty?
+              # then check webview requirements
+              if wx_with_webview_backend?('edge')
+                # download and install Edge WebView2 SDK
+                chdir(File.join(ext_path, 'wxWidgets')) do
+                  FileUtils.mkdir_p(File.join('3rdparty', 'webview2'))
+                  if download_file(self.class::WEBVIEW2_URL, File.join('3rdparty', 'webview2', 'webview2_sdk.zip'))
+                    chdir(File.join('3rdparty', 'webview2')) do
+                      # check digest
+                      File.open('webview2_sdk.zip', 'r', binmode: true) do |fin|
+                        # check digest signature
+                        digest = Digest::SHA256.new
+                        while (data = fin.read(1024*1024))
+                          digest << data
+                        end
+                        if self.class::WEBVIEW2_SHA256 != digest.hexdigest!.upcase
+                          $stderr.puts 'ERROR: WebView2 SDK package digest signature does NOT match.'
+                          exit(1)
+                        end
+                      end
+                      unless sh("unzip webview2_sdk.zip")
+                        STDERR.puts 'ERROR: Failed to unpack required WebView2 SDK.'
+                        exit(1)
+                      end
+                    end
+                    unless File.exist?(self.class::WEBVIEW2_INCLUDE)
+                      STDERR.puts 'ERROR: Error in required WebView2 SDK.'
+                      exit(1)
+                    end
+                  else
+                    STDERR.puts 'ERROR: Failed to download required WebView2 SDK.'
+                    exit(1)
+                  end
+                end
+              end
+            end
+          end
+
           def wx_configure
-            bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info')
+            bash("./configure --prefix=`pwd`/install --disable-tests --without-subdirs " \
+                   "--without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin " \
+                   "--disable-debug_info #{wx_with_webview?  ? '--enable-webview' : '--disable-webview'} " \
+                   "#{wx_with_webview_backend?('edge') ? '--enable-webviewedge ' : '--disable-webviewedge '} " \
+                   "#{!get_config('with-webview').nil? && wx_with_webview_backend?('ie') ? '--enable-webviewie ' : '--disable-webviewie'} ")
           end
 
           def wx_make
-            bash('make && make install')
+            if bash('make && make install')
+              # in case of an embedded wxWidgets with WebView SDK backend
+              if get_config('with-wxwin') && get_cfg_string('wxwin').empty? && wx_with_webview_backend?('edge')
+                # we need to copy the WebView2 loader dll to the install bin folder
+                FileUtils.cp(self.class::WEBVIEW2_LOADER, File.join('install', 'bin'))
+              end
+              true
+            else
+              false
+            end
           end
 
           def wx_generate_xml

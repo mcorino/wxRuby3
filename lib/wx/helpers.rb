@@ -36,7 +36,7 @@ module Wx
       end
     rescue
       Kernel.raise ArgumentError,
-                   "Bad arg composition of #{args.inspect}"
+                   "Bad arg composition of #{args.inspect} (error = #{$!}, param spec = #{param_spec.inspect})"
     end
 
     unless kwargs.empty?

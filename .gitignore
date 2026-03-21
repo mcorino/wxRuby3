@@ -1,6 +1,9 @@
 *.o
 *.so
 .*
+*.bundle
+*.dylib
+*.dll
 bin
 obj
 src
@@ -10,8 +13,10 @@ pkg
 rakelib/deps
 ext/wxruby3/swig/classes
 ext/wxruby3/lib
+ext/wxWidgets
 lib/wx/doc/gen
 lib/wx/**/ext
 lib/wx/**/events
 lib/wx/core/font
 *.old
+*.gemspec

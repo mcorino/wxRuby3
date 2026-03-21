@@ -1,0 +1,58 @@
+---
+:wxWebViewHandler.SetVirtualHost:
+  :detail:
+    :post:
+      - :pattern: !ruby/regexp /name\.\{Wx::site\}/
+        :subst: '<code>name.wxsite</code>'
+:wxWebViewHandler.StartRequest:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            ```ruby
+            def start_request(request, response)
+               # Set common headers allowing access from XMLHTTPRequests()
+               response.set_header("Access-Control-Allow-Origin", "*")
+               response.set_header("Access-Control-Allow-Headers", "*")
+            
+               # Handle options request
+               if request.get_method.casecmp("options") == 0
+                 response.finish("")
+                 return
+               end
+            
+               # Check the post data type
+               unless request.get_header("Content-Type").start_with?("application/json")
+                 response.finish_with_error
+                 return;
+               end
+            
+               # Process input data
+               postData = request.get_data_string
+            
+               #...
+            
+               # Send result
+               response.set_content_type("application/json")
+               response.finish("{ result: true }")
+            end
+            ```
+:wxWebViewHandlerResponse.Finish:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /simplesect.*kind.*see.*Finish.*wxMBConv/
+          :replace: |
+            @see finish(text, conv)
+        - :pattern: !ruby/regexp /simplesect.*kind.*see.*Finish.*wxWebViewHandlerResponseData/
+          :replace: |
+            @see find(data)
+:wxWebViewHandlerResponseData:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /simplesect.*kind.*see.*Finish.*wxWebViewHandlerResponseData/
+          :replace: |
+            @see Wx::WEB::WebViewHandlerResponse#finish(data)

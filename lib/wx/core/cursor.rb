@@ -24,6 +24,7 @@ module Wx
 
       wx_set_cursor = instance_method :set_cursor
       wx_redefine_method :set_cursor do |cursor|
+        cursor = Wx::Cursor.new(cursor) if cursor.is_a?(Wx::StockCursor)
         wx_set_cursor.bind(self).call(cursor.is_a?(Wx::Cursor) ? Wx::CursorBundle.new(cursor) :  cursor)
       end
     end

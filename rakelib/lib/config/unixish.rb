@@ -70,7 +70,7 @@ module WXRuby3
 
       # add deployment lookup paths for wxruby shared libraries
       def update_shlib_loadpaths(shlib)
-        WXRuby3.config.patch_rpath(shlib, WXRuby3.config.get_rpath_origin, "#{WXRuby3.config.get_rpath_origin}/../ext")
+        WXRuby3.config.patch_rpath(shlib, WXRuby3.config.get_rpath_origin, "#{WXRuby3.config.get_rpath_origin}/../ext/lib")
       end
 
       def expand(cmd)
@@ -110,7 +110,9 @@ module WXRuby3
       end
 
       def wx_configure
-        bash('./configure --prefix=`pwd`/install --disable-tests --without-subdirs --without-regex --disable-debug_info')
+        bash("./configure --prefix=`pwd`/install --disable-tests " \
+               "--without-subdirs --without-regex --disable-debug_info " \
+               "#{wx_with_webview? ? '--enable-webview' : '--disable-webview'}")
       end
 
       def wx_make

@@ -42,6 +42,16 @@ module WxRuby
           raise "Invalid version #{v} specified. Version should be '<major>.<minor>.<release>'." unless v =~ /^\d+\.\d+\.\d+$/
           Setup.options['wxversion'] = v
         end
+        opts.on('--without-webview',
+                'disable including wxWidgets WebView library (only valid with --with-wxwin)') { |v|
+          Setup.options['with-webview'] = false
+        }
+        opts.on('--with-webview[=backend]',
+                'include wxWidgets WebView library (only valid with --with-wxwin)',
+                'backend = (comma separated list of) backend(s) to include',
+                'without backend(s) specified only the default backend for the platform is included') { |v|
+          Setup.options['with-webview'] = v ? v : true
+        }
         opts.on('--swig=path',
                 "the path to swig executable [swig]")  {|v| Setup.options['swig'] = v}
         opts.on('--doxygen=path',
@@ -81,6 +91,11 @@ module WxRuby
         cfg_args << "--wxxml=#{Setup.options['wxxml']}" if Setup.options['wxxml']
         cfg_args << '--with-wxwin' if Setup.options['with-wxwin']
         cfg_args << '--with-wxhead' if Setup.options['with-wxhead']
+        if Setup.options['with-webview'] == false
+          cfg_args << '--without-webview'
+        elsif Setup.options['with-webview']
+          cfg_args << "--with-webview#{Setup.options['with-webview'] == true ? '' : "=#{Setup.options['with-webview']}"}"
+        end
         cfg_args << "--wxversion=#{Setup.options['wxversion']}" if Setup.options['wxversion']
         cfg_args << "--swig=#{Setup.options['swig']}" if Setup.options['swig']
         cfg_args << "--doxygen=#{Setup.options['doxygen']}" if Setup.options['doxygen']

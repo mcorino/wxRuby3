@@ -60,6 +60,7 @@ jobs:
             CXX: g++-12
             ruby: '3.0'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
@@ -68,6 +69,7 @@ jobs:
             CXX: g++-12
             ruby: '3.1'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
@@ -76,6 +78,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
@@ -84,6 +87,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            configure_flags: --disable-webview
             wxw_type: develop
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: develop
@@ -92,6 +96,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: binpkg
@@ -100,6 +105,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
@@ -108,6 +114,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: embed
             wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
             wxr_type: gem
@@ -116,6 +123,7 @@ jobs:
             CXX: g++-12
             ruby: 'ruby'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: develop
             wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
             wxr_type: gem
@@ -177,7 +185,7 @@ jobs:
         if: matrix.wxw_type != 'embed'
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs  --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info'
+          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs  --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info ${{matrix.configure_flags}}'
 
       - name: Build wxWidgets
         if: matrix.wxw_type != 'embed'

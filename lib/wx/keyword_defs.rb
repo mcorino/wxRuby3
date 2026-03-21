@@ -240,6 +240,17 @@ Wx::define_keyword_ctors(Wx::TextEntryDialog) do
   wx_ctor_params :pos
 end
 
+# Dialog to get a number from the user
+Wx::define_keyword_ctors(Wx::NumberEntryDialog) do
+  wx_ctor_params :message => ''
+  wx_ctor_params :prompt => 'Number'
+  wx_ctor_params :caption => 'Please enter a number'
+  wx_ctor_params :value => 0
+  wx_ctor_params :min => 0
+  wx_ctor_params :max => 0
+  wx_ctor_params :pos
+end
+
 # wxPasswordEntryDialog 	Dialog to get a password from the user
 Wx::define_keyword_ctors(Wx::PasswordEntryDialog) do
   wx_ctor_params :message => ''

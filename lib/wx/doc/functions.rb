@@ -36,6 +36,16 @@ module Wx
   # @return [void]
   def self.log_info(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
 
+  # Log a Wx error informational message to the current Wx log output and abort (exit code 3)
+  # @param fmt  [String]  message (formatting) string
+  # @param args [Array<Object>] optional message arguments
+  # @param filename [String] optional file name for log info
+  # @param line [Integer] optional line number for log info
+  # @param func [String] optional function name for log info
+  # @param component [String] optional component name for log info
+  # @return [void]
+  def self.log_fatal_error(fmt, *args, filename: nil, line: 0, func: nil, component: nil) end
+
   # Log a Wx Informational message to the current Wx log output
   # @param fmt  [String]  message (formatting) string
   # @param args [Array<Object>] optional message arguments

@@ -74,7 +74,8 @@ module WXRuby3
         manifest.include 'lib/wx/**/events/*.rb', 'lib/wx/**/ext/*.rb', 'lib/wx/core/font/*.rb'
         manifest.include "lib/wx/doc/gen/**/*.rb"
         if WXRuby3.config.get_config('with-wxwin')
-          manifest.include "ext/*.#{WXRuby3.config.dll_mask}"
+          manifest.include "ext/lib/*.#{WXRuby3.config.dll_mask}"
+          manifest.include "ext/lib/#{WXRuby3.config.wx_plugin_path}/**/*.#{WXRuby3.config.dll_mask}" # possible plugin libs
         end
         manifest
       end
@@ -299,7 +300,7 @@ module WXRuby3
           registry.each do |entry|
             path, mode, size, symlink = entry
             if symlink
-              FileUtils.mkdir_p(File.dirname(symlink))
+              FileUtils.mkdir_p(File.dirname(path))
               FileUtils.ln_s(symlink, path)
             else
               FileUtils.mkdir_p(File.dirname(path))

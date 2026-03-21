@@ -29,10 +29,14 @@ module WXRuby3
           typedef wxString wxArtID;
           typedef wxString wxArtClient;
 
-          // Missing from docs
-          %constant const char* wxART_STOP = wxART_STOP;
-          %constant const char* wxART_REFRESH = wxART_REFRESH;
           __HEREDOC
+        if Config.instance.wx_version_check('3.3.2') <= 0
+          spec.add_swig_code <<~__HEREDOC
+            // Missing from docs
+            %constant const char* wxART_STOP = wxART_STOP;
+            %constant const char* wxART_REFRESH = wxART_REFRESH;
+            __HEREDOC
+        end
         spec.map *%w[wxArtID wxArtClient], as: 'String', swig: false do
           map_in
           map_out

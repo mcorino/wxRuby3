@@ -252,6 +252,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxAffineMatrix2D', requirements: %w[USE_GEOMETRY])
     Director.Spec(pkg, 'wxCredentialEntryDialog', director: Director::Dialog, requirements: %w[USE_CREDENTIALDLG])
     Director.Spec(pkg, 'wxGenericAboutDialog', director: Director::Dialog, requirements: %w[USE_ABOUTDLG])
+    Director.Spec(pkg, 'wxMBConv')
   }
 
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|
@@ -386,5 +387,11 @@ module WXRuby3
     Director.Spec(pkg, 'wxRibbonPanel')
     Director.Spec(pkg, 'wxRibbonToolBar')
     Director.Spec(pkg, 'wxRibbonButtonBar')
+  }
+
+  Director.Package('Wx::WEB', 'USE_WEBVIEW') { |pkg|
+    Director.Spec(pkg, 'wxWebViewHandler')
+    Director.Spec(pkg, 'wxWebView')
+    Director.Spec(pkg, 'wxWebViewEvent')
   }
 end # module WXRuby3

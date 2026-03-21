@@ -194,13 +194,15 @@ module WXRuby3
             if WXRuby3.config.sysinfo.os.release >= '15' && (wxw_ver.nil? || wxw_ver <= '3.2.6')
               # circumvent compilation problems on MacOS 15 or higher with older wxWidgets releases
               bash("./configure " +
-                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
-                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " \
+                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " \
+                     "#{wx_with_webview? ? '--enable-webview' : '--disable-webview'} " \
                      "CFLAGS=\"-Wno-unused-but-set-variable\"")
             else
-              bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " +
-                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " +
-                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " +
+              bash("./configure --with-macosx-version-min=#{WXRuby3.config.sysinfo.os.release}.0 " \
+                     "--disable-optimise --disable-sys-libs --without-liblzma --without-regex " \
+                     "--prefix=`pwd`/install --disable-tests --without-subdirs --disable-debug_info " \
+                     "#{wx_with_webview? ? '--enable-webview' : '--disable-webview'} " \
                      "CFLAGS=\"-Wno-unused-but-set-variable\"")
             end
           end

@@ -220,19 +220,19 @@ namespace Swig
   void DirectorTypeMismatchException::raise(VALUE error, const char *msg)
   {
     print(DirectorTypeMismatchException(error, msg));
-    ::exit(254);
+    ::exit(126);
   }
 
   void DirectorTypeMismatchException::raise(const char *msg)
   {
     print(DirectorTypeMismatchException(msg));
-    ::exit(254);
+    ::exit(126);
   }
 
   void DirectorTypeMismatchException::raise(VALUE self, const char* method, VALUE error, const char *msg)
   {
     print(DirectorTypeMismatchException(self, method, error, msg));
-    ::exit(254);
+    ::exit(126);
   }
 
   /* Any Ruby exception that occurs during a director method call */

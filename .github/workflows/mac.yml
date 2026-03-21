@@ -58,7 +58,7 @@ jobs:
           arch: x86_64
           ruby: '3.4'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --disable-webview
           wxw_type: develop
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: develop
@@ -67,7 +67,7 @@ jobs:
           arch: arm64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: binpkg
@@ -76,7 +76,7 @@ jobs:
           arch: arm64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
           wxr_type: gem
@@ -85,7 +85,7 @@ jobs:
           arch: arm64
           ruby: '3.2'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: develop
@@ -94,7 +94,7 @@ jobs:
           arch: arm64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: binpkg
@@ -103,7 +103,7 @@ jobs:
           arch: x86_64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: gem
@@ -112,7 +112,7 @@ jobs:
           arch: x86_64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_PREV_STABLE }}'
           wxr_type: gem
@@ -121,7 +121,7 @@ jobs:
           arch: arm64
           ruby: '3.0'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: develop
@@ -130,7 +130,7 @@ jobs:
           arch: arm64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: gem
@@ -139,7 +139,7 @@ jobs:
           arch: arm64
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: embed
           wxw_version: '${{ vars.WXWIDGETS_LATEST_STABLE }}'
           wxr_type: binpkg
@@ -260,6 +260,10 @@ jobs:
       run: |
         wxCONFIGURE_OPTIONS="--disable-sys-libs --without-liblzma ${{ matrix.configure_flags }}"
 
+        wxWEBVIEW_USE="--enable-webview"
+        if [ "${{ matrix.use_webview }}" == "false" ]; then
+          wxWEBVIEW_USE="--disable-webview"
+        fi
         if [ "${{ matrix.wxw_type }}" == "develop" ]; then
           ./configure $wxCONFIGURE_OPTIONS --disable-optimise --prefix=$WXWIN_INSTALL --disable-tests --without-subdirs --disable-debug_info || rc=$?
         else

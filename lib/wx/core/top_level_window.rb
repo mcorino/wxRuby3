@@ -11,6 +11,13 @@ module Wx
       PersistentTLW.new(self)
     end
 
+    # fix missing method on some platforms/wxw versions
+    unless method_defined? :enable_full_screen_view
+      def enable_full_screen_view
+        false
+      end
+    end
+
   end
 
 end

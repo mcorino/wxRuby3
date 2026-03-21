@@ -14,7 +14,7 @@ module WXRuby3
 
       module PkgManager
 
-        XTRA_PLATFORM_DEPS = %w[python]
+        XTRA_PLATFORM_DEPS = %w[python unzip curl]
 
         class << self
 
