@@ -21,15 +21,20 @@ module WXRuby3
         spec.rename_for_ruby('Init' => "#{spec.module_name}::Initialize")
         # ignore these (pure virtual) decls
         spec.ignore %w[
+          wxHelpControllerBase::DisplayContents
           wxHelpControllerBase::DisplayBlock
           wxHelpControllerBase::DisplaySection
+          wxHelpControllerBase::KeywordSearch
           wxHelpControllerBase::LoadFile
           wxHelpControllerBase::Quit
-          ]
+          ], ignore_doc: false
         # and add them as the implemented overrides they are
         spec.extend_interface spec.module_name,
+                              'virtual bool DisplayContents()',
                               'virtual bool DisplayBlock(long blockNo)',
                               'virtual bool DisplaySection(int sectionNo)',
+                              'virtual bool DisplaySection(const wxString &section)',
+                              'virtual bool KeywordSearch(const wxString &keyWord, wxHelpSearchMode mode=wxHELP_SEARCH_ALL)',
                               'virtual bool LoadFile(const wxString &file=wxEmptyString)',
                               'virtual bool Quit()'
         # ignore this problematic method
@@ -62,11 +67,15 @@ module WXRuby3
           spec.ignore 'wxHtmlHelpController::CreateHelpFrame',
                       'wxHtmlHelpController::CreateHelpDialog',
                       'wxHtmlHelpController::GetFrame',
-                      'wxHtmlHelpController::GetDialog'
+                      'wxHtmlHelpController::GetDialog',
+                      'wxHtmlHelpController::DisplayContents',
+                      'wxHtmlHelpController::KeywordSearch'
         elsif spec.module_name == 'wxExtHelpController'
           spec.ignore %w[
+            wxExtHelpController::DisplayContents
             wxExtHelpController::DisplayBlock
             wxExtHelpController::DisplaySection
+            wxExtHelpController::KeywordSearch
             wxExtHelpController::LoadFile
             wxExtHelpController::Quit
             wxExtHelpController::GetFrameParameters
