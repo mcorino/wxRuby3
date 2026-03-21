@@ -24,6 +24,7 @@ module WXRuby3
       def wxwin_shlibs
         unless @wxwin_shlibs
           @wxwin_shlibs = Rake::FileList.new
+          @wxwin_plugin_libs = {}
           # include wxWidgets shared libraries we linked with
           WXRuby3.config.wx_libs.select { |s| s.start_with?('-L') }.each do |libdir|
             libdir = libdir[2..libdir.size]
@@ -49,46 +50,72 @@ module WXRuby3
                 end
               end
             end
+            if WXRuby3.config.linux? && WXRuby3.config.wx_port == :wxgtk && WXRuby3.config.features_set?('USE_WEBVIEW')
+              # look for 'webkit_ext*.so' or 'webkit2_ext*.so' in standard plugin subdir 'wx/<wx version>/web-extensions'
+              plugin_sub_dir = File.join(WXRuby3.config.wx_plugin_path, 'web-extensions')
+              Dir.glob(File.join(libdir, plugin_sub_dir, "webkit?_ext*.#{WXRuby3.config.dll_mask}")).each do |lib|
+                @wxwin_plugin_libs[File.join(plugin_sub_dir, File.basename(lib))] = lib
+              end
+            end
           end
           @wxwin_shlibs = ::Set.new(@wxwin_shlibs.to_a)
         end
         @wxwin_shlibs
       end
 
+      def wxwin_plugin_libs
+        @wxwin_plugin_libs || {}
+      end
+
       def install_wxwin_shlibs
         if WXRuby3.config.get_config('with-wxwin')
           $stdout.print "Installing wxRuby3 extensions..." if WXRuby3.config.run_silent?
-          # prepare required wxWidgets shared libs
-          wxwin_inshlibs = []
-          WXRuby3::Install.wxwin_shlibs.each do |shlib|
-            if File.symlink?(shlib)
-              src_shlib = shlib
-              src_shlib = File.join(File.dirname(shlib), File.basename(File.readlink(src_shlib))) while File.symlink?(src_shlib)
-              FileUtils.ln_s(File.join('.', File.basename(src_shlib)), File.join('ext', File.basename(shlib)))
-            else
-              FileUtils.cp(shlib, inshlib = File.join('ext', File.basename(shlib)))
-              unless WXRuby3.config.update_shlib_loadpaths(inshlib)
+          begin
+            # make sure directory exists
+            FileUtils.mkdir_p(File.join('ext', 'lib'))
+            # prepare required wxWidgets shared libs
+            wxwin_inshlibs = []
+            WXRuby3::Install.wxwin_shlibs.each do |shlib|
+              if File.symlink?(shlib)
+                src_shlib = shlib
+                src_shlib = File.join(File.dirname(shlib), File.basename(File.readlink(src_shlib))) while File.symlink?(src_shlib)
+                FileUtils.ln_s(File.join('.', File.basename(src_shlib)), File.join('ext', 'lib', File.basename(shlib)))
+              else
+                FileUtils.cp(shlib, inshlib = File.join('ext', 'lib', File.basename(shlib)))
+                unless WXRuby3.config.update_shlib_loadpaths(inshlib)
+                  # cleanup and exit
+                  remove_wxwin_shlibs
+                  exit(1)
+                end
+                wxwin_inshlibs << File.expand_path(inshlib)
+              end
+            end
+            WXRuby3::Install.wxwin_plugin_libs.each do |lib, lib_path|
+              FileUtils.mkdir_p(File.join('ext', 'lib', File.dirname(lib)))
+              FileUtils.cp(lib_path, inshlib = File.join('ext', 'lib', lib))
+            end
+            if WXRuby3.config.windows? && WXRuby3.config.wx_port == :wxmsw && WXRuby3.config.features_set?('USE_WEBVIEW_EDGE')
+              # copy the WebView2 loader dll that should be installed
+              FileUtils.cp(File.join('ext', 'wxWidgets', WXRuby3::Config.instance.class::WEBVIEW2_LOADER), File.join('ext', 'lib'))
+            end
+            # prepare wxRuby shared libs
+            Dir["lib/*.#{WXRuby3.config.dll_mask}"].each do |shlib|
+              unless WXRuby3.config.update_shlib_loadpaths(shlib) && WXRuby3.config.update_shlib_ruby_libpath(shlib)
                 # cleanup and exit
-                FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
+                remove_wxwin_shlibs
                 exit(1)
               end
-              wxwin_inshlibs << File.expand_path(inshlib)
             end
-          end
-          # prepare wxRuby shared libs
-          Dir["lib/*.#{WXRuby3.config.dll_mask}"].each do |shlib|
-            unless WXRuby3.config.update_shlib_loadpaths(shlib) && WXRuby3.config.update_shlib_ruby_libpath(shlib)
-              # cleanup and exit
-              FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
-              exit(1)
+            (wxwin_inshlibs + Dir["lib/*.#{WXRuby3.config.dll_mask}"]).each do |shlib|
+              unless WXRuby3.config.update_shlib_wxwin_libpaths(shlib, WXRuby3::Install.wxwin_shlibs)
+                # cleanup and exit
+                remove_wxwin_shlibs
+                exit(1)
+              end
             end
-          end
-          (wxwin_inshlibs + Dir["lib/*.#{WXRuby3.config.dll_mask}"]).each do |shlib|
-            unless WXRuby3.config.update_shlib_wxwin_libpaths(shlib, WXRuby3::Install.wxwin_shlibs)
-              # cleanup and exit
-              FileUtils.rm_f(Dir["ext/*.#{WXRuby3.config.dll_mask}"])
-              exit(1)
-            end
+          rescue
+            remove_wxwin_shlibs
+            raise
           end
           $stdout.puts 'done!' if WXRuby3.config.run_silent?
         end
@@ -96,7 +123,7 @@ module WXRuby3
 
       def remove_wxwin_shlibs
         if WXRuby3.config.get_config('with-wxwin')
-          WXRuby3::Install.wxwin_shlibs.each { |shlib| FileUtils.rm_f(File.join('ext', File.basename(shlib))) }
+          FileUtils.rm_rf(File.join('ext', 'lib'))
         end
       end
 

@@ -83,6 +83,13 @@ module WXRuby3
             return Qnil;
           }
           
+          // Log a Wx error Message to the current Wx log output and abort
+          static VALUE log_fatal_error(int argc, VALUE *argv, VALUE self)
+          {
+            do_log(wxLOG_FatalError, argc, argv);
+            return Qnil;
+          }
+          
           // Log a Wx low prio Message to the current Wx log output
           static VALUE log_info(int argc, VALUE *argv, VALUE self)
           {
@@ -264,6 +271,7 @@ module WXRuby3
         spec.add_init_code <<~__HEREDOC
           rb_define_module_function(mWxFunctions, "log_generic", VALUEFUNC(log_generic), -1);
           rb_define_module_function(mWxFunctions, "log_info", VALUEFUNC(log_info), -1);
+          rb_define_module_function(mWxFunctions, "log_fatal_error", VALUEFUNC(log_info), -1);
           rb_define_module_function(mWxFunctions, "log_verbose", VALUEFUNC(log_verbose), -1);
           rb_define_module_function(mWxFunctions, "log_message", VALUEFUNC(log_message), -1);
           rb_define_module_function(mWxFunctions, "log_warning", VALUEFUNC(log_warning), -1);

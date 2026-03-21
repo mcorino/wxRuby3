@@ -78,7 +78,7 @@ protected:
         // handle exception
         VALUE rexc = this->get_exception ();
         wxRuby_PrintException(rexc);
-        ::exit(255);
+        ::exit(127);
       }
       else
       {

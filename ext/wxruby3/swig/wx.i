@@ -17,6 +17,7 @@
 
 #include <wx/filesys.h>
 #include <wx/fs_zip.h>
+#include <wx/utils.h>
 
 #include <unordered_map>
 
@@ -283,6 +284,14 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 
   return rb_event;
 }
+
+static VALUE wxruby_get_wx_prefix(int argc, VALUE *argv, VALUE self)
+{
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); return Qnil;
+  }
+  return WXSTR_TO_RSTR(wxGetInstallPrefix());
+}
 %}
 
 %constant int wxWXWIDGETS_DEBUG_LEVEL = wxDEBUG_LEVEL;
@@ -298,4 +307,6 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 
 	// This is needed so HtmlHelp can load docs from a zip file
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
+
+	rb_define_module_function(mWxruby3, "get_wx_prefix", VALUEFUNC(wxruby_get_wx_prefix), -1);
 %}

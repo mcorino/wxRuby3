@@ -91,6 +91,17 @@ module WXRuby3
           CONFIG['wxversion'] = v
           CONFIG['with-wxhead'] = false
         }
+        opts.on('--without-webview',
+                'disable including wxWidgets WebView library (only valid with --with-wxwin)') { |v|
+          CONFIG['with-webview'] = false
+        }
+        opts.on('--with-webview[=backend]',
+                'include wxWidgets WebView library (only valid with --with-wxwin)',
+                'backend = (comma separated list of) backend(s) to include',
+                'without backend(s) specified only the default backend for the platform is included') { |v|
+          val = v ? v.split(',') : true
+          CONFIG['with-webview'] = val
+        }
         opts.on('--with-debug',
                 "build with debugger support [#{instance.get_config('with-debug')}]")  {|v| CONFIG['with-debug'] = true}
         opts.on('--swig=path',
@@ -159,6 +170,19 @@ module WXRuby3
           end
         end
       # else we're assumed to build wxWidgets ourselves so cannot test anything yet
+      end
+
+      # embedded wxWidgets?
+      if get_config('with-wxwin') && get_config('with-webview').is_a?(Array)
+        # check validity of backends
+        if (v = get_config('with-webview')).is_a?(Array)
+          backends = WX_WEBVIEW_BACKENDS[instance.platform]
+          err = v.reject { |b| backends.include?(b) }
+          unless err.empty?
+            STDERR.puts "ERROR: '#{err.join("' and '")}' #{err.size>1 ? 'are not valid WebView backends' : 'is not a valid WebView backend'} for this platform."
+            exit(1)
+          end
+        end
       end
 
       if get_cfg_string('wxxml').empty? && !get_cfg_string('wxwin').empty?

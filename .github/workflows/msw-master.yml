@@ -33,6 +33,7 @@ jobs:
             ruby: 'ruby'
             wxWidgets: 'master'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: develop
             wxr_type: develop
           - os: windows-2022
@@ -41,6 +42,7 @@ jobs:
             ruby: '3.2'
             wxWidgets: 'master'
             swig: '4'
+            configure_flags: --enable-webview
             wxw_type: develop
             wxr_type: gem
 
@@ -100,7 +102,7 @@ jobs:
         if: matrix.wxw_type != 'embed'
         working-directory: ${{ env.WXWIDGETS_ROOT }}
         run: |
-          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs  --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info'
+          ridk exec bash -c './configure --prefix=`pwd`/install --disable-tests --without-subdirs  --without-regex --without-libcurl --with-expat=builtin --with-zlib=builtin --disable-debug_info ${{matrix.configure_flags}}'
 
       - name: Build wxWidgets
         if: matrix.wxw_type != 'embed'

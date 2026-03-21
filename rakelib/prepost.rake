@@ -56,27 +56,18 @@ namespace 'wxruby' do
         if WXRuby3.config.windows?
           if WXRuby3.config.get_config('with-wxwin')
             WXRuby3::Post.create_startup <<~__CODE
-              begin
-                require 'ruby_installer'
-                if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
-                  RubyInstaller::Runtime.add_dll_directory('#{File.expand_path('ext')}')
-                else
-                  RubyInstaller::Build.add_dll_directory('#{File.expand_path('ext')}')
-                end
-              rescue LoadError
-              end
+              #{WXRuby3::Post.setup_add_dll_directory(File.expand_path(File.join('ext', 'lib')))}
+              #{WXRuby3::Post.setup_adjust_wx_prefix}
               __CODE
           elsif !WXRuby3.config.get_cfg_string('wxwin').empty? && File.directory?(WXRuby3.config.get_cfg_string('wxwininstdir'))
             WXRuby3::Post.create_startup <<~__CODE
-              begin
-                require 'ruby_installer'
-                if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
-                  RubyInstaller::Runtime.add_dll_directory('#{WXRuby3.config.get_cfg_string('wxwininstdir')}')
-                else
-                  RubyInstaller::Build.add_dll_directory('#{WXRuby3.config.get_cfg_string('wxwininstdir')}')
-                end
-              rescue LoadError
-              end
+              #{WXRuby3::Post.setup_add_dll_directory(WXRuby3.config.get_cfg_string('wxwininstdir'))}
+              __CODE
+          end
+        else
+          if WXRuby3.config.get_config('with-wxwin')
+            WXRuby3::Post.create_startup <<~__CODE
+              #{WXRuby3::Post.setup_adjust_wx_prefix}
               __CODE
           end
         end
@@ -84,19 +75,20 @@ namespace 'wxruby' do
     end
 
     task :install do
-      if WXRuby3.config.windows? && WXRuby3.config.get_config('with-wxwin') && !Rake::FileUtilsExt.nowrite_flag
-        File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), 'w') do |f|
-          f.puts <<~__CODE
-            begin
-              require 'ruby_installer'
-              if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
-                RubyInstaller::Runtime.add_dll_directory('#{WXRuby3.config.get_cfg_string('siterubyverarch')}')
-              else
-                RubyInstaller::Build.add_dll_directory('#{WXRuby3.config.get_cfg_string('siterubyverarch')}')
-              end
-            rescue LoadError
-            end
-            __CODE
+      if WXRuby3.config.get_config('with-wxwin') && !Rake::FileUtilsExt.nowrite_flag
+        if WXRuby3.config.windows?
+          File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), 'w') do |f|
+            f.puts <<~__CODE
+              #{WXRuby3::Post.setup_add_dll_directory(WXRuby3.config.get_cfg_string('siterubyverarch'))}
+              #{WXRuby3::Post.setup_adjust_wx_prefix}
+              __CODE
+          end
+        else
+          File.open(File.join(WXRuby3.config.get_cfg_string('siterubyver'), 'wx/startup.rb'), 'w') do |f|
+            f.puts <<~__CODE
+              #{WXRuby3::Post.setup_adjust_wx_prefix}
+              __CODE
+          end
         end
       end
     end

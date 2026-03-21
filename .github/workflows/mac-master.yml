@@ -32,7 +32,7 @@ jobs:
           wxWidgets: 'master'
           ruby: 'ruby'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
           wxr_type: develop
         - name: wxMac macOS 14
@@ -41,7 +41,7 @@ jobs:
           wxWidgets: 'master'
           ruby: '3.0'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
           wxr_type: gem
         - name: wxMac macOS 26
@@ -50,7 +50,7 @@ jobs:
           wxWidgets: 'master'
           ruby: '3.4'
           swig: '4'
-          configure_flags: --disable-sys-libs
+          configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
           wxr_type: develop
 

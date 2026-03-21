@@ -1,0 +1,135 @@
+---
+:wxWebView:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /wxWEBVIEW_BACKEND_IE\s+\(MSW\)/
+          :subst: 'Wx::WEB::WEBVIEW_BACKEND_IE (MSW)'
+        - :pattern: !ruby/regexp /Internet\s+Explorer\s+7/
+          :subst: 'Internet Explorer 11'
+        - :pattern: !ruby/regexp /wxWebViewIE::MSWSetEmulationLevel/
+          :subst: 'wxWebView::msw_set_ie_emulation_level'
+        - :pattern: !ruby/regexp /wxWebViewBackendIE/m
+          :global: true
+          :subst: 'wxWEBVIEW_BACKEND_IE'
+        - :pattern: !ruby/regexp /wxWEBVIEW_BACKEND_EDGE/m
+          :global: true
+          :subst: 'Wx::WEB::WEBVIEW_BACKEND_EDGE'
+        - :pattern: !ruby/regexp /wxWebViewBackendEdge/m
+          :global: true
+          :subst: 'wxWEBVIEW_BACKEND_EDGE'
+        - :pattern: !ruby/regexp /This\s+backend.*using\s+CMake.\s+To\s+build.*steps:/
+          :subst: 'This backend is enabled by default for WXMSW.'
+        - :pattern: !ruby/regexp /wxWebViewBackendWebKit/m
+          :global: true
+          :subst: 'wxWEBVIEW_BACKEND_WEBKIT'
+        - :pattern: !ruby/regexp /wxWEBVIEW_WEBKIT/m
+          :global: true
+          :subst: 'Wx::WEB::WEBVIEW_BACKEND_WEBKIT'
+        - :pattern: !ruby/regexp /wxWEBVIEW_CHROMIUM/m
+          :global: true
+          :subst: 'Wx::WEB::WEBVIEW_BACKEND_CHROMIUM'
+        - :pattern: !ruby/regexp /wxWebViewBackendChromium/m
+          :global: true
+          :subst: 'wxWEBVIEW_BACKEND_CHROMIUM'
+      :programlisting:
+        - :pattern: !ruby/regexp /wxSetEnv/
+          :replace: |
+            
+            
+            ```ruby
+             ENV['WEBKIT_DISABLE_DMABUF_RENDERER'] = '1'
+            ```
+
+    :post:
+      - :pattern: !ruby/regexp /-\s+When\s+not\s+using\s+CMake:.*remove\s+the dependency\s+on\s+WebView2Loader\.dll\s+at runtime./m
+        :subst: ''
+      - :pattern: !ruby/regexp /If.*fixed\s+version.*WebView2.*Edge\s+backend\./
+        :subst: ''
+      - :pattern: !ruby/regexp /see\s+\{Wx::WebViewChromium\}.*build\s+instructions./
+        :subst: |
+          see the wxWidgets documentation for wxWebViewChromium for additional usage and build instructions.
+          This backend can not be automatically build by the wxRuby3 build scripts but requires a custom wxWidgets installation.
+          See the wxRuby3 INSTALL documentation for details on how to build with a custom wxWidgets setup.
+:wxWebView.RunScript:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /document\.write/
+          :replace: |
+            
+            
+            ```ruby
+             webview.run_script('document.write('Hello from wxWidgets!')')
+            ```
+
+        - :pattern: !ruby/regexp /document\.getElementById/
+          :replace: |
+            
+            
+            ```ruby
+               if (result = webview.run_script('document.getElementById('some_id').innerHTML'))
+                   #... result contains the contents of the given element ...
+               # else: the element with this ID probably doesn't exist.
+               end
+            ```
+
+    :post:
+      - :pattern: !ruby/regexp /return\s+false/m
+        :global: true
+        :subst: 'return nil'
+      - :pattern: !ruby/regexp /MSWSetEmulationLevel\(\)/
+        :subst: 'Wx::WEB::WebView::msw_set_ie_emulation_level'
+      - :pattern: !ruby/regexp /If.*output.*success/m
+        :subst: 'This method returns the result of executing this code on success (or nil if no result or on failure)'
+      - :pattern: !ruby/regexp /true\s+if\s+there\s+is.*error./m
+        :subst: ''
+:wxWebView.AddScriptMessageHandler:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /AddScriptMessageHandler/
+          :replace: |
+            
+            
+            ```ruby
+               # Install message handler with the name wx_msg
+               @webView.add_script_message_handler("wx_msg")
+               # Bind handler
+               @webView.evt_webview_script_message_received(Wx::ID_ANY) { |evt|
+                   Wx.log_message("Script message received; value = %s, handler = %s", evt.get_string, evt.get_message_handler)
+               }
+            ```
+
+    :post:
+      - :pattern: !ruby/regexp /Sample\s+C\+\+\s+code\s+/
+        :subst: 'Sample code '
+:wxWebView.SetProxy:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            
+            ```ruby
+              webview = Wx::WEB::WebView.new
+              unless webview.set_proxy("http://127.0.0.1:8080")
+                  Wx.log_warning("Setting proxy failed!")
+              end
+              webview.create(parent, Wx::ID_ANY)
+            ```
+
+:wxWebView.IsBackendAvailable:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            
+            ```ruby
+              if Wx::WEB::WebView::is_backend_available(Wx::WEB::WEBVIEW_BACKEND_EDGE)
+                  #... enable some extra functionality not available with the IE backend ...
+              end
+            ```

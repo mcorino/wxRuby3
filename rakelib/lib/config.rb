@@ -116,6 +116,12 @@ module WXRuby3
 
   WXWIN_MINIMUM = '3.2.0'
 
+  WX_WEBVIEW_BACKENDS = {
+    macosx: ['webkit'],
+    linux: ['webkit'],
+    mingw: ['ie', 'edge']
+  }
+
   module Config
 
     def self.command_to_s(*cmd)
@@ -361,7 +367,7 @@ module WXRuby3
             test = File.join(Config.instance.test_dir, test)
             test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
           end
-          Rake.sh(Config.instance.exec_env.merge({'RUBYLIB'=>rb_lib_path}), FileUtils::RUBY, test) { |ok,status| errors << File.basename(test, '.rb') unless ok }
+          Rake.sh(exec_env, *make_ruby_cmd(test, verbose: verbose?)) { |ok,_| errors << File.basename(test, '.rb') unless ok }
         end
       end
       fail "ERRORS: ##{errors.size} test scripts failed.\n\t#{errors.join("\n\t")}" unless errors.empty?
@@ -442,6 +448,14 @@ module WXRuby3
 
     def clear_config(key)
       Config.clear_config(key)
+    end
+
+    def wx_with_webview?
+      Config.wx_with_webview?
+    end
+
+    def wx_with_webview_backend?(backend)
+      Config.wx_with_webview_backend?(backend)
     end
 
     def dll_mask
@@ -733,10 +747,21 @@ module WXRuby3
             @wx_version || ''
           end
 
-          def wx_version_check(ver)
+          def wx_version_list
             @wx_version_list ||= (@wx_version || '0.0.0').split('.').collect {|s| s.to_i }
+          end
+
+          def wx_version_check(ver)
             ver = ver.split('.').collect {|s| s.to_i }  unless ::Array === ver
-            @wx_version_list <=> ver
+            wx_version_list <=> ver
+          end
+
+          def wx_plugin_path
+            @wx_plugin_path ||= if (wx_version_list[1] % 2) == 0
+                                  File.join('wx', "#{wx_version_list[0]}.#{wx_version_list[1]}")
+                                else
+                                  File.join('wx', wx_version)
+                                end
           end
 
           def mingw?
@@ -907,6 +932,15 @@ module WXRuby3
 
       def clear_config(key)
         WXRuby3::CONFIG.delete(key.to_s)
+      end
+
+      def wx_with_webview?
+        get_config('with-webview') != false
+      end
+
+      def wx_with_webview_backend?(backend)
+        v = get_config('with-webview')
+        v.nil? || v == true || (v.is_a?(Array) && v.include?(backend))
       end
 
       def is_configured?

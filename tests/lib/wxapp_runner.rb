@@ -72,6 +72,14 @@ module WxRuby
         Unit.is_ci_build?
       end
 
+      def self.is_cirrus_ci_build?
+        (ENV['CIRRUS_CI'] || ENV['CI'])
+      end
+
+      def is_cirrus_ci_build?
+        Unit.is_cirrus_ci_build?
+      end
+
       def self.uses_wayland?
         Wx.has_feature?('HAVE_WAYLAND_CLIENT')
       end

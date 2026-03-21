@@ -1,0 +1,38 @@
+---
+:wxWebViewWindowFeatures:
+  :detail:
+    :pre:
+      :programlisting:
+        - :pattern: !ruby/regexp /wxEVT_WEBVIEW_NEWWINDOW/
+          :replace: |
+            
+            
+            ```ruby
+              # Bind new window handler
+              @webView.evt_webview_newwindow(Wx::ID_ANY) { |evt|
+                if evt.get_url == "http://badwebsite.com"
+                  evt.veto # Disallow new window for badwebsite.com
+                else
+                  evt.skip # Allow new window for all other websites
+                end    
+              }
+              
+              # Bind new window features handler
+              @webView.evt_webview_newwindow_features(Wx::ID_ANY) { |evt|
+                 # Get target window features
+                 features = evt.get_target_window_features
+                 # Create a top level window for the child web view
+                 win = Wx::Frame.new(nil, Wx::ID_ANY, features.get_position, features.get_size)
+                 sizer = Wx::VBoxSizer.new
+                 win.set_sizer(sizer)
+                 # Get the child web view
+                 childWebView = features.get_child_web_view
+                 # Place the child web view into the window
+                 childWebView.create(win, Wx::ID_ANY)
+                 sizer.add(childWebView, Wx::SizerFlags.new.proportion(1).expand)
+              }
+            ```
+
+    :post:
+      - :pattern: !ruby/regexp /Sample\s+C\+\+\s+code\s+/
+        :subst: 'Sample code '

@@ -24,6 +24,26 @@ module WXRuby3
       end
     end
 
+    def self.setup_add_dll_directory(dll_directory)
+      <<~__CODE
+        begin
+          require 'ruby_installer'
+          if RubyInstaller::Runtime.respond_to?(:add_dll_directory)
+            RubyInstaller::Runtime.add_dll_directory('#{dll_directory}')
+          else
+            RubyInstaller::Build.add_dll_directory('#{dll_directory}')
+          end
+        rescue LoadError
+        end
+        __CODE
+    end
+
+    def self.setup_adjust_wx_prefix
+      <<~__CODE
+        ENV['WXPREFIX'] = File.realpath(File.join(__dir__, '..', '..', 'ext'))
+        __CODE
+    end
+
   end
 
 end

@@ -30,6 +30,7 @@ jobs:
             wxWidgets: 'master'
             swig: '4'
             use_xvfb: true
+            configure_flags: --enable-webview
             wxw_type: develop
             wxr_type: develop
             wxr_test_exclude: 'test_media_ctrl'
@@ -41,6 +42,7 @@ jobs:
             wxWidgets: 'master'
             swig: '4'
             use_xvfb: true
+            configure_flags: --enable-webview
             wxw_type: develop
             wxr_type: gem
             wxr_test_exclude: 'test_media_ctrl'
