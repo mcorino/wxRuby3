@@ -27,6 +27,26 @@ module Wx
 
     end
 
+    class << self
+
+      define_method :HtmlModalHelp do |parent, helpFile, topic, style = Wx::HTML::HF_DEFAULT_STYLE|
+
+        # Force some mandatory styles
+        style = style | Wx::HTML::HF_DIALOG | Wx::HTML::HF_MODAL
+
+        controller = Wx::HTML::HtmlHelpController.new(style, parent)
+        controller.init(helpFile)
+
+        if topic.empty?
+          controller.display_contents
+        else
+          controller.display_section(topic)
+        end
+
+      end
+
+    end
+
   end
 
 end
