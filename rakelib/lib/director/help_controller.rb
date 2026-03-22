@@ -90,7 +90,7 @@ module WXRuby3
               res = SWIG_ConvertPtr(argv[0], &ptr, SWIGTYPE_p_wxWindow, 0);
               if (!SWIG_IsOK(res)) 
               {
-                VALUE msg = rb_inspect(argv[1]);
+                VALUE msg = rb_inspect(argv[0]);
                 rb_raise(rb_eTypeError, "expected wxWindow* for 1 but got %s", StringValuePtr(msg));
                 return Qnil; 
               }
