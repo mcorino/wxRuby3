@@ -296,7 +296,7 @@ module Help
 
       # Create the main application window
       frame = MyFrame.new("HelpDemo wxWidgets App",
-                          [50, 50], [450, 340])
+                          [50, 50], [600, 400])
 
       unless USE_SIMPLE_HELP_PROVIDER
         provider.set_help_controller(frame.get_help_controller)
