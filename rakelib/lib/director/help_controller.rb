@@ -76,7 +76,7 @@ module WXRuby3
             {
               if (argc < 2 || argc > 4)
               {
-                rb_raise(rb_eArgError, "wrong # of arguments(%d for 2 (max 4))", argc);
+                rb_raise(rb_eArgError, "wrong # of arguments %d for 2 (max 4)", argc);
                 return Qnil;
               }
 
