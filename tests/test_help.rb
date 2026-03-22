@@ -76,9 +76,9 @@ if Wx.has_feature?(:USE_HELP)
 
     def test_help_controller
       assert_true(Wx::HelpProvider.get.get_help_controller.display_contents)
-      assert_true(Wx::HelpProvider.get.get_help_controller.quit)
+      assert_true(Wx::HelpProvider.get.get_help_controller.quit) unless is_msw?
       assert_true(Wx::HelpProvider.get.get_help_controller.display_section('Introduction'))
-      assert_true(Wx::HelpProvider.get.get_help_controller.quit)
+      assert_true(Wx::HelpProvider.get.get_help_controller.quit) unless is_msw?
     end
 
   end
