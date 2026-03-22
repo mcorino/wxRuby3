@@ -176,7 +176,7 @@ module Help
     def on_show_context_help(_event)
       # This starts context help mode, then the user
       # clicks on a window to send a help message
-      Wx::ContextHelp.new(self).end_context_help
+      Wx.ContextHelp(self)
     end
 
     def on_show_dialog_context_help(_event)
