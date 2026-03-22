@@ -177,6 +177,7 @@ module WxRuby
         start = ::Time.now
         while (Time.now - start) < timeout
           Wx.get_app.yield
+          sleep(0.01) if is_msw? # it seems on windows things may suffer from tight loops so give some breathing room
         end
       end
 
@@ -190,6 +191,7 @@ module WxRuby
         while (Time.now - start) < timeout
           Wx.get_app.yield
           return if block.call
+          sleep(0.01) if is_msw? # it seems on windows things may suffer from tight loops so give some breathing room
         end
       end
 
