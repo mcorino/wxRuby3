@@ -74,11 +74,13 @@ if Wx.has_feature?(:USE_HELP)
       assert_empty(Wx::HelpProvider.get.get_help(button))
     end
 
-    def test_help_controller
-      assert_true(Wx::HelpProvider.get.get_help_controller.display_contents)
-      assert_true(Wx::HelpProvider.get.get_help_controller.quit) unless is_msw?
-      assert_true(Wx::HelpProvider.get.get_help_controller.display_section('Introduction'))
-      assert_true(Wx::HelpProvider.get.get_help_controller.quit) unless is_msw?
+    unless is_cirrus_ci_build?
+      def test_help_controller
+        assert_true(Wx::HelpProvider.get.get_help_controller.display_contents)
+        assert_true(Wx::HelpProvider.get.get_help_controller.quit) unless is_msw?
+        assert_true(Wx::HelpProvider.get.get_help_controller.display_section('Introduction'))
+        assert_true(Wx::HelpProvider.get.get_help_controller.quit) unless is_msw?
+      end
     end
 
   end
