@@ -27,6 +27,16 @@ module Wx
 
     end
 
+    class << self
+
+      define_method :HtmlModalHelp do |parent, help_file, topic = '', style = Wx::HTML::HF_DEFAULT_STYLE|
+
+        html_modal_help(parent, help_file, topic, style)
+
+      end
+
+    end
+
   end
 
 end
