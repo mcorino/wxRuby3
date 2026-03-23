@@ -331,7 +331,7 @@ module WXRuby3
 
               WXRUBY_TRACE_IF(WxRubyTraceGCMarkGridCellAttr, 2)
                 WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
-                WXRUBY_TRACE("| wxRuby_markGridCellAttr : " << it->first << "|" << (void*)c_ptr)
+                WXRUBY_TRACE("| wxRuby_markGridCellAttr : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
               rb_gc_mark(obj);
