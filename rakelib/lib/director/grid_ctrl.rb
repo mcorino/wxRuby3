@@ -432,7 +432,7 @@ module WXRuby3
 
               WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
                 WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
-                WXRUBY_TRACE("| wxRuby_markGridCellEditor : " << it->first << "|" << (void*)c_ptr)
+                WXRUBY_TRACE("| wxRuby_markGridCellEditor : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
               rb_gc_mark(obj);
@@ -533,7 +533,7 @@ module WXRuby3
 
               WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
                 WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
-                WXRUBY_TRACE("| wxRuby_markGridCellRenderer : " << it->first << "|" << (void*)c_ptr)
+                WXRUBY_TRACE("| wxRuby_markGridCellRenderer : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
               rb_gc_mark(obj);
