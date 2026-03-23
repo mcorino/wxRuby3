@@ -456,12 +456,30 @@ if Wx.has_feature?(:USE_WEBVIEW)
         assert_true(loaded)
         yield_for_a_while(3000)
         assert(webview.get_page_text =~ /Wx::WebViewHandler::start_request/)
-        unless (is_gtk? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_WEB_KIT) || is_msw?
+        unless (is_gtk? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_WEB_KIT) ||
+               (is_msw? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_IE)
           advanced_wv_handler.request_handled = false
-          assert_not_nil(webview.run_script('sendRequest();'))
-          yield_and_wait_for_test(2000) { advanced_wv_handler.request_handled }
-          request_data = webview.run_script('document.getElementById("request_data").value;')
-          assert(webview.run_script('data = document.getElementById("response_response").value;') =~ /data: \"#{request_data}\"/)
+          webview.run_script_async('sendRequest();')
+          yield_and_wait_for_test(is_msw? ? 5000 : 2000) { advanced_wv_handler.request_handled }
+          script_error = false
+          script_finished = false
+          script_result = nil
+          frame_win.evt_webview_script_result(webview) { |evt| script_error = evt.is_error; script_finished = !script_error; script_result = evt.get_string }
+          webview.run_script_async('document.getElementById("request_data").value;')
+          yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+          assert_false(script_error, "AsyncScript ERROR: #{script_result}")
+          assert_true(script_finished)
+          assert_not_nil(script_result)
+          data = script_result
+          script_error = false
+          script_finished = false
+          script_result = nil
+          webview.run_script_async('data = document.getElementById("response_response").value;')
+          yield_and_wait_for_test(is_msw? ? 10000 : 5000) { script_error || script_finished }
+          assert_false(script_error, "AsyncScript ERROR: #{script_result}")
+          assert_true(script_finished)
+          assert_not_nil(script_result)
+          assert(script_result =~ /data: \"#{data}\"/)
         end
       else
         STDERR.puts 'WARNING: Skipping test because of WebView2 load failure'
