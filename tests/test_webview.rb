@@ -456,8 +456,7 @@ if Wx.has_feature?(:USE_WEBVIEW)
         assert_true(loaded)
         yield_for_a_while(3000)
         assert(webview.get_page_text =~ /Wx::WebViewHandler::start_request/)
-        unless (is_gtk? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_WEB_KIT) ||
-               (is_msw? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_IE)
+        unless (is_gtk? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_WEB_KIT) || is_msw?
           advanced_wv_handler.request_handled = false
           assert_not_nil(webview.run_script('sendRequest();'))
           yield_and_wait_for_test(2000) { advanced_wv_handler.request_handled }
