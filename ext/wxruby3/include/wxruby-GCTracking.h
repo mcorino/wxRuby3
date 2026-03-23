@@ -190,7 +190,7 @@ WXRUBY_EXPORT void wxRuby_MarkTracked()
 WXRUBY_EXPORT void wxRuby_RegisterTrackingCategory(std::string category, TGCMarkerFunction marker, bool has_data)
 {
   WXRUBY_TRACE_IF(WxRubyTraceGCTrackRegistry, 2)
-    WXRUBY_TRACE("< wxRuby_RegisterTrackingCategory(" << category << ", " << marker << ")")
+    WXRUBY_TRACE("< wxRuby_RegisterTrackingCategory(" << category.c_str() << ", " << marker << ")")
   WXRUBY_TRACE_END
 
   // create a tracking entry
@@ -201,7 +201,7 @@ WXRUBY_EXPORT void wxRuby_RegisterCategoryValue(const std::string &category, voi
 {
   WXRUBY_TRACE_IF(WxRubyTraceGCTrackRegistry, 2)
     WXRUBY_TRACE("> wxRuby_RegisterCategoryValue" << std::flush <<
-                   "(" << category << ", "
+                   "(" << category.c_str() << ", "
                        << ptr << ":{"
                        << rb_class2name(CLASS_OF(object))
                        << "}, " << object << ")")
@@ -229,7 +229,7 @@ WXRUBY_EXPORT void wxRuby_UnregisterCategoryValue(const std::string &category, v
 {
   WXRUBY_TRACE_IF(WxRubyTraceGCTrackRegistry, 2)
     WXRUBY_TRACE("> wxRuby_UnregisterCategoryValue" << std::flush <<
-                   "(" << category << ", " << ptr << ")")
+                   "(" << category.c_str() << ", " << ptr << ")")
   WXRUBY_TRACE_END
 
   __g_GCTracking.remove_tracking(category, ptr);
