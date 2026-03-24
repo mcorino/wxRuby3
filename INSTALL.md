@@ -102,7 +102,7 @@ The software requirements for setting up a wxRuby3 runtime environment are:
 
 | Sofware                                       | Notes                                                                                                                                                                                                                                                                                                                        |
 |-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Ruby >= 2.7                                   | A supported version of the Ruby interpreter needs to be installed. This is an absolute requirement for any installation as one cannot install gems without Ruby and building from source requires Ruby to drive the build process.                                                                                           |
+| Ruby >= 3.0                                   | A supported version of the Ruby interpreter needs to be installed. This is an absolute requirement for any installation as one cannot install gems without Ruby and building from source requires Ruby to drive the build process.                                                                                           |
 | C++ compiler<br>(incl. dev tools like `make`) | Required for a source based installation to build wxWidgets (optionally) and the wxRuby extension libraries.<br/>On linux a recent version of the GNU C++ compiler (with c++-14 support) is required.<br>On Windows the RubyInstaller MSYS2-Devkit would be required.<br>On MacOS XCode with commandline tools would be required. |
 | Git version control toolkit                   | Required for a source based installation in to (possibly) clone a copy of the wxWidgets Github repository or to clone the Github repository of wxRuby3 itself for a fully source based installation.                                                                                                                         |
 | Doxygen (>= 1.9.1)                            | Required for building the wxRuby3 extension libraries for a source based installation. [**1**]                                                                                                                                                                                                                               |
@@ -116,7 +116,7 @@ But of course any of these requirements can also be fulfilled explicitly with se
 wxRuby3 installation procedure. See the platform specific sections of [Installing software requirements](INSTALL.md#installing-software-requirements) for details on 
 how to go about that. 
 
-[**1**] The wxRuby3 build process needs doxygen to generated XML files containing wxWidgets interface specs which are used to 
+[**1**] The wxRuby3 build process needs doxygen to generate XML files containing wxWidgets interface specs which are used to 
 generate interface definitions for SWIG
 
 [**2**] The wxRuby3 build process uses SWIG to generate C++ source code for the wrapper interfaces from
@@ -367,6 +367,26 @@ Note that in this case `--with-wxwin` is implied.
 > the development state of the wxWidgets master branch. You can check the latest results of the wxRuby3 CI master build 
 > workflows of the [wxRuby3 Github Actions](https://github.com/mcorino/wxRuby3/actions) to get a feel of the current 
 > integration state. 
+
+#### Controlling included modules for embedded wxWidgets
+
+When building wxRuby3 with embedded wxWidgets (implicit or explicit) there are some setup arguments to control the
+modules included in the wxRuby3 installation.
+If none of these options are specified __all__ modules will be included by default.
+
+Note that these option only have effect if building with embedded wxWidgets. When building for wxWidgets system or user 
+installation, module support will be determined by the build options supplied when building that wxWidgets installation.
+
+##### WebView module
+
+To explicitly include the wxWidgets WebView library for the Wx::WEB::WebView module (the default) add the 
+`--with-webview` option. To explicitly specify which WebView backends should be supported it is possible to use the
+option like `--with-webview=<backend>[,<backend>`.
+On Windows __<backend\>__ can be `edge` and/or `ie`. By default, if no backend is specified, only the `edge` backend
+will be supported on Windows.
+On Linux and MacOS currently only the `webkit` backend is supported.
+
+To explicitly exclude WebView support add the `--without-webview` option. 
 
 #### Setup with user installed wxWidgets
 
