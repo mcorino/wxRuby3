@@ -19,40 +19,14 @@ class WxRubySharedEvtHandler
 public:
   WxRubySharedEvtHandler(wxEvtHandler* evt_handler)
     : evt_handler_(evt_handler) {}
-  ~WxRubySharedEvtHandler()
-  {
-    const std::lock_guard<std::mutex> guard(WxRubyEvtHandlerRef::s_lock_);
-    if (this->evt_handler_)
-    {
-      WxRubyEvtHandlerRef* eh_ref = dynamic_cast<WxRubyEvtHandlerRef*> (this->evt_handler_->GetRefData());
-      if (eh_ref) eh_ref->_remove_shared_handler(this);
-    }
-  }
+  ~WxRubySharedEvtHandler();
 
-  wxEvtHandler* get_evt_handler()
-  {
-    const std::lock_guard<std::mutex> guard(WxRubyEvtHandlerRef::s_lock_);
-    return this->evt_handler_;
-  }
+  wxEvtHandler* get_evt_handler();
 
   VALUE get_rb_shared_evt_handler() { return this->rb_shared_evt_handler_; }
   void set_rb_shared_evt_handler(VALUE h) { this->rb_shared_evt_handler_ = h; }
 
-  WxRubySharedEvtHandler* clone()
-  {
-    const std::lock_guard<std::mutex> guard(WxRubyEvtHandlerRef::s_lock_);
-    if (this->evt_handler_)
-    {
-      WxRubyEvtHandlerRef* eh_ref = dynamic_cast<WxRubyEvtHandlerRef*> (this->evt_handler_->GetRefData());
-      if (eh_ref)
-      {
-        WxRubySharedEvtHandler* clone_ = new WxRubySharedEvtHandler(this->evt_handler_);
-        eh_ref->_add_shared_handler(clone_);
-        return clone_;
-      }
-    }
-    return nullptr;
-  }
+  WxRubySharedEvtHandler* clone();
 
 private:
   friend class WxRubyEvtHandlerRef;
@@ -90,7 +64,7 @@ private:
 
   void _remove_shared_handler(WxRubySharedEvtHandler* seh)
   {
-    this->shared_handlers_.erase(seh)
+    this->shared_handlers_.erase(seh);
   }
 
   typedef std::set<WxRubySharedEvtHandler*> shared_handler_list_t;
@@ -100,7 +74,39 @@ public:
   static std::mutex s_lock_;
 };
 
-std::mutex WxRubyEvtHandlerRef:s_lock_ {};
+std::mutex WxRubyEvtHandlerRef::s_lock_ {};
+
+inline WxRubySharedEvtHandler::~WxRubySharedEvtHandler()
+{
+  const std::lock_guard<std::mutex> guard(WxRubyEvtHandlerRef::s_lock_);
+  if (this->evt_handler_)
+  {
+    WxRubyEvtHandlerRef* eh_ref = dynamic_cast<WxRubyEvtHandlerRef*> (this->evt_handler_->GetRefData());
+    if (eh_ref) eh_ref->_remove_shared_handler(this);
+  }
+}
+
+inline wxEvtHandler* WxRubySharedEvtHandler::get_evt_handler()
+{
+  const std::lock_guard<std::mutex> guard(WxRubyEvtHandlerRef::s_lock_);
+  return this->evt_handler_;
+}
+
+inline WxRubySharedEvtHandler* WxRubySharedEvtHandler::clone()
+{
+  const std::lock_guard<std::mutex> guard(WxRubyEvtHandlerRef::s_lock_);
+  if (this->evt_handler_)
+  {
+    WxRubyEvtHandlerRef* eh_ref = dynamic_cast<WxRubyEvtHandlerRef*> (this->evt_handler_->GetRefData());
+    if (eh_ref)
+    {
+      WxRubySharedEvtHandler* clone_ = new WxRubySharedEvtHandler(this->evt_handler_);
+      eh_ref->_add_shared_handler(clone_);
+      return clone_;
+    }
+  }
+  return nullptr;
+}
 
 // WxRubySharedEvtHandler wrapper class definition and helper functions
 static size_t __WxRubySharedEvtHandler_size(const void* data)
@@ -144,12 +150,12 @@ static VALUE WxRuby_MakeSharedEvtHandler(wxEvtHandler* wxeh)
     }
     else
     {
-      eh_ref = new WxRubyEvtHandlerRef(wxeh);
+      eh_ref = new WxRubyEvtHandlerRef();
       wxeh->SetRefData(eh_ref);
     }
 
     // create new shared handler
-    WxRubySharedEvtHandler* seh = new WxRubySharedEvtHandler(weh);
+    WxRubySharedEvtHandler* seh = new WxRubySharedEvtHandler(wxeh);
     // create Ruby wrapper object
     VALUE rb_shared_eh =TypedData_Wrap_Struct(cWxRubySharedEvtHandler,
                                               &__WxRubySharedEvtHandler_type,
@@ -194,13 +200,20 @@ static VALUE WxRubySharedEvtHandler_queue_event(int argc, VALUE* argv, VALUE sel
   }
   // derefence shared event handler
   wxEvtHandler* wxeh = WxRuby_GetSharedEvtHandler(self);
-  // get C++ event
-  wxEvent* wxevt = (wxEvent*)DATA_PTR(argv[0]);
-  // unlink and remove tracking for any event (only C++ state left)
-  SWIG_RubyUnlinkObjects((void*)arg2);
-  wxRuby_RemoveTracking((void*)arg2);
-  // queue event
-  wxeh->QueueEvent(wxevt);
+  if (wxeh)
+  {
+    // get C++ event
+    wxEvent* wxevt = (wxEvent*)DATA_PTR(argv[0]);
+    // unlink and remove tracking for any event (only C++ state left)
+    SWIG_RubyUnlinkObjects((void*)wxevt);
+    wxRuby_RemoveTracking((void*)wxevt);
+    // queue event
+    wxeh->QueueEvent(wxevt);
+  }
+  else
+  {
+    rb_raise(rb_eRuntimeError, "Event handler already deleted.");
+  }
 
   return Qnil;
 }
@@ -209,29 +222,33 @@ static VALUE wxRuby_EvtHandler_make_shared(VALUE self)
 {
   void *ptr;
   wxEvtHandler *wxeh = nullptr;
-  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(CLASS_OF(self));
-  int res = SWIG_ConvertPtr(self, &ptr, SWIGTYPE_p_wxEvtHandler, 0);
-  if (!SWIG_IsOK(res))
+  ptr = DATA_PTR(self);
+  wxeh = reinterpret_cast< wxEvtHandler * >(ptr);
+  if (wxeh)
   {
-    rb_raise(rb_eTypeError, "Expected self to be EvtHandler");
+    VALUE rb_shared_eh = WxRuby_MakeSharedEvtHandler(wxeh);
+    if (RB_NIL_P(rb_shared_eh))  rb_raise(rb_eRuntimeError, "Unable to create shared event handler");
+    return rb_shared_eh;
+  }
+  else
+  {
+    rb_raise(rb_eRuntimeError, "Object already deleted.");
     return Qnil;
   }
-  wxeh = reinterpret_cast< wxEvtHandler * >(ptr);
-
-  VALUE rb_shared_eh = WxRuby_MakeSharedEvtHandler(wxeh);
-  if (RB_NIL_P(rb_shared_eh))  rb_raise(rb_eRuntimeError, "Unable to create shared event handler");
-  return rb_shared_eh;
 }
 
-static void wx_setup_WxRubySharedEvtHandler()
+static void wx_setup_WxRubySharedEvtHandler(VALUE mWxExt)
 {
   // mark thids extension Ractor safe
   rb_ext_ractor_safe(true);
 
-  cWxRubySharedEvtHandler = rb_define_class_under(mWxCore, "SharedEvtHandler", rb_cObject);
+  cWxRubySharedEvtHandler = rb_define_class_under(mWxExt, "SharedEvtHandler", rb_cObject);
   rb_undef_alloc_func(cWxRubySharedEvtHandler);
   rb_define_method(cWxRubySharedEvtHandler, "clone", VALUEFUNC(WxRubySharedEvtHandler_clone), 0);
   rb_define_method(cWxRubySharedEvtHandler, "queue_event", VALUEFUNC(WxRubySharedEvtHandler_queue_event), -1);
+
+  VALUE klass = rb_const_get(wxRuby_Core(), rb_intern("EvtHandler"));
+  rb_define_method(klass, "make_shared", VALUEFUNC(wxRuby_EvtHandler_make_shared), 0);
 }
 
 #endif
