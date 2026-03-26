@@ -336,9 +336,6 @@ module WXRuby3
               return WxRuby_cAsyncProcCallEvent;
             }
             __HEREDOC
-          spec.add_header_code <<~__HEREDOC
-            #include "wxruby-SharedEventHandler.h"
-            __HEREDOC
           spec.add_extend_code 'wxEvtHandler', <<~__HEREDOC
             // This provides the public Ruby 'connect' method
             VALUE connect(int firstId, int lastId, wxEventType eventType, VALUE proc)
@@ -411,15 +408,7 @@ module WXRuby3
                 self->wxEvtHandler::QueueEvent(evt);
               }
             }
-
-            VALUE make_shared()
-            {
-              VALUE rb_shared_eh = WxRuby_MakeSharedEvtHandler($self);
-              if (RB_NIL_P(rb_shared_eh))  rb_raise(rb_eRuntimeError, "Unable to create shared event handler");
-              return rb_shared_eh;
-            }
             __HEREDOC
-          spec.add_init_code 'wx_setup_WxRubySharedEvtHandler();'
           spec.add_wrapper_code <<~__HEREDOC
             static swig_class wxRuby_GetSwigClassWxEvtHandler() {
               return SwigClassWxEvtHandler;

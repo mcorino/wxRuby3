@@ -255,6 +255,10 @@ module WXRuby3
     Director.Spec(pkg, 'wxMBConv')
   }
 
+  Director.Package('Wx::Ext') do |pkg|
+    Director.Spec(pkg, 'wxSharedEvtHandler')
+  end
+
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|
     Director.Spec(pkg, 'wxPrinterDC', director: Director::DerivedDC, requirements: Director.AnyOf(*%w[WXMSW WXOSX USE_GTKPRINT]))
     Director.Spec(pkg, 'wxPostScriptDC', director: Director::DerivedDC)
