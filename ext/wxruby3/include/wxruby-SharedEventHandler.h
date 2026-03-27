@@ -185,9 +185,11 @@ static wxEvtHandler* WxRuby_GetSharedEvtHandler(VALUE rb_shared_eh)
 static VALUE WxRubySharedEvtHandler_clone(VALUE self)
 {
   WxRubySharedEvtHandler* shared_eh = (WxRubySharedEvtHandler*)RTYPEDDATA_DATA(self);
-  VALUE clone = rb_obj_clone(self);
-  RTYPEDDATA_DATA(clone) = (void*)shared_eh->clone();
-  return clone;
+  // create new Ruby SharedEvtHandler wrapper object with cloned WxRubySharedEvtHandler
+  VALUE clone =TypedData_Wrap_Struct(cWxRubySharedEvtHandler,
+                                     &__WxRubySharedEvtHandler_type,
+                                     shared_eh->clone());
+  return rb_obj_freeze(clone);
 }
 
 static VALUE WxRubySharedEvtHandler_queue_event(int argc, VALUE* argv, VALUE self)
