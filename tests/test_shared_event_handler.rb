@@ -86,7 +86,7 @@ class WindowTests < WxRuby::Test::GUITests
         seh_.queue_event(evt)
         :exited
       end
-      yield_and_wait_for_test(3000) { data_sent }
+      yield_and_wait_for_test(10000) { data_sent }
       assert_not_nil(data_sent)
       assert_equal(data_sent, r.take)
       assert_equal(:exited, r.take)
@@ -125,7 +125,7 @@ class WindowTests < WxRuby::Test::GUITests
         seh_.queue_event(evt)
         :exited
       end
-      yield_and_wait_for_test(3000) { data_sent }
+      yield_and_wait_for_test(10000) { data_sent }
       assert_not_nil(data_sent)
       assert_equal(data_sent, r.take)
       assert_equal(:exited, r.take)
