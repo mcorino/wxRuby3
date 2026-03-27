@@ -159,7 +159,7 @@ static VALUE WxRuby_MakeSharedEvtHandler(wxEvtHandler* wxeh)
     // create Ruby wrapper object
     VALUE rb_shared_eh =TypedData_Wrap_Struct(cWxRubySharedEvtHandler,
                                               &__WxRubySharedEvtHandler_type,
-                                              &seh);
+                                              seh);
     rb_shared_eh = rb_obj_freeze(rb_shared_eh);
     seh->set_rb_shared_evt_handler(rb_shared_eh);
     // register shared handler
@@ -204,9 +204,9 @@ static VALUE WxRubySharedEvtHandler_queue_event(int argc, VALUE* argv, VALUE sel
   {
     // get C++ event
     wxEvent* wxevt = (wxEvent*)DATA_PTR(argv[0]);
-    // unlink and remove tracking for any event (only C++ state left)
-    SWIG_RubyUnlinkObjects((void*)wxevt);
-    wxRuby_RemoveTracking((void*)wxevt);
+    RDATA(argv[0])->dfree = 0; // disown
+    DATA_PTR(argv[0]) = nullptr; // unlink
+    // no need to remove tracking as all Ractor safe events are untracked
     // queue event
     wxeh->QueueEvent(wxevt);
   }

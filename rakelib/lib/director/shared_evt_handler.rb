@@ -19,7 +19,7 @@ module WXRuby3
           #include "wxruby-SharedEventHandler.h"
           __HEREDOC
         spec.add_init_code <<~__HEREDOC
-          wx_setup_WxRubySharedEvtHandler(mWxExt);
+          wx_setup_WxRubySharedEvtHandler(mWxRT);
           __HEREDOC
       end
 

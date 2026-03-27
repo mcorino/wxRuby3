@@ -4,40 +4,80 @@
 
 require_relative './lib/wxframe_runner'
 
+class TestEvent < Wx::RT::ThreadEvent
+  EVT_TEST_EVENT = Wx::EvtHandler.register_class(TestEvent, nil, 'evt_test_event', 0)
+
+  def initialize(id=0)
+    super(EVT_TEST_EVENT, id)
+  end
+end
+
+
 class WindowTests < WxRuby::Test::GUITests
 
-  class TestEvent < Wx::Event
-    EVT_TEST_EVENT = Wx::EvtHandler.register_class(self, nil, 'evt_test_event', 0)
-    def initialize(id=0)
-      super(EVT_TEST_EVENT, id)
-      @value = nil
-    end
-
-    attr_accessor :value
-
-    def initialize_clone(org)
-      super
-      self.value = org.value.dup if org.value
-    end
-  end
-
   def test_shared_handler
-    p seh = frame_win.make_shared
-    assert_kind_of(Wx::SharedEvtHandler, seh)
+    seh = frame_win.make_shared
+    assert_kind_of(Wx::RT::SharedEvtHandler, seh)
     assert_true(Ractor.shareable?(seh))
-    seh = Ractor.make_shareable(seh)
-    assert_true(Ractor.shareable?(seh))
+    seh2 = Ractor.make_shareable(seh)
+    assert_true(Ractor.shareable?(seh2))
+    assert_equal(seh, seh2)
   end
 
-  def test_ractor_event_handler
-    p seh = frame_win.make_shared
-    Ractor.new(seh) do |seh_|
-      p seh_
-      100.times { |n| p n; seh_.call_after }
+  def test_ractor_shareable
+    pin = Ractor::Port.new
+    pmon = Ractor::Port.new
+    seh = frame_win.make_shared
+    r = Ractor.new(seh, pin) do |seh_, pout|
+      pout.send(seh_.class)
+      pout.send(Ractor.shareable?(seh_))
     end
+    r.monitor(pmon)
+    assert_equal(Wx::RT::SharedEvtHandler, pin.receive)
+    assert_true(pin.receive)
+    assert_equal(:exited, pmon.receive)
+  end
 
-    yield_and_wait_for_test(10000) { Ractor.count == 1 }
+  def test_ractor_thread_event
+    pin = Ractor::Port.new
+    pmon = Ractor::Port.new
+    seh = frame_win.make_shared
+    data_sent = nil
+    frame_win.evt_thread(Wx::ID_ANY) { |evt| data_sent = evt.get_int }
+    r = Ractor.new(seh, pin) do |seh_, pout|
+      sleep rand(100) / 50.0
+      pout.send(1)
+      evt = Wx::RT::ThreadEvent.new
+      evt.set_int(1)
+      seh_.queue_event(evt)
+    end
+    r.monitor(pmon)
 
+    yield_and_wait_for_test(3000) { data_sent }
+    assert_not_nil(data_sent)
+    assert_equal(data_sent, pin.receive)
+    assert_equal(:exited, pmon.receive)
+  end
+
+  def test_ractor_derived_thread_event
+    pin = Ractor::Port.new
+    pmon = Ractor::Port.new
+    seh = frame_win.make_shared
+    data_sent = nil
+    frame_win.evt_test_event { |evt| data_sent = evt.get_int }
+    r = Ractor.new(seh, pin) do |seh_, pout|
+      sleep rand(100) / 50.0
+      pout.send(1)
+      evt = TestEvent.new
+      evt.set_int(1)
+      seh_.queue_event(evt)
+    end
+    r.monitor(pmon)
+
+    yield_and_wait_for_test(3000) { data_sent }
+    assert_not_nil(data_sent)
+    assert_equal(data_sent, pin.receive)
+    assert_equal(:exited, pmon.receive)
   end
 
 end

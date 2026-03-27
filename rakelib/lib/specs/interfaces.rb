@@ -255,8 +255,9 @@ module WXRuby3
     Director.Spec(pkg, 'wxMBConv')
   }
 
-  Director.Package('Wx::Ext') do |pkg|
+  Director.Package('Wx::RT', 'USE_THREADS') do |pkg|
     Director.Spec(pkg, 'wxSharedEvtHandler')
+    Director.Spec(pkg, 'wxThreadEvent')
   end
 
   Director.Package('Wx::PRT', 'USE_PRINTING_ARCHITECTURE') do |pkg|
