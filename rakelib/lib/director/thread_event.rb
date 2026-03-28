@@ -20,6 +20,8 @@ module WXRuby3
         spec.ignore 'wxThreadEvent::GetPayload',
                     'wxThreadEvent::SetPayload',
                     'wxThreadEvent::GetEventCategory'
+        spec.ignore 'wxThreadEvent::wxThreadEvent'
+        spec.regard 'wxThreadEvent::wxThreadEvent', regard_doc: false
         spec.add_swig_code %Q{%constant wxEventType wxEVT_THREAD = wxEVT_THREAD;}
         spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
