@@ -80,10 +80,10 @@ class WindowTests < WxRuby::Test::GUITests
       frame_win.evt_thread(Wx::ID_ANY) { |evt| data_sent = evt.get_int }
       r = Ractor.new(seh) do |seh_|
         sleep rand(100) / 50.0
-        Ractor.yield(1)
         evt = Wx::RT::ThreadEvent.new
         evt.set_int(1)
         seh_.queue_event(evt)
+        Ractor.yield(1)
         :exited
       end
       yield_and_wait_for_test(10000) { data_sent }
@@ -119,10 +119,10 @@ class WindowTests < WxRuby::Test::GUITests
       frame_win.evt_test_event { |evt| data_sent = evt.get_int }
       r = Ractor.new(seh) do |seh_|
         sleep rand(100) / 50.0
-        Ractor.yield(1)
         evt = TestEvent.new
         evt.set_int(1)
         seh_.queue_event(evt)
+        Ractor.yield(1)
         :exited
       end
       yield_and_wait_for_test(10000) { data_sent }
