@@ -87,6 +87,7 @@ class WindowTests < WxRuby::Test::GUITests
         :exited
       end
       yield_and_wait_for_test(10000) { data_sent }
+      r.close_outgoing if data_sent.nil? # prevent blocking on yield if we're not going to take
       assert_not_nil(data_sent)
       assert_equal(data_sent, r.take)
       assert_equal(:exited, r.take)
@@ -126,6 +127,7 @@ class WindowTests < WxRuby::Test::GUITests
         :exited
       end
       yield_and_wait_for_test(10000) { data_sent }
+      r.close_outgoing if data_sent.nil? # prevent blocking on yield if we're not going to take
       assert_not_nil(data_sent)
       assert_equal(data_sent, r.take)
       assert_equal(:exited, r.take)
