@@ -16,7 +16,7 @@ module WXRuby3
 
       def setup
         super
-        spec.gc_as_untracked
+        spec.gc_as_marked # use marked so doc gen does not mark it as untracked (what it actually is)
         spec.ignore 'wxThreadEvent::GetPayload',
                     'wxThreadEvent::SetPayload',
                     'wxThreadEvent::GetEventCategory'
