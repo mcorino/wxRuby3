@@ -36,4 +36,14 @@ module Wx
 
   end
 
+  class EvtHandler < Wx::Object
+
+    # Returns a Ractor-safe shareable event handler reference.
+    # @see Wx::RT::SharedEvtHandler
+    # @see Wx::RT::ThreadEvent
+    # @return [Wx::RTT::SharedEvtHandler]
+    def make_shared; end
+
+  end
+
 end
