@@ -65,6 +65,16 @@ static const rb_data_type_t __WxRubySharedEvtHandler_type = {
 
 VALUE cWxRubySharedEvtHandler;
 
+static VALUE WxRuby_get_EvtHandlerClass()
+{
+  static VALUE cEvtHandler = Qnil;
+  if (RB_NIL_P(cEvtHandler))
+  {
+    cEvtHandler = rb_const_get(wxRuby_Core(), rb_intern("EvtHandler"));
+  }
+  return cEvtHandler;
+}
+
 static VALUE WxRuby_MakeSharedEvtHandler(wxEvtHandler* wxeh)
 {
   if (wxeh)
@@ -89,7 +99,12 @@ static wxEvtHandler* WxRuby_GetSharedEvtHandler(VALUE rb_shared_eh)
   {
     WxRubySharedEvtHandler* shared_eh = (WxRubySharedEvtHandler*)RTYPEDDATA_DATA(rb_shared_eh);
     if (shared_eh)
-      return shared_eh->get_evt_handler();
+    {
+      wxEvtHandler* wxeh = shared_eh->get_evt_handler();
+      VALUE rb_eh = wxRuby_FindTracking(wxeh);
+      if (rb_obj_is_kind_of(rb_eh, WxRuby_get_EvtHandlerClass()))
+        return wxeh;
+    }
   }
   return nullptr;
 }
@@ -112,7 +127,7 @@ static VALUE WxRubySharedEvtHandler_queue_event(int argc, VALUE* argv, VALUE sel
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc);
     return Qnil;
   }
-  // derefence shared event handler
+  // dereference shared event handler
   wxEvtHandler* wxeh = WxRuby_GetSharedEvtHandler(self);
   if (wxeh)
   {
@@ -161,7 +176,7 @@ static void wx_setup_WxRubySharedEvtHandler(VALUE mWxExt)
   rb_define_method(cWxRubySharedEvtHandler, "clone", VALUEFUNC(WxRubySharedEvtHandler_clone), 0);
   rb_define_method(cWxRubySharedEvtHandler, "queue_event", VALUEFUNC(WxRubySharedEvtHandler_queue_event), -1);
 
-  VALUE klass = rb_const_get(wxRuby_Core(), rb_intern("EvtHandler"));
+  VALUE klass = WxRuby_get_EvtHandlerClass();
   rb_define_method(klass, "make_shared", VALUEFUNC(wxRuby_EvtHandler_make_shared), 0);
 }
 
