@@ -29,28 +29,32 @@ class WindowTests < WxRuby::Test::GUITests
   end
 
   def test_ractor_shareable
-    if RUBY_VERSION >= '4.0.0'
-      pin = Ractor::Port.new
-      pmon = Ractor::Port.new
-      seh = frame_win.make_shared
-      r = Ractor.new(seh, pin) do |seh_, pout|
-        pout.send(seh_.class)
-        pout.send(Ractor.shareable?(seh_))
+    # unfortunately even in Ruby 4.0 Ractor is not 100% reliable on Windows
+    # and the CI builds block here from time to time so exclude this there
+    unless is_msw? && is_ci_build?
+      if RUBY_VERSION >= '4.0.0'
+        pin = Ractor::Port.new
+        pmon = Ractor::Port.new
+        seh = frame_win.make_shared
+        r = Ractor.new(seh, pin) do |seh_, pout|
+          pout.send(seh_.class)
+          pout.send(Ractor.shareable?(seh_))
+        end
+        r.monitor(pmon)
+        assert_equal(Wx::RT::SharedEvtHandler, pin.receive)
+        assert_true(pin.receive)
+        assert_equal(:exited, pmon.receive)
+      else
+        seh = frame_win.make_shared
+        r = Ractor.new(seh) do |seh_|
+          Ractor.yield(seh_.class)
+          Ractor.yield(Ractor.shareable?(seh_))
+          :exited
+        end
+        assert_equal(Wx::RT::SharedEvtHandler, r.take)
+        assert_true(r.take)
+        assert_equal(:exited, r.take)
       end
-      r.monitor(pmon)
-      assert_equal(Wx::RT::SharedEvtHandler, pin.receive)
-      assert_true(pin.receive)
-      assert_equal(:exited, pmon.receive)
-    else
-      seh = frame_win.make_shared
-      r = Ractor.new(seh) do |seh_|
-        Ractor.yield(seh_.class)
-        Ractor.yield(Ractor.shareable?(seh_))
-        :exited
-      end
-      assert_equal(Wx::RT::SharedEvtHandler, r.take)
-      assert_true(r.take)
-      assert_equal(:exited, r.take)
     end
   end
 
