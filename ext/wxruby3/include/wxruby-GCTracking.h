@@ -2,6 +2,8 @@
 //
 // This software is released under the MIT license.
 
+#include <wx/thread.h>
+
 #include <string>
 #include <unordered_map>
 
@@ -22,10 +24,19 @@ typedef std::unordered_map<std::string, TGCTrackingItem>  TGCTrackingTable;
 
 static void __wxruby_mark_SWIG_objects(const TGCTrackingValueMap& values);
 
-struct SGCTracking
+class SGCTracking
 {
+private:
   static const std::string SWIG_TRACKING;
 
+  TGCTrackingItem& tracking_item(const std::string& cat) { return this->map_[cat]; }
+  TGCTrackingValueMap& tracking_map(const std::string& cat) { return this->map_[cat].values_; }
+
+  wxCriticalSection lock_ {};
+
+  TGCTrackingTable map_ {};
+
+public:
   SGCTracking()
   {
     // create a tracking entry for SWIG objects with the appropriate marker
@@ -35,25 +46,27 @@ struct SGCTracking
 
   void add_category(std::string cat, TGCMarkerFunction marker, bool has_data = false)
   {
+    wxCriticalSectionLocker guard(this->lock_);
     this->map_[cat].marker_ = marker;
     this->map_[cat].has_data_ = has_data;
   }
 
-  TGCTrackingItem& tracking_item(const std::string& cat) { return this->map_[cat]; }
-  TGCTrackingValueMap& tracking_map(const std::string& cat) { return this->map_[cat].values_; }
   void add_tracking(const std::string& cat, void* ptr, VALUE object)
   {
+    wxCriticalSectionLocker guard(this->lock_);
     auto& ti = tracking_item(cat);
     ti.values_[ptr] = object;
     if (!ti.has_data_) ti.has_data_ = true;
   }
   void remove_tracking(const std::string& cat, void* ptr)
   {
+    wxCriticalSectionLocker guard(this->lock_);
     auto& ti = tracking_item(cat);
     ti.values_.erase(ptr);
   }
   VALUE find_tracking(const std::string& cat, void* ptr)
   {
+    wxCriticalSectionLocker guard(this->lock_);
     auto& map = tracking_map(cat);
     auto it = map.find(ptr);
     return it == map.end() ? Qnil : it->second;
@@ -74,14 +87,13 @@ struct SGCTracking
 
   void run_markers()
   {
+    wxCriticalSectionLocker guard(this->lock_);
     for (const auto& gti : this->map_)
     {
       if (!gti.second.has_data_ || !gti.second.values_.empty())
         (*gti.second.marker_)(gti.second.values_);
     }
   }
-
-  TGCTrackingTable map_ {};
 };
 
 const std::string SGCTracking::SWIG_TRACKING = {"SWIG_TRACKING"};
