@@ -367,7 +367,7 @@ module WXRuby3
             test = File.join(Config.instance.test_dir, test)
             test = Dir.glob(test+'.rb').shift || test unless File.exist?(test)
           end
-          Rake.sh(exec_env, *make_ruby_cmd(test, ENV['TESTOPTS'] || '', verbose: verbose?)) { |ok,_| errors << File.basename(test, '.rb') unless ok }
+          Rake.sh(exec_env, *make_ruby_cmd(*(ENV['TESTOPTS'] ? [test, ENV['TESTOPTS']] : [test]), verbose: verbose?)) { |ok,_| errors << File.basename(test, '.rb') unless ok }
         end
       end
       fail "ERRORS: ##{errors.size} test scripts failed.\n\t#{errors.join("\n\t")}" unless errors.empty?
