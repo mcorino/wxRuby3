@@ -79,7 +79,7 @@ module WXRuby3
           static void GC_mark_wxMenuBar(const TGCTrackingValueMap& values)
           {
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
-              WXRUBY_TRACE("> GC_mark_wxMenuBar : " << ptr)
+              WXRUBY_TRACE("> GC_mark_wxMenuBar")
             WXRUBY_TRACE_END
           
             for (const auto& ti : values)
@@ -94,7 +94,7 @@ module WXRuby3
             }
           
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
-              WXRUBY_TRACE("< GC_mark_wxMenuBar : " << ptr)
+              WXRUBY_TRACE("< GC_mark_wxMenuBar")
             WXRUBY_TRACE_END
           }
 

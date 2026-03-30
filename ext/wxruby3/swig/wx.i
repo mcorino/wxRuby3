@@ -194,6 +194,18 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxObjectInRuby(wxObject *wx_obj)
 static VALUE Evt_Type_Map = NULL;
 static VALUE WxRuby_cAsyncProcCallEvent = Qnil;
 
+inline VALUE _get_ThreadEventClass()
+{
+  static VALUE __cThreadEvent = Qnil;
+
+  if (RB_NIL_P(__cThreadEvent))
+  {
+    VALUE module = rb_const_get(wxRuby_Core(), rb_intern("RT"));
+    if (!RB_NIL_P(module)) __cThreadEvent = rb_const_get(module, rb_intern("ThreadEvent"));
+  }
+  return __cThreadEvent;
+}
+
 #ifdef __WXRB_DEBUG__
 WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(void* rcvr, wxEvent *wx_event)
 #else
@@ -273,13 +285,29 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
   DATA_PTR(rb_event) = wx_event;
   // do not forget to mark the instance with the mangled swig type name
   // (as there is no swig_type for the Wx::AsyncProcCallEvent class use it's base Wx::Event)
-  swig_type_info*  type = wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL ?
-                            wxRuby_GetSwigTypeForClass(wxRuby_GetDefaultEventClass()) :
-                            wxRuby_GetSwigTypeForClass(rb_event_class);
-  rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
+  swig_type_info*  type;
+  if (wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL)
+  {
+    type = wxRuby_GetSwigTypeForClass(wxRuby_GetDefaultEventClass());
+  }
+  else
+  {
+    type = wxRuby_GetSwigTypeForClass(rb_event_class);
+    if (!type)
+    {
+      // could be derived ThreadEvent
+      VALUE klass = _get_ThreadEventClass();
+      if (!RB_NIL_P(klass) && rb_class_inherited_p(rb_event_class, klass))
+      {
+        type = wxRuby_GetSwigTypeForClass(klass);
+      }
+    }
+  }
+  // type should never be null but let's be paranoid
+  if (type) rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
   WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
-    WXRUBY_TRACE("< wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}")
+    WXRUBY_TRACE("< wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << (type ? type->name : rb_class2name(rb_event_class)) << "}")
   WXRUBY_TRACE_END
 
   return rb_event;

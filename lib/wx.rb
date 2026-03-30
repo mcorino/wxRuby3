@@ -7,6 +7,7 @@
 WX_GLOBAL_CONSTANTS=true unless defined? WX_GLOBAL_CONSTANTS
 
 require 'wx/core'
+require 'wx/rt'
 require 'wx/prt' if Wx.has_feature?(:USE_PRINTING_ARCHITECTURE)
 require 'wx/rtc' if Wx.has_feature?(:USE_RICHTEXT)
 require 'wx/stc' if Wx.has_feature?(:USE_STC)

@@ -1,0 +1,20 @@
+---
+:wxThreadEvent:
+  :detail:
+    :pre:
+      :detaileddescription:
+        - :pattern: !ruby/regexp /.*/
+          :replace: |
+            
+            This event is not natively emitted by any control/class: it is just a helper class for the user. 
+            Its most important feature is the {Wx::RT::ThreadEvent#get_event_category} implementation which allows 
+            thread events <b>NOT</b> to be processed by {Wx::GUIEventLoop#yield_for} calls (unless the 
+            {Wx::EventCategory::EVT_CATEGORY_THREAD} is specified - which is never in wx code).
+            
+            In wxRuby user defined classes can be derived from this class but it is important to note that when used
+            with {Wx::RT::SharedEvtHandler#queue_message} (the only imaginable use for thread events) no Ruby state
+            will <b>ever</b> persist and adding instance variables is therefor not useful.
+            The real benefit of being able to derive from this class is that it provides for the registration and use of 
+            user defined event types for the derived classes allowing to differentiate in event handling.
+            @see Wx::GUIEventLoop#yield_for
+            @see Wx::RT::SharedEvtHandler

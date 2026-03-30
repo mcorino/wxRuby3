@@ -403,7 +403,7 @@ module WXRuby3
 
               WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
                 WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
-                WXRUBY_TRACE("| GC_mark_RbValueVariants : " << it->first << "|" << (void*)c_ptr)
+                WXRUBY_TRACE("| GC_mark_RbValueVariants : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
               rb_gc_mark(obj);

@@ -2,6 +2,7 @@
 #
 # This software is released under the MIT license.
 
-module Wx
-  WXRUBY_VERSION    = '1.8.0'
-end
+# Wx::RT sub package for wxRuby3
+
+require_relative './events/evt_list'
+require_relative './thread_event'
