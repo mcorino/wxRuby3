@@ -57,12 +57,31 @@ class ProgressFrame < Wx::Frame
 
   module ID
     include Wx::IDHelper
-    RUN_GREEN_THREADS = self.next_id
+    RUN_GT_WITH_CUSTOM_EVENT = self.next_id
+    RUN_GT_WITH_ASYNC_CALL = self.next_id
+    RUN_GT_WITH_QUEUE = self.next_id
+    RUN_FIBERS = self.next_id
     RUN_RACTOR_THREADS = self.next_id
   end
 
-  WORKERS = 10
+  WORKERS = 8
   STEPS = 100
+
+  class Simulator
+    class << self
+      def run(timeslice)
+        start = Time.now
+        count = 0
+        # use max timeslice time to analyze max 100 files
+        100.times do
+          text = File.read(__FILE__)
+          text.gsub(/\w+/) { count += 1; '' }
+          break unless (Time.now - start) < timeslice
+        end
+        count
+      end
+    end
+  end
 
   def initialize
     super(nil, :title => 'Threading demo', size: [600, 400])
@@ -72,7 +91,12 @@ class ProgressFrame < Wx::Frame
     menuFile = Wx::Menu.new
     helpMenu = Wx::Menu.new
     helpMenu.append(Wx::ID_ABOUT, "&About...\tF1", "Show about dialog")
-    @mi_gt = menuFile.append(ID::RUN_GREEN_THREADS, "Run &Green Threads", 'Run simulation using standard Ruby Green threads')
+    gt_submenu = Wx::Menu.new
+    gt_submenu.append(ID::RUN_GT_WITH_CUSTOM_EVENT, "Run with custom event", 'Run Green threads simulation with custom events')
+    gt_submenu.append(ID::RUN_GT_WITH_ASYNC_CALL, "Run with async calls", 'Run Green threads simulation with asynchronous calls')
+    gt_submenu.append(ID::RUN_GT_WITH_QUEUE, "Run with thread queue", 'Run Green threads simulation with thread queue')
+    @mi_gt = menuFile.append_sub_menu(gt_submenu, "Run &Green Threads", 'Run simulation using standard Ruby Green threads')
+    @mi_fb = menuFile.append(ID::RUN_FIBERS, "Run &Fibers", 'Run simulation using Ruby Fibers')
     @mi_rt = menuFile.append(ID::RUN_RACTOR_THREADS, "Run &Ractor Threads", 'Run simulation using Ruby Ractor threads')
     menuFile.append_separator
     menuFile.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
@@ -85,15 +109,7 @@ class ProgressFrame < Wx::Frame
 
     @gauges = []
     @workers = []
-    @simulator = ->() {
-      time_slice = rand(10) / 50.0
-      start = Time.now
-      text = File.read(__FILE__)
-      begin
-        count = 0
-        text.gsub(/\w+/) { count += 1; '' }
-      end while (Time.now - start) < time_slice
-    }
+    @queue = nil
     panel = Wx::Panel.new(self)
     sizer = Wx::BoxSizer.new(Wx::VERTICAL)
     # progress update handler
@@ -109,7 +125,7 @@ class ProgressFrame < Wx::Frame
 
     evt_menu Wx::ID_EXIT, :on_quit
     evt_menu Wx::ID_ABOUT, :on_about
-    evt_menu ID::RUN_GREEN_THREADS, :on_run_green_threads
+    evt_menu_range ID::RUN_GT_WITH_CUSTOM_EVENT, ID::RUN_GT_WITH_QUEUE, :on_run_green_threads
     evt_menu ID::RUN_RACTOR_THREADS, :on_run_ractor_threads
 
     evt_thread Wx::ID_ANY, :on_thread_event
@@ -117,46 +133,89 @@ class ProgressFrame < Wx::Frame
     evt_idle :on_idle
   end
 
-  def on_run_green_threads(_)
+  private def start_run
     @mi_gt.enable(false)
+    @mi_fb.enable(false)
     @mi_rt.enable(false)
     reset_gauges
     @run_start = Time.now
+  end
+
+  private def end_run(total)
+    set_status_text("#{Time.now - @run_start} seconds | #{total} words counted")
+    @mi_gt.enable
+    @mi_fb.enable
+    @mi_rt.enable
+    @queue = nil
+    self.refresh
+  end
+
+  def on_run_green_threads(evt)
+    start_run
+    @queue = Thread::Queue.new if evt.id == ID::RUN_GT_WITH_QUEUE
     # run a Thread for each worker
     @workers = (0...WORKERS).collect do |worker|
       # For each worker, start a new thread in which the task runs
-      Thread.new(self, @simulator) do |frame, simulator|
+      Thread.new(evt.id, evt.id == ID::RUN_GT_WITH_QUEUE ? @queue : self) do |evt_id, queue_or_frame|
         # The long-running task
+        count = 0
         STEPS.times do | i |
           # simulate processing step
-          simulator.call
+          count += Simulator.run(0.1) # give each processing cycle a maximum timeslice of 100 msec
           # Update the main GUI asynchronously (more ways than 1)
-          if (worker % 2) == 0
-            frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, worker))
-          else
-            frame.call_after(:update_gauge, worker, i+1)
+          case evt_id
+          when ID::RUN_GT_WITH_QUEUE
+            queue_or_frame << [worker, i+1]
+          when ID::RUN_GT_WITH_CUSTOM_EVENT
+            queue_or_frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, worker))
+          else # ID::RUN_GT_WITH_ASYNC_CALL
+            queue_or_frame.call_after(:update_gauge, worker, i+1)
           end
         end
+        count
+      end
+    end
+  end
+
+  def on_run_fibers(_)
+    start_run
+    # run a Fiber for each worker
+    @workers = (0...WORKERS).collect do |worker|
+      # For each worker, start a new thread in which the task runs
+      Thread.new(evt.id, evt.id == ID::RUN_GT_WITH_QUEUE ? @queue : self, @simulator) do |evt_id, queue_or_frame, simulator|
+        # The long-running task
+        count = 0
+        STEPS.times do | i |
+          # simulate processing step
+          count += Simulator.run(0.1) # give each processing cycle a maximum timeslice of 100 msec
+          # Update the main GUI asynchronously (more ways than 1)
+          case evt_id
+          when ID::RUN_GT_WITH_QUEUE
+            queue_or_frame << [worker, i+1]
+          when ID::RUN_GT_WITH_CUSTOM_EVENT
+            queue_or_frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, worker))
+          else # ID::RUN_GT_WITH_ASYNC_CALL
+            queue_or_frame.call_after(:update_gauge, worker, i+1)
+          end
+        end
+        count
       end
     end
   end
 
   def on_run_ractor_threads(_)
-    @mi_gt.enable(false)
-    @mi_rt.enable(false)
-    reset_gauges
-    @run_start = Time.now
+    start_run
     # run a Ractor for each worker
     @workers = (0...WORKERS).collect do |worker|
       # for each worker start a Ractor to run the task
       if RUBY_VERSION >= '4.0.0'
         pin = Ractor::Port.new
         pmon = Ractor::Port.new
-        r = Ractor.new(worker, self.make_shared, pin, Ractor.shareable_lambda(&@simulator)) do |worker_id, evt_handler, pout, simulator|
+        r = Ractor.new(worker, self.make_shared, pin) do |worker_id, evt_handler, pout|
           # The long-running task
+          count = 0
           STEPS.times do | i |
-            # simulate processing step
-            simulator.call
+            count += Simulator.run(0.1) # give each processing cycle a maximum timeslice of 100 msec
             # Update the main GUI asynchronously
             pout.send(i+1)
             evt = Wx::RT::ThreadEvent.new
@@ -167,16 +226,17 @@ class ProgressFrame < Wx::Frame
           evt = Wx::RT::ThreadEvent.new
           evt.set_int(worker_id)
           evt_handler.queue_event(evt)
-          :stopped
+          count
         end
         r.monitor(pmon)
-        [pin, pmon]
+        [r, pin, pmon]
       else
         r = Ractor.new(worker, self.make_shared) do |worker_id, evt_handler|
           # The long-running task
+          count = 0
           STEPS.times do | i |
             # simulate processing step
-            sleep rand(100) / 50.0
+            count += Simulator.run(0.1) # give each processing cycle a maximum timeslice of 100 msec
             # Update the main GUI asynchronously
             evt = Wx::RT::ThreadEvent.new
             evt.set_int(worker_id)
@@ -187,7 +247,7 @@ class ProgressFrame < Wx::Frame
           evt.set_int(worker_id)
           evt_handler.queue_event(evt)
           Ractor.yield(-1)
-          :stopped
+          count
         end
         [r]
       end
@@ -197,11 +257,11 @@ class ProgressFrame < Wx::Frame
   def on_thread_event(evt)
     w = evt.get_int
     if RUBY_VERSION >= '4.0.0'
-      step = @workers[w][0].receive
+      step = @workers[w][1].receive
       if step >= 0
         update_gauge(w, step)
       else
-        rc = @workers[w][1].receive
+        rc = @workers[w][2].receive
         Wx.message_box("Worker ##{w} aborted with error.", 'Worker Error',
                        Wx::OK|Wx::CENTRE|Wx::ICON_ERROR, self) if rc == :aborted
         @workers[w] << :stopped
@@ -228,23 +288,43 @@ class ProgressFrame < Wx::Frame
     update_gauge(evt.gauge, evt.value)
   end
 
-  def on_idle(_evt)
+  def on_idle(evt)
     unless @workers.empty?
       if @workers.first.is_a?(::Thread)
-        if @workers.all? { |worker| !worker.alive? }
-          set_status_text("#{Time.now - @run_start} seconds")
-          @mi_gt.enable
-          @mi_rt.enable
+        Thread.pass
+        if @workers.any? { |worker| worker.alive? }
+          if @queue
+            WORKERS.times do
+              data = @queue.shift(true) rescue nil
+              update_gauge(*data) if data
+              break unless data
+            end
+          end
+          evt.request_more(true)
+        else
+          total = @workers.sum { |w| w.value }
           @workers.clear
+          if @queue
+            begin
+              data = @queue.shift(true) rescue nil
+              update_gauge(*data) if data
+            end while data
+          else
+            Wx.get_app.yield
+          end
+          end_run(total)
         end
       else
+        Thread.pass
         if @workers.all? { |worker| worker.last == :stopped }
-          set_status_text("#{Time.now - @run_start} seconds")
-          @mi_gt.enable
-          @mi_rt.enable
+          total = @workers.sum { |w| w[0].value }
           @workers.clear
+          end_run(total)
+        else
+          evt.request_more(true)
         end
       end
+      evt.skip
     end
   end
 
@@ -264,11 +344,6 @@ end
 # the threads some computing time
 class GaugeApp < Wx::App
   def on_init
-    # Create a global application timer that passes control to other
-    # ruby threads. The timer will run every 1/40 second (25ms). Higher
-    # values will make the other threads run more often, but will
-    # eventually degrade the responsiveness of the GUI.
-    Wx::Timer.every(25) { Thread.pass }
     prog = ProgressFrame.new
     prog.show
   end
