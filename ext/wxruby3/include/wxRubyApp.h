@@ -113,6 +113,7 @@ private:
       return this->exit_code_;
     }
 
+#if (wxMAJOR_VERSION > 3) || (wxMINOR_VERSION > 2)
     virtual void DoStop(int rc) override
     {
       this->exit_code_ = rc;
@@ -120,6 +121,17 @@ private:
       wxGUIEventLoop::DoStop(rc);
 #endif
     }
+#else
+    virtual void ScheduleExit(int rc) override
+    {
+      this->exit_code_ = rc;
+#if defined(__WXGTK__)
+      m_shouldExit = true;
+#else
+      wxGUIEventLoop::ScheduleExit(rc);
+#endif
+    }
+#endif
 
   private:
     int exit_code_ {};
