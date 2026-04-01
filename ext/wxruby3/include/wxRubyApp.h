@@ -8,6 +8,14 @@ WXRUBY_TRACE_GUARD(WxRubyTraceAppRun, "APP_RUN")
 
 #include <memory>
 
+#include <ruby/ractor.h>
+
+#include <wx/scopedptr.h>
+#include <wx/evtloop.h>
+
+// this defines wxEventLoopPtr
+wxDEFINE_TIED_SCOPED_PTR_TYPE(wxEventLoopBase)
+
 /*
  * WxRuby3 App class
  */
@@ -17,6 +25,106 @@ class wxRubyApp : public wxApp
 private:
   bool is_running_ = false;
   VALUE self_ = Qnil;
+
+  void _store_ruby_exception(VALUE ex)
+  {
+    rb_iv_set(this->self_, "@exception", ex);
+  }
+
+  class EventLoop : public wxGUIEventLoop
+  {
+  public:
+    int GetExitCode() { return this->exit_code_; }
+
+  protected:
+    virtual int DoRun() override
+    {
+      static WxRuby_ID count_id("count");
+      static WxRuby_ID list_id("list");
+      static WxRuby_ID pass_id("pass");
+
+      // run our own event loop
+      for (;;)
+      {
+        while ( !m_shouldExit
+                    && !Pending()
+                        && !(wxTheApp && wxTheApp->HasPendingEvents()) )
+        {
+          // check Ruby Ractors and/or Threads
+          bool needs_pass = false;
+          VALUE result  = rb_funcall(rb_cRactor, count_id(), 0);
+          needs_pass = !RB_NIL_P(result) && NUM2INT(result) > 1;
+          if (!needs_pass)
+          {
+            result = rb_funcall(rb_cThread, list_id(), 0);
+            needs_pass = !RB_NIL_P(result) && TYPE(result) == T_ARRAY && RARRAY_LEN(result) > 1;
+          }
+          if (needs_pass)
+          {
+            // call Thread.pass
+            bool ex_caught = false;
+            result  = wxRuby_Funcall(ex_caught, rb_cThread, pass_id(), 0, 0);
+            if (ex_caught)
+            {
+#ifdef __WXRB_DEBUG__
+              wxRuby_PrintException(result);
+#endif
+              wxRubyApp::GetInstance()->_store_ruby_exception(result);
+              this->exit_code_ = 1;
+              m_shouldExit = true;
+            }
+          }
+
+          if (!m_shouldExit)
+          {
+            if (!ProcessIdle())
+              break;
+          }
+        }
+
+        // if Exit() was called, don't dispatch any more events here
+        if (m_shouldExit)
+            break;
+
+        // process pending wx events first as they correspond to low-level events
+        // which happened before, i.e. typically pending events were queued by a
+        // previous call to Dispatch() and if we didn't process them now the next
+        // call to it might enqueue them again (as happens with e.g. socket events
+        // which would be generated as long as there is input available on socket
+        // and this input is only removed from it when pending event handlers are
+        // executed)
+        if ( wxTheApp )
+        {
+            wxTheApp->ProcessPendingEvents();
+
+            // One of the pending event handlers could have decided to exit the
+            // loop so check for the flag before trying to dispatch more events
+            // (which could block indefinitely if no more are coming).
+            if ( m_shouldExit )
+                break;
+        }
+
+        // nothing doing, so just wait max 2 msec for an event
+        if (this->DispatchTimeout(2) == 0 && m_shouldExit)
+          break; // stop event loop
+
+      }
+
+      return this->exit_code_;
+    }
+
+    virtual void DoStop(int rc) override
+    {
+      this->exit_code_ = rc;
+#if !defined(__WXGTK__)
+      wxGUIEventLoop::DoStop(rc);
+#endif
+    }
+
+  private:
+    int exit_code_ {};
+  };
+
 public:
   static wxRubyApp* GetInstance () { return dynamic_cast<wxRubyApp*> (wxApp::GetInstance()); }
 
@@ -173,6 +281,16 @@ public:
     return rc;
   }
 
+  virtual int MainLoop() override
+  {
+    wxEventLoopBaseTiedPtr main_loop(&m_mainLoop, new wxRubyApp::EventLoop);
+
+    if (wxTheApp)
+        wxTheApp->OnLaunched();
+
+    return m_mainLoop ? m_mainLoop->Run() : -1;
+  }
+
   // This method initializes the stock objects (Pens, Brushes, Fonts)
   // before yielding to ruby by calling the App's on_init method.
   // Note that as of wxWidget 2.8, the stock fonts in particular cannot
@@ -200,7 +318,7 @@ public:
 #ifdef __WXRB_DEBUG__
       wxRuby_PrintException(result);
 #endif
-      rb_iv_set(this->self_, "@exception", result);
+      _store_ruby_exception(result);
       result = Qfalse; // exit app
     }
 
@@ -240,7 +358,7 @@ public:
 #ifdef __WXRB_DEBUG__
         wxRuby_PrintException(rc);
 #endif
-        rb_iv_set(this->self_, "@exception", rc);
+        _store_ruby_exception(rc);
       }
     }
 
