@@ -168,7 +168,7 @@ static VALUE wxRuby_EvtHandler_make_shared(VALUE self)
 
 static void wx_setup_WxRubySharedEvtHandler(VALUE mWxExt)
 {
-  // mark thids extension Ractor safe
+  // mark this extension Ractor safe
   rb_ext_ractor_safe(true);
 
   cWxRubySharedEvtHandler = rb_define_class_under(mWxExt, "SharedEvtHandler", rb_cObject);
