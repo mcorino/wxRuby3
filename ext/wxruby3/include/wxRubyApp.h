@@ -104,8 +104,8 @@ private:
                 break;
         }
 
-        // nothing doing, so just wait max 2 msec for an event
-        if (this->DispatchTimeout(2) == 0 && m_shouldExit)
+        // nothing doing, so just wait max 1 msec for an event
+        if (this->DispatchTimeout(1) == 0 && m_shouldExit)
           break; // stop event loop
 
       }
