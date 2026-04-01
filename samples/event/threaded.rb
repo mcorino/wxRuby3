@@ -291,7 +291,6 @@ class ProgressFrame < Wx::Frame
   def on_idle(evt)
     unless @workers.empty?
       if @workers.first.is_a?(::Thread)
-        Thread.pass
         if @workers.any? { |worker| worker.alive? }
           if @queue
             WORKERS.times do
@@ -300,7 +299,6 @@ class ProgressFrame < Wx::Frame
               break unless data
             end
           end
-          evt.request_more(true)
         else
           total = @workers.sum { |w| w.value }
           @workers.clear
@@ -315,13 +313,10 @@ class ProgressFrame < Wx::Frame
           end_run(total)
         end
       else
-        Thread.pass
         if @workers.all? { |worker| worker.last == :stopped }
           total = @workers.sum { |w| w[0].value }
           @workers.clear
           end_run(total)
-        else
-          evt.request_more(true)
         end
       end
       evt.skip
