@@ -44,6 +44,7 @@ private:
       static WxRuby_ID pass_id("pass");
 
       // run our own event loop
+      bool needs_idle_evt = true;
       for (;;)
       {
         while ( !m_shouldExit
@@ -75,9 +76,10 @@ private:
             }
           }
 
-          if (!m_shouldExit)
+          if (!m_shouldExit && needs_idle_evt)
           {
-            if (!ProcessIdle())
+            needs_idle_evt = ProcessIdle();
+            if (needs_idle_evt)
               break;
           }
         }
@@ -93,7 +95,7 @@ private:
         // which would be generated as long as there is input available on socket
         // and this input is only removed from it when pending event handlers are
         // executed)
-        if ( wxTheApp )
+        if ( wxTheApp && wxTheApp->HasPendingEvents() )
         {
             wxTheApp->ProcessPendingEvents();
 
@@ -108,6 +110,7 @@ private:
         if (this->DispatchTimeout(1) == 0 && m_shouldExit)
           break; // stop event loop
 
+        needs_idle_evt = true;
       }
 
       return this->exit_code_;
