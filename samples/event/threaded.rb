@@ -126,6 +126,7 @@ class ProgressFrame < Wx::Frame
     evt_menu Wx::ID_EXIT, :on_quit
     evt_menu Wx::ID_ABOUT, :on_about
     evt_menu_range ID::RUN_GT_WITH_CUSTOM_EVENT, ID::RUN_GT_WITH_QUEUE, :on_run_green_threads
+    evt_menu ID::RUN_FIBERS, :on_run_fibers
     evt_menu ID::RUN_RACTOR_THREADS, :on_run_ractor_threads
 
     evt_thread Wx::ID_ANY, :on_thread_event
@@ -138,6 +139,7 @@ class ProgressFrame < Wx::Frame
     @mi_fb.enable(false)
     @mi_rt.enable(false)
     reset_gauges
+    @total = 0
     @run_start = Time.now
   end
 
@@ -147,6 +149,7 @@ class ProgressFrame < Wx::Frame
     @mi_fb.enable
     @mi_rt.enable
     @queue = nil
+    @workers.clear
     self.refresh
   end
 
@@ -181,22 +184,18 @@ class ProgressFrame < Wx::Frame
     start_run
     # run a Fiber for each worker
     @workers = (0...WORKERS).collect do |worker|
-      # For each worker, start a new thread in which the task runs
-      Thread.new(evt.id, evt.id == ID::RUN_GT_WITH_QUEUE ? @queue : self, @simulator) do |evt_id, queue_or_frame, simulator|
+      # For each worker, start a new fiber in which the task runs
+      # Use a smaller time slice for each worker cycle, so as not to block the
+      # event loop too long, but increase cycle so in total the workers consume
+      # (roughly) the same amount of 'CPU' time running the simulated process.
+      Fiber.new do
         # The long-running task
         count = 0
-        STEPS.times do | i |
+        (10*STEPS).times do | i |
           # simulate processing step
-          count += Simulator.run(0.1) # give each processing cycle a maximum timeslice of 100 msec
-          # Update the main GUI asynchronously (more ways than 1)
-          case evt_id
-          when ID::RUN_GT_WITH_QUEUE
-            queue_or_frame << [worker, i+1]
-          when ID::RUN_GT_WITH_CUSTOM_EVENT
-            queue_or_frame.event_handler.queue_event(ProgressUpdateEvent.new(i+1, worker))
-          else # ID::RUN_GT_WITH_ASYNC_CALL
-            queue_or_frame.call_after(:update_gauge, worker, i+1)
-          end
+          count += Simulator.run(0.01) # give each processing cycle a maximum timeslice of 10 msec
+          # Communicate update
+          Fiber.yield [worker, (i+1)/10]
         end
         count
       end
@@ -290,7 +289,8 @@ class ProgressFrame < Wx::Frame
 
   def on_idle(evt)
     unless @workers.empty?
-      if @workers.first.is_a?(::Thread)
+      case @workers.first
+      when ::Thread
         if @workers.any? { |worker| worker.alive? }
           if @queue
             WORKERS.times do
@@ -300,7 +300,7 @@ class ProgressFrame < Wx::Frame
             end
           end
         else
-          total = @workers.sum { |w| w.value }
+          @total = @workers.sum { |w| w.value }
           @workers.clear
           if @queue
             begin
@@ -310,13 +310,31 @@ class ProgressFrame < Wx::Frame
           else
             Wx.get_app.yield
           end
-          end_run(total)
+          end_run(@total)
+        end
+      when ::Fiber
+        if @workers.any? { |worker| worker.alive? }
+          @workers.each do |fbr|
+            if fbr.alive?
+              data = fbr.resume rescue nil
+              if data
+                if ::Array === data
+                  update_gauge(*data)
+                else
+                  @total += data
+                end
+              end
+            end
+          end
+          evt.request_more # make sure we get another idle event to provide time slices for the fibers
+        else
+          end_run(@total)
         end
       else
         if @workers.all? { |worker| worker.last == :stopped }
-          total = @workers.sum { |w| w[0].value }
+          @total = @workers.sum { |w| w[0].value }
           @workers.clear
-          end_run(total)
+          end_run(@total)
         end
       end
       evt.skip
@@ -354,22 +372,15 @@ module ThreadSample
     { file: __FILE__,
       summary: 'wxRuby threading example.',
       description: <<~__TXT
-        wxRuby example demonstrating how to use ruby threads in wxRuby.
-        This simple sample demonstrates how to use Ruby (green) threads
-        to execute non-GUI code in parallel with a wxRuby
+        wxRuby example demonstrating how to use concurrency in wxRuby.
+        This sample demonstrates how to use Ruby (green) threads, fibers 
+        and Ractor threads to execute non-GUI code in parallel with a wxRuby
         GUI. This strategy is useful in a number of situations:
         
         * To keep the GUI responsive whilst computationally intensive
           operations are carried out in the background
         * To keep the GUI responsive while waiting for networking operations
           to complete 
-        
-        The basic problem is that, as with other Ruby GUI toolkits, non-GUI
-        threads will not, by default, get allocated time to run while Ruby is
-        busy in Wx code - the main wxRuby event loop. Strategies to deal with
-        this include using non-blocking IO, and, more generically, using
-        wxRuby's Timer class to explicitly allocate time for non-GUI threads
-        to run. The latter technique is shown here.
         __TXT
     }
   end
