@@ -26,6 +26,12 @@ Wx::WXWIDGETS_VERSION = '%i.%i.%i' % [ Wx::WXWIDGETS_MAJOR_VERSION,
                                        Wx::WXWIDGETS_MINOR_VERSION,
                                        Wx::WXWIDGETS_RELEASE_NUMBER ]
 
+# except when in debug mode or when a user defined diagnostics level is defined
+# suppress all diagnostics from GTK
+unless Wx::DEBUG || ENV['WXSUPPRESS_GTK_DIAGNOSTICS'] || Wx::PLATFORM != 'WXGTK'
+  Wx::App.gtk_suppress_diagnostics
+end
+
 # Helper functions
 require 'wx/helpers'
 
