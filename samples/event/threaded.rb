@@ -60,7 +60,8 @@ class ProgressFrame < Wx::Frame
     RUN_GT_WITH_CUSTOM_EVENT = self.next_id
     RUN_GT_WITH_ASYNC_CALL = self.next_id
     RUN_GT_WITH_QUEUE = self.next_id
-    RUN_FIBERS = self.next_id
+    RUN_FIBER_YIELD = self.next_id
+    RUN_FIBER_UPDATE = self.next_id
     RUN_RACTOR_THREADS = self.next_id
   end
 
@@ -96,7 +97,10 @@ class ProgressFrame < Wx::Frame
     gt_submenu.append(ID::RUN_GT_WITH_ASYNC_CALL, "Run with async calls", 'Run Green threads simulation with asynchronous calls')
     gt_submenu.append(ID::RUN_GT_WITH_QUEUE, "Run with thread queue", 'Run Green threads simulation with thread queue')
     @mi_gt = menuFile.append_sub_menu(gt_submenu, "Run &Green Threads", 'Run simulation using standard Ruby Green threads')
-    @mi_fb = menuFile.append(ID::RUN_FIBERS, "Run &Fibers", 'Run simulation using Ruby Fibers')
+    fb_submenu = Wx::Menu.new
+    fb_submenu.append(ID::RUN_FIBER_YIELD, "Run Fibers with yield", 'Run Ruby fibers with update through yield')
+    fb_submenu.append(ID::RUN_FIBER_UPDATE, "Run Fibers with update", 'Run Ruby fibers with direct GUI update')
+    @mi_fb = menuFile.append_sub_menu(fb_submenu, "Run &Fibers", 'Run simulation using Ruby Fibers')
     @mi_rt = menuFile.append(ID::RUN_RACTOR_THREADS, "Run &Ractor Threads", 'Run simulation using Ruby Ractor threads')
     menuFile.append_separator
     menuFile.append(Wx::ID_EXIT, "E&xit\tAlt-X", "Quit this program")
@@ -126,7 +130,7 @@ class ProgressFrame < Wx::Frame
     evt_menu Wx::ID_EXIT, :on_quit
     evt_menu Wx::ID_ABOUT, :on_about
     evt_menu_range ID::RUN_GT_WITH_CUSTOM_EVENT, ID::RUN_GT_WITH_QUEUE, :on_run_green_threads
-    evt_menu ID::RUN_FIBERS, :on_run_fibers
+    evt_menu_range ID::RUN_FIBER_YIELD, ID::RUN_FIBER_UPDATE, :on_run_fibers
     evt_menu ID::RUN_RACTOR_THREADS, :on_run_ractor_threads
 
     evt_thread Wx::ID_ANY, :on_thread_event
@@ -180,22 +184,28 @@ class ProgressFrame < Wx::Frame
     end
   end
 
-  def on_run_fibers(_)
+  def on_run_fibers(evt)
     start_run
     # run a Fiber for each worker
+    evt_id = evt.id
     @workers = (0...WORKERS).collect do |worker|
       # For each worker, start a new fiber in which the task runs
       # Use a smaller time slice for each worker cycle, so as not to block the
-      # event loop too long, but increase cycle so in total the workers consume
-      # (roughly) the same amount of 'CPU' time running the simulated process.
+      # event loop too long, but increase cycles so the workers still get a decent
+      # amount of 'CPU' time running the simulated process.
       Fiber.new do
         # The long-running task
         count = 0
-        (10*STEPS).times do | i |
+        (4*STEPS).times do | i |
           # simulate processing step
           count += Simulator.run(0.01) # give each processing cycle a maximum timeslice of 10 msec
           # Communicate update
-          Fiber.yield [worker, (i+1)/10]
+          if evt_id == ID::RUN_FIBER_YIELD
+            Fiber.yield [worker, (i+1)/4]
+          else
+            update_gauge(worker, (i+1)/4)
+            Fiber.yield
+          end
         end
         count
       end
