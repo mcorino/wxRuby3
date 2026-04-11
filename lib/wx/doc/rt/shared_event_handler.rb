@@ -25,7 +25,7 @@ module Wx
 
       # Essentially the same functionality as {Wx::EvtHandler#queue_event} except that this method only
       # accepts {Wx::RT::ThreadEvent} or derived instances.
-      # @note Note that this message will not maintain any Ruby state, i.e. the actual Ruby instance and/or any instance
+      # @note Note that this event will not maintain any Ruby state, i.e. the actual Ruby instance and/or any instance
       #       variables thereof will not be transferred through the event messaging system. Only state managed by the wrapped
       #       C\++ event instance will persist.
       # @param [Wx::RT::ThreadEvent] evt event instance to be queued
