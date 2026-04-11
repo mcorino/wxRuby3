@@ -23,14 +23,14 @@ module Wx
       # @return [Wx::RT::SharedEvtHandler]
       def clone; end
 
-      # Essentially the same functionality as {Wx::EvtHandler#queue_message} except that this method only
+      # Essentially the same functionality as {Wx::EvtHandler#queue_event} except that this method only
       # accepts {Wx::RT::ThreadEvent} or derived instances.
       # @note Note that this message will not maintain any Ruby state, i.e. the actual Ruby instance and/or any instance
       #       variables thereof will not be transferred through the event messaging system. Only state managed by the wrapped
       #       C\++ event instance will persist.
       # @param [Wx::RT::ThreadEvent] evt event instance to be queued
       # @return [void]
-      def queue_message(evt); end
+      def queue_event(evt); end
 
     end
 
