@@ -12,20 +12,18 @@
 require 'wx'
 
 # This simple sample demonstrates how to use Ruby (green) threads
-# to execute non-GUI code in parallel with a wxRuby
+# or fibers to execute non-GUI code concurrently with a wxRuby
 # GUI. This strategy is useful in a number of situations:
 # 
 # * To keep the GUI responsive whilst computationally intensive
 #   operations are carried out in the background
 # * To keep the GUI responsive while waiting for networking operations
-#   to complete 
-# 
-# The basic problem is that, as with other Ruby GUI toolkits, non-GUI
-# threads will not, by default, get allocated time to run while Ruby is
-# busy in Wx code - the main wxRuby event loop. Strategies to deal with
-# this include using non-blocking IO, and, more generically, using
-# wxRuby's Timer class to explicitly allocate time for non-GUI threads
-# to run. The latter technique is shown here.
+#   to complete
+#
+# This sample showcases how to use Ruby threading (Thread or Ractor) or
+# cooperative concurrency (Fiber) in a wxRuby GUI application, how to
+# communicate thread safely with the main thread and, if needed, how to
+# provide processing time for non-GUI threads of execution.
 
 module Threaded
 
@@ -51,8 +49,9 @@ end
 
 # This frame shows a set of progress bars which monitor progress of
 # long-running tasks. In this example, this long-running task is
-# emulated by simply sleep-ing for random periods, but could equally be
-# downloading from a socket or parsing a file.
+# a (partially) simulated word counter, but could equally be
+# downloading from a socket or anything else requiring substantial
+# computation or blocking IO operations.
 class ProgressFrame < Wx::Frame
 
   module ID
@@ -68,6 +67,7 @@ class ProgressFrame < Wx::Frame
   WORKERS = 8
   STEPS = 100
 
+  # word count simulator
   class Simulator
     class << self
       def run(timeslice)
@@ -384,7 +384,7 @@ module ThreadSample
       description: <<~__TXT
         wxRuby example demonstrating how to use concurrency in wxRuby.
         This sample demonstrates how to use Ruby (green) threads, fibers 
-        and Ractor threads to execute non-GUI code in parallel with a wxRuby
+        and Ractor threads to execute non-GUI code in concurrently with a wxRuby
         GUI. This strategy is useful in a number of situations:
         
         * To keep the GUI responsive whilst computationally intensive
