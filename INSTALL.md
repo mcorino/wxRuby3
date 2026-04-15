@@ -82,6 +82,11 @@ The following tables lists the packages provided by the current wxRuby3 release 
 | OSX     | MacOS 15                               | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
 | OSX     | MacOS 26                               | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
 
+### Additional packages
+
+Some additional packages built from local resources may be added to the standard release artifacts (like for example for 
+LinuxMint x86_64) but this will also depend on available time and resources.
+
 ### User created packages
 
 Users can create their own wxRuby3 binary packages by building from source ([see here](#building-from-source)) and after
