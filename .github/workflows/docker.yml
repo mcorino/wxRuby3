@@ -1,4 +1,4 @@
-name: Linux Docker wxGTK builds
+name: Linux Docker WXGTK builds
 
 on:
   push:
