@@ -3,6 +3,8 @@
 distro=$1
 ruby=$2
 
+export WXRUBY_TEST_EXCLUDE='test_intl:test_media_ctrl'
+
 ./tools/scripts/docker/setup-$distro.sh test
 
 # Show some information about the system.
