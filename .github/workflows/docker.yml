@@ -1,0 +1,62 @@
+name: Linux Docker WXGTK builds
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+    paths-ignore:
+      - '.github/**'
+      - 'assets/**'
+      - 'tools/**'
+      - 'lib/wx/doc/**'
+      - 'lib/wx/version.rb'
+      - '**.md'
+      - '.cirrus.yml'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/**'
+      - 'assets/**'
+      - 'tools/**'
+      - 'lib/wx/doc/**'
+      - 'lib/wx/version.rb'
+      - 'rakelib/lib/**/*.yaml'
+      - '**.md'
+      - 'Gemfile'
+      - '.yardopts'
+      - '.gitignore'
+      - 'LICENSE'
+      - '.cirrus.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - target_distro: fedora
+          - target_ruby: latest
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target }} ${{ matrix.latest }}
+    steps:
+    - name: Checkout wxRuby3
+      uses: actions/checkout@v5
+
+    - name: Verify wxRuby3 on docker image
+      uses: ./.github/actions/linux-docker-verify
+      id: verify
+      with:
+        distro: ${{ matrix.target_distro }}
+        ruby: ${{ matrix.target_ruby }}
