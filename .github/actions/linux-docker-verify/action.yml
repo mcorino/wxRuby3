@@ -12,7 +12,7 @@ inputs:
     default: 'latest'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: '${{ input.distro }}/Dockerfile'
   args:
     - ${{ inputs.distro }}
     - ${{ inputs.ruby }}
