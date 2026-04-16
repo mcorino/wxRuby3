@@ -46,8 +46,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-          - target_distro: fedora
-          - target_ruby: latest
+            target_distro: fedora
+            target_ruby: latest
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.target }} ${{ matrix.latest }}
     steps:
