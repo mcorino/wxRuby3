@@ -45,21 +45,35 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
+            arch: x86_64
             target_distro: fedora
+            target_base: fedora:latest
             target_ruby: latest
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
+            arch: x86_64
             target_distro: debian
+            target_base: debian:latest
+            target_ruby: latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: fedora:latest
+            target_ruby: latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: debian:latest
             target_ruby: latest
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target_distro }} ruby=${{ matrix.target_ruby }}
+    name: ${{ matrix.target_distro }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v5
 
-    - name: Setup docker image
+    - name: Setup Dockerfile
       run: |
-        cp ${{ github.workspace }}/tools/scripts/docker/${{ matrix.target_distro }}/Dockerfile ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
+        ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
 
     - name: Verify wxRuby3 on docker image
       uses: ./.github/actions/linux-docker-verify
