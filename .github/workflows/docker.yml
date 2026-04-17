@@ -64,8 +64,8 @@ jobs:
             target_distro: debian
             target_base: debian:12
             target_ruby: system
-          - os: ubuntu-24.04-arm
-            arch: arm64
+          - os: ubuntu-24.04
+            arch: x86_64
             target_distro: arch
             target_base: 'archlinux/archlinux:latest'
             target_ruby: latest
