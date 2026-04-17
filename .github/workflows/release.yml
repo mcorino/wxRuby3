@@ -31,7 +31,7 @@ jobs:
       prerelease: ${{ steps.version_var.outputs.WXRUBY_PRERELEASE }}
     steps:
     - name: Checkout wxRuby3
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - uses: ruby/setup-ruby@v1
       with:
@@ -92,7 +92,7 @@ jobs:
 
     - name: Upload Gem as release test artifact
       if: github.event_name == 'workflow_dispatch'
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v7
       with:
         name: wxruby3_release_test_gem
         path: "pkg/*.gem"
@@ -128,7 +128,7 @@ jobs:
 
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -140,7 +140,7 @@ jobs:
 
       - name: Cache Doxygen
         id: cache-doxygen
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: doxygen-1.10.0.windows.x64.bin.zip
           key: ${{ runner.os }}-doxygen
@@ -202,7 +202,7 @@ jobs:
 
       - name: Upload bin pkg as release test artifacts
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
           path: pkg/*
@@ -238,7 +238,7 @@ jobs:
 
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -287,7 +287,7 @@ jobs:
 
       - name: Upload bin pkg as release test artifacts
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
           path: pkg/*
@@ -370,7 +370,7 @@ jobs:
 
       - name: checkout wxWidgets
         if: ${{ matrix.build && matrix.wxw_type != 'embed' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: wxWidgets/wxWidgets
           path: ${{ env.WXWIDGETS_ROOT }}
@@ -459,13 +459,13 @@ jobs:
 
       - name: Download release test gem artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: wxruby3_release_test_gem
 
       - name: Download bin pkg artifacts
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
 
@@ -590,13 +590,13 @@ jobs:
 
       - name: Download release test gem artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: wxruby3_release_test_gem
 
       - name: Download bin pkg artifacts
         if: ${{ !matrix.build && github.event_name == 'workflow_dispatch' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: wxruby3_release_test_bin_${{ matrix.name }}
 

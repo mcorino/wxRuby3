@@ -1,0 +1,130 @@
+name: Linux Docker WXGTK builds
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/**'
+      - 'assets/**'
+      - 'tools/**'
+      - 'lib/wx/doc/**'
+      - 'lib/wx/version.rb'
+      - '**.md'
+      - '.cirrus.yml'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/**'
+      - 'assets/**'
+      - 'tools/**'
+      - 'lib/wx/doc/**'
+      - 'lib/wx/version.rb'
+      - 'rakelib/lib/**/*.yaml'
+      - '**.md'
+      - 'Gemfile'
+      - '.yardopts'
+      - '.gitignore'
+      - 'LICENSE'
+      - '.cirrus.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-pr:
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: fedora:latest
+            target_ruby: system
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: opensuse
+            target_base: 'opensuse/leap:latest'
+            target_ruby: system
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: 'linuxmintd/mint22-amd64'
+            target_ruby: system
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: debian:12
+            target_ruby: system
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: arch
+            target_base: 'archlinux/archlinux:latest'
+            target_ruby: latest
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    steps:
+    - name: Checkout wxRuby3
+      uses: actions/checkout@v5
+
+    - name: Setup Dockerfile
+      run: |
+        ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
+
+    - name: Verify wxRuby3 on docker image
+      uses: ./.github/actions/linux-docker-verify
+      id: verify
+      with:
+        distro: ${{ matrix.target_distro }}
+        ruby: ${{ matrix.target_ruby }}
+
+  build-pr-merge:
+    if: github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: manjaro
+            target_base: 'manjarolinux/base:latest'
+            target_ruby: system
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: debian:latest
+            target_ruby: latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: fedora:42
+            target_ruby: latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: opensuse
+            target_base: 'opensuse/leap:15.6'
+            target_ruby: latest
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v5
+
+      - name: Setup Dockerfile
+        run: |
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
+
+      - name: Verify wxRuby3 on docker image
+        uses: ./.github/actions/linux-docker-verify
+        id: verify
+        with:
+          distro: ${{ matrix.target_distro }}
+          ruby: ${{ matrix.target_ruby }}
