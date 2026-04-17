@@ -66,7 +66,7 @@ jobs:
             target_base: debian:latest
             target_ruby: latest
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target_distro }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v5
