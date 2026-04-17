@@ -1,4 +1,4 @@
-name: linux-docker-verify
+name: docker-verify
 author: martin
 description: 'Linux verification builds using docker'
 inputs:
