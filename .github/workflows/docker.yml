@@ -73,7 +73,7 @@ jobs:
     name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
     - name: Checkout wxRuby3
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Setup Dockerfile
       run: |
@@ -116,7 +116,7 @@ jobs:
     name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Dockerfile
         run: |
