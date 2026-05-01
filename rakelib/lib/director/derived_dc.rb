@@ -38,7 +38,7 @@ module WXRuby3
               }
               return rc;
             }
-            __HEREDOC
+          __HEREDOC
           # not relevant anymore
           spec.ignore 'wxScreenDC::StartDrawingOnTop',
                       'wxScreenDC::EndDrawingOnTop',
@@ -82,14 +82,14 @@ module WXRuby3
               return Qfalse;
             #endif
             }
-            __HEREDOC
+          __HEREDOC
           spec.add_extend_code 'wxPaintDC', <<~__HEREDOC
             #include "wx/dcbuffer.h"
             static VALUE has_native_double_buffer()
             {
               return do_check_native_double_buffer();
             }  
-            __HEREDOC
+          __HEREDOC
         when 'wxMemoryDC'
           spec.items << 'wxBufferedDC' << 'wxBufferedPaintDC'
           spec.override_inheritance_chain('wxMemoryDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version_check('3.3.0') >= 0
@@ -248,7 +248,7 @@ module WXRuby3
           __HEREDOC
         when 'wxSVGFileDC'
           spec.override_inheritance_chain('wxSVGFileDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version_check('3.3.0') >= 0
-          spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler]
+          spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler wxSVGAttributes]
           spec.make_abstract 'wxSVGFileDC'
           spec.ignore 'wxSVGFileDC::wxSVGFileDC'
           # like all DC this should best always be a temporary stack object
@@ -284,6 +284,10 @@ module WXRuby3
                       'wxSVGFileDC::EndDoc',
                       'wxSVGFileDC::StartPage',
                       'wxSVGFileDC::EndPage'
+          # simplify/optimize mapping for wxSVGAttributes return values
+          spec.map 'wxSVGAttributes&' => 'Wx::SVGAttributes' do
+            map_out code: '$result = self; (void)$1;' # simply return the 'self' argument
+          end
         when 'wxGCDC'
           spec.override_inheritance_chain('wxGCDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version_check('3.3.0') >= 0
           spec.make_abstract 'wxGCDC'
@@ -311,7 +315,7 @@ module WXRuby3
                 }
                 return rc;
               }
-              __HEREDOC
+            __HEREDOC
           end
           spec.add_extend_code 'wxGCDC', <<~__HEREDOC
             static VALUE draw_on()
@@ -386,7 +390,7 @@ module WXRuby3
               }
               return rc;
             }
-            __HEREDOC
+          __HEREDOC
           spec.disown 'wxGraphicsContext *gc'
           spec.ignore 'wxGCDC::wxGCDC(const wxEnhMetaFileDC &)'
         when 'wxScaledDC'
@@ -422,7 +426,7 @@ module WXRuby3
               return rc;
             }
             };
-            __HEREDOC
+          __HEREDOC
           spec.swig_import %w[ext/wxruby3/swig/classes/include/wxObject.h
                               ext/wxruby3/swig/classes/include/wxDC.h]
           spec.add_interface_code <<~__HEREDOC
@@ -433,7 +437,7 @@ module WXRuby3
             protected:
               wxScaledDC(wxDC& target, double scale);
             };
-            __HEREDOC
+          __HEREDOC
         when 'wxPrinterDC'
           spec.override_inheritance_chain('wxPrinterDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version_check('3.3.0') >= 0
           spec.make_abstract 'wxPrinterDC'
@@ -513,41 +517,41 @@ module WXRuby3
               }
               return rc;
             }
-            __HEREDOC
+          __HEREDOC
           if Config.instance.wx_version_check('3.3.0') >= 0
             spec.items << 'wxOverlayDC'
             spec.override_inheritance_chain('wxOverlayDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject'])
             spec.make_abstract 'wxOverlayDC'
             spec.ignore 'wxOverlayDC::wxOverlayDC'
             spec.add_extend_code 'wxOverlayDC', <<~__HEREDOC
-            static VALUE draw_on(wxOverlay &overlay, wxWindow *win)
-            {
-              if (!wxRuby_IsAppRunning()) 
-                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
-              VALUE rc = Qnil;
-              if (rb_block_given_p ())
+              static VALUE draw_on(wxOverlay &overlay, wxWindow *win)
               {
-                wxOverlayDC ovl_dc(overlay, win);
-                wxOverlayDC* ovl_dc_ptr = &ovl_dc;
-                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ovl_dc_ptr), SWIGTYPE_p_wxOverlayDC, 0);
-                rc = rb_yield(rb_dc);
+                if (!wxRuby_IsAppRunning()) 
+                  rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+                VALUE rc = Qnil;
+                if (rb_block_given_p ())
+                {
+                  wxOverlayDC ovl_dc(overlay, win);
+                  wxOverlayDC* ovl_dc_ptr = &ovl_dc;
+                  VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ovl_dc_ptr), SWIGTYPE_p_wxOverlayDC, 0);
+                  rc = rb_yield(rb_dc);
+                }
+                return rc;
               }
-              return rc;
-            }
-            static VALUE draw_on(wxOverlay &overlay, wxWindow *win, const wxRect &rect)
-            {
-              if (!wxRuby_IsAppRunning()) 
-                rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
-              VALUE rc = Qnil;
-              if (rb_block_given_p ())
+              static VALUE draw_on(wxOverlay &overlay, wxWindow *win, const wxRect &rect)
               {
-                wxOverlayDC ovl_dc(overlay, win, rect);
-                wxOverlayDC* ovl_dc_ptr = &ovl_dc;
-                VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ovl_dc_ptr), SWIGTYPE_p_wxOverlayDC, 0);
-                rc = rb_yield(rb_dc);
+                if (!wxRuby_IsAppRunning()) 
+                  rb_raise(rb_eRuntimeError, "A running Wx::App is required.");
+                VALUE rc = Qnil;
+                if (rb_block_given_p ())
+                {
+                  wxOverlayDC ovl_dc(overlay, win, rect);
+                  wxOverlayDC* ovl_dc_ptr = &ovl_dc;
+                  VALUE rb_dc = SWIG_NewPointerObj(SWIG_as_voidptr(ovl_dc_ptr), SWIGTYPE_p_wxOverlayDC, 0);
+                  rc = rb_yield(rb_dc);
+                }
+                return rc;
               }
-              return rc;
-            }
             __HEREDOC
           end
         else
