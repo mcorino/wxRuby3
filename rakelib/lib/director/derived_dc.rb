@@ -248,7 +248,10 @@ module WXRuby3
           __HEREDOC
         when 'wxSVGFileDC'
           spec.override_inheritance_chain('wxSVGFileDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version_check('3.3.0') >= 0
-          spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler wxSVGAttributes]
+          spec.items.concat %w[wxSVGBitmapHandler wxSVGBitmapFileHandler wxSVGBitmapEmbedHandler]
+          if Config.instance.wx_version_check('3.3.2') > 0
+            spec.items.concat %w[wxSVGAttributes]
+          end
           spec.make_abstract 'wxSVGFileDC'
           spec.ignore 'wxSVGFileDC::wxSVGFileDC'
           # like all DC this should best always be a temporary stack object
@@ -284,9 +287,11 @@ module WXRuby3
                       'wxSVGFileDC::EndDoc',
                       'wxSVGFileDC::StartPage',
                       'wxSVGFileDC::EndPage'
-          # simplify/optimize mapping for wxSVGAttributes return values
-          spec.map 'wxSVGAttributes&' => 'Wx::SVGAttributes' do
-            map_out code: '$result = self; (void)$1;' # simply return the 'self' argument
+          if Config.instance.wx_version_check('3.3.2') > 0
+            # simplify/optimize mapping for wxSVGAttributes return values
+            spec.map 'wxSVGAttributes&' => 'Wx::SVGAttributes' do
+              map_out code: '$result = self; (void)$1;' # simply return the 'self' argument
+            end
           end
         when 'wxGCDC'
           spec.override_inheritance_chain('wxGCDC', ['wxDC', { 'wxReadOnlyDC' => 'wxDC' }, 'wxObject']) if Config.instance.wx_version_check('3.3.0') >= 0
