@@ -373,6 +373,9 @@ jobs:
       WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
     steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v6
+
       - name: Download release test gem artifact
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/download-artifact@v8
