@@ -47,7 +47,7 @@ jobs:
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: fedora
-            target_base: latest
+            target_base: 'latest'
             target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
@@ -64,7 +64,7 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: debian
-            target_base: debian:12
+            target_base: '12'
             target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
@@ -104,12 +104,12 @@ jobs:
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: debian
-            target_base: debian:latest
+            target_base: 'latest'
             target_ruby: latest
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: fedora
-            target_base: fedora:42
+            target_base: '42'
             target_ruby: latest
           - os: ubuntu-24.04-arm
             arch: arm64
