@@ -344,7 +344,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
-          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '_'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
           path: pkg/*
 
 
