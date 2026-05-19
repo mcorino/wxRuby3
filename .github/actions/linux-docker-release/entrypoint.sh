@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+distro=$1
+ruby=$2
+
+export WXRUBY_TEST_EXCLUDE='test_intl:test_media_ctrl'
+
+./tools/scripts/docker/setup-$distro.sh test
+
+# Show some information about the system.
+uname -a
+locale
+locale -a
+cat /etc/os-release
+
+if [ "$ruby" -eq "system" ]; then
+  # testing with system ruby
+
+  ./tools/scripts/docker/setup-$distro-system-ruby.sh
+
+  ./tools/scripts/cirrus/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log
+
+else
+  # testing with latest ruby
+
+  ./tools/scripts/docker/setup-ruby-install-latest.sh
+
+  ./tools/scripts/cirrus/build-wxruby3.sh --latest --binpkg 2>&1 | tee -a build-wxruby3.log
+fi
