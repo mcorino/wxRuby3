@@ -297,6 +297,7 @@ jobs:
             target_distro: debian
             target_base: debian:12
             target_ruby: system
+            name: arm64_debian_12
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
@@ -307,7 +308,7 @@ jobs:
         run: |
           ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release/Dockerfile
 
-      - name: Verify wxRuby3 on docker image
+      - name: Build wxRuby3 on docker image
         uses: ./.github/actions/linux-docker-release
         id: docker-release
         with:
@@ -338,8 +339,55 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
-          name: wxruby3_release_test_bin_${{ matrix.name }}
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ matrix.name}}
           path: pkg/*
+
+
+  verify-docker-gem:
+    needs:
+      - release-gem
+      - release-docker-binpkg
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: debian:12
+            target_ruby: system
+            name: arm64_debian_12
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    env:
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
+    steps:
+      - name: Download release test gem artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.name }}
+
+      - name: Setup Dockerfile
+        run: |
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release-verify/Dockerfile
+
+      - name: Verify wxRuby3 on docker image
+        uses: ./.github/actions/linux-docker-release-verify
+        id: docker-release-verify
+        with:
+          distro: ${{ matrix.target_distro }}
+          ruby: ${{ matrix.target_ruby }}
+          test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
+          release: ${{ env.WXRUBY_RELEASE }}
+          pre: ${{ env.WXRUBY_PRERELEASE }}
 
   verify-gem:
     if: github.event_name != 'workflow_dispatch'
