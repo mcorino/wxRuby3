@@ -295,18 +295,23 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: debian
-            target_base: debian:12
+            target_base: 12
             target_ruby: system
-            name: arm64_debian_12
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
+            target_ruby: system
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v6
 
       - name: Setup Dockerfile
         run: |
-          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release/Dockerfile
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release/Dockerfile
 
       - name: Build wxRuby3 on docker image
         uses: ./.github/actions/linux-docker-release
@@ -339,7 +344,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
-          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ matrix.name}}
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
           path: pkg/*
 
 
@@ -354,11 +359,16 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: debian
-            target_base: debian:12
+            target_base: 12
             target_ruby: system
-            name: arm64_debian_12
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
+            target_ruby: system
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     env:
       WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
@@ -373,11 +383,11 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/download-artifact@v8
         with:
-          name: wxruby3_release_test_bin_${{ matrix.name }}
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '_'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
 
       - name: Setup Dockerfile
         run: |
-          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release-verify/Dockerfile
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release-verify/Dockerfile
 
       - name: Verify wxRuby3 on docker image
         uses: ./.github/actions/linux-docker-release-verify
