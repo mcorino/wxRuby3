@@ -47,17 +47,19 @@ jobs:
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: fedora
-            target_base: fedora:latest
+            target_base: latest
             target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: opensuse
-            target_base: 'opensuse/leap:latest'
+            target_docker_image: ['opensuse', 'leap']
+            target_base: 'latest'
             target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: ubuntu
-            target_base: 'linuxmintd/mint22-amd64'
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
             target_ruby: system
           - os: ubuntu-24.04-arm
             arch: arm64
@@ -67,17 +69,18 @@ jobs:
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: arch
-            target_base: 'archlinux/archlinux:latest'
+            target_docker_image: ['archlinux', 'archlinux']
+            target_base: 'latest'
             target_ruby: latest
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
     - name: Checkout wxRuby3
       uses: actions/checkout@v6
 
     - name: Setup Dockerfile
       run: |
-        ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
+        ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
 
     - name: Verify wxRuby3 on docker image
       uses: ./.github/actions/linux-docker-verify
@@ -95,7 +98,8 @@ jobs:
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: manjaro
-            target_base: 'manjarolinux/base:latest'
+            target_docker_image: ['manjarolinux', 'base']
+            target_base: 'latest'
             target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
@@ -110,17 +114,18 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: opensuse
-            target_base: 'opensuse/leap:15.6'
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '15.6'
             target_ruby: latest
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v6
 
       - name: Setup Dockerfile
         run: |
-          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-verify/Dockerfile
 
       - name: Verify wxRuby3 on docker image
         uses: ./.github/actions/linux-docker-verify
