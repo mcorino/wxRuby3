@@ -18,12 +18,12 @@ if [ "$ruby" -eq "system" ]; then
 
   ./tools/scripts/docker/setup-$distro-system-ruby.sh
 
-  ./tools/scripts/cirrus/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log
+  ./tools/scripts/docker/build-wxruby3.sh --binpkg 2>&1 | tee -a build-wxruby3.log
 
 else
   # testing with latest ruby
 
   ./tools/scripts/docker/setup-ruby-install-latest.sh
 
-  ./tools/scripts/cirrus/build-wxruby3.sh --latest --binpkg 2>&1 | tee -a build-wxruby3.log
+  ./tools/scripts/docker/build-wxruby3.sh --latest --binpkg 2>&1 | tee -a build-wxruby3.log
 fi
