@@ -6,7 +6,7 @@ _test=$3
 _release=$4
 _pre=$5
 
-export WXRUBY_VERSION=$_release
+export WXRUBY_RELEASE_VERSION=$_release
 if [ "$_pre" == "1" ]; then
   export WXRUBY_PRERELEASE="--pre"
 else
