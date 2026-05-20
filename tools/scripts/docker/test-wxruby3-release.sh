@@ -14,7 +14,7 @@ case $a in
 esac
 done
 
-echo "Testing wxRuby3 v$WXRUBY_RELEASE_VERSION"
+echo "Testing wxRuby3 v$__WXRUBY_RELEASE_VERSION"
 
 if [ "$_test" == "1" ]; then
 
@@ -23,5 +23,5 @@ if [ "$_test" == "1" ]; then
 else
   gem sources --add "https://mcorino:$GITHUB_TOKEN@rubygems.pkg.github.com/mcorino/"
 
-  gem install wxruby3 -v "$WXRUBY_RELEASE_VERSION" ${WXRUBY_PRERELEASE} --no-format-executable && xvfb-run -a -s '-screen 0 1600x1200x24' wxruby test --keep-going --exclude=test_intl --exclude=test_media_ctrl
+  gem install wxruby3 -v "${__WXRUBY_RELEASE_VERSION}" ${__WXRUBY_PRERELEASE} --no-format-executable && xvfb-run -a -s '-screen 0 1600x1200x24' wxruby test --keep-going --exclude=test_intl --exclude=test_media_ctrl
 fi

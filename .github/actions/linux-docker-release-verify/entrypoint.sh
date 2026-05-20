@@ -6,13 +6,6 @@ _test=$3
 _release=$4
 _pre=$5
 
-export WXRUBY_RELEASE_VERSION=$_release
-if [ "$_pre" == "1" ]; then
-  export WXRUBY_PRERELEASE="--pre"
-else
-  export WXRUBY_PRERELEASE=""
-fi
-
 ./tools/scripts/docker/setup-$_distro.sh test
 
 # Show some information about the system.
@@ -31,6 +24,13 @@ else
 
   ./tools/scripts/docker/setup-ruby-install-latest.sh
 
+fi
+
+export __WXRUBY_RELEASE_VERSION=$_release
+if [ "$_pre" == "1" ]; then
+  export __WXRUBY_PRERELEASE="--pre"
+else
+  export __WXRUBY_PRERELEASE=""
 fi
 
 if [ "$_test" == "1" ]; then
