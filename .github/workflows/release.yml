@@ -484,13 +484,13 @@ jobs:
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
             target_base: '16.0'
-            target_ruby: 'system'
+            target_ruby: 'latest'
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
             target_base: '16.0'
-            target_ruby: 'system'
+            target_ruby: 'latest'
     runs-on: ${{ matrix.os }}
     name: test ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     env:
