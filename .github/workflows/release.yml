@@ -101,11 +101,12 @@ jobs:
         fi
 
 
+
   release-windows-binpkg:
     if: github.event_name != 'workflow_dispatch'
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: binpkg ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
     env:
       DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
     strategy:
@@ -204,7 +205,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} ${{ matrix.arch}} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: binpkg ${{ matrix.os }} ${{ matrix.arch}} wxRuby Binpkg Release (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
@@ -358,16 +359,16 @@ jobs:
             arch: x86_64
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
-            target_base: '16'
+            target_base: '16.0'
             target_ruby: 'system'
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
-            target_base: '16'
+            target_base: '16.0'
             target_ruby: 'system'
     runs-on: ${{ matrix.os }}
-    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: binpkg ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v6
@@ -484,16 +485,16 @@ jobs:
             arch: x86_64
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
-            target_base: '16'
+            target_base: '16.0'
             target_ruby: 'system'
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
-            target_base: '16'
+            target_base: '16.0'
             target_ruby: 'system'
     runs-on: ${{ matrix.os }}
-    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: test ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     env:
       WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
@@ -606,7 +607,7 @@ jobs:
             target_base: '15.6'
             target_ruby: 'latest'
     runs-on: ${{ matrix.os }}
-    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: binpkg ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v6
@@ -730,7 +731,7 @@ jobs:
             target_base: '15.6'
             target_ruby: 'latest'
     runs-on: ${{ matrix.os }}
-    name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    name: test ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     env:
       WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
@@ -822,7 +823,7 @@ jobs:
             build: false
 
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    name: test ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
       WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
@@ -988,13 +989,14 @@ jobs:
         run: |
           wxruby test
 
+
   verify-gem-windows:
     if: github.event_name != 'workflow_dispatch'
     needs:
       - release-gem
       - release-windows-binpkg
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    name: test ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
