@@ -23,7 +23,7 @@ jobs:
             ruby: 'ruby'
     runs-on: ${{ matrix.os }}
     permissions: write-all
-    name: ${{ matrix.os }} wxRuby Release (${{ github.ref_name }})
+    name: ${{ matrix.os }} wxRuby Release
     env:
       CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
     outputs:
@@ -100,13 +100,11 @@ jobs:
           echo "WXRUBY_PRERELEASE=0" >> "$GITHUB_OUTPUT"
         fi
 
-
-
   release-windows-binpkg:
     if: github.event_name != 'workflow_dispatch'
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: binpkg ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: binpkg ${{ matrix.os }}
     env:
       DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
     strategy:
@@ -205,7 +203,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: binpkg ${{ matrix.os }} ${{ matrix.arch}} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: binpkg ${{ matrix.os }} ${{ matrix.arch}} (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
@@ -360,13 +358,13 @@ jobs:
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
             target_base: '16.0'
-            target_ruby: 'system'
+            target_ruby: 'latest'
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: opensuse
             target_docker_image: ['opensuse', 'leap']
             target_base: '16.0'
-            target_ruby: 'system'
+            target_ruby: 'latest'
     runs-on: ${{ matrix.os }}
     name: binpkg ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
