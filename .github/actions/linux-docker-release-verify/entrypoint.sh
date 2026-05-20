@@ -21,7 +21,7 @@ locale
 locale -a
 cat /etc/os-release
 
-if [ "$_ruby" -eq "system" ]; then
+if [ "$_ruby" == "system" ]; then
   # testing with system ruby
 
   ./tools/scripts/docker/setup-$_distro-system-ruby.sh
