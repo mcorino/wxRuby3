@@ -5,7 +5,7 @@ ruby=$2
 
 export WXRUBY_TEST_EXCLUDE='test_intl:test_media_ctrl'
 
-./tools/scripts/docker/setup-$distro.sh test
+./tools/scripts/docker/setup-$distro.sh
 
 # Show some information about the system.
 uname -a
