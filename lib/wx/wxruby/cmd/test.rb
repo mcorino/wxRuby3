@@ -38,7 +38,8 @@ module WxRuby
           exit(0)
         end
         opts.on('--exclude=TEST',
-                "exclude the specified test from running")  {|v| Test.options[:excludes] << v }
+                "Exclude the specified test from running")  {|v| Test.options[:excludes] << v }
+        opts.on('--keep-going', 'Do NOT stop on error.') { Test.options[:keep_going] = true }
         opts.on('-h', '--help',
                 'Show this message.') do |v|
           puts opts
@@ -66,9 +67,14 @@ module WxRuby
                   end
                 end
         tests.each do |test|
+          rc = true
           unless Test.options[:excludes].include?(File.basename(test, '.*'))
-            exit(1) unless system(RUBY, test)
+            $stdout.puts
+            $stdout.puts "Running #{File.basename(test, '.*')} ..."
+            rc &&= system(RUBY, test)
+            exit(1) unless rc || Test.options[:keep_going]
           end
+          exit(1) unless rc
         end
       end
     end
