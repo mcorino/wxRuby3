@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 apt-get update
-apt-get install -y git make gcc gpg xvfb xfonts-75dpi curl procps
+apt-get install -y git make gcc gpg xvfb xfonts-75dpi curl procps bzip2
 if [ "$1" == "test" ]; then
   source /etc/os-release
   case $VERSION_ID in
