@@ -43,10 +43,11 @@ module WXRuby3
         end
 
         PLATFORM_DEPS = {
-          debian: PlatformDependencies.new(%w[libgtk-3-dev libwebkit2gtk-4.0-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev])
+          debian: PlatformDependencies.new(%w[libgtk-3-dev libwebkit2gtk-4.[0-9]+-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev])
                                       .add('debian', %w[libgtk-3-dev libwebkit2gtk-4.1-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev], release: '12')
                                       .alias('debian', '12', 'debian', '13')
                                       .add('ubuntu', %w[libgtk-3-dev libwebkit2gtk-4.1-dev libgspell-1-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libcurl4-openssl-dev libsecret-1-dev libnotify-dev], release: '24.04')
+                                      .alias('ubuntu', '24.04', 'ubuntu', '26.04')
                                       .alias('ubuntu', '24.04', 'linuxmint', '22')
                                       .alias('ubuntu', '24.04', 'linuxmint', '22.1')
                                       .alias('ubuntu', '24.04', 'linuxmint', '22.2')
