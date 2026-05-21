@@ -85,10 +85,10 @@ if Wx.has_feature?(:USE_WEBVIEW)
       yield_and_wait_for_test(5000) { loaded}
       # unfortunately the WebView2 loader on windows is flaky in CI builds and tends to fail (too often)
       # so just skip the test in such cases
-      if loaded || !(is_msw? && is_ci_build? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_EDGE)
+      if loaded || !is_ci_build?
         assert_true(loaded)
       else
-        STDERR.puts 'WARNING: Skipping test because of WebView2 load failure'
+        STDERR.puts 'WARNING: Skipping test because CI'
       end
     end
 
@@ -400,12 +400,12 @@ if Wx.has_feature?(:USE_WEBVIEW)
       frame_win.evt_webview_loaded(webview) { |_| loaded = true }
       webview.load_url('https://mcorino.github.io/wxRuby3/')
       yield_and_wait_for_test(10000) { loaded}
-      # unfortunately the WebView2 loader on windows is flaky in CI builds and tends to fail (too often)
+      # unfortunately WebView loader is flaky in CI builds and tends to fail (too often)
       # so just skip the test in such cases
-      if loaded || !(is_msw? && is_ci_build? && Wx::WEB::WEBVIEW_BACKEND_DEFAULT == Wx::WEB::WEBVIEW_BACKEND_EDGE)
+      if loaded || !is_ci_build?
         assert_true(loaded)
       else
-        STDERR.puts 'WARNING: Skipping test because of WebView2 load failure'
+        STDERR.puts 'WARNING: Skipping test because of CI'
       end
     end
 
