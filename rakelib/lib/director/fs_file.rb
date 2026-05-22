@@ -105,7 +105,7 @@ module WXRuby3
               wxMemoryOutputStream stream;
               $self->Read(stream);
               wxStreamBuffer* buffer = stream.GetOutputStreamBuffer();   
-              return buffer.GetBufferSize()>0 ? rb_str_new(reinterpret_cast<char*> (buffer.GetBufferStart()), buffer.GetBufferSize()) : Qnil;
+              return buffer->GetBufferSize()>0 ? rb_str_new(reinterpret_cast<char*> (buffer->GetBufferStart()), buffer->GetBufferSize()) : Qnil;
             }
             __HEREDOC
         end
