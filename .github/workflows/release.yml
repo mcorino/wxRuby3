@@ -200,7 +200,6 @@ jobs:
           path: pkg/*
 
   release-macosx-binpkg:
-    if: github.event_name != 'workflow_dispatch'
     needs: release-gem
     runs-on: ${{ matrix.os }}
     name: binpkg ${{ matrix.os }} ${{ matrix.arch}} (${{ github.ref_name }})
@@ -744,7 +743,6 @@ jobs:
           pre: ${{ env.WXRUBY_PRERELEASE }}
 
   verify-gem:
-    if: github.event_name != 'workflow_dispatch'
     needs:
       - release-gem
       - release-macosx-binpkg
