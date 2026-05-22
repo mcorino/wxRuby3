@@ -98,6 +98,7 @@ module WXRuby3
             }
             __HEREDOC
         else
+          spec.include 'wx/mstream.h'
           spec.add_extend_code 'wxInputStream', <<~__HEREDOC
             VALUE ReadAll()
             {
