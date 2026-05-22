@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-cat << EOF > $2
-FROM $1
+cat << EOF > $3
+FROM $1:$2
 LABEL authors="martin"
 
 COPY entrypoint.sh /entrypoint.sh

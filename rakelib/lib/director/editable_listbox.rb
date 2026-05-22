@@ -16,14 +16,16 @@ module WXRuby3
 
       def setup
         super
-        # methods missing from docs
-        spec.extend_interface 'wxEditableListBox',
-                              'wxListCtrl* GetListCtrl()',
-                              'wxBitmapButton* GetDelButton()',
-                              'wxBitmapButton* GetNewButton()',
-                              'wxBitmapButton* GetUpButton()',
-                              'wxBitmapButton* GetDownButton()',
-                              'wxBitmapButton* GetEditButton()'
+        if Config.instance.wx_version_check('3.3.3') < 0
+          # methods missing from docs
+          spec.extend_interface 'wxEditableListBox',
+                                'wxListCtrl* GetListCtrl()',
+                                'wxBitmapButton* GetDelButton()',
+                                'wxBitmapButton* GetNewButton()',
+                                'wxBitmapButton* GetUpButton()',
+                                'wxBitmapButton* GetDownButton()',
+                                'wxBitmapButton* GetEditButton()'
+        end
         # redefine this
         spec.ignore 'wxEditableListBox::GetStrings', ignore_doc: false
         spec.add_extend_code 'wxEditableListBox', <<~__HEREDOC

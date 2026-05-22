@@ -1,0 +1,33 @@
+name: docker-release-verify
+author: martin
+description: 'Linux release builds using docker'
+inputs:
+  distro:  # id of input
+    description: 'What distribution docker image to use'
+    required: true
+    default: 'ubuntu'
+  ruby:
+    description: 'What ruby version to use: system or latest'
+    required: true
+    default: 'latest'
+  test:
+    description: '1 if testing release workflow, 0 if actually releasing'
+    required: true
+    default: '1'
+  release:
+    description: 'Release version'
+    required: true
+  pre:
+    description: '1 if verifying pre-release,0 otherwise'
+    required: true
+    default: '0'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.distro }}
+    - ${{ inputs.ruby }}
+    - ${{ inputs.test }}
+    - ${{ inputs.release }}
+    - ${{ inputs.pre }}

@@ -86,6 +86,29 @@ module WXRuby3
             return nread>0 ? rb_str_new(buffer.get(), nread) : Qnil;
           }
           __HEREDOC
+        if Config.instance.wx_version_check('3.3.3') >= 0
+          # covered by custom ReadAll()
+          spec.ignore 'wxInputStream::Read(std::vector<wxUint8> &)'
+          spec.add_extend_code 'wxInputStream', <<~__HEREDOC
+            VALUE ReadAll()
+            {
+              std::vector<wxUint8> buffer;
+              $self->Read(buffer);
+              return buffer.size()>0 ? rb_str_new(reinterpret_cast<char*> (buffer.data()), buffer.size()) : Qnil;
+            }
+            __HEREDOC
+        else
+          spec.include 'wx/mstream.h'
+          spec.add_extend_code 'wxInputStream', <<~__HEREDOC
+            VALUE ReadAll()
+            {
+              wxMemoryOutputStream stream;
+              $self->Read(stream);
+              wxStreamBuffer* buffer = stream.GetOutputStreamBuffer();   
+              return buffer->GetBufferSize()>0 ? rb_str_new(reinterpret_cast<char*> (buffer->GetBufferStart()), buffer->GetBufferSize()) : Qnil;
+            }
+            __HEREDOC
+        end
         # for Read(wxOutputStream&)
         spec.map 'wxInputStream&' => 'Wx::InputStream' do
           map_out code: '$result = self; wxUnusedVar($1);'

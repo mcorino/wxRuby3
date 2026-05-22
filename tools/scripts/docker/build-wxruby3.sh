@@ -18,14 +18,12 @@ case $a in
 esac
 done
 
-if [ "$latest_only" == "" ] || [ "$_ruby" == "latest" ]; then
-  ruby -v
+ruby -v
 
-  bundle install
-  bundle exec rake 'configure[--with-wxwin,--autoinstall]'
-  bundle exec rake build
+bundle install
+bundle exec rake 'configure[--with-wxwin,--autoinstall]'
+bundle exec rake build
 
-  if [ "$_binpkg" == "1" ]; then
-    bundle exec rake binpkg
-  fi
+if [ "$_binpkg" == "1" ]; then
+  bundle exec rake binpkg
 fi

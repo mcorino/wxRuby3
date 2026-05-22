@@ -23,7 +23,7 @@ jobs:
             ruby: 'ruby'
     runs-on: ${{ matrix.os }}
     permissions: write-all
-    name: ${{ matrix.os }} wxRuby Release (${{ github.ref_name }})
+    name: ${{ matrix.os }} wxRuby Release
     env:
       CIRRUS_TOKEN: ${{ secrets.CIRRUS_TOKEN }}
     outputs:
@@ -82,14 +82,6 @@ jobs:
         overwrite: true
         file_glob: true
 
-    - name: Trigger Cirrus CI Release Tasks
-      run: |
-        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-          ruby tools/scripts/cirrus/start_release_tasks.rb "$GITHUB_REF_NAME"
-        else
-          ruby tools/scripts/cirrus/start_release_tasks.rb --release "$GITHUB_REF_NAME"
-        fi
-
     - name: Upload Gem as release test artifact
       if: github.event_name == 'workflow_dispatch'
       uses: actions/upload-artifact@v7
@@ -108,11 +100,11 @@ jobs:
           echo "WXRUBY_PRERELEASE=0" >> "$GITHUB_OUTPUT"
         fi
 
-
   release-windows-binpkg:
+    if: github.event_name != 'workflow_dispatch'
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: binpkg ${{ matrix.os }}
     env:
       DOXYGEN_ROOT: ${{ github.workspace }}\doxygen
     strategy:
@@ -210,7 +202,7 @@ jobs:
   release-macosx-binpkg:
     needs: release-gem
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} ${{ matrix.arch}} wxRuby Binpkg Release (${{ github.ref_name }})
+    name: binpkg ${{ matrix.os }} ${{ matrix.arch}} (${{ github.ref_name }})
     strategy:
       fail-fast: false
       matrix:
@@ -292,6 +284,464 @@ jobs:
           name: wxruby3_release_test_bin_${{ matrix.name }}
           path: pkg/*
 
+  release-docker-binpkg:
+    needs: release-gem
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: '44'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: '44'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '16.0'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '16.0'
+            target_ruby: 'latest'
+    runs-on: ${{ matrix.os }}
+    name: binpkg ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v6
+
+      - name: Setup Dockerfile
+        run: |
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release/Dockerfile
+
+      - name: Build wxRuby3 on docker image
+        uses: ./.github/actions/linux-docker-release
+        id: docker-release
+        with:
+          distro: ${{ matrix.target_distro }}
+          ruby: ${{ matrix.target_ruby }}
+
+      - name: Upload bin pkg as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.pkg
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg digest signature as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg as release test artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '_'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
+          path: pkg/*
+
+  verify-docker-gem:
+    needs:
+      - release-gem
+      - release-docker-binpkg
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: '13'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: '44'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: '44'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_docker_image: ['linuxmintd', 'mint22.3-amd64']
+            target_base: 'latest'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '16.0'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '16.0'
+            target_ruby: 'latest'
+    runs-on: ${{ matrix.os }}
+    name: test ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    env:
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v6
+
+      - name: Download release test gem artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '_'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
+
+      - name: Setup Dockerfile
+        run: |
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release-verify/Dockerfile
+
+      - name: Verify wxRuby3 on docker image
+        uses: ./.github/actions/linux-docker-release-verify
+        id: docker-release-verify
+        with:
+          distro: ${{ matrix.target_distro }}
+          ruby: ${{ matrix.target_ruby }}
+          test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
+          release: ${{ env.WXRUBY_RELEASE }}
+          pre: ${{ env.WXRUBY_PRERELEASE }}
+
+  release-docker-binpkg-prev-ver:
+    needs: release-docker-binpkg
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: 12
+            target_ruby: system
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: 12
+            target_ruby: latest
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: 12
+            target_ruby: system
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: 12
+            target_ruby: latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '15.6'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '15.6'
+            target_ruby: 'latest'
+    runs-on: ${{ matrix.os }}
+    name: binpkg ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v6
+
+      - name: Setup Dockerfile
+        run: |
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release/Dockerfile
+
+      - name: Build wxRuby3 on docker image
+        uses: ./.github/actions/linux-docker-release
+        id: docker-release
+        with:
+          distro: ${{ matrix.target_distro }}
+          ruby: ${{ matrix.target_ruby }}
+
+      - name: Upload bin pkg as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.pkg
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg digest signature as release asset
+        if: github.event_name != 'workflow_dispatch'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: pkg/*.sha
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+
+      - name: Upload bin pkg as release test artifacts
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '_'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
+          path: pkg/*
+
+  verify-docker-gem-prev-ver:
+    needs:
+      - release-gem
+      - release-docker-binpkg-prev-ver
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: 12
+            target_ruby: system
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: debian
+            target_base: 12
+            target_ruby: latest
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: 12
+            target_ruby: system
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: debian
+            target_base: 12
+            target_ruby: latest
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: fedora
+            target_base: '43'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'system'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '24.04'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '15.6'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: opensuse
+            target_docker_image: ['opensuse', 'leap']
+            target_base: '15.6'
+            target_ruby: 'latest'
+    runs-on: ${{ matrix.os }}
+    name: test ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
+    env:
+      WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
+      WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
+    steps:
+      - name: Checkout wxRuby3
+        uses: actions/checkout@v6
+
+      - name: Download release test gem artifact
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: wxruby3_release_test_gem
+
+      - name: Download bin pkg artifacts
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: wxruby3_release_test_bin_${{ matrix.arch }}_${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '_'), matrix.target_distro)}}_${{ matrix.target_base }}_${{ matrix.target_ruby}}
+
+      - name: Setup Dockerfile
+        run: |
+          ${{ github.workspace }}/tools/scripts/docker/create-docker-file.sh ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }} ${{ matrix.target_base }} ${{ github.workspace }}/.github/actions/linux-docker-release-verify/Dockerfile
+
+      - name: Verify wxRuby3 on docker image
+        uses: ./.github/actions/linux-docker-release-verify
+        id: docker-release-verify
+        with:
+          distro: ${{ matrix.target_distro }}
+          ruby: ${{ matrix.target_ruby }}
+          test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
+          release: ${{ env.WXRUBY_RELEASE }}
+          pre: ${{ env.WXRUBY_PRERELEASE }}
+
   verify-gem:
     needs:
       - release-gem
@@ -349,7 +799,7 @@ jobs:
             build: false
 
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    name: test ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       WXWIDGETS_ROOT: ${{ github.workspace }}/ext/wxWidgets
       WXWIDGETS_LATEST_STABLE: ${{ vars.WXWIDGETS_LATEST_STABLE }}
@@ -515,12 +965,14 @@ jobs:
         run: |
           wxruby test
 
+
   verify-gem-windows:
+    if: github.event_name != 'workflow_dispatch'
     needs:
       - release-gem
       - release-windows-binpkg
     runs-on: ${{ matrix.os }}
-    name: ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
+    name: test ${{ matrix.os }} wxRuby Gem Test (${{ github.ref_name }})
     env:
       WXRUBY_RELEASE: ${{ needs.release-gem.outputs.version }}
       WXRUBY_PRERELEASE: ${{ needs.release-gem.outputs.prerelease }}
