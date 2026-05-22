@@ -89,7 +89,7 @@ module WXRuby3
           {
             std::vector<wxUint8> buffer;
             $self->Read(buffer);
-            return buffer.size()>0 ? rb_str_new(static_cast<char*> (buffer.data()), buffer.size()) : Qnil;
+            return buffer.size()>0 ? rb_str_new(reinterpret_cast<char*> (buffer.data()), buffer.size()) : Qnil;
           }
           __HEREDOC
         if Config.instance.wx_version_check('3.3.3') >= 0
