@@ -17,12 +17,16 @@ module Wx
     #   Reads bytes from stream and writes these to output stream until eof or error.
     #   @param [IO,Wx::OutputStream] output output stream to write to
     #   @return [self]
-    def read(*args); end
+    def read(*); end
 
+    # @overload read_all(size)
     #   Reads size bytes from stream (until eof or error).
     #   @param [Integer] size number of bytes to read
     #   @return [String,nil] string with bytes read (nil if none read)
-    def read_all(size); end
+    # @overload read_all()
+    #   Reads all bytes from stream (until eof or error).
+    #   @return [String,nil] string with bytes read (nil if none read)
+    def read_all(*); end
 
   end
 
@@ -36,7 +40,7 @@ module Wx
     #   Write bytes read from input stream (until eof or error)
     #   @param [IO,Wx::InputStream] input input stream to read from
     #   @return [self]
-    def write(*args); end
+    def write(*); end
 
     # Writes bytes from buffer to stream.
     # @param [String] buffer string with bytes to write
