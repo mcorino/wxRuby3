@@ -76,7 +76,7 @@ jobs:
     name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
     - name: Checkout wxRuby3
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup Dockerfile
       run: |
@@ -121,7 +121,7 @@ jobs:
     name: ${{ case(matrix.target_docker_image != '', join(matrix.target_docker_image, '/'), matrix.target_distro) }}:${{ matrix.target_base }} ${{ matrix.arch }} ruby=${{ matrix.target_ruby }}
     steps:
       - name: Checkout wxRuby3
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Dockerfile
         run: |
