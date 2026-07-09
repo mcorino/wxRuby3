@@ -35,10 +35,18 @@ module WXRuby3
             }
             __HEREDOC
           spec.ignore %w{
-            wxTopLevelWindow::SaveGeometry
-            wxTopLevelWindow::RestoreToGeometry
-            wxTopLevelWindow::GeometrySerializer
-          }
+              wxTopLevelWindow::SaveGeometry
+              wxTopLevelWindow::RestoreToGeometry
+            }
+          if Config.instance.wx_version_check('3.3.3') < 0
+            spec.ignore %w{
+              wxTopLevelWindow::GeometrySerializer
+            }
+          else
+            spec.ignore %w{
+              wxTopLevelWindow::GeometryStore
+            }
+          end
           # #ignore_unless if wxRuby one day supports 'WXUNIVERSAL'
           spec.ignore %w{
             wxTopLevelWindow::IsUsingNativeDecorations
