@@ -11,7 +11,7 @@ else
   curl -s -L https://raw.github.com/postmodern/postmodern.github.io/main/postmodern.asc --output postmodern.asc
   gpg --import postmodern.asc
 
-  RUBY_INSTALL_LATEST_URL=$(curl -s https://api.github.com/repos/postmodern/ruby-install/releases/latest | grep browser_download_url | cut -d\" -f4 | egrep '.tar.gz$')
+  RUBY_INSTALL_LATEST_URL=$(curl -s https://api.github.com/repos/postmodern/ruby-install/releases/latest | grep browser_download_url | cut -d\" -f4 | grep -E '.tar.gz$')
   RUBY_INSTALL_LATEST_FILE=$(basename $RUBY_INSTALL_LATEST_URL)
   RUBY_INSTALL_LATEST_DIR=$(basename -s .tar.gz $RUBY_INSTALL_LATEST_FILE)
 
