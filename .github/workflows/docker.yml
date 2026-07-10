@@ -90,7 +90,7 @@ jobs:
         ruby: ${{ matrix.target_ruby }}
 
   build-pr-merge:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
