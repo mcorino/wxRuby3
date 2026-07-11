@@ -448,13 +448,13 @@ jobs:
             target_ruby: 'system'
           - os: ubuntu-24.04
             arch: x86_64
-            target_distro: ubuntu
+            target_distro: linuxmint
             target_docker_image: ['linuxmintd', 'mint22.3-amd64']
             target_base: 'latest'
             target_ruby: 'system'
           - os: ubuntu-24.04
             arch: x86_64
-            target_distro: ubuntu
+            target_distro: linuxmint
             target_docker_image: ['linuxmintd', 'mint22.3-amd64']
             target_base: 'latest'
             target_ruby: 'latest'
@@ -504,6 +504,7 @@ jobs:
           test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
           release: ${{ env.WXRUBY_RELEASE }}
           pre: ${{ env.WXRUBY_PRERELEASE }}
+          ghtoken: ${{ secrets.GITHUB_TOKEN }}
 
   release-docker-binpkg-prev-ver:
     needs: release-docker-binpkg
@@ -741,6 +742,7 @@ jobs:
           test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
           release: ${{ env.WXRUBY_RELEASE }}
           pre: ${{ env.WXRUBY_PRERELEASE }}
+          ghtoken: ${{ secrets.GITHUB_TOKEN }}
 
   verify-gem:
     needs:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-distro=$1
+export distro=$1
 ruby=$2
 
 ./tools/scripts/docker/setup-$distro.sh

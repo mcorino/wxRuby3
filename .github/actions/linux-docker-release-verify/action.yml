@@ -21,6 +21,9 @@ inputs:
     description: '1 if verifying pre-release,0 otherwise'
     required: true
     default: '0'
+  ghtoken:
+    description: 'GitHub token'
+    required: true
 
 runs:
   using: 'docker'
@@ -31,3 +34,4 @@ runs:
     - ${{ inputs.test }}
     - ${{ inputs.release }}
     - ${{ inputs.pre }}
+    - ${{ inputs.ghtoken }}
