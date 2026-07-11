@@ -57,7 +57,7 @@ jobs:
             target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
-            target_distro: ubuntu
+            target_distro: linuxmint
             target_docker_image: ['linuxmintd', 'mint22.3-amd64']
             target_base: 'latest'
             target_ruby: system
