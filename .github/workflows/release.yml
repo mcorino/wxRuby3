@@ -504,6 +504,7 @@ jobs:
           test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
           release: ${{ env.WXRUBY_RELEASE }}
           pre: ${{ env.WXRUBY_PRERELEASE }}
+          ghtoken: ${{ secrets.GITHUB_TOKEN }}
 
   release-docker-binpkg-prev-ver:
     needs: release-docker-binpkg
@@ -741,6 +742,7 @@ jobs:
           test: ${{ case(github.event_name == 'workflow_dispatch', '1', '0') }}
           release: ${{ env.WXRUBY_RELEASE }}
           pre: ${{ env.WXRUBY_PRERELEASE }}
+          ghtoken: ${{ secrets.GITHUB_TOKEN }}
 
   verify-gem:
     needs:

@@ -5,6 +5,7 @@ _ruby=$2
 _test=$3
 _release=$4
 _pre=$5
+_ghtok=$6
 
 ./tools/scripts/docker/setup-$_distro.sh test
 
@@ -32,6 +33,7 @@ if [ "$_pre" == "1" ]; then
 else
   export __WXRUBY_PRERELEASE=""
 fi
+export GITHUB_TOKEN="$_ghtok"
 
 if [ "$_test" == "1" ]; then
 
