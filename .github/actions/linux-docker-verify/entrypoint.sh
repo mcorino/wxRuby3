@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-_distro=$1
+export distro=$1
 _ruby=$2
 
 export WXRUBY_TEST_EXCLUDE='test_intl:test_media_ctrl'
 
-./tools/scripts/docker/setup-$_distro.sh test
+./tools/scripts/docker/setup-$distro.sh test
 
 # Show some information about the system.
 uname -a
@@ -16,7 +16,7 @@ cat /etc/os-release
 if [ "$_ruby" == "system" ]; then
   # testing with system ruby
 
-  ./tools/scripts/docker/setup-$_distro-system-ruby.sh
+  ./tools/scripts/docker/setup-$distro-system-ruby.sh
 
   ./tools/scripts/docker/build-wxruby3.sh 2>&1 | tee -a build-wxruby3.log
 
