@@ -79,7 +79,7 @@ private:
           if (!m_shouldExit && needs_idle_evt)
           {
             needs_idle_evt = ProcessIdle();
-            if (needs_idle_evt)
+            if (!needs_idle_evt)
               break;
           }
         }
