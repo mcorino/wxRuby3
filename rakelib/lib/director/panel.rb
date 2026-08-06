@@ -17,6 +17,9 @@ module WXRuby3
       def setup
         super
         spec.no_proxy 'wxPanel::Layout'
+        if Config.instance.wx_version_check('3.3.4') >= 0
+          spec.ignore 'wxPanel::OnSysColourChanged'
+        end
       end
     end # class Panel
 
