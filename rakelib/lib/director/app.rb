@@ -24,9 +24,6 @@ module WXRuby3
             # wxDarkModeSettings does has have virt dtor; it's just not documented
             spec.suppress_warning(514, 'wxDarkModeSettings')
           end
-          if Config.instance.wx_version_check('3.3.4') >= 0
-            spec.ignore_unless('WXMSW', 'wxApp::DarkMode')
-          end
         end
         spec.fold_bases('wxApp' => 'wxAppConsole', 'wxAppConsole' => 'wxEventFilter')
         spec.override_inheritance_chain('wxApp', %w[wxEvtHandler wxObject])
