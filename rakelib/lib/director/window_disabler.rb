@@ -31,7 +31,7 @@ module WXRuby3
             return ;
           }
           __HEREDOC
-        spec.do_not_generate(:variables, :enums, :defines, :functions)
+        spec.do_not_generate(:variables, :enums, :defines, :functions, :typedefs)
       end
     end # class WindowDisabler
 

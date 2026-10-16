@@ -24,6 +24,7 @@ module WXRuby3
           end
         else # from 3.3.0 this is an enum but docs are still missing
         end
+        spec.do_not_generate :typedefs
       end
     end # class PGValidationInfo
 

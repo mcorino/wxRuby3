@@ -30,10 +30,12 @@ module WXRuby3
           spec.items.concat %w[wxMouseCaptureChangedEvent wxMouseCaptureLostEvent wxDisplayChangedEvent]
         end
         spec.fold_bases('wxMouseEvent' => %w[wxMouseState wxKeyboardState], 'wxKeyEvent' => 'wxKeyboardState')
-        spec.ignore 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
+        if Config.instance.wx_version_check('3.3.4') < 0
+          spec.ignore 'wxShowEvent::GetShow'
+        end
+        spec.ignore 'wxIconizeEvent::Iconized'
         spec.ignore 'wxKeyEvent::GetPosition(wxCoord *,wxCoord *) const'
         spec.ignore 'wxMouseState::GetPosition(int *,int *)'
-        spec.ignore 'wxShowEvent::GetShow', 'wxIconizeEvent::Iconized'
         spec.do_not_generate(:variables, :defines, :enums, :functions)
       end
 
