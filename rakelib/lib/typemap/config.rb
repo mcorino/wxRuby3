@@ -54,6 +54,28 @@ module WXRuby3
 
         end
 
+        map 'wxConfigBase&' => 'Wx::ConfigBase' do
+
+          map_in code: <<~__CODE
+            $1 = nullptr;
+            if (!NIL_P($input))
+            {
+              $1 = wxRuby_Ruby2ConfigBase($input);
+              if ($1 == nullptr)
+              {
+                VALUE msg = rb_inspect($input);
+                rb_raise(rb_eArgError, "Expected Wx::ConfigBase or Hash for %d but got %s",
+                                        $argnum-1, StringValuePtr(msg));
+              }
+            }
+            __CODE
+
+          map_directorin code: <<~__CODE
+            $input = wxRuby_ConfigBase2Ruby(&const_cast<wxConfigBase&> ($1));
+            __CODE
+
+        end
+
       end
 
     end
