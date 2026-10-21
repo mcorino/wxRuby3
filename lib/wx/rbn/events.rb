@@ -6,7 +6,7 @@
 
 require_relative './events/evt_list'
 
-# add event handler missing from XML docs
+# add event handlers missing from XML docs
 class Wx::EvtHandler
   # from wxBackstage
   self.register_event_type EventType[
@@ -14,4 +14,10 @@ class Wx::EvtHandler
                              Wx::RBN::EVT_BACKSTAGE_CLICKED,
                              Wx::NotifyEvent
                            ] if Wx::RBN.const_defined?(:EVT_BACKSTAGE_CLICKED)
+  # from wxBackstageItemList
+  self.register_event_type EventType[
+                             'evt_backstage_item_clicked', 1,
+                             Wx::RBN::EVT_BACKSTAGE_ITEM_CLICKED,
+                             Wx::CommandEvent
+                           ] if Wx::RBN.const_defined?(:EVT_BACKSTAGE_ITEM_CLICKED)
 end
