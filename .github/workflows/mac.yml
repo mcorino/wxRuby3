@@ -221,9 +221,8 @@ jobs:
         ./build/tools/before_install.sh
 
     - name: Install SWIG
-      if: matrix.runner != 'macos-11'
       run: |
-        brew install swig
+        brew install swig@4.4.0
 
     - name: Install doxygen
       if: matrix.wxw_type != 'embed'
