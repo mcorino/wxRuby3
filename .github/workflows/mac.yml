@@ -221,9 +221,10 @@ jobs:
         ./build/tools/before_install.sh
 
     - name: Install SWIG
-      uses: mmomtchev/setup-swig@v4
+      uses: mmomtchev/setup-swig@v5
       with:
         version: v4.4.1
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install doxygen
       if: matrix.wxw_type != 'embed'
