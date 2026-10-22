@@ -221,8 +221,9 @@ jobs:
         ./build/tools/before_install.sh
 
     - name: Install SWIG
-      run: |
-        brew install swig@4.4.0
+      uses: mmomtchev/setup-swig@v4
+      with:
+        version: v4.4.1
 
     - name: Install doxygen
       if: matrix.wxw_type != 'embed'
