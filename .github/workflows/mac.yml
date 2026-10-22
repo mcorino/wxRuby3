@@ -223,7 +223,7 @@ jobs:
     - name: Install SWIG
       uses: mmomtchev/setup-swig@v5
       with:
-        version: v4.4.1
+        version: v4.1.0
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install doxygen
