@@ -11,7 +11,7 @@ mkdir -p /tmp/yay-build
 useradd -m -G wheel builder && passwd -d builder
 chown -R builder:builder /tmp/yay-build
 echo 'builder ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-git clone https://aur.archlinux.org/yay.git /tmp/yay-build/yay
+su - builder -c "git clone https://aur.archlinux.org/yay.git /tmp/yay-build/yay"
 su - builder -c "cd /tmp/yay-build/yay && makepkg -si --noconfirm"
 su - builder -c "yay -Syu"
 su - builder -c "yay -S swig40"
