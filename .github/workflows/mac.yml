@@ -227,6 +227,7 @@ jobs:
     - name: Install SWIG
       run: |
         sudo port install swig@4.4.1
+        sudo port install swig-ruby@4.4.1
 
     - name: Install doxygen
       if: matrix.wxw_type != 'embed'
