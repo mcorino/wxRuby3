@@ -220,11 +220,13 @@ jobs:
       run: |
         ./build/tools/before_install.sh
 
+    - name: Install MacPorts
+      uses: melusina-org/setup-macports@v1
+      id: 'macports'
+
     - name: Install SWIG
-      uses: mmomtchev/setup-swig@v5
-      with:
-        version: v4.1.0
-        token: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        sudo port install swig@4.4.1
 
     - name: Install doxygen
       if: matrix.wxw_type != 'embed'
