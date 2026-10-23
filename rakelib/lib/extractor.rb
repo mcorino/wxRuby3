@@ -82,8 +82,9 @@ module WXRuby3
                   attempts << pathname
                   unless File.exist?(pathname)
                       msg = "Unable to find xml file for ITEM: %s" % class_or_filename
-                      puts(msg)
-                      puts("Tried: %s" % (attempts.join("\n       ")))
+                      STDERR.puts(msg)
+                      STDERR.puts("Tried: %s" % (attempts.join("\n       ")))
+                      STDERR.puts("Matches: %s" % (Dir[File.join(xml_dir,'*defs.*.*')].join("\n     ")))
                       raise DoxyXMLError.new(msg)
                   end
                 end
