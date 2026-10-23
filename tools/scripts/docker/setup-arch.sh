@@ -17,3 +17,4 @@ su - builder -c "yay --save --answerclean All --answerdiff All"
 su - builder -c "yay --save --nocleanmenu --nodiffmenu"
 su - builder -c "yay -Syu"
 su - builder -c "yes | yay -S --mflags '--noconfirm' swig40"
+ln -s /opt/swig-4.0.2/bin/swig /usr/bin/swig
