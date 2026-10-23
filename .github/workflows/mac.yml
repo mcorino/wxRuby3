@@ -230,9 +230,10 @@ jobs:
         sudo port install swig-ruby@4.4.1
 
     - name: Install doxygen
-      if: matrix.wxw_type != 'embed'
-      run: |
-        brew install doxygen
+    #  if: matrix.wxw_type != 'embed'
+    #  run: |
+    #    brew install doxygen
+      uses: ssciwr/doxygen-install@v2
 
     - name: Show build environment
       run: |
