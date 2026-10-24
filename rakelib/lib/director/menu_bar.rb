@@ -21,9 +21,11 @@ module WXRuby3
                 'wxMenuBar::Remove',
                 'wxMenuBar::Replace')
         spec.ignore('wxMenuBar::wxMenuBar(size_t,wxMenu *[],const wxString[],long)',
-                'wxMenuBar::GetLabelTop',
-                'wxMenuBar::SetLabelTop',
                 'wxMenuBar::Refresh')
+        if Config.instance.wx_version_check('3.3.4') < 0
+          spec.ignore('wxMenuBar::GetLabelTop',
+                      'wxMenuBar::SetLabelTop')
+        end
         spec.disown 'wxMenu *'
         spec.new_object 'wxMenuBar::Remove', 'wxMenuBar::Replace'
         # for FindItem

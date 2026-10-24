@@ -220,13 +220,26 @@ jobs:
       run: |
         ./build/tools/before_install.sh
 
+    - name: Install MacPorts
+      uses: melusina-org/setup-macports@v1
+      id: 'macports'
+
     - name: Install SWIG
-      if: matrix.runner != 'macos-11'
       run: |
-        brew install swig
+        sudo port install swig@4.4.1
+        sudo port install swig-ruby@4.4.1
 
     - name: Install doxygen
-      if: matrix.wxw_type != 'embed'
+      if: matrix.runner != 'macos-14'
+    #  if: matrix.wxw_type != 'embed'
+    #  run: |
+    #    brew install doxygen
+      uses: ssciwr/doxygen-install@v2
+      with:
+        version: "1.16.1"
+
+    - name: Install doxygen on MacOS 14
+      if: matrix.runner == 'macos-14'
       run: |
         brew install doxygen
 

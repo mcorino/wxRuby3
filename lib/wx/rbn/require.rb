@@ -14,3 +14,4 @@ require_relative './ribbon_panel'
 require_relative './ribbon_button_bar'
 require_relative './ribbon_tool_bar'
 require_relative './ribbon_gallery'
+require_relative './ribbon_backstage_mrulist' if Wx.at_least_wxwidgets?('3.3.4')

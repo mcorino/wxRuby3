@@ -253,6 +253,7 @@ module WXRuby3
     Director.Spec(pkg, 'wxCredentialEntryDialog', director: Director::Dialog, requirements: %w[USE_CREDENTIALDLG])
     Director.Spec(pkg, 'wxGenericAboutDialog', director: Director::Dialog, requirements: %w[USE_ABOUTDLG])
     Director.Spec(pkg, 'wxMBConv')
+    Director.Spec(pkg, 'wxFileHistory', requirements: %w[USE_FILE_HISTORY])
   }
 
   Director.Package('Wx::RT', 'USE_THREADS') do |pkg|
@@ -392,6 +393,12 @@ module WXRuby3
     Director.Spec(pkg, 'wxRibbonPanel')
     Director.Spec(pkg, 'wxRibbonToolBar')
     Director.Spec(pkg, 'wxRibbonButtonBar')
+    Director.Spec(pkg, 'wxBackstage') if Config.instance.wx_version_check('3.3.4') >= 0
+    Director.Spec(pkg, 'wxBackstageButton') if Config.instance.wx_version_check('3.3.4') >= 0
+    Director.Spec(pkg, 'wxBackstageHeading', requirements: %w[USE_STATTEXT]) if Config.instance.wx_version_check('3.3.4') >= 0
+    Director.Spec(pkg, 'wxBackstageCallout') if Config.instance.wx_version_check('3.3.4') >= 0
+    Director.Spec(pkg, 'wxBackstageItemList') if Config.instance.wx_version_check('3.3.4') >= 0
+    Director.Spec(pkg, 'wxBackstageMRUList') if Config.instance.wx_version_check('3.3.4') >= 0
   }
 
   Director.Package('Wx::WEB', 'USE_WEBVIEW') { |pkg|

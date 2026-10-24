@@ -48,7 +48,7 @@ jobs:
             arch: x86_64
             target_distro: fedora
             target_base: 'latest'
-            target_ruby: system
+            target_ruby: latest
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: opensuse
@@ -109,8 +109,8 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: fedora
-            target_base: '42'
-            target_ruby: latest
+            target_base: '43'
+            target_ruby: system
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: opensuse

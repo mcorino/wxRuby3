@@ -33,7 +33,10 @@ module WXRuby3
           spec.map 'wxObject*' => 'Object', swig: false do
             map_out code: ''
           end
-          spec.ignore(%w[wxSizerItem::SetSizer wxSizerItem::SetSpacer wxSizerItem::SetWindow])
+          spec.ignore('wxSizerItem::SetSizer')
+          if Config.instance.wx_version_check('3.3.4') < 0
+            spec.ignore(%w[wxSizerItem::SetSpacer wxSizerItem::SetWindow])
+          end
           # need to adjust sizer arg name to apply disown specs
           spec.ignore 'wxSizerItem::AssignSizer(wxSizer *)', ignore_doc: false
           spec.extend_interface 'wxSizerItem',

@@ -18,6 +18,20 @@ module WXRuby3
         super
         # for SetArtProvider (only in RibbonBar)
         spec.disown 'wxRibbonArtProvider *art'
+        if Config.instance.wx_version_check('3.3.4') >= 0
+          spec.regard 'wxRibbonBar::TriggerKey::keyCode',
+                      'wxRibbonBar::TriggerKey::modifiers'
+          spec.map 'const std::vector< wxRibbonBar::TriggerKey > &' => 'Array<Wx::RBN::RibbonBar::TriggerKey>' do
+            map_out code: <<~__CODE
+                $result = rb_ary_new();
+                for (const wxRibbonBar::TriggerKey& tkey : *$1)
+                {
+                  VALUE r_tkey = SWIG_NewPointerObj(new wxRibbonBar::TriggerKey(tkey), SWIGTYPE_p_wxRibbonBar__TriggerKey, SWIG_POINTER_OWN);
+                  rb_ary_push($result, r_tkey);
+                }
+              __CODE
+          end
+        end
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class RibbonBar
