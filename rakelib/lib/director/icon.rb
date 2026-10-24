@@ -29,6 +29,9 @@ module WXRuby3
           spec.ignore 'wxIconBundle::wxIconBundle(const wxString &, WXHINSTANCE)',
                       'wxIconBundle::AddIcon(const wxString&,WXHINSTANCE)',
                       'wxIcon::CreateFromHICON'
+          if Config.instance.wx_version_check('3.3.4') >= 0
+            spec.ignore 'wxIcon::GetHICON'
+          end
         else
           spec.override_inheritance_chain('wxIcon', %w[wxBitmap wxGDIObject wxObject])
         end
