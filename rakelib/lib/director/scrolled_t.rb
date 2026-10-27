@@ -61,7 +61,7 @@ module WXRuby3
         end
         spec.ignore 'wxScrolled::OnDraw'
         spec.ignore 'wxScrolled::GetViewStart(int *,int *)'
-        if Config.instance.wx_version_check('3.3.2') >= 0
+        if Config.instance.wx_version_check('3.3.2') >= 0 && Config.instance.wx_version_check('3.3.4') <= 0
           spec.ignore 'wxScrolled::GetViewStartPixels(int *,int *) const'
         end
         spec.map_apply 'int * OUTPUT' => 'int *'

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-pacman -Syyu
+pacman -Syyu --noconfirm
 pacman -q -S --noconfirm --needed pamac-cli
 
 pacman -q -S --noconfirm base-devel glibc which git make gcc autogen automake autoconf pkgconf libyaml xorg-server-xvfb xorg-fonts-75dpi

@@ -82,6 +82,9 @@ module WXRuby3
             'wxWindow::Raise',
             'wxWindow::Lower'
           ]
+          if Config.instance.wx_version_check('3.3.4') > 0
+            spec.ignore 'wxWindow::GetViewStartPixels(int *,int *) const'
+          end
 
           # Event handler chaining methods; pushed handlers always remain owned by Ruby
           # wxRuby3 will automatically pop any remaining handlers when windows get deleted
@@ -345,6 +348,9 @@ module WXRuby3
                           "#{spec.class_name(citem)}::AdjustForLayoutDirection",
                           "#{spec.class_name(citem)}::IsTransparentBackgroundSupported",
                           "#{spec.class_name(citem)}::Reparent")
+            if Config.instance.wx_version_check('3.3.4') > 0
+              spec.no_proxy("#{spec.class_name(citem)}::GetViewStartPixels")
+            end
             if Config.instance.features_set?('USE_ACCESSIBILITY')
               if Config.instance.wx_version_check('3.2.4') > 0
                 spec.no_proxy "#{spec.class_name(citem)}::CreateAccessible"
