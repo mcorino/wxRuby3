@@ -53,7 +53,7 @@ module WXRuby3
             # User defined events however need to maintain their tracking register as we need to keep
             # the state of the linked Ruby objects. As WxW will clean up later we can however release ownership.
             map_in code: <<~__CODE
-              $1 = (wxEvent*)DATA_PTR($input);
+              $1 = (wxEvent*)WXRUBY_WRAPPER_DATA_PTR($input);
               if (!wxRuby_Is_RubyEvent($1))
               {
                 SWIG_RubyUnlinkObjects((void*)$1);
@@ -62,7 +62,7 @@ module WXRuby3
               else
               {
                 // no need to do anything as c++ dtor will untrack/unlink
-                RDATA($input)->dfree = 0;
+                WXRUBY_WRAPPER_DATA_DFREE_RESET($input);
               }
               __CODE
           end
@@ -234,6 +234,23 @@ module WXRuby3
             static void GC_mark_AsyncMethodCallEvent(void *ptr);
             static void free_AsyncMethodCallEvent(void *ptr);
 
+            #ifdef WXRUBY_SWIG_TYPED_DATA
+   
+            static const rb_data_type_t wxruby_async_call_event_data_type = {
+              "RbAsyncProcCallEvent",
+            #if RUBY_API_VERSION_MAJOR >= 3
+              { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
+            #else
+              { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, {}},
+            #endif
+              0, 0
+            #ifdef RUBY_TYPED_FREE_IMMEDIATELY
+              , SWIG_RUBY_TYPED_DATA_FLAGS
+            #endif
+            };
+
+            #endif
+
             class RbAsyncProcCallEvent : public wxAsyncMethodCallEvent
             {
             public:
@@ -256,10 +273,21 @@ module WXRuby3
               {
                 RbAsyncProcCallEvent* wx_ev = new RbAsyncProcCallEvent(*this);
                 // Create a new Ruby event object (owned) 
-                VALUE rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
-                                                VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
-                                                VOIDFUNC(free_AsyncMethodCallEvent), 
-                                                wx_ev);
+                VALUE rb_evt;
+              #ifdef WXRUBY_SWIG_UNTYPED_DATA
+                rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
+                                          VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
+                                          VOIDFUNC(free_AsyncMethodCallEvent), 
+                                          wx_ev);
+              #else
+                struct swig_ruby_wrapped_object *wrobj;
+                rb_evt = TypedData_Make_Struct(WxRuby_GetAsyncProcCallEvent_Class(), struct swig_ruby_wrapped_object, 
+                                               &wxruby_async_call_event_data_type, wrobj);
+                wrobj->data = wx_ev;
+                wrobj->dmark = GC_mark_AsyncMethodCallEvent;
+                wrobj->dfree = free_AsyncMethodCallEvent;
+              #endif
+                rb_iv_set(rb_evt, "@__swigtype__", rb_str_new2("RbAsyncProcCallEvent"));
                 wxRuby_AddTracking( (void*)wx_ev, rb_evt);
                 return wx_ev;
               }
@@ -398,10 +426,20 @@ module WXRuby3
                 // create C++ event
                 RbAsyncProcCallEvent * evt = new RbAsyncProcCallEvent(self, call);
                 // Create a new Ruby event object (leave ownership to wxWidgets C++) 
-                VALUE rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
-                                                VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
-                                                0, 
-                                                evt);
+                VALUE rb_evt;
+              #ifdef WXRUBY_SWIG_UNTYPED_DATA
+                rb_evt = Data_Wrap_Struct(WxRuby_GetAsyncProcCallEvent_Class(), 
+                                          VOIDFUNC(GC_mark_AsyncMethodCallEvent), 
+                                          0, 
+                                          evt);
+              #else
+                struct swig_ruby_wrapped_object *wrobj;
+                rb_evt = TypedData_Make_Struct(WxRuby_GetAsyncProcCallEvent_Class(), struct swig_ruby_wrapped_object, 
+                                               &wxruby_async_call_event_data_type, wrobj);
+                wrobj->data = evt;
+                wrobj->dmark = GC_mark_AsyncMethodCallEvent;
+              #endif
+                rb_iv_set(rb_evt, "@__swigtype__", rb_str_new2("RbAsyncProcCallEvent"));
                 // track it and the call object
                 wxRuby_AddTracking( (void*)evt, rb_evt);
                 // queue it (wxWidgets takes ownership of C++ event object)

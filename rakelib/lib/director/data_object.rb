@@ -82,7 +82,7 @@ module WXRuby3
               for (VALUE data_obj : do_list)
               {
                 WXRUBY_TRACE_IF(WxRubyTraceGCCompositeDataObject, 2)
-                  WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(data_obj) == T_DATA ? DATA_PTR(data_obj) : 0))
+                  WXRUBY_TRACE_WITH(void *c_ptr = (WXRUBY_HAS_WRAPPED_DATA(data_obj) ? WXRUBY_WRAPPER_DATA_PTR(data_obj) : 0))
                   WXRUBY_TRACE("| GC_mark_wxCompositeDataObject : " << it->first << "|" << (void*)c_ptr)
                 WXRUBY_TRACE_END
 

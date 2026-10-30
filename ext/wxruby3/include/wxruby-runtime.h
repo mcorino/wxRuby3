@@ -221,3 +221,69 @@ WXRUBY_EXPORT VALUE& operator << (VALUE &value, const wxVariant &variant);
 WXRUBY_EXPORT wxVariant& operator << (wxVariant &variant, const VALUE &value);
 WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval);
 #endif
+
+#if SWIG_VERSION < 0x040500   // Ruby Untyped Data Wrapping
+# define WXRUBY_SWIG_UNTYPED_DATA 1
+#else
+# define WXRUBY_SWIG_TYPED_DATA 1
+#endif
+
+#ifdef WXRUBY_SWIG_UNTYPED_DATA   // Ruby Untyped Data Wrapping
+
+#define WXRUBY_WRAPPER_DATA(rbobj) \
+  RDATA(rbobj)
+
+#define WXRUBY_WRAPPER_DATA_PTR(rbobj) \
+  DATA_PTR(rbobj)
+
+#define WXRUBY_WRAPPER_DATA_GET(rbobj, type)
+  reinterpret_cast< type * >(WXRUBY_WRAPPER_DATA_PTR(rbobj))
+
+#define WXRUBY_WRAPPER_DATA_PTR_SET(rbobj, ptr) \
+  DATA_PTR(rbobj) = (ptr)
+
+#define WXRUBY_WRAPPER_DATA_PTR_RESET(rbobj) \
+  DATA_PTR(rbobj) = 0
+
+#define WXRUBY_HAS_WRAPPED_DATA(rbobj) \
+  (!RB_NIL_P(rbobj) && TYPE(data_obj) == T_DATA)
+
+#else                         // Ruby Typed Data Wrapping
+
+#define WXRUBY_WRAPPER_DATA(rbobj) \
+  ((struct swig_ruby_wrapped_object *)RTYPEDDATA_GET_DATA(rbobj))
+
+#define WXRUBY_WRAPPER_DATA_PTR(rbobj) \
+  WXRUBY_WRAPPER_DATA(rbobj)->data
+
+#define WXRUBY_WRAPPER_DATA_PTR_SET(rbobj, ptr) \
+  WXRUBY_WRAPPER_DATA(rbobj)->data = (ptr)
+
+#define WXRUBY_WRAPPER_DATA_PTR_RESET(rbobj) \
+  WXRUBY_WRAPPER_DATA(rbobj)->data = 0
+
+#define WXRUBY_HAS_WRAPPED_DATA(rbobj) \
+  (!RB_NIL_P(rbobj) && RB_TYPE_P(rbobj, RUBY_T_DATA) && RTYPEDDATA_P(rbobj))
+
+#endif
+
+#define WXRUBY_WRAPPER_DATA_GET(rbobj, type) \
+  reinterpret_cast< type * >(WXRUBY_WRAPPER_DATA_PTR(rbobj))
+
+#define WXRUBY_WRAPPER_DATA_DFREE(rbobj) \
+  WXRUBY_WRAPPER_DATA(rbobj)->dfree
+
+#define WXRUBY_WRAPPER_DATA_DFREE_SET(rbobj, ptr) \
+  WXRUBY_WRAPPER_DATA(rbobj)->dfree = (ptr)
+
+#define WXRUBY_WRAPPER_DATA_DFREE_RESET(rbobj) \
+  WXRUBY_WRAPPER_DATA(rbobj)->dfree = 0
+
+#define WXRUBY_WRAPPER_DATA_DMARK(rbobj) \
+  WXRUBY_WRAPPER_DATA(rbobj)->dmark
+
+#define WXRUBY_WRAPPER_DATA_DMARK_SET(rbobj, ptr) \
+  WXRUBY_WRAPPER_DATA(rbobj)->dmark = (ptr)
+
+#define WXRUBY_WRAPPER_DATA_DMARK_RESET(rbobj) \
+  WXRUBY_WRAPPER_DATA(rbobj)->dmark = 0

@@ -51,16 +51,40 @@ module WXRuby3
               if (NIL_P(rb_cp_proxy))
               {
                 cpp = new WxRubyComboPopup(popup);
+                  // wrap the anonymously as we only use the Ruby object as a container for the C++ object 
+            #ifdef WXRUBY_SWIG_UNTYPED_DATA
                 rb_cp_proxy = Data_Wrap_Struct(rb_cObject, 0, 0, cpp);
+            #else
+                struct swig_ruby_wrapped_object *wrobj;
+                rb_cp_proxy = TypedData_Make_Struct(rb_cObject, struct swig_ruby_wrapped_object, &swig_type_data_type, wrobj);
+                wrobj->data = cpp;
+            #endif
                 rb_iv_set(popup, "@_wx_combo_popup_proxy", rb_cp_proxy);
               }
               else
               {
-                Data_Get_Struct(rb_cp_proxy, wxComboPopup, cpp);
+                cpp = WXRUBY_WRAPPER_DATA_GET(rb_cp_proxy, wxComboPopup);
               }
             }
             return cpp;
           }
+
+          #ifdef WXRUBY_SWIG_TYPED_DATA
+ 
+          static const rb_data_type_t wxruby_wx_combo_popup_data_type = {
+            "C++ wxComboPopup class",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
+          #else
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, {}},
+          #endif
+            0, 0
+          #ifdef RUBY_TYPED_FREE_IMMEDIATELY
+            , SWIG_RUBY_TYPED_DATA_FLAGS
+          #endif
+          };
+
+          #endif
 
           WXRUBY_EXPORT VALUE wxRuby_ComboPopupToRuby(wxComboPopup* cpp)
           {
@@ -77,7 +101,16 @@ module WXRuby3
                 // in this case we're probably working for a wxOwnerDrawnComboBox or wxRichTextListbox 
                 // with default popup control which is a C++ implemented class without any Ruby linkage.
                 // wrap this in the Wx::ComboPopupWx class to provide a Ruby interface
-                rb_cpp = Data_Wrap_Struct(g_rb_cComboPopupWx, 0, 0, cpp); // do not own or track
+ 
+                // do not own or track
+          #ifdef WXRUBY_SWIG_UNTYPED_DATA
+                rb_cpp = Data_Wrap_Struct(g_rb_cComboPopupWx, 0, 0, cpp);
+          #else
+                struct swig_ruby_wrapped_object *wrobj;
+                rb_cpp = TypedData_Make_Struct(g_rb_cComboPopupWx, struct swig_ruby_wrapped_object, &wxruby_wx_combo_popup_data_type, wrobj);
+                wrobj->data = cpp;
+          #endif
+                rb_iv_set(rb_cpp, "@__swigtype__", rb_str_new2("ComboPopup"));
               }
             }
             return rb_cpp;

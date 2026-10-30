@@ -41,7 +41,7 @@ module WXRuby3
               bool rc = $self->RemoveChild(wx_child, deleteChild);
               if (rc && !deleteChild)
               {
-                RDATA(rb_child)->dfree = GC_RichTextObjectFreeFunc; // make sure Ruby owns
+                WXRUBY_WRAPPER_DATA_DFREE_SET(rb_child, GC_RichTextObjectFreeFunc); // make sure Ruby owns
               }
               return rc;
             }

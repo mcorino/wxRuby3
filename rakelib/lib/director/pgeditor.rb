@@ -78,7 +78,7 @@ module WXRuby3
 
           # Thin and trusting wrapping to bypass SWIG's normal mechanisms; we
           # don't want SWIG changing ownership or typechecking these.
-          map_in code: '$1 = (wxEvent*)DATA_PTR($input);'
+          map_in code: '$1 = (wxEvent*)WXRUBY_WRAPPER_DATA_PTR($input);'
         end
         # add method for correctly wrapping PGEditor output references
         spec.add_header_code <<~__CODE

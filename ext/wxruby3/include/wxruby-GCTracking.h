@@ -10,7 +10,7 @@
 typedef std::unordered_map<void*, VALUE>  TGCTrackingValueMap;
 typedef void (* TGCMarkerFunction)(const TGCTrackingValueMap&);
 
-typedef struct
+struct TGCTrackingItem
 {
     TGCMarkerFunction   marker_ {};
     TGCTrackingValueMap values_ {};
@@ -18,7 +18,7 @@ typedef struct
     // can become true if actual values are added/removed in which case
     // the marker will only be called if there any values tracked
     bool                has_data_ {true};
-} TGCTrackingItem;
+};
 
 typedef std::unordered_map<std::string, TGCTrackingItem>  TGCTrackingTable;
 
@@ -154,7 +154,7 @@ WXRUBY_EXPORT void wxRuby_AddTracking(void* ptr, VALUE object)
     // these objects but instead cause more informative exceptions.
     if (old_obj != object)
     {
-      DATA_PTR(old_obj) = 0;
+      WXRUBY_WRAPPER_DATA_PTR_RESET(old_obj);
     }
 
   }
@@ -186,7 +186,16 @@ WXRUBY_EXPORT void wxRuby_UnlinkObject(void* ptr)
   VALUE object = __g_GCTracking.swig_find_tracking(ptr);
   if (object != Qnil)
   {
+#if SWIG_VERSION < 0x040500   // Ruby Untyped Data Wrapping
     DATA_PTR(object) = 0;
+#else                         // Ruby Typed Data Wrapping
+    // object might have the T_ZOMBIE type, but that's just
+    // because the GC has flagged it as such for a deferred
+    // destruction. Until then, it's still a T_DATA object.
+    struct swig_ruby_wrapped_object *wrobj = (struct swig_ruby_wrapped_object *)RTYPEDDATA_GET_DATA(object);
+    if (wrobj)
+      wrobj->data = 0;
+#endif
   }
 }
 
@@ -230,7 +239,7 @@ WXRUBY_EXPORT void wxRuby_RegisterCategoryValue(const std::string &category, voi
 
     if (old_obj != object)
     {
-      DATA_PTR(old_obj) = 0;
+      WXRUBY_WRAPPER_DATA_PTR_RESET(old_obj);
     }
 
   }
@@ -257,6 +266,15 @@ WXRUBY_EXPORT void wxRuby_UnlinkCategoryValue(const std::string &category, void*
   VALUE object = __g_GCTracking.find_tracking(category, ptr);
   if (object != Qnil)
   {
+#if SWIG_VERSION < 0x040500   // Ruby Untyped Data Wrapping
     DATA_PTR(object) = 0;
+#else                         // Ruby Typed Data Wrapping
+    // object might have the T_ZOMBIE type, but that's just
+    // because the GC has flagged it as such for a deferred
+    // destruction. Until then, it's still a T_DATA object.
+    struct swig_ruby_wrapped_object *wrobj = (struct swig_ruby_wrapped_object *)RTYPEDDATA_GET_DATA(object);
+    if (wrobj)
+      wrobj->data = 0;
+#endif
   }
 }

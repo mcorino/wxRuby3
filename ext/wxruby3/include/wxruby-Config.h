@@ -35,8 +35,7 @@ struct RbCfgCounter
 
 static int wxrb_CountConfig(VALUE key, VALUE value, VALUE rbCounter)
 {
-  RbCfgCounter* counter;
-  Data_Get_Struct(rbCounter, RbCfgCounter, counter);
+  RbCfgCounter* counter = WXRUBY_WRAPPER_DATA_GET(rbCounter, RbCfgCounter);
   if (TYPE(value) == T_HASH)
   {
     if (counter->groups)
@@ -91,7 +90,7 @@ public:
   {
     if (!NIL_P(m_cfgInstance))
     {
-      DATA_PTR(m_cfgInstance) = 0; // make sure it never get's deleted twice
+      WXRUBY_WRAPPER_DATA_PTR_RESET(m_cfgInstance); // make sure it never get's deleted twice
     }
   }
 
@@ -171,7 +170,15 @@ public:
   {
     RbCfgCounter counter = {false, bRecursive, 0};
     void* ptr = &counter;
-    VALUE rbCounter = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+    VALUE rbCounter;
+    // wrap anonymously as we only want to pass a temp arg
+#ifdef WXRUBY_SWIG_UNTYPED_DATA
+    rbCounter = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+#else
+    struct swig_ruby_wrapped_object *wrobj;
+    rbCounter = TypedData_Make_Struct(rb_cObject, struct swig_ruby_wrapped_object, &swig_type_data_type, wrobj);
+    wrobj->data = ptr;
+#endif
     rb_hash_foreach(m_cfgGroup, FOREACH_FUNC(wxrb_CountConfig), rbCounter);
     return counter.count;
   }
@@ -180,7 +187,15 @@ public:
   {
     RbCfgCounter counter = {true, bRecursive, 0};
     void* ptr = &counter;
-    VALUE rbCounter = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+    VALUE rbCounter;
+    // wrap anonymously as we only want to pass a temp arg
+#ifdef WXRUBY_SWIG_UNTYPED_DATA
+    rbCounter = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+#else
+    struct swig_ruby_wrapped_object *wrobj;
+    rbCounter = TypedData_Make_Struct(rb_cObject, struct swig_ruby_wrapped_object, &swig_type_data_type, wrobj);
+    wrobj->data = ptr;
+#endif
     rb_hash_foreach(m_cfgGroup, FOREACH_FUNC(wxrb_CountConfig), rbCounter);
     return counter.count;
   }
@@ -930,21 +945,19 @@ WXRUBY_EXPORT wxConfigBase* wxRuby_Ruby2ConfigBase(VALUE rbConfig)
   if (rb_obj_is_kind_of(rbConfig, g_cConfig) == Qtrue)
   {
     // check if this Ruby config instance already has a associated wrapper
-    wxRbHashConfig* config;
-    Data_Get_Struct(rbConfig, wxRbHashConfig, config);
+    wxRbHashConfig* config = WXRUBY_WRAPPER_DATA_GET(rbConfig, wxRbHashConfig);
     if (config == nullptr)
     {
       // if not, create one
       config = new wxRbHashConfig(rbConfig, rb_iv_get(rbConfig, __iv_Config_data));
-      DATA_PTR(rbConfig) = config;
+      WXRUBY_WRAPPER_DATA_PTR_SET(rbConfig, config);
     }
     // return wrapper
     return config;
   }
   else if (rb_obj_is_kind_of(rbConfig, g_cConfigWx) == Qtrue)
   {
-    wxConfigBase* cfg;
-    Data_Get_Struct(rbConfig, wxConfigBase, cfg);
+    wxConfigBase* cfg = WXRUBY_WRAPPER_DATA_GET(rbConfig, wxConfigBase);
     return cfg;
   }
   return nullptr;
@@ -962,7 +975,17 @@ WXRUBY_EXPORT VALUE wxRuby_ConfigBase2Ruby(wxConfigBase* config)
     }
     else
     {
-      return Data_Wrap_Struct(g_cConfigWx, 0, 0, config);
+      VALUE rb_config;
+      // wrap the C++ config object
+#ifdef WXRUBY_SWIG_UNTYPED_DATA
+      rb_config = Data_Wrap_Struct(g_cConfigWx, 0, 0, config);
+#else
+      struct swig_ruby_wrapped_object *wrobj;
+      rb_config = TypedData_Make_Struct(g_cConfigWx, struct swig_ruby_wrapped_object, &wxruby_config_wx_data_type, wrobj);
+      wrobj->data = config;
+#endif
+      rb_iv_set(rb_config, "@__swigtype__", rb_str_new2("ConfigWx"));
+      return rb_config;
     }
   }
   return Qnil;

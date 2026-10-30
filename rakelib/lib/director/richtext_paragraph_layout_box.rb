@@ -46,7 +46,7 @@ module WXRuby3
               static void wxRuby_MakeRichTextStyleDefinitionOwned(VALUE rb_rtsd)
               {
                 swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(CLASS_OF(rb_rtsd));
-                RDATA(rb_rtsd)->dfree = ((swig_class *) swig_type->clientdata)->destroy; // make sure Ruby owns
+                WXRUBY_WRAPPER_DATA_DFREE_SET(rb_rtsd, ((swig_class *) swig_type->clientdata)->destroy); // make sure Ruby owns
               }
   
               extern VALUE wxRuby_RichTextStyleDefinition2Ruby(const wxRichTextStyleDefinition *wx_rtsd, int own)

@@ -68,7 +68,7 @@ module WXRuby3
               return SWIG_ERROR;
             }
             
-            if (TYPE(obj) != T_DATA)
+            if (WXRUBY_HAS_WRAPPED_DATA(obj))
             {
               VALUE msg = rb_inspect(obj);
               rb_raise(rb_eArgError, 
@@ -82,9 +82,8 @@ module WXRuby3
               swig_class* cls_info = static_cast<swig_class*> (it->first);
               if (rb_obj_is_kind_of(obj, cls_info->klass))
               {
-                void *vptr = 0;
                 /* Grab the pointer */
-                Data_Get_Struct(obj, void, vptr);
+                void *vptr = WXRUBY_WRAPPER_DATA_GET(obj, void);
                 wx_#{underscore(rb_name)}_convert_fn fn_cvt = it->second;
                 *ptr = (*fn_cvt)(vptr);
                 if (!ptr)

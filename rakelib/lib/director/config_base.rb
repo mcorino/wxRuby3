@@ -16,12 +16,43 @@ module WXRuby3
         super
         spec.items.clear
         spec.add_header_code <<~__HEREDOC
-          #include "wxruby-Config.h"
           #include <limits>
 
           static const char * __iv_ConfigBase_sc_config = "@config";
 
           static WxRuby_ID s_use_hash_config_id("use_hash_config");
+
+          #ifdef WXRUBY_SWIG_TYPED_DATA
+ 
+          static const rb_data_type_t wxruby_config_wx_data_type = {
+            "ConfigWx",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
+          #else
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, {}},
+          #endif
+            0, 0
+          #ifdef RUBY_TYPED_FREE_IMMEDIATELY
+            , SWIG_RUBY_TYPED_DATA_FLAGS
+          #endif
+          };
+
+          static const rb_data_type_t wxruby_rb_hash_config_data_type = {
+            "Config",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
+          #else
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, {}},
+          #endif
+            0, 0
+          #ifdef RUBY_TYPED_FREE_IMMEDIATELY
+            , SWIG_RUBY_TYPED_DATA_FLAGS
+          #endif
+          };
+
+          #endif
+
+          #include "wxruby-Config.h"
 
           static void 
           _free_config_wx(void* cfg)
@@ -56,7 +87,14 @@ module WXRuby3
               if (cfg)
               {
                 // wrap the C++ config object
+          #ifdef WXRUBY_SWIG_UNTYPED_DATA
                 curConfig = Data_Wrap_Struct(g_cConfigWx, 0, 0, cfg);
+          #else
+                struct swig_ruby_wrapped_object *wrobj;
+                curConfig = TypedData_Make_Struct(g_cConfigWx, struct swig_ruby_wrapped_object, &wxruby_config_wx_data_type, wrobj);
+                wrobj->data = cfg;
+          #endif
+                rb_iv_set(curConfig, "@__swigtype__", rb_str_new2("ConfigWx"));
                 // store global ConfigBase instance as Ruby instance variable of ConfigBase singleton class
                 rb_iv_set(cConfigBase_Singleton, __iv_ConfigBase_sc_config, curConfig);
               }
@@ -121,7 +159,14 @@ module WXRuby3
                 if (config) wxConfigBase::Set(nullptr); // reset
                 wxConfigBase* new_cfg = wxConfigBase::Create(); // create new C++ instance
                 // wrap the C++ config object
+          #ifdef WXRUBY_SWIG_UNTYPED_DATA
                 curConfig = Data_Wrap_Struct(g_cConfigWx, 0, 0, new_cfg);
+          #else
+                struct swig_ruby_wrapped_object *wrobj;
+                curConfig = TypedData_Make_Struct(g_cConfigWx, struct swig_ruby_wrapped_object, &wxruby_config_wx_data_type, wrobj);
+                wrobj->data = new_cfg;
+          #endif
+                rb_iv_set(curConfig, "@__swigtype__", rb_str_new2("ConfigWx"));
               }
               // store global ConfigBase instance as Ruby instance variable of ConfigBase singleton class
               // (keeps it safe from GC)
@@ -140,7 +185,14 @@ module WXRuby3
               {
                 // no global Ruby instance known so can't be wrapped yet (must be C++ instance than) 
                 // wrap the C++ config object
+          #ifdef WXRUBY_SWIG_UNTYPED_DATA
                 curConfig = Data_Wrap_Struct(g_cConfigWx, 0, 0, config);
+          #else
+                struct swig_ruby_wrapped_object *wrobj;
+                curConfig = TypedData_Make_Struct(g_cConfigWx, struct swig_ruby_wrapped_object, &wxruby_config_wx_data_type, wrobj);
+                wrobj->data = config;
+          #endif
+                rb_iv_set(curConfig, "@__swigtype__", rb_str_new2("ConfigWx"));
                 // store global ConfigBase instance as Ruby instance variable of ConfigBase singleton class
                 // (keeps it safe from GC)
                 rb_iv_set(cConfigBase_Singleton, __iv_ConfigBase_sc_config, curConfig);
@@ -180,7 +232,7 @@ module WXRuby3
             {
               // need to make config Ruby owned to it gets proper GC handling
               // and the C++ allocated config instance gets destroyed 
-              RDATA(curConfig)->dfree = _free_config_wx;
+              WXRUBY_WRAPPER_DATA_DFREE_SET(curConfig, _free_config_wx);
             }
 
             return curConfig; // return old config (if any)
@@ -202,8 +254,7 @@ module WXRuby3
 
           static VALUE config_wx_read(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 1 || argc > 1) 
             {
@@ -257,8 +308,7 @@ module WXRuby3
 
           static VALUE config_wx_write(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 2 || argc > 2) 
             {
@@ -325,8 +375,7 @@ module WXRuby3
 
           static VALUE config_wx_for_path(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 1 || argc > 1) 
             {
@@ -345,8 +394,7 @@ module WXRuby3
 
           static VALUE config_wx_delete(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 1 || argc > 1) 
             {
@@ -367,8 +415,7 @@ module WXRuby3
 
           static VALUE config_wx_rename(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 2 || argc > 2) 
             {
@@ -390,8 +437,7 @@ module WXRuby3
 
           static VALUE config_wx_each_entry(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 0 || argc > 0) 
             {
@@ -415,8 +461,7 @@ module WXRuby3
 
           static VALUE config_wx_each_group(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 0 || argc > 0) 
             {
@@ -440,8 +485,7 @@ module WXRuby3
 
           static VALUE config_wx_number_of_entries(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 0 || argc > 2) 
             {
@@ -454,8 +498,7 @@ module WXRuby3
 
           static VALUE config_wx_number_of_groups(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 0 || argc > 2) 
             {
@@ -468,8 +511,7 @@ module WXRuby3
 
           static VALUE config_wx_has_entry(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 1 || argc > 1) 
             {
@@ -481,8 +523,7 @@ module WXRuby3
 
           static VALUE config_wx_has_group(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 1 || argc > 1) 
             {
@@ -494,8 +535,7 @@ module WXRuby3
 
           static VALUE config_wx_path(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 0 || argc > 2) 
             {
@@ -506,8 +546,7 @@ module WXRuby3
 
           static VALUE config_wx_clear(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 0 || argc > 2) 
             {
@@ -518,8 +557,7 @@ module WXRuby3
 
           static VALUE config_wx_is_expanding_env_vars(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc != 0) 
             {
@@ -530,8 +568,7 @@ module WXRuby3
 
           static VALUE config_wx_set_expand_env_vars(int argc, VALUE *argv, VALUE self)
           {
-            wxConfigBase *cfg;
-            Data_Get_Struct(self, wxConfigBase, cfg);
+            wxConfigBase *cfg = WXRUBY_WRAPPER_DATA_GET(self, wxConfigBase);
 
             if (argc < 1 || argc > 1) 
             {
@@ -561,7 +598,16 @@ module WXRuby3
           config_allocate(int argc, VALUE *argv, VALUE self)
           #endif
           {
-            VALUE vresult = Data_Wrap_Struct(g_cConfig, 0, _free_config, 0);
+            VALUE vresult;
+          #ifdef WXRUBY_SWIG_UNTYPED_DATA
+            vresult = Data_Wrap_Struct(g_cConfig, 0, _free_config, 0);
+          #else
+            struct swig_ruby_wrapped_object *wrobj;
+            vresult = TypedData_Make_Struct(g_cConfig, struct swig_ruby_wrapped_object, &wxruby_rb_hash_config_data_type, wrobj);
+            wrobj->data = 0;
+            wrobj->dfree = _free_config;
+          #endif
+            rb_iv_set(vresult, "@__swigtype__", rb_str_new2("Config"));
           #ifndef HAVE_RB_DEFINE_ALLOC_FUNC
             rb_obj_call_init(vresult, argc, argv);
           #endif

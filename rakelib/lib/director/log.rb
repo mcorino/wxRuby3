@@ -49,7 +49,7 @@ module WXRuby3
             if (!NIL_P(rb_self))
             {
               swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(CLASS_OF(rb_self));
-              RDATA(rb_self)->dfree = ((swig_class *)swig_type->clientdata)->destroy;
+              WXRUBY_WRAPPER_DATA_DFREE_SET(rb_self, ((swig_class *)swig_type->clientdata)->destroy);
             }
           }
           __CODE

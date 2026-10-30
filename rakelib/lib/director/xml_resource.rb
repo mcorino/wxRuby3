@@ -57,12 +57,12 @@ module WXRuby3
           static void AddSubclassFactory(VALUE factory)
           {
             void *pfactory = 0;
-            if (TYPE(factory) != T_DATA || !rb_obj_is_kind_of(factory, WxRuby_XmlSubclassFactory_klass))
+            if (WXRUBY_HAS_WRAPPED_DATA(factory) || !rb_obj_is_kind_of(factory, WxRuby_XmlSubclassFactory_klass))
             {
               rb_raise(rb_eArgError, "expected Wx::XmlSubclassFactory for argument 1"); return;
             }
-            RDATA(factory)->dfree = 0; // wxWidgets will take over management 
-            Data_Get_Struct(factory, void, pfactory);
+            WXRUBY_WRAPPER_DATA_DFREE_RESET(factory); // wxWidgets will take over management 
+            pfactory = WXRUBY_WRAPPER_DATA_PTR(factory);
             wxXmlResource::AddSubclassFactory(reinterpret_cast< wxXmlSubclassFactory * >(pfactory));
           }
           __HEREDOC
@@ -94,12 +94,12 @@ module WXRuby3
               result = rb_funcall(this->self_, create_id(), 1, rb_classname);
               if (result != Qnil)
               {
-                if (TYPE(result) != T_DATA || !rb_obj_is_kind_of(result, ((swig_class *) (SWIGTYPE_p_wxObject->clientdata))->klass))
+                if (WXRUBY_HAS_WRAPPED_DATA(result) || !rb_obj_is_kind_of(result, ((swig_class *) (SWIGTYPE_p_wxObject->clientdata))->klass))
                 {
                   Swig::DirectorTypeMismatchException::raise(rb_eTypeError, "in output value of type '""wxObject *""'");
                 }
-                Data_Get_Struct(result, void, result_ptr);
-                RDATA(result)->dfree = 0; // disown
+                result_ptr = WXRUBY_WRAPPER_DATA_PTR(result);
+                WXRUBY_WRAPPER_DATA_DFREE_RESET(result); // disown
                 // the returned wxObject's should be Window objects which are always managed by wxWidgets after creation
                 // so no need to own anything anymore
                 c_result = reinterpret_cast< wxObject * >(result_ptr);
@@ -111,7 +111,7 @@ module WXRuby3
 
           WxRuby_XmlSubclassFactory::~WxRuby_XmlSubclassFactory()
           {
-            DATA_PTR(this->self_) = 0; // unlink
+            WXRUBY_WRAPPER_DATA_PTR_RESET(this->self_); // unlink
           }
 
           SWIGINTERN void
@@ -121,6 +121,23 @@ module WXRuby3
             delete arg1;
           }
 
+          #ifdef WXRUBY_SWIG_TYPED_DATA
+ 
+          static const rb_data_type_t wxruby_subclass_factory_data_type = {
+            "C++ WxRuby_XmlSubclassFactory",
+          #if RUBY_API_VERSION_MAJOR >= 3
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
+          #else
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, {}},
+          #endif
+            0, 0
+          #ifdef RUBY_TYPED_FREE_IMMEDIATELY
+            , SWIG_RUBY_TYPED_DATA_FLAGS
+          #endif
+          };
+
+          #endif
+
           SWIGINTERN VALUE
           #ifdef HAVE_RB_DEFINE_ALLOC_FUNC
           WxRuby_XmlSubclassFactory_allocate(VALUE self)
@@ -129,9 +146,17 @@ module WXRuby3
           #endif
           {
             VALUE obj;
+          #ifdef WXRUBY_SWIG_UNTYPED_DATA
             obj = Data_Wrap_Struct(self, 0, WxRuby_XmlSubclassFactory_free, 0);
+          #else
+            struct swig_ruby_wrapped_object *wrobj;
+            obj = TypedData_Make_Struct(self, struct swig_ruby_wrapped_object, &wxruby_subclass_factory_data_type, wrobj);
+            wrobj->data = 0;
+            wrobj->dfree = WxRuby_XmlSubclassFactory_free;
+          #endif
+            rb_iv_set(obj, "@__swigtype__", rb_str_new2("XmlSubclassFactory"));
             WxRuby_XmlSubclassFactory *pfactory = new WxRuby_XmlSubclassFactory(obj); 
-            DATA_PTR(obj) = pfactory;
+            WXRUBY_WRAPPER_DATA_PTR_SET(obj, pfactory);
           #ifndef HAVE_RB_DEFINE_ALLOC_FUNC
             rb_obj_call_init(obj, argc, argv);
           #endif

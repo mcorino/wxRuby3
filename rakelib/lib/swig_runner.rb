@@ -27,9 +27,17 @@ module WXRuby3
         swig_version.first
       end
 
+      def swig_minor
+        swig_version[1]
+      end
+
       def swig_version
         check_swig unless swig_state
         @swig_version
+      end
+
+      def swig_ruby_type
+        ((swig_major == 4 && swig_minor >= 5) || swig_major >= 5) ? 'typed_data' : 'untyped_data'
       end
 
       private
@@ -67,10 +75,13 @@ module WXRuby3
         @swig_state = true
       end
 
+      def swig_custom_dir
+        File.join(config.swig_dir, 'custom')
+      end
+
       def run_swig(source, target)
         check_swig unless swig_state
-        inc_paths = "-I#{config.wxruby_dir} -I#{config.swig_dir}/custom"
-        inc_paths << " -I#{config.swig_dir}/custom/swig#{swig_major}"
+        inc_paths = "-I#{config.wxruby_dir} -I#{swig_custom_dir} -I#{File.join(swig_custom_dir, 'common')} -I#{File.join(swig_custom_dir, swig_ruby_type)}"
         WXRuby3.config.sh "#{config.get_config('swig')} #{config.wx_cppflags.join(' ')} " +
                             "#{config.extra_cppflags.join(' ')} #{config.verbose_flag} #{inc_paths} " +
                             #"-w401 -w801 -w515 -c++ -ruby " +
@@ -539,7 +550,7 @@ module WXRuby3
             if found_alloc # inside 'xxx_allocate' wrapper?
               if line =~ /\A(\s*)return\s+vresult;/
                 # insert an override for the free method to disown the new instance
-                line = "#{$1}RDATA(vresult)->dfree = #{track_table[cpp_class]};\n#{line}"
+                line = "#{$1}WXRUBY_WRAPPER_DATA_DFREE_SET(vresult, #{track_table[cpp_class]});\n#{line}"
               elsif /\A}/ =~ line # end of wrapper function?
                 # stop matching
                 found_alloc = false

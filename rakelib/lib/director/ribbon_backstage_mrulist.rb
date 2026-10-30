@@ -58,8 +58,7 @@ module WXRuby3
                     bool ok = false;
                     if (TYPE(rc) == T_DATA) 
                     {
-                      void *ptr = 0;
-                      Data_Get_Struct(rc, void, ptr);
+                      void *ptr = WXRUBY_WRAPPER_DATA_GET(rc, void);
                       if (ptr)
                       {
                         ok = true;

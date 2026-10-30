@@ -64,8 +64,7 @@ module WXRuby3
             #define FOREACH_FUNC(x) reinterpret_cast<rb_foreach_func>((void*)&(x))
             static int _wxrb_cvt_custom_sizes(VALUE key, VALUE value, VALUE rbWxMap)
             {
-              wxUnsignedToIntHashMap* wxMap;
-              Data_Get_Struct(rbWxMap, wxUnsignedToIntHashMap, wxMap);
+              wxUnsignedToIntHashMap* wxMap = WXRUBY_WRAPPER_DATA_GET(rbWxMap, wxUnsignedToIntHashMap);
               (*wxMap)[NUM2UINT(key)] = NUM2INT(value);
               return ST_CONTINUE;
             }
@@ -74,7 +73,15 @@ module WXRuby3
             if (TYPE($input) == T_HASH)
             {
               void* ptr = &($1);
-              VALUE rbWxMap = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+              VALUE rbWxMap;
+              // wrap anonymously as we only want to pass the hashmap in to convert 
+            #ifdef WXRUBY_SWIG_UNTYPED_DATA
+              rbWxMap = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+            #else
+              struct swig_ruby_wrapped_object *wrobj;
+              rbWxMap = TypedData_Make_Struct(rb_cObject, struct swig_ruby_wrapped_object, &swig_type_data_type, wrobj);
+              wrobj->data = ptr;
+            #endif
               rb_hash_foreach($input, FOREACH_FUNC(_wxrb_cvt_custom_sizes), rbWxMap);
             }
             else
@@ -330,7 +337,7 @@ module WXRuby3
               VALUE obj = ti.second;
 
               WXRUBY_TRACE_IF(WxRubyTraceGCMarkGridCellAttr, 2)
-                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE_WITH(void *c_ptr = (WXRUBY_HAS_WRAPPED_DATA(obj) ? WXRUBY_WRAPPER_DATA_PTR(obj) : 0))
                 WXRUBY_TRACE("| wxRuby_markGridCellAttr : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
@@ -401,7 +408,7 @@ module WXRuby3
 
                 // either a new Ruby created instance or an unwrapped C++ created instance 
                 // always disown; wxWidgets takes over or keeps ownership of reference count
-                RDATA(rb_attr)->dfree = 0;
+                WXRUBY_WRAPPER_DATA_DFREE_RESET(rb_attr);
 
                 wx_attr->SetClientObject(new WXRBGridCellAttrMonitor(wx_attr, rb_attr));
               }
@@ -431,7 +438,7 @@ module WXRuby3
               VALUE obj = ti.second;
 
               WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellEditor, 2)
-                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE_WITH(void *c_ptr = (WXRUBY_HAS_WRAPPED_DATA(obj) ? WXRUBY_WRAPPER_DATA_PTR(obj) : 0))
                 WXRUBY_TRACE("| wxRuby_markGridCellEditor : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
@@ -502,7 +509,7 @@ module WXRuby3
 
                 // either a new Ruby created instance or an unwrapped C++ created instance 
                 // always disown; wxWidgets takes over or keeps ownership of reference count
-                RDATA(rb_edt)->dfree = 0;
+                WXRUBY_WRAPPER_DATA_DFREE_RESET(rb_edt);
 
                 wx_edt->SetClientObject(new WXRBGridCellEditorMonitor(wx_edt, rb_edt));
               }
@@ -532,7 +539,7 @@ module WXRuby3
               VALUE obj = ti.second;
 
               WXRUBY_TRACE_IF(WxRubyTraceGCTrackGridCellRenderer, 2)
-                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE_WITH(void *c_ptr = (WXRUBY_HAS_WRAPPED_DATA(obj) ? WXRUBY_WRAPPER_DATA_PTR(obj) : 0))
                 WXRUBY_TRACE("| wxRuby_markGridCellRenderer : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
@@ -603,7 +610,7 @@ module WXRuby3
 
                 // either a new Ruby created instance or an unwrapped C++ created instance 
                 // always disown; wxWidgets takes over or keeps ownership of reference count
-                RDATA(rb_rnd)->dfree = 0;
+                WXRUBY_WRAPPER_DATA_DFREE_RESET(rb_rnd);
 
                 wx_rnd->SetClientObject(new WXRBGridCellRendererMonitor(wx_rnd, rb_rnd));
               }

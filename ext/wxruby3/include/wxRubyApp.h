@@ -155,7 +155,7 @@ public:
     // unlink
     if (this->self_ != Qnil)
     {
-      DATA_PTR(this->self_) = 0;
+      WXRUBY_WRAPPER_DATA_PTR_RESET(this->self_);
     }
     this->self_ = Qnil;
   }

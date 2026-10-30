@@ -22,7 +22,16 @@ module WXRuby3
             for (size_t n=0; n<$1->GetCount() ;++n)
             {
               wxHtmlBookRecord* hbr_ptr = &($1->Item(n));
-              VALUE rb_hbr = Data_Wrap_Struct(rb_cObject, 0, 0, hbr_ptr);
+              swig_class *sklass = (swig_class *)SWIGTYPE_p_wxHtmlBookRecord->clientdata;
+              VALUE rb_hbr;
+            #ifdef WXRUBY_SWIG_UNTYPED_DATA
+              rb_hbr = Data_Wrap_Struct(sklass->klass, 0, 0, hbr_ptr);
+            #else
+              struct swig_ruby_wrapped_object *wrobj;
+              rb_hbr = TypedData_Make_Struct(sklass->klass, struct swig_ruby_wrapped_object, &sklass->cext_type, wrobj);
+              wrobj->data = hbr_ptr;
+            #endif
+              rb_iv_set(rb_hbr, "@__swigtype__", rb_str_new2(SWIGTYPE_p_wxHtmlBookRecord->name));
               rb_ary_push($result, rb_hbr);
             }
             __CODE
@@ -33,7 +42,16 @@ module WXRuby3
             for (size_t n=0; n<$1->GetCount() ;++n)
             {
               wxHtmlHelpDataItem* hdi_ptr = &($1->Item(n));
-              VALUE rb_hdi = Data_Wrap_Struct(rb_cObject, 0, 0, hdi_ptr);
+              swig_class *sklass = (swig_class *)SWIGTYPE_p_wxHtmlHelpDataItem->clientdata;
+              VALUE rb_hdi;
+            #ifdef WXRUBY_SWIG_UNTYPED_DATA
+              rb_hdi = Data_Wrap_Struct(sklass->klass, 0, 0, hdi_ptr);
+            #else
+              struct swig_ruby_wrapped_object *wrobj;
+              rb_hdi = TypedData_Make_Struct(sklass->klass, struct swig_ruby_wrapped_object, &sklass->cext_type, wrobj);
+              wrobj->data = hdi_ptr;
+            #endif
+              rb_iv_set(rb_hdi, "@__swigtype__", rb_str_new2(SWIGTYPE_p_wxHtmlHelpDataItem->name));
               rb_ary_push($result, rb_hdi);
             }
             __CODE

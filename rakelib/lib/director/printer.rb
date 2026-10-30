@@ -81,7 +81,7 @@ module WXRuby3
 
             VALUE rb_pp = SWIG_RubyInstanceFor(ptr);
             // if this is still an instance 'owned' by Ruby
-            if (!RB_NIL_P(rb_pp) && RDATA(rb_pp)->dfree==free_wxPrintPreview)
+            if (!RB_NIL_P(rb_pp) && WXRUBY_WRAPPER_DATA_DFREE(rb_pp)==free_wxPrintPreview)
             {
               WxRuby_mark_wxPrintPreview(ptr);
             } 

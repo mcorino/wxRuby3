@@ -26,7 +26,7 @@ WXRUBY_TRACE_GUARD(WxRubyTraceFreeRefcounted, "GC_FREE_REFCOUNT")
 // and not be either 0 or a reference to the SWIG tracking removal function.
 WXRUBY_EXPORT bool GC_IsObjectOwned(VALUE object)
 {
-  return RDATA(object)->dfree != SWIG_RubyRemoveTracking && RDATA(object)->dfree != 0;
+  return WXRUBY_WRAPPER_DATA_DFREE(object) != SWIG_RubyRemoveTracking && WXRUBY_WRAPPER_DATA_DFREE(object) != 0;
 }
 
 // Tests if the window has been signalled as destroyed by a
@@ -124,7 +124,7 @@ WXRUBY_EXPORT void GC_mark_wxSizer(void* ptr)
     // as long as the dfree function is still the sizer's free function the sizer has not been attached to a window
     // or added to a parent sizer (as that would 'disown' and replace the free function by the tracking removal function)
     // but it may hay have already had child sizers added which need to be marked
-    if (RDATA(rb_szr)->dfree != (void (*)(void *))SWIG_RubyRemoveTracking)
+    if (WXRUBY_WRAPPER_DATA_DFREE(rb_szr) != (void (*)(void *))SWIG_RubyRemoveTracking)
     {
       wxSizer* wx_szr = (wxSizer*)ptr;
 

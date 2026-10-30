@@ -38,7 +38,7 @@ module WXRuby3
               VALUE rb_region_it = SWIG_NewPointerObj(SWIG_as_voidptr(p_region_it), SWIGTYPE_p_wxRegionIterator, 0);
               rb_yield(rb_region_it);
               SWIG_RubyRemoveTracking((void *)p_region_it);
-              DATA_PTR(rb_region_it) = NULL;
+              WXRUBY_WRAPPER_DATA_PTR_RESET(rb_region_it);
             }
           }
           __HEREDOC
