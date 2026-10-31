@@ -57,7 +57,7 @@ module WXRuby3
           static void AddSubclassFactory(VALUE factory)
           {
             void *pfactory = 0;
-            if (WXRUBY_HAS_WRAPPED_DATA(factory) || !rb_obj_is_kind_of(factory, WxRuby_XmlSubclassFactory_klass))
+            if (!WXRUBY_HAS_WRAPPED_DATA(factory) || !rb_obj_is_kind_of(factory, WxRuby_XmlSubclassFactory_klass))
             {
               rb_raise(rb_eArgError, "expected Wx::XmlSubclassFactory for argument 1"); return;
             }
@@ -94,7 +94,7 @@ module WXRuby3
               result = rb_funcall(this->self_, create_id(), 1, rb_classname);
               if (result != Qnil)
               {
-                if (WXRUBY_HAS_WRAPPED_DATA(result) || !rb_obj_is_kind_of(result, ((swig_class *) (SWIGTYPE_p_wxObject->clientdata))->klass))
+                if (!WXRUBY_HAS_WRAPPED_DATA(result) || !rb_obj_is_kind_of(result, ((swig_class *) (SWIGTYPE_p_wxObject->clientdata))->klass))
                 {
                   Swig::DirectorTypeMismatchException::raise(rb_eTypeError, "in output value of type '""wxObject *""'");
                 }

@@ -68,7 +68,7 @@ module WXRuby3
               return SWIG_ERROR;
             }
             
-            if (WXRUBY_HAS_WRAPPED_DATA(obj))
+            if (!WXRUBY_HAS_WRAPPED_DATA(obj))
             {
               VALUE msg = rb_inspect(obj);
               rb_raise(rb_eArgError, 
