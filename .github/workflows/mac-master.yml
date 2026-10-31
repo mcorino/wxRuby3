@@ -35,9 +35,9 @@ jobs:
           configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
           wxr_type: develop
-        - name: wxMac macOS 14
-          runner: macos-14
-          arch: arm64
+        - name: wxMac macOS 15
+          runner: macos-15-intel
+          arch: x86_64
           wxWidgets: 'master'
           ruby: '3.0'
           swig: '4'
