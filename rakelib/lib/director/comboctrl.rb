@@ -73,10 +73,10 @@ module WXRuby3
  
           static const rb_data_type_t wxruby_wx_combo_popup_data_type = {
             "C++ wxComboPopup class",
-          #if RUBY_API_VERSION_MAJOR >= 3
-            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
+          #if RUBY_API_VERSION_MAJOR > 4 || (RUBY_API_VERSION_MAJOR == 4 && RUBY_API_VERSION_MINOR >= 1)
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, 0, {}},
           #else
-            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, {}},
+            { SWIG_Ruby_mark_swig_type, SWIG_Ruby_free_swig_type, 0, 0, {}},
           #endif
             0, 0
           #ifdef RUBY_TYPED_FREE_IMMEDIATELY

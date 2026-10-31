@@ -257,10 +257,10 @@ static void SWIG_Ruby_free_swig_type(void *data) {
    dumps show the C++ class name. */
 extern const WXRB_EXPORT_FLAG rb_data_type_t swig_type_data_type = {
   "swig_type",
-#if RUBY_API_VERSION_MAJOR >= 3
-  { 0, SWIG_Ruby_free_swig_type, 0, 0, {}},
+#if RUBY_API_VERSION_MAJOR > 4 || (RUBY_API_VERSION_MAJOR == 4 && RUBY_API_VERSION_MINOR >= 1)
+  { 0, SWIG_Ruby_free_swig_type, 0, 0, 0, {}},
 #else
-  { 0, SWIG_Ruby_free_swig_type, 0, {}},
+  { 0, SWIG_Ruby_free_swig_type, 0, 0, {}},
 #endif
   0, 0
 #ifdef RUBY_TYPED_FREE_IMMEDIATELY
@@ -539,10 +539,10 @@ SWIG_Ruby_ConvertPacked(VALUE obj, void *ptr, int sz, swig_type_info *ty)
    SWIG version. */
 static const rb_data_type_t swig_runtime_data_type = {
   "swig_runtime_data" SWIG_RUNTIME_VERSION SWIG_TYPE_TABLE_NAME,
-#if RUBY_API_VERSION_MAJOR >= 3
-  { 0, 0, 0, 0, {}},
+#if RUBY_API_VERSION_MAJOR > 4 || (RUBY_API_VERSION_MAJOR == 4 && RUBY_API_VERSION_MINOR >= 1)
+  { 0, 0, 0, 0, 0, {}},
 #else
-  { 0, 0, 0, {}},
+  { 0, 0, 0, 0, {}},
 #endif
   0, 0
 #ifdef RUBY_TYPED_FREE_IMMEDIATELY

@@ -43,7 +43,7 @@ class WindowTests < WxRuby::Test::GUITests
         r.monitor(pmon)
         assert_equal(Wx::RT::SharedEvtHandler, pin.receive)
         assert_true(pin.receive)
-        assert_equal(:exited, pmon.receive)
+        assert_equal(:exited, [pmon.receive].flatten.last)
       else
         seh = frame_win.make_shared
         r = Ractor.new(seh) do |seh_|
@@ -77,7 +77,7 @@ class WindowTests < WxRuby::Test::GUITests
       yield_and_wait_for_test(3000) { data_sent }
       assert_not_nil(data_sent)
       assert_equal(data_sent, pin.receive)
-      assert_equal(:exited, pmon.receive)
+        assert_equal(:exited, [pmon.receive].flatten.last)
     else
       seh = frame_win.make_shared
       data_sent = nil
@@ -117,7 +117,7 @@ class WindowTests < WxRuby::Test::GUITests
       yield_and_wait_for_test(3000) { data_sent }
       assert_not_nil(data_sent)
       assert_equal(data_sent, pin.receive)
-      assert_equal(:exited, pmon.receive)
+      assert_equal(:exited, [pmon.receive].flatten.last)
     else
       seh = frame_win.make_shared
       data_sent = nil

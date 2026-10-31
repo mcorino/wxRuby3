@@ -55,10 +55,10 @@ static void __WxRubySharedEvtHandler_free(void* data)
 
 static const rb_data_type_t __WxRubySharedEvtHandler_type = {
   "TreeItemId",
-#if RUBY_API_VERSION_MAJOR >= 3
-  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, 0, {}},
+#if RUBY_API_VERSION_MAJOR > 4 || (RUBY_API_VERSION_MAJOR == 4 && RUBY_API_VERSION_MINOR >= 1)
+  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, 0, 0, {}},
 #else
-  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, {}},
+  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, 0, {}},
 #endif
   NULL, NULL, RUBY_TYPED_FROZEN_SHAREABLE
 };

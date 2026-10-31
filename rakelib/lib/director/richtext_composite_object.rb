@@ -92,10 +92,10 @@ module WXRuby3
   
             static const rb_data_type_t __wxRichTextFloatCollector_type = {
               "RichTextFloatCollector",
-            #if RUBY_API_VERSION_MAJOR >= 3
-              { NULL, NULL, __wxRichTextFloatCollector_size, 0, {}},
+            #if RUBY_API_VERSION_MAJOR > 4 || (RUBY_API_VERSION_MAJOR == 4 && RUBY_API_VERSION_MINOR >= 1)
+              { NULL, NULL, __wxRichTextFloatCollector_size, 0, 0, {}},
             #else
-              { NULL, NULL, __wxRichTextFloatCollector_size, {}},
+              { NULL, NULL, __wxRichTextFloatCollector_size, 0, {}},
             #endif 
               NULL, NULL, RUBY_TYPED_FREE_IMMEDIATELY
             };
