@@ -237,9 +237,6 @@ WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval);
 #define WXRUBY_WRAPPER_DATA_PTR(rbobj) \
   DATA_PTR(rbobj)
 
-#define WXRUBY_WRAPPER_DATA_GET(rbobj, type)
-  reinterpret_cast< type * >(WXRUBY_WRAPPER_DATA_PTR(rbobj))
-
 #define WXRUBY_WRAPPER_DATA_PTR_SET(rbobj, ptr) \
   DATA_PTR(rbobj) = (ptr)
 
