@@ -206,6 +206,11 @@ module WXRuby3
                       << ' ' << StringValuePtr(msg) << '(' << StringValuePtr(err_name) << ')' << std::endl
                       << "\\tfrom " << StringValuePtr(bt) << std::endl << std::endl;
           }
+
+          WXRUBY_EXPORT void wxRuby_RegisterDeferredWindowDestroy(void* win)
+          {
+            wxRubyApp::wxRuby_RegisterDeferredWindowDestroy(reinterpret_cast<wxWindow*> (win));
+          }
           __HEREDOC
         super
       end

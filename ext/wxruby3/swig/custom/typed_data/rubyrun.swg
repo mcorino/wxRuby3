@@ -159,6 +159,25 @@ static void SWIG_Ruby_free_swig_type(void *data) {
 #endif
 }
 
+/* ---------------------------------------------------------------------------
+ * WxRuby_Ruby_free_swig_window_type()
+ *
+ * wxWindow specific free callback for the TypedData wrapper. It defers the
+ * destruction if a window is still linked and owned, then frees the wrapper.
+ * --------------------------------------------------------------------------- */
+WXRUBY_EXPORT void wxRuby_RegisterDeferredWindowDestroy(void*);
+
+static void WxRuby_Ruby_free_swig_window_type(void *data) {
+  struct swig_ruby_wrapped_object *wrobj = (struct swig_ruby_wrapped_object *)data;
+  if (!wrobj)
+    return;
+  if (wrobj->data && wrobj->dfree)
+    wxRuby_RegisterDeferredWindowDestroy(wrobj->data);
+#ifndef TYPED_DATA_EMBEDDED
+  ruby_xfree(wrobj);
+#endif
+}
+
 /* Create a new pointer object */
 WXRUBY_EXPORT VALUE
 SWIG_Ruby_NewPointerObj(void *ptr, swig_type_info *type, int flags);

@@ -7,6 +7,7 @@ WXRUBY_TRACE_GUARD(WxRubyTraceMarkApp, "GC_MARK_APP")
 WXRUBY_TRACE_GUARD(WxRubyTraceAppRun, "APP_RUN")
 
 #include <memory>
+#include <queue>
 
 #include <ruby/ractor.h>
 
@@ -139,6 +140,17 @@ private:
   private:
     int exit_code_ {};
   };
+
+  // With the switch to Ruby Typed Data object wrappers for Ruby 4.1 a tricky situation comes into
+  // existence with regard to window destruction from unattached windows by Ruby GC handling.
+  // Window destruction may (will; at least the wxWindowDestroyEvent) fire events which in turn
+  // will lead to Ruby object allocation which is not allowed during GC handling.
+  // We will therefor have to defer destruction of such windows at GC time by registering the
+  // windows in the below queue and destroy during idle cycles.
+  // We cannot use the built-in delayed object delete of wxApp as that will delete objects immediately
+  // when there is no event loop running anymore which will probably be the case at some point of the
+  // final Ruby GC handling.
+  static std::queue<wxWindow*> deferred_window_destroy_queue_;
 
 public:
   static wxRubyApp* GetInstance () { return dynamic_cast<wxRubyApp*> (wxApp::GetInstance()); }
@@ -378,7 +390,7 @@ public:
     }
 
     // perform wxRuby cleanup
-    _wxRuby_Cleanup();
+    this->_wxRuby_Cleanup();
 
     WXRUBY_TRACE_IF(WxRubyTraceAppRun, 1)
       WXRUBY_TRACE("< OnExit")
@@ -424,6 +436,9 @@ public:
     // can skip any GC marking later
     this->is_running_ = false;
 
+    // cleanup deferred window destroy
+    wxRubyApp::wxRuby_DoDeferredWindowDestroy();
+
     // if a Ruby implemented logger has been installed clean that up
     // before we exit, otherwise let wxWidgets handle things
     wxLog *oldlog = wxLog::GetActiveTarget();
@@ -447,4 +462,30 @@ public:
       WXRUBY_TRACE("< _wxRuby_Cleanup")
     WXRUBY_TRACE_END
   }
+
+  static void wxRuby_RegisterDeferredWindowDestroy(wxWindow *win)
+  {
+    wxRubyApp::deferred_window_destroy_queue_.push(win);
+  }
+
+  static void wxRuby_DoDeferredWindowDestroy()
+  {
+    while (!wxRubyApp::deferred_window_destroy_queue_.empty())
+    {
+      wxWindow* win = wxRubyApp::deferred_window_destroy_queue_.front();
+      wxRubyApp::deferred_window_destroy_queue_.pop();
+      win->Destroy();
+    }
+  }
+
+  bool ProcessIdle() override
+  {
+    bool need_more = wxApp::ProcessIdle();
+
+    wxRubyApp::wxRuby_DoDeferredWindowDestroy();
+
+    return need_more;
+  }
 };
+
+std::queue<wxWindow*> wxRubyApp::deferred_window_destroy_queue_ {};

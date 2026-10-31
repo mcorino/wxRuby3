@@ -393,15 +393,32 @@ module WXRuby3
       # true for dialogs which are not cleaned up by wxWidgets but rather garbage collected by Ruby).
       class UpdateWindow < Processor
 
+        def collect_window_classes
+          def_items.select { |def_item| Extractor::ClassDef === def_item && (def_item == 'wxWindow' || is_derived_from?(def_item, 'wxWindow')) }.collect { |def_item| rb_wx_name(def_item.name) }
+        end
+
         def run
+          at_init_method = false
           at_director_method = false
           director_wx_class = nil
           director_method_line = 0
 
+          window_classes = collect_window_classes
+
+          core_name = name
+          core_name = 'ruby3' if /\Awx\Z/i =~ core_name
+
           prev_line = nil
 
           update_source(at_end: ->(){ prev_line }) do |line|
-            if at_director_method
+            if at_init_method
+              if /SwigClassWx(\S+)\.cext_type.function.dfree\s+=\s+SWIG_Ruby_free_swig_type;/ =~ line
+                class_name = $1
+                if window_classes.include?(class_name)
+                  line = "SwigClassWx#{class_name}.cext_type.function.dfree = WxRuby_Ruby_free_swig_window_type;"
+                end
+              end
+            elsif at_director_method
               director_method_line += 1   # update line counter
               if director_method_line == 2 && line.strip.empty?   # are we at the right spot?
                 code = <<~__CODE     # insert the code update
@@ -419,6 +436,8 @@ module WXRuby3
               director_wx_class = $1
               at_director_method = true   # we're at a director method to be updated
               director_method_line = 0    # keep track of the method lines
+            elsif /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
+              at_init_method = true
             end
 
             result = prev_line

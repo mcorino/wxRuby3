@@ -128,6 +128,7 @@ WXRUBY_EXPORT VALUE wxRuby_Funcall(bool& ex_caught, VALUE rcvr, ID func, VALUE a
 WXRUBY_EXPORT bool wxRuby_IsAppRunning();
 WXRUBY_EXPORT void wxRuby_ExitMainLoop(VALUE exception = Qnil);
 WXRUBY_EXPORT void wxRuby_PrintException(VALUE err);
+WXRUBY_EXPORT void wxRuby_RegisterDeferredWindowDestroy(void*);
 typedef void (*WXRBMarkFunction)();
 WXRUBY_EXPORT void wxRuby_AppendMarker(WXRBMarkFunction marker);
 
