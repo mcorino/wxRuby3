@@ -224,9 +224,9 @@ WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval);
 #endif
 
 #if SWIG_VERSION < 0x040500   // Ruby Untyped Data Wrapping
-# define WXRUBY_SWIG_UNTYPED_DATA 1
+# define WXRUBY_SWIG_UNTYPED_DATA
 #else
-# define WXRUBY_SWIG_TYPED_DATA 1
+# define WXRUBY_SWIG_TYPED_DATA
 #endif
 
 #ifdef WXRUBY_SWIG_UNTYPED_DATA   // Ruby Untyped Data Wrapping
@@ -244,7 +244,7 @@ WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval);
   DATA_PTR(rbobj) = 0
 
 #define WXRUBY_HAS_WRAPPED_DATA(rbobj) \
-  (!RB_NIL_P(rbobj) && TYPE(data_obj) == T_DATA)
+  (!RB_NIL_P(rbobj) && TYPE(rbobj) == T_DATA)
 
 #else                         // Ruby Typed Data Wrapping
 
