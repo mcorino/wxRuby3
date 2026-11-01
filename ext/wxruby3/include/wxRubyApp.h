@@ -150,7 +150,12 @@ private:
   // We cannot use the built-in delayed object delete of wxApp as that will delete objects immediately
   // when there is no event loop running anymore which will probably be the case at some point of the
   // final Ruby GC handling.
-  static std::queue<wxWindow*> deferred_window_destroy_queue_;
+  struct SDeferredWindowDestroyRecord
+  {
+    wxWindow* win_;
+    void (* free_) (void *);
+  };
+  static std::queue<SDeferredWindowDestroyRecord> deferred_window_destroy_queue_;
 
 public:
   static wxRubyApp* GetInstance () { return dynamic_cast<wxRubyApp*> (wxApp::GetInstance()); }
@@ -463,18 +468,18 @@ public:
     WXRUBY_TRACE_END
   }
 
-  static void wxRuby_RegisterDeferredWindowDestroy(wxWindow *win)
+  static void wxRuby_RegisterDeferredWindowDestroy(wxWindow *win, void (* free) (void*))
   {
-    wxRubyApp::deferred_window_destroy_queue_.push(win);
+    wxRubyApp::deferred_window_destroy_queue_.push( {win, free} );
   }
 
   static void wxRuby_DoDeferredWindowDestroy()
   {
     while (!wxRubyApp::deferred_window_destroy_queue_.empty())
     {
-      wxWindow* win = wxRubyApp::deferred_window_destroy_queue_.front();
+      wxRubyApp::SDeferredWindowDestroyRecord wrec = wxRubyApp::deferred_window_destroy_queue_.front();
       wxRubyApp::deferred_window_destroy_queue_.pop();
-      win->Destroy();
+      wrec.free_(wrec.win_);
     }
   }
 
@@ -488,4 +493,4 @@ public:
   }
 };
 
-std::queue<wxWindow*> wxRubyApp::deferred_window_destroy_queue_ {};
+std::queue<wxRubyApp::SDeferredWindowDestroyRecord> wxRubyApp::deferred_window_destroy_queue_ {};
