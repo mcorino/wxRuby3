@@ -398,12 +398,13 @@ module WXRuby3
         end
 
         def run
+          swig_ruby_type_data = SwigRunner.swig_ruby_type == 'typed_data'
           at_init_method = false
           at_director_method = false
           director_wx_class = nil
           director_method_line = 0
 
-          window_classes = collect_window_classes
+          window_classes = collect_window_classes if swig_ruby_type_data
 
           core_name = name
           core_name = 'ruby3' if /\Awx\Z/i =~ core_name
@@ -436,7 +437,7 @@ module WXRuby3
               director_wx_class = $1
               at_director_method = true   # we're at a director method to be updated
               director_method_line = 0    # keep track of the method lines
-            elsif /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
+            elsif swig_ruby_type_data && /void\s+Init_(wx|Wx)#{core_name}\(/ =~ line
               at_init_method = true
             end
 
