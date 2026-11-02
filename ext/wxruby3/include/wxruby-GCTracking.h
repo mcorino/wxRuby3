@@ -114,7 +114,7 @@ static void __wxruby_mark_SWIG_objects(const TGCTrackingValueMap& values)
   {
     // Check if it's a valid object (sometimes SWIG doesn't return what we're
     // expecting), a descendant of Wx::Window or Wx::Event; if so, mark it.
-    if ( TYPE(vp.second) == T_DATA )
+    if ( WXRUBY_HAS_WRAPPED_DATA(vp.second))
     {
       if ( rb_obj_is_kind_of(vp.second, wxRuby_GetWindowClass()) )
       {
