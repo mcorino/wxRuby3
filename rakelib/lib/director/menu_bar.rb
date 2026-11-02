@@ -49,6 +49,7 @@ module WXRuby3
             wxRubyMenuBar(long style=0) : wxMenuBar(style) {} 
             virtual ~wxRubyMenuBar()
             {
+              WXRUBY_TRACE("~wxRubyMenuBar() - destroying menu bar " << this)
               wxRuby_ReleaseEvtHandlerProcs(this); 
               wxruby_unregister();              
             }
@@ -76,8 +77,7 @@ module WXRuby3
 
           WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenubar, "GC_MARK_MENUBAR")
 
-          // Mark Function for unattached menu bars
-          // Need to protect Menu and MenuItems which are included in the MenuBar
+          // Mark Function for attached menu bars
           static void GC_mark_wxMenuBar(const TGCTrackingValueMap& values)
           {
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
@@ -86,11 +86,28 @@ module WXRuby3
           
             for (const auto& ti : values)
             {
-              rb_gc_mark(ti.second);
+              // we only need to mark attached menu bars as these might out of scope of
+              // any Ruby variables but must be kept "alive"", whereas unattached menu 
+              // bars are free to be GC-ed as soon as they are out of any scope
 
-              // Menu bars are also a subclass of wxWindow, so must do all the marking
-              // of sizers and carets associated with that class
-              GC_mark_wxWindow(ti.first);
+              if (ti.first && reinterpret_cast<wxRubyMenuBar*> (ti.first)->GetParent())
+              {
+                WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
+                  WXRUBY_TRACE("| GC_mark_wxMenuBar - marking attached menu bar " << ti.first)
+                WXRUBY_TRACE_END
+
+                rb_gc_mark(ti.second);
+  
+                // Menu bars are also a subclass of wxWindow, so must do all the marking
+                // of sizers and carets associated with that class
+                GC_mark_wxWindow(ti.first);
+              }
+              else
+              {
+                WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
+                  WXRUBY_TRACE("| GC_mark_wxMenuBar - skip marking unattached menu bar " << ti.first)
+                WXRUBY_TRACE_END
+              }
 
               // no need to mark anything else as menus are tracked themselves separately
             }
