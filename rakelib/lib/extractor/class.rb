@@ -215,7 +215,8 @@ module WXRuby3
                           else
                             nil
                           end
-              evt_paras[1].xpath('.//listitem').each do |li|
+              evt_list_para = evt_paras.detect { |para| !para.xpath('.//listitem').empty? }
+              (evt_list_para ? evt_list_para.xpath('.//listitem') : []).each do |li|
                 if li.text =~ /(EVT_\w+)\((.*)\)/
                   evt_handler = $1
                   args = $2.split(',').collect {|a| a.strip }
