@@ -49,8 +49,9 @@ module WXRuby3
             wxRubyMenuBar(long style=0) : wxMenuBar(style) {} 
             virtual ~wxRubyMenuBar()
             {
-              WXRUBY_TRACE("~wxRubyMenuBar() - destroying menu bar " << this)
               wxRuby_ReleaseEvtHandlerProcs(this); 
+              VALUE rb_menubar = wxRuby_FindCategoryValue(TRACKING_CAT, this);
+              if (!RB_NIL_P(rb_menubar)) WXRUBY_WRAPPER_DATA_PTR_RESET(rb_menubar);
               wxruby_unregister();              
             }
 

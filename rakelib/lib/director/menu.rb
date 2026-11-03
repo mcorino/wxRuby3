@@ -31,6 +31,8 @@ module WXRuby3
             virtual ~wxRubyMenu()
             {
               wxRuby_ReleaseEvtHandlerProcs(this); 
+              VALUE rb_menu = wxRuby_FindCategoryValue(TRACKING_CAT, this);
+              if (!RB_NIL_P(rb_menu)) WXRUBY_WRAPPER_DATA_PTR_RESET(rb_menu);
               wxruby_unregister();
             }
 
@@ -101,7 +103,7 @@ module WXRuby3
           static void _gc_mark_single_wxMenu(wxMenu *wx_menu, VALUE rb_menu)
           {
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
-              WXRUBY_TRACE("> GC_mark_attached_wxMenu : " << wx_menu)
+              WXRUBY_TRACE("> _gc_mark_single_wxMenu : " << wx_menu)
             WXRUBY_TRACE_END
           
             rb_gc_mark(rb_menu);
@@ -121,7 +123,7 @@ module WXRuby3
             }
           
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
-              WXRUBY_TRACE("< GC_mark_attached_wxMenu : " << wx_menu)
+              WXRUBY_TRACE("< _gc_mark_single_wxMenu : " << wx_menu)
             WXRUBY_TRACE_END
           }
 
