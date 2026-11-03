@@ -660,10 +660,30 @@ module WXRuby3
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellEditorInRuby(const wxGridCellEditor *wx_gce);'
           map_out code: '$result = wxRuby_WrapWxGridCellEditorInRuby($1);'
           map_check code: 'wxRuby_RegisterGridCellEditor($1, argv[$argnum-2]);'
+          map_directorout code: <<~__CODE
+              void* swig_argp;
+              swig_owntype own;
+              int swig_res = SWIG_ConvertPtrAndOwn(result, &swig_argp, $1_descriptor,  SWIG_POINTER_DISOWN, &own);
+              if (!SWIG_IsOK(swig_res)) {
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""wxGridCellEditor *""'");
+              }
+              $result = reinterpret_cast< wxGridCellEditor * >(swig_argp);
+              $result->IncRef();
+            __CODE
         end
         spec.map 'wxGridCellRenderer *' => 'Wx::GRID::GridCellRenderer' do
           add_header_code 'extern VALUE wxRuby_WrapWxGridCellRendererInRuby(const wxGridCellRenderer *wx_gcr);'
           map_out code: '$result = wxRuby_WrapWxGridCellRendererInRuby($1);'
+          map_directorout code: <<~__CODE
+              void* swig_argp;
+              swig_owntype own;
+              int swig_res = SWIG_ConvertPtrAndOwn(result, &swig_argp, $1_descriptor,  SWIG_POINTER_DISOWN, &own);
+              if (!SWIG_IsOK(swig_res)) {
+                Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", SWIG_ErrorType(SWIG_ArgError(swig_res)), "in output value of type '""wxGridCellRenderer *""'");
+              }
+              $result = reinterpret_cast< wxGridCellRenderer * >(swig_argp);
+              $result->IncRef();
+            __CODE
           map_check code: 'wxRuby_RegisterGridCellRenderer($1, argv[$argnum-2]);'
         end
         # add constants missing from documentation
