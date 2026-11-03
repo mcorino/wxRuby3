@@ -48,6 +48,9 @@ module WXRuby3
         # It also handles the special case where +nil+ is returned, to signal to Wx that no menu is to
         # be shown.
         spec.map 'wxMenu *' do
+          add_header_code <<~__CODE
+            WXRUBY_EXPORT void wxRuby_RegisterWxMenu(wxMenu* wx_menu, VALUE rb_menu);
+            __CODE
           map_directorout code: <<~__CODE
             static const std::string create_popup_menu("CreatePopupMenu");
             bool disown = (std::string("$symname") == create_popup_menu);
@@ -59,13 +62,14 @@ module WXRuby3
             else
             {
               void * ptr;
-              int swig_res = SWIG_ConvertPtr(result, &ptr, $1_descriptor, disown ? SWIG_POINTER_DISOWN : 0);
+              int swig_res = SWIG_ConvertPtr(result, &ptr, $1_descriptor, disown ? SWIG_POINTER_RELEASE : 0);
               if (!SWIG_IsOK(swig_res))
               {
                 Swig::DirectorTypeMismatchException::raise(swig_get_self(), "$symname", rb_eTypeError,
                          "create_popup_menu must return a Wx::Menu, or nil");
               }
               $result = static_cast <wxMenu *> (ptr);
+              if (!disown) wxRuby_RegisterWxMenu($result, $1);
             }
             __CODE
         end
