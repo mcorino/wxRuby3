@@ -612,7 +612,7 @@ module WXRuby3
             WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar);
             __CODE
           map_check code: <<~__CODE
-            wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);                     
+            if ($argnum > 1) wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);                     
             __CODE
           map_out code: <<~__CODE
             $result = wxRuby_WrapWxMenuBarInRuby($1);
@@ -628,7 +628,7 @@ module WXRuby3
             WXRUBY_EXPORT void wxRuby_RegisterWxMenu(wxMenu* wx_menu, VALUE rb_menu);
             __CODE
           map_check code: <<~__CODE
-            wxRuby_RegisterWxMenu($1, argv[$argnum-2]);                     
+            if ($argnum > 1) wxRuby_RegisterWxMenu($1, argv[$argnum-2]);                     
             __CODE
           map_out code: <<~__CODE
             $result = wxRuby_WrapWxMenuInRuby($1);
