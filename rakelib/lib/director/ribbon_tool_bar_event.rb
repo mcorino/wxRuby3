@@ -16,6 +16,10 @@ module WXRuby3
 
       def setup
         super
+        # disable the common wxMenu* typemap for wxRibbonToolBarEvent::PopupMenu as that does not take ownership of
+        # the passed wxMenu and also does not expose the wxMenu in Ruby during execution
+        # (prevents leaking popup menus)
+        spec.map_disable 'wxMenu*'
         spec.do_not_generate :variables, :enums, :defines, :functions
       end
     end # class RibbonToolBarEvent
