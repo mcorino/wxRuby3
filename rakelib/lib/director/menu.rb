@@ -57,6 +57,21 @@ module WXRuby3
         spec.add_header_code <<~__HEREDOC
           WXRUBY_TRACE_GUARD(WxRubyTraceMarkMenu, "GC_MARK_MENU")
 
+          // Custom subclass implementation. 
+          // Provides proper support for Ruby GC in destructor.
+          class wxRubyMenu : public wxMenu
+          {
+          public:
+            wxRubyMenu() : wxMenu() {}
+            wxRubyMenu(const wxString &title, long style=0) : wxMenu(title, style) {}
+            virtual ~wxRubyMenu()
+            {
+              // make sure to unlink any tracked Ruby wrapper
+              VALUE rb_menu = SWIG_RubyInstanceFor(this);
+              if (!RB_NIL_P(rb_menu)) WXRUBY_WRAPPER_DATA_PTR_RESET(rb_menu);
+            }
+          };
+
           static void GC_mark_wxMenu(void* ptr)
           {
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenu, 2)
@@ -85,6 +100,8 @@ module WXRuby3
             WXRUBY_TRACE_END
           }
         __HEREDOC
+        # make Ruby director and wrappers use custom implementation
+        spec.use_class_implementation('wxMenu', 'wxRubyMenu')
         # ignore MSW specific method
         spec.ignore 'wxMenu::MSWCommand'
         # fix SWIG's problems with const& return value
