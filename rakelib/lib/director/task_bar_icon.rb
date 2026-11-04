@@ -69,7 +69,6 @@ module WXRuby3
                          "create_popup_menu must return a Wx::Menu, or nil");
               }
               $result = static_cast <wxMenu *> (ptr);
-              if (!disown) wxRuby_RegisterWxMenu($result, $1);
             }
             __CODE
         end

@@ -65,10 +65,6 @@ module WXRuby3
               }
             __CODE
           end
-          # disable the common wxMenu* typemap for wxWindow::PopupMenu as that does not take ownership of
-          # the passed wxMenu and also does not expose the wxMenu in Ruby during execution
-          # (prevents leaking popup menus)
-          spec.map_disable 'wxMenu*'
           spec.ignore [
             'wxWindow::SetConstraints',
             'wxWindow::GetHandle',

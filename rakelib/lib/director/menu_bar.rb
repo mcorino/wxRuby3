@@ -26,14 +26,21 @@ module WXRuby3
           spec.ignore('wxMenuBar::GetLabelTop',
                       'wxMenuBar::SetLabelTop')
         end
-        spec.disown 'wxMenu *'
+        # menu handling
+        spec.ignore %w[wxMenuBar::Append wxMenuBar::Insert wxMenuBar::Replace], ignore_doc: false
+        spec.extend_interface 'wxMenuBar',
+                              'virtual bool Append(wxMenu *new_menu, const wxString &title)',
+                              'virtual bool Insert(size_t pos, wxMenu *new_menu, const wxString &title)',
+                              'virtual wxMenu * Replace(size_t pos, wxMenu *new_menu, const wxString &title)'
+        spec.disown 'wxMenu *new_menu'
         spec.new_object 'wxMenuBar::Remove', 'wxMenuBar::Replace'
         # for FindItem
         spec.map 'wxMenu **' => 'Wx::Menu' do
-          add_header_code 'WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuInRuby(wxMenu* wx_menu);'
           map_in ignore: true, temp: 'wxMenu *tmp', code: '$1 = &tmp;'
           map_argout code: <<~__CODE
-            $result = SWIG_Ruby_AppendOutput($result, wxRuby_WrapWxMenuInRuby(tmp$argnum));
+            VALUE rb_menu = SWIG_NewPointerObj(SWIG_as_voidptr(tmp$argnum), 
+                                               SWIGTYPE_p_wxMenu, 0);
+            $result = SWIG_Ruby_AppendOutput($result, rb_menu);
             __CODE
         end
         spec.add_header_code <<~__HEREDOC
@@ -110,7 +117,13 @@ module WXRuby3
                 WXRUBY_TRACE_END
               }
 
-              // no need to mark anything else as menus are tracked themselves separately
+              // always mark the menus managed by the menubar
+              wxMenuBar* wx_menu_bar  = reinterpret_cast<wxMenuBar*> (ti.first);
+              for (size_t ix=0; ix < wx_menu_bar->GetMenuCount(); ++ix)
+              {
+                wxMenu* wx_menu = wx_menu_bar->GetMenu(ix);
+                rb_gc_mark(SWIG_RubyInstanceFor(wx_menu));
+              }
             }
           
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
@@ -118,7 +131,7 @@ module WXRuby3
             WXRUBY_TRACE_END
           }
 
-          WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar* wx_menubar)
+          WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar* wx_menubar, int own)
           {
             VALUE rb_menubar = Qnil;
             if (wx_menubar)
@@ -128,16 +141,20 @@ module WXRuby3
               {
                 // newly created
                 wxRubyMenuBar* wxrb_mb = dynamic_cast<wxRubyMenuBar*> (wx_menubar);
-                if (wxrb_mb)
+                if (wxrb_mb) 
                 {
+                  // this should actually never happen as wxRubyMenuBar can only be created in Ruby user code and the only way
+                  // they can end up in C++ space is by being passed as arg in which case they would have been registered
+
                   // convert and own
                   rb_menubar = SWIG_NewPointerObj(SWIG_as_voidptr(wxrb_mb), SWIGTYPE_p_wxMenuBar, SWIG_POINTER_OWN);
-                  wxrb_mb->wxruby_register(rb_menubar);
+                  // do not register; treat as if created new
+                  //wxrb_mb->wxruby_register(rb_menubar);
                 }
                 else
                 {
-                  // created internally by wxWidgets; no tracking and no ownership
-                  rb_menubar = SWIG_NewPointerObj(SWIG_as_voidptr(wx_menubar), SWIGTYPE_p_wxMenuBar, 0);
+                  // created internally by wxWidgets; no tracking
+                  rb_menubar = SWIG_NewPointerObj(SWIG_as_voidptr(wx_menubar), SWIGTYPE_p_wxMenuBar, own ? SWIG_POINTER_OWN : 0);
                 }
               }
             }
