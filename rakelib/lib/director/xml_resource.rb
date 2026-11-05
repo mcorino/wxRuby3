@@ -24,15 +24,6 @@ module WXRuby3
         # unattached loaders return owned objects
         spec.new_object 'wxXmlResource::LoadMenu(const wxString &)',
                         'wxXmlResource::LoadMenuBar(const wxString &)'
-        # Menu bars need to be wrapped / unwrapped correctly
-        spec.map 'wxMenuBar*' => 'Wx::MenuBar' do
-          add_header_code <<~__CODE
-              WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar *wx_menubar, int own);
-              __CODE
-          map_out code: <<~__CODE         # for LoadMenuBar
-              $result = wxRuby_WrapWxMenuBarInRuby($1, $owner);
-              __CODE
-        end
         # For these three methods, there are two variants in wxWidgets. One loads an
         # XRC from scratch and returns an instance of a core Wx class
         # (Wx::Dialog, Wx::Frame, or Wx::Panel). The other loads a layout into
