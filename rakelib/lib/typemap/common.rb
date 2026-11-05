@@ -605,39 +605,6 @@ module WXRuby3
             __CODE
         end
 
-        # # Menu bars need to be wrapped / unwrapped correctly
-        # map 'wxMenuBar*' => 'Wx::MenuBar' do
-        #   add_header_code <<~__CODE
-        #     WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar *wx_menubar);
-        #     WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar);
-        #     __CODE
-        #   map_check code: <<~__CODE
-        #     if ($argnum > 1) wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);
-        #     __CODE
-        #   map_out code: <<~__CODE
-        #     $result = wxRuby_WrapWxMenuBarInRuby($1);
-        #     __CODE
-        #   map_directorin code: <<~__CODE
-        #     $input = wxRuby_WrapWxMenuBarInRuby($1);
-        #     __CODE
-        # end
-        # As do menus
-        # map 'wxMenu*' => 'Wx::Menu' do
-        #   add_header_code <<~__CODE
-        #     WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuInRuby(wxMenu *wx_menu);
-        #     WXRUBY_EXPORT void wxRuby_RegisterWxMenu(wxMenu* wx_menu, VALUE rb_menu);
-        #     __CODE
-        #   map_check code: <<~__CODE
-        #     if ($argnum > 1) wxRuby_RegisterWxMenu($1, argv[$argnum-2]);
-        #     __CODE
-        #   map_out code: <<~__CODE
-        #     $result = wxRuby_WrapWxMenuInRuby($1);
-        #     __CODE
-        #   map_directorin code: <<~__CODE
-        #     $input = wxRuby_WrapWxMenuInRuby($1);
-        #     __CODE
-        # end
-
         # typemap to allow String or Symbol for wxColour in args
         map 'const wxColour&', 'const wxColour*', as: 'Wx::Colour,String,Symbol' do
           map_in temp: 'wxColour tmpcol', code: <<~__CODE
