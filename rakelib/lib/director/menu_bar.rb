@@ -57,8 +57,7 @@ module WXRuby3
             {
               wxRuby_ReleaseEvtHandlerProcs(this); 
               // make sure to unlink any tracked Ruby wrapper
-              VALUE rb_menubar = SWIG_RubyInstanceFor(this);
-              if (!RB_NIL_P(rb_menubar)) WXRUBY_WRAPPER_DATA_PTR_RESET(rb_menubar);
+              SWIG_RubyUnlinkObjects(this);
             }
           };
 

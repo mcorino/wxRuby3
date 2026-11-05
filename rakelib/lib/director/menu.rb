@@ -67,8 +67,7 @@ module WXRuby3
             virtual ~wxRubyMenu()
             {
               // make sure to unlink any tracked Ruby wrapper
-              VALUE rb_menu = SWIG_RubyInstanceFor(this);
-              if (!RB_NIL_P(rb_menu)) WXRUBY_WRAPPER_DATA_PTR_RESET(rb_menu);
+              SWIG_RubyUnlinkObjects(this);
             }
           };
 
