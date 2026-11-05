@@ -16,6 +16,7 @@ module WXRuby3
 
       def setup
         super
+        spec.add_swig_code '%markfunc wxAuiMDIChildFrame "GC_mark_wxAuiMDIChildFrame";'
         spec.no_proxy 'wxAuiMDIChildFrame::Layout'
         # incorrectly documented non-existent virtual method
         # (does exist as non-virtual method in TopLevelWindow with return by value)
@@ -47,19 +48,6 @@ module WXRuby3
                               'wxAuiMDIChildFrame::CreateToolBar')
         # for SetMenuBar
         spec.disown 'wxMenuBar *'
-        # Menu bars need to be wrapped / unwrapped correctly
-        spec.map 'wxMenuBar*' => 'Wx::MenuBar' do
-          add_header_code <<~__CODE
-              WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar *wx_menubar, int own);
-              WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar);
-              __CODE
-          map_out code: <<~__CODE         # for GetMenuBar
-              $result = wxRuby_WrapWxMenuBarInRuby($1, 0);
-              __CODE
-          map_check code: <<~__CODE       # for SetMenuBar
-              wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);                     
-              __CODE
-        end
         # for SetStatusWidths
         spec.map 'int n, int widths_field[]' do
           map_in from: {type: 'Array<Integer>', index: 1},
@@ -81,6 +69,29 @@ module WXRuby3
             }
             __CODE
         end
+        spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceMarkAuiMDIChildFrame, "GC_MARK_AUI_MDI_CHILD_FRAME")
+            static void GC_mark_wxAuiMDIChildFrame(void* ptr)
+            {
+              WXRUBY_TRACE_IF(WxRubyTraceMarkAuiMDIChildFrame, 2)
+                WXRUBY_TRACE("> GC_mark_wxAuiMDIChildFrame : " << ptr)
+              WXRUBY_TRACE_END
+  
+              if (GC_IsWindowDeleted(ptr)) return;          
+
+              GC_mark_wxWindow(ptr);            
+              
+              wxAuiMDIChildFrame* wx_frame = reinterpret_cast<wxAuiMDIChildFrame*> (ptr);
+
+              // Mark attached menu bars
+              wxMenuBar* wx_mb = wx_frame->GetMenuBar();
+              rb_gc_mark(SWIG_RubyInstanceFor(wx_mb));               
+            
+              WXRUBY_TRACE_IF(WxRubyTraceMarkAuiMDIChildFrame, 2)
+                WXRUBY_TRACE("< GC_mark_wxAuiMDIChildFrame : " << ptr)
+              WXRUBY_TRACE_END
+            }
+            __HEREDOC
       end
     end # class AuiMDIChildFrame
 

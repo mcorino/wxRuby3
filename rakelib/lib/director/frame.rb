@@ -33,19 +33,34 @@ module WXRuby3
                                 'wxFrame::GetMenuBar',
                                 'wxFrame::GetStatusBar',
                                 'wxFrame::GetToolBar')
-          # Menu bars need to be wrapped / unwrapped correctly
-          spec.map 'wxMenuBar*' => 'Wx::MenuBar' do
-            add_header_code <<~__CODE
-              WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar *wx_menubar, int own);
-              WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar);
-              __CODE
-            map_out code: <<~__CODE         # for GetMenuBar
-              $result = wxRuby_WrapWxMenuBarInRuby($1, 0);
-              __CODE
-            map_check code: <<~__CODE       # for SetMenuBar
-              wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);                     
-              __CODE
-          end
+          spec.add_wrapper_code <<~__HEREDOC
+            extern VALUE wxRuby_GetFrameClass() {
+              return SwigClassWxFrame.klass;
+            }
+            __HEREDOC
+          spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
+            WXRUBY_EXPORT void GC_mark_wxFrame(void* ptr)
+            {
+              WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+                WXRUBY_TRACE("> GC_mark_wxFrame : " << ptr)
+              WXRUBY_TRACE_END
+  
+              if (GC_IsWindowDeleted(ptr)) return;          
+
+              GC_mark_wxWindow(ptr);            
+              
+              wxFrame* wx_frame = reinterpret_cast<wxFrame*> (ptr);
+
+              // Mark attached menu bars
+              wxMenuBar* wx_mb = wx_frame->GetMenuBar();
+              rb_gc_mark(SWIG_RubyInstanceFor(wx_mb));               
+            
+              WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+                WXRUBY_TRACE("< GC_mark_wxFrame : " << ptr)
+              WXRUBY_TRACE_END
+            }
+            __HEREDOC
         end
         # for SetStatusWidths
         spec.map 'int n, int * widths_field' do
@@ -75,6 +90,7 @@ module WXRuby3
         spec.items.each do |citem|
           def_item = defmod.find_item(citem)
           if Extractor::ClassDef === def_item && (citem == 'wxFrame' || spec.is_derived_from?(def_item, 'wxFrame'))
+            spec.add_swig_code "%markfunc #{spec.class_name(citem)} \"GC_mark_wxFrame\";"
             spec.no_proxy %W[
               #{spec.class_name(citem)}::CreateStatusBar
               #{spec.class_name(citem)}::CreateToolBar

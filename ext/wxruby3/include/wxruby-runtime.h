@@ -189,6 +189,7 @@ WXRUBY_EXPORT void wxRuby_ReleaseEvtHandlerProcs(void* evt_handler);
 WXRUBY_EXPORT bool wxRuby_IsNativeMethod(VALUE object, ID method_id);
 
 WXRUBY_EXPORT VALUE wxRuby_GetWindowClass();
+WXRUBY_EXPORT VALUE wxRuby_GetFrameClass();
 WXRUBY_EXPORT VALUE wxRuby_GetDialogClass();
 
 // Enum helpers
