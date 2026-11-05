@@ -66,8 +66,15 @@ module WXRuby3
             wxRubyMenu(const wxString &title, long style=0) : wxMenu(title, style) {}
             virtual ~wxRubyMenu()
             {
-              // make sure to unlink any tracked Ruby wrapper
-              SWIG_RubyUnlinkObjects(this);
+              VALUE rb_menu = SWIG_RubyInstanceFor(this);
+              if (!RB_NIL_P(rb_menu)) 
+              {
+                // delete from C++ code as the Ruby GC free func removes tracking before delete
+
+                // make sure to unlink and remove any tracked Ruby wrapper
+                SWIG_RubyUnlinkObjects(this);
+                SWIG_RubyRemoveTracking(this);
+              }
             }
           };
 
