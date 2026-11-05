@@ -56,8 +56,15 @@ module WXRuby3
             virtual ~wxRubyMenuBar()
             {
               wxRuby_ReleaseEvtHandlerProcs(this); 
-              // make sure to unlink any tracked Ruby wrapper
-              SWIG_RubyUnlinkObjects(this);
+              VALUE rb_menubar = SWIG_RubyInstanceFor(this);
+              if (!RB_NIL_P(rb_menubar)) 
+              {
+                // delete from C++ code as the Ruby GC free func removes tracking before delete
+
+                // make sure to unlink and remove any tracked Ruby wrapper
+                SWIG_RubyUnlinkObjects(this);
+                SWIG_RubyRemoveTracking(this);
+              }
             }
           };
 
@@ -76,13 +83,13 @@ module WXRuby3
             // of sizers and carets associated with that class
             GC_mark_wxWindow(ptr);            
 
-              // // always mark the menus managed by the menubar
-              // wxMenuBar* wx_menu_bar  = reinterpret_cast<wxMenuBar*> (ti.first);
-              // for (size_t ix=0; ix < wx_menu_bar->GetMenuCount(); ++ix)
-              // {
-              //   wxMenu* wx_menu = wx_menu_bar->GetMenu(ix);
-              //   rb_gc_mark(SWIG_RubyInstanceFor(wx_menu));
-              // }
+            // always mark the menus managed by the menubar
+            wxMenuBar* wx_menu_bar  = reinterpret_cast<wxMenuBar*> (ptr);
+            for (size_t ix=0; ix < wx_menu_bar->GetMenuCount(); ++ix)
+            {
+              wxMenu* wx_menu = wx_menu_bar->GetMenu(ix);
+              rb_gc_mark(SWIG_RubyInstanceFor(wx_menu));
+            }
           
             WXRUBY_TRACE_IF(WxRubyTraceMarkMenubar, 2)
               WXRUBY_TRACE("< GC_mark_wxMenuBar")
