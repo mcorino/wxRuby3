@@ -81,6 +81,8 @@ module WXRuby3
               WXRUBY_TRACE("> WXRuby_GC_mark_wxPropertyGridPage : " << wx_pgp)
             WXRUBY_TRACE_END
             
+            if (!wx_pgp) return;
+
           #ifdef __WXRB_DEBUG__
             long l = 0, n = 0;
           #endif

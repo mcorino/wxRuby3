@@ -47,6 +47,19 @@ module WXRuby3
                               'wxAuiMDIChildFrame::CreateToolBar')
         # for SetMenuBar
         spec.disown 'wxMenuBar *'
+        # Menu bars need to be wrapped / unwrapped correctly
+        spec.map 'wxMenuBar*' => 'Wx::MenuBar' do
+          add_header_code <<~__CODE
+              WXRUBY_EXPORT VALUE wxRuby_WrapWxMenuBarInRuby(wxMenuBar *wx_menubar, int own);
+              WXRUBY_EXPORT void wxRuby_RegisterWxMenuBar(wxMenuBar* wx_menubar, VALUE rb_menubar);
+              __CODE
+          map_out code: <<~__CODE         # for GetMenuBar
+              $result = wxRuby_WrapWxMenuBarInRuby($1, 0);
+              __CODE
+          map_check code: <<~__CODE       # for SetMenuBar
+              wxRuby_RegisterWxMenuBar($1, argv[$argnum-2]);                     
+              __CODE
+        end
         # for SetStatusWidths
         spec.map 'int n, int widths_field[]' do
           map_in from: {type: 'Array<Integer>', index: 1},

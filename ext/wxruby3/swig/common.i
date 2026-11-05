@@ -13,6 +13,12 @@
 %feature("compactdefaultargs");
 %feature("flatnested");
 
+#if SWIG_VERSION < 0x040500   // Ruby Untyped Data Wrapping
+# define WXRUBY_SWIG_UNTYPED_DATA
+#else
+# define WXRUBY_SWIG_TYPED_DATA
+#endif
+
 %exception {
   try {
     $action

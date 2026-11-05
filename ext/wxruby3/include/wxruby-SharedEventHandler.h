@@ -55,10 +55,10 @@ static void __WxRubySharedEvtHandler_free(void* data)
 
 static const rb_data_type_t __WxRubySharedEvtHandler_type = {
   "TreeItemId",
-#if RUBY_API_VERSION_MAJOR >= 3
-  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, 0, {}},
+#if RUBY_API_VERSION_MAJOR > 4 || (RUBY_API_VERSION_MAJOR == 4 && RUBY_API_VERSION_MINOR >= 1)
+  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, 0, 0, {}},
 #else
-  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, {}},
+  { NULL, __WxRubySharedEvtHandler_free, __WxRubySharedEvtHandler_size, 0, {}},
 #endif
   NULL, NULL, RUBY_TYPED_FROZEN_SHAREABLE
 };
@@ -132,9 +132,9 @@ static VALUE WxRubySharedEvtHandler_queue_event(int argc, VALUE* argv, VALUE sel
   if (wxeh)
   {
     // get C++ event
-    wxEvent* wxevt = (wxEvent*)DATA_PTR(argv[0]);
-    RDATA(argv[0])->dfree = 0; // disown
-    DATA_PTR(argv[0]) = nullptr; // unlink
+    wxEvent* wxevt = (wxEvent*)WXRUBY_WRAPPER_DATA_PTR(argv[0]);
+    WXRUBY_WRAPPER_DATA_DFREE_RESET(argv[0]); // disown
+    WXRUBY_WRAPPER_DATA_PTR_RESET(argv[0]); // unlink
     // no need to remove tracking as all Ractor safe events are untracked
     // queue event
     wxeh->QueueEvent(wxevt);
@@ -151,7 +151,7 @@ static VALUE wxRuby_EvtHandler_make_shared(VALUE self)
 {
   void *ptr;
   wxEvtHandler *wxeh = nullptr;
-  ptr = DATA_PTR(self);
+  ptr = WXRUBY_WRAPPER_DATA_PTR(self);
   wxeh = reinterpret_cast< wxEvtHandler * >(ptr);
   if (wxeh)
   {

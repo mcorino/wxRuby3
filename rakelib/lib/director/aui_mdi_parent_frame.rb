@@ -23,8 +23,6 @@ module WXRuby3
         spec.suppress_warning(473, 'wxAuiMDIParentFrame::OnCreateClient')
         # for SetWindowMenu
         spec.disown 'wxMenu *'
-        # for SetMenuBar
-        spec.disown 'wxMenuBar *'
       end
     end # class AuiParentMDIFrame
 

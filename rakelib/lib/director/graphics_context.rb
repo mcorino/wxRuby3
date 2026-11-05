@@ -244,7 +244,7 @@ module WXRuby3
                 VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
                 rc = rb_yield(rb_gc);
                 SWIG_RubyRemoveTracking((void *)p_gc);
-                DATA_PTR(rb_gc) = NULL;
+                WXRUBY_WRAPPER_DATA_PTR_RESET(rb_gc);
                 delete p_gc;
               }
               return rc;
@@ -261,7 +261,7 @@ module WXRuby3
               VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
               rc = rb_yield(rb_gc);
               SWIG_RubyRemoveTracking((void *)p_gc);
-              DATA_PTR(rb_gc) = NULL;
+              WXRUBY_WRAPPER_DATA_PTR_RESET(rb_gc);
               delete p_gc;
             }
             return rc;
@@ -275,7 +275,7 @@ module WXRuby3
               VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
               rc = rb_yield(rb_gc);
               SWIG_RubyRemoveTracking((void *)p_gc);
-              DATA_PTR(rb_gc) = NULL;
+              WXRUBY_WRAPPER_DATA_PTR_RESET(rb_gc);
               delete p_gc;
             }
             return rc;
@@ -289,7 +289,7 @@ module WXRuby3
               VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
               rc = rb_yield(rb_gc);
               SWIG_RubyRemoveTracking((void *)p_gc);
-              DATA_PTR(rb_gc) = NULL;
+              WXRUBY_WRAPPER_DATA_PTR_RESET(rb_gc);
               delete p_gc;
             }
             return rc;
@@ -303,7 +303,7 @@ module WXRuby3
               VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
               rc = rb_yield(rb_gc);
               SWIG_RubyRemoveTracking((void *)p_gc);
-              DATA_PTR(rb_gc) = NULL;
+              WXRUBY_WRAPPER_DATA_PTR_RESET(rb_gc);
               delete p_gc;
             }
             return rc;
@@ -317,7 +317,7 @@ module WXRuby3
               VALUE rb_gc = SWIG_NewPointerObj(SWIG_as_voidptr(p_gc), SWIGTYPE_p_wxGraphicsContext, 1);
               rc = rb_yield(rb_gc);
               SWIG_RubyRemoveTracking((void *)p_gc);
-              DATA_PTR(rb_gc) = NULL;
+              WXRUBY_WRAPPER_DATA_PTR_RESET(rb_gc);
               delete p_gc;
             }
             return rc;

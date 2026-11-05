@@ -280,7 +280,7 @@ module WXRuby3
                 }
                 else if (rbEvt != Qnil)
                 {
-                  const wxEvent* evt = (const wxEvent*)DATA_PTR(rbEvt);
+                  const wxEvent* evt = (const wxEvent*)WXRUBY_WRAPPER_DATA_PTR(rbEvt);
                   if (SYM2ID(rbOrg) == ga_key_id())
                     return wxGridActivationSource::From(*(const wxKeyEvent*)evt);
                   else if (SYM2ID(rbOrg) == ga_mouse_id())

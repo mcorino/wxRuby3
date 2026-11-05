@@ -346,8 +346,7 @@ module WXRuby3
           {
             if (wxRuby_IsInputStream(rbis))
             {
-              void *ptr;
-              Data_Get_Struct(rbis, void, ptr);
+              void *ptr = WXRUBY_WRAPPER_DATA_GET(rbis, void);
               return static_cast<wxInputStream*>(ptr);
             }
             return 0;
@@ -382,8 +381,7 @@ module WXRuby3
           {
             if (wxRuby_IsOutputStream(rbos))
             {
-              void *ptr;
-              Data_Get_Struct(rbos, void, ptr);
+              void *ptr = WXRUBY_WRAPPER_DATA_GET(rbos, void);
               return static_cast<wxOutputStream*>(ptr);
             }
             return 0;

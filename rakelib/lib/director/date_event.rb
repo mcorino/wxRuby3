@@ -46,8 +46,7 @@ module WXRuby3
 
             static VALUE wxRuby_WXDT2RBT(VALUE rbdt)
             {
-              wxDateTime* wxdt = 0;
-              Data_Get_Struct(rbdt, wxDateTime, wxdt);
+              wxDateTime* wxdt = WXRUBY_WRAPPER_DATA_GET(rbdt, wxDateTime);
               int year = wxdt->GetYear();
               VALUE y   = INT2NUM(year);
               VALUE mon = INT2NUM(wxdt->GetMonth() + 1);
@@ -67,7 +66,15 @@ module WXRuby3
                   // depending on the timezone, the local January the first 1970 may be out of range.
                   // for 2038 not the entire year is available in the numerical representation.
                   void* ptr = const_cast<wxDateTime*> (&dt);
-                  VALUE rbdt = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+                  VALUE rbdt;
+                  // wrap the wxDateTime* anonymously (we only want to temporarily pass it here to the conversion method) 
+            #ifdef WXRUBY_SWIG_UNTYPED_DATA
+                  rbdt = Data_Wrap_Struct(rb_cObject, 0, 0, ptr);
+            #else
+                  struct swig_ruby_wrapped_object *wrobj;
+                  rbdt = TypedData_Make_Struct(rb_cObject, struct swig_ruby_wrapped_object, &swig_type_data_type, wrobj);
+                  wrobj->data = ptr;
+            #endif
                   ruby_value = rb_rescue2(VALUEFUNC(wxRuby_WXDT2RBT), rbdt, VALUEFUNC(rescue), Qnil, rb_eException, 0);
                   if (ruby_value == Qnil)
                   {
