@@ -207,9 +207,9 @@ module WXRuby3
                       << "\\tfrom " << StringValuePtr(bt) << std::endl << std::endl;
           }
 
-          WXRUBY_EXPORT void wxRuby_RegisterDeferredWindowDestroy(void* win, void(*free)(void*))
+          WXRUBY_EXPORT void wxRuby_RegisterDeferredObjectDestroy(void* object, void(*free)(void*))
           {
-            wxRubyApp::wxRuby_RegisterDeferredWindowDestroy(reinterpret_cast<wxWindow*> (win), free);
+            wxRubyApp::wxRuby_RegisterDeferredObjectDestroy(object, free);
           }
           __HEREDOC
         super
