@@ -79,7 +79,6 @@ module WXRuby3
           }
         __HEREDOC
         spec.use_class_implementation 'wxPreviewFrame', 'WxRubyPreviewFrame'
-        spec.add_swig_code '%markfunc wxPreviewFrame "GC_mark_wxPreviewFrame";'
         spec.rename_for_ruby('init' => 'wxPreviewFrame::Initialize')
         # We do not wrap the (undocumented) wxPrintPreviewBase so map this to wxPrintPreview what
         # in all cases will be the actual base being used.
@@ -98,6 +97,14 @@ module WXRuby3
         spec.ignore %w[wxPreviewFrame::CreateCanvas wxPreviewFrame::CreateControlBar]
         spec.ignore 'wxPreviewFrame::OnCloseWindow' # not useful for public use
         spec.do_not_generate(:variables, :defines, :enums, :functions) # with PrintAbortDialog
+      end
+
+
+      def process(gendoc: false)
+        defmod = super
+        # make sure to overrule the mark func set by the Frame director's #process
+        spec.add_swig_code '%markfunc wxPreviewFrame "GC_mark_wxPreviewFrame";'
+        defmod
       end
     end # class PreviewFrame
 
