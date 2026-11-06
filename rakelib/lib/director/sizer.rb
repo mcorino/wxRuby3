@@ -96,6 +96,9 @@ module WXRuby3
               return rc;
             }
             __HEREDOC
+          if Config.instance.wx_version_check('3.3.3') >= 0
+            spec.new_object 'wxSizer::DetachItem(size_t)'
+          end
           # Typemap for GetChildren - convert to array of Sizer items
           spec.map 'wxSizerItemList&' => 'Array<Wx::SizerItem>' do
             map_out code: <<~__CODE
@@ -171,6 +174,10 @@ module WXRuby3
             #{spec.module_name}::Layout
           ])
         spec.no_proxy "#{spec.module_name}::AddSpacer"
+        if Config.instance.wx_version_check('3.3.3') >= 0
+          spec.suppress_warning(473, 'wxSizer::DetachItem')
+          spec.no_proxy 'wxSizer::DetachItem'
+        end
         super
       end
 

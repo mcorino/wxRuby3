@@ -402,7 +402,7 @@ module WXRuby3
               VALUE obj = ti.second;
 
               WXRUBY_TRACE_IF(WxRubyTraceGCMarkVariant, 2)
-                WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(obj) == T_DATA ? DATA_PTR(obj) : 0))
+                WXRUBY_TRACE_WITH(void *c_ptr = (WXRUBY_HAS_WRAPPED_DATA(obj) ? WXRUBY_WRAPPER_DATA_PTR(obj) : 0))
                 WXRUBY_TRACE("| GC_mark_RbValueVariants : " << ti.first << "|" << (void*)c_ptr)
               WXRUBY_TRACE_END
 
@@ -419,7 +419,7 @@ module WXRuby3
             static bool is_marker_registered = false;
 
             WXRUBY_TRACE_IF(WxRubyTraceGCTrackVariant, 2)
-              WXRUBY_TRACE_WITH(void *c_ptr = (TYPE(rbval) == T_DATA ? DATA_PTR(rbval) : 0))
+              WXRUBY_TRACE_WITH(void *c_ptr = (WXRUBY_HAS_WRAPPED_DATA(rbval) ? WXRUBY_WRAPPER_DATA_PTR(rbval) : 0))
               WXRUBY_TRACE("> wxRuby_RegisterValueVariantData : " << ptr << "|" << (void*)c_ptr)
             WXRUBY_TRACE_END
 

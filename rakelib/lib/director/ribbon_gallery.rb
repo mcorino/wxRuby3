@@ -19,8 +19,12 @@ module WXRuby3
       def setup
         super
         spec.ignore 'wxRibbonGallery::SetItemClientData',
-                    'wxRibbonGallery::GetItemClientData',
-                    'wxRibbonGallery::Append(const wxBitmap &, int, void *)'
+                    'wxRibbonGallery::GetItemClientData'
+        if Config.instance.wx_version_check('3.3.4') <= 0
+          spec.ignore 'wxRibbonGallery::Append(const wxBitmap &, int, void *)'
+        else
+          spec.ignore 'wxRibbonGallery::Append(const wxBitmapBundle &, int, void *)'
+        end
         spec.map 'wxRibbonGalleryItem*' => 'Integer' do
           map_out code: '$result = ULL2NUM(reinterpret_cast<uintptr_t> ($1));'
           map_directorout code: '$result = reinterpret_cast<wxRibbonGalleryItem*> ((uintptr_t)NUM2ULL($1));'

@@ -88,7 +88,7 @@ module WXRuby3
               v_ret = rb_funcall(self, create_bitmap_id(), 3, v_id, v_client, v_size);
           
               if (v_ret != Qnil) 
-                return *((wxBitmap *)DATA_PTR(v_ret));
+                return *((wxBitmap *)WXRUBY_WRAPPER_DATA_PTR(v_ret));
               else
                 return wxNullBitmap;
             }
@@ -106,7 +106,7 @@ module WXRuby3
               v_ret = rb_funcall(self, create_bitmap_bundle_id(), 3, v_id, v_client, v_size);
           
               if (v_ret != Qnil) 
-                return *((wxBitmapBundle *)DATA_PTR(v_ret));
+                return *((wxBitmapBundle *)WXRUBY_WRAPPER_DATA_PTR(v_ret));
               else
                 return wxBitmapBundle();
             }
@@ -124,7 +124,7 @@ module WXRuby3
               v_ret = rb_funcall(self, create_icon_bundle_id(), 2, v_id, v_client);
           
               if (v_ret != Qnil) 
-                return *((wxIconBundle *)DATA_PTR(v_ret));
+                return *((wxIconBundle *)WXRUBY_WRAPPER_DATA_PTR(v_ret));
               else
                 return wxIconBundle();
             }

@@ -147,7 +147,7 @@ module WXRuby3
             // To a specific window's status bar
             if( TYPE(argv[0]) == T_DATA ) {
               log_msg = rb_f_sprintf(argc-1, &argv[1]);
-              Data_Get_Struct(argv[0], wxFrame, log_frame);
+              log_frame = WXRUBY_WRAPPER_DATA_GET(argv[0], wxFrame);
             }
             // To the application main window's status bar
             else {
@@ -190,7 +190,7 @@ module WXRuby3
           {
             static WxRuby_ID sprintf_id("sprintf");
 
-            size_t ptr = (size_t)DATA_PTR(obj);
+            size_t ptr = (size_t)WXRUBY_WRAPPER_DATA_PTR(obj);
             return rb_funcall( rb_mKernel, sprintf_id(), 2,
                                rb_str_new2("0x%x"), OFFT2NUM(ptr) );
           }

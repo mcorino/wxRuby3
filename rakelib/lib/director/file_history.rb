@@ -31,7 +31,9 @@ module WXRuby3
                     node; node = node->GetNext())
             {
               wxMenu *menu = (wxMenu *) node->GetData();
-              rb_ary_push(ary, wxRuby_WrapWxMenuInRuby(menu));
+              VALUE rb_menu = SWIG_NewPointerObj(SWIG_as_voidptr(menu), 
+                                                 SWIGTYPE_p_wxMenu, 0);
+              rb_ary_push(ary, rb_menu);
             }
             return ary;
           }

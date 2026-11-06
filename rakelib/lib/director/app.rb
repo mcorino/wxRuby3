@@ -206,6 +206,11 @@ module WXRuby3
                       << ' ' << StringValuePtr(msg) << '(' << StringValuePtr(err_name) << ')' << std::endl
                       << "\\tfrom " << StringValuePtr(bt) << std::endl << std::endl;
           }
+
+          WXRUBY_EXPORT void wxRuby_RegisterDeferredObjectDestroy(void* object, void(*free)(void*))
+          {
+            wxRubyApp::wxRuby_RegisterDeferredObjectDestroy(object, free);
+          }
           __HEREDOC
         super
       end

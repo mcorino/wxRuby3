@@ -33,6 +33,34 @@ module WXRuby3
                                 'wxFrame::GetMenuBar',
                                 'wxFrame::GetStatusBar',
                                 'wxFrame::GetToolBar')
+          spec.add_wrapper_code <<~__HEREDOC
+            extern VALUE wxRuby_GetFrameClass() {
+              return SwigClassWxFrame.klass;
+            }
+            __HEREDOC
+          spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceMarkFrame, "GC_MARK_FRAME")
+            WXRUBY_EXPORT void GC_mark_wxFrame(void* ptr)
+            {
+              WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+                WXRUBY_TRACE("> GC_mark_wxFrame : " << ptr)
+              WXRUBY_TRACE_END
+  
+              if (GC_IsWindowDeleted(ptr)) return;          
+
+              GC_mark_wxWindow(ptr);            
+              
+              wxFrame* wx_frame = reinterpret_cast<wxFrame*> (ptr);
+
+              // Mark attached menu bars
+              wxMenuBar* wx_mb = wx_frame->GetMenuBar();
+              rb_gc_mark(SWIG_RubyInstanceFor(wx_mb));               
+            
+              WXRUBY_TRACE_IF(WxRubyTraceMarkFrame, 2)
+                WXRUBY_TRACE("< GC_mark_wxFrame : " << ptr)
+              WXRUBY_TRACE_END
+            }
+            __HEREDOC
         end
         # for SetStatusWidths
         spec.map 'int n, int * widths_field' do
@@ -62,6 +90,7 @@ module WXRuby3
         spec.items.each do |citem|
           def_item = defmod.find_item(citem)
           if Extractor::ClassDef === def_item && (citem == 'wxFrame' || spec.is_derived_from?(def_item, 'wxFrame'))
+            spec.add_swig_code "%markfunc #{spec.class_name(citem)} \"GC_mark_wxFrame\";"
             spec.no_proxy %W[
               #{spec.class_name(citem)}::CreateStatusBar
               #{spec.class_name(citem)}::CreateToolBar

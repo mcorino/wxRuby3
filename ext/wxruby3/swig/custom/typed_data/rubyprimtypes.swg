@@ -1,32 +1,28 @@
 /* -----------------------------------------------------------------------------
  * rubyprimtypes.swg
- * ----------------------------------------------------------------------------- */
+  *
+  * Customized for wxRuby3.
+  * The changes involve making sure to treat wxRuby3 Enum values as FIXNUM
+  * and not as BIGNUM.
+  *
+  * Copyright (c) 2023 M.J.N. Corino, The Netherlands
+  *
+  * This software is released under the MIT license.
+* ----------------------------------------------------------------------------- */
 /* ------------------------------------------------------------
  * Primitive Types
  * ------------------------------------------------------------ */
 
 /* auxiliary ruby fail method */
 
-// SWIG < 4.4.0
-#if SWIG_VERSION < 0x040400
-%fragment("SWIG_ruby_failed","header")
-{
-SWIGINTERN VALUE
-SWIG_ruby_failed(void)
-{
-  return Qnil;
-} 
-}
-#else
 %fragment("SWIG_ruby_failed","header")
 {
 SWIGINTERN VALUE
 SWIG_ruby_failed(VALUE SWIGUNUSEDPARM(arg1), VALUE SWIGUNUSEDPARM(arg2))
 {
   return Qnil;
+} 
 }
-}
-#endif
 
 /* boolean */
 
@@ -68,8 +64,9 @@ SWIG_AsVal_dec(bool)(VALUE obj, bool *val)
 }
 
 %fragment(SWIG_AsVal_frag(long),"header",fragment="SWIG_ruby_failed") {
-SWIGINTERN VALUE SWIG_AUX_NUM2LONG(VALUE* args)
+SWIGINTERN VALUE SWIG_AUX_NUM2LONG(VALUE arg)
 {
+  VALUE *args = (VALUE *)arg;
   VALUE obj = args[0];
   VALUE type = TYPE(obj);
   long *res = (long *)(args[1]);
@@ -86,7 +83,7 @@ SWIG_AsVal_dec(long)(VALUE obj, long* val)
     VALUE a[2];
     a[0] = obj;
     a[1] = (VALUE)(&v);
-    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2LONG), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
+    if (rb_rescue(VALUEFUNC(SWIG_AUX_NUM2LONG), (VALUE)a, VALUEFUNC(SWIG_ruby_failed), 0) != Qnil) {
       if (val) *val = v;
       return SWIG_OK;
     }
@@ -107,8 +104,9 @@ SWIG_From_dec(unsigned long)(unsigned long value)
 }
 
 %fragment(SWIG_AsVal_frag(unsigned long),"header",fragment="SWIG_ruby_failed") {
-SWIGINTERN VALUE SWIG_AUX_NUM2ULONG(VALUE* args)
+SWIGINTERN VALUE SWIG_AUX_NUM2ULONG(VALUE arg)
 {
+  VALUE *args = (VALUE *)arg;
   VALUE obj = args[0];
   VALUE type = TYPE(obj);
   unsigned long *res = (unsigned long *)(args[1]);
@@ -125,11 +123,9 @@ SWIG_AsVal_dec(unsigned long)(VALUE obj, unsigned long *val)
     VALUE a[2];
     a[0] = obj;
     a[1] = (VALUE)(&v);
-    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2ULONG), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
-#if SWIG_VERSION >= 0x040400
+    if (rb_rescue(VALUEFUNC(SWIG_AUX_NUM2ULONG), (VALUE)a, VALUEFUNC(SWIG_ruby_failed), 0) != Qnil) {
       if (rb_funcall(obj, swig_lowerthan_id, 1, INT2FIX(0)) != Qfalse)
         return SWIG_OverflowError;
-#endif
       if (val) *val = v;
       return SWIG_OK;
     }
@@ -156,8 +152,9 @@ SWIG_From_dec(long long)(long long value)
 	  fragment="SWIG_ruby_failed",
 	  fragment="SWIG_LongLongAvailable") {
 %#ifdef SWIG_LONG_LONG_AVAILABLE
-SWIGINTERN VALUE SWIG_AUX_NUM2LL(VALUE* args)
+SWIGINTERN VALUE SWIG_AUX_NUM2LL(VALUE arg)
 {
+  VALUE *args = (VALUE *)arg;
   VALUE obj = args[0];
   VALUE type = TYPE(obj);
   long long *res = (long long *)(args[1]);
@@ -174,7 +171,7 @@ SWIG_AsVal_dec(long long)(VALUE obj, long long *val)
     VALUE a[2];
     a[0] = obj;
     a[1] = (VALUE)(&v);
-    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2LL), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
+    if (rb_rescue(VALUEFUNC(SWIG_AUX_NUM2LL), (VALUE)a, VALUEFUNC(SWIG_ruby_failed), 0) != Qnil) {
       if (val) *val = v;
       return SWIG_OK;
     }
@@ -201,8 +198,9 @@ SWIG_From_dec(unsigned long long)(unsigned long long value)
 	  fragment="SWIG_ruby_failed",
 	  fragment="SWIG_LongLongAvailable") {
 %#ifdef SWIG_LONG_LONG_AVAILABLE
-SWIGINTERN VALUE SWIG_AUX_NUM2ULL(VALUE* args)
+SWIGINTERN VALUE SWIG_AUX_NUM2ULL(VALUE arg)
 {
+  VALUE *args = (VALUE *)arg;
   VALUE obj = args[0];
   VALUE type = TYPE(obj);
   long long *res = (long long *)(args[1]);
@@ -219,11 +217,9 @@ SWIG_AsVal_dec(unsigned long long)(VALUE obj, unsigned long long *val)
     VALUE a[2];
     a[0] = obj;
     a[1] = (VALUE)(&v);
-    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2ULL), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
-#if SWIG_VERSION >= 0x040400
+    if (rb_rescue(VALUEFUNC(SWIG_AUX_NUM2ULL), (VALUE)a, VALUEFUNC(SWIG_ruby_failed), 0) != Qnil) {
       if (rb_funcall(obj, swig_lowerthan_id, 1, INT2FIX(0)) != Qfalse)
         return SWIG_OverflowError;
-#endif
       if (val) *val = v;
       return SWIG_OK;
     }
@@ -240,9 +236,9 @@ SWIG_AsVal_dec(unsigned long long)(VALUE obj, unsigned long long *val)
 }
 
 %fragment(SWIG_AsVal_frag(double),"header",fragment="SWIG_ruby_failed") {
-SWIGINTERN VALUE SWIG_AUX_NUM2DBL(VALUE* args)
+SWIGINTERN VALUE SWIG_AUX_NUM2DBL(VALUE arg)
 {
-  //VALUE *args = (VALUE *)arg;
+  VALUE *args = (VALUE *)arg;
   VALUE obj = args[0];
   VALUE type = TYPE(obj);
   double *res = (double *)(args[1]);
@@ -259,7 +255,7 @@ SWIG_AsVal_dec(double)(VALUE obj, double *val)
     VALUE a[2];
     a[0] = obj;
     a[1] = (VALUE)(&v);
-    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2DBL), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
+    if (rb_rescue(VALUEFUNC(SWIG_AUX_NUM2DBL), (VALUE)a, VALUEFUNC(SWIG_ruby_failed), 0) != Qnil) {
       if (val) *val = v;
       return SWIG_OK;
     }

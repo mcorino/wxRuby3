@@ -129,10 +129,12 @@ module WXRuby3
         # not needed because of type mapping
         spec.ignore 'wxRibbonToolBar::GetToolId',
                     'wxRibbonToolBar::FindById'
-        # replace incorrectly documented method
-        spec.ignore 'wxRibbonToolBar::AddToggleTool', ignore_doc: false
-        spec.extend_interface 'wxRibbonToolBar',
-                              'virtual wxRibbonToolBarToolBase*	AddToggleTool (int tool_id, const wxBitmap &bitmap, const wxString &help_string=wxEmptyString)'
+        if Config.instance.wx_version_check('3.3.4') <= 0
+          # replace incorrectly documented method
+          spec.ignore 'wxRibbonToolBar::AddToggleTool', ignore_doc: false
+          spec.extend_interface 'wxRibbonToolBar',
+                                'virtual wxRibbonToolBarToolBase*	AddToggleTool (int tool_id, const wxBitmap &bitmap, const wxString &help_string=wxEmptyString)'
+        end
         # map opaque wxRibbonToolBarToolBase* to the integer tool ID
         spec.map 'wxRibbonToolBarToolBase*' => 'Integer' do
           map_out code: '$result = ($1) ? INT2NUM((arg1)->GetToolId($1)) : Qnil;'

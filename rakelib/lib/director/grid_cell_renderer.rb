@@ -113,7 +113,7 @@ module WXRuby3
 
             extern void GC_free_GridCellRenderer(void *ptr)
             {
-              wxGridCellRenderer* gc_rdr = (wxGridCellRenderer*)ptr; 
+              wxGridCellRenderer* gc_rdr = (wxGridCellRenderer*)ptr;
               if (ptr)
                 gc_rdr->DecRef();
             }

@@ -37,6 +37,13 @@ module WXRuby3
                               'virtual bool Show(bool show = true) override')
         spec.extend_interface('wxPopupTransientWindow',
                               'virtual bool Destroy() override')
+        # OSX defines this override on the wxNonOwnedWindow class but since we declared that 'no_proxy'
+        # we have to the override on it's descendants wxPopupWindow and wxTopLevelWindow (the last one
+        # having the override itself also on all platforms)
+        if Config.instance.features_set?('WXOSX')
+          spec.extend_interface('wxNonOwnedWindow',
+                                'virtual bool Destroy() override')
+        end
         # For ProcessLeftDown
         spec.map 'wxMouseEvent &' => 'Wx::MouseEvent' do
           map_directorin code: <<~__CODE

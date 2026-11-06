@@ -84,13 +84,22 @@ module WXRuby3
               swig_type_info*  type = wxRuby_GetSwigTypeForClass(rb_event_class);
               swig_class* class_info = (swig_class*)type->clientdata;
               // Create a new (owned) Ruby event object 
-              VALUE rb_evt = Data_Wrap_Struct(class_info->klass, VOIDFUNC(class_info->mark), 
-                                                                 VOIDFUNC(class_info->destroy), 
-                                                                 wx_evt);
-              // track new event object
-              SWIG_RubyAddTracking(wx_evt, rb_evt);
+              VALUE rb_evt;
+            #ifdef WXRUBY_SWIG_UNTYPED_DATA
+              rb_evt = Data_Wrap_Struct(class_info->klass, VOIDFUNC(class_info->mark), 
+                                                           VOIDFUNC(class_info->destroy), 
+                                                           wx_evt);
+            #else
+              struct swig_ruby_wrapped_object *wrobj;
+              rb_evt = TypedData_Make_Struct(class_info->klass, struct swig_ruby_wrapped_object, &class_info->cext_type, wrobj);
+              wrobj->data = wx_evt;
+              wrobj->dmark = class_info->mark;
+              wrobj->dfree = class_info->destroy;
+            #endif
               // do not forget to mark the instance with the mangled swig type name
               rb_iv_set(rb_evt, "@__swigtype__", rb_str_new2(type->name));
+              // track new event object
+              SWIG_RubyAddTracking(wx_evt, rb_evt);
             
               WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
                 WXRUBY_TRACE("< wxRuby_WrapClonedWxEvent - wrapped cloned event " << wx_evt << "{" << type->name << "}")
@@ -129,7 +138,7 @@ module WXRuby3
                 VALUE r_obj = SWIG_RubyInstanceFor((void *)this);
                 VALUE r_obj_dup = rb_obj_clone(r_obj);
             
-                DATA_PTR(r_obj_dup) = wx_ev;
+                WXRUBY_WRAPPER_DATA_PTR_SET(r_obj_dup, wx_ev);
                 wxRuby_AddTracking( (void*)wx_ev, r_obj_dup );
                 return wx_ev;
               }
@@ -203,7 +212,7 @@ module WXRuby3
                 VALUE r_obj = SWIG_RubyInstanceFor((void *)this);
                 VALUE r_obj_dup = rb_obj_clone(r_obj);
             
-                DATA_PTR(r_obj_dup) = wx_ev;
+                WXRUBY_WRAPPER_DATA_PTR_SET(r_obj_dup, wx_ev);
                 wxRuby_AddTracking( (void*)wx_ev, r_obj_dup );
                 return wx_ev;
               }

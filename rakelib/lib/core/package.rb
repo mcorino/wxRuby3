@@ -372,9 +372,9 @@ module WXRuby3
           fsrc.puts "WXRB_IMPORT_FLAG VALUE wxRuby_Core();" unless is_core?
           fsrc.puts
           if is_core?
-            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrun.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', SwigRunner.swig_ruby_type, 'swigrun.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrubyerrors.inc'))
-            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigrubyrun.inc'))
+            fsrc << File.read(File.join(File.dirname(__FILE__), 'include', SwigRunner.swig_ruby_type, 'swigrubyrun.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'swigdirector.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'funcall.inc'))
             fsrc << File.read(File.join(File.dirname(__FILE__), 'include', 'enum.inc'))

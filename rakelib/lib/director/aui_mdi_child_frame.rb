@@ -16,6 +16,7 @@ module WXRuby3
 
       def setup
         super
+        spec.add_swig_code '%markfunc wxAuiMDIChildFrame "GC_mark_wxAuiMDIChildFrame";'
         spec.no_proxy 'wxAuiMDIChildFrame::Layout'
         # incorrectly documented non-existent virtual method
         # (does exist as non-virtual method in TopLevelWindow with return by value)
@@ -68,6 +69,29 @@ module WXRuby3
             }
             __CODE
         end
+        spec.add_header_code <<~__HEREDOC
+            WXRUBY_TRACE_GUARD(WxRubyTraceMarkAuiMDIChildFrame, "GC_MARK_AUI_MDI_CHILD_FRAME")
+            static void GC_mark_wxAuiMDIChildFrame(void* ptr)
+            {
+              WXRUBY_TRACE_IF(WxRubyTraceMarkAuiMDIChildFrame, 2)
+                WXRUBY_TRACE("> GC_mark_wxAuiMDIChildFrame : " << ptr)
+              WXRUBY_TRACE_END
+  
+              if (GC_IsWindowDeleted(ptr)) return;          
+
+              GC_mark_wxWindow(ptr);            
+              
+              wxAuiMDIChildFrame* wx_frame = reinterpret_cast<wxAuiMDIChildFrame*> (ptr);
+
+              // Mark attached menu bars
+              wxMenuBar* wx_mb = wx_frame->GetMenuBar();
+              rb_gc_mark(SWIG_RubyInstanceFor(wx_mb));               
+            
+              WXRUBY_TRACE_IF(WxRubyTraceMarkAuiMDIChildFrame, 2)
+                WXRUBY_TRACE("< GC_mark_wxAuiMDIChildFrame : " << ptr)
+              WXRUBY_TRACE_END
+            }
+            __HEREDOC
       end
     end # class AuiMDIChildFrame
 

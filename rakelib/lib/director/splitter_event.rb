@@ -16,8 +16,8 @@ module WXRuby3
 
       def setup
         super
-        # because of error in XML docs
-        spec.ignore('wxSplitterEvent::GetOldSize', ignore_doc: false)
+        # because of error in XML docs in older wxWidgets
+        spec.ignore('wxSplitterEvent::GetOldSize', 'wxSplitterEvent::GetNewSize' , ignore_doc: false)
         # add these by hand here
         spec.extend_interface('wxSplitterEvent',
                               'int GetOldSize() const',

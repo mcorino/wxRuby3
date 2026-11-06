@@ -56,7 +56,7 @@ module WXRuby3
               this->wxTextValidator::SetWindow(win);
               VALUE self = this->get_self();
               // make sure Ruby does not own this validator instance anymore
-              RDATA(self)->dfree = SWIG_RubyRemoveTracking;
+              WXRUBY_WRAPPER_DATA_DFREE_SET(self, SWIG_RubyRemoveTracking);
             } 
 
             virtual bool TransferFromWindow () override 

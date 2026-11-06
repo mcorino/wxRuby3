@@ -244,8 +244,7 @@ static VALUE wx_combo_popup_get_combo_ctrl(int argc, VALUE *argv, VALUE self)
   VALUE rb_cp_proxy = rb_iv_get(self, "@_wx_combo_popup_proxy");
   if (!NIL_P(rb_cp_proxy))
   {
-    wxComboPopup* cpp = nullptr;
-    Data_Get_Struct(rb_cp_proxy, wxComboPopup, cpp);
+    wxComboPopup* cpp = WXRUBY_WRAPPER_DATA_GET(rb_cp_proxy, wxComboPopup);
     if (cpp)
     {
       try {
@@ -277,8 +276,7 @@ static VALUE wx_combo_popup_get_combo_ctrl(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_get_combo_ctrl(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -309,8 +307,7 @@ static VALUE combo_popup_wx_get_combo_ctrl(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_lazy_create(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -340,8 +337,7 @@ static VALUE combo_popup_wx_lazy_create(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_create(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 1 || argc > 1)
   {
@@ -384,8 +380,7 @@ static VALUE combo_popup_wx_create(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_find_item(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 1 || argc > 2)
   {
@@ -419,8 +414,7 @@ static VALUE combo_popup_wx_find_item(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_get_adjusted_size(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 3 || argc > 3)
   {
@@ -451,8 +445,7 @@ static VALUE combo_popup_wx_get_adjusted_size(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_get_control(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -483,8 +476,7 @@ static VALUE combo_popup_wx_get_control(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_set_string_value(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 1 || argc > 1)
   {
@@ -516,8 +508,7 @@ static VALUE combo_popup_wx_set_string_value(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_get_string_value(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -548,8 +539,7 @@ static VALUE combo_popup_wx_get_string_value(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_on_combo_double_click(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -590,8 +580,7 @@ static VALUE get_key_event_class()
 
 static VALUE combo_popup_wx_on_combo_key_event(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 1 || argc > 1)
   {
@@ -603,7 +592,7 @@ static VALUE combo_popup_wx_on_combo_key_event(int argc, VALUE *argv, VALUE self
     rb_raise(rb_eTypeError, "Expected Wx::KeyEvent for 1");
   }
 
-  wxEvent* evt = reinterpret_cast<wxEvent*> (DATA_PTR(argv[0]));
+  wxEvent* evt = reinterpret_cast<wxEvent*> (WXRUBY_WRAPPER_DATA_PTR(argv[0]));
   if (evt == nullptr)
   {
     rb_raise(rb_eTypeError, "Invalid null reference for Wx::KeyEvent");
@@ -633,8 +622,7 @@ static VALUE combo_popup_wx_on_combo_key_event(int argc, VALUE *argv, VALUE self
 
 static VALUE combo_popup_wx_on_combo_char_event(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 1 || argc > 1)
   {
@@ -646,7 +634,7 @@ static VALUE combo_popup_wx_on_combo_char_event(int argc, VALUE *argv, VALUE sel
     rb_raise(rb_eTypeError, "Expected Wx::KeyEvent for 1");
   }
 
-  wxEvent* evt = reinterpret_cast<wxEvent*> (DATA_PTR(argv[0]));
+  wxEvent* evt = reinterpret_cast<wxEvent*> (WXRUBY_WRAPPER_DATA_PTR(argv[0]));
   if (evt == nullptr)
   {
     rb_raise(rb_eTypeError, "Invalid null reference for Wx::KeyEvent");
@@ -676,8 +664,7 @@ static VALUE combo_popup_wx_on_combo_char_event(int argc, VALUE *argv, VALUE sel
 
 static VALUE combo_popup_wx_on_dismiss(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -708,8 +695,7 @@ static VALUE combo_popup_wx_on_dismiss(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_on_popup(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 0 || argc > 0)
   {
@@ -740,8 +726,7 @@ static VALUE combo_popup_wx_on_popup(int argc, VALUE *argv, VALUE self)
 
 static VALUE combo_popup_wx_paint_combo_control(int argc, VALUE *argv, VALUE self)
 {
-  wxComboPopup *cpp;
-  Data_Get_Struct(self, wxComboPopup, cpp);
+  wxComboPopup *cpp = WXRUBY_WRAPPER_DATA_GET(self, wxComboPopup);
 
   if (argc < 2 || argc > 2)
   {

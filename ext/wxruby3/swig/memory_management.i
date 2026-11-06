@@ -15,6 +15,7 @@ WXRUBY_EXPORT void GcRefCountedFreeFunc(void *);
 WXRUBY_EXPORT void GC_mark_wxSizer(void *);
 WXRUBY_EXPORT void GC_mark_wxWindow(void *);
 WXRUBY_EXPORT void GC_mark_wxEvent(void *);
+WXRUBY_EXPORT void GC_mark_wxFrame(void *);
 %}
 
 // Macro definitions.

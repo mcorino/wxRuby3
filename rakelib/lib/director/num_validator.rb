@@ -78,7 +78,7 @@ module WXRuby3
               this->wxIntegerValidator::SetWindow(win);
               VALUE self = get_self();
               // make sure Ruby does not own this validator instance anymore
-              RDATA(self)->dfree = SWIG_RubyRemoveTracking;
+              WXRUBY_WRAPPER_DATA_DFREE_SET(self, SWIG_RubyRemoveTracking);
             } 
 
             virtual bool TransferFromWindow () override 
@@ -196,7 +196,7 @@ module WXRuby3
               this->wxIntegerValidator::SetWindow(win);
               VALUE self = get_self();
               // make sure Ruby does not own this validator instance anymore
-              RDATA(self)->dfree = SWIG_RubyRemoveTracking;
+              WXRUBY_WRAPPER_DATA_DFREE_SET(self, SWIG_RubyRemoveTracking);
             } 
 
             virtual bool TransferFromWindow () override 
@@ -312,7 +312,7 @@ module WXRuby3
               this->wxFloatingPointValidator::SetWindow(win);
               VALUE self = get_self();
               // make sure Ruby does not own this validator instance anymore
-              RDATA(self)->dfree = SWIG_RubyRemoveTracking;
+              WXRUBY_WRAPPER_DATA_DFREE_SET(self, SWIG_RubyRemoveTracking);
             } 
 
             virtual bool TransferFromWindow () override 

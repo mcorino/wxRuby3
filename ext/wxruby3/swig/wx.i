@@ -281,9 +281,8 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
 
   // No existing Ruby instance found, so a transitory event object; wrap
   // without mark or free functions as Wx will deal with deletion
-  rb_event = Data_Wrap_Struct(rb_event_class, 0, 0, 0);
-  DATA_PTR(rb_event) = wx_event;
-  // do not forget to mark the instance with the mangled swig type name
+
+  // get swig type info for event class
   // (as there is no swig_type for the Wx::AsyncProcCallEvent class use it's base Wx::Event)
   swig_type_info*  type;
   if (wx_event->GetEventType() == wxEVT_ASYNC_METHOD_CALL)
@@ -301,13 +300,27 @@ WXRUBY_EXPORT VALUE wxRuby_WrapWxEventInRuby(wxEvent *wx_event)
       {
         type = wxRuby_GetSwigTypeForClass(klass);
       }
+      // paranoia
+      if (!type)
+      {
+        type = wxRuby_GetSwigTypeForClass(wxRuby_GetDefaultEventClass());
+      }
     }
   }
-  // type should never be null but let's be paranoid
-  if (type) rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
+
+#ifdef WXRUBY_SWIG_UNTYPED_DATA
+  rb_event = Data_Wrap_Struct(rb_event_class, 0, 0, wx_event);
+#else
+  struct swig_ruby_wrapped_object *wrobj;
+  swig_class *sklass = (swig_class *)type->clientdata;
+  rb_event = TypedData_Make_Struct(rb_event_class, struct swig_ruby_wrapped_object, &sklass->cext_type, wrobj);
+  wrobj->data = wx_event;
+#endif
+  // do not forget to mark the instance with the mangled swig type name
+  rb_iv_set(rb_event, "@__swigtype__", rb_str_new2(type->name));
 
   WXRUBY_TRACE_IF(WxRubyTraceGCWrapEvents, 2)
-    WXRUBY_TRACE("< wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << (type ? type->name : rb_class2name(rb_event_class)) << "}")
+    WXRUBY_TRACE("< wxRuby_WrapWxEventInRuby - wrapped transitory event " << wx_event << "{" << type->name << "}")
   WXRUBY_TRACE_END
 
   return rb_event;
