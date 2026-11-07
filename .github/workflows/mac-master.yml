@@ -158,9 +158,11 @@ jobs:
         ruby -v
         echo
         
-        echo "SWIG version:"
-        swig -version
-        echo
+        if [ "${{ matrix.wxr_type }}" == "develop" ]; then
+          echo "SWIG version:"
+          swig -version
+          echo
+        fi
         
         if [ "${{ matrix.wxw_type }}" != "embed" ]; then
           echo "Doxygen version:"
