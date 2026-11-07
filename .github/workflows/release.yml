@@ -223,14 +223,15 @@ jobs:
             os: macos-15-intel
             arch: x86_64
             ruby: 'ruby'
-          - name: macOS14
-            os: macos-14
-            arch: arm64
-            ruby: 'ruby'
 
     steps:
       - name: Checkout wxRuby3
         uses: actions/checkout@v6
+
+      - name: Install MacPorts
+        if: matrix.arch == 'x86_64
+        uses: melusina-org/setup-macports@v1
+        id: 'macports'
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -786,11 +787,6 @@ jobs:
             build: false
           - name: macOS15
             os: macos-15
-            arch: arm64
-            ruby: 'ruby'
-            build: false
-          - name: macOS14
-            os: macos-14
             arch: arm64
             ruby: 'ruby'
             build: false
