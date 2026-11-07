@@ -194,13 +194,19 @@ jobs:
         ./build/tools/before_install.sh
 
     - name: Install MacPorts
+      if: matrix.arch == 'x86_64
       uses: melusina-org/setup-macports@v1
       id: 'macports'
 
     - name: Install SWIG
+      if: matrix.wxr_type == 'develop'
       run: |
-        sudo port install swig
-        sudo port install swig-ruby
+        if [ "${{ matrix.arch }}" == "x86_64" ]; then
+          sudo port install swig
+          sudo port install swig-ruby
+        else
+          brew install swig
+        fi
 
     - name: Install doxygen
       uses: ssciwr/doxygen-install@v2
