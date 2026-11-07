@@ -194,7 +194,7 @@ jobs:
         ./build/tools/before_install.sh
 
     - name: Install MacPorts
-      if: matrix.arch == 'x86_64
+      if: matrix.arch == 'x86_64'
       uses: melusina-org/setup-macports@v1
       id: 'macports'
 
