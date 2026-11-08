@@ -12,7 +12,7 @@ module WXRuby3
 
   class Director
 
-    class PageSetupDialog < Director::Dialog
+    class PageSetupDialog < Director
 
       def setup
         super

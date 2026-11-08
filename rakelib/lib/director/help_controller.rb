@@ -18,6 +18,23 @@ module WXRuby3
         super
         spec.items << 'wxHelpControllerBase' << 'helpfrm.h'
         spec.fold_bases(spec.module_name => 'wxHelpControllerBase')
+        # make all HelpController classes GC-safe
+        spec.add_header_code <<~__HEREDOC
+          static void wxRuby_delete_#{spec.module_name}(void *self) 
+          {
+              #{spec.module_name} *arg1 = (#{spec.module_name} *)self;
+              SWIG_RubyRemoveTracking(arg1);
+              delete arg1;
+          }
+
+          static void GC_free_#{spec.module_name}(void* object)
+          {
+            wxRuby_RegisterDeferredObjectDestroy(object, wxRuby_delete_#{spec.module_name});
+          }
+          __HEREDOC
+        # a HelpController is not window but it does manage windows which it will delete on destruction,,
+        # so it  needs a deferred destroy.
+        spec.add_swig_code "%feature(\"freefunc\") #{spec.module_name} \"GC_free_#{spec.module_name}\";"
         spec.rename_for_ruby('Init' => "#{spec.module_name}::Initialize")
         # ignore these (pure virtual) decls
         spec.ignore %w[
