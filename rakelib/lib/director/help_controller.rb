@@ -79,23 +79,6 @@ module WXRuby3
           __HEREDOC
         spec.suppress_warning(473, "#{spec.module_name}::GetParentWindow")
         if spec.module_name == 'wxHtmlHelpController'
-          # make wxHtmlHelpController GC-safe
-          spec.add_header_code <<~__HEREDOC
-          static void wxRuby_delete_wxHtmlHelpController(void *self) 
-          {
-              wxHtmlHelpController *arg1 = (wxHtmlHelpController *)self;
-              SWIG_RubyRemoveTracking(arg1);
-              delete arg1;
-          }
-
-          static void GC_free_wxHtmlHelpController(void* object)
-          {
-            wxRuby_RegisterDeferredObjectDestroy(object, wxRuby_delete_wxHtmlHelpController);
-          }
-          __HEREDOC
-          # wxHtmlHelpController is not window but it does manage windows which it will delete on destruction,,
-          # so it  needs a deferred destroy.
-          spec.add_swig_code '%feature("freefunc") wxHtmlHelpController "GC_free_wxHtmlHelpController";'
           # prevent having to expose HtmlHelpFrame & HtmlHelpDialog
           # I do not see real use in supporting custom HtmlHelpController derivatives
           spec.ignore 'wxHtmlHelpController::CreateHelpFrame',
