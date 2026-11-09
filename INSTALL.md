@@ -29,6 +29,10 @@ should always result in a successfully installed wxRuby3 version.
 > like [ruby-install](https://github.com/postmodern/ruby-install) or [RVM](https://rvm.io) (only user installations 
 > supported) or [rbenv](https://rbenv.org).
 
+> **NOTE**<br>
+> Be aware that [Homebrew](https://brew.sh/) has discontinued support for MacOS on Intel CPU and does not update 
+> packages for that platform anymore. Users of MacOS on Intel CPU should switch to [MacPorts](https://www.macports.org/) instead.
+
 [Below](INSTALL.md#installing-software-requirements) more details regarding the software requirements for wxRuby3, the 
 setup procedure and various options to tweak and customize the installation (including platform specific details for 
 Linux, Windows and MacOSX) are described.
@@ -77,10 +81,12 @@ The following tables lists the packages provided by the current wxRuby3 release 
 | Linux   | Fedora (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
 | Linux   | Debian (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |  
 | Linux   | Ubuntu (at least latest stable)        | x86_64 <b>and</b> ARM64 | Distro provided Ruby <b>and</b> Latest stable Ruby |
+ | Linux  | Mint (latest stable)                   | x86_64                  | Distro provided Ruby <b>and</b> Latest stable Ruby |
 | Windows | NA                                     | x86_64                  | Latest stable Ruby                                 |
-| OSX     | MacOS 14                               | ARM64                   | Latest stable Ruby                                 |
-| OSX     | MacOS 15                               | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
-| OSX     | MacOS 26                               | x86_64 <b>and</b> ARM64 | Latest stable Ruby                                 |
+| OSX     | MacOS 15                               | x86_64 [**1**] <b>and</b> ARM64 | Latest stable Ruby                                 |
+| OSX     | MacOS 26                               | x86_64 [**1**] <b>and</b> ARM64 | Latest stable Ruby                                 |
+
+[**1**] Please be aware that Apple has dropped support for MacOS on Intel CPU for versions > 26.
 
 ### Additional packages
 
@@ -106,11 +112,11 @@ Both files are required for installation and should be located at the same path 
 The software requirements for setting up a wxRuby3 runtime environment are:
 
 | Sofware                                       | Notes                                                                                                                                                                                                                                                                                                                        |
-|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Ruby >= 3.0                                   | A supported version of the Ruby interpreter needs to be installed. This is an absolute requirement for any installation as one cannot install gems without Ruby and building from source requires Ruby to drive the build process.                                                                                           |
-| C++ compiler<br>(incl. dev tools like `make`) | Required for a source based installation to build wxWidgets (optionally) and the wxRuby extension libraries.<br/>On linux a recent version of the GNU C++ compiler (with c++-14 support) is required.<br>On Windows the RubyInstaller MSYS2-Devkit would be required.<br>On MacOS XCode with commandline tools would be required. |
+|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ruby >= 3.2                                   | A supported version of the Ruby interpreter needs to be installed. This is an absolute requirement for any installation as one cannot install gems without Ruby and building from source requires Ruby to drive the build process.                                                                                           |
+| C++ compiler<br>(incl. dev tools like `make`) | Required for a source based installation to build wxWidgets (optionally) and the wxRuby extension libraries.<br/>On linux a recent version of the GNU C++ compiler (with c++-14 support) is required.<br>On Windows the RubyInstaller MSYS2-Devkit would be required.<br>On MacOS XCode with commandline tools would be required.|
 | Git version control toolkit                   | Required for a source based installation in to (possibly) clone a copy of the wxWidgets Github repository or to clone the Github repository of wxRuby3 itself for a fully source based installation.                                                                                                                         |
-| Doxygen (>= 1.9.1)                            | Required for building the wxRuby3 extension libraries for a source based installation. [**1**]                                                                                                                                                                                                                               |
+| Doxygen (>= 1.9.1; < 1.18.0 on MacOS)         | Required for building the wxRuby3 extension libraries for a source based installation. [**1**]                                                                                                                                                                                                                               |
 | SWIG >= 3.0.12                                | Required for building the wxRuby3 extension libraries for a source based installation. [**2**]                                                                                                                                                                                                                               |
 | Patchelf (Linux) or install_name_tool (OSX)   | Required for setting up embedded wxWidgets libraries. [**3**]                                                                                                                                                                                                                                                                |
 | wxWidgets (>= 3.2)                            | Runtime libraries required for any wxRuby3 installation (either from embedded wxWidgets installation or a system or user installation; see below).                                                                                                                                                                           |
@@ -217,9 +223,9 @@ This command only fails when:
 > 
 > Run 'wxruby -h' to see information on the available commands.
 > 
-> Successfully installed wxruby3-0.9.8
-> Parsing documentation for wxruby3-0.9.8
-> Installing ri documentation for wxruby3-0.9.8
+> Successfully installed wxruby3-2.0.0
+> Parsing documentation for wxruby3-2.0.0
+> Installing ri documentation for wxruby3-2.0.0
 > Done installing documentation for wxruby3 after 2 seconds
 > 1 gem installed
 > ```
@@ -282,6 +288,10 @@ collect information on what is missing and needs to be added to finish the wxRub
 If any required software needs to be added the setup procedure will ask consent (showing what it intends to do) and, if given,
 install the missing software using appropriate tooling for the platform (on Linux standard distribution installers which 
 may require a 'sudo' password and on MacOSX using either [MacPorts](https://www.macports.org/) or [Homebrew](https://brew.sh/)).
+
+> **NOTE**<br>
+> Be aware that [Homebrew](https://brew.sh/) has discontinued support for MacOS on Intel CPU and does not update
+> packages for that platform anymore. Users of MacOS on Intel CPU should switch to [MacPorts](https://www.macports.org/) instead.
 
 > Running the setup command will look something like this:
 > ```

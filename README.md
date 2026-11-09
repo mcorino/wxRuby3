@@ -101,9 +101,9 @@ Currently, the following are fully supported:
 
 | Platform                                                                                                                                               | Ruby version(s)                                            | wxWidgets version(s) |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|----------------------|
-| Windows >= 10                                                                                                                                          | Ruby >= 3.0<br>(RubyInstaller MSYS2-DevKit)                | wxWidgets >= 3.2     |
-| Linux (tested; all major AMD64 and ARM64 distributions: Ubuntu, Debian, Fedora, OpenSuSE, LinuxMint, Manjaro and ArchLinux)<br>(most likely also i686) | Ruby >= 3.0                                                | wxWidgets >= 3.2     |
-| MacOS >= 14 (MacOS 13 most likely also works) using Cocoa (tested on AMD64 and ARM64 M1/M2 Chip)                                                       | Ruby >= 3.0 (MacPorts, Homebrew, ruby-install, RVM, Rbenv) | wxWidgets >= 3.2     |
+| Windows >= 10                                                                                                                                          | Ruby >= 3.2<br>(RubyInstaller MSYS2-DevKit)                | wxWidgets >= 3.2     |
+| Linux (tested; all major AMD64 and ARM64 distributions: Ubuntu, Debian, Fedora, OpenSuSE, LinuxMint, Manjaro and ArchLinux)<br>(most likely also i686) | Ruby >= 3.2                                                | wxWidgets >= 3.2     |
+| MacOS >= 15 (MacOS 14 might still work) using Cocoa (tested on AMD64 and ARM64 M1/M2 Chip)                                                       | Ruby >= 3.2 (MacPorts, Homebrew, ruby-install, RVM, Rbenv) | wxWidgets >= 3.2     |
 
 Support for other platforms is not being actively developed at present,
 but patches are welcome. It is likely to be much simpler to get wxRuby
