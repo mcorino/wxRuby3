@@ -314,12 +314,12 @@ jobs:
           - os: ubuntu-24.04-arm
             arch: arm64
             target_distro: fedora
-            target_base: '44'
+            target_base: '45'
             target_ruby: 'system'
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: fedora
-            target_base: '44'
+            target_base: '45'
             target_ruby: 'system'
           - os: ubuntu-24.04-arm
             arch: arm64
