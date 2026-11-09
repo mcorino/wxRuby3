@@ -111,11 +111,11 @@ Both files are required for installation and should be located at the same path 
 The software requirements for setting up a wxRuby3 runtime environment are:
 
 | Sofware                                       | Notes                                                                                                                                                                                                                                                                                                                        |
-|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Ruby >= 3.4                                   | A supported version of the Ruby interpreter needs to be installed. This is an absolute requirement for any installation as one cannot install gems without Ruby and building from source requires Ruby to drive the build process.                                                                                           |
-| C++ compiler<br>(incl. dev tools like `make`) | Required for a source based installation to build wxWidgets (optionally) and the wxRuby extension libraries.<br/>On linux a recent version of the GNU C++ compiler (with c++-14 support) is required.<br>On Windows the RubyInstaller MSYS2-Devkit would be required.<br>On MacOS XCode with commandline tools would be required. |
+| C++ compiler<br>(incl. dev tools like `make`) | Required for a source based installation to build wxWidgets (optionally) and the wxRuby extension libraries.<br/>On linux a recent version of the GNU C++ compiler (with c++-14 support) is required.<br>On Windows the RubyInstaller MSYS2-Devkit would be required.<br>On MacOS XCode with commandline tools would be required.|
 | Git version control toolkit                   | Required for a source based installation in to (possibly) clone a copy of the wxWidgets Github repository or to clone the Github repository of wxRuby3 itself for a fully source based installation.                                                                                                                         |
-| Doxygen (>= 1.9.1)                            | Required for building the wxRuby3 extension libraries for a source based installation. [**1**]                                                                                                                                                                                                                               |
+| Doxygen (>= 1.9.1; < 1.18.0 on MacOS)         | Required for building the wxRuby3 extension libraries for a source based installation. [**1**]                                                                                                                                                                                                                               |
 | SWIG >= 3.0.12                                | Required for building the wxRuby3 extension libraries for a source based installation. [**2**]                                                                                                                                                                                                                               |
 | Patchelf (Linux) or install_name_tool (OSX)   | Required for setting up embedded wxWidgets libraries. [**3**]                                                                                                                                                                                                                                                                |
 | wxWidgets (>= 3.2)                            | Runtime libraries required for any wxRuby3 installation (either from embedded wxWidgets installation or a system or user installation; see below).                                                                                                                                                                           |
@@ -222,9 +222,9 @@ This command only fails when:
 > 
 > Run 'wxruby -h' to see information on the available commands.
 > 
-> Successfully installed wxruby3-0.9.8
-> Parsing documentation for wxruby3-0.9.8
-> Installing ri documentation for wxruby3-0.9.8
+> Successfully installed wxruby3-2.0.0
+> Parsing documentation for wxruby3-2.0.0
+> Installing ri documentation for wxruby3-2.0.0
 > Done installing documentation for wxruby3 after 2 seconds
 > 1 gem installed
 > ```
