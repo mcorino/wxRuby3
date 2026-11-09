@@ -71,11 +71,7 @@ module Wx
     # by the Rails #class_attribute method.
     module ParamSpec
 
-      if (RUBY_VERSION.split('.').collect {|v| v.to_i} <=> [2,7,0]) < 0
-        PARAM_SPEC_ARG = [:param_spec]
-      else
-        PARAM_SPEC_ARG = [:param_spec, false]
-      end
+      PARAM_SPEC_ARG = [:param_spec, false]
 
       def self.included(mod)
         mod.class_eval do
@@ -164,14 +160,8 @@ module Wx
         end
       end
 
-      if (RUBY_VERSION.split('.').collect {|v| v.to_i} <=> [3,0,0]) <= 0
-        def args_as_list(*mixed_args)
-          Wx::args_as_list(param_spec, *mixed_args)
-        end
-      else
-        def args_as_list(*args, **kwargs)
-          Wx::args_as_list(param_spec, *args, **kwargs)
-        end
+      def args_as_list(*args, **kwargs)
+        Wx::args_as_list(param_spec, *args, **kwargs)
       end
 
       def describe_constructor(txt = '')

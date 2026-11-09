@@ -84,10 +84,10 @@ module WXRuby3
   CONFIG['wxversion'] = ENV['WXRUBY_WXVERSION'] if ENV['WXRUBY_WXVERSION']
   BUILD_CFG = '.wxconfig'
 
-  # Ruby 2.7 is the minimum version for wxRuby3
+  # Ruby 3.4 is the minimum version for wxRuby3
   __rb_ver = RUBY_VERSION.split('.').collect {|v| v.to_i}
-  if (__rb_major = __rb_ver.shift) < 2 || (__rb_major == 2 && __rb_ver.shift < 7)
-    $stderr.puts 'ERROR: wxRuby3 requires Ruby >= 2.7.0!'
+  if (__rb_major = __rb_ver.shift) < 3 || (__rb_major == 3 && __rb_ver.shift < 4)
+    $stderr.puts 'ERROR: wxRuby3 requires Ruby >= 3.4.0!'
     exit(1)
   end
 

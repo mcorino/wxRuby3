@@ -39,7 +39,7 @@ jobs:
           runner: macos-15-intel
           arch: x86_64
           wxWidgets: 'master'
-          ruby: '3.0'
+          ruby: '3.4'
           swig: '4'
           configure_flags: --disable-sys-libs --enable-webview
           wxw_type: develop
