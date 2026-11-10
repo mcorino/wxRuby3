@@ -17,6 +17,30 @@ module WXRuby3
         spec.items.concat(%w[wxLogBuffer wxLogChain wxLogGui wxLogStderr wxLogTextCtrl wxLogInterposer wxLogWindow wxLogNull wxLogRecordInfo])
         spec.no_proxy(%w[wxLogBuffer wxLogGui wxLogStderr wxLogTextCtrl wxLogWindow])
         spec.force_proxy(%w[wxLogInterposer])
+        # make loggers GC-safe
+        spec.add_header_code <<~__HEREDOC
+          static void wxRuby_delete_wxLog(void *self) 
+          {
+              wxLog *arg1 = (wxLog *)self;
+              SWIG_RubyRemoveTracking(arg1);
+              delete arg1;
+          }
+
+          static void GC_free_wxLog(void* object)
+          {
+            wxRuby_RegisterDeferredObjectDestroy(object, wxRuby_delete_wxLog);
+          }
+          __HEREDOC
+        # defer destroying log objects because they otherwise trigger Ruby object allocations during GC
+        spec.add_swig_code '%feature("freefunc") wxLog "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogBuffer "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogChain "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogGui "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogStderr "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogTextCtrl "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogInterposer "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogWindow "GC_free_wxLog";'
+        spec.add_swig_code '%feature("freefunc") wxLogNull "GC_free_wxLog";'
         spec.ignore 'wxLog::SetFormatter'
         spec.regard %w[wxLog::DoLogRecord wxLog::DoLogTextAtLevel wxLog::DoLogText]
         spec.ignore 'wxLogBuffer::Flush'
