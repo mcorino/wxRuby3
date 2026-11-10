@@ -241,6 +241,11 @@ jobs:
         run: |
           bundle install
 
+      - name: Install doxygen
+        uses: ssciwr/doxygen-install@v2
+        with:
+          version: "1.16.1"
+
       - name: Display build environment
         run: |
           echo "$env:PATH"
