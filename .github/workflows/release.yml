@@ -626,17 +626,7 @@ jobs:
             arch: arm64
             target_distro: debian
             target_base: 12
-            target_ruby: system
-          - os: ubuntu-24.04-arm
-            arch: arm64
-            target_distro: debian
-            target_base: 12
             target_ruby: latest
-          - os: ubuntu-24.04
-            arch: x86_64
-            target_distro: debian
-            target_base: 12
-            target_ruby: system
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: debian
