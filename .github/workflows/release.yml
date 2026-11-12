@@ -336,6 +336,16 @@ jobs:
             target_distro: ubuntu
             target_base: '26.04'
             target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'latest'
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: linuxmint
@@ -452,6 +462,16 @@ jobs:
             target_distro: ubuntu
             target_base: '26.04'
             target_ruby: 'system'
+          - os: ubuntu-24.04-arm
+            arch: arm64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'latest'
+          - os: ubuntu-24.04
+            arch: x86_64
+            target_distro: ubuntu
+            target_base: '26.04'
+            target_ruby: 'latest'
           - os: ubuntu-24.04
             arch: x86_64
             target_distro: linuxmint
