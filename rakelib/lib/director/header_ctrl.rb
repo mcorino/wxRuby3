@@ -17,6 +17,7 @@ module WXRuby3
       def setup
         super
         spec.items << 'wxHeaderColumn' << 'wxHeaderCtrlSimple' << 'wxSettableHeaderColumn' << 'wxHeaderColumnSimple'
+        spec.no_proxy 'wxHeaderCtrlSimple'
         spec.gc_as_marked 'wxHeaderColumn', 'wxSettableHeaderColumn', 'wxHeaderColumnSimple'
         spec.regard 'wxHeaderCtrl::GetColumn',
                     'wxHeaderCtrl::UpdateColumnVisibility',
