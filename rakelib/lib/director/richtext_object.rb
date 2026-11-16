@@ -237,7 +237,7 @@ module WXRuby3
                 $1 = &tmp;
               }
               __CODE
-            map_out code: <<~__CODE
+            map_out to: 'Array<Wx::Variant>', code: <<~__CODE
               $result = rb_ary_new();
               for (size_t i = 0; i < $1->Count(); ++i)
               {
