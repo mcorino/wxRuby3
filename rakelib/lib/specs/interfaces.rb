@@ -406,4 +406,12 @@ module WXRuby3
     Director.Spec(pkg, 'wxWebView')
     Director.Spec(pkg, 'wxWebViewEvent')
   }
+
+  Director.Package('Wx::DVW', 'USE_DATAVIEWCTRL') { |pkg|
+    Director.Spec(pkg, 'wxDataViewColumn')
+    Director.Spec(pkg, 'wxDataViewRenderer')
+    Director.Spec(pkg, 'wxDataViewModel')
+    Director.Spec(pkg, 'wxDataViewEvent')
+    Director.Spec(pkg, 'wxDataViewCtrl')
+  }
 end # module WXRuby3
