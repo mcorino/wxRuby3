@@ -221,7 +221,7 @@ module WXRuby3
           spec.ignore 'wxRichTextSelection::operator[]'
           spec.ignore 'wxRichTextProperties::SetProperty(const wxString &,const wxChar *)',
                       'wxRichTextProperties::operator[]'
-          spec.map 'const wxRichTextVariantArray &' => 'Array<Wx::Variant>' do
+          spec.map 'const wxRichTextVariantArray &' => 'Array<Wx::Variant,String,Integer,Float,Time,Wx::Font,Wx::Colour,Array<Wx::Variant>,Array<String>,Object,nil>' do
             map_in temp: 'wxRichTextVariantArray tmp', code: <<~__CODE
               if (($input == Qnil) || (TYPE($input) != T_ARRAY))
               {
@@ -231,13 +231,8 @@ module WXRuby3
               {
                 for (int i = 0; i < RARRAY_LEN($input); ++i)
                 {
-                  void *ptr;
                   VALUE var = rb_ary_entry($input, i);
-                  int res = SWIG_ConvertPtr(var, &ptr, SWIGTYPE_p_wxVariant,  0 );
-                  if (!SWIG_IsOK(res)) {
-                    rb_raise(rb_eArgError, "Expected an Array of Wx::Variant for %d", $argnum-1);
-                  }
-                  tmp.Add(*static_cast<wxVariant*>(ptr));
+                  tmp.Add(wxRuby_ConvertRbValue2Variant(var));
                 }
                 $1 = &tmp;
               }
