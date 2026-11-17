@@ -53,19 +53,10 @@ module WXRuby3
         # not useful in Ruby
         spec.no_proxy 'wxDataViewCtrl::GetColumnCount', 'wxDataViewCtrl::GetColumn'
         # make arg names more specific for disowning rule
-        spec.ignore 'wxDataViewCtrl::AppendColumn',
-                    'wxDataViewCtrl::PrependColumn',
-                    'wxDataViewCtrl::InsertColumn',
-                    ignore_doc: false
-        spec.extend_interface 'wxDataViewCtrl',
-                              'virtual bool AppendColumn(wxDataViewColumn *new_col)',
-                              'virtual bool PrependColumn(wxDataViewColumn *new_col)',
-                              'virtual bool InsertColumn(unsigned int pos, wxDataViewColumn *new_col)'
+        spec.rename_method_arg %w[wxDataViewCtrl::AppendColumn wxDataViewCtrl::PrependColumn wxDataViewCtrl::InsertColumn] => { 'col' => 'new_col' }
         spec.disown 'wxDataViewColumn *new_col'
         # make arg name more specific for type map
-        spec.ignore 'wxDataViewCtrl::GetSelections', ignore_doc: false
-        spec.extend_interface 'wxDataViewCtrl',
-                              'virtual int GetSelections(wxDataViewItemArray &sel_out) const'
+        spec.rename_method_arg 'wxDataViewCtrl::GetSelections' => { 'sel' => 'sel_out' }
         # for GetSelections
         spec.map 'wxDataViewItemArray& sel_out' => '::Array<::Integer>,nil' do
 

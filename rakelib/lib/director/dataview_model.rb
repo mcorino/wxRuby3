@@ -35,13 +35,9 @@ module WXRuby3
         # the notifiers in Ruby method overrides
         spec.regard 'wxDataViewModel::DoCompareValues'
         # make argout arg name match type map
-        spec.ignore 'wxDataViewModel::GetValue', ignore_doc: false
-        spec.extend_interface 'wxDataViewModel',
-                              'virtual void GetValue(wxVariant &variant_out, const wxDataViewItem &item, unsigned int col) const =0'
+        spec.rename_method_arg 'wxDataViewModel::GetValue' => { 'variant' => 'value_out' }
         # make argout arg name match type map
-        spec.ignore 'wxDataViewListModel::GetValueByRow', ignore_doc: false
-        spec.extend_interface 'wxDataViewListModel',
-                              'virtual void GetValueByRow(wxVariant &variant_out, unsigned int row, unsigned int col) const = 0'
+        spec.rename_method_arg 'wxDataViewListModel::GetValueByRow' => { 'value' => 'value_out' }
         # add missing overridden implementations of base pure virtuals
         spec.extend_interface 'wxDataViewListModel',
                               'unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
@@ -56,9 +52,7 @@ module WXRuby3
                               'unsigned int GetCount() const override',
                               'unsigned int GetRow(const wxDataViewItem &item) const override'
         # make argout arg name match type map
-        spec.ignore 'wxDataViewListStore::GetValueByRow', ignore_doc: false
-        spec.extend_interface 'wxDataViewListStore',
-                              'void GetValueByRow(wxVariant &variant_out, unsigned int row, unsigned int col) const override'
+        spec.rename_method_arg 'wxDataViewListStore::GetValueByRow' => { 'value' => 'value_out' }
         # for GetChildren
         spec.map 'wxDataViewItemArray& children' => '::Array<::Integer>, nil' do
 

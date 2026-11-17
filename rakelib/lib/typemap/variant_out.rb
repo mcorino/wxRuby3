@@ -20,17 +20,15 @@ module WXRuby3
 
       define do
 
-        map 'wxVariant& variant_out' => 'Wx::Variant' do
+        map 'wxVariant& value_out' => 'Wx::Variant' do
           map_in ignore: true, temp: 'wxVariant tmpVar', code: '$1 = &tmpVar;'
           map_argout code: <<~__CODE
             $result = SWIG_NewPointerObj(new wxVariant(tmpVar$argnum), SWIGTYPE_p_wxVariant, SWIG_POINTER_OWN);
             __CODE
 
-          map_out ignore: 'void'
-
           map_directorin code: ''
           map_directorargout code: <<~__CODE
-            variant_out = wxRuby_ConvertRbValue2Variant(result);
+            value_out = wxRuby_ConvertRbValue2Variant(result);
             __CODE
         end
 
