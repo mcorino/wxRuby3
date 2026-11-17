@@ -283,6 +283,31 @@ module WXRuby3
       end
     end
 
+    def handle_method_map(defmod, method, map)
+      fullnames = [method].flatten # in case multiple methods with a repeating map
+      fullnames.each do |fullname|
+        # find the item
+        item = defmod.find_item(fullname)
+        if Extractor::FunctionDef === item
+          targets = [item]
+          # in case we looked up a function without arg mask also handle any overloads
+          targets.concat(item.overloads) unless fullname.index('(')
+          # map argument names
+          targets.each do |mtd|
+            map.each_pair do |org_name, new_name|
+              param = mtd.parameters.find { |p| p.name == org_name }
+              if param
+                param.name = new_name
+                mtd.args_string.sub!(/(\W+)#{org_name}(\W+)/, "\\1#{new_name}\\2")
+              end
+            end
+          end
+        else
+          STDERR.puts "INFO: Cannot find method '#{fullname}' (module '#{spec.module_name}') to map argument names."
+        end
+      end
+    end
+
     def handle_item_readonly(defmod, fullname)
       # find the item
       item = defmod.find_item(fullname)
@@ -366,6 +391,10 @@ module WXRuby3
       # handle regards
       spec.regards.each_pair do |fullname, regarddoc|
         handle_item_ignore(defmod, fullname, false, !regarddoc)
+      end
+      # handle method argument name mapping
+      spec.method_maps.each_pair do |method, map|
+        handle_method_map(defmod, method, map)
       end
       # handle readonly settings
       spec.readonly.each do |name|

@@ -55,6 +55,7 @@ module WXRuby3
         @gc_type = nil
         @ignores = ::Hash.new
         @regards = ::Hash.new
+        @method_maps = ::Hash.new
         @readonly = ::Set.new
         @contracts = ::Hash.new
         @event_overrides = ::Hash.new
@@ -83,9 +84,9 @@ module WXRuby3
         @initialize_at_end = false
       end
 
-      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly, :contracts, :event_overrides,
-                  :mixins, :included_mixins, :disabled_proxies, :no_proxies, :disowns, :new_objects, :warn_filters,
-                  :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
+      attr_reader :director, :package, :module_name, :name, :items, :folded_bases, :ignores, :regards, :readonly, :method_maps,
+                  :contracts, :event_overrides, :mixins, :included_mixins, :disabled_proxies, :no_proxies, :disowns,
+                  :new_objects, :warn_filters, :includes, :swig_imports, :swig_includes, :renames, :swig_code, :begin_code,
                   :runtime_code, :header_code, :wrapper_code, :extend_code, :init_code, :interface_code,
                   :nogen_sections, :post_processors, :requirements, :type_maps
       attr_writer :interface_file
@@ -349,6 +350,10 @@ module WXRuby3
       def regard(*names, regard_doc: true)
         names.flatten.each {|n| @regards[n] = regard_doc}
         self
+      end
+
+      def rename_method_arg(map)
+        @method_maps.merge!(map)
       end
 
       def make_readonly(*names)
