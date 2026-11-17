@@ -33,21 +33,13 @@ module WXRuby3
                       'wxSizer::Prepend(wxSizerItem *)'
           spec.ignore 'wxSizer::Remove(wxWindow *)' # long time deprecated
           # need to adjust sizer arg name to apply disown specs
-          spec.ignore 'wxSizer::Add(wxSizer *, const wxSizerFlags &)',
-                      'wxSizer::Add(wxSizer *, int, int, int, wxObject *)',
-                      'wxSizer::Insert(size_t, wxSizer *, const wxSizerFlags &)',
-                      'wxSizer::Insert(size_t, wxSizer *, int, int, int, wxObject *)',
-                      'wxSizer::Prepend(wxSizer *, const wxSizerFlags &)',
-                      'wxSizer::Prepend(wxSizer *, int, int, int, wxObject *)',
-                      ignore_doc: false
-          spec.extend_interface 'wxSizer',
-                                'wxSizerItem* Add(wxSizer *sizer_disown, const wxSizerFlags &flags)',
-                                'wxSizerItem* Add(wxSizer *sizer_disown, int proportion=0, int flag=0, int border=0, wxObject *userData=NULL)',
-                                'wxSizerItem* Insert(size_t index, wxSizer *sizer_disown, const wxSizerFlags &flags)',
-                                'wxSizerItem* Insert(size_t index, wxSizer *sizer_disown, int proportion=0, int flag=0, int border=0, wxObject *userData=NULL)',
-                                'wxSizerItem* Prepend(wxSizer *sizer_disown, const wxSizerFlags &flags)',
-                                'wxSizerItem* Prepend(wxSizer *sizer_disown, int proportion=0, int flag=0, int border=0, wxObject *userData=NULL)'
-          spec.disown 'wxSizer* sizer_disown'
+          spec.rename_method_arg ['wxSizer::Add(wxSizer *, const wxSizerFlags &)',
+                                  'wxSizer::Add(wxSizer *, int, int, int, wxObject *)',
+                                  'wxSizer::Insert(size_t, wxSizer *, const wxSizerFlags &)',
+                                  'wxSizer::Insert(size_t, wxSizer *, int, int, int, wxObject *)',
+                                  'wxSizer::Prepend(wxSizer *, const wxSizerFlags &)',
+                                  'wxSizer::Prepend(wxSizer *, int, int, int, wxObject *)'] => { 'sizer' => 'child_sizer' }
+          spec.disown 'wxSizer* child_sizer'
           # needs custom impl to transfer ownership of detached items
           spec.ignore 'wxSizer::Detach(wxSizer*)',
                       'wxSizer::Detach(int)', ignore_doc: false
@@ -124,15 +116,8 @@ module WXRuby3
           # cannot use this with wxRuby
           spec.ignore 'wxGridBagSizer::Add(wxGBSizerItem *)'
           # need to adjust sizer arg name to apply disown specs
-          spec.ignore 'wxGridBagSizer::Add(wxSizer *, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
-                      'wxGridBagSizer::Add(wxWindow *, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
-                      'wxGridBagSizer::Add(int, int, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)',
-                      ignore_doc: false
-          spec.extend_interface 'wxGridBagSizer',
-                                'wxSizerItem * Add(wxSizer *sizer_disown, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)',
-                                'wxSizerItem * Add(wxWindow *window, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)',
-                                'wxSizerItem * Add(int width, int height, const wxGBPosition &pos, const wxGBSpan &span=wxDefaultSpan, int flag=0, int border=0, wxObject *userData=NULL)'
-          spec.disown 'wxSizer* sizer_disown'
+          spec.rename_method_arg 'wxGridBagSizer::Add(wxSizer *, const wxGBPosition &, const wxGBSpan &, int, int, wxObject *)' => { 'sizer' => 'child_sizer' }
+          spec.disown 'wxSizer* child_sizer'
           spec.map 'const wxGBPosition&' => 'Array(Integer, Integer), Wx::GBPosition',
                    'const wxGBSpan&' => 'Array(Integer, Integer), Wx::GBSpan' do
             add_header_code '#include <memory>'

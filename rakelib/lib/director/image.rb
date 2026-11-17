@@ -23,10 +23,8 @@ module WXRuby3
           'wxImage::wxImage(const char *const *)',
           'wxImage::GetImageCount(wxInputStream &,wxBitmapType)'
           ]
-        # ignore original signature
-        spec.ignore 'wxImage::SetAlpha(unsigned char *,bool)', ignore_doc: false
-        # add custom signature to aid type mapping
-        spec.extend_interface 'wxImage', 'void SetAlpha(unsigned char *alpha_or_null=NULL, bool static_data=false)'
+        # change signature to aid type mapping
+        spec.rename_method_arg 'wxImage::SetAlpha(unsigned char*, bool)' => { 'alpha' => 'alpha_or_null' }
         spec.rename_for_ruby(
           'LoadStream' => ['wxImage::LoadFile(wxInputStream &, wxBitmapType, int)', 'wxImage::LoadFile(wxInputStream &,const wxString &, int)'],
           'Write' => ['wxImage::SaveFile(wxOutputStream &, wxBitmapType) const', 'wxImage::SaveFile(wxOutputStream &,const wxString &) const'],

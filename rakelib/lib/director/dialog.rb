@@ -110,10 +110,8 @@ module WXRuby3
           spec.do_not_generate :functions
         when 'wxPropertySheetDialog'
           # need to adjust sizer arg name to apply disown specs
-          spec.ignore 'wxPropertySheetDialog::SetInnerSizer(wxSizer *)', ignore_doc: false
-          spec.extend_interface 'wxPropertySheetDialog',
-                                'void SetInnerSizer(wxSizer *sizer_disown)'
-          spec.disown 'wxSizer *sizer_disown'
+          spec.rename_method_arg 'wxPropertySheetDialog::SetInnerSizer' => { 'sizer' => 'inner_sizer'}
+          spec.disown 'wxSizer *inner_sizer'
           spec.ignore 'wxPropertySheetDialog::GetContentWindow'
           # In Ruby a derived class with customized '#initialize' is far easier
           spec.ignore 'wxPropertySheetDialog::CreateBookCtrl'

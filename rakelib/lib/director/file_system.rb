@@ -29,9 +29,8 @@ module WXRuby3
           wxFileSystem::OpenFile
         ]
         # redefine to allow more precise arg disown
-        spec.ignore 'wxFileSystem::AddHandler (wxFileSystemHandler *)', ignore_doc: true
-        spec.extend_interface 'wxFileSystem', 'static void AddHandler (wxFileSystemHandler *in_handler)'
-        spec.disown 'wxFileSystemHandler *in_handler'
+        spec.rename_method_arg 'wxFileSystem::AddHandler' => { 'handler' => 'new_handler' }
+        spec.disown 'wxFileSystemHandler *new_handler'
         spec.make_abstract 'wxFileSystemHandler'
         # ignore unuseful methods
         spec.ignore 'wxMemoryFSHandler::AddFile (const wxString &, const void *, size_t)',

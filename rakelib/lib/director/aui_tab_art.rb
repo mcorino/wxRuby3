@@ -30,12 +30,10 @@ module WXRuby3
                               'virtual int GetBorderWidth(wxWindow* wnd) = 0',
                               'virtual int GetAdditionalBorderSpace(wxWindow* wnd) = 0')
         # ignore documented method (not it's docs)
+        spec.rename_method_arg 'wxAuiTabArt::DrawTab' => { 'x_extent' => 'out_x_extent'}
         spec.ignore 'wxAuiTabArt::DrawTab', ignore_doc: false
-        # and re-add with consistently named argument
-        spec.extend_interface 'wxAuiTabArt',
-                              'virtual void DrawTab(wxDC &dc, wxWindow *wnd, wxAuiNotebookPage const &page, wxRect const &rect, int close_button_state, wxRect *out_tab_rect, wxRect *out_button_rect, int *xExtent) = 0'
         # for DrawTab (cannot simply apply 'int *OUTPUT' as that does not work well with a void method)
-        spec.map 'int *xExtent' => 'Integer' do
+        spec.map 'int *out_x_extent' => 'Integer' do
           map_in ignore: true, temp: 'int tmp', code: '$1 = &tmp;'
           map_argout code: '$result = INT2NUM(tmp$argnum);'
           map_directorargout code: 'if (!NIL_P(result)) *xExtent = NUM2INT(result);'

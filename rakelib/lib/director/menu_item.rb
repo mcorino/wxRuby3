@@ -23,9 +23,8 @@ module WXRuby3
         spec.disable_proxies # no reason to derive
         spec.ignore(%w[wxMenuItem::GetLabel wxMenuItem::GetName wxMenuItem::GetText wxMenuItem::SetText wxMenuItem::GetLabelFromText])
         # Replace for more specific param naming
-        spec.ignore 'wxMenuItem::SetSubMenu(wxMenu *)', ignore_doc: false
-        spec.extend_interface 'wxMenuItem', 'void SetSubMenu(wxMenu *subMenu)'
-        spec.disown 'wxMenu *subMenu'
+        spec.rename_method_arg 'wxMenuItem::SetSubMenu(wxMenu*)' => { 'menu' => 'sub_menu' }
+        spec.disown 'wxMenu *sub_menu'
         # ignore this as there is no implementation anymore
         spec.ignore 'wxMenuItem::GetAccelFromString'
         spec.ignore_unless('USE_ACCEL', 'wxMenuItem::GetAccel')

@@ -105,7 +105,7 @@ module WXRuby3
         spec.extend_interface('wxPrintPreview',
                               'virtual wxScrolledWindow* GetCanvas() const')
         # docs only mapping
-        spec.map 'wxPreviewCanvas *' => 'wxScrolledWindow', swig: false do
+        spec.map 'wxPreviewCanvas *' => 'Wx::ScrolledWindow', swig: false do
           map_out
         end
         spec.suppress_warning(473,

@@ -38,10 +38,8 @@ module WXRuby3
             spec.ignore(%w[wxSizerItem::SetSpacer wxSizerItem::SetWindow])
           end
           # need to adjust sizer arg name to apply disown specs
-          spec.ignore 'wxSizerItem::AssignSizer(wxSizer *)', ignore_doc: false
-          spec.extend_interface 'wxSizerItem',
-                                'void AssignSizer(wxSizer *sizer_disown)'
-          spec.disown 'wxSizer *sizer_disown'
+          spec.rename_method_arg 'wxSizerItem::AssignSizer(wxSizer *)' => { 'sizer' => 'child_sizer' }
+          spec.disown 'wxSizer *child_sizer'
           # needs custom impl to properly transfer ownership to Ruby
           spec.ignore 'wxSizerItem::DetachSizer', ignore_doc: false
           spec.add_extend_code 'wxSizerItem', <<~__HEREDOC

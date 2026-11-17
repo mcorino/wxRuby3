@@ -28,11 +28,7 @@ module WXRuby3
                       'wxMenuBar::SetLabelTop')
         end
         # menu handling
-        spec.ignore %w[wxMenuBar::Append wxMenuBar::Insert wxMenuBar::Replace], ignore_doc: false
-        spec.extend_interface 'wxMenuBar',
-                              'virtual bool Append(wxMenu *new_menu, const wxString &title)',
-                              'virtual bool Insert(size_t pos, wxMenu *new_menu, const wxString &title)',
-                              'virtual wxMenu * Replace(size_t pos, wxMenu *new_menu, const wxString &title)'
+        spec.rename_method_arg %w[wxMenuBar::Append wxMenuBar::Insert wxMenuBar::Replace] => { 'menu' => 'new_menu' }
         spec.disown 'wxMenu *new_menu'
         spec.new_object 'wxMenuBar::Remove', 'wxMenuBar::Replace'
         # for FindItem
