@@ -56,7 +56,7 @@ module WXRuby3
                 delete wxdt;
                 return var;
               }
-              if (TYPE(rbval) == T_DATA)
+              if (WXRUBY_HAS_WRAPPED_DATA(rbval))
               {
                 void *ptr;
                 VALUE klass;
