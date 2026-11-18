@@ -37,7 +37,7 @@ module WXRuby3
         # make argout arg name match type map
         spec.rename_method_arg 'wxDataViewModel::GetValue' => { 'variant' => 'value_out' }
         # make argout arg name match type map
-        spec.rename_method_arg 'wxDataViewListModel::GetValueByRow' => { 'value' => 'value_out' }
+        spec.rename_method_arg 'wxDataViewListModel::GetValueByRow' => { 'variant' => 'value_out' }
         # add missing overridden implementations of base pure virtuals
         spec.extend_interface 'wxDataViewListModel',
                               'unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
