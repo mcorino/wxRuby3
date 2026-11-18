@@ -42,7 +42,7 @@ module WXRuby3
         spec.extend_interface 'wxDataViewListModel',
                               'unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
                               'wxDataViewItem GetParent(const wxDataViewItem &item) const override',
-                              'void GetValue(wxVariant &variant_out, const wxDataViewItem &item, unsigned int col) const override',
+                              'void GetValue(wxVariant &value_out, const wxDataViewItem &item, unsigned int col) const override',
                               'bool IsContainer(const wxDataViewItem &item) const override',
                               'bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col) override'
         spec.extend_interface 'wxDataViewIndexListModel',
