@@ -34,7 +34,7 @@ module WXRuby3
         spec.map 'void*' => '::String', swig: false
         # only for wxWidgets internal use
         spec.ignore 'wxDataViewEvent::SetDataBuffer', 'wxDataViewEvent::SetDataSize'
-        if Config.instance.wx_version_check('3.3.5') <= 0
+        if Config.instance.wx_version_check('3.3.4') <= 0
           spec.ignore 'wxDataViewEvent::SetDataViewColumn', 'wxDataViewEvent::SetModel', 'wxDataViewEvent::SetItem'
         end
         spec.do_not_generate :typedefs, :variables, :defines, :functions, :enums
