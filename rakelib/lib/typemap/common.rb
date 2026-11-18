@@ -718,9 +718,11 @@ module WXRuby3
         end
         map 'const wxVariant&' => intypes do
           map_in temp: 'wxVariant tmp', code: 'tmp = wxRuby_ConvertRbValue2Variant($input); $1 = &tmp;'
+          map_directorin code: '$input = SWIG_NewPointerObj(new wxVariant($1), SWIGTYPE_p_wxVariant,  SWIG_POINTER_OWN);'
         end
         map 'wxVariant' => intypes do
           map_in code: '$1 = wxRuby_ConvertRbValue2Variant($input);'
+          map_directorin code: '$input = SWIG_NewPointerObj(new wxVariant($1), SWIGTYPE_p_wxVariant,  SWIG_POINTER_OWN);'
         end
 
         # add type mapping for wxFileName input args
