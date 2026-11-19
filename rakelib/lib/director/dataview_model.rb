@@ -15,18 +15,23 @@ module WXRuby3
       include Typemap::DataViewItem
       include Typemap::DataViewItemAttrOut
       include Typemap::VariantOut
+      include Typemap::ClientData
 
       def setup
         super
         spec.items << 'wxDataViewModelNotifier' << 'wxDataViewItemAttr'
         spec.items << 'wxDataViewListModel' << 'wxDataViewIndexListModel' << 'wxDataViewVirtualListModel' << 'wxDataViewListStore'
+        spec.items << 'wxDataViewTreeStore'
         spec.override_inheritance_chain('wxDataViewModel', [])
         spec.gc_as_refcounted 'wxDataViewModel'
         spec.gc_as_refcounted 'wxDataViewListModel', 'wxDataViewIndexListModel', 'wxDataViewVirtualListModel', 'wxDataViewListStore'
+        spec.gc_as_refcounted 'wxDataViewTreeStore'
+        # cut out wxRefCounter from inheritance chain as we do not expose that in wxRuby3
         spec.override_inheritance_chain('wxDataViewListModel', ['wxDataViewModel'])
         spec.override_inheritance_chain('wxDataViewIndexListModel', ['wxDataViewListModel', 'wxDataViewModel'])
         spec.override_inheritance_chain('wxDataViewVirtualListModel', ['wxDataViewListModel', 'wxDataViewModel'])
         spec.override_inheritance_chain('wxDataViewListStore', ['wxDataViewIndexListModel', 'wxDataViewListModel', 'wxDataViewModel'])
+        spec.override_inheritance_chain('wxDataViewTreeStore', ['wxDataViewModel'])
         spec.no_proxy 'wxDataViewListStore::GetItem' # make this one final
         spec.gc_as_object 'wxDataViewModelNotifier'
         spec.gc_as_untracked 'wxDataViewItemAttr'
@@ -51,6 +56,12 @@ module WXRuby3
         spec.extend_interface 'wxDataViewVirtualListModel',
                               'unsigned int GetCount() const override',
                               'unsigned int GetRow(const wxDataViewItem &item) const override'
+        spec.extend_interface 'wxDataViewTreeStore',
+                              'unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
+                              'wxDataViewItem GetParent(const wxDataViewItem &item) const override',
+                              'void GetValue(wxVariant &value_out, const wxDataViewItem &item, unsigned int col) const override',
+                              'bool IsContainer(const wxDataViewItem &item) const override',
+                              'bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col) override'
         # make argout arg name match type map
         spec.rename_method_arg 'wxDataViewListStore::GetValueByRow' => { 'value' => 'value_out' }
         # for GetChildren
@@ -65,7 +76,7 @@ module WXRuby3
               for (size_t n=0; n <tmp_arr$argnum.GetCount() ;n++)
               {
                 wxDataViewItem wx_itm = tmp_arr$argnum.Item(n);
-                rb_ary_push($result, wx_itm.IsOk() ? UINT2NUM(wxUIntPtr(wx_itm.GetID())) : Qnil);
+                rb_ary_push($result, wx_itm.IsOk() ? ULL2NUM(wxUIntPtr(wx_itm.GetID())) : Qnil);
               }
             }
             else
@@ -86,7 +97,7 @@ module WXRuby3
                 for (unsigned int i = 0; i < n; i++)
                 {
                   VALUE val = rb_ary_entry(result, i);
-                  children.Add(RTEST(val) ? wxDataViewItem((void*)wxUIntPtr(NUM2UINT(val))) : wxDataViewItem());
+                  children.Add(RTEST(val) ? wxDataViewItem((void*)wxUIntPtr(NUM2ULL(val))) : wxDataViewItem());
                 }
                 c_result = n;
               }

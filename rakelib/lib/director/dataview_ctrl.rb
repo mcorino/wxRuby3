@@ -69,7 +69,7 @@ module WXRuby3
               for (size_t n=0; n <tmp_arr$argnum.GetCount() ;n++)
               {
                 wxDataViewItem wx_itm = tmp_arr$argnum.Item(n);
-                rb_ary_push($result, wx_itm.IsOk() ? UINT2NUM(wxUIntPtr(wx_itm.GetID())) : Qnil);
+                rb_ary_push($result, wx_itm.IsOk() ? ULL2NUM(wxUIntPtr(wx_itm.GetID())) : Qnil);
               }
             }
             else
@@ -90,7 +90,7 @@ module WXRuby3
                 for (unsigned int i = 0; i < n; i++)
                 {
                   VALUE val = rb_ary_entry(result, i);
-                  sel_out.Add(RTEST(val) ? wxDataViewItem((void*)wxUIntPtr(NUM2UINT(val))) : wxDataViewItem());
+                  sel_out.Add(RTEST(val) ? wxDataViewItem((void*)wxUIntPtr(NUM2ULL(val))) : wxDataViewItem());
                 }
                 c_result = n;
               }
@@ -184,7 +184,7 @@ module WXRuby3
               if (tmpItm$argnum.IsOk())
               {
                 $result = rb_ary_new();
-                rb_ary_push($result, UINT2NUM(wxUIntPtr(tmpItm$argnum.GetID())));
+                rb_ary_push($result, ULL2NUM(wxUIntPtr(tmpItm$argnum.GetID())));
                 VALUE rb_col = SWIG_NewPointerObj(tmpCol$argnum, SWIGTYPE_p_wxDataViewColumn, 0);       
                 rb_ary_push($result, rb_col);     
               }
@@ -202,7 +202,7 @@ module WXRuby3
               if (TYPE(result) == T_ARRAY && RARRAY_LEN(result) == 2)
               {
                 VALUE rb_itm = rb_ary_entry(result, 0);
-                item = RTEST(rb_itm) ? wxDataViewItem((void*)wxUIntPtr(NUM2UINT(rb_itm))) : wxDataViewItem();
+                item = RTEST(rb_itm) ? wxDataViewItem((void*)wxUIntPtr(NUM2ULL(rb_itm))) : wxDataViewItem();
                 
                 void* ptr;
                 VALUE rb_col = rb_ary_entry(result, 1); 
