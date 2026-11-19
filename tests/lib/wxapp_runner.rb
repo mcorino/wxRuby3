@@ -88,6 +88,33 @@ module WxRuby
         Unit.uses_wayland?
       end
 
+      def self.yield_for_a_while(msec)
+        timeout = msec / 1000.0 # sec float
+        start = ::Time.now
+        while (Time.now - start) < timeout
+          Wx.get_app.yield
+          sleep(0.01) if is_msw? # it seems on windows things may suffer from tight loops so give some breathing room
+        end
+      end
+
+      def yield_for_a_while(msec)
+        Unit.yield_for_a_while(msec)
+      end
+
+      def self.yield_and_wait_for_test(msec, &block)
+        timeout = msec / 1000.0 # sec float
+        start = ::Time.now
+        while (Time.now - start) < timeout
+          Wx.get_app.yield
+          return if block.call
+          sleep(0.01) if is_msw? # it seems on windows things may suffer from tight loops so give some breathing room
+        end
+      end
+
+      def yield_and_wait_for_test(msec, &block)
+        Unit.yield_and_wait_for_test(msec, &block)
+      end
+
     end
 
   end
