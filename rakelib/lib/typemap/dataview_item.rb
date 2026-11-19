@@ -23,11 +23,11 @@ module WXRuby3
         map 'wxDataViewItem&' => '::Integer' do
 
           map_in temp: 'wxDataViewItem tmpId', code: <<~__CODE
-            if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2UINT($input)));
+            if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2ULL($input)));
             $1 = &tmpId;
             __CODE
 
-          map_directorin code: '$input = $1.IsOk() ? UINT2NUM(wxUIntPtr($1.GetID())) : Qnil;'
+          map_directorin code: '$input = $1.IsOk() ? ULL2NUM(wxUIntPtr($1.GetID())) : Qnil;'
 
           map_typecheck precedence: 'string', code: '$1 = true;'
         end
@@ -35,16 +35,16 @@ module WXRuby3
         map 'wxDataViewItem' => '::Integer' do
 
           map_in temp: 'wxDataViewItem tmpId', code: <<~__CODE
-            if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2UINT($input)));
+            if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2ULL($input)));
             $1 = tmpId;
             __CODE
 
-          map_directorin code: '$input = $1.IsOk() ? UINT2NUM(wxUIntPtr($1.GetID())) : Qnil;'
+          map_directorin code: '$input = $1.IsOk() ? ULL2NUM(wxUIntPtr($1.GetID())) : Qnil;'
 
-          map_out code: '$result = $1.IsOk() ? UINT2NUM(wxUIntPtr($1.GetID())) : Qnil;'
+          map_out code: '$result = $1.IsOk() ? ULL2NUM(wxUIntPtr($1.GetID())) : Qnil;'
 
           map_directorout temp: 'wxDataViewItem tmpId', code: <<~__CODE
-            if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2UINT($input)));
+            if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2ULL($input)));
             $result = tmpId;
           __CODE
 
@@ -61,7 +61,7 @@ module WXRuby3
                 for (int i = 0; i < RARRAY_LEN($input); i++)
                 {
                   VALUE val = rb_ary_entry($input, i);
-                  tmp_arr.Add(RTEST(val) ? wxDataViewItem((void*)wxUIntPtr(NUM2UINT(val))) : wxDataViewItem());
+                  tmp_arr.Add(RTEST(val) ? wxDataViewItem((void*)wxUIntPtr(NUM2ULL(val))) : wxDataViewItem());
                 }
               }
               else
@@ -82,7 +82,7 @@ module WXRuby3
             for (size_t n=0; n <$1.GetCount() ;n++)
             {
               wxDataViewItem wx_itm = $1.Item(n);
-              rb_ary_push($input, wx_itm.IsOk() ? UINT2NUM(wxUIntPtr(wx_itm.GetID())) : Qnil);
+              rb_ary_push($input, wx_itm.IsOk() ? ULL2NUM(wxUIntPtr(wx_itm.GetID())) : Qnil);
             }
             __CODE
 
