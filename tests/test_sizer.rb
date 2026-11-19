@@ -95,6 +95,8 @@ class SizerTests < WxRuby::Test::GUITests
 
     GC.start
 
+    yield_for_a_while(100) # unlinked events are asynchronous
+
     assert_true(user_data.unlinked)
     assert_nil(frame_win.get_sizer.get_item(3).user_data)
   end

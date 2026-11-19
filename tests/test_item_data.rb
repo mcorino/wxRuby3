@@ -108,6 +108,9 @@ class TestItemData < WxRuby::Test::Unit
 
     # clear all
     f.control.clear
+
+    yield_for_a_while(100) # unlinked events are asynchronous
+
     assert_equal(0, f.control.count)
 
     assert_equal(0, data_list.size)
