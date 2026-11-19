@@ -29,7 +29,8 @@ module WXRuby3
                               'virtual int ShowDropDown(wxWindow* wnd,const wxAuiNotebookPageArray& items,int activeIdx) = 0',
                               'virtual int GetBorderWidth(wxWindow* wnd) = 0',
                               'virtual int GetAdditionalBorderSpace(wxWindow* wnd) = 0')
-        # ignore documented method (not it's docs)
+        spec.map_apply 'int *OUTPUT' => ['int * x_extent', 'int * xExtent']
+        # rename arg to match type map
         spec.rename_method_arg 'wxAuiTabArt::DrawTab' => { 'x_extent' => 'out_x_extent'}
         spec.ignore 'wxAuiTabArt::DrawTab', ignore_doc: false
         # for DrawTab (cannot simply apply 'int *OUTPUT' as that does not work well with a void method)
