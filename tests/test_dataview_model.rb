@@ -279,3 +279,45 @@ class TestDataViewCustomModel < WxRuby::Test::Unit
   end
 
 end
+
+class TestDataViewTreeStore < WxRuby::Test::Unit
+
+  def setup
+    super
+    @model = Wx::DVW::DataViewTreeStore.new
+
+    folder = @model.append_container(nil, 'Folder 1')
+    @model.append_item(folder, 'Item 1.1')
+    @model.append_item(folder, 'Item 1.2')
+    @model.append_item(folder, 'Item 1.3')
+
+    folder = @model.append_container(nil, 'Folder 2')
+    @model.append_item(folder, 'Item 2.1')
+    @model.append_item(folder, 'Item 2.2')
+    @model.append_item(folder, 'Item 2.3')
+  end
+
+  attr_reader :model
+
+  def teardown
+    super
+    @model = nil
+  end
+
+  def test_content
+    assert_equal(2, model.get_child_count(nil))
+    model.get_children(nil).each do |item|
+      assert_kind_of(::Integer, item)
+      assert_equal(3, model.get_child_count(item))
+      model.get_children(item).each do |sub_item|
+        assert_kind_of(::Integer, sub_item)
+        assert_match(/Item\s\d\.\d/, model.get_item_text(sub_item))
+      end
+    end
+    folder1 = model.get_nth_child(nil, 1)
+    assert_equal('Item 2.2', model.get_item_text(model.get_nth_child(folder1, 1)))
+    model.set_item_data(folder1, [1, 2.0, true])
+    assert_equal([1, 2.0, true], model.get_item_data(folder1))
+  end
+
+end
