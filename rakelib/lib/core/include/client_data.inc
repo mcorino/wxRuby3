@@ -10,9 +10,13 @@
 #include "wxruby-ClientData.h"
 
 #include <set>
+#include <deque>
 
 static bool __s_RubyClientDataMarker_Registered = false;
 static bool __s_RubyUserDataMarker_Registered = false;
+
+static std::deque<VALUE> __s_RubyDeferredUnlinkedClientData {};
+static std::deque<VALUE> __s_RubyDeferredUnlinkedUserData {};
 
 static const std::string WXRUBY_CLIENT_DATA = { "WXRUBY_CLIENT_DATA" };
 static const std::string WXRUBY_USER_DATA = { "WXRUBY_USER_DATA" };
@@ -24,6 +28,10 @@ static void wxRuby_GC_mark_ClientData(const TGCTrackingValueMap& values)
     wxRubyClientData* pcd = static_cast<wxRubyClientData*> (ti.first);
     rb_gc_mark(pcd->GetData());
   }
+  for (VALUE data : __s_RubyDeferredUnlinkedClientData)
+  {
+    rb_gc_mark(data);
+  }
 }
 
 static void wxRuby_GC_mark_UserData(const TGCTrackingValueMap& values)
@@ -32,6 +40,10 @@ static void wxRuby_GC_mark_UserData(const TGCTrackingValueMap& values)
   {
     wxRubyUserData* pud = static_cast<wxRubyUserData*> (ti.first);
     rb_gc_mark(pud->GetData());
+  }
+  for (VALUE data : __s_RubyDeferredUnlinkedUserData)
+  {
+    rb_gc_mark(data);
   }
 }
 
@@ -67,20 +79,38 @@ static ID client_data_unlinked_id()
 
 WXRB_EXPORT_FLAG void wxRuby_UnregisterClientData(wxRubyClientData* pcd)
 {
-  VALUE rbcd = pcd->GetData();
+  VALUE rcd = pcd->GetData();
   wxRuby_UnregisterCategoryValue(WXRUBY_CLIENT_DATA, pcd);
-  if (!NIL_P(rbcd) && rb_respond_to(rbcd, client_data_unlinked_id()))
-  {
-    wxRuby_Funcall(rbcd, client_data_unlinked_id(), 0);
-  }
+  if (!NIL_P(rcd))
+    __s_RubyDeferredUnlinkedClientData.push_back(rcd);
 }
 
 WXRB_EXPORT_FLAG void wxRuby_UnregisterUserData(wxRubyUserData* pud)
 {
-  VALUE rbud = pud->GetData();
+  VALUE rud = pud->GetData();
   wxRuby_UnregisterCategoryValue(WXRUBY_USER_DATA, pud);
-  if (!NIL_P(rbud) && rb_respond_to(rbud, client_data_unlinked_id()))
+  if (!NIL_P(rud))
+    __s_RubyDeferredUnlinkedUserData.push_back(rud);
+}
+
+WXRB_EXPORT_FLAG void wxRuby_HandleDeferredDataUnlink()
+{
+  while (!__s_RubyDeferredUnlinkedClientData.empty())
   {
-    wxRuby_Funcall(rbud, client_data_unlinked_id(), 0);
+    VALUE rcd = __s_RubyDeferredUnlinkedClientData.front();
+    __s_RubyDeferredUnlinkedClientData.pop_front();
+    if (rb_respond_to(rcd, client_data_unlinked_id()))
+    {
+      wxRuby_Funcall(rcd, client_data_unlinked_id(), 0);
+    }
+  }
+  while(!__s_RubyDeferredUnlinkedUserData.empty())
+  {
+    VALUE rud = __s_RubyDeferredUnlinkedUserData.front();
+    __s_RubyDeferredUnlinkedUserData.pop_front();
+    if (rb_respond_to(rud, client_data_unlinked_id()))
+    {
+      wxRuby_Funcall(rud, client_data_unlinked_id(), 0);
+    }
   }
 }

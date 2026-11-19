@@ -45,4 +45,6 @@ private:
   wxDECLARE_NO_COPY_CLASS(wxRubyUserData);
 };
 
+WXRB_EXPORT_FLAG void wxRuby_HandleDeferredDataUnlink();
+
 #endif /* _WXRUBY_CLIENT_DATA_H */

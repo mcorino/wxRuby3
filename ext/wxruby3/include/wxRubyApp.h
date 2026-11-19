@@ -2,6 +2,8 @@
 //
 // This software is released under the MIT license.
 
+WXRB_EXPORT_FLAG void wxRuby_HandleDeferredDataUnlink();
+
 WXRUBY_TRACE_GUARD(WxRubyTraceWinDestroy, "WINDOW_DESTROY")
 WXRUBY_TRACE_GUARD(WxRubyTraceMarkApp, "GC_MARK_APP")
 WXRUBY_TRACE_GUARD(WxRubyTraceAppRun, "APP_RUN")
@@ -488,6 +490,8 @@ public:
     bool need_more = wxApp::ProcessIdle();
 
     wxRubyApp::wxRuby_DoDeferredObjectDestroy();
+
+    wxRuby_HandleDeferredDataUnlink();
 
     return need_more;
   }
