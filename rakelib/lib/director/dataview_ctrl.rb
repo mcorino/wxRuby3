@@ -18,6 +18,7 @@ module WXRuby3
 
       def setup
         super
+        spec.items << 'wxDataViewListCtrl' << 'wxDataViewTreeCtrl'
         spec.add_header_code <<~__HEREDOC
             WXRUBY_TRACE_GUARD(WxRubyTraceMarkDVCtrl, "GC_MARK_DVCTRL")
             WXRUBY_EXPORT void GC_mark_wxDataViewCtrl(void* ptr)
@@ -49,11 +50,14 @@ module WXRuby3
             }
             __HEREDOC
         spec.add_swig_code '%markfunc wxDataViewCtrl "GC_mark_wxDataViewCtrl";'
+        spec.add_swig_code '%markfunc wxDataViewListCtrl "GC_mark_wxDataViewCtrl";'
+        spec.add_swig_code '%markfunc wxDataViewTreeCtrl "GC_mark_wxDataViewCtrl";'
         spec.suppress_warning(473, 'wxDataViewCtrl::GetSortingColumn')
         # not useful in Ruby
         spec.no_proxy 'wxDataViewCtrl::GetColumnCount', 'wxDataViewCtrl::GetColumn'
         # make arg names more specific for disowning rule
         spec.rename_method_arg %w[wxDataViewCtrl::AppendColumn wxDataViewCtrl::PrependColumn wxDataViewCtrl::InsertColumn] => { 'col' => 'new_col' }
+        spec.rename_method_arg %w[wxDataViewListCtrl::AppendColumn wxDataViewListCtrl::PrependColumn wxDataViewListCtrl::InsertColumn] => { 'column' => 'new_col' }
         spec.disown 'wxDataViewColumn *new_col'
         # make arg name more specific for type map
         spec.rename_method_arg 'wxDataViewCtrl::GetSelections' => { 'sel' => 'sel_out' }
@@ -225,6 +229,24 @@ module WXRuby3
               col = nullptr;
             }
           __CODE
+        end
+        # for variant vectors
+        spec.map 'const wxVector<wxVariant> &' => 'Array<Wx::Variant,String,Integer,Float,Time,Wx::Font,Wx::Colour,Array<Wx::Variant>,Array<String>,Object,nil>' do
+          map_in temp: 'wxVector<wxVariant> tmp', code: <<~__CODE
+              if (($input == Qnil) || (TYPE($input) != T_ARRAY))
+              {
+                rb_raise(rb_eArgError, "Expected an Array of Wx::Variant or other objects for %d", $argnum-1);
+              }
+              else
+              {
+                for (int i = 0; i < RARRAY_LEN($input); ++i)
+                {
+                  VALUE var = rb_ary_entry($input, i);
+                  tmp.push_back(wxRuby_ConvertRbValue2Variant(var));
+                }
+                $1 = &tmp;
+              }
+              __CODE
         end
       end
 

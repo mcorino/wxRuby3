@@ -5,5 +5,6 @@
 # Wx::DVW sub package for wxRuby3
 
 require_relative './events/evt_list'
+require_relative './keyword_defs'
 require_relative './dataview_model'
 require_relative './dataview_renderer'
