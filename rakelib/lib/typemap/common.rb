@@ -712,7 +712,7 @@ module WXRuby3
         end
 
         # add type mapping for wxVariant input args
-        intypes = 'nil,String,Integer,Float,Time,Wx::Font,Wx::Colour,Wx::Variant,Array<Wx::Variant>,Array<String>,Object'
+        intypes = 'nil,String,Integer,Float,Time,Wx::Font,Wx::Colour,Wx::Variant,Array<Wx::Variant>,Array<String>,Wx::Object,Object'
         if Config.instance.features_set?('USE_PROPGRID')
           intypes << 'Wx::PG::ColourPropertyValue'
         end
