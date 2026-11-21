@@ -6,3 +6,4 @@
 
 require_relative './events/evt_list'
 require_relative './dataview_model'
+require_relative './dataview_renderer'
