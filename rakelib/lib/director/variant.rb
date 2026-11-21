@@ -33,12 +33,36 @@ module WXRuby3
           #endif
 
           static WxRuby_ID var_to_time_id("to_time");
+          static WxRuby_ID var_Object_id("Object");
           static WxRuby_ID var_Variant_id("Variant");
           static WxRuby_ID var_Font_id("Font");
           static WxRuby_ID var_Colour_id("Colour");
           static WxRuby_ID var_ColourPropertyValue_id("ColourPropertyValue");
           static WxRuby_ID var_PG_id("PG");
 
+          #include <map>
+          
+          typedef void (* TWxObject2VariantConverterFunc)(wxVariant&, wxObject *);
+          typedef std::map<wxString, TWxObject2VariantConverterFunc> TWxObject2VariantConverterMap;
+
+          static TWxObject2VariantConverterMap __s_WxRuby_WxObject2VariantConverterMap;
+
+          WXRUBY_EXPORT void wxRuby_RegisterWxObject2VariantConverter(wxString type, TWxObject2VariantConverterFunc cnv)
+          {
+            __s_WxRuby_WxObject2VariantConverterMap[type] = cnv;
+          }
+
+          bool __wxRuby_ConvertWxObject2Variant(wxVariant& var, wxObject* obj)
+          {
+            TWxObject2VariantConverterMap::iterator it = __s_WxRuby_WxObject2VariantConverterMap.find(obj->GetClassInfo()->GetClassName());
+            if (it != __s_WxRuby_WxObject2VariantConverterMap.end())
+            {
+              __s_WxRuby_WxObject2VariantConverterMap[obj->GetClassInfo()->GetClassName()](var, obj);
+              return true;
+            }
+            return false;
+          }
+          
           __HEREDOC
         # add Ruby to Variant auto converter
         spec.add_wrapper_code <<~__HEREDOC
@@ -100,6 +124,17 @@ module WXRuby3
                   return var;
                 }
           #endif
+                if (rb_obj_is_kind_of(rbval, klass = rb_const_get(mWxCore, var_Object_id())))
+                {
+                  swig_type_info* swig_type = wxRuby_GetSwigTypeForClass(klass);
+                  int res = SWIG_ConvertPtr(rbval, &ptr, swig_type, 0);
+                  if (!SWIG_IsOK(res)) {
+                    rb_raise(rb_eTypeError, "Unexpected failure to convert to wxObject");
+                  }
+                  wxVariant var; 
+                  if (__wxRuby_ConvertWxObject2Variant(var, reinterpret_cast<wxObject*> (ptr))) 
+                    return var;
+                }
               }
               else if (TYPE(rbval) == T_ARRAY)
               {
@@ -534,6 +569,8 @@ module WXRuby3
           { (*self) << v; }
           void assign(wxVariantData* v)
           { self->SetData(v); }
+          void assign(wxObject *obj)
+          { __wxRuby_ConvertWxObject2Variant(*self, obj); }
           void assign(const wxString& v)
           { (*self) = v; }
           void assign(long v)
