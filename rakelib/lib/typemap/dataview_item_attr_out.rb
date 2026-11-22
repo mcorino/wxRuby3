@@ -21,7 +21,7 @@ module WXRuby3
       define do
 
         # for GetAttrXXX
-        map 'wxDataViewItemAttr &attr' => 'Wx::DVW::DataViewItemAttr' do
+        map 'wxDataViewItemAttr &attr' => 'Wx::DVW::DataViewItemAttr,nil' do
           map_in ignore: true, temp: 'wxDataViewItemAttr tmp_attr', code: '$1 = &tmp_attr;'
           map_out ignore: 'bool'
           map_argout code: <<~__CODE
