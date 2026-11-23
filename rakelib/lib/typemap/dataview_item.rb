@@ -20,7 +20,7 @@ module WXRuby3
 
       define do
 
-        map 'wxDataViewItem&' => '::Integer' do
+        map 'wxDataViewItem&' => '::Integer, nil' do
 
           map_in temp: 'wxDataViewItem tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2ULL($input)));
@@ -32,7 +32,7 @@ module WXRuby3
           map_typecheck precedence: 'string', code: '$1 = true;'
         end
 
-        map 'wxDataViewItem' => '::Integer' do
+        map 'wxDataViewItem' => '::Integer, nil' do
 
           map_in temp: 'wxDataViewItem tmpId', code: <<~__CODE
             if ($input != Qnil) tmpId = wxDataViewItem((void*)wxUIntPtr(NUM2ULL($input)));
