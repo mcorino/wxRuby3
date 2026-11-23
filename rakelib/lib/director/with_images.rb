@@ -57,7 +57,7 @@ module WXRuby3
             __CODE
         end
         # doc type map
-        spec.map 'const wxVector<wxBitmapBundle> &images' => 'Array<Wx::Image>', swig: false do
+        spec.map 'const wxVector<wxBitmapBundle> &images' => 'Array<Wx::BitmapBundle>', swig: false do
           map_in
         end
       end
