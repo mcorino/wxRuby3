@@ -37,6 +37,16 @@ module WXRuby3
                     '@.wxHD_ALLOW_HIDE',
                     '@.wxHD_BITMAP_ON_RIGHT',
                     '@.wxHD_DEFAULT_STYLE'
+        # add pure virtual base overrides missing from docs
+        spec.extend_interface 'wxSettableHeaderColumn',
+                              'wxString GetTitle() const override',
+                              'wxBitmap GetBitmap() const override',
+                              'int GetWidth() const override',
+                              'int GetMinWidth() const override',
+                              'wxAlignment GetAlignment() const override',
+                              'int GetFlags() const override',
+                              'bool IsSortKey() const override',
+                              'bool IsSortOrderAscending() const override'
         spec.do_not_generate :typedefs, :variables, :defines, :functions
       end
     end # class HeaderCtrl
