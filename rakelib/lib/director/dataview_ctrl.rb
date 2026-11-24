@@ -52,6 +52,10 @@ module WXRuby3
         spec.add_swig_code '%markfunc wxDataViewCtrl "GC_mark_wxDataViewCtrl";'
         spec.add_swig_code '%markfunc wxDataViewListCtrl "GC_mark_wxDataViewCtrl";'
         spec.add_swig_code '%markfunc wxDataViewTreeCtrl "GC_mark_wxDataViewCtrl";'
+        # mixin WithImages (this relation is missing from wxWidgets doc)
+        spec.include_mixin 'wxDataViewTreeCtrl', 'Wx::WithImages'
+        # ignore methods inherited from wxWithImages
+        spec.ignore 'wxDataViewTreeCtrl::SetImageList', 'wxDataViewTreeCtrl::GetImageList', ignore_doc: false
         spec.suppress_warning(473, 'wxDataViewCtrl::GetSortingColumn')
         # not useful in Ruby
         spec.no_proxy 'wxDataViewCtrl::GetColumnCount', 'wxDataViewCtrl::GetColumn'
