@@ -39,6 +39,15 @@ module WXRuby3
         spec.swig_import 'swig/classes/include/wxWindow.h'
         spec.swig_import 'swig/classes/include/wxControl.h'
         spec.disown 'wxDataViewRenderer *renderer'
+        # add pure virtual base overrides missing from docs
+        spec.extend_interface 'wxDataViewColumn',
+                              'void	SetTitle(const wxString &title) override',
+                              'void SetBitmap(const wxBitmapBundle &bitmap) override',
+                              'void SetWidth(int width) override',
+                              'void SetMinWidth(int minWidth) override',
+                              'void SetAlignment(wxAlignment align) override',
+                              'void SetFlags(int flags) override',
+                              'void SetSortOrder(bool ascending) override'
         spec.do_not_generate :typedefs, :variables, :defines, :functions, :enums
       end
 
