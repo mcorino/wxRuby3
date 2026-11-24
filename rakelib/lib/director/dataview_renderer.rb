@@ -25,13 +25,68 @@ module WXRuby3
           'wxDataViewIconTextRenderer' << 'wxDataViewIconText' << 'wxDataViewCheckIconText' <<
           'wxDataViewProgressRenderer' <<
           'wxDataViewTextRenderer' <<
-          'wxDataViewToggleRenderer'
+          'wxDataViewToggleRenderer' <<
+          'wxDataViewCustomRenderer' << 'wxDataViewSpinRenderer'
         spec.gc_as_object 'wxDataViewValueAdjuster'
         spec.gc_as_untracked 'wxDataViewIconText', 'wxDataViewCheckIconText'
         spec.disown 'wxDataViewValueAdjuster *transformer'
         spec.ignore_unless 'USE_ACCESSIBILITY', 'wxDataViewRenderer::GetAccessibleDescription'
         spec.regard 'wxDataViewRenderer::GetView'
         spec.suppress_warning(473, 'wxDataViewRenderer::CreateEditorCtrl')
+        # add pure virtual base overrides missing from docs
+        spec.extend_interface 'wxDataViewSpinRenderer',
+                              'wxSize GetSize() const override',
+                              'bool Render(wxRect cell, wxDC *dc, int state) override'
+        %w[wxDataViewBitmapRenderer wxDataViewCheckIconTextRenderer wxDataViewChoiceRenderer
+                                      wxDataViewChoiceByIndexRenderer wxDataViewDateRenderer wxDataViewIconTextRenderer
+                                      wxDataViewProgressRenderer wxDataViewTextRenderer wxDataViewToggleRenderer
+                                      wxDataViewCustomRenderer wxDataViewSpinRenderer].each do |kls|
+          spec.extend_interface kls,
+                                'bool GetValue(wxVariant &value_out) const override',
+                                'bool SetValue(const wxVariant &value) override'
+          if Config.instance.features_set?('USE_ACCESSIBILITY')
+            spec.extend_interface kls, 'wxString GetAccessibleDescription() const override'
+          end
+        end
+        %w[wxDataViewChoiceRenderer wxDataViewChoiceByIndexRenderer wxDataViewDateRenderer wxDataViewIconTextRenderer
+           wxDataViewTextRenderer wxDataViewSpinRenderer].each do |kls|
+          spec.extend_interface kls,
+                                'bool HasEditorCtrl() const override',
+                                'wxWindow *CreateEditorCtrl(wxWindow *parent, wxRect labelRect, const wxVariant &value) override',
+                                'bool	GetValueFromEditorCtrl (wxWindow *editor, wxVariant &value_out) override'
+        end
+        # change arg name to match type map
+        spec.rename_method_arg({ ['wxDataViewRenderer::GetValue',
+                                  'wxDataViewRenderer::GetValueFromEditorCtrl',
+                                  'wxDataViewCustomRenderer::GetValueFromEditorCtrl'] => { 'value' => 'value_out'} })
+        # for GetValue
+        spec.map 'wxVariant& value_out' => 'Wx::Variant,nil' do
+          map_in ignore: true, temp: 'wxVariant tmp_val', code: '$1 = &tmp_val;'
+          map_out ignore: 'bool'
+          map_argout code: <<~__CODE
+            if (result)
+            {
+              $result = SWIG_NewPointerObj(new wxVariant(tmp_val$argnum), SWIGTYPE_p_wxVariant, SWIG_POINTER_OWN);
+            }
+            else
+            {
+              $result = Qnil;
+            }
+            __CODE
+
+          # ignore input for now
+          map_directorin code: ''
+
+          map_directorargout code: <<~__CODE
+            if (RTEST(result))
+            {
+              value_out = wxRuby_ConvertRbValue2Variant(result);
+              c_result = true;
+            }
+            else
+              c_result = false;
+          __CODE
+        end
         spec.add_header_code <<~__CODE
           static void __wxruby_wxDataViewIconText2Variant(wxVariant& var, wxObject* obj)
           {
