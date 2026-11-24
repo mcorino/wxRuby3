@@ -14,4 +14,4 @@ require_relative './dvw/require'
 ::Wx.include(WxRubyStyleAccessors)
 
 ::Wx.include(::Wx::DVW) if defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS
-::Wx::WEB.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)
+::Wx::DVW.include((defined?(::WX_GLOBAL_CONSTANTS) && ::WX_GLOBAL_CONSTANTS) ? WxGlobalConstants : WxEnumConstants)
