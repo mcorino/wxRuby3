@@ -13,6 +13,16 @@ module Wx
   class Variant
     include ::Enumerable
 
+    wx_initialize = instance_method :initialize
+    wx_redefine_method :initialize do |*args|
+      if args.size >= 1 && args.first.nil?
+        wx_initialize.bind(self).call
+        self.set_name(args.last) if args.size == 2
+      else
+        wx_initialize.bind(self).call(*args)
+      end
+    end
+
     # add a proper enumerator method
     def each
       if block_given?

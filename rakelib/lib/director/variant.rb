@@ -69,7 +69,7 @@ module WXRuby3
 
           WXRUBY_EXPORT wxVariant wxRuby_ConvertRbValue2Variant(VALUE rbval)
           {
-            if (!NIL_P(rbval))
+            if (!NIL_P(rbval)) 
             {
               long lval;
               double dval;
