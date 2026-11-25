@@ -33,6 +33,11 @@ module WXRuby3
         spec.ignore_unless 'USE_ACCESSIBILITY', 'wxDataViewRenderer::GetAccessibleDescription'
         spec.regard 'wxDataViewRenderer::GetView'
         spec.suppress_warning(473, 'wxDataViewRenderer::CreateEditorCtrl')
+        spec.regard 'wxDataViewCustomRenderer::GetTextExtent'
+        # derivative needs proxy access too
+        spec.extend_interface 'wxDataViewSpinRenderer',
+                              'wxSize GetTextExtent(const wxString &str) const',
+                              visibility: 'protected'
         # add pure virtual base overrides missing from docs
         spec.extend_interface 'wxDataViewSpinRenderer',
                               'wxSize GetSize() const override',
@@ -47,6 +52,10 @@ module WXRuby3
           if Config.instance.features_set?('USE_ACCESSIBILITY')
             spec.extend_interface kls, 'wxString GetAccessibleDescription() const override'
           end
+          # all derivatives also need proxy access to GetView
+          spec.extend_interface kls,
+                                'wxDataViewCtrl *GetView() const',
+                                visibility: 'protected'
         end
         %w[wxDataViewChoiceRenderer wxDataViewChoiceByIndexRenderer wxDataViewDateRenderer wxDataViewIconTextRenderer
            wxDataViewTextRenderer wxDataViewSpinRenderer].each do |kls|

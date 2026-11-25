@@ -23,10 +23,13 @@ module WXRuby3
               WXRUBY_TRACE_IF(WxRubyTraceMarkDVColumn, 2)
                 WXRUBY_TRACE("> GC_mark_wxDataViewColumn : " << ptr)
               WXRUBY_TRACE_END
-  
-              // Mark attached renderer
-              wxDataViewColumn* wx_dvcol = reinterpret_cast<wxDataViewColumn*> (ptr);
-              rb_gc_mark(SWIG_RubyInstanceFor(wx_dvcol->GetRenderer()));               
+
+              if (ptr)
+              {
+                // Mark attached renderer
+                wxDataViewColumn* wx_dvcol = reinterpret_cast<wxDataViewColumn*> (ptr);
+                rb_gc_mark(SWIG_RubyInstanceFor(wx_dvcol->GetRenderer()));
+              }               
             
               WXRUBY_TRACE_IF(WxRubyTraceMarkDVColumn, 2)
                 WXRUBY_TRACE("< GC_mark_wxDataViewColumn : " << ptr)

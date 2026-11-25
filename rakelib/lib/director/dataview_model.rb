@@ -39,29 +39,38 @@ module WXRuby3
         # as wxDataViewModel has no accessor for the added notifier list we manage GC for
         # the notifiers in Ruby method overrides
         spec.regard 'wxDataViewModel::DoCompareValues'
+        # internal, overrides not useful in wxRuby
+        spec.no_proxy 'wxDataViewModel::IsListModel', 'wxDataViewModel::IsVirtualListModel'
         # make argout arg name match type map
         spec.rename_method_arg 'wxDataViewModel::GetValue' => { 'variant' => 'value_out' }
         # make argout arg name match type map
         spec.rename_method_arg 'wxDataViewListModel::GetValueByRow' => { 'variant' => 'value_out' }
         # add missing overridden implementations of base pure virtuals
         spec.extend_interface 'wxDataViewListModel',
-                              'unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
                               'wxDataViewItem GetParent(const wxDataViewItem &item) const override',
                               'void GetValue(wxVariant &value_out, const wxDataViewItem &item, unsigned int col) const override',
                               'bool IsContainer(const wxDataViewItem &item) const override',
-                              'bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col) override'
+                              'bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col) override',
+                              'bool IsEnabled(const wxDataViewItem &item, unsigned int col) const override',
+                              'VOID_BOOL GetAttr(const wxDataViewItem &item, unsigned int col, wxDataViewItemAttr &attr) const override'
         spec.extend_interface 'wxDataViewIndexListModel',
+                              'VOID_UNSIGNED_INT GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
                               'unsigned int GetCount() const override',
                               'unsigned int GetRow(const wxDataViewItem &item) const override'
         spec.extend_interface 'wxDataViewVirtualListModel',
+                              'VOID_UNSIGNED_INT GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
                               'unsigned int GetCount() const override',
-                              'unsigned int GetRow(const wxDataViewItem &item) const override'
+                              'unsigned int GetRow(const wxDataViewItem &item) const override',
+                              'int Compare(const wxDataViewItem &item1, const wxDataViewItem &item2, unsigned int column, bool ascending ) const override',
+                              'bool HasDefaultCompare() const override'
         spec.extend_interface 'wxDataViewTreeStore',
-                              'unsigned int GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
+                              'VOID_UNSIGNED_INT GetChildren(const wxDataViewItem &item, wxDataViewItemArray &children) const override',
                               'wxDataViewItem GetParent(const wxDataViewItem &item) const override',
                               'void GetValue(wxVariant &value_out, const wxDataViewItem &item, unsigned int col) const override',
                               'bool IsContainer(const wxDataViewItem &item) const override',
-                              'bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col) override'
+                              'bool SetValue(const wxVariant &variant, const wxDataViewItem &item, unsigned int col) override',
+                              'int Compare(const wxDataViewItem &item1, const wxDataViewItem &item2, unsigned int column, bool ascending ) const override',
+                              'bool HasDefaultCompare() const override'
         # make argout arg name match type map
         spec.rename_method_arg 'wxDataViewListStore::GetValueByRow' => { 'value' => 'value_out' }
         # for GetChildren
@@ -142,13 +151,16 @@ module WXRuby3
               WXRUBY_TRACE_IF(WxRubyTraceMarkDVListStore, 2)
                 WXRUBY_TRACE("> GC_mark_wxDataViewListStore : " << ptr)
               WXRUBY_TRACE_END
-  
-              // Mark any added item data
-              wxDataViewListStore* wx_dvls = reinterpret_cast<wxDataViewListStore*> (ptr);
-              for (unsigned int n=0; n < wx_dvls->GetItemCount() ;n++)
+
+              if (ptr)
               {
-                wxUIntPtr data = wx_dvls->GetItemData(wx_dvls->GetItem(n));
-                if (data) rb_gc_mark((VALUE)data);
+                // Mark any added item data
+                wxDataViewListStore* wx_dvls = reinterpret_cast<wxDataViewListStore*> (ptr);
+                for (unsigned int n=0; n < wx_dvls->GetItemCount() ;n++)
+                {
+                  wxUIntPtr data = wx_dvls->GetItemData(wx_dvls->GetItem(n));
+                  if (data) rb_gc_mark((VALUE)data);
+                }
               }               
             
               WXRUBY_TRACE_IF(WxRubyTraceMarkDVListStore, 2)
