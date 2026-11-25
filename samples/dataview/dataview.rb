@@ -334,13 +334,11 @@ module DataView
 
   class MyListModel < Wx::DVW::DataViewVirtualListModel
 
-    module CT
-      Col_ToggleIconText = 0
-      Col_EditableText = 1
-      Col_Date = 2
-      Col_TextWithAttr = 3
-      Col_Custom = 4
-    end
+    Col_ToggleIconText = 0
+    Col_EditableText = 1
+    Col_Date = 2
+    Col_TextWithAttr = 3
+    Col_Custom = 4
 
     INITIAL_NUMBER_OF_ITEMS = 10000
   
@@ -434,14 +432,14 @@ module DataView
 
     def get_value_by_row(row, col)
       case col
-      when CT::Col_EditableText
+      when Col_EditableText
         if row >= @text_col_values.size
           "virtual row #{row}"
         else
           @text_col_values[row]
         end
 
-      when CT::Col_ToggleIconText
+      when Col_ToggleIconText
         if row >= @icon_col_values.size
           text = "virtual icon"
           state = Wx::CHK_UNDETERMINED
@@ -452,10 +450,10 @@ module DataView
 
         Wx::DVW::DataViewCheckIconText.new(text, @icon[row % 2], state)
 
-      when CT::Col_Date
+      when Col_Date
         Time.new(2000, 1, 1) + (row * 3600)
 
-      when CT::Col_TextWithAttr
+      when Col_TextWithAttr
         labels = [
             # These strings will look wrong without Wx::USE_MARKUP, but
             # it's just a sample, so we don't care.
@@ -468,7 +466,7 @@ module DataView
         ]
         labels[row % 5]
 
-      when CT::Col_Custom
+      when Col_Custom
         @custom_col_values[row] || (row % 100).to_s
       else
         return nil
@@ -478,7 +476,7 @@ module DataView
     def get_attr_by_row(row, col)
       attr = Wx::DVW::DataViewItemAttr.new
       case col
-      when CT::Col_EditableText, CT::Col_Date
+      when Col_EditableText, Col_Date
         if row < @toggle_col_values.size
             if @toggle_col_values[row]
               attr.set_colour(Wx::LIGHT_GREY)
@@ -487,15 +485,15 @@ module DataView
             end
         end
 
-      when CT::Col_ToggleIconText
+      when Col_ToggleIconText
         unless (row % 2) == 0
           attr.set_colour(Wx::YELLOW)
           attr.set_background_colour(Wx::LIGHT_GREY)
           return attr
         end
 
-      when CT::Col_TextWithAttr, CT::Col_Custom
-        if col == CT::Col_TextWithAttr && row < @toggle_col_values.size
+      when Col_TextWithAttr, Col_Custom
+        if col == Col_TextWithAttr && row < @toggle_col_values.size
           if @toggle_col_values[row]
             attr.set_colour(Wx::LIGHT_GREY)
             attr.set_strikethrough(true)
@@ -527,7 +525,7 @@ module DataView
 
     def set_value_by_row(variant, row, col)
       case col
-      when CT::Col_EditableText, CT::Col_ToggleIconText
+      when Col_EditableText, Col_ToggleIconText
         if row >= @text_col_values.size
             # the item is not in the range of the items
             # which we store... for simplicity, don't allow editing it
@@ -535,19 +533,19 @@ module DataView
             return false
         end
 
-        if col == CT::Col_EditableText
+        if col == Col_EditableText
           @text_col_values[row] = variant.to_s
-        else # col == CT::Col_ToggleIconText
+        else # col == Col_ToggleIconText
           check_icon_text = variant.data_view_check_icon_text
           @toggle_col_values[row] = (check_icon_text.get_checked_state == Wx::CHK_CHECKED)
           @icon_col_values[row] = check_icon_text.get_text
         end
 
-      when CT::Col_Date, CT::Col_TextWithAttr
+      when Col_Date, Col_TextWithAttr
         Wx.log_error("Cannot edit the column #{col}")
         return false
 
-      when CT::Col_Custom
+      when Col_Custom
         @custom_col_values[row] = variant.to_s
       else
         return false
@@ -639,7 +637,7 @@ module DataView
 
       render_text(@value,
                  0, # no offset
-                  Wx::Rect.new(dc.get_text_extent(@value)).centre_in(rect),
+                  Wx::Rect.new(*dc.get_text_extent(@value)).centre_in(rect),
                   dc,
                   state)
       true
@@ -752,7 +750,7 @@ module DataView
     module ID
       include Wx::IDHelper
       
-      CLEARLOG = self.next_id,
+      CLEARLOG = self.next_id
       GET_PAGE_INFO = self.next_id
       HIT_TEST = self.next_id
       DISABLE = self.next_id
@@ -955,7 +953,7 @@ module DataView
   
       build_data_view_ctrl(second_panel, Page_List)
   
-      wxBoxSizer *button_sizer2 = Wx::HBoxSizer.new
+      button_sizer2 = Wx::HBoxSizer.new
       button_sizer2.add( Wx::Button.new( second_panel, ID::PREPEND_LIST,"Prepend"),                double_border )
       button_sizer2.add( Wx::Button.new( second_panel, ID::DELETE_LIST, "Delete selected"),        double_border )
       button_sizer2.add( Wx::Button.new( second_panel, ID::GOTO,        "Goto 50"),                double_border )
@@ -993,7 +991,7 @@ module DataView
   
       build_data_view_ctrl(fourth_panel, Page_TreeStore)
       # Buttons
-      wxBoxSizer *button_sizer4 = Wx::HBoxSizer.new
+      button_sizer4 = Wx::HBoxSizer.new
       button_sizer4.add( Wx::Button.new( fourth_panel, ID::DELETE_TREE_ITEM, "Delete Selected"), double_border )
       button_sizer4.add( Wx::Button.new( fourth_panel, ID::DELETE_ALL_TREE_ITEMS, "Delete All"), double_border )
       button_sizer4.add( Wx::Button.new( fourth_panel, ID::ADD_TREE_ITEM, "Add Item"), double_border )
@@ -1119,8 +1117,8 @@ module DataView
       evt_button( ID::ADD_MANY, :on_add_many)
       evt_button( ID::HIDE_ATTRIBUTES, :on_hide_attributes)
       evt_button( ID::SHOW_ATTRIBUTES, :on_show_attributes)
-      EVT_CHECKBOX( ID::MULTIPLE_SORT, :on_multiple_sort)
-      EVT_CHECKBOX( ID::SORT_BY_FIRST_COLUMN, :on_sort_by_first_column)
+      evt_checkbox( ID::MULTIPLE_SORT, :on_multiple_sort)
+      evt_checkbox( ID::SORT_BY_FIRST_COLUMN, :on_sort_by_first_column)
   
       # Fourth page.
       evt_button( ID::DELETE_TREE_ITEM, :on_delete_tree_item )
@@ -1247,10 +1245,10 @@ module DataView
         @list_model = MyListModel.new(model_flags)
         @ctrl[Page_List].associate_model(@list_model)
 
-        col_check_icon_text = Wx::DVW::DataViewColumn.new(L "\u2714 + icon + text",
-                                                            Wx::DVW::DataViewCheckIconTextRenderer.new,
-                                                            MyListModel::Col_ToggleIconText,
-                                                            Wx::COL_WIDTH_AUTOSIZE)
+        col_check_icon_text = Wx::DVW::DataViewColumn.new("\u2714 + icon + text",
+                                                          Wx::DVW::DataViewCheckIconTextRenderer.new,
+                                                          MyListModel::Col_ToggleIconText,
+                                                          Wx::COL_WIDTH_AUTOSIZE)
         @ctrl[Page_List].append_column(col_check_icon_text)
         alignment = model_flags & Wx::ALIGN_MASK
         col_check_icon_text.get_renderer.set_alignment(alignment)
@@ -1295,7 +1293,7 @@ module DataView
         # the renderer being used.
         renderer_radio = Wx::DVW::DataViewToggleRenderer.new("bool", Wx::DVW::DATAVIEW_CELL_ACTIVATABLE)
         renderer_radio.show_as_radio
-        col_radio = Wx::DVW::DataViewColumn.new("Radio", rendererRadio, 1)
+        col_radio = Wx::DVW::DataViewColumn.new("Radio", renderer_radio, 1)
         lc.append_column(col_radio, "bool")
 
         lc.append_text_column( "Text" )
@@ -1388,7 +1386,7 @@ module DataView
           data = [ ( (i%3) == 0 ),
                    ( i == 7 ),  # select a single (random) radio item
                    "row #{i}",
-                   ( long(5*i) ) ]
+                   (5*i) ]
           lc.append_item( data )
         end
 
