@@ -262,6 +262,15 @@ module DataView
     end
     alias :value= :set_value
 
+    def has_value(item, col)
+      node = _id2node(item)
+      if node.container?
+        super
+      else
+        !_get_node_value(node, col).nil?
+      end
+    end
+
     def is_enabled(item, col)
       node = _id2node(item)
       # disable Beethoven's ratings, his pieces can only be good
