@@ -96,6 +96,20 @@ module WXRuby3
               c_result = false;
           __CODE
         end
+        # for DataViewCustomRenderer::ActivateCell
+        spec.map 'const wxMouseEvent *' => 'Wx::MouseEvent' do
+          map_directorin code: <<~__CODE
+            #ifdef __WXRB_DEBUG__
+            $input = wxRuby_WrapWxEventInRuby(this, const_cast<wxMouseEvent*> ($1));
+            #else
+            $input = wxRuby_WrapWxEventInRuby(const_cast<wxMouseEvent*> ($1));
+            #endif
+            __CODE
+
+          # Thin and trusting wrapping to bypass SWIG's normal mechanisms; we
+          # don't want SWIG changing ownership or typechecking these.
+          map_in code: '$1 = (wxMouseEvent*)WXRUBY_WRAPPER_DATA_PTR($input);'
+        end
         spec.add_header_code <<~__CODE
           static void __wxruby_wxDataViewIconText2Variant(wxVariant& var, wxObject* obj)
           {
