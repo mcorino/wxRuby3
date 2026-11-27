@@ -109,8 +109,7 @@ module Wx
     # @return [Float] floating point value
     def to_f; end
 
-    # Convert contained object to string value if possible.
-    # Raises TypeError exception if incompatible.
+    # Convert contained object to string value.
     # @return [String] string value
     def to_s; end
 

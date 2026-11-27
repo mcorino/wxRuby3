@@ -638,8 +638,7 @@ module WXRuby3
             if (ts == wxS("double")) return rb_funcall(SWIG_From_double(self->GetDouble()), to_s_id(), 0);
             if (ts == wxS("datetime")) return rb_funcall(wxRuby_wxDateTimeToRuby(self->GetDateTime()), to_s_id(), 0);
             if (ts == WXRBValueVariantData::type_name_) return rb_funcall(((WXRBValueVariantData*)self->GetData())->GetValue(), to_s_id(), 0);
-            rb_raise(rb_eTypeError, "Cannot convert Variant<%s> to String", (const char*)ts.ToAscii());
-            return Qnil;
+            return WXSTR_TO_RSTR(self->GetString());
           }
           __HEREDOC
       end
